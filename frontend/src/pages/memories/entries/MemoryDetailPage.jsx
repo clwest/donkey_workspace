@@ -134,6 +134,14 @@ export default function MemoryDetailPage() {
         <button className="btn btn-primary" onClick={handleCreateProjectFromMemory}>
           🚀 Create Project from Memory
         </button>
+        {memory.is_conversation && memory.session_id && (
+          <Link
+            to={`/assistants/sessions/${memory.session_id}`}
+            className="btn btn-outline-info"
+          >
+            🔍 View Full Conversation
+          </Link>
+        )}
         {memory.linked_thought?.assistant_slug ? (
           <Link to={`/assistants/${memory.linked_thought.assistant_slug}`} className="btn btn-outline-secondary">
             🔙 Back to Assistant
