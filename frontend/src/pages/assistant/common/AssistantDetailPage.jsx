@@ -72,6 +72,9 @@ export default function AssistantDetailPage() {
         <Link to={`/assistants/${slug}/sessions`} className="btn btn-outline-secondary">
         💬 Sessions
       </Link>
+        <Link to={`/assistants/${assistant.slug}/dashboard`} className="btn btn-outline-primary">
+          🧠 View Dashboard
+        </Link>
 
       </div>
 
