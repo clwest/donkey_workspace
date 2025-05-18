@@ -19,7 +19,8 @@ import CustomReflectionPage from "./pages/mcp_core/reflections/CustomReflectionP
 
 import ThreadDetailPage from "./pages/mcp_core/threads/ThreadDetailPage";
 import ThreadsOverviewPage from "./pages/mcp_core/threads/ThreadsOverviewPage";
-
+import AssistantSessionsPage from "./pages/assistant/sessions/AssistantSessionsPage"
+import AssistantSessionDetailPage from "./pages/assistant/sessions/AssistantSessionDetailPage"
 
 {/*User Memories */}
 import MemoryBrowserPage from "./pages/memories/entries/MemoryBrowserPage";

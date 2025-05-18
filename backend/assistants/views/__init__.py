@@ -47,7 +47,7 @@ from .sessions import (
     get_chat_session_messages,
     sessions_for_assistant,
 )
-from .delegation import recent_delegation_events, delegation_events_for_assistant
+# from .delegation import recent_delegation_events
 from .signals import (
     signal_sources,
     signal_catches,
