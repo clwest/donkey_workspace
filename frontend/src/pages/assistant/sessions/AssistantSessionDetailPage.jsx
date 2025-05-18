@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import MessageCard from "../../../components/assistant/sessions/MessageCard";
+import { downloadFile } from "../../../utils/downloadFile";
 
 export default function AssistantSessionDetailPage() {
   const { sessionId } = useParams();
@@ -75,6 +76,32 @@ export default function AssistantSessionDetailPage() {
     });
   }
 
+  const copyTranscript = () => {
+    const content = JSON.stringify(session, null, 2);
+    navigator.clipboard.writeText(content).then(() => {
+      alert("Copied session transcript to clipboard!");
+    });
+  };
+
+  const exportJson = () => {
+    const content = JSON.stringify(session, null, 2);
+    downloadFile(content, `session_${session.session_id}.json`, "application/json");
+  };
+
+  const exportMarkdown = () => {
+    const md = [
+      `# Session ${session.session_id}`,
+      `**Assistant:** ${session.assistant_name}`,
+      `**Created:** ${new Date(session.created_at).toLocaleString()}`,
+      "",
+      "## Messages",
+      ...session.messages.map(
+        (m) => `### ${m.role} — ${new Date(m.created_at).toLocaleString()}\n\n${m.content}`
+      ),
+    ].join("\n\n");
+    downloadFile(md, `session_${session.session_id}.md`, "text/markdown");
+  };
+
   if (loading) return <div className="container my-5">Loading...</div>;
   if (error) return <div className="container my-5 text-danger">Error: {error}</div>;
   if (!session) return null;
@@ -82,14 +109,25 @@ export default function AssistantSessionDetailPage() {
   return (
     <div className="container my-5">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2>🧠 Session: {session.id}</h2>
-        <Link to="/assistants/sessions" className="btn btn-outline-secondary">⬅️ Back to Sessions</Link>
+        <h2>🧠 Session: {session.session_id}</h2>
+        <Link to="/assistants/sessions" className="btn btn-outline-secondary">⬅️ Back</Link>
       </div>
 
       <div className="mb-4">
         <p><strong>Assistant:</strong> {session.assistant_name}</p>
         <p><strong>Created:</strong> {new Date(session.created_at).toLocaleString()}</p>
         <p><strong>Total Messages:</strong> {session.messages.length}</p>
+        <div className="mt-2">
+          <button className="btn btn-sm btn-outline-secondary me-2" onClick={copyTranscript}>
+            📋 Copy to Clipboard
+          </button>
+          <button className="btn btn-sm btn-outline-secondary me-2" onClick={exportJson}>
+            ⬇️ Download .json
+          </button>
+          <button className="btn btn-sm btn-outline-secondary" onClick={exportMarkdown}>
+            ⬇️ Download .md
+          </button>
+        </div>
       </div>
 
       <div className="chat-box border rounded p-3 bg-light" style={{ maxHeight: "500px", overflowY: "auto" }}>
