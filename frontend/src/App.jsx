@@ -66,7 +66,8 @@ import MemoryChainsPage from "./pages/assistant/memory_chains/MemoryChainsPage";
 import NextActionsPage from "./pages/assistant/objectives/NextActionsPage";
 import ObjectivesPage from "./pages/assistant/objectives/ObjectivesPage";
 import AssistantSessionsPage from "./pages/assistant/sessions/AssistantSessionsPage";
-import AssistantSessionDetailPage from "./pages/assistant/sessions/AssistantSessionDetailPage"
+import AssistantSessionDetailPage from "./pages/assistant/sessions/AssistantSessionDetailPage";
+import AssistantSessionDashboardPage from "./pages/assistant/sessions/AssistantSessionDashboardPage";
 import GroupedReflectionsPage from "./pages/mcp_core/reflections/GroupedReflectionsPage";
 import SignalSourcesPage from "./pages/assistant/signal_sources/SignalSourcesPage";
 import SignalCatchesPage from "./pages/assistant/signal_catches/SignalCatchesPage";
@@ -151,6 +152,7 @@ export default function App() {
           <Route path="/assistants/memory-chains" element={<MemoryChainsPage />} />
           <Route path="/assistants/reflections" element={<ReflectionsPage />} />
           <Route path="/assistants/:slug/reflect" element={<AssistantReflectPage />} />
+          <Route path="/assistants/:slug/sessions" element={<AssistantSessionDashboardPage />} />
           <Route path="/assistants/sessions" element={<AssistantSessionsPage />} />
           <Route path="/assistants/sessions/:sessionId" element={<AssistantSessionDetailPage />} />
           <Route path="/assistants/:slug/thoughts" element={<AssistantThoughtsPage />} />

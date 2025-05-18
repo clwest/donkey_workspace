@@ -8,6 +8,7 @@ from .views import (
     memory,
     prompts,
     sessions,
+    delegations,
     signals,
     tasks,
     objectives,
@@ -154,6 +155,8 @@ urlpatterns = [
     path("thoughts/<uuid:id>/", thoughts.assistant_thought_detail),
     path("delegations/recent/", views.recent_delegation_events),
     path("delegation_events/recent/", views.recent_delegation_events),
+    path("<slug:slug>/sessions/", sessions.sessions_for_assistant, name="assistant-sessions"),
+    path("<slug:slug>/delegations/", delegations.delegation_events_for_assistant, name="assistant-delegations"),
     path("<slug:slug>/reflections/recent/", thoughts.get_recent_reflections),
     # SLUGS MUST STAY AT THE BOTTOM!
     path(
