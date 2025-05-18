@@ -45,3 +45,4 @@ venv/
 # Migrations (optional — if you're auto-regenerating them in dev)
 **/migrations/*.py
 !**/migrations/__init__.py
+!assistants/migrations/0008_assistant_embedding.py
