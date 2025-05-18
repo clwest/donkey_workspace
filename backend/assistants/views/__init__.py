@@ -45,8 +45,9 @@ from .sessions import (
     list_chat_sessions,
     chat_session_detail,
     get_chat_session_messages,
+    sessions_for_assistant,
 )
-from .delegation import recent_delegation_events
+from .delegation import recent_delegation_events, delegation_events_for_assistant
 from .signals import (
     signal_sources,
     signal_catches,
@@ -100,6 +101,7 @@ __all__ = [
     "list_chat_sessions",
     "chat_session_detail",
     "get_chat_session_messages",
+    "sessions_for_assistant",
     "signal_sources",
     "signal_catches",
     "create_signal_catch",
@@ -112,4 +114,5 @@ __all__ = [
     "assistant_reflect_on_thoughts",
     "assistant_project_task_detail",
     "recent_delegation_events",
+    "delegation_events_for_assistant",
 ]

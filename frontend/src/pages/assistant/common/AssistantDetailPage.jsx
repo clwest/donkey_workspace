@@ -69,7 +69,7 @@ export default function AssistantDetailPage() {
         <Link to={`/assistants/${slug}/projects`} className="btn btn-outline-success">📂 Projects</Link>
         <Link to={`/assistants/${slug}/memories`} className="btn btn-outline-warning">📘 Memory</Link>
         <Link to={`/assistants/${slug}/reflect`} className="btn btn-outline-info">🔍 Reflections</Link>
-        <Link to={`/assistants/sessions?assistant=${assistant.slug}`} className="btn btn-outline-secondary">
+        <Link to={`/assistants/${slug}/sessions`} className="btn btn-outline-secondary">
         💬 Sessions
       </Link>
 
