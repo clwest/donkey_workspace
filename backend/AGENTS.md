@@ -1,6 +1,6 @@
-# 🧠 AGENTS.md — Donkey AI Assistant System
+# 🧠 backend/AGENTS.md — Django API Tasks
 
-Welcome, Codex. This repository contains the modular brain of an AI assistant network.
+This file tracks backend-specific work for the Donkey AI Assistant system. For repo-wide goals see the root `AGENTS.md` and check `frontend/AGENTS.md` for UI tasks.
 
 ## ✅ Completed
 
@@ -31,18 +31,15 @@ The delegation system now tracks:
 ## 🔧 Next Tasks for Codex
 
 1. **Finish Delegation Logging Workflow**
-
    - Ensure `spawn_delegated_assistant()` creates a `DelegationEvent`
    - Attach memory, session, parent/child assistant, and reason
    - Include a reflection summary if passed
 
 2. **Add Serializer + API View**
-
    - Create `DelegationEventSerializer`
    - Add endpoint: `/api/assistants/delegations/recent/` (last 10 events)
 
 3. **Write Tests**
-
    - `test_delegation_event_creation.py`
    - `test_spawn_delegated_assistant_links_thread.py`
 
