@@ -1,0 +1,414 @@
+from rest_framework import serializers
+from .models import (
+    Assistant,
+    AssistantThoughtLog,
+    AssistantProject,
+    AssistantObjective,
+    AssistantReflectionLog,
+    AssistantPromptLink,
+    AssistantMemoryChain,
+    AssistantReflectionInsight,
+    AssistantChatMessage,
+    ChatSession,
+    AssistantNextAction,
+    DelegationEvent,
+    SignalSource,
+    SignalCatch,
+    
+)
+
+from project.models import (
+    Project,
+    ProjectTask,
+    ProjectMilestone,
+    ProjectMemoryLink,
+    ProjectType,
+    ProjectStatus,
+)
+from mcp_core.serializers_tags import TagSerializer
+from intel_core.serializers import DocumentSerializer
+
+from project.serializers import (
+    ProjectSerializer,
+    ProjectTaskSerializer,
+    ProjectMilestoneSerializer,
+    ProjectMemoryLinkSerializer,
+)
+from mcp_core.serializers_tags import NarrativeThreadSerializer
+from mcp_core.models import NarrativeThread
+from memory.models import MemoryEntry
+from assistants.utils.bootstrap_helpers import generate_objectives_from_prompt
+
+
+class DelegationEventSerializer(serializers.ModelSerializer):
+    """Serialize delegation history for API responses."""
+
+    parent = serializers.CharField(source="parent_assistant.name", read_only=True)
+    child = serializers.CharField(source="child_assistant.name", read_only=True)
+    memory_id = serializers.UUIDField(
+        source="triggering_memory.id", read_only=True
+    )
+    session_id = serializers.UUIDField(
+        source="triggering_session.id", read_only=True
+    )
+
+    class Meta:
+        model = DelegationEvent
+        fields = [
+            "parent",
+            "child",
+            "reason",
+            "summary",
+            "memory_id",
+            "session_id",
+            "created_at",
+        ]
+
+class AssistantReflectionLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantReflectionLog
+        fields = [
+            "id",
+            "project",
+            "title",
+            "mood",
+            "summary",
+            "llm_summary",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
+class AssistantNextActionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantNextAction
+        fields = ["id", "objective", "content", "completed", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+
+class AssistantObjectiveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantObjective
+        fields = ["id", "project", "title", "description", "is_completed", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+
+class AssistantProjectSerializer(serializers.ModelSerializer):
+    objectives = AssistantObjectiveSerializer(many=True, read_only=True)
+    milestones = ProjectMilestoneSerializer(many=True, read_only=True)
+    next_actions = AssistantNextActionSerializer(many=True, read_only=True)
+    reflections = AssistantReflectionLogSerializer(many=True, read_only=True)
+    delegations = DelegationEventSerializer(
+        many=True, read_only=True, source="delegation_events"
+    )
+
+    class Meta:
+        model = AssistantProject
+        fields = [
+            "id",
+            "title",
+            "slug",
+            "assistant",
+            "description",
+            "objectives",
+            "milestones",
+            "next_actions",
+            "reflections",
+            "delegations",
+            "created_at",
+        ]
+        read_only_fields = ["id", "slug", "created_at"]
+
+
+# assistants/serializers.py
+class AssistantSerializer(serializers.ModelSerializer):
+    documents = DocumentSerializer(many=True, read_only=True)
+    projects = AssistantProjectSerializer(many=True, read_only=True)
+    child_assistants = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Assistant
+        fields = [
+            "id",
+            "slug",
+            "name",
+            "description",
+            "specialty",
+            "avatar",
+            "is_active",
+            "is_demo",
+            "system_prompt",
+            "personality",
+            "tone",
+            "documents",
+            "projects",
+            "preferred_model",
+            "child_assistants",
+            "created_at",
+        ]
+        read_only_fields = ["id", "slug", "created_at"]
+
+    def get_child_assistants(self, obj):
+        return AssistantSerializer(obj.sub_assistants.all(), many=True).data
+
+
+# serializers.py
+
+THOUGHT_CATEGORY_CHOICES = [
+    ("observation", "Observation"),
+    ("insight", "Insight"),
+    ("idea", "Idea"),
+    ("question", "Question"),
+    ("goal", "Goal"),
+    ("warning", "Warning"),
+    ("other", "Other"),
+]
+
+
+class AssistantThoughtLogSerializer(serializers.ModelSerializer):
+    assistant_slug = serializers.SlugRelatedField(
+        source="assistant", read_only=True, slug_field="slug"
+    )
+    assistant_name = serializers.CharField(source="assistant.name", read_only=True)
+    linked_memory = serializers.PrimaryKeyRelatedField(read_only=True)
+    linked_memory_preview = serializers.SerializerMethodField()
+    tags = TagSerializer(many=True, read_only=True)
+    narrative_thread = serializers.PrimaryKeyRelatedField(read_only=True)
+    category = serializers.ChoiceField(
+        choices=THOUGHT_CATEGORY_CHOICES, default="other"
+    )
+
+    class Meta:
+        model = AssistantThoughtLog
+        fields = [
+            "id",
+            "assistant_slug",
+            "assistant_name",
+            "project",
+            "thought",
+            "thought_trace",
+            "thought_type",
+            "role",
+            "tags",
+            "category",
+            "linked_memory",  # UUID only
+            "linked_memory_preview",  # 🆕 Text preview
+            "narrative_thread",
+            "created_at",
+        ]
+
+    def get_linked_memory_preview(self, obj):
+        return obj.linked_memory.event if obj.linked_memory else None
+
+
+class AssistantPromptLinkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantPromptLink
+        fields = ["id", "project", "prompt", "reason", "linked_at"]
+        read_only_fields = ["id", "linked_at"]
+
+
+class AssistantMemoryChainSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantMemoryChain
+        fields = ["id", "project", "title", "description", "memories", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+
+class AssistantReflectionInsightSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantReflectionInsight
+        fields = ["id", "project", "content", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+
+class SignalSourceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SignalSource
+        fields = ["id", "platform", "name", "url", "priority", "active", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+
+class SignalCatchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SignalCatch
+        fields = [
+            "id",
+            "source",
+            "original_content",
+            "summary",
+            "score",
+            "is_meaningful",
+            "reviewed",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
+
+# assistants/serializers.py
+
+
+class ProjectSerializer(serializers.ModelSerializer):
+    tasks = ProjectTaskSerializer(many=True, read_only=True)
+    milestones = ProjectMilestoneSerializer(many=True, read_only=True)
+    objectives = AssistantObjectiveSerializer(many=True, read_only=True)
+    next_actions = AssistantNextActionSerializer(many=True, read_only=True)
+    linked_memories = ProjectMemoryLinkSerializer(many=True, read_only=True)
+    linked_prompts = AssistantPromptLinkSerializer(many=True, read_only=True)
+    reflections = AssistantReflectionLogSerializer(many=True, read_only=True)
+    summary = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Project  # ✅ Now pointing to the unified Project model
+        fields = [
+            "id",
+            "slug",
+            "title",
+            "description",
+            "created_at",
+            "tasks",
+            "milestones",
+            "objectives",
+            "next_actions",
+            "linked_memories",
+            "linked_prompts",
+            "reflections",
+            "summary",
+        ]
+        read_only_fields = ["id", "slug", "created_at"]
+
+    def get_summary(self, obj):
+        last = obj.reflections.order_by("-created_at").first()
+        return last.llm_summary if last else None
+
+
+class AssistantChatMessageSerializer(serializers.ModelSerializer):
+    topic = serializers.SerializerMethodField()
+
+    class Meta:
+        model = AssistantChatMessage
+        fields = ["uuid", "role", "content", "created_at", "feedback", "topic"]
+
+    def get_topic(self, obj):
+        return obj.topic.name if obj.topic else None
+
+
+class ChatSessionSerializer(serializers.ModelSerializer):
+    narrative_thread = NarrativeThreadSerializer(read_only=True)
+
+    class Meta:
+        model = ChatSession
+        fields = "__all__"
+
+
+class AssistantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Assistant
+        fields = ["id", "name", "slug", "tone", "specialty", "preferred_model"]
+
+
+class AssistantProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantProject
+        fields = ["id", "title", "slug", "status", "created_at"]
+
+
+class BootstrapResultSerializer(serializers.Serializer):
+    assistant = AssistantSerializer()
+    project = AssistantProjectSerializer()
+
+
+from prompts.models import Prompt
+
+
+class AssistantFromPromptSerializer(serializers.Serializer):
+    prompt_id = serializers.UUIDField()
+    assistant_name = serializers.CharField(required=False)
+    preferred_model = serializers.CharField(default="gpt-4o")
+    is_demo = serializers.BooleanField(default=False)
+    parent_assistant_id = serializers.UUIDField(required=False, allow_null=True)
+    parent_thread_id = serializers.UUIDField(required=False, allow_null=True)
+
+    def create(self, validated_data):
+        prompt = Prompt.objects.get(id=validated_data["prompt_id"])
+        assistant_name = validated_data.get(
+            "assistant_name", f"Assistant for {prompt.title}"
+        )
+        parent_assistant_id = validated_data.pop("parent_assistant_id", None)
+        parent_thread_id = validated_data.pop("parent_thread_id", None)
+
+        thread = None
+        parent_assistant = None
+        if parent_thread_id:
+            thread = NarrativeThread.objects.filter(id=parent_thread_id).first()
+
+        if not thread and parent_assistant_id:
+            parent_assistant = Assistant.objects.filter(id=parent_assistant_id).first()
+            if parent_assistant:
+                parent_project = (
+                    Project.objects.filter(assistant=parent_assistant)
+                    .order_by("-created_at")
+                    .first()
+                )
+                if not parent_project:
+                    parent_project = (
+                        Project.objects.filter(
+                            assistant_project__assistant=parent_assistant
+                        )
+                        .order_by("-created_at")
+                        .first()
+                    )
+                if parent_project:
+                    thread = parent_project.narrative_thread
+
+        if not thread:
+            thread = NarrativeThread.objects.create(
+                title=f"{assistant_name} Thread",
+                summary=f"Auto-generated thread for {assistant_name}",
+            )
+
+        assistant = Assistant.objects.create(
+            name=assistant_name,
+            system_prompt=prompt,
+            tone=prompt.tone or "neutral",
+            personality="Bootstrapped from prompt",
+            specialty=prompt.source or "general",
+            preferred_model=validated_data["preferred_model"],
+            is_demo=validated_data["is_demo"],
+            parent_assistant=parent_assistant,
+        )
+
+        project = AssistantProject.objects.create(
+            assistant=assistant,
+            title=f"Auto Project for {assistant_name}",
+            goal=f"This project exists to help the assistant fulfill: {prompt.title}",
+            description=prompt.content[:500].strip(),
+            status="active",
+        )
+
+        request = self.context.get("request")
+        if request and getattr(request, "user", None) and request.user.is_authenticated:
+            user = request.user
+        else:
+            from django.contrib.auth import get_user_model
+
+            user = get_user_model().objects.first()
+
+        Project.objects.create(
+            user=user,
+            title=f"{assistant_name} Project",
+            description=prompt.content[:500].strip(),
+            assistant=assistant,
+            assistant_project=project,
+            narrative_thread=thread,
+            thread=thread,
+            project_type=ProjectType.ASSISTANT,
+            status=ProjectStatus.ACTIVE,
+        )
+
+        generate_objectives_from_prompt(assistant, project, prompt.content)
+        return {
+            "assistant": assistant,
+            "project": project,
+        }

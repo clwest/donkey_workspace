@@ -1,0 +1,43 @@
+/* PromptRemixPage.css */
+
+textarea.form-control {
+  resize: vertical; /* Allow resizing up/down only */
+  min-height: 300px;
+}
+
+h5 {
+  margin-bottom: 0.5rem;
+}
+
+.col-md-6 {
+  transition: all 0.3s ease;
+}
+
+/* Little animated hover effect */
+.col-md-6:hover {
+  transform: scale(1.01);
+  box-shadow: 0 0 10px rgba(0,0,0,0.15);
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 5px;
+}
+
+/* Button loading pulse */
+.btn-secondary:disabled {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.scroll-box {
+  overflow-y: auto;
+  max-height: 400px;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}

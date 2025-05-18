@@ -1,0 +1,25 @@
+#root {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  text-align: left;
+}
+
+.container {
+  padding-top: 2rem;
+}
+
+.navbar {
+  margin-bottom: 2rem;
+}
+
+.card {
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.read-the-docs {
+  color: #888;
+}

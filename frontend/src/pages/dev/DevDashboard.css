@@ -1,0 +1,92 @@
+/* DevDashboard.css */
+
+.dev-dashboard {
+  font-family: "Inter", sans-serif;
+}
+
+.list-group-item {
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.list-group-item:hover {
+  background-color: #f5f5f5;
+}
+
+.list-group-item.active {
+  background-color: #007bff;
+  color: white;
+  font-weight: 500;
+  border-color: #007bff;
+}
+
+textarea.form-control {
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.card {
+  border: 1px solid #e0e0e0;
+  border-radius: 0.75rem;
+}
+
+.card pre {
+  font-size: 14px;
+  background-color: #f8f9fa;
+  border-left: 3px solid #dee2e6;
+  overflow-x: auto;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+
+.markdown-preview h1,
+.markdown-preview h2,
+.markdown-preview h3 {
+  margin-top: 1.5rem;
+  font-weight: 600;
+}
+
+.markdown-preview ul {
+  padding-left: 1.5rem;
+}
+
+.markdown-preview code {
+  background-color: #f0f2f5;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 90%;
+}
+
+.markdown-preview pre {
+  background-color: #f7f7f9;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+}
+
+.btn-outline-secondary {
+  font-weight: 500;
+}
+
+.badge {
+  font-size: 13px;
+  padding: 0.4em 0.6em;
+  border-radius: 0.5rem;
+}
+
+.scroll-sidebar::-webkit-scrollbar,
+.markdown-preview::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scroll-sidebar::-webkit-scrollbar-thumb,
+.markdown-preview::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+.scroll-sidebar::-webkit-scrollbar-track,
+.markdown-preview::-webkit-scrollbar-track {
+  background-color: transparent;
+}

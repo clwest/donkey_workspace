@@ -1,0 +1,65 @@
+/* src/pages/memory/styles/MemoryReflectionPage.css */
+
+.card {
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+  
+  .card:hover {
+    box-shadow: 0 0 0.75rem rgba(0, 123, 255, 0.2);
+    transform: scale(1.01);
+  }
+  
+  .card.border-primary {
+    border: 2px solid #0d6efd !important;
+  }
+  
+  .card .form-check-label {
+    font-size: 1.05rem;
+  }
+  
+  textarea,
+  input[type="text"] {
+    transition: border-color 0.2s ease-in-out;
+  }
+  
+  textarea:focus,
+  input[type="text"]:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+  }
+  
+  .btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+  }
+  
+  .btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+  }
+  
+  .btn-success {
+    background-color: #198754;
+    border-color: #198754;
+  }
+  
+  .btn-success:hover {
+    background-color: #157347;
+    border-color: #146c43;
+  }
+  
+  .form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  
+  .card-text {
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+  
+  small.text-muted {
+    display: block;
+    margin-top: 0.5rem;
+  }

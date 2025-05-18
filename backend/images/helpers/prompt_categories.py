@@ -1,0 +1,37 @@
+PROMPT_CATEGORIES = {
+    "Art Styles": [
+        "Sketch",
+        "Digital Art",
+        "Concept Art",
+        "Radiant",
+        "Watercolor Dream",
+    ],
+    "Cartoons & Animation": [
+        "Cartoon",
+        "Pixar Style Cartoons",
+        "Anime",
+        "90s Anime",
+        "Magical Girl",
+        "Children's Book",
+        "Cartoon Animal Stickers",
+        "Children’s Puzzle Book",
+    ],
+    "3D & Game Styles": [
+        "Low Poly",
+        "Roblox",
+        "Minecraft",
+        "Isometric UI Style",
+        "EA Sports Style Images",
+        "Fortnite",
+    ],
+    "Fantasy & Mythology": ["Fantasy", "Mythology", "Dark Fantasy", "Steampunk"],
+    "Cinematic & Photographic": [
+        "Cinematic",
+        "Photographic",
+        "Post-Apocalyptic",
+        "1800s Photography",
+    ],
+    "Pop & Vapor": ["Funko Pop", "Vaporwave", "AI Glitch Art"],
+    "Historical Styles": ["Colonial Painting"],
+    "Comics": ["Hero Comic Panel"],
+}

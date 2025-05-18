@@ -1,0 +1,66 @@
+// src/data/routeMap.js
+export const routeMap = [
+  {
+    frontend: "/prompts",
+    backend: "/api/prompts/",
+    view: "PromptListView",
+    serializer: "PromptSerializer",
+    notes: "List all prompts",
+  },
+  {
+    frontend: "/prompts/:slug",
+    backend: "/api/prompts/<slug>/",
+    view: "PromptDetailView",
+    serializer: "PromptSerializer",
+    notes: "Prompt detail by slug",
+  },
+  {
+    frontend: "/assistants",
+    backend: "/api/assistants/",
+    view: "AssistantListView",
+    serializer: "AssistantSerializer",
+    notes: "List all assistants",
+  },
+  {
+    frontend: "/assistants/:slug",
+    backend: "/api/assistants/<slug>/",
+    view: "AssistantDetailView",
+    serializer: "AssistantSerializer",
+    notes: "Assistant detail",
+  },
+  {
+    frontend: "/assistants/:slug/reflect",
+    backend: "/api/assistants/<slug>/reflect/",
+    view: "reflect_on_assistant",
+    serializer: "n/a (triggers task)",
+    notes: "Trigger assistant reflection",
+  },
+  {
+    frontend: "/reflections",
+    backend: "/api/mcp/reflections/",
+    view: "list_reflections",
+    serializer: "ReflectionLogSerializer",
+    notes: "List assistant reflections",
+  },
+  {
+    frontend: "/reflections/:id",
+    backend: "/api/mcp/reflections/<uuid>/",
+    view: "reflection_detail",
+    serializer: "ReflectionLogSerializer",
+    notes: "Reflection detail by ID",
+  },
+  {
+    frontend: "/grouped-reflection",
+    backend: "/api/mcp/dev_docs/summarize/",
+    view: "summarize_and_group_devdocs_view",
+    serializer: "GroupedDevDocReflectionSerializer",
+    notes: "Trigger and return grouped dev doc reflection",
+  },
+  {
+    frontend: "/grouped-reflection/:id",
+    backend: "/api/mcp/dev_docs/grouped/<pk>/",
+    view: "grouped_reflection_detail",
+    serializer: "GroupedDevDocReflectionSerializer",
+    notes: "Detail of grouped dev doc reflection",
+  },
+];

@@ -1,0 +1,89 @@
+.doc-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background-color: #fdfdfd;
+  border-radius: 12px;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  font-weight: 500;
+  color: #6c757d;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: #000;
+  text-decoration: underline;
+}
+
+.doc-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.doc-meta {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.chunk-list {
+  margin-top: 2rem;
+}
+
+.chunk-card {
+  background-color: #fff;
+  border: 1px solid #e3e3e3;
+  border-radius: 10px;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.chunk-header {
+  background-color: #f8f9fa;
+  padding: 0.75rem 1rem;
+  font-weight: 500;
+  border-bottom: 1px solid #e3e3e3;
+  font-size: 0.95rem;
+}
+
+.chunk-body {
+  padding: 1rem;
+  font-size: 0.95rem;
+  color: #212529;
+  white-space: pre-wrap;
+}
+
+.document-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.document-meta {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.token-badge {
+  background-color: #e0e0e0;
+  color: #333;
+  font-size: 0.85rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.4rem;
+  margin-left: 0.5rem;
+}
+
+.chunk-card {
+  border: 1px solid #e2e6ea;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}

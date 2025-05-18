@@ -1,0 +1,47 @@
+.env
+.vscode
+.venv
+prompt_sets
+
+# Python
+*.pyc
+*.pyo
+__pycache__/
+*.pyd
+*.swp
+
+# Node
+node_modules/
+
+# Logs
+*.log
+logs/
+
+# JSON backup files
+*.json
+
+# Archives
+*.zip
+*.rdb
+
+# Django
+db.sqlite3
+.env
+.env.*
+media/
+staticfiles/
+local_settings.py
+settings_local.py
+
+# Virtual environment
+.venv/
+venv/
+
+# VSCode
+.vscode/
+.idea/
+*.code-workspace
+
+# Migrations (optional — if you're auto-regenerating them in dev)
+**/migrations/*.py
+!**/migrations/__init__.py

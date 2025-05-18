@@ -1,0 +1,13 @@
+.container {
+  max-width: 960px;
+  margin-top: 2rem;
+}
+
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.btn {
+  min-width: 140px;
+}

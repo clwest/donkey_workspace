@@ -1,0 +1,97 @@
+/* conversation-modal.css */
+
+.modal-conversation .modal-dialog {
+    max-width: 800px;
+  }
+  
+  .modal-conversation .modal-content {
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  }
+  
+  .modal-conversation .modal-header {
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  .modal-conversation .modal-body {
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 1rem 1.5rem;
+    background-color: #fff;
+  }
+  
+  .conversation-message {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    white-space: pre-wrap;
+    line-height: 1.4;
+  }
+  
+  .conversation-message.user {
+    background-color: #e9f5ff;
+    border-left: 4px solid #0d6efd;
+  }
+  
+  .conversation-message.assistant {
+    background-color: #f1f3f5;
+    border-left: 4px solid #6c757d;
+  }
+  
+  .modal-footer .btn-feedback {
+    margin-right: auto;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+  }
+  
+  .modal-content {
+    background: white;
+    border-radius: 8px;
+    max-width: 800px;
+    width: 90%;
+    max-height: 85vh;
+    overflow: hidden;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+  }
+  
+  .modal-header,
+  .modal-footer {
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  .modal-footer {
+    border-top: 1px solid #dee2e6;
+    text-align: right;
+  }
+  
+  .modal-body.conversation-scrollbox {
+    padding: 1rem;
+    overflow-y: auto;
+    max-height: 60vh;
+    font-family: monospace;
+    white-space: pre-wrap;
+    background-color: #f8f9fa;
+  }
+  
+  .user-line {
+    color: #0d6efd;
+    font-weight: bold;
+  }
+  
+  .assistant-line {
+    color: #198754;
+  }

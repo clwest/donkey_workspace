@@ -1,0 +1,53 @@
+from django.contrib import admin
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView,
+)
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
+from django.urls import get_resolver
+
+
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("api/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
+    path("api/dj-rest-auth/", include("dj_rest_auth.urls")),
+    path("api/dj-rest-auth/registration/", include("dj_rest_auth.registration.urls")),
+    path("api/tts/", include("tts.urls")),
+    path("api/stories/", include("story.urls")),
+    path("api/videos/", include("videos.urls")),
+    path("api/images/", include("images.urls")),
+    path("api/projects/", include("project.urls")),
+    path("api/characters/", include("characters.urls")),
+    # Embedding chunk-match endpoint
+    path("api/embeddings/", include("embeddings.urls")),
+    # Trainers app endpoints
+    # path("api/trainers/", include("trainers.urls")),
+    path("api/prompts/", include("prompts.urls")),
+    path("api/mcp/", include("mcp_core.urls")),
+    path("api/memory/", include("memory.urls")),
+    path("api/assistants/", include("assistants.urls")),
+    path("api/agents/", include("agents.urls")),
+    path("api/intel/", include("intel_core.urls")),
+    # Schema and Docs
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path(
+        "api/schema/redoc/",
+        SpectacularRedocView.as_view(url_name="schema"),
+        name="redoc",
+    ),
+    path(
+        "api/schema/swagger-ui/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
+    ),
+]

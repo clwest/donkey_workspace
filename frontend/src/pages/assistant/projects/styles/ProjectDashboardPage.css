@@ -1,0 +1,43 @@
+/* src/pages/assistant/projects/styles/ProjectDashboardPage.css */
+
+.project-card {
+    border-radius: 12px;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .project-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  }
+  
+  .card-title {
+    font-size: 1.15rem;
+  }
+  
+  .card-text {
+    font-size: 0.9rem;
+  }
+  
+  .btn-sm {
+    font-size: 0.85rem;
+  }
+  
+  .btn-outline-info {
+    color: #0dcaf0;
+    border-color: #0dcaf0;
+  }
+  
+  .btn-outline-info:hover {
+    background-color: #0dcaf0;
+    color: white;
+  }
+  
+  .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+  }
+  
+  .btn-danger:hover {
+    background-color: #bb2d3b;
+    border-color: #b02a37;
+  }

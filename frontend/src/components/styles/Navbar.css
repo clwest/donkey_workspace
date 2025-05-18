@@ -1,0 +1,62 @@
+src/components/styles/Navbar.css
+
+.navbar {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e2e6ea;
+    font-size: 0.95rem;
+  }
+  
+  .navbar-brand {
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: #343a40 !important;
+  }
+  
+  .navbar-toggler {
+    border: none;
+  }
+  
+  .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,..."); /* You can keep default or customize */
+  }
+  
+  .nav-link {
+    color: #495057;
+    transition: color 0.2s ease;
+  }
+  
+  .nav-link:hover,
+  .nav-link:focus {
+    color: #0d6efd;
+  }
+  
+  .dropdown-menu {
+    font-size: 0.9rem;
+    min-width: 220px;
+    padding: 0.5rem;
+  }
+  
+  .dropdown-item {
+    padding: 0.45rem 1rem;
+    border-radius: 4px;
+  }
+  
+  .dropdown-item:hover {
+    background-color: #f1f3f5;
+    color: #0d6efd;
+  }
+  
+  .btn-link.nav-link {
+    padding: 0.4rem 0.8rem;
+    color: #495057;
+  }
+  
+  .btn-link.nav-link:hover {
+    color: #0d6efd;
+    background-color: transparent;
+  }
+  
+  .navbar-text .btn {
+    margin-left: 0.5rem;
+  }

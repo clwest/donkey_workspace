@@ -1,0 +1,48 @@
+/* ChatView.css */
+
+.chat-box {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  min-height: 300px;
+  max-height: 500px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-message {
+  margin-bottom: 1.25rem;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.chat-message.user {
+  text-align: right;
+}
+
+.chat-message.assistant {
+  text-align: left;
+}
+
+.chat-message .badge {
+  font-size: 0.85rem;
+}
+
+.chat-message .timestamp {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.chat-message .content {
+  background-color: white;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  margin-top: 0.5rem;
+  display: inline-block;
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}

@@ -1,0 +1,43 @@
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 2rem;
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.card p {
+  font-size: 1rem;
+  color: #333;
+}
+
+.card .badge {
+  margin-right: 6px;
+  font-size: 0.85rem;
+  padding: 0.4em 0.6em;
+  border-radius: 8px;
+}
+
+h2 {
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.btn {
+  min-width: 200px;
+}
+
+.audio-player {
+  margin-top: 1.5rem;
+}
+
+.mt-3 {
+  margin-top: 1.5rem !important;
+}

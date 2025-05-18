@@ -1,0 +1,195 @@
+from django.urls import path
+from . import views
+
+from .views import (
+    assistants,
+    thoughts,
+    projects,
+    memory,
+    prompts,
+    sessions,
+    signals,
+    tasks,
+    objectives,
+    cache_tools,
+)
+
+urlpatterns = [
+    # Basics
+    path("reflection/", assistants.reflect_on_assistant),
+    path("create_from_thought/", assistants.create_assistant_from_thought),
+    path("thoughts/reflect-on-assistant/", assistants.reflect_on_assistant),
+    path("", assistants.assistants_view, name="assistants_view"),
+    path("create/", assistants.assistants_view, name="assistants-list-create"),
+    # ===== PROJECTS =====
+    path(
+        "projects/", projects.assistant_projects, name="assistant-projects"
+    ),  # GET (list) + POST (create)
+    path(
+        "projects/<uuid:pk>/",
+        projects.assistant_project_detail,
+        name="assistant-project-detail",
+    ),  # GET, PATCH, DELETE
+    path("projects/<uuid:project_id>/tasks/", tasks.assistant_project_tasks),
+    path("tasks/<uuid:task_id>/", tasks.assistant_project_task_detail),
+    # path(
+    #     "projects/<uuid:project_id>/generate_tasks/",
+    #     projects.generate_tasks_for_project,
+    # ),
+    path(
+        "projects/tasks/<int:task_id>/",
+        tasks.update_or_delete_task,
+        name="update_or_delete_task",
+    ),
+    # ===== OBJECTIVES =====
+    path(
+        "objectives/<uuid:objective_id>/actions/",
+        tasks.assistant_next_actions,
+        name="assistant-next-actions",
+    ),
+    # ===== THOUGHTS =====
+    path(
+        "projects/<uuid:project_id>/thoughts/",
+        thoughts.assistant_project_thoughts,
+        name="project-thoughts",
+    ),  # GET + POST
+    path(
+        "<slug:slug>/thoughts/recent/",
+        thoughts.get_recent_thoughts,
+        name="assistant-recent-thoughts",
+    ),
+    path("thoughts/reflect-on-doc/", thoughts.reflect_on_doc),
+    path("<slug:slug>/session/<uuid:session_id>/", sessions.get_chat_session_messages),
+    path(
+        "projects/<slug:slug>/thoughts/<int:thought_id>/",
+        thoughts.assistant_update_project_thought,
+        name="update-project-thought",
+    ),  # PATCH
+    path(
+        "projects/<uuid:project_id>/thoughts/generate/",
+        tasks.generate_assistant_project_thought,
+        name="generate-assistant-thought",
+    ),  # POST
+    path(
+        "projects/<uuid:project_id>/thoughts/reflect/",
+        thoughts.assistant_reflect_on_thoughts,
+        name="reflect-on-thoughts",
+    ),  # POST
+    # ===== REFLECTION INSIGHTS =====
+    path(
+        "projects/<uuid:project_id>/reflections/",
+        memory.assistant_project_reflections,
+        name="assistant-reflection-insights",
+    ),  # GET + POST
+    path(
+        "<slug:slug>/reflect-now/",
+        thoughts.assistant_reflect_now,
+        name="assistant-reflect-now",
+    ),
+    # ===== PROMPTS =====
+    path(
+        "projects/link_prompt/",
+        prompts.link_prompt_to_project,
+        name="link-prompt-to-project",
+    ),  # POST
+    path(
+        "projects/<uuid:project_id>/linked_prompts/",
+        prompts.linked_prompts,
+        name="linked-prompts",
+    ),
+    path("prompts/bootstrap-from-prompt/", projects.bootstrap_assistant_from_prompt),
+    path("assistants/<slug:slug>/projects/", views.projects_for_assistant),
+    # GET
+    # ===== AI UTILITIES =====
+    # path(
+    #     "projects/<uuid:pk>/ai_plan/", projects.ai_plan_project, name="ai-plan-project"
+    # ),  # POST
+    # path(
+    #     "projects/generate-mission/",
+    #     projects.generate_project_mission,
+    #     name="generate-project-mission",
+    # ),  # POST
+    # ===== MEMORY LINKS & CHAINS =====
+    path(
+        "projects/link_memory/",
+        memory.link_memory_to_project,
+        name="link-memory-to-project",
+    ),  # POST
+    path(
+        "projects/<uuid:project_id>/linked_memories/",
+        memory.linked_memories,
+        name="linked-memories",
+    ),  # GET
+    path(
+        "projects/<uuid:project_id>/memory-chains/",
+        memory.assistant_memory_chains,
+        name="assistant-memory-chains",
+    ),  # GET + POST
+    # ===== MILESTONES =====
+    # ===== SIGNAL SOURCES & CATCHES =====
+    path("sources/", signals.signal_sources, name="signal-sources"),  # GET + POST
+    path("signals/", signals.signal_catches, name="signal-catches"),  # GET
+    path(
+        "signals/create/", signals.create_signal_catch, name="create-signal-catch"
+    ),  # POST
+    path("signals/<uuid:pk>/", signals.update_signal_catch, name="update-signal-catch"),
+    # Demo Agents
+    path("demos/", assistants.demo_assistant, name="demo_assistant"),
+    # Sessions
+    path("sessions/list/", sessions.list_chat_sessions, name="chat_session_list"),
+    path(
+        "sessions/detail/<str:session_id>/",
+        sessions.chat_session_detail,
+        name="chat_session_detail",
+    ),
+    path(
+        "messages/feedback/", thoughts.submit_chat_feedback, name="submit_chat_feedback"
+    ),
+    path(
+        "messages/<uuid:uuid>/update/",
+        thoughts.update_message_feedback,
+        name="update_message_feedback",
+    ),
+    path("thoughts/<uuid:pk>/feedback/", thoughts.update_reflection_feedback),
+    path("thoughts/<uuid:id>/", thoughts.assistant_thought_detail),
+    path("delegations/recent/", views.recent_delegation_events),
+    path("delegation_events/recent/", views.recent_delegation_events),
+    path("<slug:slug>/reflections/recent/", thoughts.get_recent_reflections),
+    # SLUGS MUST STAY AT THE BOTTOM!
+    path(
+        "<slug:slug>/chat/", assistants.chat_with_assistant_view, name="assistant-chat"
+    ),
+    # path("<slug:slug>/memories/", memory.assistant_memories, name="assistant-memories"),
+    path(
+        "<slug:slug>/thoughts/",
+        thoughts.assistant_thoughts_by_slug,
+        name="assistant_thoughts_by_slug",
+    ),
+    path(
+        "<slug:slug>/reflect/",
+        thoughts.reflect_on_assistant_thoughts,
+        name="assistant_reflect_on_thoughts",
+    ),
+    path(
+        "<slug:slug>/submit-thought/",
+        thoughts.submit_assistant_thought,
+        name="submit-assistant-thought",
+    ),
+    path("<slug:slug>/", assistants.assistant_detail_view, name="assistant-detail"),
+    # Assistant Objectives
+    path(
+        "projects/<uuid:project_id>/objectives/",
+        objectives.assistant_objectives,
+        name="assistant-objectives",
+    ),
+    path(
+        "<slug:slug>/flush/",
+        thoughts.flush_chat_session_to_log,
+        name="flush-chat-session",
+    ),
+    path(
+        "<slug:slug>/flush-reflection-cache/",
+        cache_tools.flush_reflection_cache,
+        name="flush-reflection-cache",
+    ),
+]

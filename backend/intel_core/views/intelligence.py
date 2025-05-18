@@ -1,0 +1,216 @@
+import json
+import re
+import traceback
+import uuid
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+from rest_framework import status
+from openai import OpenAI
+from intel_core.models import Document
+from prompts.models import Prompt
+from assistants.models import Assistant, AssistantProject, AssistantObjective
+from prompts.utils.token_helpers import count_tokens
+from memory.models import MemoryEntry
+from mcp_core.models import NarrativeThread, Tag
+
+
+client = OpenAI()
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def summarize_with_context(request, pk):
+    try:
+        document = Document.objects.get(pk=pk)
+    except Document.DoesNotExist:
+        return Response({"error": "Document not found"}, status=404)
+
+    text = document.content[:3000].strip()
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant that summarizes technical documents."},
+                {"role": "user", "content": f"Summarize this document:\n\n{text}"},
+            ],
+            temperature=0.5,
+            max_tokens=200,
+        )
+        summary = response.choices[0].message.content.strip()
+        return Response({"summary": summary})
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def bootstrap_agent_from_docs(request, pk):
+    try:
+        document = Document.objects.get(pk=pk)
+    except Document.DoesNotExist:
+        return Response({"error": "Document not found"}, status=404)
+
+    content = document.content[:6000].strip()
+    user_prompt = f"""You are an assistant designed to help a user build an AI agent based on technical documentation.
+
+Extract a proposed system prompt, assistant tone, key personality traits, and task specialties.
+
+Technical Context:
+{content}
+
+Return only a JSON object with the fields: system_prompt, tone, personality, specialties."""
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "You generate structured assistant configurations from input text."},
+                {"role": "user", "content": user_prompt},
+            ],
+            temperature=0.4,
+            max_tokens=400,
+        )
+        return Response({"config": response.choices[0].message.content.strip()})
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def create_bootstrapped_assistant_from_document(request, pk):
+    try:
+        document = Document.objects.get(pk=pk)
+    except Document.DoesNotExist:
+        return Response(
+            {"error": "Document not found"}, status=status.HTTP_404_NOT_FOUND
+        )
+
+    content = document.content[:6000].strip()
+
+    bootstrap_prompt = f"""
+You are an assistant designed to help a user build an AI assistant agent from technical documentation.
+
+Extract the following fields:
+- `name`: a concise, human-friendly assistant name (max 80 characters)
+- `system_prompt`: detailed instructions for how the assistant should behave
+- `tone`: one or two words describing tone
+- `personality`: a short sentence or phrase about their vibe
+- `specialties`: list of specific topics or skills
+
+Documentation:
+{content}
+
+Return only JSON in this format:
+{{
+  "name": "...",
+  "system_prompt": "...",
+  "tone": "...",
+  "personality": "...",
+  "specialties": ["..."]
+}}
+"""
+
+    try:
+        print("📨 Sending prompt to OpenAI...")
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You generate assistant agent configs from documentation.",
+                },
+                {"role": "user", "content": bootstrap_prompt},
+            ],
+            temperature=0.4,
+            max_tokens=500,
+        )
+
+        raw_response = response.choices[0].message.content.strip()
+        print("🧾 Raw assistant config response:\n", raw_response)
+
+        cleaned = re.sub(
+            r"^```(?:json)?\s*|\s*```$", "", raw_response.strip(), flags=re.IGNORECASE
+        )
+        print(f"🧪 Cleaned JSON:\n{cleaned}")
+
+        config = json.loads(cleaned)
+        print("✅ Parsed assistant config")
+
+        assistant_name = (config.get("name") or document.title).strip()[:80]
+
+        print("📌 Saving system prompt...")
+        sys_prompt = Prompt.objects.create(
+            content=config["system_prompt"],
+            type="system",
+            tone=config.get("tone", "neutral"),
+            token_count=count_tokens(config["system_prompt"]),
+        )
+
+        print("🤖 Saving assistant...")
+        assistant = Assistant.objects.create(
+            name=assistant_name,
+            slug="bootstrap-" + str(uuid.uuid4())[:8],
+            system_prompt=sys_prompt,
+            tone=config.get("tone", "neutral"),
+            personality=config.get("personality", "Helpful and curious."),
+            specialty=", ".join(config.get("specialties", [])),
+            is_demo=False,
+        )
+
+        assistant.save()
+        assistant.documents.add(document)
+        print("📎 Linked document to assistant")
+
+        print("📁 Creating project...")
+        project = AssistantProject.objects.create(
+            assistant=assistant,
+            title=f"{assistant.name} - Project 1",
+            description=f"Auto-generated project for {assistant.name} based on document.",
+        )
+
+        print("🎯 Creating initial objective...")
+        objective = AssistantObjective.objects.create(
+            project=project,
+            title="Understand core technologies",
+            description="Explore key components from the linked documentation and prepare to assist users effectively.",
+        )
+
+        # Create and link a memory entry
+        memory = MemoryEntry.objects.create(
+            summary=f"Assistant '{assistant.name}' bootstrapped from document '{document.title}'",
+            event=f"Assistant {assistant.name} created",
+            assistant=assistant,
+            document=document,
+            type="event",
+            auto_tagged=True,
+        )
+
+        # Optionally create a NarrativeThread linked to this
+        thread = NarrativeThread.objects.create(
+            title=f"{assistant.name} Bootstrap Thread",
+            summary="Auto-generated thread for assistant setup and future reflections.",
+        )
+        thread.documents.add(document)
+        thread.memories.add(memory)
+        thread.save()
+
+        print("✅ All components created")
+
+        return Response({
+            "name": assistant.name,
+            "slug": assistant.slug,
+            "project_id": project.id,
+            "memory_id": memory.id if memory else None,
+            "thread_id": thread.id if thread else None,
+            "objective_id": objective.id if objective else None,
+        })
+
+    except Exception as e:
+        print("❌ Error during assistant bootstrapping")
+        print(traceback.format_exc())
+        return Response({
+            "error": str(e),
+            "trace": traceback.format_exc(),
+        }, status=500)

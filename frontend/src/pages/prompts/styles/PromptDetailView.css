@@ -1,0 +1,43 @@
+/* PromptDetailView.css */
+
+.prompt-detail-container {
+    max-width: 850px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #f8f9fa;
+    border-radius: 0.75rem;
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
+  }
+  
+  .prompt-detail-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  
+  .prompt-meta {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 0.5rem;
+  }
+  
+  .prompt-content {
+    white-space: pre-wrap;
+    font-family: Menlo, Monaco, monospace;
+    font-size: 0.95rem;
+    background: #ffffff;
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+    border: 1px solid #dee2e6;
+    margin-bottom: 2rem;
+  }
+
+  .prompt-text {
+  white-space: pre-wrap;
+  overflow-x: auto;
+  font-family: "Courier New", monospace;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}

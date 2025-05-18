@@ -1,0 +1,6 @@
+Step,Action,Tool,Goal
+A1,Chunk DevDoc.content,chunking.smart_chunk_text,Create manageable content blocks
+A2,Embed each chunk,document_caching.generate_embedding or similar,Create vector embeddings for each chunk
+A3,Save Embedding object,Embedding model + GenericForeignKey,Link chunks to DevDoc with metadata
+A4,Auto-tag each chunk,generate_tags_for_memory or similar,Make chunks semantically searchable by tag
+A5,Link tags to Embedding,ChunkTag or m2m on Embedding,"Enhance filtering, reflection, and search"
