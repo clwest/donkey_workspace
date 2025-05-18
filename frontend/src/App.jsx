@@ -66,7 +66,7 @@ import MemoryChainsPage from "./pages/assistant/memory_chains/MemoryChainsPage";
 import NextActionsPage from "./pages/assistant/objectives/NextActionsPage";
 import ObjectivesPage from "./pages/assistant/objectives/ObjectivesPage";
 import AssistantSessionsPage from "./pages/assistant/sessions/AssistantSessionsPage";
-import AssistantSessionDetailPage from "./pages/assistant/sessions/AssistantSessionDetailPage";
+import AssistantSessionDetailPage from "./pages/assistants/sessions/AssistantSessionDetailPage";
 import AssistantSessionDashboardPage from "./pages/assistant/sessions/AssistantSessionDashboardPage";
 import AssistantSessionDashboardPageV2 from "./pages/assistants/AssistantSessionDashboardPage";
 import GroupedReflectionsPage from "./pages/mcp_core/reflections/GroupedReflectionsPage";
