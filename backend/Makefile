@@ -1,5 +1,5 @@
 # ==== 🐴 Donkey Assistant Makefile ====
-.PHONY: install format setup run kill flush-redis reset-db migrate prompt dev celery redis-start django bootstrap_memory init-db reset_logs codex codex-dry help seed-all
+.PHONY: install format setup run kill flush-redis reset-db migrate prompt dev celery redis-start django bootstrap_memory init-db reset_logs codex codex-dry help seed-all run-all-scripts
 
 # ==== 📦 Setup & Environment ====
 install:
@@ -133,6 +133,11 @@ seed-all:
 post-seed-dashboard:
 	@python manage.py check_post_seed_status
 
+run-all-scripts:
+	@echo "🚀 Running all management commands and dev scripts..."
+	@bash run_all_seeders.sh
+	@bash run_all_devdoc_scripts.sh
+
 safe-restart:
 	@echo "🧼 Graceful restart (kill + run + flush)..."
 	@echo "💀 Killing dev processes..."
@@ -159,4 +164,5 @@ help:
 	@echo "  make codex             ⚡ Run Codex script"
 	@echo "  make bootstrap_memory  🧠 Load core memory"
 	@echo "  make seed-all          🌱 Run all seeders"
+	@echo "  make run-all-scripts   🚀 Run all command and dev_script files"
 	@echo ""
