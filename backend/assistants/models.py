@@ -277,6 +277,27 @@ class AssistantProject(models.Model):
         return f"{self.title} ({self.assistant.name})"
 
 
+class AssistantProjectRole(models.Model):
+    """Assign assistants to projects with specific roles."""
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="project_roles"
+    )
+    project = models.ForeignKey(
+        "assistants.AssistantProject", on_delete=models.CASCADE, related_name="roles"
+    )
+    role_name = models.CharField(max_length=100)
+    description = models.TextField(blank=True, null=True)
+    is_primary = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("assistant", "project")
+
+    def __str__(self):
+        return f"{self.assistant.name} as {self.role_name}"
+
+
 class AssistantTask(models.Model):
     """Individual task within an assistant project."""
 
@@ -307,6 +328,13 @@ class AssistantTask(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="tasks_proposed",
+    )
+    assigned_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="tasks_assigned",
     )
     confirmed_by_user = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

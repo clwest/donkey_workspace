@@ -9,6 +9,7 @@ import AutoModeToggle from "../../../components/assistant/AutoModeToggle";
 import PrimaryStar from "../../../components/assistant/PrimaryStar";
 import AssistantSpawnForm from "../../../components/assistant/AssistantSpawnForm";
 import apiFetch from "../../../utils/apiClient";
+import ProjectRolesRow from "../../../components/assistant/roles/ProjectRolesRow";
 
 export default function ProjectDetailPage() {
   const { id } = useParams();
@@ -161,6 +162,7 @@ export default function ProjectDetailPage() {
   return (
     <div className="container my-5">
       <h1 className="mb-4">{project.title}</h1>
+      <ProjectRolesRow projectId={id} />
 
       {/* Assistant Selector */}
       <div className="mb-4">

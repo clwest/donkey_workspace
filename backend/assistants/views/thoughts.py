@@ -119,9 +119,10 @@ def reflect_on_assistant_thoughts(request, slug):
 @api_view(["GET", "POST"])
 def assistant_project_thoughts(request, project_id):
     if request.method == "GET":
-        thoughts = AssistantThoughtLog.objects.filter(project_id=project_id).order_by(
-            "-created_at"
-        )
+        thoughts = AssistantThoughtLog.objects.filter(project_id=project_id).order_by("-created_at")
+        assistant_id = request.GET.get("assistant_id")
+        if assistant_id:
+            thoughts = thoughts.filter(assistant_id=assistant_id)
         serialized = AssistantThoughtLogSerializer(thoughts, many=True)
         return Response(serialized.data)
 

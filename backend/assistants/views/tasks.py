@@ -122,6 +122,16 @@ def assistant_project_task_detail(request, task_id):
         return Response(status=204)
 
 
+@api_view(["GET"])
+def assistant_tasks_for_project(request, project_id):
+    tasks = AssistantTask.objects.filter(project_id=project_id).order_by("priority")
+    assistant_id = request.GET.get("assistant_id")
+    if assistant_id:
+        tasks = tasks.filter(assigned_assistant_id=assistant_id)
+    serializer = AssistantTaskSerializer(tasks, many=True)
+    return Response(serializer.data)
+
+
 @api_view(["POST"])
 def plan_tasks_for_objective(request, slug, objective_id):
     """Generate tasks for an objective using the thought engine."""
