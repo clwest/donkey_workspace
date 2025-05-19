@@ -37,14 +37,11 @@ import MemoryEntryCreatePage from "./pages/memories/entries/MemoryEntryCreatePag
 import AssistantDashboardPage from "./pages/assistant/common/AssistantDashboardPage";
 import AssistantList from "./pages/assistant/common/AssistantList";
 import AssistantDetailPage from "./pages/assistant/common/AssistantDetailPage";
-import AssistantControlPanel from "./pages/assistants/AssistantControlPanel";
 import AssistantThoughtsPage from "./pages/assistant/common/AssistantThoughtsPage";
 import AssistantThoughtDetailPage from "./pages/assistant/common/AssistantThoughtDetailPage";
 import AssistantDemoPage from "./pages/assistant/common/AssistantDemoPage";
 import ChatWithAssistantPage from "./pages/assistant/common/ChatWithAssistantPage";
 import CreateNewAssistantPage from "./pages/assistant/common/CreateNewAssistantPage";
-import PrimaryAssistantPage from "./pages/assistant/common/PrimaryAssistantPage";
-import PrimaryAssistantDashboard from "./pages/assistants/PrimaryAssistantDashboard";
 
 import ProjectDetailPage from "./pages/assistant/projects/ProjectDetailPage";
 import ProjectCreateFromMemoryPage from "./pages/assistant/projects/ProjectCreateFromMemoryPage";
@@ -71,9 +68,6 @@ import NextActionsPage from "./pages/assistant/objectives/NextActionsPage";
 import ObjectivesPage from "./pages/assistant/objectives/ObjectivesPage";
 
 import AssistantSessionDashboardPage from "./pages/assistant/sessions/AssistantSessionDashboardPage";
-import AssistantSessionDashboardPageV2 from "./pages/assistants/AssistantSessionDashboardPage";
-import AssistantReflectionListPage from "./pages/assistants/reflections/AssistantReflectionListPage";
-import AssistantReflectionDetailPage from "./pages/assistants/reflections/AssistantReflectionDetailPage";
 import GroupedReflectionsPage from "./pages/mcp_core/reflections/GroupedReflectionsPage";
 import SignalSourcesPage from "./pages/assistant/signal_sources/SignalSourcesPage";
 import SignalCatchesPage from "./pages/assistant/signal_catches/SignalCatchesPage";
@@ -87,7 +81,6 @@ import GroupedReflectionDetailPage from "./pages/dev/GroupedReflectionDetailPage
 import DocumentBrowserPage from "./pages/intel_core/DocumentBrowserPage";
 import DocumentDetailPage from "./pages/intel_core/DocumentDetailPage";
 import AgentPage from "./pages/agents/AgentPage";
-import PrimaryAssistantPage from "./pages/assistants/PrimaryAssistantPage";
 
 import { ToastContainer } from "react-toastify";
 import Navbar from './components/Navbar';
@@ -124,12 +117,10 @@ export default function App() {
 
           {/* Assistant & Projects */}
           <Route path="/assistants" element={<AssistantList />} />
-          <Route path="/assistants/primary" element={<PrimaryAssistantPage />} />
           <Route path="/assistant-dashboard" element={<AssistantDashboardPage />} />
           <Route path="/assistants/create" element={<CreateNewAssistantPage />} />
-          <Route path="/assistants/primary" element={<PrimaryAssistantPage />} />
-          <Route path="/assistants/primary/dashboard" element={<PrimaryAssistantDashboard />} />
-          <Route path="/assistants/:slug" element={<AssistantControlPanel />} />
+          <Route path="/assistants/primary/dashboard" element={<AssistantSessionDashboardPage />} />
+          <Route path="/assistants/:slug" element={<AssistantDetailPage />} />
 
           <Route path="/assistants/projects/create" element={<CreateProjectPage />} />     
           <Route path="/assistants/:slug/chat" element={<ChatWithAssistantPage />} />
@@ -162,9 +153,7 @@ export default function App() {
           <Route path="/assistants/memory-chains" element={<MemoryChainsPage />} />
           <Route path="/assistants/reflections" element={<ReflectionsPage />} />
           <Route path="/assistants/:slug/reflect" element={<AssistantReflectPage />} />
-          <Route path="/assistants/:slug/reflections" element={<AssistantReflectionListPage />} />
-          <Route path="/assistants/reflections/:id" element={<AssistantReflectionDetailPage />} />
-          <Route path="/assistants/:slug/dashboard" element={<AssistantSessionDashboardPageV2 />} />
+          <Route path="/assistants/:slug/dashboard" element={<AssistantSessionDashboardPage />} />
           <Route path="/assistants/:slug/sessions" element={<AssistantSessionDashboardPage />} />
           <Route path="/assistants/sessions/" element={<AssistantSessionsPage />} />
           <Route path="/assistants/sessions/:sessionId" element={<AssistantSessionDetailPage />} />
