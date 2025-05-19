@@ -19,6 +19,11 @@ from assistants.models import Assistant, AssistantProject
 from prompts.models import Prompt
 from prompts.utils.embeddings import get_prompt_embedding
 from embeddings.helpers.helpers_io import save_embedding
+from django.contrib.auth import get_user_model
+from memory.models import MemoryEntry
+from project.models import Project, ProjectMemoryLink, ProjectMilestone
+from assistants.models import AssistantObjective, AssistantTask
+from assistants.utils.memory_project_planner import build_project_plan_from_memories
 import uuid
 
 @api_view(["GET", "POST"])
@@ -144,3 +149,68 @@ def project_history(request, project_id):
     logs = ProjectPlanningLog.objects.filter(project_id=project_id).order_by("-timestamp")
     serializer = ProjectPlanningLogSerializer(logs, many=True)
     return Response(serializer.data)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def memory_to_project(request, slug):
+    """Create a new project plan from selected memory entries."""
+    try:
+        assistant = Assistant.objects.get(slug=slug)
+    except Assistant.DoesNotExist:
+        return Response({"error": "Assistant not found"}, status=404)
+
+    memory_ids = request.data.get("memory_ids") or []
+    if not isinstance(memory_ids, list) or not memory_ids:
+        return Response({"error": "memory_ids required"}, status=400)
+
+    memories = list(MemoryEntry.objects.filter(id__in=memory_ids))
+    if not memories:
+        return Response({"error": "No memories found"}, status=400)
+
+    planning_style = request.data.get("planning_style", "bullet")
+    title = request.data.get("project_title")
+
+    plan = build_project_plan_from_memories(memories, planning_style, title)
+
+    project = AssistantProject.objects.create(
+        assistant=assistant,
+        title=plan["title"],
+        description="Project generated from memory entries.",
+        created_by=request.user if request.user.is_authenticated else None,
+    )
+
+    User = get_user_model()
+    user = request.user if request.user.is_authenticated else User.objects.first()
+    core_project = Project.objects.create(
+        user=user,
+        title=plan["title"],
+        assistant=assistant,
+        assistant_project=project,
+    )
+
+    for mem in memories:
+        ProjectMemoryLink.objects.create(project=core_project, memory=mem)
+
+    objectives = []
+    for obj_title in plan["objectives"]:
+        obj = AssistantObjective.objects.create(
+            project=project,
+            assistant=assistant,
+            title=obj_title,
+        )
+        objectives.append(obj)
+        AssistantTask.objects.create(
+            project=project,
+            objective=obj,
+            title=f"Task for {obj_title}",
+        )
+
+    for ms in plan.get("milestones", []):
+        ProjectMilestone.objects.create(
+            project=core_project,
+            title=ms.get("title"),
+            description=ms.get("description", ""),
+        )
+
+    return Response({"project_id": str(project.id)}, status=201)
