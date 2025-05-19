@@ -15,10 +15,8 @@ export default function PrimaryAssistantDashboard() {
       try {
         const res = await apiFetch("/assistants/primary/");
         setAssistant(res);
-        if (res.slug) {
-          const delRes = await apiFetch(`/assistants/${res.slug}/delegations/`);
-          setDelegations(delRes || []);
-        }
+        const delRes = await apiFetch("/assistants/primary/delegations/");
+        setDelegations(delRes || []);
       } catch (err) {
         console.error("Failed to load primary assistant", err);
       } finally {
@@ -31,8 +29,17 @@ export default function PrimaryAssistantDashboard() {
   const handleReflect = async () => {
     if (!assistant) return;
     try {
-      await apiFetch(`/assistants/${assistant.slug}/reflect/`, { method: "POST" });
-      alert("Reflection triggered");
+      const res = await apiFetch("/assistants/primary/reflect-now/", {
+        method: "POST",
+        body: { memory_id: assistant.recent_thoughts?.[0]?.id },
+      });
+      setAssistant((prev) => ({
+        ...prev,
+        recent_thoughts: [
+          { content: res.summary, timestamp: new Date().toISOString(), role: "assistant" },
+          ...(prev.recent_thoughts || []),
+        ],
+      }));
     } catch (err) {
       console.error("Reflection failed", err);
       alert("Failed to trigger reflection");

@@ -23,11 +23,30 @@ export default function AssistantMemoryPage() {
       ) : (
         <ul className="list-group">
           {memories.map((m) => (
-            <li key={m.id} className="list-group-item">
-              <Link to={`/memories/${m.id}`} className="fw-bold">
-                {m.event || "Untitled Memory"}
-              </Link>
-              <div className="text-muted small">{new Date(m.created_at).toLocaleString()}</div>
+            <li key={m.id} className="list-group-item d-flex justify-content-between align-items-start">
+              <div>
+                <Link to={`/memories/${m.id}`} className="fw-bold">
+                  {m.event || "Untitled Memory"}
+                </Link>
+                <div className="text-muted small">{new Date(m.created_at).toLocaleString()}</div>
+              </div>
+              <button
+                className="btn btn-sm btn-outline-primary"
+                onClick={async () => {
+                  try {
+                    const res = await apiFetch("/assistants/primary/spawn-agent/", {
+                      method: "POST",
+                      body: { memory_id: m.id },
+                    });
+                    window.location.href = `/assistants/${res.assistant.slug}`;
+                  } catch (err) {
+                    console.error(err);
+                    alert("Failed to spawn agent");
+                  }
+                }}
+              >
+                Spawn Agent
+              </button>
             </li>
           ))}
         </ul>

@@ -22,6 +22,9 @@ urlpatterns = [
     path("create_from_thought/", assistants.create_assistant_from_thought),
     path("thoughts/reflect-on-assistant/", assistants.reflect_on_assistant),
     path("primary/", assistants.primary_assistant_view, name="primary-assistant"),
+    path("primary/reflect-now/", assistants.primary_reflect_now, name="primary-reflect-now"),
+    path("primary/spawn-agent/", assistants.primary_spawn_agent, name="primary-spawn-agent"),
+    path("primary/delegations/", delegations.primary_delegations, name="primary-delegations"),
     path("", assistants.assistants_view, name="assistants_view"),
     path("create/", assistants.assistants_view, name="assistants-list-create"),
     # ===== PROJECTS =====
