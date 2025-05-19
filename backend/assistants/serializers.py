@@ -153,7 +153,20 @@ class AssistantObjectiveSerializer(serializers.ModelSerializer):
 class AssistantTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssistantTask
-        fields = ["id", "project", "objective", "title", "status", "notes", "priority", "created_at"]
+        fields = [
+            "id",
+            "project",
+            "objective",
+            "title",
+            "status",
+            "notes",
+            "priority",
+            "source_type",
+            "source_id",
+            "proposed_by",
+            "confirmed_by_user",
+            "created_at",
+        ]
         read_only_fields = ["id", "created_at"]
 
 
@@ -325,8 +338,7 @@ class AssistantMemoryChainSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "mode",
-            "filters",
-            "reflection_tags",
+
             "memories",
             "created_at",
         ]

@@ -42,6 +42,12 @@ THINKING_STYLES = [
     ("reflective", "Reflective"),
 ]
 
+# Memory chain retrieval behavior
+MEMORY_CHAIN_MODES = [
+    ("automatic", "Automatic"),
+    ("manual", "Manual"),
+]
+
 ROLE_CHOICES = [
     ("user", "User"),
     ("assistant", "Assistant"),
@@ -289,6 +295,20 @@ class AssistantTask(models.Model):
     status = models.CharField(max_length=50, default="pending")
     notes = models.TextField(blank=True)
     priority = models.IntegerField(default=0)
+    source_type = models.CharField(
+        max_length=20,
+        choices=[("thought", "Thought"), ("memory", "Memory"), ("custom", "Custom")],
+        default="custom",
+    )
+    source_id = models.UUIDField(null=True, blank=True)
+    proposed_by = models.ForeignKey(
+        "assistants.Assistant",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="tasks_proposed",
+    )
+    confirmed_by_user = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
 
@@ -396,17 +416,19 @@ class AssistantPromptLink(models.Model):
 class AssistantMemoryChain(models.Model):
     """Sequence of related memories and prompts for a project."""
 
+    MODE_CHOICES = [
+        ("automatic", "Automatic"),
+        ("manual", "Manual"),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     project = models.ForeignKey(
         "project.Project", on_delete=models.CASCADE, related_name="memory_chains"
     )
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    mode = models.CharField(max_length=20, default="manual")
-    filters = models.JSONField(default=dict, blank=True)
-    reflection_tags = models.ManyToManyField(
-        "mcp_core.Tag", blank=True, related_name="memory_chains"
-    )
+
+    exclude_types = models.JSONField(default=list, blank=True)
     memories = models.ManyToManyField(MemoryEntry, blank=True)
     prompts = models.ManyToManyField(Prompt, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
