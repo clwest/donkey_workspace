@@ -50,6 +50,11 @@ export default function Navbar() {
             </button>
             <ul className="dropdown-menu">
               <li><Link className="dropdown-item" to="/assistant-dashboard">🚀 Dashboard</Link></li>
+              <li>
+                <Link className="dropdown-item" to="/assistants/primary">
+                  🧠 Primary Assistant
+                </Link>
+              </li>
               <li><Link className="dropdown-item" to="/prompts/assistant">🧪 Prompt Creation Assistant</Link></li>
               <li><hr className="dropdown-divider" /></li>
               <li><Link className="dropdown-item" to="/assistants">🧑‍💻 All Assistants</Link></li>

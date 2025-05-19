@@ -6,6 +6,7 @@ import Modal from "../../components/CommonModal";
 import PromptUsageLogTable from "../../components/prompts/PromptUsageLogTable";
 import PromptUsageLogList from "../../components/prompts/PromptUsageLogList";
 import PromptDiagnosticsPanel from "../../components/prompts/PromptDiagnosticPanel";
+import PrimaryStar from "../../components/assistant/PrimaryStar";
 
 export default function PromptDetailView() {
   const { slug } = useParams();
@@ -86,6 +87,7 @@ export default function PromptDetailView() {
 
       <p className="text-muted mb-2">
         Assigned to: {prompt.assistant?.name || "None"}
+        <PrimaryStar isPrimary={prompt.assistant?.is_primary} />
       </p>
       <p className="text-muted mb-4">
         Type: {prompt.type} | Source: {prompt.source} | Tokens: {prompt.token_count}
