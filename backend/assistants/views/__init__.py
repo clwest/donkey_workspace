@@ -7,6 +7,8 @@ from .assistants import (
     flush_chat_session,
     demo_assistant,
     reflect_on_assistant,
+    primary_reflect_now,
+    primary_spawn_agent,
 )
 from .thoughts import (
     submit_assistant_thought,
@@ -52,6 +54,7 @@ from .sessions import (
     sessions_for_assistant,
 )
 from .delegation import recent_delegation_events, spawn_from_context
+from .delegations import delegation_events_for_assistant, primary_delegations
 from .bootstrap import prompt_to_assistant
 from .signals import (
     signal_sources,
@@ -73,6 +76,8 @@ __all__ = [
     "assistants_view",
     "assistant_detail_view",
     "primary_assistant_view",
+    "primary_reflect_now",
+    "primary_spawn_agent",
     "create_assistant_from_thought",
     "chat_with_assistant_view",
     "flush_chat_session",
@@ -124,6 +129,7 @@ __all__ = [
     "assistant_project_task_detail",
     "recent_delegation_events",
     "delegation_events_for_assistant",
+    "primary_delegations",
     "spawn_from_context",
     "prompt_to_assistant",
 ]

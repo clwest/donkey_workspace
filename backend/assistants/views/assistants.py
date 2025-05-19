@@ -32,6 +32,8 @@ from assistants.helpers.chat_helper import get_or_create_chat_session, save_chat
 from assistants.utils.delegation import spawn_delegated_assistant
 from assistants.helpers.memory_helpers import create_memory_from_chat
 from memory.models import MemoryEntry
+from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
+from memory.utils.context_helpers import get_or_create_context_from_memory
 from embeddings.helpers.helpers_io import save_embedding
 from embeddings.helpers.helper_tagging import generate_tags_for_memory
 from prompts.models import Prompt
@@ -90,6 +92,81 @@ def primary_assistant_view(request):
     data = serializer.data
     data["recent_thoughts"] = recent
     return Response(data)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def primary_reflect_now(request):
+    """Trigger immediate reflection for the primary assistant."""
+    assistant = Assistant.objects.filter(is_primary=True).first()
+    if not assistant:
+        return Response({"error": "No primary assistant."}, status=404)
+
+    memory_id = request.data.get("memory_id")
+    if not memory_id:
+        return Response({"error": "memory_id required"}, status=400)
+
+    memory = get_object_or_404(MemoryEntry, id=memory_id)
+    context = get_or_create_context_from_memory(memory)
+    engine = AssistantReflectionEngine(assistant)
+    summary = engine.reflect_now(context)
+
+    log_assistant_thought(
+        assistant,
+        summary,
+        thought_type="reflection",
+        linked_memory=memory,
+    )
+
+    return Response({"summary": summary})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def primary_spawn_agent(request):
+    """Spawn a delegated assistant from memory using the primary assistant."""
+    parent = Assistant.objects.filter(is_primary=True).first()
+    if not parent:
+        return Response({"error": "No primary assistant."}, status=404)
+
+    memory_id = request.data.get("memory_id")
+    if not memory_id:
+        return Response({"error": "memory_id required"}, status=400)
+
+    reason = request.data.get("reason") or request.data.get("goal") or "delegation"
+
+    memory = get_object_or_404(MemoryEntry, id=memory_id)
+
+    child = spawn_delegated_assistant(parent, memory_entry=memory, reason=reason)
+
+    project = Project.objects.filter(assistant=child).first()
+
+    log_assistant_thought(
+        parent,
+        f"Spawned {child.name} for {reason}",
+        thought_type="planning",
+        linked_memory=memory,
+        project=project,
+    )
+    log_assistant_thought(
+        child,
+        f"Spawned by {parent.name} for {reason}",
+        thought_type="meta",
+        linked_memory=memory,
+        project=project,
+    )
+
+    return Response(
+        {
+            "assistant": {
+                "id": str(child.id),
+                "slug": child.slug,
+                "name": child.name,
+            },
+            "project_id": str(project.id) if project else None,
+        },
+        status=201,
+    )
 
 
 @api_view(["POST"])

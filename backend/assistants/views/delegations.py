@@ -40,3 +40,27 @@ def delegation_events_for_assistant(request, slug):
     )
     serializer = DelegationEventSerializer(events, many=True)
     return Response(serializer.data)
+
+
+@api_view(["GET"])
+def primary_delegations(request):
+    """List delegation events involving the primary assistant."""
+    from django.db.models import Q
+    from assistants.models import Assistant
+
+    primary = Assistant.objects.filter(is_primary=True).first()
+    if not primary:
+        return Response({"error": "No primary assistant."}, status=404)
+
+    events = (
+        DelegationEvent.objects.select_related(
+            "parent_assistant",
+            "child_assistant",
+            "triggering_memory",
+            "triggering_session",
+        )
+        .filter(Q(parent_assistant=primary) | Q(child_assistant=primary))
+        .order_by("-created_at")
+    )
+    serializer = DelegationEventSerializer(events, many=True)
+    return Response(serializer.data)
