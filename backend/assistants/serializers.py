@@ -14,7 +14,6 @@ from .models import (
     DelegationEvent,
     SignalSource,
     SignalCatch,
-    
 )
 
 from project.models import (
@@ -46,12 +45,8 @@ class DelegationEventSerializer(serializers.ModelSerializer):
 
     parent = serializers.CharField(source="parent_assistant.name", read_only=True)
     child = serializers.CharField(source="child_assistant.name", read_only=True)
-    memory_id = serializers.UUIDField(
-        source="triggering_memory.id", read_only=True
-    )
-    session_id = serializers.UUIDField(
-        source="triggering_session.id", read_only=True
-    )
+    memory_id = serializers.UUIDField(source="triggering_memory.id", read_only=True)
+    session_id = serializers.UUIDField(source="triggering_session.id", read_only=True)
 
     class Meta:
         model = DelegationEvent
@@ -64,6 +59,7 @@ class DelegationEventSerializer(serializers.ModelSerializer):
             "session_id",
             "created_at",
         ]
+
 
 class AssistantReflectionLogSerializer(serializers.ModelSerializer):
     class Meta:
@@ -165,6 +161,8 @@ class AssistantSerializer(serializers.ModelSerializer):
     documents = DocumentSerializer(many=True, read_only=True)
     projects = AssistantProjectSerializer(many=True, read_only=True)
     child_assistants = serializers.SerializerMethodField()
+    source_document_title = serializers.SerializerMethodField()
+    source_document_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -184,12 +182,22 @@ class AssistantSerializer(serializers.ModelSerializer):
             "projects",
             "preferred_model",
             "child_assistants",
+            "source_document_title",
+            "source_document_url",
             "created_at",
         ]
         read_only_fields = ["id", "slug", "created_at"]
 
     def get_child_assistants(self, obj):
         return AssistantSerializer(obj.sub_assistants.all(), many=True).data
+
+    def get_source_document_title(self, obj):
+        doc = obj.documents.first()
+        return doc.title if doc else None
+
+    def get_source_document_url(self, obj):
+        doc = obj.documents.first()
+        return doc.source_url if doc else None
 
 
 # serializers.py
@@ -283,7 +291,6 @@ class SignalCatchSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]
-
 
 
 # assistants/serializers.py
