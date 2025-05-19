@@ -208,6 +208,7 @@ urlpatterns = [
         delegations.delegation_events_for_assistant,
         name="assistant-delegations",
     ),
+
     path("<slug:slug>/reflections/recent/", thoughts.get_recent_reflections),
     path(
         "<slug:slug>/reflections/",

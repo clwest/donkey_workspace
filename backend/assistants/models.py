@@ -362,6 +362,13 @@ class AssistantObjective(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     is_completed = models.BooleanField(default=False)
+    delegated_assistant = models.ForeignKey(
+        "Assistant",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="delegated_objectives",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -721,6 +728,13 @@ class DelegationEvent(models.Model):
     )
     triggering_session = models.ForeignKey(
         "assistants.ChatSession",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="delegation_events",
+    )
+    objective = models.ForeignKey(
+        "assistants.AssistantObjective",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
