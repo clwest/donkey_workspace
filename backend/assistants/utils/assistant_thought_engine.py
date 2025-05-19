@@ -138,11 +138,17 @@ Memories:
         flagged = client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "You are a safety reviewer for AI thoughts. Flag unsafe, manipulative, or risky ideas."},
-                {"role": "user", "content": f"Assistant thought:\n\n{content}\n\nIs this a risk? Flag and explain."}
+                {
+                    "role": "system",
+                    "content": "You are a safety reviewer for AI thoughts. Flag unsafe, manipulative, or risky ideas.",
+                },
+                {
+                    "role": "user",
+                    "content": f"Assistant thought:\n\n{content}\n\nIs this a risk? Flag and explain.",
+                },
             ],
             temperature=0,
-            max_tokens=150
+            max_tokens=150,
         )
 
         output = flagged.choices[0].message.content
@@ -150,7 +156,7 @@ Memories:
             ReflectionFlag.objects.create(
                 memory=memory,
                 reason=output,
-                severity="high" if "critical" in output.lower() else "medium"
+                severity="high" if "critical" in output.lower() else "medium",
             )
 
     # ─────────────────────────────────────────────────────────────────────
@@ -197,6 +203,20 @@ Memories:
             "message": f"Project planning for '{self.project.title}' not implemented yet.",
             "status": "stub",
         }
+
+    def plan_from_memory(self, chain):
+        """Generate a plan summary from a memory chain."""
+        from .memory_filters import get_filtered_memories
+
+        memories = get_filtered_memories(chain)
+        if not memories:
+            return {"summary": "No relevant memories."}
+
+        texts = [m.summary or m.event for m in memories]
+        prompt = self.build_summary_prompt(texts)
+        summary = self.generate_thought(prompt)
+        self.log_thought(summary, thought_type="planning")
+        return {"summary": summary, "source_count": len(memories)}
 
     def plan_tasks_from_objective(self, objective):
         """Generate simple tasks for an objective. Placeholder implementation."""

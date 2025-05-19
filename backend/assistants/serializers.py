@@ -133,7 +133,16 @@ class AssistantObjectiveSerializer(serializers.ModelSerializer):
 class AssistantTaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssistantTask
-        fields = ["id", "project", "objective", "title", "status", "notes", "priority", "created_at"]
+        fields = [
+            "id",
+            "project",
+            "objective",
+            "title",
+            "status",
+            "notes",
+            "priority",
+            "created_at",
+        ]
         read_only_fields = ["id", "created_at"]
 
 
@@ -191,6 +200,7 @@ class ProjectOverviewSerializer(serializers.ModelSerializer):
 
     def get_active_milestones(self, obj):
         return obj.milestones.count()
+
 
 # assistants/serializers.py
 class AssistantSerializer(serializers.ModelSerializer):
@@ -305,6 +315,8 @@ class AssistantMemoryChainSerializer(serializers.ModelSerializer):
             "description",
             "mode",
             "filters",
+            "filter_tags",
+            "exclude_types",
             "reflection_tags",
             "memories",
             "created_at",
@@ -400,6 +412,7 @@ class ChatSessionSerializer(serializers.ModelSerializer):
 
 class AssistantSerializer(serializers.ModelSerializer):
     current_project = ProjectOverviewSerializer(read_only=True)
+
     class Meta:
         model = Assistant
         fields = [

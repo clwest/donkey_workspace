@@ -22,9 +22,21 @@ urlpatterns = [
     path("create_from_thought/", assistants.create_assistant_from_thought),
     path("thoughts/reflect-on-assistant/", assistants.reflect_on_assistant),
     path("primary/", assistants.primary_assistant_view, name="primary-assistant"),
-    path("primary/reflect-now/", assistants.primary_reflect_now, name="primary-reflect-now"),
-    path("primary/spawn-agent/", assistants.primary_spawn_agent, name="primary-spawn-agent"),
-    path("primary/delegations/", delegations.primary_delegations, name="primary-delegations"),
+    path(
+        "primary/reflect-now/",
+        assistants.primary_reflect_now,
+        name="primary-reflect-now",
+    ),
+    path(
+        "primary/spawn-agent/",
+        assistants.primary_spawn_agent,
+        name="primary-spawn-agent",
+    ),
+    path(
+        "primary/delegations/",
+        delegations.primary_delegations,
+        name="primary-delegations",
+    ),
     path("", assistants.assistants_view, name="assistants_view"),
     path("create/", assistants.assistants_view, name="assistants-list-create"),
     # ===== PROJECTS =====
@@ -98,6 +110,11 @@ urlpatterns = [
         name="assistant-reflect-now-context",
     ),
     path(
+        "<slug:slug>/reflect/chain/",
+        memory.reflect_on_memory_chain,
+        name="assistant-reflect-chain",
+    ),
+    path(
         "<slug:slug>/memories/",
         memory.assistant_memories,
         name="assistant-memories",
@@ -147,6 +164,11 @@ urlpatterns = [
         memory.assistant_memory_chains,
         name="assistant-memory-chains",
     ),  # GET + POST
+    path(
+        "memory-chains/<uuid:chain_id>/",
+        memory.assistant_memory_chain_detail,
+        name="assistant-memory-chain-detail",
+    ),
     # ===== MILESTONES =====
     # ===== SIGNAL SOURCES & CATCHES =====
     path("sources/", signals.signal_sources, name="signal-sources"),  # GET + POST
@@ -176,11 +198,27 @@ urlpatterns = [
     path("thoughts/<uuid:id>/", thoughts.assistant_thought_detail),
     # path("delegations/recent/", views.recent_delegation_events),
     # path("delegation_events/recent/", views.recent_delegation_events),
-    path("<slug:slug>/sessions/", sessions.sessions_for_assistant, name="assistant-sessions"),
-    path("<slug:slug>/delegations/", delegations.delegation_events_for_assistant, name="assistant-delegations"),
+    path(
+        "<slug:slug>/sessions/",
+        sessions.sessions_for_assistant,
+        name="assistant-sessions",
+    ),
+    path(
+        "<slug:slug>/delegations/",
+        delegations.delegation_events_for_assistant,
+        name="assistant-delegations",
+    ),
     path("<slug:slug>/reflections/recent/", thoughts.get_recent_reflections),
-    path("<slug:slug>/reflections/", memory.assistant_reflection_logs, name="assistant-reflection-logs"),
-    path("reflections/<uuid:id>/", memory.assistant_reflection_detail, name="assistant-reflection-detail"),
+    path(
+        "<slug:slug>/reflections/",
+        memory.assistant_reflection_logs,
+        name="assistant-reflection-logs",
+    ),
+    path(
+        "reflections/<uuid:id>/",
+        memory.assistant_reflection_detail,
+        name="assistant-reflection-detail",
+    ),
     # SLUGS MUST STAY AT THE BOTTOM!
     path(
         "<slug:slug>/chat/", assistants.chat_with_assistant_view, name="assistant-chat"
