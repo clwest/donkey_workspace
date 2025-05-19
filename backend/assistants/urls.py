@@ -132,7 +132,6 @@ urlpatterns = [
     path(
         "<slug:slug>/reflect/chain/",
         memory.reflect_on_memory_chain,
-
     ),
     path(
         "<slug:slug>/memories/",
@@ -230,11 +229,20 @@ urlpatterns = [
         name="assistant-sessions",
     ),
     path(
+        "<slug:slug>/session-summary/<uuid:session_id>/",
+        sessions.session_summary,
+        name="assistant-session-summary",
+    ),
+    path(
         "<slug:slug>/delegations/",
         delegations.delegation_events_for_assistant,
         name="assistant-delegations",
     ),
-
+    path(
+        "<slug:slug>/delegation-trace/",
+        delegations.delegation_trace,
+        name="assistant-delegation-trace",
+    ),
     path("<slug:slug>/reflections/recent/", thoughts.get_recent_reflections),
     path(
         "<slug:slug>/reflections/",

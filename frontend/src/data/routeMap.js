@@ -43,6 +43,13 @@ export const routeMap = [
     notes: "Trigger assistant reflection",
   },
   {
+    frontend: "/assistants/:slug/trace",
+    backend: "/api/assistants/<slug>/delegation-trace/",
+    view: "delegation_trace",
+    serializer: "DelegationEventSerializer",
+    notes: "Nested delegation chain",
+  },
+  {
     frontend: "/assistants/:slug/reflections",
     backend: "/api/assistants/<slug>/reflections/",
     view: "assistant_reflection_logs",

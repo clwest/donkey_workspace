@@ -11,6 +11,8 @@ export default function AssistantSessionDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showReplay, setShowReplay] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
+  const [summary, setSummary] = useState(null);
 
   useEffect(() => {
     async function fetchSessionDetail() {
@@ -104,6 +106,19 @@ export default function AssistantSessionDetailPage() {
     downloadFile(md, `session_${session.session_id}.md`, "text/markdown");
   };
 
+  const loadSummary = async () => {
+    if (!session) return;
+    try {
+      const data = await fetch(
+        `http://localhost:8000/api/assistants/${session.assistant_slug}/session-summary/${sessionId}/`
+      ).then((r) => r.json());
+      setSummary(data.entries || []);
+      setShowSummary(true);
+    } catch (err) {
+      console.error("Failed to load summary", err);
+    }
+  };
+
   if (loading) return <div className="container my-5">Loading...</div>;
   if (error) return <div className="container my-5 text-danger">Error: {error}</div>;
   if (!session) return null;
@@ -130,6 +145,12 @@ export default function AssistantSessionDetailPage() {
           </button>
           <button className="btn btn-sm btn-outline-secondary" onClick={exportMarkdown}>
             ⬇️ Download .md
+          </button>
+          <button
+            className="btn btn-sm btn-outline-info ms-2"
+            onClick={loadSummary}
+          >
+            🧠 View Summary Replay
           </button>
           {hasAudio && (
             <button
@@ -170,6 +191,22 @@ export default function AssistantSessionDetailPage() {
               </div>
             )
         )}
+      </CommonModal>
+      <CommonModal
+        show={showSummary}
+        onClose={() => setShowSummary(false)}
+        title="Summary Replay"
+      >
+        {summary &&
+          summary.map((e, idx) => (
+            <div key={idx} className="mb-2">
+              <div>
+                <strong>{e.type === "thought" ? e.assistant : `${e.assistant} → ${e.child}`}</strong>
+              </div>
+              {e.content && <div>{e.content}</div>}
+              {e.reason && <div className="small text-muted">{e.reason}</div>}
+            </div>
+          ))}
       </CommonModal>
     </div>
   );
