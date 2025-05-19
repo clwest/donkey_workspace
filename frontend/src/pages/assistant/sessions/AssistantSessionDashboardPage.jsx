@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
 
-export default function AssistantSessionDashboardPage() {
-  const { slug } = useParams();
+export default function AssistantSessionDashboardPage({ slug: slugProp }) {
+  const params = useParams();
+  const slug = slugProp || params.slug;
   const [sessions, setSessions] = useState([]);
   const [delegations, setDelegations] = useState([]);
   const [threads, setThreads] = useState([]);
@@ -13,6 +14,7 @@ export default function AssistantSessionDashboardPage() {
   useEffect(() => {
     async function load() {
       try {
+        if (!slug) return;
         const sessRes = await apiFetch(`/assistants/${slug}/sessions/`);
         setSessions(sessRes.sessions || []);
         setThreads(sessRes.threads || []);
@@ -29,13 +31,17 @@ export default function AssistantSessionDashboardPage() {
 
   const handleReflect = async () => {
     try {
-      const res = await apiFetch(`/assistants/${slug}/reflect-now/`, { method: "POST" });
+      const res = await apiFetch(`/assistants/${slug}/reflect-now/`, {
+        method: "POST",
+      });
       setReflection(res);
     } catch (err) {
       console.error("Reflection failed", err);
     }
   };
 
+  if (!slug)
+    return <div className="container my-5">Assistant slug missing.</div>;
   if (loading) return <div className="container my-5">Loading...</div>;
 
   return (
@@ -43,13 +49,22 @@ export default function AssistantSessionDashboardPage() {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>Sessions Dashboard: {slug}</h2>
         <div>
-          <Link to={`/assistants/${slug}`} className="btn btn-outline-secondary me-2">Back</Link>
-          <button className="btn btn-primary" onClick={handleReflect}>Reflect Now</button>
+          <Link
+            to={`/assistants/${slug}`}
+            className="btn btn-outline-secondary me-2"
+          >
+            Back
+          </Link>
+          <button className="btn btn-primary" onClick={handleReflect}>
+            Reflect Now
+          </button>
         </div>
       </div>
 
       {reflection && (
-        <div className="alert alert-info"><pre className="mb-0">{reflection.summary}</pre></div>
+        <div className="alert alert-info">
+          <pre className="mb-0">{reflection.summary}</pre>
+        </div>
       )}
 
       <h4>Recent Sessions</h4>
@@ -59,8 +74,12 @@ export default function AssistantSessionDashboardPage() {
         <ul className="list-group mb-4">
           {sessions.map((s) => (
             <li key={s.session_id} className="list-group-item">
-              <Link to={`/assistants/sessions/${s.session_id}`}>{s.session_id}</Link>
-              <span className="text-muted ms-2">{new Date(s.created_at).toLocaleString()}</span>
+              <Link to={`/assistants/sessions/${s.session_id}`}>
+                {s.session_id}
+              </Link>
+              <span className="text-muted ms-2">
+                {new Date(s.created_at).toLocaleString()}
+              </span>
             </li>
           ))}
         </ul>
@@ -73,7 +92,9 @@ export default function AssistantSessionDashboardPage() {
         <ul className="list-group mb-4">
           {delegations.map((d, idx) => (
             <li key={idx} className="list-group-item">
-              <strong>{d.parent} ➡ {d.child}</strong>
+              <strong>
+                {d.parent} ➡ {d.child}
+              </strong>
               <div>{d.reason}</div>
               {d.summary && <div className="text-muted small">{d.summary}</div>}
             </li>
