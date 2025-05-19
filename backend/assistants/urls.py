@@ -288,6 +288,11 @@ urlpatterns = [
         name="objectives-for-assistant",
     ),
     path(
+        "<slug:slug>/reflect-to-objectives/",
+        objectives.reflect_to_objectives,
+        name="reflect-to-objectives",
+    ),
+    path(
         "<slug:slug>/plan-tasks/<uuid:objective_id>/",
         tasks.plan_tasks_for_objective,
         name="plan-tasks-objective",

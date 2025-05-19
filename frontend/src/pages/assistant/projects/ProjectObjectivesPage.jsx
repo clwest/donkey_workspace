@@ -6,16 +6,22 @@ import { Link, useParams } from "react-router-dom";
 export default function ProjectObjectivesPage() {
   const { projectId } = useParams();
   const [objectives, setObjectives] = useState([]);
+  const [project, setProject] = useState(null);
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
 
   useEffect(() => {
-    async function fetchObjectives() {
-      const res = await fetch(`http://localhost:8000/api/assistants/projects/${projectId}/objectives/`);
-      const data = await res.json();
-      setObjectives(data);
+    async function fetchData() {
+      const [projRes, objRes] = await Promise.all([
+        fetch(`http://localhost:8000/api/assistants/projects/${projectId}/`),
+        fetch(`http://localhost:8000/api/assistants/projects/${projectId}/objectives/`)
+      ]);
+      const projData = await projRes.json();
+      const objData = await objRes.json();
+      setProject(projData);
+      setObjectives(objData);
     }
-    fetchObjectives();
+    fetchData();
   }, [projectId]);
 
   async function createObjective() {
@@ -59,7 +65,28 @@ export default function ProjectObjectivesPage() {
     setObjectives(prev => prev.filter(obj => obj.id !== id));
   }
 
-  if (!objectives.length) {
+  async function inferObjectives() {
+    if (!project?.assistant?.slug) return;
+    const res = await fetch(
+      `http://localhost:8000/api/assistants/${project.assistant.slug}/reflect-to-objectives/`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ project_id: projectId }),
+      }
+    );
+    if (res.ok) {
+      const data = await res.json();
+      if (data.length) {
+        window.alert(`Created ${data.length} objectives.`);
+        setObjectives(prev => [...data, ...prev]);
+      }
+    } else {
+      window.alert("Failed to generate objectives");
+    }
+  }
+
+  if (!project) {
     return <div className="container my-5">Loading objectives...</div>;
   }
 
@@ -82,8 +109,11 @@ export default function ProjectObjectivesPage() {
           value={newDescription}
           onChange={(e) => setNewDescription(e.target.value)}
         />
-        <button onClick={createObjective} className="btn btn-success">
+        <button onClick={createObjective} className="btn btn-success me-2">
           ➕ Add Objective
+        </button>
+        <button onClick={inferObjectives} className="btn btn-outline-primary">
+          🔍 Infer Objectives From Thoughts
         </button>
       </div>
 

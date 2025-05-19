@@ -76,6 +76,7 @@ from .tasks import (
     # assistant_reflect_on_thoughts,
     assistant_project_task_detail,
 )
+from .objectives import reflect_to_objectives
 
 __all__ = [
     "assistants_view",
@@ -142,4 +143,5 @@ __all__ = [
     "primary_delegations",
     "spawn_from_context",
     "prompt_to_assistant",
+    "reflect_to_objectives",
 ]
