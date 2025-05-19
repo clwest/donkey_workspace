@@ -42,6 +42,12 @@ THINKING_STYLES = [
     ("reflective", "Reflective"),
 ]
 
+# Memory chain retrieval behavior
+MEMORY_CHAIN_MODES = [
+    ("automatic", "Automatic"),
+    ("manual", "Manual"),
+]
+
 ROLE_CHOICES = [
     ("user", "User"),
     ("assistant", "Assistant"),
@@ -402,11 +408,15 @@ class AssistantMemoryChain(models.Model):
     )
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    mode = models.CharField(max_length=20, default="manual")
-    filters = models.JSONField(default=dict, blank=True)
-    reflection_tags = models.ManyToManyField(
-        "mcp_core.Tag", blank=True, related_name="memory_chains"
+    mode = models.CharField(
+        max_length=20,
+        choices=MEMORY_CHAIN_MODES,
+        default="manual",
     )
+    filter_tags = models.ManyToManyField(
+        "mcp_core.Tag", blank=True, related_name="filtered_memory_chains"
+    )
+    exclude_types = models.JSONField(default=list, blank=True)
     memories = models.ManyToManyField(MemoryEntry, blank=True)
     prompts = models.ManyToManyField(Prompt, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

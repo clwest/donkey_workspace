@@ -40,6 +40,7 @@ from .memory import (
     assistant_project_reflections,
     assistant_memories,
     reflect_now,
+    reflect_on_memory_chain,
     assistant_reflection_logs,
     assistant_reflection_detail,
 )
@@ -108,6 +109,7 @@ __all__ = [
     "assistant_project_reflections",
     "assistant_memories",
     "reflect_now",
+    "reflect_on_memory_chain",
     "assistant_reflection_logs",
     "assistant_reflection_detail",
     "linked_prompts",

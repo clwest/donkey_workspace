@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
 import AssistantThoughtCard from "../../components/assistant/thoughts/AssistantThoughtCard";
 import AssistantMemoryPanel from "../../components/assistant/memory/AssistantMemoryPanel";
+import MemoryChainSettingsPanel from "../../components/assistant/memory/MemoryChainSettingsPanel";
 import PrimaryStar from "../../components/assistant/PrimaryStar";
 
 export default function PrimaryAssistantDashboard() {
@@ -93,6 +94,7 @@ export default function PrimaryAssistantDashboard() {
         <div className="col-md-6">
           <h4 className="mb-3">Memory</h4>
           <AssistantMemoryPanel slug={assistant.slug} />
+          <MemoryChainSettingsPanel slug={assistant.slug} />
           <Link
             to={`/assistants/${assistant.slug}/memories/`}
             className="btn btn-sm btn-outline-secondary mt-2"

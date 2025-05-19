@@ -21,6 +21,7 @@ from project.serializers import ProjectMemoryLinkSerializer
 from memory.models import MemoryEntry
 from memory.serializers import MemoryEntrySerializer, MemoryEntrySlimSerializer
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
+from assistants.utils.memory_filters import get_filtered_memories
 from memory.utils.context_helpers import get_or_create_context_from_memory
 from mcp_core.models import MemoryContext
 from django.contrib.contenttypes.models import ContentType
@@ -29,7 +30,7 @@ from project.models import Project
 
 
 # Assistant Memory Chains
-@api_view(["GET", "POST"])
+@api_view(["GET", "POST", "PATCH"])
 def assistant_memory_chains(request, project_id):
     if request.method == "GET":
         chains = AssistantMemoryChain.objects.filter(project_id=project_id)
@@ -40,6 +41,18 @@ def assistant_memory_chains(request, project_id):
         if serializer.is_valid():
             serializer.save(project_id=project_id)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if request.method == "PATCH":
+        chain_id = request.data.get("id")
+        chain = get_object_or_404(
+            AssistantMemoryChain, id=chain_id, project_id=project_id
+        )
+        serializer = AssistantMemoryChainSerializer(
+            chain, data=request.data, partial=True
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -116,6 +129,31 @@ def reflect_now(request, slug):
     return Response({"summary": summary})
 
 
+@api_view(["POST"])
+def reflect_on_memory_chain(request, slug):
+    """Run reflection on a specific memory chain."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    chain_id = request.data.get("chain_id")
+    chain = get_object_or_404(AssistantMemoryChain, id=chain_id)
+
+    memories = get_filtered_memories(chain)
+    texts = [m.event.strip() for m in memories if m.event]
+    if not texts:
+        return Response({"summary": "No relevant memories."})
+
+    engine = AssistantReflectionEngine(assistant)
+    prompt = engine.build_reflection_prompt(texts)
+    summary = engine.generate_reflection(prompt)
+    AssistantReflectionLog.objects.create(
+        assistant=assistant,
+        project=chain.project,
+        title=f"Reflection on {chain.title}",
+        summary=summary,
+        raw_prompt=prompt,
+    )
+    return Response({"summary": summary})
+
+
 @api_view(["GET"])
 def assistant_reflection_logs(request, slug):
     """List all reflection logs for an assistant."""
@@ -134,5 +172,3 @@ def assistant_reflection_detail(request, id):
     reflection = get_object_or_404(AssistantReflectionLog, id=id)
     serializer = AssistantReflectionLogDetailSerializer(reflection)
     return Response(serializer.data)
-
-

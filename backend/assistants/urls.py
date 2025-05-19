@@ -110,6 +110,11 @@ urlpatterns = [
         name="assistant-reflect-now-context",
     ),
     path(
+        "<slug:slug>/reflect/chain/",
+        memory.reflect_on_memory_chain,
+        name="assistant-reflect-on-chain",
+    ),
+    path(
         "<slug:slug>/memories/",
         memory.assistant_memories,
         name="assistant-memories",
