@@ -446,6 +446,20 @@ class AssistantObjective(models.Model):
         blank=True,
         related_name="delegated_objectives",
     )
+    generated_from_reflection = models.ForeignKey(
+        "assistants.AssistantReflectionLog",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="generated_objectives",
+    )
+    source_memory = models.ForeignKey(
+        "memory.MemoryEntry",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="generated_objectives",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

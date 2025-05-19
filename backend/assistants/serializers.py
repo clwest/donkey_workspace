@@ -155,6 +155,13 @@ class AssistantObjectiveSerializer(serializers.ModelSerializer):
     delegated_assistant_name = serializers.CharField(
         source="delegated_assistant.name", read_only=True
     )
+    generated_from_reflection = serializers.UUIDField(
+        source="generated_from_reflection.id", read_only=True
+    )
+    reflection_created_at = serializers.DateTimeField(
+        source="generated_from_reflection.created_at", read_only=True
+    )
+    source_memory = serializers.UUIDField(source="source_memory.id", read_only=True)
 
     class Meta:
         model = AssistantObjective
@@ -166,6 +173,9 @@ class AssistantObjectiveSerializer(serializers.ModelSerializer):
             "is_completed",
             "delegated_assistant_slug",
             "delegated_assistant_name",
+            "generated_from_reflection",
+            "reflection_created_at",
+            "source_memory",
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]

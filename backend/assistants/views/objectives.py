@@ -8,7 +8,9 @@ from rest_framework import status
 from assistants.models import (
     AssistantObjective,
     AssistantThoughtLog,
+    AssistantReflectionLog,
 )
+from assistants.utils.objective_from_reflection import generate_objective_from_reflection
 
 from assistants.serializers import (
     AssistantObjectiveSerializer,
@@ -107,4 +109,24 @@ def reflect_to_objectives(request, slug):
         created.append(obj)
 
     serializer = AssistantObjectiveSerializer(created, many=True)
+    return Response(serializer.data, status=201)
+
+
+@api_view(["POST"])
+def objective_from_reflection(request, slug):
+    """Create an objective based on a reflection log."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    reflection_id = request.data.get("reflection_id")
+    if not reflection_id:
+        return Response({"error": "reflection_id required"}, status=400)
+
+    try:
+        reflection = AssistantReflectionLog.objects.get(
+            id=reflection_id, assistant=assistant
+        )
+    except AssistantReflectionLog.DoesNotExist:
+        return Response({"error": "Reflection not found"}, status=404)
+
+    obj = generate_objective_from_reflection(reflection)
+    serializer = AssistantObjectiveSerializer(obj)
     return Response(serializer.data, status=201)
