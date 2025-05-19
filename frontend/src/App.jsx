@@ -86,6 +86,7 @@ import GroupedReflectionDetailPage from "./pages/dev/GroupedReflectionDetailPage
 import DocumentBrowserPage from "./pages/intel_core/DocumentBrowserPage";
 import DocumentDetailPage from "./pages/intel_core/DocumentDetailPage";
 import AgentPage from "./pages/agents/AgentPage";
+import PrimaryAssistantPage from "./pages/assistants/PrimaryAssistantPage";
 
 import { ToastContainer } from "react-toastify";
 import Navbar from './components/Navbar';
@@ -122,6 +123,7 @@ export default function App() {
 
           {/* Assistant & Projects */}
           <Route path="/assistants" element={<AssistantList />} />
+          <Route path="/assistants/primary" element={<PrimaryAssistantPage />} />
           <Route path="/assistant-dashboard" element={<AssistantDashboardPage />} />
           <Route path="/assistants/create" element={<CreateNewAssistantPage />} />
           <Route path="/assistants/primary" element={<PrimaryAssistantPage />} />

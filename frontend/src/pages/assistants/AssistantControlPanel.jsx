@@ -4,6 +4,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Card } from "react-bootstrap";
 import apiFetch from "../../utils/apiClient";
+import PrimaryStar from "../../components/assistant/PrimaryStar";
 
 export default function AssistantControlPanel() {
   const { slug } = useParams();
@@ -85,7 +86,10 @@ export default function AssistantControlPanel() {
   return (
     <div className="container my-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2 className="mb-0">{assistant.name}</h2>
+        <h2 className="mb-0">
+          {assistant.name}
+          <PrimaryStar isPrimary={assistant.is_primary} />
+        </h2>
         <div className="btn-group">
           <button className="btn btn-outline-info" onClick={handleReflectNow}>
             Reflect Now
@@ -108,6 +112,11 @@ export default function AssistantControlPanel() {
               <p><strong>Tone:</strong> {assistant.tone || "-"}</p>
               <p><strong>Model:</strong> {assistant.preferred_model || "-"}</p>
               <p><strong>Personality:</strong> {assistant.personality || "-"}</p>
+              {assistant.is_primary && (
+                <p>
+                  <strong>Primary Role:</strong> ✅ System Orchestrator
+                </p>
+              )}
               {assistant.system_prompt && (
                 <div className="mt-3">
                   <h6>System Prompt</h6>
