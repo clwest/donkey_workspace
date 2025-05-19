@@ -38,6 +38,9 @@ def reflect_on_devdoc_view(request, pk):
         return Response({"error": "DevDoc not found"}, status=404)
 
     memory = reflect_on_devdoc(doc)
+    if not memory:
+        return Response({"warning": "DevDoc is not linked to a Document"})
+
     return Response(
         {
             "memory_id": memory.id,
