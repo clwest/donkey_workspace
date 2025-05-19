@@ -1,103 +1,114 @@
-# 🧠 AGENTS.md — Donkey Workspace (Root)
-
-This repository combines a Django backend and a React/Vite frontend. The root `AGENTS.md` keeps repo-wide goals. Backend and frontend specifics live in their own `AGENTS.md` files.
-
-## 📌 Repo-Wide Goals
-
-- Document the overall architecture linking the backend API and the UI.
-- Keep backend and frontend routes in sync.
-- Add integration tests that cover end-to-end assistant flows.
-- Reference the roadmaps in `backend/docs/` for longer-term plans.
-
-## 🔗 Sub-Project Guides
-
-- **Backend tasks:** `backend/AGENTS.md`
-- **Frontend tasks:** `frontend/AGENTS.md`
-
 # AGENTS.md
 
-## 🧠 Project Overview
+## 🧠 Assistant Delegation + Control System
 
-This repo powers an intelligent assistant framework composed of:
-
-- **Assistants** — personalized LLM personas that reflect, delegate, and evolve.
-- **Agents** — low-level task executors spun up by Assistants.
-- **MCP Core** — the orchestration layer (Model Context Protocol).
-- **Embeddings** — vector search for memory/context recall.
-- **Intel Core** — document ingestion (PDFs, URLs, YouTube) + smart chunking.
-- **Frontend** — React/Vite dashboard for interacting with Assistants and reflections.
+This repository implements a dynamic assistant-agent orchestration framework, where top-level Assistants can create agents, spawn sub-assistants, and reflect on memory autonomously. Codex is used to extend and maintain this ecosystem.
 
 ---
 
-## 📆 Current Focus
+## 💡 Key Concepts
 
-We are entering **Phase 3: Delegation + Document Intelligence**.
+### Assistants
 
-### ✅ What's working:
+- Core AI entities with personality, tone, and specialty
+- Backed by a `system_prompt` and linked documents
+- Can spawn other assistants or agents
 
-- Assistant creation, projects, thoughts, reflections, and delegation events.
-- DevDashboard document explorer.
-- Assistant chat, memory logging, and token usage tracking.
-- Codex integrated and actively managing PRs with validated tasks.
+### Agents
 
-### 🛠️ In Progress:
+- Task-specific executors (e.g. research agent, coder agent)
+- Typically short-lived and delegated by Assistants
 
-- Codex fixing DevDoc reflection failures (due to missing linked `Document`)
-- Continuing end-to-end context tracing across assistants, thoughts, threads.
+### Projects
 
----
+- Used to organize objectives, tasks, milestones, and reflections
+- Each AssistantProject can include memory chains, thoughts, and linked documents
 
-## 🧪 Task Queues
+### Memory
 
-### Assistant Pipeline
+- Conversation and action logs saved as `MemoryEntry`
+- Indexed by vector search using PGVector + OpenAI embeddings
+- Memory chains and related reflections can be visualized per assistant
 
-- [ ] Finalize `AssistantTranscriptView`
-- [ ] Complete `DelegationEvent` explorer
-- [ ] Build `SpawnAssistantFromThought` UX
-- [ ] Route assistant reflections to thread/project context
+### Reflections
 
-### DevDocs + Reflections
+- Logged when assistants reflect on memory, decisions, or context
+- Can be manually triggered or auto-triggered during delegation
 
-- [ ] Codex: Fix DevDoc ↔ Document linking fallback
-- [ ] Codex: Cleanup failed reflection retries
-- [ ] Add UI for grouped reflections by tag/topic
+### Delegation
 
-### Core Infrastructure
-
-- [ ] Add automated `flush_chat_sessions` weekly
-- [ ] Auto-archive unused agents
-- [ ] Add `/status` health check endpoints
+- Assistants can create sub-assistants with a reason and summary
+- DelegationEvents are tracked in the database and visible via API
 
 ---
 
-## 🔧 Developer Setup
+## 🔌 Directory Structure
 
 ```bash
-cd backend/
-make run         # Starts Django, Redis, and Celery
-
-cd ../frontend/
-npm install
-npm run dev      # Starts Vite UI
+backend/
+├── assistants/           # Assistant models, serializers, views, and helper functions
+├── agents/               # Lightweight agents for assistant task delegation
+├── intel_core/           # Handles document ingestion, tagging, and embedding
+├── memory/               # Memory entry system, feedback, and threading
+├── mcp_core/             # Core logic for reflections, threading, assistant bootstrapping
+├── prompts/              # Prompt templates and mutation tools
+├── project/              # Project, Objective, Task, and Milestone models
+├── embeddings/           # PGVector integration, chunking, and retrieval
+└── server/               # Django settings, URLs, Celery setup
 ```
 
-⚙️ Optional Scripts
+---
 
-# Run seeders
+## 🛠️ Setup Commands
 
-python manage.py seed_assistants
-python manage.py seed_documents
+```bash
+# Backend
+cd backend
+make run        # starts Django + Celery
+
+# Frontend
+cd frontend
+npm install
+npm run dev
+```
+
+---
+
+## 🧪 Management Commands
+
+```bash
+# DevDoc and embedding management
 python manage.py reflect_on_all_devdocs
+python manage.py embed_assistants
+python manage.py embed_devdocs
 
-# Check embedding + flush sessions
-
-python manage.py check_embedding_status
+# Session flushing
 python manage.py flush_chat_sessions
+```
 
-🧠 Notes for Codex
-• Use capabilities/ for any new assistant-powered modules.
-• Embed all text data using generate_embedding() and save_embedding().
-• Store delegation events in DelegationEvent, link to ChatSession, MemoryEntry, and Project.
-• Use narrative_thread to group assistants across multi-stage thoughts.
+---
 
-⸻
+## ✅ Codex Task Log (Running)
+
+- [x] Assistant Delegation Framework (DelegationEvent, thread inheritance)
+- [x] Assistant Launch & Control Panel
+- [x] Assistant Memory Browser + Reflect Now Endpoint
+- [ ] Assistant Reflection Timeline and Log View (in progress)
+
+---
+
+## 🧠 Ongoing Goals
+
+- Maintain assistant memory chains per context
+- Track delegation chains and summarize reasoning
+- Generate new agents/sub-assistants when token limits are exceeded
+- Build a reactive, scalable dashboard to view and orchestrate assistant behavior
+
+---
+
+## ✨ Future Ideas
+
+- AgentKit-style micro-helpers for system tools
+- ReflectionDiff: Compare assistant reflections over time
+- Memory scoring / weighting with attention curves
+- Assistant → Agent → Action pipelines
