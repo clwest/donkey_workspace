@@ -174,6 +174,8 @@ urlpatterns = [
     path("<slug:slug>/sessions/", sessions.sessions_for_assistant, name="assistant-sessions"),
     path("<slug:slug>/delegations/", delegations.delegation_events_for_assistant, name="assistant-delegations"),
     path("<slug:slug>/reflections/recent/", thoughts.get_recent_reflections),
+    path("<slug:slug>/reflections/", memory.assistant_reflection_logs, name="assistant-reflection-logs"),
+    path("reflections/<uuid:id>/", memory.assistant_reflection_detail, name="assistant-reflection-detail"),
     # SLUGS MUST STAY AT THE BOTTOM!
     path(
         "<slug:slug>/chat/", assistants.chat_with_assistant_view, name="assistant-chat"
