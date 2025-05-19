@@ -175,6 +175,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "avatar",
             "is_active",
             "is_demo",
+            "is_primary",
             "system_prompt",
             "personality",
             "tone",
@@ -352,7 +353,15 @@ class ChatSessionSerializer(serializers.ModelSerializer):
 class AssistantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assistant
-        fields = ["id", "name", "slug", "tone", "specialty", "preferred_model"]
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "tone",
+            "specialty",
+            "preferred_model",
+            "is_primary",
+        ]
 
 
 class AssistantProjectSerializer(serializers.ModelSerializer):

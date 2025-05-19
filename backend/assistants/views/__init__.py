@@ -3,6 +3,7 @@ from .assistants import (
     assistant_detail_view,
     create_assistant_from_thought,
     chat_with_assistant_view,
+    primary_assistant_view,
     flush_chat_session,
     demo_assistant,
     reflect_on_assistant,
@@ -70,6 +71,7 @@ from .tasks import (
 __all__ = [
     "assistants_view",
     "assistant_detail_view",
+    "primary_assistant_view",
     "create_assistant_from_thought",
     "chat_with_assistant_view",
     "flush_chat_session",

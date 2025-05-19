@@ -69,6 +69,7 @@ class Assistant(models.Model):
     specialty = models.TextField()
     is_active = models.BooleanField(default=True)
     is_demo = models.BooleanField(default=False)
+    is_primary = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     avatar = models.URLField(blank=True, null=True)
     system_prompt = models.ForeignKey(
@@ -112,17 +113,32 @@ class Assistant(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             base_slug = slugify(self.name)
-            self.slug = (base_slug[:240] + "-" + str(self.id)[:8])[:255]
             slug = base_slug
             i = 1
-            while Assistant.objects.filter(slug=slug).exists():
+            while Assistant.objects.filter(slug=slug).exclude(pk=self.pk).exists():
                 slug = f"{base_slug}-{i}"
                 i += 1
             self.slug = slug
+
+        self.full_clean()
         super().save(*args, **kwargs)
+
+        if self.is_primary:
+            AssistantThoughtLog.objects.get_or_create(
+                assistant=self,
+                thought_type="meta",
+                category="meta",
+                thought="I have been assigned as the system’s primary orchestrator. My role is to monitor and coordinate all assistant activity.",
+            )
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        if self.is_primary:
+            existing = Assistant.objects.filter(is_primary=True).exclude(pk=self.pk)
+            if existing.exists():
+                raise ValidationError("Only one assistant can be primary.")
 
 
 class AssistantThoughtLog(models.Model):
