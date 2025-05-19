@@ -33,7 +33,9 @@ export default function AssistantList() {
         {Object.values(parentMap).map(({ parent, children }) => (
           <li key={parent.id} className="list-group-item">
             <Link to={`/assistants/${parent.slug}`}>
-              <strong>{parent.name}</strong>
+              <strong>
+                {parent.name} {parent.is_primary && "⭐"}
+              </strong>
             </Link>
             <p className="text-muted mb-1">{parent.description}</p>
 
@@ -42,7 +44,7 @@ export default function AssistantList() {
                 {children.map((child) => (
                   <li key={child.id}>
                     <Link to={`/assistants/${child.slug}`}>
-                      {child.name}
+                      {child.name} {child.is_primary && "⭐"}
                     </Link>
                     <span className="text-muted ms-1">({child.specialty})</span>
                   </li>

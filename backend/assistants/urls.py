@@ -21,6 +21,7 @@ urlpatterns = [
     path("reflection/", assistants.reflect_on_assistant),
     path("create_from_thought/", assistants.create_assistant_from_thought),
     path("thoughts/reflect-on-assistant/", assistants.reflect_on_assistant),
+    path("primary/", assistants.primary_assistant_view, name="primary-assistant"),
     path("", assistants.assistants_view, name="assistants_view"),
     path("create/", assistants.assistants_view, name="assistants-list-create"),
     # ===== PROJECTS =====

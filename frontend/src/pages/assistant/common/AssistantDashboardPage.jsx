@@ -27,7 +27,9 @@ export default function AssistantDashboardPage() {
             <Link to={`/assistants/${assistant.slug}`} className="text-decoration-none">
               <div className="card shadow-sm h-100">
                 <div className="card-body">
-                  <h5 className="card-title">{assistant.name}</h5>
+                  <h5 className="card-title">
+                    {assistant.name} {assistant.is_primary && "⭐"}
+                  </h5>
                   <p className="text-muted mb-1">{assistant.specialty}</p>
                   <p className="card-text small">
                     {assistant.description?.slice(0, 100) || "No description."}
