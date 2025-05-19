@@ -35,7 +35,8 @@ from .memory import (
     linked_memories,
     link_memory_to_project,
     assistant_project_reflections,
-    # assistant_memories,
+    assistant_memories,
+    reflect_now,
 )
 from .prompts import (
     linked_prompts,
@@ -47,7 +48,7 @@ from .sessions import (
     get_chat_session_messages,
     sessions_for_assistant,
 )
-# from .delegation import recent_delegation_events
+from .delegation import recent_delegation_events, spawn_from_context
 from .signals import (
     signal_sources,
     signal_catches,
@@ -96,6 +97,7 @@ __all__ = [
     "link_memory_to_project",
     "assistant_project_reflections",
     "assistant_memories",
+    "reflect_now",
     "linked_prompts",
     "link_prompt_to_project",
     "list_chat_sessions",
@@ -115,4 +117,5 @@ __all__ = [
     "assistant_project_task_detail",
     "recent_delegation_events",
     "delegation_events_for_assistant",
+    "spawn_from_context",
 ]

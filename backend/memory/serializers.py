@@ -60,3 +60,23 @@ class MemoryChainSerializer(serializers.ModelSerializer):
     class Meta:
         model = MemoryChain
         fields = "__all__"
+
+
+class MemoryEntrySlimSerializer(serializers.ModelSerializer):
+    """Lightweight serializer for listing assistant memories."""
+
+    tags = TagSerializer(many=True, read_only=True)
+    token_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = MemoryEntry
+        fields = ["id", "summary", "tags", "token_count", "created_at"]
+
+    def get_token_count(self, obj):
+        from prompts.utils.token_helpers import count_tokens
+
+        text = obj.summary or obj.event or ""
+        try:
+            return count_tokens(text)
+        except Exception:
+            return len(text.split())

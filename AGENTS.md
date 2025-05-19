@@ -84,31 +84,12 @@ python manage.py embed_devdocs
 
 # Session flushing
 python manage.py flush_chat_sessions
+
+🧠 Notes for Codex
+• Use capabilities/ for any new assistant-powered modules.
+• Embed all text data using generate_embedding() and save_embedding().
+• Store delegation events in DelegationEvent, link to ChatSession, MemoryEntry, and Project.
+• Use narrative_thread to group assistants across multi-stage thoughts.
+
+⸻
 ```
-
----
-
-## ✅ Codex Task Log (Running)
-
-- [x] Assistant Delegation Framework (DelegationEvent, thread inheritance)
-- [x] Assistant Launch & Control Panel
-- [x] Assistant Memory Browser + Reflect Now Endpoint
-- [ ] Assistant Reflection Timeline and Log View (in progress)
-
----
-
-## 🧠 Ongoing Goals
-
-- Maintain assistant memory chains per context
-- Track delegation chains and summarize reasoning
-- Generate new agents/sub-assistants when token limits are exceeded
-- Build a reactive, scalable dashboard to view and orchestrate assistant behavior
-
----
-
-## ✨ Future Ideas
-
-- AgentKit-style micro-helpers for system tools
-- ReflectionDiff: Compare assistant reflections over time
-- Memory scoring / weighting with attention curves
-- Assistant → Agent → Action pipelines
