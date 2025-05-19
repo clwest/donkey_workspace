@@ -141,7 +141,26 @@ def reflect_now(request, slug):
 
 @api_view(["POST"])
 def reflect_on_memory_chain(request, slug):
+    """Run reflection on a specific memory chain."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    chain_id = request.data.get("chain_id")
+    chain = get_object_or_404(AssistantMemoryChain, id=chain_id)
 
+    memories = get_filtered_memories(chain)
+    texts = [m.event.strip() for m in memories if m.event]
+    if not texts:
+        return Response({"summary": "No relevant memories."})
+
+    engine = AssistantReflectionEngine(assistant)
+    prompt = engine.build_reflection_prompt(texts)
+    summary = engine.generate_reflection(prompt)
+    AssistantReflectionLog.objects.create(
+        assistant=assistant,
+        project=chain.project,
+        title=f"Reflection on {chain.title}",
+        summary=summary,
+        raw_prompt=prompt,
+    )
     return Response({"summary": summary})
 
 
