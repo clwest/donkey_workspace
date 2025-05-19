@@ -161,6 +161,10 @@ class AssistantTaskSerializer(serializers.ModelSerializer):
             "status",
             "notes",
             "priority",
+            "source_type",
+            "source_id",
+            "proposed_by",
+            "confirmed_by_user",
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]

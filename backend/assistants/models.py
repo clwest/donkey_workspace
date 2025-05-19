@@ -295,6 +295,20 @@ class AssistantTask(models.Model):
     status = models.CharField(max_length=50, default="pending")
     notes = models.TextField(blank=True)
     priority = models.IntegerField(default=0)
+    source_type = models.CharField(
+        max_length=20,
+        choices=[("thought", "Thought"), ("memory", "Memory"), ("custom", "Custom")],
+        default="custom",
+    )
+    source_id = models.UUIDField(null=True, blank=True)
+    proposed_by = models.ForeignKey(
+        "assistants.Assistant",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="tasks_proposed",
+    )
+    confirmed_by_user = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
 

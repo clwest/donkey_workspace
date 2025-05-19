@@ -6,7 +6,19 @@ from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 from project.models import Project, ProjectTask
 from project.serializers import ProjectTaskSerializer
 from assistants.serializers import AssistantTaskSerializer
-from assistants.models import Assistant, AssistantObjective, AssistantProject, AssistantTask
+from django.shortcuts import get_object_or_404
+from assistants.models import (
+    Assistant,
+    AssistantObjective,
+    AssistantProject,
+    AssistantTask,
+    AssistantThoughtLog,
+)
+from memory.models import MemoryEntry
+from assistants.utils.task_generation import (
+    generate_task_from_memory,
+    generate_task_from_thought,
+)
 
 
 # Assistant Next Actions
@@ -123,3 +135,50 @@ def plan_tasks_for_objective(request, slug, objective_id):
     tasks = engine.plan_tasks_from_objective(objective)
     serializer = AssistantTaskSerializer(tasks, many=True)
     return Response(serializer.data)
+
+
+@api_view(["POST"])
+def propose_task(request, slug):
+    """Generate a proposed task from a memory or thought."""
+    try:
+        assistant = Assistant.objects.get(slug=slug)
+    except Assistant.DoesNotExist:
+        return Response({"error": "Assistant not found"}, status=404)
+
+    memory_id = request.data.get("memory_id")
+    thought_id = request.data.get("thought_id")
+    project_id = request.data.get("project_id")
+
+    project = None
+    if project_id:
+        project = get_object_or_404(AssistantProject, id=project_id, assistant=assistant)
+
+    if memory_id:
+        memory = get_object_or_404(MemoryEntry, id=memory_id)
+        project = project or memory.related_project or assistant.current_project
+        suggestion = generate_task_from_memory(memory)
+        source_type = "memory"
+        source_id = memory.id
+    elif thought_id:
+        thought = get_object_or_404(AssistantThoughtLog, id=thought_id)
+        project = project or thought.project or assistant.current_project
+        suggestion = generate_task_from_thought(thought)
+        source_type = "thought"
+        source_id = thought.id
+    else:
+        return Response({"error": "memory_id or thought_id required"}, status=400)
+
+    if not project:
+        return Response({"error": "Project context required"}, status=400)
+
+    task = AssistantTask.objects.create(
+        project=project,
+        title=suggestion.get("title"),
+        notes=suggestion.get("notes", ""),
+        source_type=source_type,
+        source_id=source_id,
+        proposed_by=assistant,
+    )
+
+    serializer = AssistantTaskSerializer(task)
+    return Response(serializer.data, status=201)
