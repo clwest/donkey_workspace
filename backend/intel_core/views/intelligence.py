@@ -101,19 +101,19 @@ def create_bootstrapped_assistant_from_document(request, pk):
     # If an assistant already exists for this document, reuse it
     existing = Assistant.objects.filter(documents=document).first()
     if existing:
-        project = AssistantProject.objects.filter(assistant=existing).first()
-        if not project:
-            project = AssistantProject.objects.create(
+        assistant_project = AssistantProject.objects.filter(assistant=existing).first()
+        if not assistant_project:
+            assistant_project = AssistantProject.objects.create(
                 assistant=existing,
                 title=f"{existing.name} - Project 1",
                 description=f"Auto-generated project for {existing.name} based on document.",
             )
         objective = AssistantObjective.objects.filter(
-            project=project, assistant=existing
+            project=assistant_project, assistant=existing
         ).first()
         if not objective:
             objective = AssistantObjective.objects.create(
-                project=project,
+                project=assistant_project,
                 assistant=existing,
                 title="Understand core technologies",
                 description="Explore key components from the linked documentation and prepare to assist users effectively.",
@@ -122,7 +122,7 @@ def create_bootstrapped_assistant_from_document(request, pk):
             {
                 "name": existing.name,
                 "slug": existing.slug,
-                "project_id": project.id if project else None,
+                "project_id": assistant_project.id if assistant_project else None,
                 "memory_id": None,
                 "thread_id": None,
                 "objective_id": objective.id if objective else None,
@@ -206,7 +206,7 @@ Return only JSON in this format:
         print("📎 Linked document to assistant")
 
         print("📁 Creating project...")
-        project = AssistantProject.objects.create(
+        assistant_project = AssistantProject.objects.create(
             assistant=assistant,
             title=f"{assistant.name} - Project 1",
             description=f"Auto-generated project for {assistant.name} based on document.",
@@ -214,7 +214,7 @@ Return only JSON in this format:
 
         print("🎯 Creating initial objective...")
         objective = AssistantObjective.objects.create(
-            project=project,
+            project=assistant_project,
             assistant=assistant,
             title="Understand core technologies",
             description="Explore key components from the linked documentation and prepare to assist users effectively.",
@@ -241,7 +241,7 @@ Return only JSON in this format:
 
         AssistantThoughtLog.objects.create(
             assistant=assistant,
-            project=project,
+            project=assistant_project.project,
             thought_type="planning",
             thought=(
                 f"I was created to assist with {document.title} based on the linked document."
@@ -254,7 +254,7 @@ Return only JSON in this format:
             {
                 "name": assistant.name,
                 "slug": assistant.slug,
-                "project_id": project.id,
+                "project_id": assistant_project.id,
                 "memory_id": memory.id if memory else None,
                 "thread_id": thread.id if thread else None,
                 "objective_id": objective.id if objective else None,
