@@ -244,6 +244,11 @@ urlpatterns = [
         name="assistant-delegation-trace",
     ),
     path(
+        "<slug:slug>/hierarchical-memory/",
+        delegations.hierarchical_memory,
+        name="assistant-hierarchical-memory",
+    ),
+    path(
         "<slug:slug>/evaluate-delegation/",
         delegations.evaluate_delegation,
         name="assistant-evaluate-delegation",

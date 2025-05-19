@@ -10,6 +10,11 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
     linked_thought = serializers.SerializerMethodField()
     narrative_thread = NarrativeThreadSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
+    delegation_event_id = serializers.SerializerMethodField()
+    assistant_name = serializers.SerializerMethodField()
+    assistant_id = serializers.SerializerMethodField()
+    parent_assistant_name = serializers.SerializerMethodField()
+    is_delegated = serializers.SerializerMethodField()
 
     class Meta:
         model = MemoryEntry
@@ -31,6 +36,11 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
             "source_name",
             "parent_memory",
             "type",
+            "delegation_event_id",
+            "assistant_name",
+            "assistant_id",
+            "parent_assistant_name",
+            "is_delegated",
         ]
 
     def get_source_name(self, obj):
@@ -50,6 +60,28 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
                 else thought.thought
             ),
         }
+
+    def get_delegation_event_id(self, obj):
+        if hasattr(obj, "delegation_event_id"):
+            return str(obj.delegation_event_id) if obj.delegation_event_id else None
+        event = obj.delegation_events.first()
+        return str(event.id) if event else None
+
+    def get_assistant_name(self, obj):
+        return getattr(obj.assistant, "name", None)
+
+    def get_assistant_id(self, obj):
+        return str(obj.assistant_id) if obj.assistant_id else None
+
+    def get_parent_assistant_name(self, obj):
+        if obj.assistant and obj.assistant.parent_assistant:
+            return obj.assistant.parent_assistant.name
+        return None
+
+    def get_is_delegated(self, obj):
+        if hasattr(obj, "is_delegated"):
+            return obj.is_delegated
+        return bool(obj.assistant and obj.assistant.parent_assistant)
 
 
 class MemoryFeedbackSerializer(serializers.ModelSerializer):

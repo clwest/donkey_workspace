@@ -43,11 +43,11 @@ export const routeMap = [
     notes: "Trigger assistant reflection",
   },
   {
-    frontend: "/assistants/:slug/trace",
-    backend: "/api/assistants/<slug>/delegation-trace/",
-    view: "delegation_trace",
-    serializer: "DelegationEventSerializer",
-    notes: "Nested delegation chain",
+    frontend: "/assistants/:slug/delegation-trace",
+    backend: "/api/assistants/<slug>/hierarchical-memory/",
+    view: "hierarchical_memory",
+    serializer: "MemoryEntrySerializer",
+    notes: "Hierarchical memory trace",
   },
   {
     frontend: "/assistants/:slug/reflections",
