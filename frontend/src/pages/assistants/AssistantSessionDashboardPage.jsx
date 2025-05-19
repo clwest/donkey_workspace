@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Card, Table } from "react-bootstrap";
 import apiFetch from "../../utils/apiClient";
+import ReflectNowButton from "../../components/assistant/ReflectNowButton";
 
 export default function AssistantSessionDashboardPage() {
   const { slug } = useParams();
@@ -61,9 +62,12 @@ export default function AssistantSessionDashboardPage() {
     <div className="container my-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mb-0">Assistant Dashboard: {slug}</h2>
-        <Link to={`/assistants/${slug}`} className="btn btn-outline-secondary">
-          Back to Assistant
-        </Link>
+        <div className="btn-group">
+          <ReflectNowButton slug={slug} />
+          <Link to={`/assistants/${slug}`} className="btn btn-outline-secondary">
+            Back to Assistant
+          </Link>
+        </div>
       </div>
 
       <div className="d-grid gap-4">

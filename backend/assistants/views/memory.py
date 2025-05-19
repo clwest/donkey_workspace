@@ -12,6 +12,8 @@ from assistants.serializers import (
     AssistantMemoryChainSerializer,
     AssistantReflectionInsightSerializer,
     AssistantReflectionLogSerializer,
+    AssistantReflectionLogListSerializer,
+    AssistantReflectionLogDetailSerializer,
 )
 from project.models import ProjectMemoryLink
 from project.serializers import ProjectMemoryLinkSerializer
@@ -109,5 +111,25 @@ def reflect_now(request, slug):
     engine = AssistantReflectionEngine(assistant)
     summary = engine.reflect_now(context)
     return Response({"summary": summary})
+
+
+@api_view(["GET"])
+def assistant_reflection_logs(request, slug):
+    """List all reflection logs for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    reflections = (
+        AssistantReflectionLog.objects.filter(assistant=assistant)
+        .order_by("-created_at")
+    )
+    serializer = AssistantReflectionLogListSerializer(reflections, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+def assistant_reflection_detail(request, id):
+    """Retrieve full reflection log details."""
+    reflection = get_object_or_404(AssistantReflectionLog, id=id)
+    serializer = AssistantReflectionLogDetailSerializer(reflection)
+    return Response(serializer.data)
 
 
