@@ -486,7 +486,19 @@ class AssistantChatMessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AssistantChatMessage
-        fields = ["uuid", "role", "content", "created_at", "feedback", "topic"]
+        fields = [
+            "uuid",
+            "role",
+            "content",
+            "created_at",
+            "feedback",
+            "topic",
+            "message_type",
+            "audio_url",
+            "image_url",
+            "tts_model",
+            "style",
+        ]
 
     def get_topic(self, obj):
         return obj.topic.name if obj.topic else None

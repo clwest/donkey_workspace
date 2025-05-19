@@ -108,7 +108,7 @@ def debug_sd_env():
 
 
 @shared_task
-def process_sd_image_request(request_id):
+def process_sd_image_request(request_id, chat_message_id=None):
     try:
         request = Image.objects.filter(id=request_id).first()
         if not request:
@@ -177,6 +177,17 @@ def process_sd_image_request(request_id):
         request.completed_at = now()
 
         request.save()
+
+        if chat_message_id:
+            try:
+                from assistants.models import AssistantChatMessage
+
+                msg = AssistantChatMessage.objects.get(id=chat_message_id)
+                msg.image_url = abs_url
+                msg.message_type = "image"
+                msg.save(update_fields=["image_url", "message_type"])
+            except AssistantChatMessage.DoesNotExist:
+                pass
 
         # 🧙 Trigger post-generation hook
         trigger_post_generation_hook(request.id)

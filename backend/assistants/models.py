@@ -733,6 +733,20 @@ class AssistantChatMessage(models.Model):
     )
 
     content = models.TextField()
+    message_type = models.CharField(
+        max_length=20,
+        choices=[
+            ("text", "Text"),
+            ("image", "Image"),
+            ("audio", "Audio"),
+            ("system", "System"),
+        ],
+        default="text",
+    )
+    image_url = models.URLField(null=True, blank=True)
+    audio_url = models.URLField(null=True, blank=True)
+    tts_model = models.CharField(max_length=100, null=True, blank=True)
+    style = models.CharField(max_length=100, null=True, blank=True)
     sentiment_score = models.FloatField(null=True, blank=True)
 
     feedback = models.CharField(
