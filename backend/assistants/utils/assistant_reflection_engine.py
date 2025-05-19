@@ -45,7 +45,7 @@ class AssistantReflectionEngine:
         )
         return response.choices[0].message.content.strip()
 
-    def reflect_now(self, context: MemoryContext) -> str:
+    def reflect_now(self, context: MemoryContext) -> AssistantReflectionLog:
         entries = MemoryEntry.objects.filter(context=context).order_by("-created_at")[
             :30
         ]
@@ -58,15 +58,15 @@ class AssistantReflectionEngine:
         prompt = self.build_reflection_prompt(texts)
 
         try:
-            reflection = self.generate_reflection(prompt)
-            AssistantReflectionLog.objects.create(
+            reflection_text = self.generate_reflection(prompt)
+            log = AssistantReflectionLog.objects.create(
                 assistant=self.assistant,
                 context=context,
-                summary=reflection,
+                summary=reflection_text,
                 raw_prompt=prompt,
             )
             MemoryEntry.objects.create(
-                event=reflection,
+                event=reflection_text,
                 assistant=self.assistant,
                 source_role="assistant",
                 linked_content_type=ContentType.objects.get_for_model(self.assistant),
@@ -75,7 +75,7 @@ class AssistantReflectionEngine:
                 related_project=context.project if context.project else None,
             )
             logger.info(f"[🧠] Reflection saved for context {context.id}.")
-            return reflection
+            return log
         except Exception as e:
             logger.error(f"[❌] Reflection failed: {e}", exc_info=True)
             return "Reflection failed."
@@ -141,7 +141,7 @@ class AssistantReflectionEngine:
 
         return summary, insights
     
-    def reflect_on_memory(self, memory: MemoryEntry):
+    def reflect_on_memory(self, memory: MemoryEntry) -> AssistantReflectionLog | None:
         """
         Create a reflection log for a single memory entry.
         """
@@ -160,28 +160,36 @@ class AssistantReflectionEngine:
     \"\"\""""
 
         try:
-            reflection = self.generate_reflection(prompt)
+            reflection_text = self.generate_reflection(prompt)
 
-            AssistantReflectionLog.objects.create(
+            log = AssistantReflectionLog.objects.create(
                 project=self.project,
                 assistant=self.assistant,
                 linked_memory=memory,
                 title=f"Reflection on memory {memory.id}",
-                summary=reflection,
+                summary=reflection_text,
                 raw_prompt=prompt,
                 category="meta"
             )
 
             logger.info(f"[✅] Reflection log created for memory {memory.id}")
-            return reflection
+            return log
         except Exception as e:
             logger.error(f"[❌] Failed to reflect on memory {memory.id}: {e}", exc_info=True)
             return None
-    def reflect_on_assistant(self, assistant: Assistant, project: AssistantProject) -> str:
+    def reflect_on_assistant(self, assistant: Assistant, project: AssistantProject) -> AssistantReflectionLog:
         """Generate a reflection about a newly spawned assistant."""
         prompt = f"""You are {self.assistant.name}, reflecting on a delegated assistant you created.\n\n" \
                 f"Assistant Name: {assistant.name}\n" \
                 f"Specialty: {assistant.specialty or '(unspecified)'}\n" \
                 f"Description: {assistant.description or '(none)'}\n" \
                 "Provide constructive feedback on its purpose, tone, and any improvements."""
-        return self.generate_reflection(prompt)
+        reflection_text = self.generate_reflection(prompt)
+        log = AssistantReflectionLog.objects.create(
+            assistant=self.assistant,
+            project=project,
+            summary=reflection_text,
+            raw_prompt=prompt,
+            title=f"Reflection on assistant {assistant.name}",
+        )
+        return log

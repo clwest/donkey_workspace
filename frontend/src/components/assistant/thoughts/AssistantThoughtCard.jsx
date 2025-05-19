@@ -155,6 +155,21 @@ export default function AssistantThoughtCard({ thought, onUpdate, onDelete, badg
                     </p>
                   </div>
                 )}
+                {thought.linked_memories && thought.linked_memories.length > 0 && (
+                  <div className="mt-2">
+                    <strong>Memories:</strong>{" "}
+                    {thought.linked_memories.map((m, idx) => (
+                      <span key={m} className="badge bg-secondary me-1">
+                        {m.slice(0, 8)}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {thought.linked_reflection && (
+                  <div className="mt-2">
+                    <a href={`/reflections/${thought.linked_reflection}`}>View Reflection</a>
+                  </div>
+                )}
 
                 {thought.tags?.length > 0 && (
                   <div className="mt-3">

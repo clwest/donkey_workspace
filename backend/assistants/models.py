@@ -189,6 +189,16 @@ class AssistantThoughtLog(models.Model):
     linked_memory = models.ForeignKey(
         "memory.MemoryEntry", null=True, blank=True, on_delete=models.SET_NULL
     )
+    linked_memories = models.ManyToManyField(
+        "memory.MemoryEntry", blank=True, related_name="thought_links"
+    )
+    linked_reflection = models.ForeignKey(
+        "assistants.AssistantReflectionLog",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="thoughts",
+    )
     role = models.CharField(
         max_length=20, choices=ROLE_CHOICES, default="assistant"
     )  # 👈 NEW

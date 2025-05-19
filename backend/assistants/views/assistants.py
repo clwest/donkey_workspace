@@ -116,16 +116,18 @@ def primary_reflect_now(request):
     memory = get_object_or_404(MemoryEntry, id=memory_id)
     context = get_or_create_context_from_memory(memory)
     engine = AssistantReflectionEngine(assistant)
-    summary = engine.reflect_now(context)
+    ref_log = engine.reflect_now(context)
 
     log_assistant_thought(
         assistant,
-        summary,
+        ref_log.summary,
         thought_type="reflection",
         linked_memory=memory,
+        linked_memories=[memory],
+        linked_reflection=ref_log,
     )
 
-    return Response({"summary": summary})
+    return Response({"summary": ref_log.summary})
 
 
 @api_view(["POST"])

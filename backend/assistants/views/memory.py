@@ -7,6 +7,7 @@ from assistants.models import (
     AssistantReflectionInsight,
     Assistant,
     AssistantReflectionLog,
+    AssistantThoughtLog,
 )
 from assistants.serializers import (
     AssistantMemoryChainSerializer,
@@ -14,6 +15,7 @@ from assistants.serializers import (
     AssistantReflectionLogSerializer,
     AssistantReflectionLogListSerializer,
     AssistantReflectionLogDetailSerializer,
+    AssistantThoughtLogSerializer,
 )
 from project.models import ProjectMemoryLink
 from project.serializers import ProjectMemoryLinkSerializer
@@ -135,8 +137,8 @@ def reflect_now(request, slug):
         context = MemoryContext.objects.create(content="ad-hoc reflection")
 
     engine = AssistantReflectionEngine(assistant)
-    summary = engine.reflect_now(context)
-    return Response({"summary": summary})
+    ref_log = engine.reflect_now(context)
+    return Response({"summary": ref_log.summary})
 
 
 @api_view(["POST"])
@@ -181,4 +183,12 @@ def assistant_reflection_detail(request, id):
     """Retrieve full reflection log details."""
     reflection = get_object_or_404(AssistantReflectionLog, id=id)
     serializer = AssistantReflectionLogDetailSerializer(reflection)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+def reflection_thoughts(request, id):
+    """Return thoughts linked to a specific reflection."""
+    thoughts = AssistantThoughtLog.objects.filter(linked_reflection_id=id).order_by("-created_at")
+    serializer = AssistantThoughtLogSerializer(thoughts, many=True)
     return Response(serializer.data)

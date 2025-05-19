@@ -20,6 +20,7 @@ from assistants.models import (
     AssistantProject,
     AssistantThoughtLog,
     AssistantReflectionInsight,
+    AssistantReflectionLog,
     DelegationEvent,
 )
 client = OpenAI()
@@ -156,9 +157,9 @@ def run_assistant_reflection(self, memory_id: int):
 
         context = get_or_create_context_from_memory(memory)
         engine = AssistantReflectionEngine(memory.assistant)
-        reflection = engine.reflect_now(context)
+        ref_log = engine.reflect_now(context)
 
-        return f"🧠 Reflection complete: {reflection[:80]}..."  # Truncate for logs
+        return f"🧠 Reflection complete: {ref_log.summary[:80]}..."
 
     except Exception as e:
         self.retry(exc=e, countdown=10, max_retries=3)
@@ -182,17 +183,18 @@ def reflect_on_spawned_assistant(
             thread = NarrativeThread.objects.filter(id=thread_id).first()
 
         engine = AssistantReflectionEngine(parent)
-        reflection = engine.reflect_on_assistant(new_assistant, project)
+        ref_log = engine.reflect_on_assistant(new_assistant, project)
 
         AssistantThoughtLog.objects.create(
             assistant=parent,
             project=project,
-            thought=reflection,
+            thought=ref_log.summary,
             thought_type="reflection",
+            linked_reflection=ref_log,
             narrative_thread=thread,
         )
 
-        return reflection
+        return ref_log.summary
     except Exception as e:
         logger.error("Failed to reflect on spawned assistant: %s", e, exc_info=True)
         self.retry(exc=e, countdown=10, max_retries=3)
@@ -219,7 +221,15 @@ def reflect_on_delegation(self, event_id: str):
         )
 
         engine = AssistantReflectionEngine(parent)
-        reflection = engine.generate_reflection(prompt)
+        ref_log = engine.generate_reflection(prompt)
+        # engine.generate_reflection returns str; create log
+        reflection_log = AssistantReflectionLog.objects.create(
+            assistant=parent,
+            project=project,
+            summary=ref_log,
+            raw_prompt=prompt,
+            title="Delegation Reflection",
+        )
 
         project = None
         thread = None
@@ -232,14 +242,15 @@ def reflect_on_delegation(self, event_id: str):
         AssistantThoughtLog.objects.create(
             assistant=parent,
             project=project,
-            thought=reflection,
+            thought=ref_log,
             thought_type="reflection",
             category="reflection",
             narrative_thread=thread,
             thought_trace=f"child_assistant:{child.id}",
+            linked_reflection=reflection_log,
         )
 
-        return reflection
+        return ref_log
     except Exception as e:
         logger.error("Failed to reflect on delegation %s: %s", event_id, e, exc_info=True)
         self.retry(exc=e, countdown=10, max_retries=3)

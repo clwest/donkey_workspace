@@ -43,6 +43,7 @@ from .memory import (
     reflect_on_memory_chain,
     assistant_reflection_logs,
     assistant_reflection_detail,
+    reflection_thoughts,
 )
 from .prompts import (
     linked_prompts,
@@ -112,6 +113,7 @@ __all__ = [
     "reflect_on_memory_chain",
     "assistant_reflection_logs",
     "assistant_reflection_detail",
+    "reflection_thoughts",
     "linked_prompts",
     "link_prompt_to_project",
     "list_chat_sessions",
