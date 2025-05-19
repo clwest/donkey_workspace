@@ -60,6 +60,7 @@ import AssistantThoughtLogPage from "./pages/assistant/thoughts/AssistantThought
 import ProjectThoughtLog from "./pages/assistant/thoughts/ProjectThoughtLog";
 import AssistantMemoriesPage from "./pages/assistant/common/AssistantMemoriesPage";
 import AssistantMemoryPage from "./pages/assistant/memory/AssistantMemoryPage";
+import DelegationTracePage from "./pages/assistant/DelegationTracePage";
 import MemoryToTaskPage from "./pages/assistant/objectives/MemoryToTaskPage";
 import MilestonesPage from "./pages/assistant/milestones/MilestonesPage";
 import MilestoneCreatePage from "./pages/assistant/milestones/MilestoneCreatePage";
@@ -262,6 +263,10 @@ export default function App() {
           <Route
             path="/assistants/:slug/sessions"
             element={<AssistantSessionDashboardPage />}
+          />
+          <Route
+            path="/assistants/:slug/trace"
+            element={<DelegationTracePage />}
           />
           <Route
             path="/assistants/sessions/"

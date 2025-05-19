@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from assistants.models import ChatSession
+from assistants.models import ChatSession, AssistantThoughtLog, DelegationEvent
 from assistants.serializers import AssistantChatMessageSerializer
 from assistants.utils.assistant_session import load_session_messages
 from assistants.models import Assistant
@@ -49,6 +49,7 @@ def chat_session_detail(request, session_id):
         {
             "session_id": session.session_id,
             "assistant_name": session.assistant.name if session.assistant else None,
+            "assistant_slug": session.assistant.slug if session.assistant else None,
             "project": session.project.title if session.project else None,
             "narrative_thread": session.narrative_thread_id,
             "created_at": session.created_at,
@@ -74,6 +75,7 @@ def get_chat_session_messages(request, slug, session_id):
 #         count += flush_session_to_db(session_id)
 #     return Response({"flushed_count": count})
 
+
 @api_view(["GET"])
 def sessions_for_assistant(request, slug):
     """Return chat sessions, memory summaries, and active threads for an assistant."""
@@ -93,7 +95,9 @@ def sessions_for_assistant(request, slug):
     from mcp_core.models import NarrativeThread
     from mcp_core.serializers_tags import NarrativeThreadSerializer
 
-    memories = MemoryEntry.objects.filter(chat_session__in=sessions).exclude(summary__isnull=True)
+    memories = MemoryEntry.objects.filter(chat_session__in=sessions).exclude(
+        summary__isnull=True
+    )
     memory_data = [
         {
             "id": str(m.id),
@@ -107,8 +111,56 @@ def sessions_for_assistant(request, slug):
     threads = NarrativeThread.objects.filter(id__in=thread_ids)
     thread_data = NarrativeThreadSerializer(threads, many=True).data
 
-    return Response({
-        "sessions": session_data,
-        "memory_summaries": memory_data,
-        "threads": thread_data,
-    })
+    return Response(
+        {
+            "sessions": session_data,
+            "memory_summaries": memory_data,
+            "threads": thread_data,
+        }
+    )
+
+
+@api_view(["GET"])
+def session_summary(request, slug, session_id):
+    """Return thoughts and delegations ordered for this session."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    session = get_object_or_404(ChatSession, session_id=session_id)
+
+    thoughts = (
+        AssistantThoughtLog.objects.filter(narrative_thread=session.narrative_thread)
+        .select_related("assistant")
+        .order_by("created_at")
+    )
+    delegations = (
+        DelegationEvent.objects.filter(triggering_session=session)
+        .select_related("parent_assistant", "child_assistant")
+        .order_by("created_at")
+    )
+
+    entries = []
+    for t in thoughts:
+        entries.append(
+            {
+                "type": "thought",
+                "assistant": t.assistant.name if t.assistant else None,
+                "content": t.thought,
+                "feedback": t.feedback,
+                "created_at": t.created_at,
+            }
+        )
+
+    for d in delegations:
+        entries.append(
+            {
+                "type": "delegation",
+                "assistant": d.parent_assistant.name,
+                "child": d.child_assistant.name,
+                "child_slug": d.child_assistant.slug,
+                "reason": d.reason,
+                "summary": d.summary,
+                "created_at": d.created_at,
+            }
+        )
+
+    entries.sort(key=lambda x: x["created_at"])
+    return Response({"entries": entries})

@@ -57,9 +57,14 @@ from .sessions import (
     chat_session_detail,
     get_chat_session_messages,
     sessions_for_assistant,
+    session_summary,
 )
 from .delegation import recent_delegation_events, spawn_from_context
-from .delegations import delegation_events_for_assistant, primary_delegations
+from .delegations import (
+    delegation_events_for_assistant,
+    primary_delegations,
+    delegation_trace,
+)
 from .bootstrap import prompt_to_assistant
 from .signals import (
     signal_sources,
@@ -126,6 +131,7 @@ __all__ = [
     "chat_session_detail",
     "get_chat_session_messages",
     "sessions_for_assistant",
+    "session_summary",
     "signal_sources",
     "signal_catches",
     "create_signal_catch",
@@ -141,6 +147,7 @@ __all__ = [
     "recent_delegation_events",
     "delegation_events_for_assistant",
     "primary_delegations",
+    "delegation_trace",
     "spawn_from_context",
     "prompt_to_assistant",
     "reflect_to_objectives",

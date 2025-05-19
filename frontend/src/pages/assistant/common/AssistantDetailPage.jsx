@@ -101,8 +101,11 @@ export default function AssistantDetailPage() {
         <Link to={`/assistants/${slug}/memories`} className="btn btn-outline-warning">📘 Memory</Link>
         <Link to={`/assistants/${slug}/reflect`} className="btn btn-outline-info">🔍 Reflections</Link>
         <Link to={`/assistants/${slug}/sessions`} className="btn btn-outline-secondary">
-        💬 Sessions
-      </Link>
+          💬 Sessions
+        </Link>
+        <Link to={`/assistants/${slug}/trace`} className="btn btn-outline-secondary">
+          🧬 Delegation Trace
+        </Link>
         <Link to={`/assistants/${assistant.slug}/dashboard`} className="btn btn-outline-primary">
           🧠 View Dashboard
         </Link>
