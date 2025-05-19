@@ -240,7 +240,10 @@ def get_recent_reflections(request, slug):
     assistant = get_object_or_404(Assistant, slug=slug)
     logs = AssistantThoughtLog.objects.filter(
         assistant=assistant, role="assistant"
-    ).order_by("-created_at")[:10]
+    )
+    if assistant.current_project_id:
+        logs = logs.filter(project_id=assistant.current_project_id)
+    logs = logs.order_by("-created_at")[:10]
     data = [
         {
             "id": str(log.id),

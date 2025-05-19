@@ -101,6 +101,13 @@ class Assistant(models.Model):
     documents = models.ManyToManyField(
         "intel_core.Document", blank=True, related_name="linked_assistants"
     )
+    current_project = models.ForeignKey(
+        "assistants.AssistantProject",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="active_assistants",
+    )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,

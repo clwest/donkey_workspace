@@ -67,6 +67,32 @@ export default function AssistantDetailPage() {
         <p><strong>Created:</strong> {new Date(assistant.created_at).toLocaleString()}</p>
       </div>
 
+      {assistant.current_project ? (
+        <div className="alert alert-info">Assigned Project: {assistant.current_project.title} ({assistant.current_project.objective_count} objectives)</div>
+      ) : (
+        <button
+          className="btn btn-outline-secondary mb-3"
+          onClick={async () => {
+            try {
+              const projects = await apiFetch(`/assistants/${slug}/projects/`);
+              const id = prompt("Assign project by ID", projects[0]?.id || "");
+              if (id) {
+                await apiFetch(`/assistants/${slug}/assign_project/`, {
+                  method: "POST",
+                  body: { project_id: id },
+                });
+                const data = await apiFetch(`/assistants/${slug}/`);
+                setAssistant(data);
+              }
+            } catch (err) {
+              alert("Failed to assign project");
+            }
+          }}
+        >
+          Assign Project
+        </button>
+      )}
+
       <div className="d-flex flex-wrap gap-3 mb-4">
         <Link to={`/assistants/${slug}/chat`} className="btn btn-dark">💬 Chat</Link>
         <Link to={`/assistants/${slug}/thoughts`} className="btn btn-outline-primary">🧠 Thought Log</Link>

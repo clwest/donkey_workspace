@@ -73,7 +73,10 @@ def assistant_project_reflections(request, project_id):
 def assistant_memories(request, slug):
     """List memory entries for a specific assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
-    entries = MemoryEntry.objects.filter(assistant=assistant).order_by("-created_at")
+    entries = MemoryEntry.objects.filter(assistant=assistant)
+    if assistant.current_project_id:
+        entries = entries.filter(related_project_id=assistant.current_project_id)
+    entries = entries.order_by("-created_at")
     serializer = MemoryEntrySlimSerializer(entries, many=True)
     return Response(serializer.data)
 
@@ -117,10 +120,10 @@ def reflect_now(request, slug):
 def assistant_reflection_logs(request, slug):
     """List all reflection logs for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
-    reflections = (
-        AssistantReflectionLog.objects.filter(assistant=assistant)
-        .order_by("-created_at")
-    )
+    reflections = AssistantReflectionLog.objects.filter(assistant=assistant)
+    if assistant.current_project_id:
+        reflections = reflections.filter(project_id=assistant.current_project_id)
+    reflections = reflections.order_by("-created_at")
     serializer = AssistantReflectionLogListSerializer(reflections, many=True)
     return Response(serializer.data)
 

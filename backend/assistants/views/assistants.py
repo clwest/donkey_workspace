@@ -77,7 +77,14 @@ def assistant_detail_view(request, slug):
         )
 
     serializer = AssistantSerializer(assistant)
-    return Response(serializer.data)
+    data = serializer.data
+    if assistant.current_project:
+        from assistants.serializers import ProjectOverviewSerializer
+
+        data["current_project"] = ProjectOverviewSerializer(
+            assistant.current_project
+        ).data
+    return Response(data)
 
 
 @api_view(["GET"])
