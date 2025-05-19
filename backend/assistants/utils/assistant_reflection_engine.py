@@ -1,7 +1,13 @@
 import logging
 from openai import OpenAI
-from assistants.models import AssistantReflectionLog, Assistant, AssistantProject, AssistantReflectionInsight
-from mcp_core.models import MemoryContext
+from assistants.models import (
+    AssistantReflectionLog,
+    Assistant,
+    AssistantProject,
+    AssistantReflectionInsight,
+)
+from mcp_core.models import MemoryContext, DevDoc
+from intel_core.models import Document
 from memory.models import MemoryEntry
 from django.contrib.contenttypes.models import ContentType
 from django.utils.text import slugify
@@ -104,20 +110,32 @@ class AssistantReflectionEngine:
     
 
     def reflect_on_document(self, document):
-        logger.info(f"[ReflectionEngine] Reflecting on document: {document.title}")
+        """Reflect on a Document or DevDoc instance and save insights."""
+
+        # Allow passing a DevDoc; use its linked Document
+        if isinstance(document, DevDoc):
+            if not document.linked_document:
+                raise ValueError(f"DevDoc '{document.title}' has no linked Document")
+            target_document = document.linked_document
+        else:
+            target_document = document
+
+        logger.info(
+            f"[ReflectionEngine] Reflecting on document: {target_document.title}"
+        )
         
         # Placeholder reflection logic (replace with your actual logic)
-        summary = f"Auto-generated summary for {document.title}"
+        summary = f"Auto-generated summary for {target_document.title}"
         insights = [
-            f"Insight 1 about {document.title}",
-            f"Insight 2 about {document.title}",
+            f"Insight 1 about {target_document.title}",
+            f"Insight 2 about {target_document.title}",
         ]
 
         # Save insights
         for insight in insights:
             AssistantReflectionInsight.objects.create(
                 assistant=self.assistant,
-                linked_document=document,
+                linked_document=target_document,
                 text=insight,
             )
 
