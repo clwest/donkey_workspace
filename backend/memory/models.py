@@ -100,7 +100,7 @@ class MemoryEntry(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="linked_memories",
+        related_name="direct_linked_memories",
     )
 
     # 🧩 Polymorphic Link (replaces `linked_thought`)
