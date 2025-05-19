@@ -9,6 +9,8 @@ from assistants.utils.delegation import (
 )
 from assistants.models import Assistant, TokenUsage, ChatSession
 from memory.models import MemoryEntry
+from memory.serializers import MemoryEntrySerializer
+from assistants.utils.delegation_trace import build_delegation_trace
 
 
 @api_view(["GET"])
@@ -108,6 +110,32 @@ def delegation_trace(request, slug):
     if not assistant:
         return Response({"error": "Assistant not found"}, status=404)
     data = build_trace(assistant)
+    return Response(data)
+
+
+@api_view(["GET"])
+def hierarchical_memory(request, slug):
+    """Return memory entries across a delegation chain with depth info."""
+    assistant = Assistant.objects.filter(slug=slug).first()
+    if not assistant:
+        return Response({"error": "Assistant not found"}, status=404)
+
+    entries = build_delegation_trace(assistant)
+    serializer = MemoryEntrySerializer(entries, many=True)
+    data = serializer.data
+    for idx, entry in enumerate(entries):
+        data[idx]["depth"] = getattr(entry, "depth", 0)
+        data[idx]["delegation_event_id"] = (
+            str(entry.delegation_event_id)
+            if getattr(entry, "delegation_event_id", None)
+            else None
+        )
+        data[idx]["assistant"] = entry.assistant_name
+        data[idx]["parent"] = entry.parent_assistant_name
+        data[idx]["assistant_id"] = str(entry.assistant_id)
+        data[idx]["is_delegated"] = entry.is_delegated
+        if entry.document_id:
+            data[idx]["linked_document"] = entry.document.title if entry.document else None
     return Response(data)
 
 

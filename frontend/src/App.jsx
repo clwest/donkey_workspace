@@ -265,7 +265,7 @@ export default function App() {
             element={<AssistantSessionDashboardPage />}
           />
           <Route
-            path="/assistants/:slug/trace"
+            path="/assistants/:slug/delegation-trace"
             element={<DelegationTracePage />}
           />
           <Route
