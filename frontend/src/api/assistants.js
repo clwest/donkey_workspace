@@ -15,3 +15,20 @@ export async function generateAssistantThought(slug) {
 
   return res.json();
 }
+
+export async function mutateThought(id, style = "clarify") {
+  const res = await fetch(
+    `http://localhost:8000/api/assistants/thoughts/${id}/mutate/`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ style }),
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to mutate thought");
+  }
+
+  return res.json();
+}

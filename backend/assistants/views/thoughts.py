@@ -17,6 +17,9 @@ from assistants.helpers.redis_helpers import (
 )
 from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 from assistants.utils.assistant_session import flush_session_to_db
+from prompts.utils.mutation import mutate_prompt as run_mutation
+from embeddings.helpers.helpers_io import get_embedding_for_text, save_embedding
+from assistants.helpers.logging_helper import log_assistant_thought
 from mcp_core.models import DevDoc
 from project.models import Project
 
@@ -289,6 +292,59 @@ def assistant_thought_detail(request, id):
 
     serializer = AssistantThoughtLogSerializer(thought)
     return Response(serializer.data)
+
+
+@api_view(["POST"])
+def mutate_thought(request, id):
+    """Mutate a thought based on feedback style."""
+    try:
+        thought = AssistantThoughtLog.objects.get(id=id)
+    except AssistantThoughtLog.DoesNotExist:
+        return Response({"error": "Thought not found"}, status=404)
+
+    style = request.data.get("style", "clarify")
+
+    mutated = run_mutation(thought.thought, style)
+
+    new_log = AssistantThoughtLog.objects.create(
+        assistant=thought.assistant,
+        project=thought.project,
+        linked_memory=thought.linked_memory,
+        thought=mutated,
+        thought_type="mutation",
+        role=thought.role,
+        narrative_thread=thought.narrative_thread,
+        linked_reflection=thought.linked_reflection,
+        parent_thought=thought,
+    )
+    if thought.tags.exists():
+        new_log.tags.set(thought.tags.all())
+    if thought.linked_memories.exists():
+        new_log.linked_memories.set(thought.linked_memories.all())
+
+    # Optionally embed
+    try:
+        vector = get_embedding_for_text(mutated)
+        if vector:
+            save_embedding(new_log, vector)
+    except Exception:
+        pass
+
+    # Log meta reflection
+    if thought.assistant:
+        meta_msg = (
+            f"Refined thought based on feedback: '{thought.feedback}'. "
+            f"Used {style} to improve clarity."
+        )
+        log_assistant_thought(
+            thought.assistant,
+            meta_msg,
+            project=thought.project,
+            thought_type="meta",
+        )
+
+    serializer = AssistantThoughtLogSerializer(new_log)
+    return Response(serializer.data, status=201)
 
 
 @api_view(["POST"])

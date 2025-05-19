@@ -349,6 +349,7 @@ class AssistantThoughtLogSerializer(serializers.ModelSerializer):
     linked_memory_preview = serializers.SerializerMethodField()
     tags = TagSerializer(many=True, read_only=True)
     narrative_thread = serializers.PrimaryKeyRelatedField(read_only=True)
+    parent_thought = serializers.PrimaryKeyRelatedField(read_only=True)
     category = serializers.ChoiceField(
         choices=THOUGHT_CATEGORY_CHOICES, default="other"
     )
@@ -369,6 +370,7 @@ class AssistantThoughtLogSerializer(serializers.ModelSerializer):
             "linked_memory",  # UUID only
             "linked_memories",
             "linked_reflection",
+            "parent_thought",
             "linked_memory_preview",  # 🆕 Text preview
             "narrative_thread",
             "created_at",
