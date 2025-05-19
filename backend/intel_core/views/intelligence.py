@@ -173,6 +173,7 @@ Return only JSON in this format:
         print("🎯 Creating initial objective...")
         objective = AssistantObjective.objects.create(
             project=project,
+            assistant=assistant,
             title="Understand core technologies",
             description="Explore key components from the linked documentation and prepare to assist users effectively.",
         )
