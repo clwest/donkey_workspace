@@ -1,6 +1,6 @@
 // frontend/components/Navbar.jsx
 
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import "./styles/Navbar.css";
 
 export default function Navbar() {
@@ -45,6 +45,11 @@ export default function Navbar() {
               <Link className="nav-link" to="/reflections/custom">
                 🛠 Custom Reflection
               </Link>
+            </li>
+            <li className="nav-item">
+              <NavLink className="nav-link" to="/assistants/primary">
+                🌐 Orchestrator
+              </NavLink>
             </li>
 
             {/* Assistant Project Dashboard */}
@@ -206,14 +211,6 @@ export default function Navbar() {
           </ul>
 
           {/* Right-aligned Links */}
-          <span className="navbar-text me-2">
-            <Link
-              className="btn btn-outline-warning btn-sm"
-              to="/assistants/primary"
-            >
-              ⭐ Primary Assistant
-            </Link>
-          </span>
           <span className="navbar-text">
             <Link className="btn btn-outline-primary btn-sm" to="/">
               🏠 Home

@@ -68,7 +68,7 @@ import MemoryChainsPage from "./pages/assistant/memory_chains/MemoryChainsPage";
 
 import NextActionsPage from "./pages/assistant/objectives/NextActionsPage";
 import ObjectivesPage from "./pages/assistant/objectives/ObjectivesPage";
-import PrimaryAssistantPage from "./pages/assistant/common/PrimaryAssistantPage";
+import PrimaryAssistantDashboard from "./pages/assistants/PrimaryAssistantDashboard";
 
 import AssistantSessionDashboardPage from "./pages/assistant/sessions/AssistantSessionDashboardPage";
 import GroupedReflectionsPage from "./pages/mcp_core/reflections/GroupedReflectionsPage";
@@ -139,7 +139,7 @@ export default function App() {
           />
           <Route
             path="/assistants/primary"
-            element={<PrimaryAssistantPage />}
+            element={<PrimaryAssistantDashboard />}
           />
           <Route
             path="/assistants/primary/dashboard"
