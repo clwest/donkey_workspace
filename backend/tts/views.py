@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny
 from tts.utils.elevenlabs_voices import get_elevenlabs_voices
 from rest_framework.decorators import action
 from rest_framework import filters
@@ -13,7 +13,7 @@ from tts.tasks import queue_tts_story
 class StoryAudioViewSet(viewsets.ModelViewSet):
     queryset = StoryAudio.objects.all().order_by("-created_at")
     serializer_class = StoryAudioSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ["prompt", "voice_style", "provider"]
     ordering_fields = ["created_at", "status", "voice_style"]
@@ -82,7 +82,7 @@ class StoryAudioViewSet(viewsets.ModelViewSet):
 
 
 class ElevenLabsVoiceViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny]
 
     @action(detail=False, methods=["get"], url_path="list")
     def list_voices(self, request):

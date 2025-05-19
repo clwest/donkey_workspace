@@ -3,7 +3,7 @@ from django.shortcuts import render
 # Create your views here.
 from rest_framework import viewsets, generics, status
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 import hashlib
 from django.core.cache import cache
@@ -32,7 +32,7 @@ from rest_framework.decorators import action
 from images.models import Image as SceneImage, PromptHelper as ScenePromptHelper
 from images.tasks import process_sd_image_request
 from django.shortcuts import get_object_or_404
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 
 
 client = OpenAI()
@@ -63,7 +63,7 @@ class CharacterProfileViewSet(viewsets.ModelViewSet):
         detail=True,
         methods=["post"],
         url_path="scene-edit",
-        permission_classes=[IsAuthenticated],
+        permission_classes=[AllowAny],
     )
     def scene_edit(self, request, slug=None):
         """
@@ -268,7 +268,7 @@ class CharactersByProjectView(generics.ListAPIView):
     """
 
     serializer_class = CharacterProfileSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         project_id = self.kwargs.get("pk")
@@ -279,7 +279,7 @@ class CharactersByProjectView(generics.ListAPIView):
 class CharacterImagesView(APIView):
     """Retrieve all reference images for a given character"""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, pk):
         """
@@ -312,7 +312,7 @@ class NameGenerationView(APIView):
     API endpoint to generate a character name based on description, backstory, and traits.
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         description = request.data.get("description", "")
@@ -360,7 +360,7 @@ class CharacterSimilarityView(APIView):
     Returns top 5 matches (public or owned by user).
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         text = request.data.get("text", "").strip()
@@ -451,7 +451,7 @@ class CharacterSimilarityView(APIView):
 class CharacterTrainingStatusView(APIView):
     """Retrieve the training profile for a given character."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, pk):
         """Return the training profile for a specific character, creating if missing."""
@@ -468,7 +468,7 @@ class CharacterTrainingStatusView(APIView):
 class CharacterProfileSimilarityView(APIView):
     """Retrieve top similar characters to the given character based on stored embeddings."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, pk):
         """Return top similar characters for a given character based on stored embeddings."""
@@ -518,7 +518,7 @@ class CharacterProfileSimilarityView(APIView):
 class CharacterTrainView(APIView):
     """Trigger embedding training for a given character via Celery task."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request, pk):
         try:
@@ -546,7 +546,7 @@ class CharactersByProjectView(generics.ListAPIView):
     """
 
     serializer_class = CharacterProfileSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         project_id = self.kwargs.get("pk")

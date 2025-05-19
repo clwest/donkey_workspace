@@ -6,7 +6,7 @@ from .models import Story
 from .serializers import StorySerializer, StoryDetailSerializer
 from story.tasks import generate_story_task, embed_story_chunks
 from story.utils.story_generation import create_full_story_with_media
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework import status
 from rest_framework.views import APIView
 
@@ -14,7 +14,7 @@ from rest_framework.views import APIView
 class StoryViewSet(viewsets.ModelViewSet):
     queryset = Story.objects.all().order_by("-created_at")
     serializer_class = StorySerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ["prompt", "theme", "tags"]
     ordering_fields = ["created_at", "updated_at"]
@@ -81,7 +81,7 @@ class StoryViewSet(viewsets.ModelViewSet):
         detail=True,
         methods=["post"],
         url_path="audio",
-        permission_classes=[permissions.IsAuthenticated],
+        permission_classes=[AllowAny],
     )
     def generate_audio(self, request, pk=None):
         """
@@ -124,7 +124,7 @@ class StoryViewSet(viewsets.ModelViewSet):
         detail=True,
         methods=["post"],
         url_path="tag-chunks",
-        permission_classes=[IsAuthenticated],
+        permission_classes=[AllowAny],
     )
     def tag_chunks(self, request, pk=None):
         """
@@ -143,7 +143,7 @@ class StoryViewSet(viewsets.ModelViewSet):
         detail=True,
         methods=["get"],
         url_path="chunk-tags",
-        permission_classes=[IsAuthenticated],
+        permission_classes=[AllowAny],
     )
     def chunk_tags(self, request, pk=None):
         """
@@ -175,7 +175,7 @@ class StoryViewSet(viewsets.ModelViewSet):
         detail=True,
         methods=["get"],
         url_path="tags",
-        permission_classes=[IsAuthenticated],
+        permission_classes=[AllowAny],
     )
     def tags(self, request, pk=None):
         """
@@ -212,7 +212,7 @@ class StoryViewSet(viewsets.ModelViewSet):
 """
 ViewSet for listing and creating stories under a specific project.
 """
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 
 
 class ProjectStoriesViewSet(viewsets.ModelViewSet):
@@ -221,7 +221,7 @@ class ProjectStoriesViewSet(viewsets.ModelViewSet):
     """
 
     serializer_class = StorySerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         # Only stories belonging to the specified project and user
@@ -237,7 +237,7 @@ class ProjectStoriesViewSet(viewsets.ModelViewSet):
 
 
 class StoryCreateView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         data = request.data

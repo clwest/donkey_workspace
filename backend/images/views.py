@@ -12,9 +12,8 @@ from rest_framework.decorators import action
 import logging
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
 from django.db.models import Q
 from rest_framework.viewsets import ReadOnlyModelViewSet
@@ -58,7 +57,7 @@ from tts.models import SceneAudio
 from tts.serializers import SceneAudioSerializer
 from tts.tasks import queue_tts_scene
 from rest_framework import generics
-from images.helpers.permissions import IsAuthorOrReadOnly
+from images.helpers.permissions import AllowAny
 from images.helpers.image_urls import generate_absolute_urls
 from images.helpers.prompt_generation_hook import prepare_final_prompt
 
@@ -76,7 +75,7 @@ logger = logging.getLogger("django")
 class PromptHelperSimilarityView(APIView):
     """Retrieve top similar PromptHelpers based on semantic similarity to query."""
 
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny]
 
     def get(self, request):
         # Decode URL-encoded query parameter
@@ -117,7 +116,7 @@ class UserImagePagination(PageNumberPagination):
 
 class StableDiffusionGenerationView(viewsets.ViewSet):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     parser_classes = [JSONParser, FormParser, MultiPartParser]
 
     def _resolve_style(self, style_input):
@@ -221,7 +220,7 @@ class CheckImageStatusView(viewsets.ViewSet):
 class ImageViewSet(ReadOnlyModelViewSet):
     queryset = Image.objects.all()
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [AllowAny]
     parser_classes = [MultiPartParser, JSONParser, FormParser]
 
     def get_serializer_class(self):
@@ -236,9 +235,9 @@ class UserImageView(viewsets.ModelViewSet):
     """
 
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [AllowAny]
     serializer_class = ImageSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     filter_backends = [filters.SearchFilter]
     pagination_class = UserImagePagination
     search_fields = ["title", "description", "prompt"]
@@ -309,7 +308,7 @@ class UserImageView(viewsets.ModelViewSet):
 class PublicImageViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Image.objects.all()
     serializer_class = ImageSerializer
-    permission_classes = [IsAuthenticated]  # optional: make it AllowAny later
+    permission_classes = [AllowAny]  # optional: make it AllowAny later
 
     def get_queryset(self):
         return self.queryset.filter(is_public=True).order_by("-created_at")
@@ -337,7 +336,7 @@ class PublicImageViewSet(viewsets.ReadOnlyModelViewSet):
 
 class UpscaleImageView(viewsets.ViewSet):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [AllowAny]
 
     def list(self, request):
         # Return all upscaled images by the current user
@@ -397,7 +396,7 @@ class UpscaleImageView(viewsets.ViewSet):
 
 class EditImageViewSet(viewsets.ViewSet):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [AllowAny]
 
     def create(self, request):
         try:
@@ -441,7 +440,7 @@ class EditImageViewSet(viewsets.ViewSet):
 
 class StyleViewSet(viewsets.ReadOnlyModelViewSet):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [AllowAny]
     queryset = PromptHelper.objects.all()
     serializer_class = PromptHelperSerializer
     permission_classes = [AllowAny]
@@ -449,14 +448,14 @@ class StyleViewSet(viewsets.ReadOnlyModelViewSet):
 
 class TagImageViewSet(viewsets.ReadOnlyModelViewSet):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [AllowAny]
     queryset = TagImage.objects.all()
     serializer_class = TagImageSerializer
 
 
 class ProjectImageViewSet(viewsets.ReadOnlyModelViewSet):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [AllowAny]
     queryset = ProjectImage.objects.filter(is_published=True)
     serializer_class = ProjectImageSerializer
 
@@ -466,7 +465,7 @@ class PromptHelperViewSet(viewsets.ModelViewSet):
     serializer_class = PromptHelperSerializer
     # Disable pagination to return all prompt helpers in one response
     pagination_class = None
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny]
     lookup_field = "id"
 
     # Nested endpoint: list and create versions
@@ -544,7 +543,7 @@ class ProjectImageGalleryView(generics.ListAPIView):
     """
 
     serializer_class = ImageSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         project_id = self.kwargs.get("project_id")
@@ -554,7 +553,7 @@ class ProjectImageGalleryView(generics.ListAPIView):
 class NarrateSceneView(APIView):
     """API view to handle TTS narration for a scene image."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request, pk=None):
         # Start narration for the given image
@@ -599,7 +598,7 @@ class ThemeHelperViewSet(viewsets.ModelViewSet):
     """
 
     serializer_class = ThemeHelperSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny]
     # Support JSON and multipart (for preview_image uploads)
     parser_classes = [MultiPartParser, FormParser, JSONParser]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
@@ -624,7 +623,7 @@ class ThemeHelperViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
 
-    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=["post"], permission_classes=[AllowAny])
     def remix(self, request, pk=None):
         """
         Create a duplicate (remix) of the specified theme, mark it as user-owned and private,
@@ -662,7 +661,7 @@ class ThemeFavoriteViewSet(viewsets.ModelViewSet):
     """CRUD for user favorites of themes. Users can favorite/unfavorite themes."""
 
     serializer_class = ThemeFavoriteSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["theme"]
     lookup_field = "theme"
