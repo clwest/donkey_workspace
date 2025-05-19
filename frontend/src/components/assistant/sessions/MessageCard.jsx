@@ -23,6 +23,21 @@ export default function MessageCard({ message, onFeedback, onTopicSave }) {
 
       <div className={`p-3 rounded ${message.role === "user" ? "bg-light" : "bg-white border"}`}>
         <p className="mb-2">{message.content}</p>
+        {message.message_type === "image" && message.image_url && (
+          <img src={message.image_url} alt="generated" className="img-fluid mb-2" />
+        )}
+        {message.message_type === "audio" && message.audio_url && (
+          <audio controls className="w-100 mb-2">
+            <source src={message.audio_url} />
+          </audio>
+        )}
+        {(message.tts_model || message.style) && (
+          <span className="badge bg-secondary">
+            {message.tts_model && `TTS: ${message.tts_model}`}
+            {message.tts_model && message.style && " | "}
+            {message.style && message.style}
+          </span>
+        )}
 
         {/* Feedback */}
         <div className="d-flex align-items-center gap-2 my-2">

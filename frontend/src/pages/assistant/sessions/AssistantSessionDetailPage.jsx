@@ -3,12 +3,14 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import MessageCard from "../../../components/assistant/sessions/MessageCard";
 import { downloadFile } from "../../../utils/downloadFile";
+import CommonModal from "../../../components/CommonModal";
 
 export default function AssistantSessionDetailPage() {
   const { sessionId } = useParams();
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showReplay, setShowReplay] = useState(false);
 
   useEffect(() => {
     async function fetchSessionDetail() {
@@ -106,6 +108,8 @@ export default function AssistantSessionDetailPage() {
   if (error) return <div className="container my-5 text-danger">Error: {error}</div>;
   if (!session) return null;
 
+  const hasAudio = session.messages.some((m) => m.audio_url);
+
   return (
     <div className="container my-5">
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -127,6 +131,14 @@ export default function AssistantSessionDetailPage() {
           <button className="btn btn-sm btn-outline-secondary" onClick={exportMarkdown}>
             ⬇️ Download .md
           </button>
+          {hasAudio && (
+            <button
+              className="btn btn-sm btn-outline-primary ms-2"
+              onClick={() => setShowReplay(true)}
+            >
+              🎧 Play Session
+            </button>
+          )}
         </div>
       </div>
 
@@ -140,6 +152,25 @@ export default function AssistantSessionDetailPage() {
           />
         ))}
       </div>
+      <CommonModal
+        show={showReplay}
+        onClose={() => setShowReplay(false)}
+        title="Session Replay"
+      >
+        {session.messages.map(
+          (m, idx) =>
+            m.audio_url && (
+              <div key={idx} className="mb-3">
+                <p className="mb-1">
+                  <strong>{m.role}</strong> - {new Date(m.created_at).toLocaleString()}
+                </p>
+                <audio controls className="w-100">
+                  <source src={m.audio_url} />
+                </audio>
+              </div>
+            )
+        )}
+      </CommonModal>
     </div>
   );
 }

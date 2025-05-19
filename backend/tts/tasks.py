@@ -14,7 +14,11 @@ logger = logging.getLogger("django")
 
 @shared_task
 def queue_tts_story(
-    prompt_text: str, user_id: int = None, voice: str = "echo", provider: str = "openai"
+    prompt_text: str,
+    user_id: int = None,
+    voice: str = "echo",
+    provider: str = "openai",
+    chat_message_id: int | None = None,
 ):
     if not prompt_text:
         logger.warning("TTS prompt is empty, skipping.")
@@ -53,6 +57,19 @@ def queue_tts_story(
 
         logger.info(f"✅ TTS generated & saved | Story ID: {story.id}")
 
+        if chat_message_id:
+            try:
+                from assistants.models import AssistantChatMessage
+
+                msg = AssistantChatMessage.objects.get(id=chat_message_id)
+                msg.audio_url = story.audio_file.url
+                msg.message_type = "audio"
+                msg.tts_model = provider
+                msg.style = voice
+                msg.save(update_fields=["audio_url", "message_type", "tts_model", "style"])
+            except AssistantChatMessage.DoesNotExist:
+                pass
+
     except Exception as e:
         logger.exception("🔥 TTS generation failed")
         if "story" in locals():
@@ -61,7 +78,7 @@ def queue_tts_story(
 
 
 @shared_task
-def queue_tts_scene(scene_audio_id: int):
+def queue_tts_scene(scene_audio_id: int, chat_message_id: int | None = None):
     """Async task to generate TTS audio for a scene image."""
     from tts.models import SceneAudio
     from tts.utils.openai_tts import generate_openai_tts
@@ -91,6 +108,19 @@ def queue_tts_scene(scene_audio_id: int):
         scene.status = "completed"
         scene.completed_at = now()
         scene.save()
+
+        if chat_message_id:
+            try:
+                from assistants.models import AssistantChatMessage
+
+                msg = AssistantChatMessage.objects.get(id=chat_message_id)
+                msg.audio_url = scene.audio_file.url
+                msg.message_type = "audio"
+                msg.tts_model = scene.provider
+                msg.style = scene.voice_style
+                msg.save(update_fields=["audio_url", "message_type", "tts_model", "style"])
+            except AssistantChatMessage.DoesNotExist:
+                pass
     except Exception:
         logger.exception("🔥 TTS scene generation failed")
         try:
