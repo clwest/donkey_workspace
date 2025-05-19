@@ -51,8 +51,8 @@ export default function ObjectivesPage() {
             </li>
           ))}
         </ul>
+        
       )}
-
       <Link to="/assistants/projects" className="btn btn-outline-secondary">
         🔙 Back to Projects
       </Link>

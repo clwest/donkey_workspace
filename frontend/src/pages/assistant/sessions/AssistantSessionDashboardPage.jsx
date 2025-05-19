@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
-import MemoryChainSettingsPanel from "../../components/assistant/memory_chain/MemoryChainSettingsPanel";
+import MemoryChainSettingsPanel from "../../../components/assistant/memory_chain/MemoryChainSettingsPanel"
 
 export default function AssistantSessionDashboardPage({ slug: slugProp }) {
   const params = useParams();
