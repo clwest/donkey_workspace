@@ -99,5 +99,6 @@ python manage.py flush_chat_sessions
 • Embed all text data using generate_embedding() and save_embedding().
 • Store delegation events in DelegationEvent, link to ChatSession, MemoryEntry, and Project.
 • Use narrative_thread to group assistants across multi-stage thoughts.
+• Recent APIs expose assistant memories and allow instant reflection or spawning from any context.
 
 ⸻
