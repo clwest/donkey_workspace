@@ -10,11 +10,29 @@ from assistants.models import (
     ChatSession,
     DelegationEvent,
     AssistantObjective,
+    TokenUsage,
 )
 from assistants.helpers.reflection_helpers import reflect_on_delegation
 from memory.models import MemoryEntry
 from mcp_core.models import NarrativeThread
 from project.models import Project
+
+
+def should_delegate(
+    assistant: Assistant,
+    token_usage: Optional[TokenUsage],
+    feedback_flag: Optional[str] = None,
+) -> bool:
+    """Return True if delegation should occur based on thresholds."""
+
+    if assistant.delegation_threshold_tokens and token_usage:
+        if token_usage.total_tokens > assistant.delegation_threshold_tokens:
+            return True
+
+    if feedback_flag and assistant.auto_delegate_on_feedback:
+        return feedback_flag in assistant.auto_delegate_on_feedback
+
+    return False
 
 
 def spawn_delegated_assistant(

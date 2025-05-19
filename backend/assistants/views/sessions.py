@@ -1,7 +1,12 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from assistants.models import ChatSession, AssistantThoughtLog, DelegationEvent
+from assistants.models import (
+    ChatSession,
+    AssistantThoughtLog,
+    DelegationEvent,
+    TokenUsage,
+)
 from assistants.serializers import AssistantChatMessageSerializer
 from assistants.utils.assistant_session import load_session_messages
 from assistants.models import Assistant
@@ -45,6 +50,27 @@ def chat_session_detail(request, session_id):
         messages, many=True
     ).data  # Make sure this serializer exists
 
+    token_usage = (
+        TokenUsage.objects.filter(session=session).order_by("-created_at").first()
+    )
+    usage_data = (
+        {
+            "prompt_tokens": token_usage.prompt_tokens,
+            "completion_tokens": token_usage.completion_tokens,
+            "total_tokens": token_usage.total_tokens,
+        }
+        if token_usage
+        else None
+    )
+    threshold = (
+        session.assistant.delegation_threshold_tokens if session.assistant else None
+    )
+    close_to_threshold = (
+        usage_data is not None
+        and threshold is not None
+        and usage_data["total_tokens"] >= threshold * 0.8
+    )
+
     return Response(
         {
             "session_id": session.session_id,
@@ -54,6 +80,9 @@ def chat_session_detail(request, session_id):
             "narrative_thread": session.narrative_thread_id,
             "created_at": session.created_at,
             "messages": message_data,
+            "token_usage": usage_data,
+            "delegation_threshold": threshold,
+            "close_to_threshold": close_to_threshold,
         }
     )
 

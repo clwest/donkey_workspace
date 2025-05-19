@@ -52,9 +52,15 @@ export default function MessageCard({ message, onFeedback, onTopicSave }) {
             <option value="not_helpful">👎 Not Helpful</option>
             <option value="too_long">💤 Too Long</option>
             <option value="too_short">⚡ Too Short</option>
-            <option value="irrelevant">❌ Irrelevant</option>
-            <option value="unclear">❓ Unclear</option>
-          </select>
+          <option value="irrelevant">❌ Irrelevant</option>
+          <option value="unclear">❓ Unclear</option>
+        </select>
+
+        {(message.feedback === "too_long" ||
+          message.feedback === "unclear" ||
+          message.feedback === "irrelevant") && (
+          <span className="badge bg-warning text-dark">Should delegate?</span>
+        )}
 
           {/* Inline topic entry when editing */}
           {message.topic && !editing ? (

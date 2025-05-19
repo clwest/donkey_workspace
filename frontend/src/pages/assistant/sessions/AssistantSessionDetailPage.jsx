@@ -36,12 +36,35 @@ export default function AssistantSessionDetailPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ feedback: value }),
     }).then(() => {
-      setSession((prev) => ({
-        ...prev,
-        messages: prev.messages.map((msg) =>
-          msg.uuid === uuid ? { ...msg, feedback: value } : msg
-        ),
-      }));
+      setSession((prev) => {
+        const updated = {
+          ...prev,
+          messages: prev.messages.map((msg) =>
+            msg.uuid === uuid ? { ...msg, feedback: value } : msg
+          ),
+        };
+        if (prev.token_usage) {
+          fetch(
+            `http://localhost:8000/api/assistants/${prev.assistant_slug}/evaluate-delegation/`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                session_id: prev.session_id,
+                token_count: prev.token_usage.total_tokens,
+                feedback_flag: value,
+              }),
+            }
+          )
+            .then((r) => r.json())
+            .then((data) => {
+              if (data.should_delegate && data.suggested_agent) {
+                alert(`Suggested agent: ${data.suggested_agent}`);
+              }
+            });
+        }
+        return updated;
+      });
     });
   }
   
@@ -136,6 +159,16 @@ export default function AssistantSessionDetailPage() {
         <p><strong>Assistant:</strong> {session.assistant_name}</p>
         <p><strong>Created:</strong> {new Date(session.created_at).toLocaleString()}</p>
         <p><strong>Total Messages:</strong> {session.messages.length}</p>
+        {session.token_usage && (
+          <span className="badge bg-info me-2">
+            📊 Token Usage: {session.token_usage.total_tokens}
+          </span>
+        )}
+        {session.close_to_threshold && (
+          <span className="badge bg-warning text-dark ms-2">
+            ⚠️ Delegation Soon
+          </span>
+        )}
         <div className="mt-2">
           <button className="btn btn-sm btn-outline-secondary me-2" onClick={copyTranscript}>
             📋 Copy to Clipboard

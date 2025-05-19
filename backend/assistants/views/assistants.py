@@ -29,7 +29,7 @@ from assistants.utils.assistant_session import (
 from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 
 from assistants.helpers.chat_helper import get_or_create_chat_session, save_chat_message
-from assistants.utils.delegation import spawn_delegated_assistant
+from assistants.utils.delegation import spawn_delegated_assistant, should_delegate
 from assistants.helpers.memory_helpers import create_memory_from_chat
 from memory.models import MemoryEntry
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
@@ -288,8 +288,7 @@ def chat_with_assistant_view(request, slug):
         },
     )
 
-    limit = getattr(settings, "ASSISTANT_DELEGATION_TOKEN_LIMIT", None)
-    if limit and token_usage.total_tokens >= limit:
+    if should_delegate(assistant, token_usage, request.data.get("feedback_flag")):
         recent_memory = (
             MemoryEntry.objects.filter(chat_session=chat_session)
             .order_by("-created_at")
@@ -311,7 +310,6 @@ def chat_with_assistant_view(request, slug):
     token_usage.completion_tokens += getattr(usage, "completion_tokens", 0)
     token_usage.total_tokens += getattr(usage, "total_tokens", 0)
     token_usage.save()
-
 
     # Save assistant message
     save_message_to_session(session_id, "assistant", reply)
@@ -360,8 +358,7 @@ def chat_with_assistant_view(request, slug):
     user_chat.save()
     assistant_chat.save()
 
-    limit = getattr(settings, "ASSISTANT_DELEGATION_TOKEN_LIMIT", None)
-    if limit and token_usage.total_tokens >= limit:
+    if should_delegate(assistant, token_usage, request.data.get("feedback_flag")):
         delegate = spawn_delegated_assistant(chat_session, memory_entry=memory)
         return Response({"delegate_slug": delegate.slug})
 

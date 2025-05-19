@@ -3,6 +3,12 @@ from rest_framework.response import Response
 
 from assistants.models import DelegationEvent
 from assistants.serializers import DelegationEventSerializer
+from assistants.utils.delegation import (
+    spawn_delegated_assistant,
+    should_delegate,
+)
+from assistants.models import Assistant, TokenUsage, ChatSession
+from memory.models import MemoryEntry
 
 
 @api_view(["GET"])
@@ -103,3 +109,55 @@ def delegation_trace(request, slug):
         return Response({"error": "Assistant not found"}, status=404)
     data = build_trace(assistant)
     return Response(data)
+
+
+@api_view(["POST"])
+def evaluate_delegation(request, slug):
+    """Return whether delegation should occur for this session."""
+    assistant = Assistant.objects.filter(slug=slug).first()
+    if not assistant:
+        return Response({"error": "Assistant not found"}, status=404)
+
+    session_id = request.data.get("session_id")
+    feedback_flag = request.data.get("feedback_flag")
+    token_count = int(request.data.get("token_count") or 0)
+
+    chat_session = (
+        ChatSession.objects.filter(session_id=session_id).first()
+        if session_id
+        else None
+    )
+    if chat_session:
+        token_usage, _ = TokenUsage.objects.get_or_create(
+            session=chat_session,
+            defaults={"assistant": assistant, "usage_type": "chat"},
+        )
+        token_usage.total_tokens = token_count or token_usage.total_tokens
+    else:
+        token_usage = TokenUsage(total_tokens=token_count)
+
+    if should_delegate(assistant, token_usage, feedback_flag):
+        existing = (
+            Assistant.objects.filter(specialty=assistant.specialty, is_active=True)
+            .exclude(id=assistant.id)
+            .first()
+        )
+        if existing:
+            return Response({"should_delegate": True, "suggested_agent": existing.slug})
+
+        recent_memory = None
+        if chat_session:
+            recent_memory = (
+                MemoryEntry.objects.filter(chat_session=chat_session)
+                .order_by("-created_at")
+                .first()
+            )
+            new_agent = spawn_delegated_assistant(
+                chat_session, memory_entry=recent_memory
+            )
+        else:
+            new_agent = spawn_delegated_assistant(assistant)
+
+        return Response({"should_delegate": True, "suggested_agent": new_agent.slug})
+
+    return Response({"should_delegate": False, "suggested_agent": None})
