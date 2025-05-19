@@ -204,6 +204,20 @@ Memories:
             "status": "stub",
         }
 
+    def plan_from_memory(self, chain):
+        """Generate a plan summary from a memory chain."""
+        from .memory_filters import get_filtered_memories
+
+        memories = get_filtered_memories(chain)
+        if not memories:
+            return {"summary": "No relevant memories."}
+
+        texts = [m.summary or m.event for m in memories]
+        prompt = self.build_summary_prompt(texts)
+        summary = self.generate_thought(prompt)
+        self.log_thought(summary, thought_type="planning")
+        return {"summary": summary, "source_count": len(memories)}
+
     def plan_tasks_from_objective(self, objective):
         """Generate simple tasks for an objective. Placeholder implementation."""
         base_tasks = [

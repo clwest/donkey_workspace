@@ -396,17 +396,26 @@ class AssistantPromptLink(models.Model):
 class AssistantMemoryChain(models.Model):
     """Sequence of related memories and prompts for a project."""
 
+    MODE_CHOICES = [
+        ("automatic", "Automatic"),
+        ("manual", "Manual"),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     project = models.ForeignKey(
         "project.Project", on_delete=models.CASCADE, related_name="memory_chains"
     )
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    mode = models.CharField(max_length=20, default="manual")
+    mode = models.CharField(max_length=20, choices=MODE_CHOICES, default="manual")
     filters = models.JSONField(default=dict, blank=True)
     reflection_tags = models.ManyToManyField(
         "mcp_core.Tag", blank=True, related_name="memory_chains"
     )
+    filter_tags = models.ManyToManyField(
+        "mcp_core.Tag", blank=True, related_name="filtered_memory_chains"
+    )
+    exclude_types = models.JSONField(default=list, blank=True)
     memories = models.ManyToManyField(MemoryEntry, blank=True)
     prompts = models.ManyToManyField(Prompt, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -110,6 +110,11 @@ urlpatterns = [
         name="assistant-reflect-now-context",
     ),
     path(
+        "<slug:slug>/reflect/chain/",
+        memory.reflect_on_memory_chain,
+        name="assistant-reflect-chain",
+    ),
+    path(
         "<slug:slug>/memories/",
         memory.assistant_memories,
         name="assistant-memories",
@@ -159,6 +164,11 @@ urlpatterns = [
         memory.assistant_memory_chains,
         name="assistant-memory-chains",
     ),  # GET + POST
+    path(
+        "memory-chains/<uuid:chain_id>/",
+        memory.assistant_memory_chain_detail,
+        name="assistant-memory-chain-detail",
+    ),
     # ===== MILESTONES =====
     # ===== SIGNAL SOURCES & CATCHES =====
     path("sources/", signals.signal_sources, name="signal-sources"),  # GET + POST
@@ -198,11 +208,7 @@ urlpatterns = [
         delegations.delegation_events_for_assistant,
         name="assistant-delegations",
     ),
-    path(
-        "<slug:slug>/delegate/<uuid:objective_id>/",
-        delegation.delegate_from_objective,
-        name="delegate-from-objective",
-    ),
+
     path("<slug:slug>/reflections/recent/", thoughts.get_recent_reflections),
     path(
         "<slug:slug>/reflections/",

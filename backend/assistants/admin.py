@@ -8,6 +8,7 @@ from .models import (
     AssistantReflectionLog,
     ChatSession,
     DelegationEvent,
+    AssistantMemoryChain,
 )
 from memory.models import MemoryEntry
 from mcp_core.models import Tag
@@ -120,6 +121,14 @@ class AssistantNextActionAdmin(admin.ModelAdmin):
     list_filter = ("completed",)
     search_fields = ("content", "objective__title")
     ordering = ("-created_at",)
+
+
+@admin.register(AssistantMemoryChain)
+class AssistantMemoryChainAdmin(admin.ModelAdmin):
+    list_display = ("title", "project", "mode", "created_at")
+    list_filter = ("mode", "project")
+    search_fields = ("title", "project__title")
+    filter_horizontal = ("filter_tags",)
 
 
 @admin.register(ChatSession)
