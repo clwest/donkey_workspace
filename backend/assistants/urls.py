@@ -140,6 +140,11 @@ urlpatterns = [
         name="assistant-memories",
     ),
     path(
+        "<slug:slug>/memory-to-project/",
+        projects.memory_to_project,
+        name="memory-to-project",
+    ),
+    path(
         "<slug:slug>/spawn/",
         delegation.spawn_from_context,
         name="assistant-spawn-from-context",
