@@ -235,6 +235,11 @@ urlpatterns = [
         memory.assistant_reflection_detail,
         name="assistant-reflection-detail",
     ),
+    path(
+        "reflections/<uuid:id>/thoughts/",
+        memory.reflection_thoughts,
+        name="assistant-reflection-thoughts",
+    ),
     # SLUGS MUST STAY AT THE BOTTOM!
     path(
         "<slug:slug>/chat/", assistants.chat_with_assistant_view, name="assistant-chat"

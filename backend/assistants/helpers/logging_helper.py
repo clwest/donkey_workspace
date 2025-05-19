@@ -6,6 +6,8 @@ def log_assistant_thought(
     thought: str,
     trace: str = "",
     linked_memory=None,
+    linked_memories=None,
+    linked_reflection=None,
     project=None,
     thought_type: str = "generated",
 ):
@@ -17,6 +19,10 @@ def log_assistant_thought(
         thought=thought,
         thought_trace=trace or "",
         linked_memory=linked_memory,
+        linked_reflection=linked_reflection,
         project=project,
         thought_type=thought_type,
     )
+    if linked_memories:
+        log.linked_memories.set(linked_memories)
+    return log

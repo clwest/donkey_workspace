@@ -7,6 +7,7 @@ export default function ReflectionDetailPage() {
   const { id } = useParams();
   const [reflection, setReflection] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [thoughts, setThoughts] = useState([]);
 
   useEffect(() => {
     fetch(`http://localhost:8000/api/mcp/reflections/${id}/`)
@@ -19,6 +20,11 @@ export default function ReflectionDetailPage() {
         console.error("Failed to fetch reflection:", err);
         setLoading(false);
       });
+
+    fetch(`/api/assistants/reflections/${id}/thoughts/`)
+      .then(res => res.json())
+      .then(setThoughts)
+      .catch(err => console.error("Failed to load thoughts", err));
   }, [id]);
 
   if (loading) return <div className="container mt-5">Loading reflection...</div>;
@@ -52,6 +58,17 @@ export default function ReflectionDetailPage() {
 
       <h5 className="mt-4">LLM Reflection:</h5>
       <p>{reflection.llm_summary || "No LLM reflection available."}</p>
+
+      {thoughts.length > 0 && (
+        <details className="mt-4">
+          <summary>Related Thoughts ({thoughts.length})</summary>
+          <ul className="mt-2">
+            {thoughts.map((t) => (
+              <li key={t.id}>{t.thought}</li>
+            ))}
+          </ul>
+        </details>
+      )}
     </div>
   );
 }

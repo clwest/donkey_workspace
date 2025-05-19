@@ -112,6 +112,7 @@ Memories:
 
         log.linked_memory = memory
         log.save()
+        log.linked_memories.add(memory)
 
         # 🔁 Cache thought
         existing = get_cached_thoughts(self.assistant.slug) or []

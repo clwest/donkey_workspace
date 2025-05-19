@@ -324,6 +324,8 @@ class AssistantThoughtLogSerializer(serializers.ModelSerializer):
     )
     assistant_name = serializers.CharField(source="assistant.name", read_only=True)
     linked_memory = serializers.PrimaryKeyRelatedField(read_only=True)
+    linked_memories = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    linked_reflection = serializers.PrimaryKeyRelatedField(read_only=True)
     linked_memory_preview = serializers.SerializerMethodField()
     tags = TagSerializer(many=True, read_only=True)
     narrative_thread = serializers.PrimaryKeyRelatedField(read_only=True)
@@ -345,6 +347,8 @@ class AssistantThoughtLogSerializer(serializers.ModelSerializer):
             "tags",
             "category",
             "linked_memory",  # UUID only
+            "linked_memories",
+            "linked_reflection",
             "linked_memory_preview",  # 🆕 Text preview
             "narrative_thread",
             "created_at",
