@@ -41,6 +41,7 @@ client = OpenAI()
 
 
 @api_view(["GET", "POST"])
+@permission_classes([AllowAny])
 def assistants_view(request):
     """
     Handles listing and creating Assistants.
@@ -63,6 +64,7 @@ def assistants_view(request):
 
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def assistant_detail_view(request, slug):
     try:
         assistant = Assistant.objects.get(slug=slug)
@@ -76,6 +78,7 @@ def assistant_detail_view(request, slug):
 
 
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def create_assistant_from_thought(request):
     data = request.data
     required = [
@@ -301,6 +304,7 @@ def flush_chat_session(request, slug):
 
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def demo_assistant(request):
     assistant = Assistant.objects.filter(is_demo=True)
     data = [

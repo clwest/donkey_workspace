@@ -25,7 +25,7 @@ urlpatterns = [
     path("api/tts/", include("tts.urls")),
     path("api/stories/", include("story.urls")),
     path("api/videos/", include("videos.urls")),
-    path("api/images/", include("images.urls")),
+    # path("api/images/", include("images.urls")),
     path("api/projects/", include("project.urls")),
     path("api/characters/", include("characters.urls")),
     # Embedding chunk-match endpoint

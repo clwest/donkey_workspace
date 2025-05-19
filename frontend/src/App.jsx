@@ -16,7 +16,7 @@ import ReflectionTagsPage from "./pages/mcp_core/reflections/ReflectionTagsPage"
 import HotTagsPage from "./pages/mcp_core/reflections/HotTagsPage";
 import RecentReflectionsPage from "./pages/mcp_core/recent/RecentReflectionsPage"; 
 import CustomReflectionPage from "./pages/mcp_core/reflections/CustomReflectionPage";
-
+import PlanningPage from "./pages/dev/PlanningPage";
 import ThreadDetailPage from "./pages/mcp_core/threads/ThreadDetailPage";
 import ThreadsOverviewPage from "./pages/mcp_core/threads/ThreadsOverviewPage";
 import AssistantSessionsPage from "./pages/assistant/sessions/AssistantSessionsPage"
@@ -87,6 +87,7 @@ import AgentPage from "./pages/agents/AgentPage";
 import { ToastContainer } from "react-toastify";
 import Navbar from './components/Navbar';
 import "react-toastify/dist/ReactToastify.css";
+import PlanningPage from "./pages/dev/PlanningPage";
 
 
 export default function App() {
@@ -174,6 +175,7 @@ export default function App() {
           <Route path="/threads" element={<ThreadsOverviewPage />} />
           <Route path="/threads/:id" element={<ThreadDetailPage />} />
           <Route path="/dev-dashboard" element={<DevDashboard />} />
+          <Route path="/planning" element={<PlanningPage />} />
           <Route path="/grouped-reflection" element={<GroupedReflectionPage />} />
           <Route path="/grouped-reflection/:id" element={<GroupedReflectionDetailPage />} />
           <Route path="/agent" element={<AgentPage />} />
