@@ -44,6 +44,7 @@ export default function ObjectivesPage() {
       {objectives.length === 0 ? (
         <p>No objectives found.</p>
       ) : (
+        
         <ul className="list-group mb-4">
           {objectives.map((obj) => (
 
