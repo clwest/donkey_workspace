@@ -37,6 +37,7 @@ from project.serializers import (
 from mcp_core.serializers_tags import NarrativeThreadSerializer
 from mcp_core.models import NarrativeThread
 from memory.models import MemoryEntry
+from memory.serializers import MemoryEntrySerializer
 from assistants.utils.bootstrap_helpers import generate_objectives_from_prompt
 
 
@@ -74,6 +75,45 @@ class AssistantReflectionLogSerializer(serializers.ModelSerializer):
             "mood",
             "summary",
             "llm_summary",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
+class AssistantReflectionLogListSerializer(serializers.ModelSerializer):
+    tags = TagSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = AssistantReflectionLog
+        fields = [
+            "id",
+            "created_at",
+            "project",
+            "summary",
+            "linked_memory",
+            "tags",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
+class AssistantReflectionLogDetailSerializer(serializers.ModelSerializer):
+    tags = TagSerializer(many=True, read_only=True)
+    linked_memory = MemoryEntrySerializer(read_only=True)
+    project = ProjectSerializer(read_only=True)
+
+    class Meta:
+        model = AssistantReflectionLog
+        fields = [
+            "id",
+            "assistant",
+            "project",
+            "summary",
+            "raw_prompt",
+            "llm_summary",
+            "insights",
+            "linked_memory",
+            "tags",
+            "mood",
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]
