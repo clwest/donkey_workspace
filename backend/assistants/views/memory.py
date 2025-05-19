@@ -17,7 +17,13 @@ from project.models import ProjectMemoryLink
 from project.serializers import ProjectMemoryLinkSerializer
 
 from memory.models import MemoryEntry
-from memory.serializers import MemoryEntrySerializer
+from memory.serializers import MemoryEntrySerializer, MemoryEntrySlimSerializer
+from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
+from memory.utils.context_helpers import get_or_create_context_from_memory
+from mcp_core.models import MemoryContext
+from django.contrib.contenttypes.models import ContentType
+from intel_core.models import Document
+from project.models import Project
 
 
 # Assistant Memory Chains
@@ -59,5 +65,49 @@ def assistant_project_reflections(request, project_id):
     )
     serializer = AssistantReflectionLogSerializer(reflections, many=True)
     return Response(serializer.data)
+
+
+@api_view(["GET"])
+def assistant_memories(request, slug):
+    """List memory entries for a specific assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    entries = MemoryEntry.objects.filter(assistant=assistant).order_by("-created_at")
+    serializer = MemoryEntrySlimSerializer(entries, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["POST"])
+def reflect_now(request, slug):
+    """Trigger an immediate reflection using optional context."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+
+    memory_id = request.data.get("memory_id")
+    project_id = request.data.get("project_id")
+    doc_id = request.data.get("doc_id")
+
+    context = None
+    if memory_id:
+        memory = get_object_or_404(MemoryEntry, id=memory_id)
+        context = get_or_create_context_from_memory(memory)
+    elif project_id:
+        project = get_object_or_404(Project, id=project_id)
+        context = MemoryContext.objects.create(
+            target_content_type=ContentType.objects.get_for_model(Project),
+            target_object_id=project.id,
+            content=project.title,
+        )
+    elif doc_id:
+        document = get_object_or_404(Document, id=doc_id)
+        context = MemoryContext.objects.create(
+            target_content_type=ContentType.objects.get_for_model(Document),
+            target_object_id=document.id,
+            content=document.title,
+        )
+    else:
+        context = MemoryContext.objects.create(content="ad-hoc reflection")
+
+    engine = AssistantReflectionEngine(assistant)
+    summary = engine.reflect_now(context)
+    return Response({"summary": summary})
 
 

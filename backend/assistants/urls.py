@@ -9,6 +9,7 @@ from .views import (
     prompts,
     sessions,
     delegations,
+    delegation,
     signals,
     tasks,
     objectives,
@@ -86,6 +87,21 @@ urlpatterns = [
         "<slug:slug>/reflect-now/",
         thoughts.assistant_reflect_now,
         name="assistant-reflect-now",
+    ),
+    path(
+        "<slug:slug>/reflect_now/",
+        memory.reflect_now,
+        name="assistant-reflect-now-context",
+    ),
+    path(
+        "<slug:slug>/memories/",
+        memory.assistant_memories,
+        name="assistant-memories",
+    ),
+    path(
+        "<slug:slug>/spawn/",
+        delegation.spawn_from_context,
+        name="assistant-spawn-from-context",
     ),
     # ===== PROMPTS =====
     path(
