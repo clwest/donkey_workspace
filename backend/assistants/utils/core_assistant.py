@@ -1,7 +1,13 @@
 import logging
 from typing import Optional
 
-from assistants.models import Assistant, AssistantThoughtLog, AssistantReflectionLog
+from assistants.models import (
+    Assistant,
+    AssistantThoughtLog,
+    AssistantReflectionLog,
+    AssistantProject,
+)
+from assistants.utils.delegation import spawn_delegated_assistant
 from intel_core.models import Document
 from project.models import Project
 from memory.models import MemoryEntry
@@ -50,7 +56,12 @@ class CoreAssistant:
             tags=tags,
         )
 
-    def save_to_memory(self, content: str, project: Optional[Project] = None, label: Optional[str] = None) -> MemoryEntry:
+    def save_to_memory(
+        self,
+        content: str,
+        project: Optional[Project] = None,
+        label: Optional[str] = None,
+    ) -> MemoryEntry:
         """
         Save a string to assistant memory with optional project linkage.
         """
@@ -68,3 +79,31 @@ class CoreAssistant:
         """
         logger.info(f"[CoreAssistant] Suggesting next action for: {context[:50]}")
         return "(TODO: Suggest next action based on context.)"
+
+    def reflect_on_assistant(
+        self, assistant: Assistant, project: AssistantProject
+    ) -> Optional[str]:
+        """Run reflection about a delegated assistant."""
+        logger.info(f"[CoreAssistant] Reflecting on assistant {assistant.slug}")
+        return self.reflection_engine.reflect_on_assistant(assistant, project)
+
+    def delegate_from_memory(
+        self,
+        memory_entry: Optional[MemoryEntry] = None,
+        *,
+        reason: str = "delegation",
+        summary: Optional[str] = None,
+    ) -> Assistant:
+        """Spawn a delegated assistant using memory context."""
+        logger.info("[CoreAssistant] Spawning delegated assistant from memory")
+        return spawn_delegated_assistant(
+            parent_or_session=self.assistant,
+            project=None,
+            name=None,
+            description="",
+            specialty="",
+            narrative_thread=None,
+            memory_entry=memory_entry,
+            reason=reason,
+            summary=summary,
+        )
