@@ -49,6 +49,21 @@ urlpatterns = [
         name="assistant-project-detail",
     ),  # GET, PATCH, DELETE
     path("projects/<uuid:project_id>/tasks/", tasks.assistant_project_tasks),
+    path(
+        "projects/<uuid:project_id>/assistant-tasks/",
+        tasks.assistant_tasks_for_project,
+        name="assistant-tasks-for-project",
+    ),
+    path(
+        "projects/<uuid:project_id>/roles/",
+        projects.project_roles,
+        name="assistant-project-roles",
+    ),
+    path(
+        "project-roles/<uuid:role_id>/",
+        projects.project_role_detail,
+        name="assistant-project-role-detail",
+    ),
     path("tasks/<uuid:task_id>/", tasks.assistant_project_task_detail),
     # path(
     #     "projects/<uuid:project_id>/generate_tasks/",
