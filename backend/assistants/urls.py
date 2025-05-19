@@ -243,6 +243,11 @@ urlpatterns = [
         delegations.delegation_trace,
         name="assistant-delegation-trace",
     ),
+    path(
+        "<slug:slug>/evaluate-delegation/",
+        delegations.evaluate_delegation,
+        name="assistant-evaluate-delegation",
+    ),
     path("<slug:slug>/reflections/recent/", thoughts.get_recent_reflections),
     path(
         "<slug:slug>/reflections/",

@@ -17,6 +17,7 @@ from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.fields import ArrayField
 from pgvector.django import VectorField
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -135,6 +136,11 @@ class Assistant(models.Model):
     )
     thinking_style = models.CharField(
         max_length=200, choices=THINKING_STYLES, default="cot"
+    )
+
+    delegation_threshold_tokens = models.IntegerField(null=True, blank=True)
+    auto_delegate_on_feedback = ArrayField(
+        models.CharField(max_length=50), null=True, blank=True
     )
 
     def save(self, *args, **kwargs):
