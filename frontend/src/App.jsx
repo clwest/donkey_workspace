@@ -81,13 +81,12 @@ import GroupedReflectionPage from "./pages/dev/GroupedReflectionPage";
 import GroupedReflectionDetailPage from "./pages/dev/GroupedReflectionDetailPage";
 import DocumentBrowserPage from "./pages/intel_core/DocumentBrowserPage";
 import DocumentDetailPage from "./pages/intel_core/DocumentDetailPage";
-
 import AgentPage from "./pages/agents/AgentPage";
 
 import { ToastContainer } from "react-toastify";
 import Navbar from './components/Navbar';
 import "react-toastify/dist/ReactToastify.css";
-import PlanningPage from "./pages/dev/PlanningPage";
+
 
 
 export default function App() {

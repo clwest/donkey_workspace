@@ -1,4 +1,4 @@
-import CodexTaskTracker from "@/components/tools/CodexTaskTracker";
+import CodexTaskTracker from "../../components/tools/CodexTaskTracker";
 
 export default function PlanningPage() {
   return (
