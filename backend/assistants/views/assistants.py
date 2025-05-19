@@ -18,6 +18,7 @@ from assistants.models import (
     TokenUsage,
     ChatSession,
 )
+from assistants.helpers.redis_helpers import get_cached_thoughts
 from mcp_core.models import NarrativeThread
 from assistants.serializers import AssistantSerializer
 from assistants.utils.assistant_session import (
@@ -75,6 +76,20 @@ def assistant_detail_view(request, slug):
 
     serializer = AssistantSerializer(assistant)
     return Response(serializer.data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def primary_assistant_view(request):
+    assistant = Assistant.objects.filter(is_primary=True).first()
+    if not assistant:
+        return Response({"error": "No primary assistant."}, status=404)
+
+    serializer = AssistantSerializer(assistant)
+    recent = get_cached_thoughts(assistant.slug) or []
+    data = serializer.data
+    data["recent_thoughts"] = recent
+    return Response(data)
 
 
 @api_view(["POST"])

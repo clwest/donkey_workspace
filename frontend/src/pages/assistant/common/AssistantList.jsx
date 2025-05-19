@@ -38,10 +38,7 @@ export default function AssistantList() {
         {groups.map(({ parent, children }) => (
           <li key={parent.id} className="list-group-item">
             <Link to={`/assistants/${parent.slug}`}>
-              <strong>{parent.name}</strong>
-              {parent.is_primary && (
-                <span className="badge bg-primary ms-2">Primary</span>
-              )}
+
             </Link>
             <p className="text-muted mb-1">{parent.description}</p>
 
@@ -50,8 +47,7 @@ export default function AssistantList() {
                 {children.map((child) => (
                   <li key={child.id}>
                     <Link to={`/assistants/${child.slug}`}>
-                      {child.name}
-                      <PrimaryStar isPrimary={child.is_primary} />
+
                     </Link>
                     <span className="text-muted ms-1">({child.specialty})</span>
                   </li>

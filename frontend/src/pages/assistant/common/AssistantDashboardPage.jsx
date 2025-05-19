@@ -29,8 +29,7 @@ export default function AssistantDashboardPage() {
               <div className="card shadow-sm h-100">
                 <div className="card-body">
                   <h5 className="card-title">
-                    {assistant.name}
-                    <PrimaryStar isPrimary={assistant.is_primary} />
+
                   </h5>
                   <p className="text-muted mb-1">{assistant.specialty}</p>
                   <p className="card-text small">
