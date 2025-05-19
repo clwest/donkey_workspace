@@ -30,7 +30,7 @@ from project.models import Project
 
 
 # Assistant Memory Chains
-@api_view(["GET", "POST"])
+@api_view(["GET", "POST", "PATCH"])
 def assistant_memory_chains(request, project_id):
     if request.method == "GET":
         chains = AssistantMemoryChain.objects.filter(project_id=project_id)
@@ -41,6 +41,18 @@ def assistant_memory_chains(request, project_id):
         if serializer.is_valid():
             serializer.save(project_id=project_id)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if request.method == "PATCH":
+        chain_id = request.data.get("id")
+        chain = get_object_or_404(
+            AssistantMemoryChain, id=chain_id, project_id=project_id
+        )
+        serializer = AssistantMemoryChainSerializer(
+            chain, data=request.data, partial=True
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -129,16 +141,7 @@ def reflect_now(request, slug):
 
 @api_view(["POST"])
 def reflect_on_memory_chain(request, slug):
-    assistant = get_object_or_404(Assistant, slug=slug)
-    chain_id = request.data.get("chain_id")
-    chain = get_object_or_404(AssistantMemoryChain, id=chain_id)
-    entries = get_filtered_memories(chain)
-    if not entries:
-        return Response({"summary": "No relevant memories."})
-    context_text = "\n".join(e.event for e in entries)
-    context = MemoryContext.objects.create(content=context_text)
-    engine = AssistantReflectionEngine(assistant)
-    summary = engine.reflect_now(context)
+
     return Response({"summary": summary})
 
 

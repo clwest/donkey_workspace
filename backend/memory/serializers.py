@@ -5,6 +5,7 @@ from assistants.models import AssistantThoughtLog
 from mcp_core.serializers_tags import NarrativeThreadSerializer
 from mcp_core.serializers_tags import TagSerializer
 
+
 class MemoryEntrySerializer(serializers.ModelSerializer):
     linked_thought = serializers.SerializerMethodField()
     narrative_thread = NarrativeThreadSerializer(read_only=True)
@@ -69,7 +70,7 @@ class MemoryEntrySlimSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MemoryEntry
-        fields = ["id", "summary", "tags", "token_count", "created_at"]
+        fields = ["id", "summary", "tags", "type", "token_count", "created_at"]
 
     def get_token_count(self, obj):
         from prompts.utils.token_helpers import count_tokens

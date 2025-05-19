@@ -112,7 +112,7 @@ urlpatterns = [
     path(
         "<slug:slug>/reflect/chain/",
         memory.reflect_on_memory_chain,
-        name="assistant-reflect-chain",
+
     ),
     path(
         "<slug:slug>/memories/",
