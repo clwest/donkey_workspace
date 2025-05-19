@@ -44,6 +44,7 @@ cd backend
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+# Run the initial migration manually to set up the database
 python manage.py migrate
 python manage.py runserver
 ```
