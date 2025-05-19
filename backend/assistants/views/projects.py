@@ -2,11 +2,12 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
-from assistants.models import AssistantProject
+from assistants.models import AssistantProject, AssistantProjectRole
 from assistants.serializers import (
     AssistantProjectSerializer,
     AssistantFromPromptSerializer,
     AssistantSerializer,
+    AssistantProjectRoleSerializer,
 )
 from django.utils.text import slugify
 from assistants.models import Assistant, AssistantProject
@@ -97,3 +98,36 @@ def assign_project(request, slug):
     assistant.current_project = project
     assistant.save()
     return Response({"status": "assigned"})
+
+
+@api_view(["GET", "POST"])
+def project_roles(request, project_id):
+    """List or create roles for a project."""
+    if request.method == "GET":
+        roles = AssistantProjectRole.objects.filter(project_id=project_id).select_related("assistant")
+        serializer = AssistantProjectRoleSerializer(roles, many=True)
+        return Response(serializer.data)
+
+    serializer = AssistantProjectRoleSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(project_id=project_id)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["PATCH", "DELETE"])
+def project_role_detail(request, role_id):
+    try:
+        role = AssistantProjectRole.objects.get(id=role_id)
+    except AssistantProjectRole.DoesNotExist:
+        return Response({"error": "Role not found"}, status=404)
+
+    if request.method == "PATCH":
+        serializer = AssistantProjectRoleSerializer(role, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    role.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)

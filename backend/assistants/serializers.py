@@ -5,6 +5,7 @@ from .models import (
     AssistantProject,
     AssistantObjective,
     AssistantTask,
+    AssistantProjectRole,
     AssistantReflectionLog,
     AssistantPromptLink,
     AssistantMemoryChain,
@@ -151,6 +152,12 @@ class AssistantObjectiveSerializer(serializers.ModelSerializer):
 
 
 class AssistantTaskSerializer(serializers.ModelSerializer):
+    assigned_assistant_name = serializers.CharField(
+        source="assigned_assistant.name", read_only=True
+    )
+    assigned_assistant_slug = serializers.CharField(
+        source="assigned_assistant.slug", read_only=True
+    )
     class Meta:
         model = AssistantTask
         fields = [
@@ -164,6 +171,9 @@ class AssistantTaskSerializer(serializers.ModelSerializer):
             "source_type",
             "source_id",
             "proposed_by",
+            "assigned_assistant",
+            "assigned_assistant_name",
+            "assigned_assistant_slug",
             "confirmed_by_user",
             "created_at",
         ]
@@ -224,6 +234,28 @@ class ProjectOverviewSerializer(serializers.ModelSerializer):
 
     def get_active_milestones(self, obj):
         return obj.milestones.count()
+
+
+class AssistantProjectRoleSerializer(serializers.ModelSerializer):
+    assistant_name = serializers.CharField(source="assistant.name", read_only=True)
+    assistant_slug = serializers.CharField(source="assistant.slug", read_only=True)
+    avatar = serializers.CharField(source="assistant.avatar", read_only=True)
+
+    class Meta:
+        model = AssistantProjectRole
+        fields = [
+            "id",
+            "assistant",
+            "assistant_name",
+            "assistant_slug",
+            "avatar",
+            "project",
+            "role_name",
+            "description",
+            "is_primary",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
 
 
 # assistants/serializers.py

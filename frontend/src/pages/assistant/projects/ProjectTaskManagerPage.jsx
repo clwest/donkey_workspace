@@ -5,11 +5,15 @@ export default function ProjectTaskManagerPage() {
   const { id: projectId } = useParams();
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [roles, setRoles] = useState([]);
+  const [filterAssistant, setFilterAssistant] = useState("");
 
   useEffect(() => {
     async function fetchTasks() {
       try {
-        const res = await fetch(`http://localhost:8000/api/assistants/projects/${projectId}/tasks/`);
+        let url = `/assistants/projects/${projectId}/assistant-tasks/`;
+        if (filterAssistant) url += `?assistant_id=${filterAssistant}`;
+        const res = await fetch(`http://localhost:8000/api${url}`);
         if (!res.ok) throw new Error("Task fetch failed");
         const data = await res.json();
         setTasks(data);
@@ -21,7 +25,10 @@ export default function ProjectTaskManagerPage() {
     }
 
     fetchTasks();
-  }, [projectId]);
+    fetch(`http://localhost:8000/api/assistants/projects/${projectId}/roles/`)
+      .then((r) => r.json())
+      .then(setRoles);
+  }, [projectId, filterAssistant]);
 
   async function handleStatusChange(taskId, newStatus) {
     try {
@@ -46,6 +53,20 @@ export default function ProjectTaskManagerPage() {
   return (
     <div className="mb-5">
       <h4 className="mb-3">🛠️ Tasks</h4>
+      <div className="mb-2">
+        <select
+          className="form-select w-auto"
+          value={filterAssistant}
+          onChange={(e) => setFilterAssistant(e.target.value)}
+        >
+          <option value="">All assistants</option>
+          {roles.map((r) => (
+            <option key={r.id} value={r.assistant}>
+              {r.assistant_name}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {tasks.length === 0 ? (
         <p className="text-muted">No tasks yet.</p>

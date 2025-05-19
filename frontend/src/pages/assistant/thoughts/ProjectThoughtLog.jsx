@@ -4,20 +4,27 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import ThoughtsPanel from "../../../components/assistant/thoughts/ThoughtsPanel";
 import { toast } from "react-toastify";
+import ProjectRolesRow from "../../../components/assistant/roles/ProjectRolesRow";
+import apiFetch from "../../../utils/apiClient";
 
 export default function ProjectThoughtLog() {
   const { id } = useParams();
   const [thoughts, setThoughts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filterAssistant, setFilterAssistant] = useState("");
+  const [roles, setRoles] = useState([]);
 
   useEffect(() => {
     fetchThoughts();
-  }, [id]);
+    apiFetch(`/assistants/projects/${id}/roles/`).then(setRoles);
+  }, [id, filterAssistant]);
 
   async function fetchThoughts() {
     try {
-      const res = await fetch(`http://localhost:8000/api/assistants/projects/${id}/thoughts/`);
-      const data = await res.json();
+      setLoading(true);
+      let url = `/assistants/projects/${id}/thoughts/`;
+      if (filterAssistant) url += `?assistant_id=${filterAssistant}`;
+      const data = await apiFetch(url);
       setThoughts(data);
     } catch (err) {
       console.error("Failed to load thoughts", err);
@@ -29,12 +36,10 @@ export default function ProjectThoughtLog() {
 
   async function handleAdd(thoughtText) {
     try {
-      const res = await fetch(`http://localhost:8000/api/assistants/projects/${id}/thoughts/`, {
+      const data = await apiFetch(`/assistants/projects/${id}/thoughts/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ thought: thoughtText }),
+        body: { thought: thoughtText },
       });
-      const data = await res.json();
       setThoughts(prev => [data, ...prev]);
     } catch (err) {
       toast.error("❌ Failed to add thought");
@@ -43,12 +48,10 @@ export default function ProjectThoughtLog() {
 
   async function handleUpdate(thoughtId, newText) {
     try {
-      const res = await fetch(`http://localhost:8000/api/assistants/projects/${id}/thoughts/${thoughtId}/`, {
+      const data = await apiFetch(`/assistants/projects/${id}/thoughts/${thoughtId}/`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ thought: newText }),
+        body: { thought: newText },
       });
-      const data = await res.json();
       setThoughts(prev =>
         prev.map(t => (t.thought_id === thoughtId ? { ...t, thought: data.updated_text } : t))
       );
@@ -59,9 +62,7 @@ export default function ProjectThoughtLog() {
 
   async function handleDelete(thoughtId) {
     try {
-      await fetch(`http://localhost:8000/api/assistants/projects/${id}/thoughts/${thoughtId}/`, {
-        method: "DELETE",
-      });
+      await apiFetch(`/assistants/projects/${id}/thoughts/${thoughtId}/`, { method: "DELETE" });
       setThoughts(prev => prev.filter(t => t.thought_id !== thoughtId));
     } catch (err) {
       toast.error("❌ Failed to delete thought");
@@ -71,6 +72,21 @@ export default function ProjectThoughtLog() {
   return (
     <div className="container my-5">
       <h1 className="mb-4">🧠 Project Thought Log</h1>
+      <ProjectRolesRow projectId={id} />
+      <div className="mb-3">
+        <select
+          className="form-select w-auto"
+          value={filterAssistant}
+          onChange={(e) => setFilterAssistant(e.target.value)}
+        >
+          <option value="">All assistants</option>
+          {roles.map((r) => (
+            <option key={r.id} value={r.assistant}>
+              {r.assistant_name}
+            </option>
+          ))}
+        </select>
+      </div>
       <ThoughtsPanel
         thoughts={thoughts}
         loading={loading}
