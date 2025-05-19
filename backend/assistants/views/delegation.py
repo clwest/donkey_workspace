@@ -5,22 +5,21 @@ from django.shortcuts import get_object_or_404
 from assistants.models import DelegationEvent, Assistant
 from assistants.serializers import DelegationEventSerializer
 from assistants.utils.delegation import spawn_delegated_assistant
+from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 from memory.models import MemoryEntry
 from intel_core.models import Document
+from assistants.models import AssistantObjective
 
 
 @api_view(["GET"])
 def recent_delegation_events(request):
     """Return the 25 most recent delegation events."""
-    events = (
-        DelegationEvent.objects.select_related(
-            "parent_assistant",
-            "child_assistant",
-            "triggering_memory",
-            "triggering_session",
-        )
-        .order_by("-created_at")[:25]
-    )
+    events = DelegationEvent.objects.select_related(
+        "parent_assistant",
+        "child_assistant",
+        "triggering_memory",
+        "triggering_session",
+    ).order_by("-created_at")[:25]
     serializer = DelegationEventSerializer(events, many=True)
     return Response(serializer.data)
 
@@ -49,4 +48,16 @@ def spawn_from_context(request, slug):
         return Response({"error": "Invalid context"}, status=400)
 
     child = spawn_delegated_assistant(parent, memory_entry=memory_entry, reason=reason)
+    return Response({"slug": child.slug}, status=201)
+
+
+@api_view(["POST"])
+def delegate_from_objective(request, slug, objective_id):
+    """Delegate an objective to a new assistant."""
+    parent = get_object_or_404(Assistant, slug=slug)
+    objective = get_object_or_404(AssistantObjective, id=objective_id)
+
+    engine = AssistantThoughtEngine(assistant=parent)
+    child = engine.delegate_objective(objective)
+
     return Response({"slug": child.slug}, status=201)

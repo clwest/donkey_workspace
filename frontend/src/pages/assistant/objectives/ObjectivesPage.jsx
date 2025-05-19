@@ -5,7 +5,7 @@ import apiFetch from "../../../utils/apiClient";
 export default function ObjectivesPage() {
   const { slug } = useParams();
   const [objectives, setObjectives] = useState([]);
-  const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     if (!slug) return;
@@ -46,33 +46,7 @@ export default function ObjectivesPage() {
       ) : (
         <ul className="list-group mb-4">
           {objectives.map((obj) => (
-            <li key={obj.id} className="list-group-item">
-              <div className="d-flex justify-content-between align-items-start">
-                <div>
-                  <strong>{obj.title}</strong>
-                  {obj.description && (
-                    <div className="small text-muted">{obj.description}</div>
-                  )}
-                </div>
-                <button
-                  className="btn btn-sm btn-outline-primary"
-                  onClick={() => handlePlanTasks(obj.id)}
-                >
-                  ✨ Plan Tasks
-                </button>
-              </div>
-              {obj.tasks && obj.tasks.length > 0 ? (
-                <ul className="mt-2">
-                  {obj.tasks.map((t) => (
-                    <li key={t.id} className="small d-flex justify-content-between">
-                      <span>{t.title}</span>
-                      <span className="badge bg-secondary">{t.status}</span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <div className="small text-muted mt-2">No tasks yet</div>
-              )}
+
             </li>
           ))}
         </ul>
@@ -81,6 +55,50 @@ export default function ObjectivesPage() {
       <Link to="/assistants/projects" className="btn btn-outline-secondary">
         🔙 Back to Projects
       </Link>
+
+      {showModal && selected && (
+        <div className="modal d-block" tabIndex="-1" role="dialog">
+          <div className="modal-dialog" role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Delegate Objective</h5>
+                <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
+              </div>
+              <div className="modal-body">
+                <p>Spawn a delegate for: <strong>{selected.title}</strong></p>
+                <textarea
+                  className="form-control"
+                  placeholder="Custom prompt (optional)"
+                  value={customPrompt}
+                  onChange={(e) => setCustomPrompt(e.target.value)}
+                ></textarea>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={async () => {
+                    try {
+                      await apiFetch(`/assistants/${slug}/delegate/${selected.id}/`, {
+                        method: "POST",
+                        body: { prompt: customPrompt },
+                      });
+                      setShowModal(false);
+                    } catch (err) {
+                      alert("Delegation failed");
+                    }
+                  }}
+                >
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

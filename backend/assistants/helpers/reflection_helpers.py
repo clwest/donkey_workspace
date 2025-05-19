@@ -32,6 +32,8 @@ def reflect_on_delegation(
         f"Delegated to {child.name}",
         f"Reason: {delegation_event.reason}",
     ]
+    if delegation_event.objective:
+        details.append(f"Objective: {delegation_event.objective.title}")
     if project:
         details.append(f"Project: {getattr(project, 'title', str(project))}")
     if thread:

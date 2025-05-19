@@ -2,7 +2,7 @@ import logging
 from openai import OpenAI
 from django.utils import timezone
 from django.contrib.contenttypes.models import ContentType
-from assistants.models import Assistant, AssistantThoughtLog, AssistantTask
+
 from assistants.helpers.redis_helpers import (
     set_cached_thoughts,
     get_cached_thoughts,
@@ -138,11 +138,17 @@ Memories:
         flagged = client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "You are a safety reviewer for AI thoughts. Flag unsafe, manipulative, or risky ideas."},
-                {"role": "user", "content": f"Assistant thought:\n\n{content}\n\nIs this a risk? Flag and explain."}
+                {
+                    "role": "system",
+                    "content": "You are a safety reviewer for AI thoughts. Flag unsafe, manipulative, or risky ideas.",
+                },
+                {
+                    "role": "user",
+                    "content": f"Assistant thought:\n\n{content}\n\nIs this a risk? Flag and explain.",
+                },
             ],
             temperature=0,
-            max_tokens=150
+            max_tokens=150,
         )
 
         output = flagged.choices[0].message.content
@@ -150,7 +156,7 @@ Memories:
             ReflectionFlag.objects.create(
                 memory=memory,
                 reason=output,
-                severity="high" if "critical" in output.lower() else "medium"
+                severity="high" if "critical" in output.lower() else "medium",
             )
 
     # ─────────────────────────────────────────────────────────────────────
@@ -288,3 +294,37 @@ Memories:
                 "model": None,
                 "created_at": None,
             }
+
+    def delegate_objective(
+        self,
+        objective: "AssistantObjective",
+        *,
+        summary: str | None = None,
+    ) -> Assistant:
+        """Spawn a delegate agent to handle a specific objective."""
+
+        project = objective.project
+        thread = project.thread or project.narrative_thread
+
+        child = spawn_delegated_assistant(
+            self.assistant,
+            project=project,
+            name=f"{objective.title} Agent",
+            description=objective.description or "",
+            narrative_thread=thread,
+            reason=f"objective:{objective.title}",
+            summary=summary or objective.description or objective.title,
+            objective=objective,
+        )
+
+        objective.delegated_assistant = child
+        objective.save()
+
+        log_assistant_thought(
+            self.assistant,
+            f"Delegated objective '{objective.title}' to {child.name}",
+            thought_type="delegation",
+            project=project,
+        )
+
+        return child
