@@ -14,6 +14,10 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from embeddings.helpers.helpers_io import save_embedding
 from .models import MemoryFeedback
+from prompts.utils.mutation import mutate_prompt as run_mutation
+from embeddings.helpers.helpers_io import get_embedding_for_text
+from mcp_core.utils.auto_tag_from_embedding import auto_tag_from_embedding
+from assistants.helpers.logging_helper import log_assistant_thought
 from assistants.models import Assistant, AssistantThoughtLog, AssistantReflectionLog
 from .serializers import MemoryFeedbackSerializer
 
@@ -314,6 +318,63 @@ def list_memory_feedback(request, memory_id):
     )
     serializer = MemoryFeedbackSerializer(feedback, many=True)
     return Response(serializer.data)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def mutate_memory(request, id):
+    """Mutate a memory entry using the specified style."""
+    try:
+        memory = MemoryEntry.objects.get(id=id)
+    except MemoryEntry.DoesNotExist:
+        return Response({"error": "Memory not found"}, status=404)
+
+    style = request.data.get("style", "clarify")
+    base_text = memory.summary or memory.event or memory.full_transcript or ""
+    mutated = run_mutation(base_text, style)
+
+    new_kwargs = {
+        "assistant": memory.assistant,
+        "related_project": memory.related_project,
+        "type": "mutation",
+        "parent_memory": memory,
+    }
+    if memory.summary:
+        new_kwargs["event"] = memory.event
+        new_kwargs["summary"] = mutated
+    else:
+        new_kwargs["event"] = mutated
+
+    new_mem = MemoryEntry.objects.create(**new_kwargs)
+    if memory.tags.exists():
+        new_mem.tags.set(memory.tags.all())
+
+    try:
+        vector = get_embedding_for_text(mutated)
+        if vector:
+            save_embedding(new_mem, vector)
+            tag_slugs = auto_tag_from_embedding(mutated) or []
+            from mcp_core.models import Tag
+
+            tag_objs = []
+            for slug in tag_slugs:
+                tag, _ = Tag.objects.get_or_create(slug=slug, defaults={"name": slug})
+                tag_objs.append(tag)
+            if tag_objs:
+                new_mem.tags.add(*tag_objs)
+    except Exception:
+        pass
+
+    if memory.assistant:
+        log_assistant_thought(
+            memory.assistant,
+            f"Refined memory {memory.id} using style '{style}' based on feedback.",
+            thought_type="meta",
+            linked_memory=new_mem,
+        )
+
+    serializer = MemoryEntrySerializer(new_mem)
+    return Response(serializer.data, status=201)
 
 
 @api_view(["POST"])

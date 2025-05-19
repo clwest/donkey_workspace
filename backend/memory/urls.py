@@ -22,6 +22,7 @@ urlpatterns = [
         views.submit_memory_feedback,
         name="memory-feedback-submit",
     ),
+    path("<uuid:id>/mutate/", views.mutate_memory, name="mutate-memory"),
     path("<uuid:id>/", views.memory_detail, name="memory_detail"),
     path("by-tag/<slug:slug>/", views.memories_by_tag),
     path("update-tags/<uuid:id>/", views.update_memory_tags),

@@ -75,6 +75,14 @@ class MemoryEntry(models.Model):
         related_name="memories",
     )
 
+    parent_memory = models.ForeignKey(
+        "self",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="mutations",
+    )
+
     # 🧑 Source Information
     source_role = models.CharField(
         max_length=50,
@@ -160,6 +168,16 @@ class MemoryFeedback(models.Model):
     context_hint = models.TextField(blank=True)
     suggestion = models.TextField()
     explanation = models.TextField(blank=True)
+    mutation_style = models.CharField(
+        max_length=20,
+        choices=[
+            ("clarify", "Clarify"),
+            ("shorten", "Shorten"),
+            ("rephrase", "Rephrase"),
+        ],
+        null=True,
+        blank=True,
+    )
     submitted_by = models.ForeignKey(
         User, null=True, blank=True, on_delete=models.SET_NULL
     )
