@@ -16,6 +16,7 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "event",
+            "summary",
             "timestamp",
             "emotion",
             "importance",
@@ -28,6 +29,8 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
             "full_transcript",
             "narrative_thread",
             "source_name",
+            "parent_memory",
+            "type",
         ]
 
     def get_source_name(self, obj):
@@ -70,7 +73,15 @@ class MemoryEntrySlimSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MemoryEntry
-        fields = ["id", "summary", "tags", "type", "token_count", "created_at"]
+        fields = [
+            "id",
+            "summary",
+            "tags",
+            "type",
+            "token_count",
+            "created_at",
+            "parent_memory",
+        ]
 
     def get_token_count(self, obj):
         from prompts.utils.token_helpers import count_tokens

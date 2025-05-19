@@ -67,6 +67,9 @@ export default function MemoryDetailPage() {
       <h2 className="mb-3">🧠 Memory Detail</h2>
 
       <div className="card p-4 mb-4 shadow-sm">
+        {memory.parent_memory && (
+          <div className="text-muted mb-2">🧬 Refined from {memory.parent_memory.slice(0,8)}</div>
+        )}
         <p><strong>Event:</strong> {memory.event}</p>
         <p><strong>Timestamp:</strong> {new Date(memory.timestamp).toLocaleString()}</p>
         <p><strong>Emotion:</strong> {memory.emotion || "None"}</p>
