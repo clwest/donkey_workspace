@@ -9,7 +9,12 @@ from rest_framework import status
 from openai import OpenAI
 from intel_core.models import Document
 from prompts.models import Prompt
-from assistants.models import Assistant, AssistantProject, AssistantObjective
+from assistants.models import (
+    Assistant,
+    AssistantProject,
+    AssistantObjective,
+    AssistantThoughtLog,
+)
 from prompts.utils.token_helpers import count_tokens
 from memory.models import MemoryEntry
 from mcp_core.models import NarrativeThread, Tag
@@ -32,7 +37,10 @@ def summarize_with_context(request, pk):
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant that summarizes technical documents."},
+                {
+                    "role": "system",
+                    "content": "You are a helpful assistant that summarizes technical documents.",
+                },
                 {"role": "user", "content": f"Summarize this document:\n\n{text}"},
             ],
             temperature=0.5,
@@ -66,7 +74,10 @@ Return only a JSON object with the fields: system_prompt, tone, personality, spe
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "You generate structured assistant configurations from input text."},
+                {
+                    "role": "system",
+                    "content": "You generate structured assistant configurations from input text.",
+                },
                 {"role": "user", "content": user_prompt},
             ],
             temperature=0.4,
@@ -85,6 +96,37 @@ def create_bootstrapped_assistant_from_document(request, pk):
     except Document.DoesNotExist:
         return Response(
             {"error": "Document not found"}, status=status.HTTP_404_NOT_FOUND
+        )
+
+    # If an assistant already exists for this document, reuse it
+    existing = Assistant.objects.filter(documents=document).first()
+    if existing:
+        project = AssistantProject.objects.filter(assistant=existing).first()
+        if not project:
+            project = AssistantProject.objects.create(
+                assistant=existing,
+                title=f"{existing.name} - Project 1",
+                description=f"Auto-generated project for {existing.name} based on document.",
+            )
+        objective = AssistantObjective.objects.filter(
+            project=project, assistant=existing
+        ).first()
+        if not objective:
+            objective = AssistantObjective.objects.create(
+                project=project,
+                assistant=existing,
+                title="Understand core technologies",
+                description="Explore key components from the linked documentation and prepare to assist users effectively.",
+            )
+        return Response(
+            {
+                "name": existing.name,
+                "slug": existing.slug,
+                "project_id": project.id if project else None,
+                "memory_id": None,
+                "thread_id": None,
+                "objective_id": objective.id if objective else None,
+            }
         )
 
     content = document.content[:6000].strip()
@@ -197,21 +239,35 @@ Return only JSON in this format:
         thread.memories.add(memory)
         thread.save()
 
+        AssistantThoughtLog.objects.create(
+            assistant=assistant,
+            project=project,
+            thought_type="planning",
+            thought=(
+                f"I was created to assist with {document.title} based on the linked document."
+            ),
+        )
+
         print("✅ All components created")
 
-        return Response({
-            "name": assistant.name,
-            "slug": assistant.slug,
-            "project_id": project.id,
-            "memory_id": memory.id if memory else None,
-            "thread_id": thread.id if thread else None,
-            "objective_id": objective.id if objective else None,
-        })
+        return Response(
+            {
+                "name": assistant.name,
+                "slug": assistant.slug,
+                "project_id": project.id,
+                "memory_id": memory.id if memory else None,
+                "thread_id": thread.id if thread else None,
+                "objective_id": objective.id if objective else None,
+            }
+        )
 
     except Exception as e:
         print("❌ Error during assistant bootstrapping")
         print(traceback.format_exc())
-        return Response({
-            "error": str(e),
-            "trace": traceback.format_exc(),
-        }, status=500)
+        return Response(
+            {
+                "error": str(e),
+                "trace": traceback.format_exc(),
+            },
+            status=500,
+        )
