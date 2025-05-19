@@ -7,6 +7,8 @@ class DelegationEventManager(models.Manager):
 
     def recent_delegation_events(self, limit: int = 10):
         return self.order_by("-created_at")[:limit]
+
+
 from memory.models import MemoryEntry
 from prompts.models import Prompt
 from django.utils.text import slugify
@@ -379,6 +381,11 @@ class AssistantMemoryChain(models.Model):
     )
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
+    mode = models.CharField(max_length=20, default="manual")
+    filters = models.JSONField(default=dict, blank=True)
+    reflection_tags = models.ManyToManyField(
+        "mcp_core.Tag", blank=True, related_name="memory_chains"
+    )
     memories = models.ManyToManyField(MemoryEntry, blank=True)
     prompts = models.ManyToManyField(Prompt, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -408,7 +415,6 @@ class AssistantNextAction(models.Model):
     content = models.CharField(max_length=255)
     completed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-
 
 
 # backend/assistants/models.py

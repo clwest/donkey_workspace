@@ -52,6 +52,7 @@ from .sessions import (
     sessions_for_assistant,
 )
 from .delegation import recent_delegation_events, spawn_from_context
+from .bootstrap import prompt_to_assistant
 from .signals import (
     signal_sources,
     signal_catches,
@@ -124,4 +125,5 @@ __all__ = [
     "recent_delegation_events",
     "delegation_events_for_assistant",
     "spawn_from_context",
+    "prompt_to_assistant",
 ]

@@ -260,7 +260,17 @@ class AssistantPromptLinkSerializer(serializers.ModelSerializer):
 class AssistantMemoryChainSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssistantMemoryChain
-        fields = ["id", "project", "title", "description", "memories", "created_at"]
+        fields = [
+            "id",
+            "project",
+            "title",
+            "description",
+            "mode",
+            "filters",
+            "reflection_tags",
+            "memories",
+            "created_at",
+        ]
         read_only_fields = ["id", "created_at"]
 
 
