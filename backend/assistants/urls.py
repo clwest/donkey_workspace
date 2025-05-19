@@ -215,6 +215,7 @@ urlpatterns = [
         name="update_message_feedback",
     ),
     path("thoughts/<uuid:pk>/feedback/", thoughts.update_reflection_feedback),
+    path("thoughts/<uuid:id>/mutate/", thoughts.mutate_thought, name="mutate-thought"),
     path("thoughts/<uuid:id>/", thoughts.assistant_thought_detail),
     # path("delegations/recent/", views.recent_delegation_events),
     # path("delegation_events/recent/", views.recent_delegation_events),

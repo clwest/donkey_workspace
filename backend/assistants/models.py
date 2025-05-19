@@ -31,6 +31,7 @@ THOUGHT_TYPES = [
     ("generated", "Generated Thought"),
     ("planning", "Planning Step"),
     ("reflection", "Reflection"),
+    ("mutation", "Mutation"),
 ]
 
 MEMORY_MODES = [
@@ -209,6 +210,13 @@ class AssistantThoughtLog(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="thoughts",
+    )
+    parent_thought = models.ForeignKey(
+        "self",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="mutations",
     )
     role = models.CharField(
         max_length=20, choices=ROLE_CHOICES, default="assistant"

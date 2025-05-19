@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Modal, Button } from "react-bootstrap";
 import { toast } from "react-toastify";
+import { mutateThought } from "../../../api/assistants";
 import TagBadge from "../../TagBadge"; // ✅ Display badge style tags
 import "./styles/AssistantCardStyle.css";
 
@@ -12,7 +13,7 @@ const typeEmojis = {
   planning: "🛠️",
 };
 
-export default function AssistantThoughtCard({ thought, onUpdate, onDelete, badge, color = "secondary", icon }) {
+export default function AssistantThoughtCard({ thought, onUpdate, onDelete, onAdd, badge, color = "secondary", icon }) {
   if (!thought || !thought.thought) {
     return <div className="alert alert-warning">⚠️ Invalid thought object.</div>;
   }
@@ -85,6 +86,20 @@ export default function AssistantThoughtCard({ thought, onUpdate, onDelete, badg
     }
   };
 
+  const handleMutate = async (mode) => {
+    try {
+      const data = await mutateThought(thought.id, mode);
+      toast.success("🛠️ Thought refined!");
+      if (typeof onAdd === "function") {
+        onAdd(data);
+      }
+      setShowModal(false);
+    } catch (err) {
+      console.error("Mutation failed", err);
+      toast.error("❌ Mutation failed");
+    }
+  };
+
   const preview = thought.thought.length > 120
     ? thought.thought.slice(0, 120) + "..."
     : thought.thought;
@@ -105,6 +120,10 @@ export default function AssistantThoughtCard({ thought, onUpdate, onDelete, badg
                 🕒 {new Date(thought.created_at).toLocaleString()}
               </small>
             </div>
+
+            {thought.parent_thought && (
+              <div className="text-muted small mb-1">🧬 Refined from {thought.parent_thought.slice(0,8)}</div>
+            )}
 
             {thought.tags && thought.tags.length > 0 && (
               <div className="mb-2">
@@ -201,6 +220,18 @@ export default function AssistantThoughtCard({ thought, onUpdate, onDelete, badg
                 <Button variant="outline-danger" onClick={handleDelete} disabled={deleting}>
                   🗑️ Delete
                 </Button>
+              )}
+              {["unclear", "too_long", "irrelevant"].includes(thought.feedback) && (
+                <div className="dropdown ms-2">
+                  <button className="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                    🛠️ Refine Thought
+                  </button>
+                  <ul className="dropdown-menu">
+                    <li><button className="dropdown-item" onClick={() => handleMutate("clarify")}>Clarify</button></li>
+                    <li><button className="dropdown-item" onClick={() => handleMutate("shorten")}>Shorten</button></li>
+                    <li><button className="dropdown-item" onClick={() => handleMutate("rephrase")}>Rephrase</button></li>
+                  </ul>
+                </div>
               )}
             </>
           )}

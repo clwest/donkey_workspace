@@ -90,11 +90,12 @@ export default function ThoughtsPanel({ projectId }) {
         <p className="text-muted">No thoughts yet.</p>
       ) : (
         thoughts.map((thought) => (
-          <AssistantThoughtCard
+         <AssistantThoughtCard
             key={thought.id}
             thought={thought}
             onUpdate={handleUpdateThought}
             onDelete={handleDeleteThought}
+            onAdd={(t) => setThoughts((prev) => [t, ...prev])}
           />
         ))
       )}
