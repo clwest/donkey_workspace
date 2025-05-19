@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
+import PrimaryStar from "../../../components/assistant/PrimaryStar";
 
 export default function AssistantDashboardPage() {
   const [assistants, setAssistants] = useState([]);
@@ -28,7 +29,7 @@ export default function AssistantDashboardPage() {
               <div className="card shadow-sm h-100">
                 <div className="card-body">
                   <h5 className="card-title">
-                    {assistant.name} {assistant.is_primary && "⭐"}
+
                   </h5>
                   <p className="text-muted mb-1">{assistant.specialty}</p>
                   <p className="card-text small">

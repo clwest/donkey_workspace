@@ -6,6 +6,7 @@ import AssistantPromptPanel from "../../../components/assistant/AssistantPromptP
 import AssistantIntelligencePanel from "../../../components/assistant/AssistantIntelligencePanel";
 import useAutoReflectionLoop from "../../../components/assistant/AutoModeController";
 import AutoModeToggle from "../../../components/assistant/AutoModeToggle";
+import PrimaryStar from "../../../components/assistant/PrimaryStar";
 import AssistantSpawnForm from "../../../components/assistant/AssistantSpawnForm";
 import apiFetch from "../../../utils/apiClient";
 
@@ -167,7 +168,10 @@ export default function ProjectDetailPage() {
 
         {project.assistant && !changeMode ? (
           <div className="d-flex justify-content-between align-items-center">
-            <div className="fw-semibold">{project.assistant.name}</div>
+            <div className="fw-semibold">
+              {project.assistant.name}
+              <PrimaryStar isPrimary={project.assistant.is_primary} />
+            </div>
             <button
               className="btn btn-sm btn-outline-secondary"
               onClick={() => setChangeMode(true)}

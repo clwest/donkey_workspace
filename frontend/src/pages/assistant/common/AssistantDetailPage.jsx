@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
+import PrimaryStar from "../../../components/assistant/PrimaryStar";
 import { toast } from "react-toastify";
 import "./styles/AssistantDetail.css"
 
@@ -52,7 +53,10 @@ export default function AssistantDetailPage() {
 
   return (
     <div className="container my-5">
-      <h1 className="display-4">{assistant.name}</h1>
+      <h1 className="display-4">
+        {assistant.name}
+        <PrimaryStar isPrimary={assistant.is_primary} />
+      </h1>
       <p className="text-muted">Assistant Details Page</p>
 
       <div className="mb-4">
@@ -148,6 +152,11 @@ export default function AssistantDetailPage() {
       <p><strong>Planning Mode:</strong> {assistant.planning_mode || "Goal-Driven"}</p>
       <p><strong>Memory Mode:</strong> {assistant.memory_mode || "Short-Term"}</p>
       <p><strong>Preferred Model:</strong> {assistant.preferred_model || "N/A"}</p>
+      {assistant.is_primary && (
+        <p>
+          <strong>Primary Role:</strong> ✅ System Orchestrator
+        </p>
+      )}
     </div>
   );
 }
