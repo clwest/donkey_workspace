@@ -37,6 +37,7 @@ import MemoryEntryCreatePage from "./pages/memories/entries/MemoryEntryCreatePag
 import AssistantDashboardPage from "./pages/assistant/common/AssistantDashboardPage";
 import AssistantList from "./pages/assistant/common/AssistantList";
 import AssistantDetailPage from "./pages/assistant/common/AssistantDetailPage";
+import AssistantControlPanel from "./pages/assistants/AssistantControlPanel";
 import AssistantThoughtsPage from "./pages/assistant/common/AssistantThoughtsPage";
 import AssistantThoughtDetailPage from "./pages/assistant/common/AssistantThoughtDetailPage";
 import AssistantDemoPage from "./pages/assistant/common/AssistantDemoPage";
@@ -121,7 +122,7 @@ export default function App() {
           <Route path="/assistants" element={<AssistantList />} />
           <Route path="/assistant-dashboard" element={<AssistantDashboardPage />} />
           <Route path="/assistants/create" element={<CreateNewAssistantPage />} />
-          <Route path="/assistants/:slug" element={<AssistantDetailPage />} />
+          <Route path="/assistants/:slug" element={<AssistantControlPanel />} />
 
           <Route path="/assistants/projects/create" element={<CreateProjectPage />} />     
           <Route path="/assistants/:slug/chat" element={<ChatWithAssistantPage />} />
