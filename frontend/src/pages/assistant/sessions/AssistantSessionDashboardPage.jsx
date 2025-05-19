@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
+import MemoryChainSettingsPanel from "../../components/assistant/memory_chain/MemoryChainSettingsPanel";
 
 export default function AssistantSessionDashboardPage({ slug: slugProp }) {
   const params = useParams();
@@ -10,16 +11,21 @@ export default function AssistantSessionDashboardPage({ slug: slugProp }) {
   const [threads, setThreads] = useState([]);
   const [reflection, setReflection] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [projectId, setProjectId] = useState(null);
 
   useEffect(() => {
     async function load() {
       try {
         if (!slug) return;
-        const sessRes = await apiFetch(`/assistants/${slug}/sessions/`);
+        const [sessRes, delRes, asst] = await Promise.all([
+          apiFetch(`/assistants/${slug}/sessions/`),
+          apiFetch(`/assistants/${slug}/delegations/`),
+          apiFetch(`/assistants/${slug}/`),
+        ]);
         setSessions(sessRes.sessions || []);
         setThreads(sessRes.threads || []);
-        const delRes = await apiFetch(`/assistants/${slug}/delegations/`);
         setDelegations(delRes || []);
+        setProjectId(asst.current_project?.id || null);
       } catch (err) {
         console.error("Failed to load dashboard", err);
       } finally {
@@ -113,6 +119,10 @@ export default function AssistantSessionDashboardPage({ slug: slugProp }) {
             </li>
           ))}
         </ul>
+      )}
+
+      {projectId && (
+        <MemoryChainSettingsPanel slug={slug} projectId={projectId} />
       )}
     </div>
   );

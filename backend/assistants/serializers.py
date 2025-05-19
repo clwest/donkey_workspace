@@ -334,8 +334,7 @@ class AssistantMemoryChainSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "mode",
-            "filter_tags",
-            "exclude_types",
+
             "memories",
             "created_at",
         ]

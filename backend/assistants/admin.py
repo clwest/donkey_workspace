@@ -123,6 +123,14 @@ class AssistantNextActionAdmin(admin.ModelAdmin):
     ordering = ("-created_at",)
 
 
+@admin.register(AssistantMemoryChain)
+class AssistantMemoryChainAdmin(admin.ModelAdmin):
+    list_display = ("title", "project", "mode", "created_at")
+    list_filter = ("mode", "project")
+    search_fields = ("title", "project__title")
+    filter_horizontal = ("filter_tags",)
+
+
 @admin.register(ChatSession)
 class ChatSessionAdmin(admin.ModelAdmin):
     list_display = ("session_id", "assistant", "user", "created_at")
