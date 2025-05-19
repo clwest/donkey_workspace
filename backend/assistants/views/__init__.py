@@ -144,4 +144,5 @@ __all__ = [
     "spawn_from_context",
     "prompt_to_assistant",
     "reflect_to_objectives",
+    "objective_from_reflection",
 ]

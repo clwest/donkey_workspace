@@ -43,6 +43,13 @@ export const routeMap = [
     notes: "Trigger assistant reflection",
   },
   {
+    frontend: "/assistants/:slug/reflections",
+    backend: "/api/assistants/<slug>/reflections/",
+    view: "assistant_reflection_logs",
+    serializer: "AssistantReflectionLogSerializer",
+    notes: "List reflections for an assistant",
+  },
+  {
     frontend: "/reflections",
     backend: "/api/mcp/reflections/",
     view: "list_reflections",

@@ -56,7 +56,17 @@ export default function ObjectivesPage() {
               className="list-group-item d-flex justify-content-between align-items-start"
             >
               <div>
-                <h5 className={obj.is_completed ? "text-success" : ""}>{obj.title}</h5>
+                <h5 className={obj.is_completed ? "text-success" : ""}>
+                  {obj.title}
+                  {obj.generated_from_reflection && (
+                    <span
+                      className="badge bg-info ms-2"
+                      title={`Evolved from reflection on ${new Date(obj.reflection_created_at).toLocaleDateString()}`}
+                    >
+                      🔄
+                    </span>
+                  )}
+                </h5>
                 {obj.description && (
                   <p className="small text-muted mb-1">{obj.description}</p>
                 )}

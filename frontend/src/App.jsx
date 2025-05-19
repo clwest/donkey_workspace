@@ -78,6 +78,7 @@ import SignalCatchesPage from "./pages/assistant/signal_catches/SignalCatchesPag
 import ReflectionsPage from "./pages/assistant/reflections/ReflectionsPage";
 import MemoryReflectionPage from "./pages/memories/reflections/MemoryReflectionPage";
 import AssistantReflectPage from "./pages/assistant/reflections/AssistantReflectPage";
+import AssistantReflectionLogsPage from "./pages/assistant/reflections/AssistantReflectionLogsPage";
 import FeedbackSummaryPage from "./pages/assistant/feedback/FeedbackSummaryPage";
 import DevDashboard from "./pages/dev/DevDashboard";
 import GroupedReflectionPage from "./pages/dev/GroupedReflectionPage";
@@ -246,6 +247,10 @@ export default function App() {
             element={<MemoryChainsPage />}
           />
           <Route path="/assistants/reflections" element={<ReflectionsPage />} />
+          <Route
+            path="/assistants/:slug/reflections"
+            element={<AssistantReflectionLogsPage />}
+          />
           <Route
             path="/assistants/:slug/reflect"
             element={<AssistantReflectPage />}
