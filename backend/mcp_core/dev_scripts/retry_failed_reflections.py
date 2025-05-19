@@ -30,7 +30,10 @@ def run():
         print(f"🤔 Retrying: {doc.title}")
         try:
             memory = reflect_on_devdoc(doc)
-            print(f"✅ Saved memory: {memory.id}")
+            if memory:
+                print(f"✅ Saved memory: {memory.id}")
+            else:
+                print(f"⚠️ Skipped {doc.title} - no linked document")
         except Exception as e:
             print(f"❌ Error while reflecting on {doc.title}: {e}")
 

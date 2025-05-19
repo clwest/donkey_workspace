@@ -58,7 +58,24 @@ Title: {doc.title}
             print(f"⚠️ Failed to create or fetch tag '{tag}': {e}")
 
     if not doc.linked_document:
-        raise ValueError(f"No linked Document found for DevDoc: {doc.title}")
+        from intel_core.models import Document
+
+        # Try to auto link by slug first, then by partial title match
+        match = Document.objects.filter(slug=doc.slug).first()
+        if not match:
+            match = Document.objects.filter(title__icontains=doc.title).first()
+
+        if match:
+            doc.linked_document = match
+            doc.save(update_fields=["linked_document"])
+            logger.info(
+                f"🔗 Auto-linked DevDoc '{doc.title}' to Document '{match.title}'"
+            )
+        else:
+            logger.warning(
+                f"❌ No linked Document found for DevDoc '{doc.title}'. Skipping"
+            )
+            return None
 
     memory = MemoryEntry.objects.create(
         event=response.strip(),
