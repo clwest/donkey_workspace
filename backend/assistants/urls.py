@@ -120,6 +120,7 @@ urlpatterns = [
     ),
     path("prompts/bootstrap-from-prompt/", projects.bootstrap_assistant_from_prompt),
     path("assistants/<slug:slug>/projects/", views.projects_for_assistant),
+    path("assistants/<slug:slug>/assign_project/", projects.assign_project),
     # GET
     # ===== AI UTILITIES =====
     # path(

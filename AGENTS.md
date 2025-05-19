@@ -48,6 +48,7 @@ Below are Codex-ready task stubs to continue building Phase 3:
 
 - Extend Assistant dashboard to show linked `AssistantProject`
 - Add “Assign Project” dropdown to `/assistants/:slug/`
+- Track `current_project` on each assistant and scope memory views
 - Show project summary: objectives, task count, milestones
 
 ---

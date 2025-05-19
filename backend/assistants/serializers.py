@@ -156,10 +156,32 @@ class AssistantProjectSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "slug", "created_at"]
 
 
+class ProjectOverviewSerializer(serializers.ModelSerializer):
+    objective_count = serializers.SerializerMethodField()
+    active_milestones = serializers.SerializerMethodField()
+
+    class Meta:
+        model = AssistantProject
+        fields = [
+            "id",
+            "title",
+            "slug",
+            "objective_count",
+            "active_milestones",
+            "summary",
+        ]
+
+    def get_objective_count(self, obj):
+        return obj.objectives.count()
+
+    def get_active_milestones(self, obj):
+        return obj.milestones.count()
+
 # assistants/serializers.py
 class AssistantSerializer(serializers.ModelSerializer):
     documents = DocumentSerializer(many=True, read_only=True)
     projects = AssistantProjectSerializer(many=True, read_only=True)
+    current_project = ProjectOverviewSerializer(read_only=True)
     child_assistants = serializers.SerializerMethodField()
     source_document_title = serializers.SerializerMethodField()
     source_document_url = serializers.SerializerMethodField()
@@ -181,6 +203,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "tone",
             "documents",
             "projects",
+            "current_project",
             "preferred_model",
             "child_assistants",
             "source_document_title",
@@ -361,6 +384,7 @@ class ChatSessionSerializer(serializers.ModelSerializer):
 
 
 class AssistantSerializer(serializers.ModelSerializer):
+    current_project = ProjectOverviewSerializer(read_only=True)
     class Meta:
         model = Assistant
         fields = [
@@ -371,6 +395,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "specialty",
             "preferred_model",
             "is_primary",
+            "current_project",
         ]
 
 

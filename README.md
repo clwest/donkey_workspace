@@ -21,6 +21,7 @@ Assistants are the core of this system. Each assistant can:
 
 - Chat with users
 - Create or link to Projects and MemoryEntries
+- Assign an active project and view scoped memories
 - Spawn sub-assistants or agents for complex tasks
 - Trigger reflections or prompt evaluations
 

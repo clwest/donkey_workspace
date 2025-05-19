@@ -71,3 +71,29 @@ def projects_for_assistant(request, slug):
     projects = AssistantProject.objects.filter(assistant=assistant)
     serializer = AssistantProjectSerializer(projects, many=True)
     return Response(serializer.data)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def assign_project(request, slug):
+    """Assign an assistant's active project."""
+    try:
+        assistant = Assistant.objects.get(slug=slug)
+    except Assistant.DoesNotExist:
+        return Response({"error": "Assistant not found"}, status=404)
+
+    project_id = request.data.get("project_id")
+    if not project_id:
+        return Response({"error": "project_id required"}, status=400)
+
+    try:
+        project = AssistantProject.objects.get(id=project_id)
+    except AssistantProject.DoesNotExist:
+        return Response({"error": "Project not found"}, status=404)
+
+    if project.assistant != assistant:
+        return Response({"error": "Project does not belong to this assistant"}, status=400)
+
+    assistant.current_project = project
+    assistant.save()
+    return Response({"status": "assigned"})

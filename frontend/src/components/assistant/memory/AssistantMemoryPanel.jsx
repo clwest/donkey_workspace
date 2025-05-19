@@ -6,13 +6,18 @@ import TagBadge from "../../TagBadge";
 export default function AssistantMemoryPanel({ slug }) {
   const [memories, setMemories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [project, setProject] = useState(null);
 
   useEffect(() => {
     if (!slug) return;
     async function load() {
       try {
-        const res = await apiFetch(`/assistants/${slug}/memories/`);
-        setMemories(res || []);
+        const [memRes, asst] = await Promise.all([
+          apiFetch(`/assistants/${slug}/memories/`),
+          apiFetch(`/assistants/${slug}/`),
+        ]);
+        setMemories(memRes || []);
+        setProject(asst.current_project || null);
       } catch (err) {
         console.error("Failed to fetch memories", err);
       } finally {
@@ -27,6 +32,9 @@ export default function AssistantMemoryPanel({ slug }) {
   return (
     <div className="p-2 border rounded">
       <h5 className="mb-3">🧠 Recent Memories</h5>
+      {project && (
+        <div className="alert alert-secondary py-1 small">Project: {project.title}</div>
+      )}
       {memories.length === 0 ? (
         <div className="text-muted">No memories found.</div>
       ) : (

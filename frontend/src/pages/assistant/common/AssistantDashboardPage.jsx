@@ -26,7 +26,11 @@ export default function AssistantDashboardPage() {
         {assistants.map((assistant) => (
           <div className="col-md-6 col-lg-4" key={assistant.id}>
             <Link
-              to={`/assistants/${assistant.slug}`}
+              to={
+                assistant.current_project
+                  ? `/assistants/projects/${assistant.current_project.id}`
+                  : `/assistants/${assistant.slug}`
+              }
               className="text-decoration-none"
             >
               <div className="card shadow-sm h-100">
