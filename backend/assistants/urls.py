@@ -257,6 +257,11 @@ urlpatterns = [
         name="plan-tasks-objective",
     ),
     path(
+        "<slug:slug>/tasks/propose/",
+        tasks.propose_task,
+        name="assistant-propose-task",
+    ),
+    path(
         "<slug:slug>/flush/",
         thoughts.flush_chat_session_to_log,
         name="flush-chat-session",
