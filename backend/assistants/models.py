@@ -271,6 +271,13 @@ class AssistantTask(models.Model):
     project = models.ForeignKey(
         "assistants.AssistantProject", on_delete=models.CASCADE, related_name="tasks"
     )
+    objective = models.ForeignKey(
+        "assistants.AssistantObjective",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="tasks",
+    )
     title = models.CharField(max_length=255)
     status = models.CharField(max_length=50, default="pending")
     notes = models.TextField(blank=True)

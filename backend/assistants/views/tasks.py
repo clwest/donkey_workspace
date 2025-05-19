@@ -5,6 +5,8 @@ from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 
 from project.models import Project, ProjectTask
 from project.serializers import ProjectTaskSerializer
+from assistants.serializers import AssistantTaskSerializer
+from assistants.models import Assistant, AssistantObjective, AssistantProject, AssistantTask
 
 
 # Assistant Next Actions
@@ -106,3 +108,18 @@ def assistant_project_task_detail(request, task_id):
     if request.method == "DELETE":
         task.delete()
         return Response(status=204)
+
+
+@api_view(["POST"])
+def plan_tasks_for_objective(request, slug, objective_id):
+    """Generate tasks for an objective using the thought engine."""
+    try:
+        assistant = Assistant.objects.get(slug=slug)
+        objective = AssistantObjective.objects.get(id=objective_id, assistant=assistant)
+    except (Assistant.DoesNotExist, AssistantObjective.DoesNotExist):
+        return Response({"error": "Not found"}, status=404)
+
+    engine = AssistantThoughtEngine(assistant=assistant, project=objective.project)
+    tasks = engine.plan_tasks_from_objective(objective)
+    serializer = AssistantTaskSerializer(tasks, many=True)
+    return Response(serializer.data)
