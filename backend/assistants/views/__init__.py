@@ -26,6 +26,7 @@ from .thoughts import (
     flush_chat_session_to_log,
     assistant_thought_detail,
     reflect_on_doc,
+    recent_feedback,
 )
 from .projects import (
     assistant_projects,
@@ -97,6 +98,7 @@ __all__ = [
     "get_recent_thoughts",
     "assistant_reflect_now",
     "update_reflection_feedback",
+    "recent_feedback",
     "get_recent_reflections",
     "flush_chat_session_to_log",
     "assistant_thought_detail",

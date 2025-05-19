@@ -8,6 +8,7 @@ from assistants.models import (
     Topic,
 )
 from assistants.serializers import AssistantThoughtLogSerializer
+from mcp_core.serializers_tags import TagSerializer
 from django.shortcuts import get_object_or_404
 from assistants.helpers.redis_helpers import (
     get_cached_reflection,
@@ -379,3 +380,31 @@ def reflect_on_doc(request):
             "created_at": thought.created_at,
         }
     )
+
+
+@api_view(["GET"])
+def recent_feedback(request, slug):
+    """Return last 50 thought logs with feedback."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    logs = (
+        AssistantThoughtLog.objects.filter(assistant=assistant)
+        .exclude(feedback__isnull=True)
+        .order_by("-created_at")[:50]
+        .select_related("project", "linked_memory")
+        .prefetch_related("tags")
+    )
+
+    data = [
+        {
+            "id": str(log.id),
+            "thought": log.thought,
+            "feedback": log.feedback,
+            "created_at": log.created_at,
+            "project": str(log.project_id) if log.project_id else None,
+            "memory": str(log.linked_memory_id) if log.linked_memory_id else None,
+            "tags": TagSerializer(log.tags.all(), many=True).data,
+        }
+        for log in logs
+    ]
+
+    return Response(data)

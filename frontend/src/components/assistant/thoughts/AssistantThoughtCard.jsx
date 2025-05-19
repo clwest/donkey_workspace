@@ -23,6 +23,7 @@ export default function AssistantThoughtCard({ thought, onUpdate, onDelete, onAd
   const [editValue, setEditValue] = useState(thought.thought);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [feedbackValue, setFeedbackValue] = useState(thought.feedback || "");
 
   const getApiPath = () => {
     if (thought.project) {
@@ -86,17 +87,7 @@ export default function AssistantThoughtCard({ thought, onUpdate, onDelete, onAd
     }
   };
 
-  const handleMutate = async (mode) => {
-    try {
-      const data = await mutateThought(thought.id, mode);
-      toast.success("🛠️ Thought refined!");
-      if (typeof onAdd === "function") {
-        onAdd(data);
-      }
-      setShowModal(false);
-    } catch (err) {
-      console.error("Mutation failed", err);
-      toast.error("❌ Mutation failed");
+
     }
   };
 
@@ -136,6 +127,22 @@ export default function AssistantThoughtCard({ thought, onUpdate, onDelete, onAd
             <p className="mb-0 text-truncate" style={{ maxWidth: "100%" }}>
               {thought.thought}
             </p>
+            <div className="mt-2">
+              <select
+                className="form-select form-select-sm w-auto"
+                value={feedbackValue}
+                onChange={(e) => handleFeedbackChange(e.target.value)}
+              >
+                <option value="">💬 Feedback</option>
+                <option value="perfect">✅ Perfect</option>
+                <option value="helpful">👍 Helpful</option>
+                <option value="not_helpful">👎 Not Helpful</option>
+                <option value="too_long">💤 Too Long</option>
+                <option value="too_short">⚡ Too Short</option>
+                <option value="irrelevant">❌ Irrelevant</option>
+                <option value="unclear">❓ Unclear</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -198,6 +205,23 @@ export default function AssistantThoughtCard({ thought, onUpdate, onDelete, onAd
                     ))}
                   </div>
                 )}
+
+                <div className="mt-3">
+                  <select
+                    className="form-select form-select-sm w-auto"
+                    value={feedbackValue}
+                    onChange={(e) => handleFeedbackChange(e.target.value)}
+                  >
+                    <option value="">💬 Feedback</option>
+                    <option value="perfect">✅ Perfect</option>
+                    <option value="helpful">👍 Helpful</option>
+                    <option value="not_helpful">👎 Not Helpful</option>
+                    <option value="too_long">💤 Too Long</option>
+                    <option value="too_short">⚡ Too Short</option>
+                    <option value="irrelevant">❌ Irrelevant</option>
+                    <option value="unclear">❓ Unclear</option>
+                  </select>
+                </div>
               </>
             )}
           </Modal.Body>
