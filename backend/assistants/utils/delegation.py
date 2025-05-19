@@ -5,7 +5,12 @@ from __future__ import annotations
 import uuid
 from typing import Optional, Union
 
-from assistants.models import Assistant, ChatSession, DelegationEvent
+from assistants.models import (
+    Assistant,
+    ChatSession,
+    DelegationEvent,
+    AssistantObjective,
+)
 from assistants.helpers.reflection_helpers import reflect_on_delegation
 from memory.models import MemoryEntry
 from mcp_core.models import NarrativeThread
@@ -23,6 +28,7 @@ def spawn_delegated_assistant(
     memory_entry: Optional[MemoryEntry] = None,
     reason: str = "delegation",
     summary: Optional[str] = None,
+    objective: Optional["AssistantObjective"] = None,
 ) -> Assistant:
     """Create a child assistant inheriting context from the parent.
 
@@ -117,6 +123,7 @@ def spawn_delegated_assistant(
         child_assistant=child,
         triggering_memory=memory_entry,
         triggering_session=session,
+        objective=objective,
         reason=reason,
         summary=summary,
     )

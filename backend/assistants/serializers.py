@@ -45,18 +45,22 @@ class DelegationEventSerializer(serializers.ModelSerializer):
 
     parent = serializers.CharField(source="parent_assistant.name", read_only=True)
     child = serializers.CharField(source="child_assistant.name", read_only=True)
+    child_slug = serializers.CharField(source="child_assistant.slug", read_only=True)
     memory_id = serializers.UUIDField(source="triggering_memory.id", read_only=True)
     session_id = serializers.UUIDField(source="triggering_session.id", read_only=True)
+    objective_title = serializers.CharField(source="objective.title", read_only=True)
 
     class Meta:
         model = DelegationEvent
         fields = [
             "parent",
             "child",
+            "child_slug",
             "reason",
             "summary",
             "memory_id",
             "session_id",
+            "objective_title",
             "created_at",
         ]
 
@@ -123,9 +127,25 @@ class AssistantNextActionSerializer(serializers.ModelSerializer):
 
 
 class AssistantObjectiveSerializer(serializers.ModelSerializer):
+    delegated_assistant_slug = serializers.CharField(
+        source="delegated_assistant.slug", read_only=True
+    )
+    delegated_assistant_name = serializers.CharField(
+        source="delegated_assistant.name", read_only=True
+    )
+
     class Meta:
         model = AssistantObjective
-        fields = ["id", "project", "title", "description", "is_completed", "created_at"]
+        fields = [
+            "id",
+            "project",
+            "title",
+            "description",
+            "is_completed",
+            "delegated_assistant_slug",
+            "delegated_assistant_name",
+            "created_at",
+        ]
         read_only_fields = ["id", "created_at"]
 
 
@@ -176,6 +196,7 @@ class ProjectOverviewSerializer(serializers.ModelSerializer):
 
     def get_active_milestones(self, obj):
         return obj.milestones.count()
+
 
 # assistants/serializers.py
 class AssistantSerializer(serializers.ModelSerializer):
@@ -385,6 +406,7 @@ class ChatSessionSerializer(serializers.ModelSerializer):
 
 class AssistantSerializer(serializers.ModelSerializer):
     current_project = ProjectOverviewSerializer(read_only=True)
+
     class Meta:
         model = Assistant
         fields = [

@@ -111,8 +111,12 @@ export default function PrimaryAssistantDashboard() {
             {delegations.map((d, idx) => (
               <li key={idx} className="list-group-item">
                 <strong>
-                  {d.parent} ➡ {d.child}
+                  {d.parent} ➡ {" "}
+                  <Link to={`/assistants/${d.child_slug}`}>{d.child}</Link>
                 </strong>
+                {d.objective_title && (
+                  <div className="small">Objective: {d.objective_title}</div>
+                )}
                 <div>{d.reason}</div>
                 {d.summary && <div className="text-muted small">{d.summary}</div>}
               </li>
