@@ -5,6 +5,10 @@ import apiFetch from "../../../utils/apiClient";
 export default function ObjectivesPage() {
   const { slug } = useParams();
   const [objectives, setObjectives] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [selected, setSelected] = useState(null);
+  const [customPrompt, setCustomPrompt] = useState("");
 
 
   useEffect(() => {
@@ -44,10 +48,36 @@ export default function ObjectivesPage() {
       {objectives.length === 0 ? (
         <p>No objectives found.</p>
       ) : (
-        
+
         <ul className="list-group mb-4">
           {objectives.map((obj) => (
-
+            <li
+              key={obj.id}
+              className="list-group-item d-flex justify-content-between align-items-start"
+            >
+              <div>
+                <h5 className={obj.is_completed ? "text-success" : ""}>{obj.title}</h5>
+                {obj.description && (
+                  <p className="small text-muted mb-1">{obj.description}</p>
+                )}
+              </div>
+              <div className="d-flex gap-2">
+                <button
+                  className="btn btn-sm btn-outline-primary"
+                  onClick={() => handlePlanTasks(obj.id)}
+                >
+                  📋 Plan Tasks
+                </button>
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() => {
+                    setSelected(obj);
+                    setShowModal(true);
+                  }}
+                >
+                  🤖 Delegate
+                </button>
+              </div>
             </li>
           ))}
         </ul>
