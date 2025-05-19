@@ -44,6 +44,7 @@ import AssistantDemoPage from "./pages/assistant/common/AssistantDemoPage";
 import ChatWithAssistantPage from "./pages/assistant/common/ChatWithAssistantPage";
 import CreateNewAssistantPage from "./pages/assistant/common/CreateNewAssistantPage";
 import PrimaryAssistantPage from "./pages/assistant/common/PrimaryAssistantPage";
+import PrimaryAssistantDashboard from "./pages/assistants/PrimaryAssistantDashboard";
 
 import ProjectDetailPage from "./pages/assistant/projects/ProjectDetailPage";
 import ProjectCreateFromMemoryPage from "./pages/assistant/projects/ProjectCreateFromMemoryPage";
@@ -127,6 +128,7 @@ export default function App() {
           <Route path="/assistant-dashboard" element={<AssistantDashboardPage />} />
           <Route path="/assistants/create" element={<CreateNewAssistantPage />} />
           <Route path="/assistants/primary" element={<PrimaryAssistantPage />} />
+          <Route path="/assistants/primary/dashboard" element={<PrimaryAssistantDashboard />} />
           <Route path="/assistants/:slug" element={<AssistantControlPanel />} />
 
           <Route path="/assistants/projects/create" element={<CreateProjectPage />} />     
