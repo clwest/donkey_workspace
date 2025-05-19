@@ -97,6 +97,7 @@ export default function AssistantDetailPage() {
         <Link to={`/assistants/${slug}/chat`} className="btn btn-dark">💬 Chat</Link>
         <Link to={`/assistants/${slug}/thoughts`} className="btn btn-outline-primary">🧠 Thought Log</Link>
         <Link to={`/assistants/${slug}/projects`} className="btn btn-outline-success">📂 Projects</Link>
+        <Link to={`/assistants/${slug}/objectives`} className="btn btn-outline-success">🗂️ Project Objectives</Link>
         <Link to={`/assistants/${slug}/memories`} className="btn btn-outline-warning">📘 Memory</Link>
         <Link to={`/assistants/${slug}/reflect`} className="btn btn-outline-info">🔍 Reflections</Link>
         <Link to={`/assistants/${slug}/sessions`} className="btn btn-outline-secondary">
