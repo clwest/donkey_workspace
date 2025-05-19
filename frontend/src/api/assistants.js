@@ -32,3 +32,15 @@ export async function mutateThought(id, style = "clarify") {
 
   return res.json();
 }
+export async function planProjectFromMemory(slug, body) {
+  const res = await fetch(`http://localhost:8000/api/assistants/${slug}/memory-to-project/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    credentials: "include",
+  });
+  if (!res.ok) {
+    throw new Error("Failed to plan project");
+  }
+  return res.json();
+}
