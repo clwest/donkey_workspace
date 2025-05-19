@@ -2,7 +2,6 @@ from rest_framework import serializers
 from .models import MemoryEntry, MemoryFeedback, MemoryChain
 
 from assistants.models import AssistantThoughtLog
-from assistants.serializers import AssistantSerializer  # if needed
 from mcp_core.serializers_tags import NarrativeThreadSerializer
 from mcp_core.serializers_tags import TagSerializer
 
