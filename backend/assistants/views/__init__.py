@@ -32,6 +32,7 @@ from .projects import (
     assistant_project_detail,
     bootstrap_assistant_from_prompt,
     projects_for_assistant,
+    project_history,
 )
 from .memory import (
     assistant_memory_chains,
@@ -129,6 +130,7 @@ __all__ = [
     "update_or_delete_task",
     "assistant_reflect_on_thoughts",
     "assistant_project_task_detail",
+    "project_history",
     "recent_delegation_events",
     "delegation_events_for_assistant",
     "primary_delegations",

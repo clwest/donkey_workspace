@@ -60,6 +60,11 @@ urlpatterns = [
         name="assistant-project-roles",
     ),
     path(
+        "projects/<uuid:project_id>/history/",
+        projects.project_history,
+        name="assistant-project-history",
+    ),
+    path(
         "project-roles/<uuid:role_id>/",
         projects.project_role_detail,
         name="assistant-project-role-detail",

@@ -13,6 +13,7 @@ from .models import (
     AssistantChatMessage,
     ChatSession,
     AssistantNextAction,
+    ProjectPlanningLog,
     DelegationEvent,
     SignalSource,
     SignalCatch,
@@ -119,6 +120,25 @@ class AssistantReflectionLogDetailSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]
+
+
+class ProjectPlanningLogSerializer(serializers.ModelSerializer):
+    related_object_repr = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ProjectPlanningLog
+        fields = [
+            "id",
+            "project",
+            "timestamp",
+            "event_type",
+            "summary",
+            "related_object_repr",
+        ]
+        read_only_fields = ["id", "timestamp"]
+
+    def get_related_object_repr(self, obj):
+        return str(obj.related_object) if obj.related_object else None
 
 
 class AssistantNextActionSerializer(serializers.ModelSerializer):

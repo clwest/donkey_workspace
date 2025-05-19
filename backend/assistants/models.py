@@ -11,12 +11,15 @@ class DelegationEventManager(models.Manager):
 
 from memory.models import MemoryEntry
 from prompts.models import Prompt
+from project.models import ProjectTask, ProjectMilestone
 from django.utils.text import slugify
 from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
 from pgvector.django import VectorField
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 
 # Used for structured memory and assistant sessions
@@ -61,6 +64,14 @@ THOUGHT_CATEGORY_CHOICES = [
     ("goal", "Goal"),
     ("warning", "Warning"),
     ("other", "Other"),
+]
+
+# Planning history event types
+PLANNING_EVENT_TYPES = [
+    ("objective_added", "Objective Added"),
+    ("task_modified", "Task Modified"),
+    ("milestone_completed", "Milestone Completed"),
+    ("reflection_recorded", "Reflection Recorded"),
 ]
 
 
@@ -488,6 +499,35 @@ class AssistantNextAction(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+class ProjectPlanningLog(models.Model):
+    """Chronological log of planning events for an assistant project."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    project = models.ForeignKey(
+        "assistants.AssistantProject",
+        on_delete=models.CASCADE,
+        related_name="planning_logs",
+    )
+    timestamp = models.DateTimeField(auto_now_add=True)
+    event_type = models.CharField(max_length=50, choices=PLANNING_EVENT_TYPES)
+    summary = models.CharField(max_length=255)
+
+    content_type = models.ForeignKey(
+        "contenttypes.ContentType",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    object_id = models.UUIDField(null=True, blank=True)
+    related_object = GenericForeignKey("content_type", "object_id")
+
+    class Meta:
+        ordering = ["-timestamp"]
+
+    def __str__(self):
+        return f"{self.event_type} @ {self.timestamp.strftime('%Y-%m-%d %H:%M')}"
+
+
 # backend/assistants/models.py
 class SignalSource(models.Model):
     """External platform or feed monitored for signals."""
@@ -801,3 +841,50 @@ def queue_delegation_reflection(sender, instance, created, **kwargs):
         from assistants.tasks import reflect_on_delegation
 
         reflect_on_delegation.delay(str(instance.id))
+
+
+@receiver(post_save, sender=AssistantObjective)
+def log_objective_added(sender, instance, created, **kwargs):
+    if created:
+        ProjectPlanningLog.objects.create(
+            project=instance.project,
+            event_type="objective_added",
+            summary=f"Objective added: {instance.title}",
+            related_object=instance,
+        )
+
+
+@receiver(post_save, sender=ProjectTask)
+def log_task_change(sender, instance, created, **kwargs):
+    assistant_project = getattr(instance.project, "assistant_project", None)
+    if assistant_project:
+        ProjectPlanningLog.objects.create(
+            project=assistant_project,
+            event_type="task_modified",
+            summary=f"{'Created' if created else 'Updated'} task: {instance.title}",
+            related_object=instance,
+        )
+
+
+@receiver(post_save, sender=ProjectMilestone)
+def log_milestone_event(sender, instance, created, **kwargs):
+    assistant_project = getattr(instance.project, "assistant_project", None)
+    if assistant_project and (created or instance.is_completed):
+        event_type = "milestone_completed" if instance.is_completed else "task_modified"
+        ProjectPlanningLog.objects.create(
+            project=assistant_project,
+            event_type=event_type,
+            summary=f"Milestone: {instance.title}",
+            related_object=instance,
+        )
+
+
+@receiver(post_save, sender=AssistantReflectionLog)
+def log_reflection_event(sender, instance, created, **kwargs):
+    if created and instance.project:
+        ProjectPlanningLog.objects.create(
+            project=instance.project,
+            event_type="reflection_recorded",
+            summary=instance.summary[:200],
+            related_object=instance,
+        )

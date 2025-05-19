@@ -2,12 +2,17 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
-from assistants.models import AssistantProject, AssistantProjectRole
+from assistants.models import (
+    AssistantProject,
+    AssistantProjectRole,
+    ProjectPlanningLog,
+)
 from assistants.serializers import (
     AssistantProjectSerializer,
     AssistantFromPromptSerializer,
     AssistantSerializer,
     AssistantProjectRoleSerializer,
+    ProjectPlanningLogSerializer,
 )
 from django.utils.text import slugify
 from assistants.models import Assistant, AssistantProject
@@ -131,3 +136,11 @@ def project_role_detail(request, role_id):
 
     role.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(["GET"])
+def project_history(request, project_id):
+    """Return planning log timeline for a project."""
+    logs = ProjectPlanningLog.objects.filter(project_id=project_id).order_by("-timestamp")
+    serializer = ProjectPlanningLogSerializer(logs, many=True)
+    return Response(serializer.data)
