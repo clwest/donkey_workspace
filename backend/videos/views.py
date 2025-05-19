@@ -1,6 +1,7 @@
 # videos/views.py
 
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, status
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from .models import Video
@@ -11,7 +12,7 @@ from .tasks import process_video_request
 class VideoViewSet(viewsets.ModelViewSet):
     queryset = Video.objects.all().order_by("-created_at")
     serializer_class = VideoSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [AllowAny]
 
     def perform_create(self, serializer):
         video = serializer.save(user=self.request.user, status="queued")

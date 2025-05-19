@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import ReplicateModel, ReplicatePrediction
@@ -11,7 +11,7 @@ from .serializers import (
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status as http_status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 
 from .helpers.replicate_helpers import (
     generate_image,
@@ -25,7 +25,7 @@ class ReplicateModelViewSet(viewsets.ModelViewSet):
 
     queryset = ReplicateModel.objects.all()
     serializer_class = ReplicateModelSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
 
 class ReplicatePredictionViewSet(viewsets.ModelViewSet):
@@ -33,7 +33,7 @@ class ReplicatePredictionViewSet(viewsets.ModelViewSet):
 
     queryset = ReplicatePrediction.objects.all()
     serializer_class = ReplicatePredictionSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["status", "model"]
     # Disallow unsafe updates/deletes
@@ -47,7 +47,7 @@ class ReplicatePredictionViewSet(viewsets.ModelViewSet):
 class GeneratePredictionView(APIView):
     """Trigger a new Replicate prediction via POST."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         prompt = request.data.get("prompt")
@@ -74,7 +74,7 @@ class GeneratePredictionView(APIView):
 class PredictionStatusView(APIView):
     """Retrieve status and details for a given prediction ID."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, id):
         data, code = get_prediction_detail(id)
@@ -94,7 +94,7 @@ class PredictionStatusView(APIView):
 class PredictionListView(APIView):
     """List recent predictions, optionally filtered by status."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request):
         status_filter = request.query_params.get("status")
