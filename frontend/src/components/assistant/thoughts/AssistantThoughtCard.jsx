@@ -22,6 +22,7 @@ export default function AssistantThoughtCard({ thought, onUpdate, onDelete, badg
   const [editValue, setEditValue] = useState(thought.thought);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [feedbackValue, setFeedbackValue] = useState(thought.feedback || "");
 
   const getApiPath = () => {
     if (thought.project) {
@@ -85,6 +86,20 @@ export default function AssistantThoughtCard({ thought, onUpdate, onDelete, badg
     }
   };
 
+  const handleFeedbackChange = async (value) => {
+    setFeedbackValue(value);
+    try {
+      await fetch(`/api/assistants/thoughts/${thought.id}/feedback/`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ feedback: value }),
+      });
+    } catch (err) {
+      console.error("Feedback update failed", err);
+      toast.error("Failed to update feedback");
+    }
+  };
+
   const preview = thought.thought.length > 120
     ? thought.thought.slice(0, 120) + "..."
     : thought.thought;
@@ -117,6 +132,22 @@ export default function AssistantThoughtCard({ thought, onUpdate, onDelete, badg
             <p className="mb-0 text-truncate" style={{ maxWidth: "100%" }}>
               {thought.thought}
             </p>
+            <div className="mt-2">
+              <select
+                className="form-select form-select-sm w-auto"
+                value={feedbackValue}
+                onChange={(e) => handleFeedbackChange(e.target.value)}
+              >
+                <option value="">💬 Feedback</option>
+                <option value="perfect">✅ Perfect</option>
+                <option value="helpful">👍 Helpful</option>
+                <option value="not_helpful">👎 Not Helpful</option>
+                <option value="too_long">💤 Too Long</option>
+                <option value="too_short">⚡ Too Short</option>
+                <option value="irrelevant">❌ Irrelevant</option>
+                <option value="unclear">❓ Unclear</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -179,6 +210,23 @@ export default function AssistantThoughtCard({ thought, onUpdate, onDelete, badg
                     ))}
                   </div>
                 )}
+
+                <div className="mt-3">
+                  <select
+                    className="form-select form-select-sm w-auto"
+                    value={feedbackValue}
+                    onChange={(e) => handleFeedbackChange(e.target.value)}
+                  >
+                    <option value="">💬 Feedback</option>
+                    <option value="perfect">✅ Perfect</option>
+                    <option value="helpful">👍 Helpful</option>
+                    <option value="not_helpful">👎 Not Helpful</option>
+                    <option value="too_long">💤 Too Long</option>
+                    <option value="too_short">⚡ Too Short</option>
+                    <option value="irrelevant">❌ Irrelevant</option>
+                    <option value="unclear">❓ Unclear</option>
+                  </select>
+                </div>
               </>
             )}
           </Modal.Body>
