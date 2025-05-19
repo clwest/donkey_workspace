@@ -5,9 +5,7 @@ import apiFetch from "../../../utils/apiClient";
 export default function ObjectivesPage() {
   const { slug } = useParams();
   const [objectives, setObjectives] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [selected, setSelected] = useState(null);
-  const [customPrompt, setCustomPrompt] = useState("");
+
 
   useEffect(() => {
     if (!slug) return;
@@ -17,14 +15,28 @@ export default function ObjectivesPage() {
         setObjectives(data);
       } catch (err) {
         console.error("Failed to load objectives", err);
+      } finally {
+        setLoading(false);
       }
     }
     fetchObjectives();
   }, [slug]);
 
+  async function handlePlanTasks(objId) {
+    try {
+      await apiFetch(`/assistants/${slug}/plan-tasks/${objId}/`, { method: "POST" });
+      const data = await apiFetch(`/assistants/${slug}/objectives/`);
+      setObjectives(data);
+    } catch (err) {
+      console.error("Failed to plan tasks", err);
+    }
+  }
+
   if (!slug) {
     return <div className="container my-5">Assistant slug missing.</div>;
   }
+
+  if (loading) return <div className="container my-5">Loading...</div>;
 
   return (
     <div className="container my-5">
@@ -34,22 +46,7 @@ export default function ObjectivesPage() {
       ) : (
         <ul className="list-group mb-4">
           {objectives.map((obj) => (
-            <li key={obj.id} className="list-group-item d-flex justify-content-between align-items-center">
-              <div>
-                <strong>{obj.title}</strong>
-                {obj.description && (
-                  <div className="small text-muted">{obj.description}</div>
-                )}
-              </div>
-              <button
-                className="btn btn-sm btn-outline-primary"
-                onClick={() => {
-                  setSelected(obj);
-                  setShowModal(true);
-                }}
-              >
-                🤖 Delegate
-              </button>
+
             </li>
           ))}
         </ul>

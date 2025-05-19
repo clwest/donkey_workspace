@@ -2,9 +2,7 @@ import logging
 from openai import OpenAI
 from django.utils import timezone
 from django.contrib.contenttypes.models import ContentType
-from assistants.models import Assistant, AssistantThoughtLog, AssistantObjective
-from assistants.utils.delegation import spawn_delegated_assistant
-from assistants.helpers.logging_helper import log_assistant_thought
+
 from assistants.helpers.redis_helpers import (
     set_cached_thoughts,
     get_cached_thoughts,
@@ -205,6 +203,27 @@ Memories:
             "message": f"Project planning for '{self.project.title}' not implemented yet.",
             "status": "stub",
         }
+
+    def plan_tasks_from_objective(self, objective):
+        """Generate simple tasks for an objective. Placeholder implementation."""
+        base_tasks = [
+            f"Research steps for {objective.title}",
+            f"Draft approach for {objective.title}",
+            f"Execute work related to {objective.title}",
+        ]
+        created = []
+        for text in base_tasks:
+            task = AssistantTask.objects.create(
+                project=objective.project, objective=objective, title=text
+            )
+            created.append(task)
+
+        self.log_thought(
+            f"Planned tasks for Objective: '{objective.title}'",
+            thought_type="planning",
+        )
+
+        return created
 
     def reflect_on_thoughts(self) -> dict:
         if not self.assistant:

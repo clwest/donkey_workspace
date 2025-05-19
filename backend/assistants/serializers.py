@@ -4,6 +4,7 @@ from .models import (
     AssistantThoughtLog,
     AssistantProject,
     AssistantObjective,
+    AssistantTask,
     AssistantReflectionLog,
     AssistantPromptLink,
     AssistantMemoryChain,
@@ -147,6 +148,20 @@ class AssistantObjectiveSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]
+
+
+class AssistantTaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantTask
+        fields = ["id", "project", "objective", "title", "status", "notes", "priority", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+
+class AssistantObjectiveWithTasksSerializer(AssistantObjectiveSerializer):
+    tasks = AssistantTaskSerializer(many=True, read_only=True)
+
+    class Meta(AssistantObjectiveSerializer.Meta):
+        fields = AssistantObjectiveSerializer.Meta.fields + ["tasks"]
 
 
 class AssistantProjectSerializer(serializers.ModelSerializer):

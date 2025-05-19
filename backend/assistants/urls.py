@@ -234,12 +234,21 @@ urlpatterns = [
         thoughts.submit_assistant_thought,
         name="submit-assistant-thought",
     ),
-    path("<slug:slug>/", assistants.assistant_detail_view, name="assistant-detail"),
     # Assistant Objectives
     path(
         "projects/<uuid:project_id>/objectives/",
         objectives.assistant_objectives,
         name="assistant-objectives",
+    ),
+    path(
+        "<slug:slug>/objectives/",
+        objectives.objectives_for_assistant,
+        name="objectives-for-assistant",
+    ),
+    path(
+        "<slug:slug>/plan-tasks/<uuid:objective_id>/",
+        tasks.plan_tasks_for_objective,
+        name="plan-tasks-objective",
     ),
     path(
         "<slug:slug>/flush/",
@@ -251,4 +260,5 @@ urlpatterns = [
         cache_tools.flush_reflection_cache,
         name="flush-reflection-cache",
     ),
+    path("<slug:slug>/", assistants.assistant_detail_view, name="assistant-detail"),
 ]
