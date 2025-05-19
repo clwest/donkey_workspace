@@ -10,6 +10,7 @@ import PrimaryStar from "../../../components/assistant/PrimaryStar";
 import AssistantSpawnForm from "../../../components/assistant/AssistantSpawnForm";
 import apiFetch from "../../../utils/apiClient";
 import ProjectRolesRow from "../../../components/assistant/roles/ProjectRolesRow";
+import ProjectHistoryPanel from "../../../components/assistant/project_history/ProjectHistoryPanel";
 
 export default function ProjectDetailPage() {
   const { id } = useParams();
@@ -216,6 +217,7 @@ export default function ProjectDetailPage() {
       <AssistantPromptPanel projectId={project.id} />
       <AssistantIntelligencePanel projectId={id} />
       <ProjectTaskManager />
+      <ProjectHistoryPanel projectId={id} />
 
     {project?.dev_docs?.length > 0 && (
       <ul className="list-group">
