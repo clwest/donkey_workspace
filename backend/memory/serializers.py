@@ -1,5 +1,10 @@
 from rest_framework import serializers
-from .models import MemoryEntry, MemoryFeedback, MemoryChain
+from .models import (
+    MemoryEntry,
+    MemoryFeedback,
+    MemoryChain,
+    SimulatedMemoryFork,
+)
 
 from assistants.models import AssistantThoughtLog
 from mcp_core.serializers_tags import NarrativeThreadSerializer
@@ -15,6 +20,7 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
     assistant_id = serializers.SerializerMethodField()
     parent_assistant_name = serializers.SerializerMethodField()
     is_delegated = serializers.SerializerMethodField()
+    simulated_forks = SimulatedMemoryForkSerializer(many=True, read_only=True)
 
     class Meta:
         model = MemoryEntry
@@ -41,6 +47,7 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
             "assistant_id",
             "parent_assistant_name",
             "is_delegated",
+            "simulated_forks",
         ]
 
     def get_source_name(self, obj):
@@ -87,6 +94,12 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
 class MemoryFeedbackSerializer(serializers.ModelSerializer):
     class Meta:
         model = MemoryFeedback
+        fields = "__all__"
+
+
+class SimulatedMemoryForkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SimulatedMemoryFork
         fields = "__all__"
 
 

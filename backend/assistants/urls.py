@@ -375,5 +375,10 @@ urlpatterns = [
         cache_tools.flush_reflection_cache,
         name="flush-reflection-cache",
     ),
+    path(
+        "<slug:slug>/simulate-memory/",
+        memory.simulate_memory,
+        name="assistant-simulate-memory",
+    ),
     path("<slug:slug>/", assistants.assistant_detail_view, name="assistant-detail"),
 ]

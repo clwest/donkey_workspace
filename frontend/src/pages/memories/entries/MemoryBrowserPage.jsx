@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import MemoryForkButton from "../../../components/memory/MemoryForkButton";
 import "../styles/MemoryBrowserPage.css";
 
 export default function MemoryBrowserPage() {
@@ -70,6 +71,9 @@ export default function MemoryBrowserPage() {
                   </div>
                 </div>
               </Link>
+              <div className="mt-2">
+                <MemoryForkButton memoryId={conv.memory_ids[0]} />
+              </div>
             </div>
           ))}
         </div>

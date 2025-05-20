@@ -198,3 +198,33 @@ class ReflectionFlag(models.Model):
     reason = models.TextField()
     severity = models.CharField()
 
+
+class SimulatedMemoryFork(models.Model):
+    """Store hypothetical outcomes for alternate memory scenarios."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    original_memory = models.ForeignKey(
+        MemoryEntry, on_delete=models.CASCADE, related_name="simulated_forks"
+    )
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="simulated_memory_forks",
+    )
+    simulated_outcome = models.TextField()
+    hypothetical_action = models.TextField(blank=True, null=True)
+    reason_for_simulation = models.TextField(blank=True)
+    thought_log = models.ForeignKey(
+        "assistants.AssistantThoughtLog",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="memory_forks",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Fork of {self.original_memory_id} by {self.assistant.name}"
