@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404
 from openai import OpenAI
 from datetime import datetime
 import logging
+import json
 from django.conf import settings
 from project.models import Project
 from mcp_core.models import NarrativeThread
@@ -19,7 +20,6 @@ from assistants.models import (
     ChatSession,
 )
 from assistants.helpers.redis_helpers import get_cached_thoughts
-from mcp_core.models import NarrativeThread
 from assistants.serializers import AssistantSerializer
 from assistants.utils.assistant_session import (
     save_message_to_session,
@@ -265,6 +265,9 @@ def chat_with_assistant_view(request, slug):
         if assistant.system_prompt
         else "You are a helpful assistant."
     )
+    identity = assistant.get_identity_prompt()
+    if identity:
+        system_prompt = f"{system_prompt}\n\n{identity}"
     messages = [{"role": "system", "content": system_prompt}]
     session_history = load_session_messages(session_id)
     messages += session_history
@@ -415,6 +418,44 @@ def demo_assistant(request):
         for a in assistant
     ]
     return Response(data)
+
+
+@api_view(["POST"])
+def self_reflect(request, slug):
+    assistant = get_object_or_404(Assistant, slug=slug)
+    engine = AssistantReflectionEngine(assistant)
+    prompt = (
+        f"You are {assistant.name}. Reflect on your recent behavior and suggest updates to your persona_summary, traits, values or motto. Respond with reflection text followed by JSON updates if any."
+    )
+    output = engine.generate_reflection(prompt)
+    text = output
+    updates = {}
+    if "{" in output:
+        try:
+            json_part = output[output.index("{") : output.rindex("}") + 1]
+            text = output[: output.index("{")].strip()
+            updates = json.loads(json_part)
+        except Exception:
+            pass
+    AssistantReflectionLog.objects.create(
+        assistant=assistant,
+        summary=text,
+        title="Self Reflection",
+        category="self_reflection",
+        raw_prompt=prompt,
+    )
+    if updates:
+        if updates.get("persona_summary"):
+            assistant.persona_summary = updates["persona_summary"]
+        if updates.get("traits"):
+            assistant.traits = updates["traits"]
+        if updates.get("values") is not None:
+            assistant.values = updates["values"]
+        if updates.get("motto"):
+            assistant.motto = updates["motto"]
+        assistant.save()
+
+    return Response({"summary": text, "updates": updates})
 
 
 @api_view(["POST"])

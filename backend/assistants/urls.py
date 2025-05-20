@@ -300,6 +300,11 @@ urlpatterns = [
         name="assistant_reflect_on_thoughts",
     ),
     path(
+        "<slug:slug>/self_reflect/",
+        assistants.self_reflect,
+        name="assistant-self-reflect",
+    ),
+    path(
         "<slug:slug>/submit-thought/",
         thoughts.submit_assistant_thought,
         name="submit-assistant-thought",
