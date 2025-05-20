@@ -275,6 +275,7 @@ class AssistantThoughtLog(models.Model):
             ("unclear", "Unclear"),
         ],
     )
+    mood = models.CharField(max_length=20, default="neutral", blank=True)
     tags = models.ManyToManyField(
         "mcp_core.Tag", blank=True, related_name="assistant_thoughts"
     )
