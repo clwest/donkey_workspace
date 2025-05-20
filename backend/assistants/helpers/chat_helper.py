@@ -12,6 +12,10 @@ def get_or_create_chat_session(session_id, assistant=None, project=None, thread=
 
     if project and not session.project:
         session.project = project
+    if assistant and not session.memory_chain and assistant.default_memory_chain:
+        session.memory_chain = assistant.default_memory_chain
+        if not project and not session.project:
+            session.project = assistant.default_memory_chain.project
 
     derived_thread = None
 
