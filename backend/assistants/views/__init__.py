@@ -39,6 +39,7 @@ from .projects import (
     assistant_project_detail,
     bootstrap_assistant_from_prompt,
     projects_for_assistant,
+    create_project_from_memory,
     project_history,
 )
 from .memory import (
@@ -145,6 +146,7 @@ __all__ = [
     "assistant_project_detail",
     "bootstrap_assistant_from_prompt",
     "projects_for_assistant",
+    "create_project_from_memory",
     "assistant_memory_chains",
     "linked_memories",
     "link_memory_to_project",

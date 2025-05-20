@@ -61,6 +61,11 @@ urlpatterns = [
         "projects/", projects.assistant_projects, name="assistant-projects"
     ),  # GET (list) + POST (create)
     path(
+        "projects/from-memory/",
+        projects.create_project_from_memory,
+        name="create_project_from_memory",
+    ),
+    path(
         "projects/<uuid:pk>/",
         projects.assistant_project_detail,
         name="assistant-project-detail",
