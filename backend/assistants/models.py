@@ -879,6 +879,18 @@ class DelegationEvent(models.Model):
     )
     reason = models.TextField()
     summary = models.TextField(blank=True, null=True)
+    score = models.IntegerField(null=True, blank=True)
+    trust_label = models.CharField(
+        max_length=20,
+        choices=[
+            ("trusted", "Trusted"),
+            ("neutral", "Neutral"),
+            ("unreliable", "Unreliable"),
+        ],
+        null=True,
+        blank=True,
+    )
+    notes = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     objects = DelegationEventManager()

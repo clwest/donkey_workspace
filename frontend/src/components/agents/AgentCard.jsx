@@ -1,5 +1,6 @@
 import { Card } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import TrustBadge from "../assistant/TrustBadge";
 
 const AgentCard = ({ agent }) => {
   if (!agent) return null;
@@ -10,6 +11,7 @@ const AgentCard = ({ agent }) => {
     preferred_llm = "Unknown LLM",
     execution_mode = "default",
     avatar_url = null,
+    trust = null,
   } = agent;
 
   return (
@@ -19,10 +21,9 @@ const AgentCard = ({ agent }) => {
           <Link to={`/agents/${slug}`} className="text-decoration-none">
             {name}
           </Link>
+          <TrustBadge label={trust?.overall_label} />
         </Card.Title>
-        <Card.Subtitle className="mb-2 text-muted">
-          LLM: {preferred_llm}
-        </Card.Subtitle>
+        <Card.Subtitle className="mb-2 text-muted">LLM: {preferred_llm}</Card.Subtitle>
         <Card.Text>
           <strong>Execution Mode:</strong> {execution_mode}
         </Card.Text>
