@@ -40,11 +40,11 @@ urlpatterns = [
         delegations.primary_delegations,
         name="primary-delegations",
     ),
-    path(
-        "suggest/",
-        routing.suggest_assistant,
-        name="assistant-suggest",
-    ),
+    # path(
+    #     "suggest/",
+    #     routing.suggest_assistant,
+    #     name="assistant-suggest",
+    # ),
     path(
         "suggest_delegate/",
         delegation.suggest_delegate,
@@ -254,8 +254,8 @@ urlpatterns = [
         name="update_message_feedback",
     ),
     path("messages/send/", messages.send_message, name="assistant-message-send"),
-    path("handoff/", handoffs.create_handoff, name="create-handoff"),
-    path("handoff/<uuid:session_id>/", handoffs.list_handoffs, name="list-handoffs"),
+    # path("handoff/", handoffs.create_handoff, name="create-handoff"),
+    # path("handoff/<uuid:session_id>/", handoffs.list_handoffs, name="list-handoffs"),
     path(
         "messages/inbox/<slug:slug>/",
         messages.inbox,
