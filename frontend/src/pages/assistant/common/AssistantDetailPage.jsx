@@ -451,7 +451,6 @@ export default function AssistantDetailPage() {
           <strong>Primary Role:</strong> ✅ System Orchestrator
         </p>
       )}
-    </div>
     </>
   )}
   {activeTab === "memory" && (
