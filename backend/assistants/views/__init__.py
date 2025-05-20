@@ -6,6 +6,7 @@ from .assistants import (
     primary_assistant_view,
     flush_chat_session,
     demo_assistant,
+    self_reflect,
     reflect_on_assistant,
     primary_reflect_now,
     primary_spawn_agent,

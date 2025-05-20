@@ -28,7 +28,10 @@ class AssistantThoughtEngine:
         self.project = project
 
     def build_thought_prompt(self, message: str) -> str:
+        identity = self.assistant.get_identity_prompt()
         return f"""You are {self.assistant.name}, a reasoning AI assistant.
+
+{identity}
 
 The user just said:
 \"\"\"
@@ -39,7 +42,10 @@ What is your internal thought? Briefly reason about this input in 1–2 sentence
 """
 
     def build_summary_prompt(self, memories: list[str]) -> str:
+        identity = self.assistant.get_identity_prompt()
         return f"""You are {self.assistant.name}, an AI assistant with strong memory.
+
+{identity}
 
 Below are recent memory events. Summarize the key takeaways as internal thoughts (not for the user).
 Use 3–5 bullet points to reflect on patterns, important facts, or potential strategies.

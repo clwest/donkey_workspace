@@ -174,7 +174,37 @@ export default function AssistantDetailPage() {
           )}
         </div>
       )}
-      
+
+      <hr />
+      <h4>🪪 Identity</h4>
+      <p><strong>Persona:</strong> {assistant.persona_summary || "None"}</p>
+      <p><strong>Motto:</strong> {assistant.motto || "N/A"}</p>
+      {assistant.traits && (
+        <p>
+          <strong>Traits:</strong>
+          {Object.entries(assistant.traits).map(([k, v]) => (
+            <span key={k} className="badge bg-secondary ms-2">
+              {k}:{v ? "✅" : "❌"}
+            </span>
+          ))}
+        </p>
+      )}
+      {assistant.values && assistant.values.length > 0 && (
+        <p>
+          <strong>Values:</strong> {assistant.values.join(", ")}
+        </p>
+      )}
+      <button
+        className="btn btn-outline-info mb-3"
+        onClick={async () => {
+          await apiFetch(`/assistants/${slug}/self_reflect/`, { method: "POST" });
+          const data = await apiFetch(`/assistants/${slug}/`);
+          setAssistant(data);
+        }}
+      >
+        Reflect on Self
+      </button>
+
       <h4>🧠 Summary at a Glance</h4>
       <p><strong>Personality:</strong> {assistant.personality || "Not configured"}</p>
       <p><strong>Voice Style:</strong> {assistant.voice_style || "Default"}</p>

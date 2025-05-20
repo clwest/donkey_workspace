@@ -110,6 +110,10 @@ class Assistant(models.Model):
     )
     personality = models.TextField(max_length=300, blank=True, null=True)
     tone = models.CharField(max_length=300, blank=True, null=True)
+    persona_summary = models.TextField(blank=True, null=True)
+    traits = models.JSONField(default=dict, blank=True)
+    motto = models.CharField(max_length=200, blank=True)
+    values = models.JSONField(default=list, blank=True)
     preferred_model = models.CharField(max_length=100, default="gpt-4o")
     memory_mode = models.CharField(
         max_length=200, choices=MEMORY_MODES, default="long_term"
@@ -172,6 +176,21 @@ class Assistant(models.Model):
             existing = Assistant.objects.filter(is_primary=True).exclude(pk=self.pk)
             if existing.exists():
                 raise ValidationError("Only one assistant can be primary.")
+
+    def get_identity_prompt(self) -> str:
+        parts = []
+        if self.persona_summary:
+            parts.append(f"Persona summary: {self.persona_summary}")
+        if self.traits:
+            trait_bits = []
+            for k, v in self.traits.items():
+                trait_bits.append(f"{k}={'yes' if v else 'no'}")
+            parts.append("Traits: " + ", ".join(trait_bits))
+        if self.values:
+            parts.append("Values: " + ", ".join(self.values))
+        if self.motto:
+            parts.append(f'Motto: "{self.motto}"')
+        return " \n".join(parts)
 
 
 class DelegationStrategy(models.Model):

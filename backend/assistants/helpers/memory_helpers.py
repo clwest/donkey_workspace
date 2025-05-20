@@ -41,8 +41,12 @@ def create_memory_from_chat(
     if not narrative_thread and project:
         narrative_thread = project.thread or project.narrative_thread
 
+    identity = assistant.get_identity_prompt() if assistant else ""
+    event_text = f"Conversation with assistant {assistant_name}"
+    if identity:
+        event_text += f" | {identity}"
     memory = MemoryEntry.objects.create(
-        event=f"Conversation with assistant {assistant_name}",
+        event=event_text,
         emotion="neutral",
         importance=importance,
         is_conversation=True,
