@@ -9,7 +9,7 @@ from project.models import Project
 from mcp_core.serializers import ReflectionLogSerializer
 from agents.utils.agent_reflection_engine import AgentReflectionEngine
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
-from mcp_core.models import MemoryContext, DevDoc
+from mcp_core.models import MemoryContext, DevDoc, Tag
 from embeddings.helpers.helpers_io import save_embedding
 import json
 
@@ -35,12 +35,15 @@ def reflect_on_memories(request):
         title=reflection_data.get("title", "Untitled Reflection"),
         summary=reflection_data.get("summary", ""),
         llm_summary=llm_summary,
-        raw_summary=agent.summarize_reflection(memories),
-        important=True,
-        tags=reflection_data.get("tags", []),
+        raw_prompt=agent.summarize_reflection(memories),
         mood=mood,
     )
-    reflection.related_memories.set(memories)
+    if hasattr(reflection, "related_memories"):
+        reflection.related_memories.set(memories)
+    tag_names = reflection_data.get("tags", [])
+    if tag_names:
+        tags = Tag.objects.filter(name__in=tag_names)
+        reflection.tags.set(tags)
     save_embedding(reflection, embedding=[])
     return Response(ReflectionLogSerializer(reflection).data, status=200)
 
@@ -49,7 +52,6 @@ def reflect_on_memories(request):
 @permission_classes([AllowAny])
 def reflect_on_custom_memories(request):
     memory_ids = request.data.get("memory_ids", [])
-    goal = request.data.get("goal")
     if not memory_ids:
         return Response({"error": "No memories provided."}, status=400)
     memories = MemoryContext.objects.filter(id__in=memory_ids)
@@ -58,12 +60,12 @@ def reflect_on_custom_memories(request):
     llm_summary = agent.expand_summary(raw_summary, memories=memories)
     reflection = AssistantReflectionLog.objects.create(
         title=agent.generate_reflection_title(raw_summary),
-        raw_summary=raw_summary,
+        raw_prompt=raw_summary,
         summary=llm_summary,
         llm_summary=llm_summary,
-        important=True,
     )
-    reflection.related_memories.set(memories)
+    if hasattr(reflection, "related_memories"):
+        reflection.related_memories.set(memories)
     save_embedding(reflection, embedding=[])
     return Response(ReflectionLogSerializer(reflection).data, status=200)
 
