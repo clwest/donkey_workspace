@@ -26,6 +26,7 @@ def create_memory_from_chat(
     project=None,
     importance=5,
     narrative_thread=None,
+    tool_response=None,
 ):
     transcript = "\n".join(
         [
@@ -56,6 +57,7 @@ def create_memory_from_chat(
         assistant=assistant,
         related_project=project,
         narrative_thread=narrative_thread,
+        tool_response=tool_response,
     )
 
     embed_and_tag_memory.delay(memory.id)

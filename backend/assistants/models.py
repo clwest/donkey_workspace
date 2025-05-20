@@ -337,6 +337,14 @@ class AssistantThoughtLog(models.Model):
     tags = models.ManyToManyField(
         "mcp_core.Tag", blank=True, related_name="assistant_thoughts"
     )
+    tool_used = models.ForeignKey(
+        "tools.Tool",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="thought_logs",
+    )
+    tool_result_summary = models.CharField(max_length=255, null=True, blank=True)
 
     narrative_thread = models.ForeignKey(
         "mcp_core.NarrativeThread",
