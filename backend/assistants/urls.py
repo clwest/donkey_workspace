@@ -17,6 +17,7 @@ from .views import (
     skills,
     messages,
     handoffs,
+    routing,
 )
 
 urlpatterns = [
@@ -45,6 +46,8 @@ urlpatterns = [
         delegation.suggest_delegate,
         name="suggest-delegate",
     ),
+    path("suggest/", routing.suggest_assistant, name="assistant-suggest"),
+    path("routing-history/", routing.routing_history, name="routing-history"),
     path("", assistants.assistants_view, name="assistants_view"),
     path("create/", assistants.assistants_view, name="assistants-list-create"),
     # ===== PROJECTS =====

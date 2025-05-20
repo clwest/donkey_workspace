@@ -76,6 +76,7 @@ from .delegations import (
     suggest_delegation,
 )
 from .handoffs import create_handoff, list_handoffs
+from .routing import suggest_assistant, routing_history
 from .bootstrap import prompt_to_assistant
 from .signals import (
     signal_sources,
@@ -173,4 +174,6 @@ __all__ = [
     "outbox",
     "create_handoff",
     "list_handoffs",
+    "suggest_assistant",
+    "routing_history",
 ]
