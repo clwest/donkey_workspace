@@ -90,8 +90,10 @@ def analyze_drift_for_assistant(
     if similarity < threshold:
         return SpecializationDriftLog.objects.create(
             assistant=assistant,
-            score=drift_score,
+            drift_score=drift_score,
             summary=f"Drift {drift_score:.2f}",
+            trigger_type="auto",
+            auto_flagged=True,
         )
 
     return None

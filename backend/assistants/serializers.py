@@ -219,7 +219,15 @@ class ProjectPlanningLogSerializer(serializers.ModelSerializer):
 class SpecializationDriftLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = SpecializationDriftLog
-        fields = ["id", "score", "summary", "created_at"]
+        fields = [
+            "id",
+            "drift_score",
+            "summary",
+            "trigger_type",
+            "auto_flagged",
+            "resolved",
+            "timestamp",
+        ]
         read_only_fields = fields
 
 
@@ -461,8 +469,8 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
         from django.utils import timezone
         from datetime import timedelta
 
-        log = obj.drift_logs.order_by("-created_at").first()
-        if log and log.created_at >= timezone.now() - timedelta(days=1):
+        log = obj.drift_logs.order_by("-timestamp").first()
+        if log and log.timestamp >= timezone.now() - timedelta(days=1):
             return SpecializationDriftLogSerializer(log).data
         return None
 
