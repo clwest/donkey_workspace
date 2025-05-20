@@ -14,40 +14,60 @@ export default function DocumentIngestionForm({ onSuccess }) {
     e.preventDefault();
     setLoading(true);
 
+    const parsedTags = tags
+      .split(",")
+      .map((t) => t.trim().toLowerCase())
+      .filter((t) => t.length > 0);
+
     const payload = {
         title,
         project_name: "General",
         session_id: "00000000-0000-0000-0000-000000000000",
-        tags: tags
-        .split(",")
-        .map((t) => t.trim().toLowerCase())
-        .filter((t) => t.length > 0),
+        tags: parsedTags,
     };
 
     try {
-        if (urlInput.trim()) {
+        let res;
+        if (pdfFiles.length > 0) {
+        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+        const formData = new FormData();
+        formData.append("source_type", "pdf");
+        formData.append("title", title);
+        formData.append("project_name", "General");
+        formData.append("session_id", "00000000-0000-0000-0000-000000000000");
+        parsedTags.forEach((t) => formData.append("tags", t));
+        pdfFiles.forEach((file) => formData.append("files", file));
+        console.log("Uploading PDFs", pdfFiles);
+        const uploadRes = await fetch(`${API_URL}/intel/ingestions/`, {
+            method: "POST",
+            body: formData,
+            credentials: "include",
+        });
+        if (!uploadRes.ok) throw new Error("API Error");
+        res = await uploadRes.json();
+        } else if (urlInput.trim()) {
         payload.urls = urlInput
             .split(",")
             .map((u) => u.trim())
             .filter((u) => u.length > 0);
         payload.source_type = "url";
+        res = await apiFetch("/intel/ingestions/", {
+            method: "POST",
+            body: payload,
+        });
         } else if (videoInput.trim()) {
         payload.urls = videoInput
             .split(",")
             .map((u) => u.trim())
             .filter((u) => u.length > 0);
         payload.source_type = "youtube";
-        } else {
-        throw new Error("No input provided for URL or YouTube");
-        }
-
-        const res = await apiFetch("/intel/ingestions/", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+        res = await apiFetch("/intel/ingestions/", {
+            method: "POST",
+            body: payload,
         });
+        } else {
+        throw new Error("No input provided for URL, YouTube, or PDF");
+        }
 
         toast.success(`✅ Loaded ${res.documents?.length || 0} documents!`);
         if (onSuccess) await onSuccess();
