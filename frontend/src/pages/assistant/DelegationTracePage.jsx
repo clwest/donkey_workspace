@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
 import DelegationFeedbackModal from "../../components/assistant/DelegationFeedbackModal";
+import ToolFeedbackDropdown from "../../components/tools/ToolFeedbackDropdown";
 
 function MemoryRow({ entry, onRate }) {
   const indent = { marginLeft: `${entry.depth * 20}px` };
@@ -32,6 +33,12 @@ function MemoryRow({ entry, onRate }) {
         )}
         {" | "}
         <Link to={`/assistants/${entry.assistant_id}/reflect`}>Reflect on Sub-Agent Output</Link>
+        {entry.tool_usage_id && (
+          <>
+            {" | "}
+            <ToolFeedbackDropdown usageId={entry.tool_usage_id} />
+          </>
+        )}
       </div>
     </li>
   );

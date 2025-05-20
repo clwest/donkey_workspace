@@ -41,6 +41,14 @@ class ToolUsageLog(models.Model):
         ("error", "Error"),
     ]
 
+    FEEDBACK_CHOICES = [
+        ("perfect", "Perfect"),
+        ("helpful", "Helpful"),
+        ("not_helpful", "Not Helpful"),
+        ("irrelevant", "Irrelevant"),
+        ("error", "Error"),
+    ]
+
     tool = models.ForeignKey(Tool, on_delete=models.CASCADE, related_name="logs")
     assistant = models.ForeignKey("assistants.Assistant", on_delete=models.SET_NULL, null=True, blank=True)
     agent = models.ForeignKey("agents.Agent", on_delete=models.SET_NULL, null=True, blank=True)
@@ -51,6 +59,10 @@ class ToolUsageLog(models.Model):
     error = models.TextField(blank=True)
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="success")
+
+    feedback = models.CharField(
+        max_length=20, choices=FEEDBACK_CHOICES, blank=True, null=True
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
 
