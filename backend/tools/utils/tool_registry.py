@@ -1,9 +1,13 @@
-from typing import Any, Callable, Dict
+import importlib
+from pathlib import Path
+from typing import Any, Callable, Dict, Optional, List
+
+from django.apps import apps
 
 from assistants.models import Assistant
 from agents.models import Agent
 
-from tools.models import Tool, ToolUsageLog, ToolScore
+from tools.models import Tool, ToolUsageLog, ToolScore, ToolDiscoveryLog
 
 _registry: Dict[str, Callable[[Dict[str, Any]], Any]] = {}
 
@@ -11,15 +15,29 @@ _registry: Dict[str, Callable[[Dict[str, Any]], Any]] = {}
 def register_tool(
     name: str,
     slug: str,
-    schema: Dict[str, Any] | None,
+    schema: Optional[Dict[str, Any]],
     fn: Callable[[Dict[str, Any]], Any],
+    *,
+    input_schema: Optional[Dict[str, Any]] = None,
+    output_schema: Optional[Dict[str, Any]] = None,
+    tags: Optional[List[str]] = None,
+    description: str | None = None,
 ) -> None:
     """Register a tool and ensure a matching DB entry exists."""
 
     _registry[slug] = fn
-    Tool.objects.get_or_create(
+    Tool.objects.update_or_create(
         slug=slug,
-        defaults={"name": name, "description": name, "schema": schema or {}},
+        defaults={
+            "name": name,
+            "description": description or name,
+            "schema": schema or {},
+            "module_path": fn.__module__,
+            "function_name": fn.__name__,
+            "input_schema": input_schema or {},
+            "output_schema": output_schema or {},
+            "tags": tags or [],
+        },
     )
 
 
@@ -45,9 +63,10 @@ def call_tool(
         tool=tool,
         assistant=caller if isinstance(caller, Assistant) else None,
         agent=caller if isinstance(caller, Agent) else None,
-        input_data=input_data,
-        output_data=output,
-        status=status,
+        input_payload=input_data,
+        output_payload=output,
+        success=status == "success",
+        error="" if status == "success" else output.get("error", ""),
     )
 
     if isinstance(caller, Assistant):
@@ -70,3 +89,41 @@ def get_best_tool_for_context(tags: list[str], assistant: Assistant) -> Tool | N
         scores = scores.filter(context_tags__overlap=tags)
     best = scores.first()
     return best.tool if best else None
+
+
+def discover_tools(directory: Path) -> None:
+    """Import modules and register any decorated tools found."""
+
+    for py in directory.rglob("*.py"):
+        rel_module = ".".join(py.relative_to(directory.parent).with_suffix("").parts)
+        try:
+            module = importlib.import_module(rel_module)
+        except Exception as exc:  # pragma: no cover - import failure
+            ToolDiscoveryLog.objects.create(
+                tool=None,
+                path=str(py),
+                success=False,
+                message=str(exc),
+            )
+            continue
+
+        for attr in dir(module):
+            obj = getattr(module, attr)
+            meta = getattr(obj, "_tool_meta", None)
+            if meta:
+                register_tool(
+                    meta["name"],
+                    meta["slug"],
+                    None,
+                    obj,
+                    input_schema=meta.get("input_schema"),
+                    output_schema=meta.get("output_schema"),
+                    tags=meta.get("tags"),
+                    description=meta.get("description"),
+                )
+                tool = Tool.objects.get(slug=meta["slug"])
+                ToolDiscoveryLog.objects.create(
+                    tool=tool,
+                    path=str(py),
+                    success=True,
+                )
