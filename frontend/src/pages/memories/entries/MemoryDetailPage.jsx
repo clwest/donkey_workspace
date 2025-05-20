@@ -30,7 +30,7 @@ export default function MemoryDetailPage() {
   }, [id]);
 
   async function handleCreateProjectFromMemory() {
-    const res = await fetch(`http://localhost:8000/api/assistant/projects/from-memory/`, {
+    const res = await fetch(`http://localhost:8000/api/assistants/projects/from-memory/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ memory_id: id }),
