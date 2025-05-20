@@ -10,9 +10,9 @@ class ToolAdmin(admin.ModelAdmin):
     list_filter = ("is_enabled", "agent_only")
 
 
-@admin.register(ToolUsageLog)
-class ToolUsageLogAdmin(admin.ModelAdmin):
-    list_display = ("tool", "status", "created_at")
-    list_filter = ("status", "created_at")
-    search_fields = ("tool__name", "tool__slug")
-    autocomplete_fields = ("tool", "assistant", "agent")
+# @admin.register(ToolUsageLog)
+# class ToolUsageLogAdmin(admin.ModelAdmin):
+#     list_display = ("tool", "status", "created_at")
+#     list_filter = ("status", "created_at")
+#     # search_fields = ("tool__name", "tool__slug")
+#     autocomplete_fields = ("tool", "assistant", "agent")
