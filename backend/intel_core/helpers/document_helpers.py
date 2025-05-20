@@ -299,3 +299,36 @@ def process_document_query(query: str) -> Dict[str, Any]:
     result["documents"] = documents
 
     return result
+
+
+def get_document_memory_status(document: Document) -> dict:
+    """Return memory stats for a document used by assistants."""
+    from intel_core.models import DocumentChunk
+    from memory.models import MemoryEntry
+
+    total_chunks = DocumentChunk.objects.filter(document=document).count()
+    embedded_chunks = DocumentChunk.objects.filter(
+        document=document, embedding__isnull=False
+    ).count()
+    coverage = round((embedded_chunks / total_chunks) * 100, 1) if total_chunks else 0.0
+
+    tags = list(document.tags.values_list("name", flat=True))
+
+    last_entry = (
+        MemoryEntry.objects.filter(document=document).order_by("-created_at").first()
+    )
+    last_summary = ""
+    if last_entry:
+        last_summary = last_entry.summary or (last_entry.event[:80] if last_entry.event else "")
+
+    return {
+        "document_id": str(document.id),
+        "title": document.title,
+        "slug": document.slug,
+        "total_chunks": total_chunks,
+        "embedded_chunks": embedded_chunks,
+        "embedding_coverage": coverage,
+        "tags": tags,
+        "last_chunk_summary": last_summary,
+        "linked_at": document.created_at.isoformat().replace("+00:00", "Z"),
+    }

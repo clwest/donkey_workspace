@@ -9,12 +9,14 @@ import MemoryChainSettingsPanel from "../../components/assistant/memory/MemoryCh
 import PrimaryStar from "../../components/assistant/PrimaryStar";
 import ThoughtCloudPanel from "../../components/assistant/memory/ThoughtCloudPanel";
 import MemoryMoodChart from "../../components/assistant/memory/MemoryMoodChart";
+import AssistantDashboardHeader from "./AssistantDashboardHeader";
 
 export default function PrimaryAssistantDashboard() {
   const [assistant, setAssistant] = useState(null);
   const [delegations, setDelegations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [memorySummary, setMemorySummary] = useState(null);
+  const [memoryCoverage, setMemoryCoverage] = useState(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [inbox, setInbox] = useState([]);
   const [outbox, setOutbox] = useState([]);
@@ -33,6 +35,16 @@ export default function PrimaryAssistantDashboard() {
         setDelegations(delRes || []);
         const summary = await apiFetch(`/assistants/${res.slug}/memory/summary/`);
         setMemorySummary(summary);
+        const docs = await apiFetch(`/assistants/${res.slug}/memory-documents/`);
+        if (docs) {
+          let total = 0;
+          let embedded = 0;
+          docs.forEach((d) => {
+            total += d.total_chunks;
+            embedded += d.embedded_chunks;
+          });
+          setMemoryCoverage(total ? Math.round((embedded / total) * 100) : 0);
+        }
         const inboxData = await apiFetch(`/assistants/messages/inbox/${res.slug}`);
         setInbox(inboxData || []);
         const outData = await apiFetch(`/assistants/messages/outbox/${res.slug}`);
@@ -96,31 +108,11 @@ export default function PrimaryAssistantDashboard() {
 
   return (
     <div className="container my-5">
-      <div className="card mb-4 shadow-sm">
-        <div className="card-body d-flex align-items-center">
-          {assistant.avatar && (
-            <img
-              src={assistant.avatar}
-              alt="avatar"
-              className="rounded-circle me-3"
-              width="60"
-              height="60"
-            />
-          )}
-          <div>
-            <h3 className="mb-0">
-              {assistant.name} <PrimaryStar isPrimary={assistant.is_primary} />
-              <span className="badge bg-warning text-dark ms-2">Primary</span>
-            </h3>
-            <p className="text-muted mb-0">{assistant.specialty}</p>
-          </div>
-          <div className="ms-auto">
-            <button className="btn btn-primary" onClick={handleReflect}>
-              Reflect Now
-            </button>
-          </div>
-        </div>
-      </div>
+      <AssistantDashboardHeader
+        assistant={assistant}
+        memoryCoverage={memoryCoverage}
+        onReflect={handleReflect}
+      />
       <div className="mb-3">
         <ul className="nav nav-tabs">
           <li className="nav-item">

@@ -7,6 +7,7 @@ import DriftScoreChart from "../../../components/assistant/DriftScoreChart";
 import { runDriftCheck } from "../../../api/assistants";
 import { toast } from "react-toastify";
 import "./styles/AssistantDetail.css";
+import AssistantMemoryAuditPanel from "../../../components/assistant/memory/AssistantMemoryAuditPanel";
 
 export default function AssistantDetailPage() {
   const { slug } = useParams();
@@ -18,6 +19,7 @@ export default function AssistantDetailPage() {
   const [selectedDoc, setSelectedDoc] = useState("");
   const [reflectAfter, setReflectAfter] = useState(false);
   const [linking, setLinking] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
   const threadId = query.get("thread");
   const projectId = query.get("project");
   const memoryId = query.get("memory");
@@ -102,6 +104,28 @@ export default function AssistantDetailPage() {
         <MoodStabilityGauge msi={assistant.mood_stability_index} />
       </h1>
       <p className="text-muted">Assistant Details Page</p>
+      <div className="mb-3">
+        <ul className="nav nav-tabs">
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === "overview" ? "active" : ""}`}
+              onClick={() => setActiveTab("overview")}
+            >
+              Overview
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === "memory" ? "active" : ""}`}
+              onClick={() => setActiveTab("memory")}
+            >
+              🧠 Memory Audit
+            </button>
+          </li>
+        </ul>
+      </div>
+      {activeTab === "overview" && (
+        <>
       {assistant.recent_drift && (
         <div className="alert alert-warning">🧬 Drift Detected: {assistant.recent_drift.summary}</div>
       )}
@@ -428,5 +452,11 @@ export default function AssistantDetailPage() {
         </p>
       )}
     </div>
+    </>
+  )}
+  {activeTab === "memory" && (
+    <AssistantMemoryAuditPanel assistant={assistant} />
+  )}
+  </div>
   );
 }
