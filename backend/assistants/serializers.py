@@ -16,6 +16,7 @@ from .models import (
     AssistantNextAction,
     ProjectPlanningLog,
     DelegationEvent,
+    SessionHandoff,
     AssistantSkill,
     SignalSource,
     SignalCatch,
@@ -71,6 +72,21 @@ class DelegationEventSerializer(serializers.ModelSerializer):
             "memory_id",
             "session_id",
             "objective_title",
+            "created_at",
+        ]
+
+
+class SessionHandoffSerializer(serializers.ModelSerializer):
+    from_assistant = serializers.CharField(source="from_assistant.name", read_only=True)
+    to_assistant = serializers.CharField(source="to_assistant.name", read_only=True)
+    class Meta:
+        model = SessionHandoff
+        fields = [
+            "id",
+            "from_assistant",
+            "to_assistant",
+            "reason",
+            "handoff_summary",
             "created_at",
         ]
 

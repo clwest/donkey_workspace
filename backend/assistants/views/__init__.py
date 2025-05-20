@@ -75,7 +75,7 @@ from .delegations import (
     hierarchical_memory,
     suggest_delegation,
 )
-from .routing import suggest_assistant
+
 from .bootstrap import prompt_to_assistant
 from .signals import (
     signal_sources,
@@ -172,4 +172,6 @@ __all__ = [
     "send_message",
     "inbox",
     "outbox",
+    "create_handoff",
+    "list_handoffs",
 ]

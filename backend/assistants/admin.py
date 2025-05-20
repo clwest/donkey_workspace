@@ -9,6 +9,7 @@ from .models import (
     ChatSession,
     DelegationEvent,
     DelegationStrategy,
+    SessionHandoff,
     AssistantMemoryChain,
 )
 from memory.models import MemoryEntry
@@ -154,6 +155,12 @@ class DelegationEventAdmin(admin.ModelAdmin):
         "child_assistant",
         "created_at",
     )
+    list_filter = ("created_at",)
+
+
+@admin.register(SessionHandoff)
+class SessionHandoffAdmin(admin.ModelAdmin):
+    list_display = ("from_assistant", "to_assistant", "session", "created_at")
     list_filter = ("created_at",)
 
 
