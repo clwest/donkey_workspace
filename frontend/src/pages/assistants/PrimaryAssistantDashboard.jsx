@@ -133,6 +133,7 @@ export default function PrimaryAssistantDashboard() {
   const thoughts = assistant.recent_thoughts ? assistant.recent_thoughts.slice(0, 5) : [];
 
   return (
+    <>
     <div className="container my-5">
       <AssistantDashboardHeader
         assistant={assistant}
@@ -311,5 +312,6 @@ export default function PrimaryAssistantDashboard() {
       onClose={() => setShowAssess(false)}
       result={assessment}
     />
+    </>
   );
 }
