@@ -5,10 +5,18 @@ from django.core.files.storage import default_storage
 from django.conf import settings
 import os
 import json
+import uuid
 from openai import OpenAI
 from django.contrib.auth import get_user_model
 from intel_core.models import Document
-from assistants.models import Assistant, AssistantProject, AssistantObjective
+from assistants.models import (
+    Assistant,
+    AssistantProject,
+    AssistantObjective,
+    ChatSession,
+)
+from project.models import Project
+from assistants.helpers.chat_helper import get_or_create_chat_session
 from memory.models import MemoryEntry
 from mcp_core.models import NarrativeThread, Tag
 from prompts.models import Prompt
@@ -32,6 +40,20 @@ def unified_ingestion_view(request):
     project_name = request.data.get("project_name", "General")
     session_id = request.data.get("session_id")
     user_provided_title = request.data.get("title")
+
+    null_uuid = "00000000-0000-0000-0000-000000000000"
+    assistant_id = request.data.get("assistant_id")
+    project_id = request.data.get("project_id")
+    if not session_id or session_id == null_uuid:
+        assistant = (
+            Assistant.objects.filter(id=assistant_id).first() if assistant_id else None
+        )
+        project = Project.objects.filter(id=project_id).first() if project_id else None
+        chat_session = ChatSession.objects.create(
+            assistant=assistant,
+            project=project,
+        )
+        session_id = str(chat_session.session_id)
 
     try:
         if source_type == "youtube":
