@@ -1,10 +1,8 @@
 import json
 import logging
-from openai import OpenAI
-from utils.llm import call_gpt4
+from utils.llm_router import call_llm
 
 logger = logging.getLogger("embeddings")
-client = OpenAI()
 
 
 def generate_tags_for_memory(content: str, max_tags: int = 5) -> list[str]:
@@ -21,7 +19,9 @@ Return the tags as a JSON list of lowercase strings, like:
 
     response = ""
     try:
-        response = call_gpt4(prompt, max_tokens=150)
+        response = call_llm([
+            {"role": "user", "content": prompt}
+        ], max_tokens=150)
         # logger.debug(f"🧪 Raw tag LLM response:\n{response!r}")
 
         # Strip Markdown code block if it exists

@@ -6,7 +6,7 @@ from memory.models import MemoryEntry
 from django.utils.text import slugify
 from embeddings.helpers.helper_tagging import generate_tags_for_memory
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
-from utils.llm import call_gpt4
+from utils.llm_router import call_llm
 
 
 @api_view(["POST"])
@@ -31,7 +31,7 @@ Use JSON format.
 \n\nDEV DOCS:\n\n{chr(10).join(chunks)}"""
 
     assistant = AssistantReflectionEngine.get_reflection_assistant()
-    response = call_gpt4(prompt)
+    response = call_llm([{"role": "user", "content": prompt}])
 
     if not response or len(response.strip()) < 10:
         return Response({"error": "LLM returned an empty or invalid response."}, status=500)

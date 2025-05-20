@@ -1,5 +1,4 @@
 import logging
-from openai import OpenAI
 from assistants.models import (
     AssistantReflectionLog,
     Assistant,
@@ -12,9 +11,9 @@ from memory.models import MemoryEntry
 from django.contrib.contenttypes.models import ContentType
 from django.utils.text import slugify
 from assistants.models import AssistantProject
+from utils.llm_router import call_llm
 
 logger = logging.getLogger(__name__)
-client = OpenAI()
 
 
 class AssistantReflectionEngine:
@@ -40,13 +39,12 @@ class AssistantReflectionEngine:
     """
 
     def generate_reflection(self, prompt: str, temperature: float = 0.5) -> str:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}],
+        return call_llm(
+            [{"role": "user", "content": prompt}],
+            model=self.assistant.preferred_model or "gpt-4o",
             temperature=temperature,
             max_tokens=400,
         )
-        return response.choices[0].message.content.strip()
 
     def reflect_now(self, context: MemoryContext) -> AssistantReflectionLog:
         """Run a quick reflection over recent memories for the given context."""
@@ -105,7 +103,7 @@ class AssistantReflectionEngine:
                 "description": "Analyzes DevDocs and reflects on system evolution.",
                 "specialty": "assistant_reflection",
                 "tone": "analytical",
-                "preferred_model": "gpt-4o",
+                "preferred_model": "ollama:mistral",
             },
         )
         if created:

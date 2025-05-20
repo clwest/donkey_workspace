@@ -1,9 +1,8 @@
 from typing import Optional, List
 from mcp_core.models import MemoryContext
-from openai import OpenAI
+from utils.llm_router import call_llm
 import json
 
-client = OpenAI()
 
 
 class AgentReflectionEngine:
@@ -47,11 +46,10 @@ Summarize what patterns, issues, and insights are emerging from these notes:
 
 Respond with a short, intelligent reflection as if you're thinking aloud."""
 
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}],
+        return call_llm(
+            [{"role": "user", "content": prompt}],
+            model="gpt-4o",
         )
-        return response.choices[0].message.content.strip()
 
     def get_structured_reflection(
         self, memories: List[MemoryContext], goal: Optional[str] = None
@@ -80,13 +78,13 @@ Please respond in this structured JSON format:
   "mood": "neutral"
 }"""
 
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}],
+        raw = call_llm(
+            [{"role": "user", "content": prompt}],
+            model="gpt-4o",
         )
 
         try:
-            parsed = json.loads(response.choices[0].message.content)
+            parsed = json.loads(raw)
             return parsed
         except Exception as e:
             print("Error parsing structured reflection:", e)
@@ -114,11 +112,10 @@ Reflection:
 Respond ONLY with the single word for the mood.
 """
 
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}],
-        )
-        return response.choices[0].message.content.strip().lower()
+        return call_llm(
+            [{"role": "user", "content": prompt}],
+            model="gpt-4o",
+        ).strip().lower()
 
     def reflect_on_custom(self, memories: List[MemoryContext], goal: str = "") -> dict:
         if not memories:
@@ -151,13 +148,13 @@ Respond in this JSON format:
 }
 """
 
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}],
+        raw = call_llm(
+            [{"role": "user", "content": prompt}],
+            model="gpt-4o",
         )
 
         try:
-            parsed = json.loads(response.choices[0].message.content)
+            parsed = json.loads(raw)
             return parsed
         except Exception as e:
             print("Error parsing custom reflection:", e)
@@ -181,11 +178,10 @@ Please thoughtfully expand and improve the reflection.
 Preserve the important insights from the old summary, but naturally build upon them with the new information.
 Respond like a human thoughtfully thinking aloud — avoid simply repeating content."""
 
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}],
+        return call_llm(
+            [{"role": "user", "content": prompt}],
+            model="gpt-4o",
         )
-        return response.choices[0].message.content
 
     def generate_reflection_title(self, raw_summary: str) -> str:
         if not raw_summary:
@@ -197,11 +193,10 @@ Respond like a human thoughtfully thinking aloud — avoid simply repeating cont
 
 Respond with ONLY the title, nothing else."""
 
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}],
-        )
-        return response.choices[0].message.content.strip()
+        return call_llm(
+            [{"role": "user", "content": prompt}],
+            model="gpt-4o",
+        ).strip()
 
     def get_llm_summary_from_raw_summary(self, raw_summary: str) -> str:
         if not raw_summary:
@@ -215,7 +210,7 @@ Reflect and expand on the following:
 
 Offer a short, intelligent insight summarizing the major themes and lessons."""
 
-        response = client.chat.completions.create(
-            model="gpt-4o-mini", messages=[{"role": "user", "content": prompt}]
+        return call_llm(
+            [{"role": "user", "content": prompt}],
+            model="gpt-4o",
         )
-        return response.choices[0].message.content

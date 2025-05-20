@@ -1,15 +1,14 @@
 # prompts/utils/mutation.py
 
-from openai import OpenAI
 from typing import Optional, List
 from prompts.models import Prompt
 from prompts.utils.embeddings import get_prompt_embedding
 from embeddings.helpers.helpers_io import save_embedding
 import logging
+from utils.llm_router import call_llm
 
 logger = logging.getLogger("prompts")
 
-client = OpenAI()
 
 MUTATION_MODES = {
     "clarify": "Rewrite this prompt to be clearer and easier to understand, but keep the meaning the same.",
@@ -44,17 +43,15 @@ def mutate_prompt(
     """
     instruction = MUTATION_MODES.get(mode, MUTATION_MODES["clarify"])
 
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
+    result = call_llm(
+        [
             {"role": "system", "content": instruction},
             {"role": "user", "content": text},
         ],
+        model="gpt-4o",
         temperature=0.7,
         max_tokens=1024,
     )
-
-    result = response.choices[0].message.content.strip()
 
     if prompt_id:
         try:

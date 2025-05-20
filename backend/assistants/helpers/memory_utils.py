@@ -2,10 +2,9 @@ import json
 import logging
 import re
 from django.utils.text import slugify
-from openai import OpenAI
 from mcp_core.models import Tag
+from utils.llm_router import call_llm
 
-client = OpenAI()
 logger = logging.getLogger(__name__)
 
 
@@ -27,14 +26,12 @@ Return tags as a JSON list of lowercase strings like:
 
     raw_output = ""
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}],
+        raw_output = call_llm(
+            [{"role": "user", "content": prompt}],
+            model="gpt-4o",
             temperature=0.2,
             max_tokens=150,
         )
-
-        raw_output = response.choices[0].message.content.strip()
 
         # Remove triple backtick wrappers if present
         if raw_output.startswith("```"):

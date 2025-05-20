@@ -1,9 +1,8 @@
 import json
 from typing import Any, Dict, Optional
-from openai import OpenAI
+from utils.llm_router import call_llm
 from assistants.models import Assistant, AssistantThoughtLog
 
-client = OpenAI()
 
 
 def reflect_on_tool_output(
@@ -22,12 +21,11 @@ def reflect_on_tool_output(
     )
 
     try:
-        resp = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}],
+        text = call_llm(
+            [{"role": "user", "content": prompt}],
+            model="gpt-4o",
             temperature=0.3,
         )
-        text = resp.choices[0].message.content.strip()
     except Exception as e:  # pragma: no cover - network failure
         text = f"{{\"summary\": \"reflection failed: {e}\", \"useful\": true}}"
 
