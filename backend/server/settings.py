@@ -60,7 +60,7 @@ INSTALLED_APPS = [
     "videos",
     "intel_core",
     "capabilities.dev_docs",
-   
+    "tools",
 ]
 
 # === 🧵 Middleware ===
