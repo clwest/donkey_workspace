@@ -242,3 +242,34 @@ def memory_to_project(request, slug):
         )
 
     return Response({"project_id": str(project.id)}, status=201)
+
+
+@api_view(["POST"])
+def regenerate_project_plan(request, pk):
+    """Regenerate a project's plan from recent memories."""
+    try:
+        project = AssistantProject.objects.get(id=pk)
+    except AssistantProject.DoesNotExist:
+        return Response({"error": "Project not found"}, status=404)
+
+    reason = request.data.get("reason", "memory_shift")
+    project.regenerate_project_plan_from_memory(reason=reason)
+    return Response({"status": "regenerated"})
+
+
+@api_view(["GET"])
+def project_memory_changes(request, pk):
+    """Return recent memory events considered for regeneration."""
+    try:
+        project = AssistantProject.objects.get(id=pk)
+    except AssistantProject.DoesNotExist:
+        return Response({"error": "Project not found"}, status=404)
+
+    memories = MemoryEntry.objects.filter(assistant=project.assistant).order_by(
+        "-created_at"
+    )[:5]
+    data = [
+        {"id": str(m.id), "event": m.event, "importance": m.importance}
+        for m in memories
+    ]
+    return Response(data)

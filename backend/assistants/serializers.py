@@ -240,6 +240,8 @@ class AssistantProjectSerializer(serializers.ModelSerializer):
             "slug",
             "assistant",
             "description",
+            "mood",
+            "memory_shift_score",
             "objectives",
             "milestones",
             "next_actions",
@@ -263,6 +265,8 @@ class ProjectOverviewSerializer(serializers.ModelSerializer):
             "objective_count",
             "active_milestones",
             "summary",
+            "mood",
+            "memory_shift_score",
         ]
 
     def get_objective_count(self, obj):
@@ -387,6 +391,8 @@ class AssistantThoughtLogSerializer(serializers.ModelSerializer):
             "thought_type",
             "role",
             "mood",
+            "event",
+            "source_reason",
             "tags",
             "category",
             "linked_memory",  # UUID only
@@ -589,7 +595,15 @@ class AssistantSerializer(serializers.ModelSerializer):
 class AssistantProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssistantProject
-        fields = ["id", "title", "slug", "status", "created_at"]
+        fields = [
+            "id",
+            "title",
+            "slug",
+            "status",
+            "mood",
+            "memory_shift_score",
+            "created_at",
+        ]
 
 
 class BootstrapResultSerializer(serializers.Serializer):
