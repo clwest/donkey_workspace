@@ -142,6 +142,34 @@ export default function AssistantSessionDetailPage() {
     }
   };
 
+  const handleHandoff = async () => {
+    if (!session) return;
+    const target = prompt("Target assistant slug?");
+    if (!target) return;
+    const reason = prompt("Reason for handoff?", "deep reasoning required") || "";
+    try {
+      await fetch(
+        `http://localhost:8000/api/assistants/${session.assistant_slug}/handoff/`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            target_slug: target,
+            reason,
+            session_id: sessionId,
+          }),
+        }
+      );
+      alert(`Session handed off to ${target}`);
+      const res = await fetch(
+        `http://localhost:8000/api/assistants/sessions/detail/${sessionId}/`
+      ).then((r) => r.json());
+      setSession(res);
+    } catch (err) {
+      alert("Handoff failed");
+    }
+  };
+
   if (loading) return <div className="container my-5">Loading...</div>;
   if (error) return <div className="container my-5 text-danger">Error: {error}</div>;
   if (!session) return null;
@@ -184,6 +212,12 @@ export default function AssistantSessionDetailPage() {
             onClick={loadSummary}
           >
             🧠 View Summary Replay
+          </button>
+          <button
+            className="btn btn-sm btn-outline-warning ms-2"
+            onClick={handleHandoff}
+          >
+            🔁 Handoff to Agent
           </button>
           {hasAudio && (
             <button

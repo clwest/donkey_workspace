@@ -7,11 +7,18 @@ from assistants.utils.delegation import (
     spawn_delegated_assistant,
     should_delegate,
 )
-from assistants.models import Assistant, TokenUsage, ChatSession
+from assistants.models import (
+    Assistant,
+    TokenUsage,
+    ChatSession,
+    AssistantChatMessage,
+    AssistantThoughtLog,
+)
 from assistants.utils.delegation_helpers import get_trust_score
 from memory.models import MemoryEntry
 from memory.serializers import MemoryEntrySerializer
 from assistants.utils.delegation_trace import build_delegation_trace
+from django.utils import timezone
 
 
 @api_view(["GET"])
@@ -233,3 +240,68 @@ def suggest_delegation(request, slug):
         resp["trust_label"] = trust["overall_label"]
 
     return Response({"recommended_assistant": resp})
+
+
+@api_view(["POST"])
+def handoff_session(request, slug):
+    """Transfer an active session to another assistant."""
+    parent = Assistant.objects.filter(slug=slug).first()
+    if not parent:
+        return Response({"error": "Assistant not found"}, status=404)
+
+    target_slug = request.data.get("target_slug")
+    if not target_slug:
+        return Response({"error": "target_slug required"}, status=400)
+    target = Assistant.objects.filter(slug=target_slug).first()
+    if not target:
+        return Response({"error": "Target assistant not found"}, status=404)
+
+    session_id = request.data.get("session_id")
+    session = ChatSession.objects.filter(session_id=session_id).first()
+    if not session:
+        return Response({"error": "Session not found"}, status=404)
+
+    memory_id = request.data.get("memory_context_id")
+    memory = MemoryEntry.objects.filter(id=memory_id).first() if memory_id else None
+    reason = request.data.get("reason", "handoff")
+    end_session = bool(request.data.get("end_session"))
+
+    DelegationEvent.objects.create(
+        parent_assistant=parent,
+        child_assistant=target,
+        triggering_session=session,
+        triggering_memory=memory,
+        reason=reason,
+        handoff=True,
+    )
+
+    if end_session:
+        session.ended_at = timezone.now()
+
+    session.assistant = target
+    session.save()
+
+    message = (
+        f"Conversation transferred to {target.name} due to: {reason}."
+    )
+    AssistantChatMessage.objects.create(
+        session=session,
+        role="assistant",
+        content=message,
+        message_type="system",
+    )
+
+    AssistantThoughtLog.objects.create(
+        assistant=parent,
+        thought=message,
+        thought_type="handoff",
+        narrative_thread=session.narrative_thread,
+    )
+    AssistantThoughtLog.objects.create(
+        assistant=target,
+        thought=f"Resumed session from {parent.name}",
+        thought_type="resumed_session",
+        narrative_thread=session.narrative_thread,
+    )
+
+    return Response({"new_assistant": target.slug})

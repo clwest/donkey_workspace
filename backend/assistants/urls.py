@@ -301,6 +301,11 @@ urlpatterns = [
         delegations.suggest_delegation,
         name="assistant-suggest-delegation",
     ),
+    path(
+        "<slug:slug>/handoff/",
+        delegations.handoff_session,
+        name="assistant-handoff",
+    ),
     path("<slug:slug>/reflections/recent/", thoughts.get_recent_reflections),
     path(
         "<slug:slug>/reflections/",
