@@ -68,6 +68,11 @@ def save_document_to_db(content, metadata, session_id=None):
         slug = generate_unique_slug(title)
         session_id = metadata.get("session_id", session_id)
 
+        if not metadata.get("source_url"):
+            file_hint = metadata.get("source_path") or title
+            metadata["source_url"] = f"uploaded://{file_hint}"
+            logger.info(f"ℹ️ source_url missing, using placeholder {metadata['source_url']}")
+
         logger.info(f"Session ID before querying: {session_id} | Type: {type(session_id)}")
 
         if isinstance(session_id, str):
@@ -125,7 +130,9 @@ def save_document_to_db(content, metadata, session_id=None):
 def process_pdfs(pdf, pdf_title, project_name, session_id):
     logger = logging.getLogger("django")
     try:
-        logger.info(f"📄 Processing PDF: {pdf_title}")
+        chunk_idx = pdf.metadata.get("chunk_index")
+        total_chunks = pdf.metadata.get("total_chunks")
+        logger.info(f"📄 Processing PDF: {pdf_title} [chunk {chunk_idx}/{total_chunks}]")
         cleaned_text = clean_text(pdf.page_content)
         lemmatized_text = lemmatize_text(cleaned_text, nlp)
 
@@ -134,6 +141,9 @@ def process_pdfs(pdf, pdf_title, project_name, session_id):
             "project": project_name,
             "source_type": "pdf",
             "session_id": session_id,
+            "chunk_index": chunk_idx,
+            "total_chunks": total_chunks,
+            "source_path": pdf.metadata.get("source_path"),
         }
 
         # Add summary
@@ -143,15 +153,20 @@ def process_pdfs(pdf, pdf_title, project_name, session_id):
         logger.info(f"🔍 PDF metadata: {metadata_dict}")
 
         document = save_document_to_db(lemmatized_text, metadata_dict, session_id)
-        logger.info(f"✅ PDF processed and saved: {pdf_title}")
+        if document is None:
+            logger.error(
+                f"❌ Failed to save PDF chunk {chunk_idx}/{total_chunks} for '{pdf_title}'"
+            )
+            return None
+
+        logger.info(f"✅ PDF processed and saved: {pdf_title} [chunk {chunk_idx}/{total_chunks}]")
 
         return document
     except Exception as e:
-        logger.error(f"❌ Error processing PDF: {str(e)}")
-        return Document(
-            content="Error processing PDF content",
-            metadata={"title": pdf_title, "error": str(e)},
+        logger.exception(
+            f"❌ Exception processing PDF chunk {pdf_title} [chunk {chunk_idx}/{total_chunks}]: {e}"
         )
+        return None
 
 
 # Process URLs
