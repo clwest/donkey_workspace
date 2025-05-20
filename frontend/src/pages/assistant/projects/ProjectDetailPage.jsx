@@ -44,6 +44,10 @@ export default function ProjectDetailPage() {
 
   // === Initial Project + Memories ===
   useEffect(() => {
+    if (!id) {
+      console.warn("ProjectDetailPage: missing project id");
+      return;
+    }
     async function loadInitialData() {
       try {
         const [projectData, memoryList, linkedList, assistantsList] = await Promise.all([
@@ -68,6 +72,10 @@ export default function ProjectDetailPage() {
 
   // === Thoughts ===
   useEffect(() => {
+    if (!id) {
+      console.warn("ProjectDetailPage: missing project id");
+      return;
+    }
     const loadThoughts = async () => {
       try {
         const thoughtsRes = await apiFetch(`/assistants/projects/${id}/thoughts/`);

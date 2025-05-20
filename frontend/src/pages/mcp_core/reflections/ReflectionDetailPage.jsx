@@ -10,6 +10,10 @@ export default function ReflectionDetailPage() {
   const [thoughts, setThoughts] = useState([]);
 
   useEffect(() => {
+    if (!id) {
+      console.warn("ReflectionDetailPage: missing reflection id");
+      return;
+    }
     fetch(`http://localhost:8000/api/mcp/reflections/${id}/`)
       .then(res => res.json())
       .then(data => {
