@@ -20,7 +20,7 @@ from memory.models import MemoryEntry, ReflectionFlag
 from mcp_core.models import MemoryContext
 from assistants.models import ChatSession
 from assistants.helpers.logging_helper import log_assistant_thought
-from assistants.helpers.mood import detect_mood
+from assistants.helpers.mood import detect_mood, update_mood_stability
 from assistants.helpers.delegation import spawn_delegated_assistant
 from mcp_core.utils.auto_tag_from_embedding import auto_tag_from_embedding
 from embeddings.helpers.helpers_io import save_embedding, get_embedding_for_text
@@ -128,6 +128,7 @@ Memories:
         log.linked_memory = memory
         log.save()
         log.linked_memories.add(memory)
+        update_mood_stability(self.assistant, mood)
 
         # 🔁 Cache thought
         existing = get_cached_thoughts(self.assistant.slug) or []

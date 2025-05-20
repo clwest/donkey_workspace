@@ -260,6 +260,7 @@ def list_memories(request):
     assistant_slug = request.GET.get("assistant_slug")
     is_conversation = request.GET.get("is_conversation")
     project_id = request.GET.get("project_id")
+    emotion = request.GET.get("emotion")
 
     if assistant_slug:
         queryset = queryset.filter(linked_thought__assistant__slug=assistant_slug)
@@ -269,6 +270,9 @@ def list_memories(request):
 
     if project_id:
         queryset = queryset.filter(related_project_id=project_id)
+
+    if emotion:
+        queryset = queryset.filter(emotion=emotion)
 
     serializer = MemoryEntrySerializer(queryset, many=True)
     return Response(serializer.data)

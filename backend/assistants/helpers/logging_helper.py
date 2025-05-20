@@ -1,5 +1,5 @@
 from assistants.models import AssistantThoughtLog
-from .mood import detect_mood
+from .mood import detect_mood, update_mood_stability
 
 
 def log_assistant_thought(
@@ -28,4 +28,5 @@ def log_assistant_thought(
     )
     if linked_memories:
         log.linked_memories.set(linked_memories)
+    update_mood_stability(assistant, mood)
     return log

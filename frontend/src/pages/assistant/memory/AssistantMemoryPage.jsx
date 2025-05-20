@@ -8,17 +8,19 @@ import ThoughtCloudPanel from "../../../components/assistant/memory/ThoughtCloud
 export default function AssistantMemoryPage() {
   const { slug } = useParams();
   const [memories, setMemories] = useState([]);
-  const [summary, setSummary] = useState(null);
+
 
   useEffect(() => {
     async function fetchMemories() {
-      const res = await apiFetch(`/memory/list?assistant=${slug}`);
+      let url = `/memory/list?assistant_slug=${slug}`;
+      if (filterMood) url += `&emotion=${filterMood}`;
+      const res = await apiFetch(url);
       setMemories(res);
       const sum = await apiFetch(`/assistants/${slug}/memory/summary/`);
       setSummary(sum);
     }
     fetchMemories();
-  }, [slug]);
+  }, [slug, filterMood]);
 
   async function handleMutate(id, style) {
     try {
@@ -33,6 +35,22 @@ export default function AssistantMemoryPage() {
   return (
     <div className="container my-5">
       <h1>🧠 Memories Linked to {slug}</h1>
+      {assistant && assistant.mood_stability_index < 0.5 && (
+        <div className="mb-3" style={{ maxWidth: "200px" }}>
+          <select
+            className="form-select form-select-sm"
+            value={filterMood}
+            onChange={(e) => setFilterMood(e.target.value)}
+          >
+            <option value="">All moods</option>
+            <option value="anxious">Anxious</option>
+            <option value="frustrated">Frustrated</option>
+            <option value="optimistic">Optimistic</option>
+            <option value="confident">Confident</option>
+            <option value="neutral">Neutral</option>
+          </select>
+        </div>
+      )}
 
       {summary && (
         <div className="mb-4">
