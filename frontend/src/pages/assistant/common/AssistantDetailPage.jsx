@@ -3,6 +3,8 @@ import { useParams, Link, useLocation } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
 import PrimaryStar from "../../../components/assistant/PrimaryStar";
 import MoodStabilityGauge from "../../../components/assistant/MoodStabilityGauge";
+import DriftScoreChart from "../../../components/assistant/DriftScoreChart";
+import { runDriftCheck } from "../../../api/assistants";
 import { toast } from "react-toastify";
 import "./styles/AssistantDetail.css";
 
@@ -63,6 +65,9 @@ export default function AssistantDetailPage() {
         <MoodStabilityGauge msi={assistant.mood_stability_index} />
       </h1>
       <p className="text-muted">Assistant Details Page</p>
+      {assistant.recent_drift && (
+        <div className="alert alert-warning">🧬 Drift Detected: {assistant.recent_drift.summary}</div>
+      )}
 
       <div className="mb-4">
         <p>
@@ -267,6 +272,13 @@ export default function AssistantDetailPage() {
         </div>
       )}
 
+      {assistant.drift_logs && assistant.drift_logs.length > 0 && (
+        <div className="mt-4">
+          <h5>🧬 Drift Over Time</h5>
+          <DriftScoreChart logs={assistant.drift_logs} />
+        </div>
+      )}
+
       <hr />
       <h4>🪪 Identity</h4>
       <p>
@@ -301,6 +313,21 @@ export default function AssistantDetailPage() {
         }}
       >
         Reflect on Self
+      </button>
+      <button
+        className="btn btn-outline-warning mb-3 ms-2"
+        onClick={async () => {
+          try {
+            await runDriftCheck(slug);
+            const data = await apiFetch(`/assistants/${slug}/`);
+            setAssistant(data);
+            toast.info("Drift analysis complete");
+          } catch (err) {
+            toast.error("Drift check failed");
+          }
+        }}
+      >
+        Check Drift
       </button>
 
       <h4>🧠 Summary at a Glance</h4>

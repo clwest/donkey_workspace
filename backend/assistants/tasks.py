@@ -273,3 +273,23 @@ def delegation_health_check():
                 thought=f"Agent had {failures} failures in last week. Avg score {avg:.2f}",
             )
 
+
+@shared_task
+def run_specialization_drift_checks():
+    """Run drift analysis for all active assistants."""
+    from assistants.utils.drift_detection import analyze_drift_for_assistant
+
+    for assistant in Assistant.objects.filter(is_active=True):
+        analyze_drift_for_assistant(assistant)
+
+
+@shared_task
+def run_drift_check_for_assistant(assistant_id: str):
+    """Run drift check for a single assistant."""
+    from assistants.utils.drift_detection import analyze_drift_for_assistant
+
+    assistant = Assistant.objects.filter(id=assistant_id).first()
+    if assistant:
+        log = analyze_drift_for_assistant(assistant)
+        return str(log.id) if log else None
+

@@ -15,6 +15,7 @@ from .models import (
     ChatSession,
     AssistantNextAction,
     ProjectPlanningLog,
+    SpecializationDriftLog,
     DelegationEvent,
     SessionHandoff,
     AssistantSkill,
@@ -189,6 +190,13 @@ class ProjectPlanningLogSerializer(serializers.ModelSerializer):
         return str(obj.related_object) if obj.related_object else None
 
 
+class SpecializationDriftLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SpecializationDriftLog
+        fields = ["id", "score", "summary", "created_at"]
+        read_only_fields = fields
+
+
 class AssistantNextActionSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssistantNextAction
@@ -352,6 +360,8 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
     skills = AssistantSkillSerializer(many=True, read_only=True)
     source_document_title = serializers.SerializerMethodField()
     source_document_url = serializers.SerializerMethodField()
+    drift_logs = SpecializationDriftLogSerializer(many=True, read_only=True)
+    recent_drift = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -381,6 +391,8 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             "mood_stability_index",
             "child_assistants",
             "skills",
+            "drift_logs",
+            "recent_drift",
             "source_document_title",
             "source_document_url",
             "created_at",
@@ -397,6 +409,15 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
     def get_source_document_url(self, obj):
         doc = obj.documents.first()
         return doc.source_url if doc else None
+
+    def get_recent_drift(self, obj):
+        from django.utils import timezone
+        from datetime import timedelta
+
+        log = obj.drift_logs.order_by("-created_at").first()
+        if log and log.created_at >= timezone.now() - timedelta(days=1):
+            return SpecializationDriftLogSerializer(log).data
+        return None
 
 
 # serializers.py

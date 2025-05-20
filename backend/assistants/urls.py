@@ -416,5 +416,10 @@ urlpatterns = [
         memory.simulate_memory,
         name="assistant-simulate-memory",
     ),
+    path(
+        "<slug:slug>/drift-check/",
+        assistants.drift_check,
+        name="assistant-drift-check",
+    ),
     path("<slug:slug>/", assistants.assistant_detail_view, name="assistant-detail"),
 ]

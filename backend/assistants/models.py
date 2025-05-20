@@ -136,6 +136,10 @@ class Assistant(models.Model):
     embedding = VectorField(
         dimensions=1536, null=True, blank=True
     )  # adjust dim if needed
+    initial_embedding = VectorField(
+        dimensions=1536, null=True, blank=True
+    )
+    last_drift_check = models.DateTimeField(null=True, blank=True)
     documents = models.ManyToManyField(
         "intel_core.Document", blank=True, related_name="linked_assistants"
     )
@@ -175,6 +179,11 @@ class Assistant(models.Model):
 
         self.full_clean()
         super().save(*args, **kwargs)
+
+        if not self.initial_embedding and self.embedding is not None:
+            Assistant.objects.filter(id=self.id).update(
+                initial_embedding=self.embedding
+            )
 
         if self.is_primary:
             AssistantThoughtLog.objects.get_or_create(
@@ -764,6 +773,25 @@ class ProjectPlanningLog(models.Model):
     def __str__(self):
         return f"{self.event_type} @ {self.timestamp.strftime('%Y-%m-%d %H:%M')}"
 
+
+class SpecializationDriftLog(models.Model):
+    """Record of detected specialization drift for an assistant."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="drift_logs",
+    )
+    score = models.FloatField(help_text="Drift score 0..1 where 1=high drift")
+    summary = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display only
+        return f"Drift {self.score:.2f} @ {self.created_at.strftime('%Y-%m-%d')}"
 
 # backend/assistants/models.py
 class SignalSource(models.Model):
