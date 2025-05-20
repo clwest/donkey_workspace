@@ -6,94 +6,91 @@
 
 ### Highlights Completed:
 
-- Introduced `is_primary` flag to Assistant model
-- Created `/assistants/primary/` endpoint and dashboard view
-- Seeded **DonkGPT** as the primary orchestrator assistant
-- Connected memory feed, reflection, and delegation log to the Primary Assistant page
-- Added spawn agent buttons to memory entries
-- Bootstrapped assistants from documents with full linking (assistant ↔ prompt ↔ document ↔ project)
-- Validated prompt diagnostics and session logs
-
-### Tools Now Active:
-
-- ✅ Primary Assistant Reflection
-- ✅ Memory feed + token summary
-- ✅ Delegation log API
-- ✅ Assistant spawn from memory or document
-- ✅ Thought logging and prompt assignment
+- ✅ Introduced `is_primary` flag to Assistant model
+- ✅ Created `/assistants/primary/` endpoint and dashboard view
+- ✅ Seeded **DonkGPT** as the primary orchestrator assistant
+- ✅ Connected memory feed, reflection, and delegation log to Primary Assistant view
+- ✅ Bootstrapped assistants from documents (assistant ↔ prompt ↔ document ↔ project)
+- ✅ Added spawn agent buttons to memory entries
+- ✅ Built out reflection + delegation endpoints and views
+- ✅ Assistant detail views now show reflection, mood, thoughts, and memory
 
 ---
 
 ## 🚀 Phase 3: Contextual Memory, Task Planning & Project Linking
 
-We’re now entering **Phase 3**, focused on deepening assistants' long-term memory and giving them structured task/project planning.
-
-### 📌 Goals:
-
-- Link Assistants ↔ Projects ↔ Objectives
-- Allow Assistants to manage project tasks and milestones
-- Store and retrieve contextual thoughts using memory chains
-- Visualize assistant-level reasoning across sessions
-- Reflect on milestones and propose new actions
+We are now in **Phase 3**, focused on deepening long-term memory, task planning, and assistant collaboration.
 
 ---
 
-## 📋 Phase 3: Codex Task Seeds
+### 📌 Core Milestones Completed (Phase 3.0–3.32):
 
-Below are Codex-ready task stubs to continue building Phase 3:
-
----
-
-### 1. Link Assistants to Projects
-
-- Extend Assistant dashboard to show linked `AssistantProject`
-- Add “Assign Project” dropdown to `/assistants/:slug/`
-- Track `current_project` on each assistant and scope memory views
-- Show project summary: objectives, task count, milestones
-
----
-
-### 2. Project Objective Planning
-
-- Add `/objectives/create/` form with Assistant + Project context
-- Log AssistantThought when creating new objectives
-- Reflect on existing objectives to prioritize or spawn actions
+- ✅ Assistants linked to Projects + Objectives
+- ✅ AssistantMemoryChain linked and editable with reflection filters
+- ✅ Reflection reuse, feedback categorization, and prompt mutation
+- ✅ Agents can spawn with inheritance of thread + memory context
+- ✅ Hierarchical thought → project → milestone planning flow
+- ✅ Delegation log, trust scores, and agent status summaries
+- ✅ Multi-assistant project views with memory/role summaries
+- ✅ Conversational session browser + replay
+- ✅ Assistant mood tracking + tone-aware reflection
+- ✅ Assistant personality and custom traits model
+- ✅ Emotional memory mapping and mood-based planning shifts
+- ✅ Thought-based objective generation and evolution
+- ✅ Dream Mode: speculative planning thoughts
 
 ---
 
-### 3. Assistant Memory Chain View
+## 📋 Current Phase 3 Task Seeds (3.33 → 3.40)
 
-- Create frontend view for each assistant’s `MemoryChain`
-- Show recent linked memories, context filters, and token stats
-- Add edit buttons to update filters, mood, or purpose
+These are active or queued for Codex tasks.
 
 ---
 
-### 4. Auto-Reflect on Project Milestones
+### 3.33: Agent Success Review + Task Reintegration
 
-- When milestone marked complete, trigger Assistant reflection
-- Log summary as AssistantThought and store insight in `ReflectionLog`
-
----
-
-### 5. Spawn Delegated Agents for Tasks
-
-- Add button to spawn agent from objective or milestone
-- Auto-name agent after objective (e.g., “Milestone Research Agent”)
-- Log DelegationEvent with links to memory, milestone, and parent assistant
+- Summarize completed agents and integrate memory into parent
+- Reflect on completed delegation outcomes
+- Link final output back to originating AssistantObjective
 
 ---
 
-### 6. Improve Primary Assistant Workflow
+### 3.34: Memory Validation Interface
 
-- Add “Incoming Tasks” view for DonkGPT
-- Display new memory patterns, recent reflections, and agents spawned
-- Enable drag/drop task assignment or link memory to projects
+- Create UI for reviewing assistant memories
+- Allow rating, editing, or flagging of memory events
+- Support reflection reuse or suppression
+
+---
+
+### 3.35: Assistant Planning Timeline View
+
+- Add Gantt-style or timeline view to ProjectDetailPage
+- Display milestones, tasks, reflections, and assistant thoughts
+
+---
+
+### 3.36: Thought Tag Training + Context Embedding
+
+- Train model on user-defined thought tags
+- Suggest tags in UI based on recent entries
+- Embed contextually tagged thoughts for rapid lookup
+
+---
+
+### 3.37: Reflection Reprioritization + Auto-Summarization
+
+- Add endpoint to re-cluster and reprioritize recent reflections
+- Auto-group related thoughts and prompt assistant to summarize
+- Integrate with mood/memory tags for prioritization
 
 ---
 
 ## 🧭 Next Steps
 
-- [ ] Update AGENTS.md with current tasks weekly
-- [ ] Open Codex tasks using these stubs
-- [ ] Link new files and components to `/docs/dev/` as needed
+- [ ] Open Codex tasks for 3.33–3.37
+- [ ] Confirm frontend alignment with new data APIs
+- [ ] Expand `AssistantPersonality`, `MoodEntry`, and `MemoryTrait` models
+- [ ] Add `/docs/dev/phase3/*` overview + visuals
+
+---
