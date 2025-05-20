@@ -11,6 +11,7 @@ from .models import (
     DelegationStrategy,
     SessionHandoff,
     AssistantMemoryChain,
+    SpecializationDriftLog,
 )
 from memory.models import MemoryEntry
 from mcp_core.models import Tag
@@ -162,6 +163,13 @@ class DelegationEventAdmin(admin.ModelAdmin):
 class SessionHandoffAdmin(admin.ModelAdmin):
     list_display = ("from_assistant", "to_assistant", "session", "created_at")
     list_filter = ("created_at",)
+
+
+@admin.register(SpecializationDriftLog)
+class SpecializationDriftLogAdmin(admin.ModelAdmin):
+    list_display = ("assistant", "drift_score", "trigger_type", "timestamp")
+    list_filter = ("trigger_type", "auto_flagged", "resolved")
+    search_fields = ("assistant__name", "summary")
 
 
 @admin.register(DelegationStrategy)
