@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import apiFetch from "../../utils/apiClient";
 import { toast } from "react-toastify";
 
@@ -9,6 +9,14 @@ export default function DocumentIngestionForm({ onSuccess }) {
   const [tags, setTags] = useState("");
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(null);
+  const pollRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, []);
 
     const handleSubmit = async (e) => {
     e.preventDefault();
@@ -45,6 +53,24 @@ export default function DocumentIngestionForm({ onSuccess }) {
         });
         if (!uploadRes.ok) throw new Error("API Error");
         res = await uploadRes.json();
+        const first = res.documents && res.documents[0];
+        const progressId = first?.metadata?.progress_id;
+        if (progressId) {
+          pollRef.current = setInterval(async () => {
+            try {
+              const data = await apiFetch(`/intel/documents/${progressId}/progress/`);
+              setProgress(data);
+              if (data.status !== "in_progress" && pollRef.current) {
+                clearInterval(pollRef.current);
+                pollRef.current = null;
+              }
+            } catch (err) {
+              console.error("Progress polling failed", err);
+              clearInterval(pollRef.current);
+              pollRef.current = null;
+            }
+          }, 2000);
+        }
         } else if (urlInput.trim()) {
         payload.urls = urlInput
             .split(",")
@@ -144,6 +170,26 @@ export default function DocumentIngestionForm({ onSuccess }) {
       <button className="btn btn-primary" type="submit" disabled={loading}>
         {loading ? "Uploading..." : "📥 Ingest Sources"}
       </button>
+
+      {progress && (
+        <div className="mt-3">
+          <div className="progress">
+            <div
+              className="progress-bar"
+              role="progressbar"
+              style={{ width: `${(progress.processed / progress.total_chunks) * 100}%` }}
+              aria-valuenow={progress.processed}
+              aria-valuemin="0"
+              aria-valuemax={progress.total_chunks}
+            ></div>
+          </div>
+          <small className="text-muted">
+            {progress.status === "completed"
+              ? `✅ ${progress.processed}/${progress.total_chunks} complete`
+              : `📄 Processing chunk ${progress.processed}/${progress.total_chunks}...`}
+          </small>
+        </div>
+      )}
     </form>
   );
 }

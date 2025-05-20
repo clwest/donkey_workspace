@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Document, DocumentInteraction, JobStatus
+from .models import Document, DocumentInteraction, JobStatus, DocumentProgress
 
 
 @admin.register(Document)
@@ -26,3 +26,10 @@ class JobStatusAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         # Jobs should only be created by the system
         return False
+
+
+@admin.register(DocumentProgress)
+class DocumentProgressAdmin(admin.ModelAdmin):
+    list_display = ("progress_id", "title", "status", "processed", "total_chunks")
+    readonly_fields = ("progress_id", "created_at", "updated_at")
+    list_filter = ("status", "created_at")

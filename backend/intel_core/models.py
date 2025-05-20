@@ -142,3 +142,28 @@ class JobStatus(models.Model):
 
     def __str__(self):
         return f"Job {self.job_id} - {self.status} ({self.progress}%)"
+
+
+class DocumentProgress(models.Model):
+    """Tracks chunking progress for large documents like PDFs."""
+
+    progress_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=255, blank=True)
+    total_chunks = models.IntegerField(default=0)
+    processed = models.IntegerField(default=0)
+    failed_chunks = ArrayField(models.IntegerField(), default=list, blank=True)
+    status = models.CharField(
+        max_length=20,
+        default="pending",
+        choices=[
+            ("pending", "Pending"),
+            ("in_progress", "In Progress"),
+            ("completed", "Completed"),
+            ("failed", "Failed"),
+        ],
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.title} - {self.processed}/{self.total_chunks}"

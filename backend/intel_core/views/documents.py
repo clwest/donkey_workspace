@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
-from intel_core.models import Document, DocumentFavorite
+from intel_core.models import Document, DocumentFavorite, DocumentProgress
 from intel_core.serializers import DocumentSerializer
 from prompts.utils.token_helpers import count_tokens, smart_chunk_prompt
 from django.db.models import OuterRef, Subquery, Exists
@@ -158,3 +158,23 @@ def list_grouped_documents(request):
         })
 
     return Response(results)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def document_progress_view(request, pk):
+    """Return chunking progress for a document group."""
+    try:
+        progress = DocumentProgress.objects.get(progress_id=pk)
+    except DocumentProgress.DoesNotExist:
+        return Response({"error": "Progress not found"}, status=404)
+
+    data = {
+        "document_id": str(progress.progress_id),
+        "title": progress.title,
+        "total_chunks": progress.total_chunks,
+        "processed": progress.processed,
+        "failed_chunks": progress.failed_chunks,
+        "status": progress.status,
+    }
+    return Response(data)
