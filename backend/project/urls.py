@@ -1,7 +1,12 @@
 # project/urls.py
 
 from rest_framework.routers import DefaultRouter
-from .views import ProjectViewSet
+from .views import (
+    ProjectViewSet,
+    assign_role,
+    team_memory,
+    team_reflections,
+)
 from django.urls import path
 from story.views import ProjectStoriesViewSet
 
@@ -26,5 +31,12 @@ urlpatterns = router.urls + [
             }
         ),
         name="project-stories-detail",
+    ),
+    path("projects/<uuid:id>/assign_role/", assign_role, name="assign-role"),
+    path("projects/<uuid:id>/team_memory/", team_memory, name="team-memory"),
+    path(
+        "projects/<uuid:id>/team_reflections/",
+        team_reflections,
+        name="team-reflections",
     ),
 ]

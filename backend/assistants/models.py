@@ -797,6 +797,29 @@ class AssistantMemoryChain(models.Model):
     prompts = models.ManyToManyField(Prompt, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    is_team_chain = models.BooleanField(default=False)
+    team_members = models.ManyToManyField(
+        "assistants.Assistant",
+        blank=True,
+        related_name="team_memory_chains",
+    )
+    linked_project = models.ForeignKey(
+        "project.Project",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="team_memory_chains",
+    )
+    shared_tags = ArrayField(models.CharField(max_length=50), default=list, blank=True)
+    VISIBILITY_CHOICES = [
+        ("all", "All"),
+        ("assigned_only", "Assigned Only"),
+        ("owner_only", "Owner Only"),
+    ]
+    visibility_scope = models.CharField(
+        max_length=20, choices=VISIBILITY_CHOICES, default="all"
+    )
+
 
 class AssistantReflectionInsight(models.Model):
     """Insight gathered from a reflection linked to a document."""

@@ -64,6 +64,9 @@ def create_memory_from_chat(
     embed_and_tag_memory.delay(memory.id)
     run_assistant_reflection.delay(memory.id)
     detect_emotional_resonance.delay(str(memory.id))
+    from .team_memory import propagate_memory_to_team_chain
+
+    propagate_memory_to_team_chain(memory)
     return memory
 
 

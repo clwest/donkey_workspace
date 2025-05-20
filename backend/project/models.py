@@ -35,7 +35,6 @@ class MilestoneStatus(models.TextChoices):
 
 class Project(models.Model):
 
-
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="projects"
@@ -55,6 +54,17 @@ class Project(models.Model):
     participants = models.ManyToManyField(
         settings.AUTH_USER_MODEL, related_name="collaborative_projects", blank=True
     )
+    team = models.ManyToManyField(
+        "assistants.Assistant", related_name="team_projects", blank=True
+    )
+    team_chain = models.ForeignKey(
+        "assistants.AssistantMemoryChain",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="team_projects",
+    )
+    roles = models.JSONField(default=dict, blank=True)
 
     # Project fields
     project_type = models.CharField(
@@ -68,7 +78,7 @@ class Project(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="linked_projects"
+        related_name="linked_projects",
     )
     narrative_thread = models.ForeignKey(
         "mcp_core.NarrativeThread",
@@ -145,9 +155,10 @@ class Project(models.Model):
 
 class ProjectTask(models.Model):
 
-
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    project = models.ForeignKey("project.Project", related_name="core_tasks", on_delete=models.CASCADE)
+    project = models.ForeignKey(
+        "project.Project", related_name="core_tasks", on_delete=models.CASCADE
+    )
     title = models.CharField(max_length=255)
     notes = models.TextField(blank=True)
     content = models.TextField()
@@ -162,7 +173,6 @@ class ProjectTask(models.Model):
 
 
 class ProjectMilestone(models.Model):
-
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     project = models.ForeignKey(
@@ -189,6 +199,7 @@ class ProjectMilestone(models.Model):
 class ProjectMemoryLink(models.Model):
     """Links a project to a memory entry with an optional reason and
     timestamp."""
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     project = models.ForeignKey(
         "project.Project", on_delete=models.CASCADE, related_name="linked_memories"

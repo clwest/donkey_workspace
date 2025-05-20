@@ -6,11 +6,14 @@ import "../styles/MemoryBrowserPage.css";
 export default function MemoryBrowserPage() {
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [scope, setScope] = useState("personal");
 
   useEffect(() => {
     async function fetchMemories() {
       try {
-        const res = await fetch("http://localhost:8000/api/memory/list/");
+        const res = await fetch(
+          `http://localhost:8000/api/memory/list/?scope=${scope}`
+        );
         const data = await res.json();
         console.log(data)
         const grouped = {};
@@ -42,7 +45,7 @@ export default function MemoryBrowserPage() {
     }
 
     fetchMemories();
-  }, []);
+  }, [scope]);
 
   if (loading) {
     return <div className="container my-5">Loading memories...</div>;
@@ -51,6 +54,17 @@ export default function MemoryBrowserPage() {
   return (
     <div className="container my-5">
       <h1 className="mb-4 display-5 fw-bold">🧠 Saved Conversations</h1>
+      <div className="mb-3">
+        <select
+          className="form-select w-auto"
+          value={scope}
+          onChange={(e) => setScope(e.target.value)}
+        >
+          <option value="personal">Personal</option>
+          <option value="team">Team</option>
+          <option value="all">All</option>
+        </select>
+      </div>
 
       {conversations.length === 0 ? (
         <p className="text-muted">No memory conversations found. Start chatting with an assistant!</p>
