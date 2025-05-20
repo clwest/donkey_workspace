@@ -250,18 +250,22 @@ export default function AssistantDetailPage() {
       <div className="mb-4">
         <h6>🔗 Link Document</h6>
         <form onSubmit={handleLinkDocument} className="d-flex align-items-end gap-2">
-          <select
-            className="form-select"
-            value={selectedDoc}
-            onChange={(e) => setSelectedDoc(e.target.value)}
-          >
-            <option value="">Select document</option>
-            {availableDocs.map((d) => (
-              <option key={d.id} value={d.id}>
-                {`${d.title} (${d.source_type?.toUpperCase()}, ${d.chunk_count} chunks)`}
-              </option>
-            ))}
-          </select>
+          {availableDocs.length > 0 ? (
+            <select
+              className="form-select"
+              value={selectedDoc}
+              onChange={(e) => setSelectedDoc(e.target.value)}
+            >
+              <option value="">Select document</option>
+              {availableDocs.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {`${d.title} (${d.source_type?.toUpperCase()}, ${d.chunk_count} chunks)`}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <p className="mb-0 text-muted">No documents available</p>
+          )}
           <div className="form-check ms-2">
             <input
               className="form-check-input"
