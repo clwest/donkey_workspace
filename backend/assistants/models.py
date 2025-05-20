@@ -38,6 +38,7 @@ THOUGHT_TYPES = [
     ("self_doubt", "Self Doubt"),
     ("prompt_clarification", "Prompt Clarification"),
     ("delegation_suggestion", "Delegation Suggestion"),
+    ("identity_reflection", "Identity Reflection"),
 ]
 
 MEMORY_MODES = [

@@ -641,6 +641,57 @@ def self_reflect(request, slug):
 
 
 @api_view(["POST"])
+def self_assess(request, slug):
+    """Run identity alignment assessment for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+
+    system_prompt = assistant.system_prompt.content if assistant.system_prompt else ""
+    personality = assistant.personality or ""
+    tone = assistant.tone or ""
+    recent = (
+        AssistantThoughtLog.objects.filter(assistant=assistant)
+        .order_by("-created_at")[:20]
+    )
+    thought_lines = "\n".join(f"- {t.thought}" for t in recent)
+    documents = ", ".join(d.title for d in assistant.documents.all()[:5])
+
+    prompt = f"""You are an introspection engine assessing an AI assistant.\n\nSystem Prompt:\n{system_prompt}\n\nPersonality: {personality}\nTone: {tone}\nLinked Documents: {documents}\n\nRecent Thoughts:\n{thought_lines}\n\nAnswer the following questions:\n1. How well does this assistant's recent behavior align with its stated identity?\n2. Are there any signs of drift in tone, personality, or focus?\n3. What refinements to role, tone, or specialties would improve alignment?\n\nRespond in JSON with keys: score, role, prompt_tweaks, summary."""
+
+    try:
+        raw = call_llm([{"role": "user", "content": prompt}], model=assistant.preferred_model or "gpt-4o")
+    except Exception as e:
+        logger.error("Self assessment failed", exc_info=True)
+        return Response({"error": str(e)}, status=500)
+
+    summary = raw
+    details = {}
+    if "{" in raw:
+        try:
+            json_part = raw[raw.index("{") : raw.rindex("}") + 1]
+            summary = raw[: raw.index("{")].strip() or summary
+            details = json.loads(json_part)
+        except Exception:
+            details = {}
+
+    log = AssistantThoughtLog.objects.create(
+        assistant=assistant,
+        thought=summary,
+        thought_type="identity_reflection",
+        thought_trace=json.dumps(details),
+    )
+
+    response_data = {
+        "score": details.get("score"),
+        "role": details.get("role"),
+        "prompt_tweaks": details.get("prompt_tweaks"),
+        "summary": details.get("summary", summary),
+        "thought_id": str(log.id),
+    }
+
+    return Response(response_data)
+
+
+@api_view(["POST"])
 @permission_classes([AllowAny])
 def drift_check(request, slug):
     assistant = get_object_or_404(Assistant, slug=slug)
