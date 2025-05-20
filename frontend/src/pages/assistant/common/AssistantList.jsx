@@ -4,14 +4,18 @@ import { Link } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
 import PrimaryStar from "../../../components/assistant/PrimaryStar";
 
-export default function AssistantList() {
-  const [assistants, setAssistants] = useState([]);
+export default function AssistantList({ assistants: propAssistants }) {
+  const [assistants, setAssistants] = useState(propAssistants || []);
 
   useEffect(() => {
-    apiFetch("/assistants/")
-      .then(setAssistants)
-      .catch((err) => console.error("Failed to fetch assistants:", err));
-  }, []);
+    if (!propAssistants) {
+      apiFetch("/assistants/")
+        .then(setAssistants)
+        .catch((err) => console.error("Failed to fetch assistants:", err));
+    } else {
+      setAssistants(propAssistants);
+    }
+  }, [propAssistants]);
 
   // Group by parent
   const parentMap = {};
@@ -36,18 +40,23 @@ export default function AssistantList() {
       <h2>🧠 Available Assistants</h2>
       <ul className="list-group">
         {groups.map(({ parent, children }) => (
-          <li key={parent.id} className="list-group-item">
-            <Link to={`/assistants/${parent.slug}`}>
-
+          <li key={parent.id} className="list-group-item shadow-sm p-3">
+            <Link to={`/assistants/${parent.slug}`} className="fw-bold text-decoration-none">
+              {parent.name} <PrimaryStar isPrimary={parent.is_primary} />
             </Link>
-            <p className="text-muted mb-1">{parent.description}</p>
+            <p className="text-muted mb-1">
+              {parent.description || `${parent.name} (${parent.slug})`}
+            </p>
 
             {children.length > 0 && (
               <ul className="ps-3">
                 {children.map((child) => (
-                  <li key={child.id}>
-                    <Link to={`/assistants/${child.slug}`}>
-
+                  <li key={child.id} className="my-1">
+                    <Link
+                      to={`/assistants/${child.slug}`}
+                      className="text-decoration-none"
+                    >
+                      {child.name}
                     </Link>
                     <span className="text-muted ms-1">({child.specialty})</span>
                   </li>

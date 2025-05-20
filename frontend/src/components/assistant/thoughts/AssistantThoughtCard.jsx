@@ -21,13 +21,19 @@ export default function AssistantThoughtCard({
   color = "secondary",
   icon,
 }) {
-  if (!thought || !thought.thought) {
+  if (!thought) {
+    console.warn("AssistantThoughtCard missing thought prop");
+    return <div className="alert alert-warning">⚠️ Invalid thought object.</div>;
+  }
+
+  if (!thought.summary && !thought.thought) {
+    console.warn("Invalid thought object", thought);
     return <div className="alert alert-warning">⚠️ Invalid thought object.</div>;
   }
 
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState(thought.thought);
+  const [editValue, setEditValue] = useState(thought.thought || thought.summary || "");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [feedbackValue, setFeedbackValue] = useState(thought.feedback || "");
@@ -119,10 +125,9 @@ export default function AssistantThoughtCard({
   };
   // -----------------------------------------------------
 
+  const baseText = thought.summary || thought.thought || "";
   const preview =
-    thought.thought.length > 120
-      ? thought.thought.slice(0, 120) + "..."
-      : thought.thought;
+    baseText.length > 120 ? baseText.slice(0, 120) + "..." : baseText;
 
   return (
     <>
@@ -193,7 +198,9 @@ export default function AssistantThoughtCard({
             />
           ) : (
             <>
-              <p style={{ whiteSpace: "pre-line" }}>{thought.thought}</p>
+              <p style={{ whiteSpace: "pre-line" }}>
+                {thought.thought || thought.summary}
+              </p>
 
               {thought.thought_trace && (
                 <div className="bg-light p-3 rounded mt-3">
