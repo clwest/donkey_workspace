@@ -4,8 +4,13 @@ import apiFetch from "../../../utils/apiClient";
 import PrimaryStar from "../../../components/assistant/PrimaryStar";
 import MoodStabilityGauge from "../../../components/assistant/MoodStabilityGauge";
 import DriftScoreChart from "../../../components/assistant/DriftScoreChart";
-import RecoveryPanel from "../../../components/assistant/RecoveryPanel";
-import { runDriftCheck } from "../../../api/assistants";
+// <<<<<<< codex/implement-assistant-recovery-workflow
+// import RecoveryPanel from "../../../components/assistant/RecoveryPanel";
+// import { runDriftCheck } from "../../../api/assistants";
+// =======
+// import { runDriftCheck, runSelfAssessment } from "../../../api/assistants";
+// import SelfAssessmentModal from "../../../components/assistant/SelfAssessmentModal";
+// >>>>>>> main
 import { toast } from "react-toastify";
 import "./styles/AssistantDetail.css";
 import AssistantMemoryAuditPanel from "../../../components/assistant/memory/AssistantMemoryAuditPanel";
@@ -21,6 +26,8 @@ export default function AssistantDetailPage() {
   const [reflectAfter, setReflectAfter] = useState(false);
   const [linking, setLinking] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  const [assessment, setAssessment] = useState(null);
+  const [showAssess, setShowAssess] = useState(false);
   const threadId = query.get("thread");
   const projectId = query.get("project");
   const memoryId = query.get("memory");
@@ -91,6 +98,16 @@ export default function AssistantDetailPage() {
       toast.error("Failed to link document");
     } finally {
       setLinking(false);
+    }
+  };
+
+  const handleSelfAssess = async () => {
+    try {
+      const res = await runSelfAssessment(slug);
+      setAssessment(res);
+      setShowAssess(true);
+    } catch (err) {
+      toast.error("Self assessment failed");
     }
   };
 
@@ -430,6 +447,12 @@ export default function AssistantDetailPage() {
       >
         Check Drift
       </button>
+      <button
+        className="btn btn-outline-info mb-3 ms-2"
+        onClick={handleSelfAssess}
+      >
+        Run Self-Assessment
+      </button>
 
       <h4>🧠 Summary at a Glance</h4>
       <p>
@@ -463,6 +486,11 @@ export default function AssistantDetailPage() {
   {activeTab === "memory" && (
     <AssistantMemoryAuditPanel assistant={assistant} />
   )}
+  <SelfAssessmentModal
+    show={showAssess}
+    onClose={() => setShowAssess(false)}
+    result={assessment}
+  />
   </div>
   );
 }

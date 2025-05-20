@@ -118,6 +118,22 @@ export async function runDriftCheck(slug) {
   return res.json();
 }
 
+
+export async function runSelfAssessment(slug) {
+  const res = await fetch(
+    `http://localhost:8000/api/assistants/${slug}/self-assess/`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    },
+  );
+  if (!res.ok) {
+    throw new Error("Failed to run self assessment");
+  }
+  return res.json();
+}
+
 export async function recoverAssistant(slug) {
   const res = await fetch(
     `http://localhost:8000/api/assistants/${slug}/recover/`,
