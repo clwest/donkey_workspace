@@ -2,7 +2,7 @@ from typing import Optional
 from assistants.models import AssistantPromptLink, AssistantReflectionLog, Assistant
 from prompts.models import Prompt, PromptMutationLog
 from prompts.utils.mutation import mutate_prompt
-from .models import ToolUsageLog
+from tools.models import ToolUsageLog
 
 
 def mutate_prompt_based_on_tool_feedback(
