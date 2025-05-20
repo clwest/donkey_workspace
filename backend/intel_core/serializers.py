@@ -7,6 +7,8 @@ from intel_core.models import Document, DocumentFavorite
 class DocumentSerializer(serializers.ModelSerializer):
     is_favorited = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
+    token_count = serializers.IntegerField(source="token_count_int", read_only=True)
+    chunk_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Document
@@ -20,6 +22,8 @@ class DocumentSerializer(serializers.ModelSerializer):
             "source_type",
             "created_at",
             "metadata",
+            "token_count",
+            "chunk_count",
             "is_favorited",
             "tags",
         ]
@@ -32,3 +36,6 @@ class DocumentSerializer(serializers.ModelSerializer):
 
     def get_tags(self, obj):
         return list(obj.tags.values_list("name", flat=True))
+
+    def get_chunk_count(self, obj):
+        return obj.chunks.count()

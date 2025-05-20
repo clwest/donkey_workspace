@@ -40,14 +40,14 @@ export default function AssistantDetailPage() {
   useEffect(() => {
     async function fetchDocs() {
       try {
-        const res = await apiFetch("/intel/documents/");
+        const res = await apiFetch(`/intel/documents/?exclude_for=${slug}`);
         setAvailableDocs(res);
       } catch (err) {
         console.error("Failed to load documents", err);
       }
     }
     fetchDocs();
-  }, []);
+  }, [slug]);
 
   useEffect(() => {
     if (threadId) {
@@ -258,7 +258,7 @@ export default function AssistantDetailPage() {
             <option value="">Select document</option>
             {availableDocs.map((d) => (
               <option key={d.id} value={d.id}>
-                {d.title}
+                {`${d.title} (${d.source_type?.toUpperCase()}, ${d.chunk_count} chunks)`}
               </option>
             ))}
           </select>
