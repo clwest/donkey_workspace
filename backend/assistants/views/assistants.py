@@ -578,6 +578,21 @@ def self_reflect(request, slug):
 
 
 @api_view(["POST"])
+@permission_classes([AllowAny])
+def drift_check(request, slug):
+    assistant = get_object_or_404(Assistant, slug=slug)
+    from assistants.utils.drift_detection import analyze_drift_for_assistant
+    from assistants.serializers import SpecializationDriftLogSerializer
+
+    log = analyze_drift_for_assistant(assistant)
+    data = {
+        "drift": log is not None,
+        "log": SpecializationDriftLogSerializer(log).data if log else None,
+    }
+    return Response(data)
+
+
+@api_view(["POST"])
 def reflect_on_assistant(request):
     """
     POST /api/assistants/thoughts/reflect_on_assistant/

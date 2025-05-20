@@ -73,3 +73,18 @@ export async function suggestAssistant(body) {
   }
   return res.json();
 }
+
+export async function runDriftCheck(slug) {
+  const res = await fetch(
+    `http://localhost:8000/api/assistants/${slug}/drift-check/`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    }
+  );
+  if (!res.ok) {
+    throw new Error("Failed to run drift check");
+  }
+  return res.json();
+}
