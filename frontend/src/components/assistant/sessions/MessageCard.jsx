@@ -4,6 +4,14 @@ export default function MessageCard({ message, onFeedback, onTopicSave }) {
   const [tempTopic, setTempTopic] = useState(message.topic || "");
   const [editing, setEditing] = useState(false);
 
+  if (message.message_type === "system") {
+    return (
+      <div className="alert alert-secondary text-center my-3">
+        {message.content}
+      </div>
+    );
+  }
+
   const handleTopicSubmit = () => {
     if (tempTopic.trim()) {
       onTopicSave(message.uuid, tempTopic.trim());

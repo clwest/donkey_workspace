@@ -61,6 +61,7 @@ class DelegationEventSerializer(serializers.ModelSerializer):
             "parent",
             "child",
             "child_slug",
+            "handoff",
             "reason",
             "summary",
             "score",

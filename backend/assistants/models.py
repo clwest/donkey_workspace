@@ -1078,6 +1078,7 @@ class DelegationEvent(models.Model):
         blank=True,
         related_name="delegation_events",
     )
+    handoff = models.BooleanField(default=False)
     reason = models.TextField()
     summary = models.TextField(blank=True, null=True)
     score = models.IntegerField(null=True, blank=True)
