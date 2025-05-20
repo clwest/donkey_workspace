@@ -48,7 +48,7 @@ export default function AssistantDetailPage() {
   useEffect(() => {
     async function fetchDocs() {
       try {
-        const res = await apiFetch(`/intel/documents/?exclude_for=${slug}`);
+        const res = await apiFetch(`/intel/documents/?exclude_for=${slug}&limit=50`);
         setAvailableDocs(res);
       } catch (err) {
         console.error("Failed to load documents", err);
@@ -277,7 +277,7 @@ export default function AssistantDetailPage() {
               <option value="">Select document</option>
               {availableDocs.map((d) => (
                 <option key={d.id} value={d.id}>
-                  {`${d.title} (${d.source_type?.toUpperCase()}, ${d.chunk_count} chunks)`}
+                  {`${d.title} (${d.source_type}) - ${new Date(d.created_at).toLocaleDateString()}`}
                 </option>
               ))}
             </select>
