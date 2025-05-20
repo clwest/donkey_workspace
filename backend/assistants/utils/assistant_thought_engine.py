@@ -252,7 +252,8 @@ Memories:
 
         session = (
             ChatSession.objects.filter(
-                assistant=self.assistant, project=objective.project
+                assistant=self.assistant,
+                project__assistant_project=objective.project,
             )
             .order_by("-created_at")
             .first()
