@@ -89,6 +89,7 @@ import GroupedReflectionDetailPage from "./pages/dev/GroupedReflectionDetailPage
 import DocumentBrowserPage from "./pages/intel_core/DocumentBrowserPage";
 import DocumentDetailPage from "./pages/intel_core/DocumentDetailPage";
 import AgentPage from "./pages/agents/AgentPage";
+import RoutingHistoryPage from "./pages/assistants/RoutingHistoryPage";
 
 import { ToastContainer } from "react-toastify";
 import Navbar from "./components/Navbar";
@@ -334,6 +335,7 @@ export default function App() {
           <Route path="/intel/documents/:id" element={<DocumentDetailPage />} />
           <Route path="/assistants/sources" element={<SignalSourcesPage />} />
           <Route path="/assistants/signals" element={<SignalCatchesPage />} />
+          <Route path="/assistants/routing-history" element={<RoutingHistoryPage />} />
         </Routes>
       </div>
     </Router>

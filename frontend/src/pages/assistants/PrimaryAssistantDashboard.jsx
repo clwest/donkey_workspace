@@ -17,6 +17,7 @@ export default function PrimaryAssistantDashboard() {
   const [inbox, setInbox] = useState([]);
   const [outbox, setOutbox] = useState([]);
   const [allAssistants, setAllAssistants] = useState([]);
+  const [routingHistory, setRoutingHistory] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [recipient, setRecipient] = useState("");
 
@@ -35,6 +36,8 @@ export default function PrimaryAssistantDashboard() {
         setOutbox(outData || []);
         const all = await apiFetch("/assistants/");
         setAllAssistants(all);
+        const history = await apiFetch("/assistants/routing-history/?assistant=" + res.slug);
+        setRoutingHistory(history.results || []);
       } catch (err) {
         console.error("Failed to load primary assistant", err);
       } finally {
@@ -178,11 +181,11 @@ export default function PrimaryAssistantDashboard() {
 
           <div className="mt-5">
             <h4>Delegation Log</h4>
-            {delegations.length === 0 ? (
-              <p>No delegation events.</p>
-            ) : (
-              <ul className="list-group">
-                {delegations.map((d, idx) => (
+          {delegations.length === 0 ? (
+            <p>No delegation events.</p>
+          ) : (
+            <ul className="list-group">
+              {delegations.map((d, idx) => (
                   <li key={idx} className="list-group-item">
                     <strong>
                       {d.parent} ➡ {" "}
@@ -194,12 +197,27 @@ export default function PrimaryAssistantDashboard() {
                     <div>{d.reason}</div>
                     {d.summary && <div className="text-muted small">{d.summary}</div>}
                   </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </>
-      )}
+              ))}
+            </ul>
+          )}
+        </div>
+        <div className="mt-4">
+          <h4>Recent Routing</h4>
+          {routingHistory.length === 0 ? (
+            <p>No routing suggestions.</p>
+          ) : (
+            <ul className="list-group">
+              {routingHistory.slice(0, 5).map((r) => (
+                <li key={r.id} className="list-group-item d-flex justify-content-between">
+                  <span>{r.assistant || "none"}</span>
+                  <span className="badge bg-secondary">{r.confidence_score.toFixed(2)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </>
+    )}
 
       {activeTab === "relay" && (
         <div className="mt-4">

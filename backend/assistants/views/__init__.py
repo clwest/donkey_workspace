@@ -174,4 +174,6 @@ __all__ = [
     "outbox",
     "create_handoff",
     "list_handoffs",
+    "suggest_assistant",
+    "routing_history",
 ]

@@ -22,6 +22,7 @@ from tools.models import Tool
 from pgvector.django import VectorField
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.utils import timezone
 
 
 # Used for structured memory and assistant sessions
@@ -1138,6 +1139,32 @@ class AssistantMessage(models.Model):
         default="pending",
     )
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class RoutingSuggestionLog(models.Model):
+    """Log of assistant routing suggestions and outcomes."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    context_summary = models.TextField()
+    tags = ArrayField(models.CharField(max_length=50), default=list)
+    suggested_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="routing_suggestions",
+    )
+    confidence_score = models.FloatField(default=0.0)
+    reasoning = models.TextField(blank=True, null=True)
+    selected = models.BooleanField(default=False)
+    user_feedback = models.CharField(max_length=10, blank=True, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-timestamp"]
+
+    def __str__(self):  # pragma: no cover - simple display
+        return f"{self.suggested_assistant} ({self.confidence_score:.2f})"
 
 
 class SessionHandoff(models.Model):
