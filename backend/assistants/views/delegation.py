@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
-from assistants.models import DelegationEvent, Assistant
+from assistants.models import DelegationEvent, Assistant, AssistantThoughtLog
 from assistants.serializers import DelegationEventSerializer
 from assistants.utils.delegation import spawn_delegated_assistant
 from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
@@ -90,3 +90,47 @@ def delegate_from_objective(request, slug, objective_id):
     child = engine.delegate_objective(objective)
 
     return Response({"slug": child.slug}, status=201)
+
+
+@api_view(["POST"])
+def suggest_delegate(request):
+    """Return ranked assistants for a memory or text."""
+    memory_id = request.data.get("memory_id")
+    text = request.data.get("text")
+    slug = request.data.get("assistant_slug")
+
+    memory = None
+    if memory_id:
+        memory = MemoryEntry.objects.filter(id=memory_id).first()
+        if not memory:
+            return Response({"error": "Memory not found"}, status=404)
+
+    if not memory and not text:
+        return Response({"error": "Provide memory_id or text"}, status=400)
+
+    from assistants.utils.delegation_router import suggest_assistants_for_task
+
+    task_text = text or memory.summary or memory.event
+    results = suggest_assistants_for_task(memory or task_text)
+
+    data = [
+        {
+            "slug": r["assistant"].slug,
+            "name": r["assistant"].name,
+            "score": round(r["score"], 3),
+        }
+        for r in results
+    ]
+
+    if slug:
+        parent = Assistant.objects.filter(slug=slug).first()
+        if parent:
+            summary = ", ".join(f"{d['name']} - {d['score']:.2f}" for d in data)
+            AssistantThoughtLog.objects.create(
+                assistant=parent,
+                thought_type="delegation_suggestion",
+                thought=f"Delegation suggestions: {summary}",
+                linked_memory=memory,
+            )
+
+    return Response({"suggestions": data})
