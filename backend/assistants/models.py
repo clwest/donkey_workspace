@@ -22,6 +22,7 @@ from tools.models import Tool
 from pgvector.django import VectorField
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.utils import timezone
 
 
 # Used for structured memory and assistant sessions
@@ -1168,6 +1169,32 @@ class AssistantMessage(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+class RoutingSuggestionLog(models.Model):
+    """Log of assistant routing suggestions and outcomes."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    context_summary = models.TextField()
+    tags = ArrayField(models.CharField(max_length=50), default=list)
+    suggested_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="routing_suggestions",
+    )
+    confidence_score = models.FloatField(default=0.0)
+    reasoning = models.TextField(blank=True, null=True)
+    selected = models.BooleanField(default=False)
+    user_feedback = models.CharField(max_length=10, blank=True, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-timestamp"]
+
+    def __str__(self):  # pragma: no cover - simple display
+        return f"{self.suggested_assistant} ({self.confidence_score:.2f})"
+
+
 class SessionHandoff(models.Model):
     """Record when a chat session is handed off between assistants."""
 
@@ -1201,6 +1228,28 @@ class SessionHandoff(models.Model):
 
     def __str__(self):
         return f"{self.from_assistant} -> {self.to_assistant} @ {self.session}"
+
+
+class SpecializationDriftLog(models.Model):
+    """Record detected drift from an assistant's original specialty or prompt."""
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="drift_logs",
+    )
+    timestamp = models.DateTimeField(auto_now_add=True)
+    drift_score = models.FloatField()
+    summary = models.TextField()
+    trigger_type = models.CharField(max_length=50)
+    auto_flagged = models.BooleanField(default=False)
+    resolved = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-timestamp"]
+
+    def __str__(self) -> str:  # pragma: no cover - display
+        return f"{self.assistant.name} drift {self.drift_score:.2f}"
 
 
 from django.db.models.signals import post_save

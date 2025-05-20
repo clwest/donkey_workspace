@@ -43,6 +43,9 @@ export default function DelegationSuggestionModal({ memoryId, show, onClose }) {
         </ul>
       )}
       <button className="btn btn-secondary" onClick={onClose}>Close</button>
+      <div className="mt-2">
+        <a href="/assistants/routing-history">View Routing History</a>
+      </div>
     </Modal>
   );
 }

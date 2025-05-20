@@ -1,9 +1,9 @@
-
 from django.utils import timezone
 from celery import shared_task
 import logging
 import time
 from django.utils import timezone
+
 # assistants/tasks.py
 from mcp_core.models import Tag
 from django.utils.text import slugify
@@ -23,6 +23,7 @@ from assistants.models import (
     AssistantReflectionLog,
     DelegationEvent,
 )
+
 client = OpenAI()
 
 logger = logging.getLogger("assistants")
@@ -111,7 +112,9 @@ def embed_and_tag_memory(self, memory_id: int):
             return
 
         save_embedding(memory, vector)
-        logger.info(f"⏱ Embedding complete for Memory {memory.id} in {time.time() - start:.2f}s")
+        logger.info(
+            f"⏱ Embedding complete for Memory {memory.id} in {time.time() - start:.2f}s"
+        )
 
         # Step 2: Link memory to assistant (via related project, if available)
         if memory.related_project and memory.related_project.assistant:
@@ -146,14 +149,15 @@ def embed_and_tag_memory(self, memory_id: int):
         self.retry(exc=e)
 
 
-
 @shared_task(bind=True)
 def run_assistant_reflection(self, memory_id: int):
     try:
         memory = MemoryEntry.objects.select_related("assistant").get(id=memory_id)
 
         if not memory.assistant:
-            return f"❌ No assistant attached to memory {memory_id}. Skipping reflection."
+            return (
+                f"❌ No assistant attached to memory {memory_id}. Skipping reflection."
+            )
 
         context = get_or_create_context_from_memory(memory)
         engine = AssistantReflectionEngine(memory.assistant)
@@ -252,7 +256,9 @@ def reflect_on_delegation(self, event_id: str):
 
         return ref_log
     except Exception as e:
-        logger.error("Failed to reflect on delegation %s: %s", event_id, e, exc_info=True)
+        logger.error(
+            "Failed to reflect on delegation %s: %s", event_id, e, exc_info=True
+        )
         self.retry(exc=e, countdown=10, max_retries=3)
 
 
@@ -260,9 +266,12 @@ def reflect_on_delegation(self, event_id: str):
 def delegation_health_check():
     """Analyze recent delegation events and log warnings for failing agents."""
     from django.db.models import Avg
+
     week_ago = timezone.now() - timezone.timedelta(days=7)
     for assistant in Assistant.objects.filter(is_active=True):
-        recent = DelegationEvent.objects.filter(child_assistant=assistant, created_at__gte=week_ago)
+        recent = DelegationEvent.objects.filter(
+            child_assistant=assistant, created_at__gte=week_ago
+        )
         failures = recent.filter(score__lte=2).count()
         if failures >= 3:
             avg = recent.aggregate(avg=Avg("score"))["avg"] or 0
@@ -274,22 +283,32 @@ def delegation_health_check():
             )
 
 
-@shared_task
-def run_specialization_drift_checks():
-    """Run drift analysis for all active assistants."""
-    from assistants.utils.drift_detection import analyze_drift_for_assistant
+from assistants.utils.drift_detection import (
+    analyze_drift_for_assistant,
+    analyze_specialization_drift,
+)
+from assistants.models import SpecializationDriftLog
 
+
+def run_specialization_drift_checks():
+    """Run drift analysis using both lightweight and logged methods."""
     for assistant in Assistant.objects.filter(is_active=True):
         analyze_drift_for_assistant(assistant)
+        result = analyze_specialization_drift(assistant)
+        if result.get("flagged"):
+            SpecializationDriftLog.objects.create(
+                assistant=assistant,
+                drift_score=result["drift_score"],
+                summary=result["summary"],
+                trigger_type="auto",
+                auto_flagged=True,
+            )
 
 
 @shared_task
 def run_drift_check_for_assistant(assistant_id: str):
     """Run drift check for a single assistant."""
-    from assistants.utils.drift_detection import analyze_drift_for_assistant
-
     assistant = Assistant.objects.filter(id=assistant_id).first()
     if assistant:
         log = analyze_drift_for_assistant(assistant)
         return str(log.id) if log else None
-
