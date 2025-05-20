@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import MemoryFlagPanel from "../../../components/memory/MemoryFlagPanel";
+import MemoryForkButton from "../../../components/memory/MemoryForkButton";
 import { suggestDelegation } from "../../../api/assistants";
 import "../styles/MemoryDetailPage.css";
 
@@ -14,16 +15,16 @@ export default function MemoryDetailPage() {
   const [formData, setFormData] = useState({event: "", emotion: "", importance: 5});
   const navigate = useNavigate();
 
-  useEffect(() => {
-    async function fetchMemory() {
-      const res = await fetch(`http://localhost:8000/api/memory/${id}/`);
-      const data = await res.json();
-      console.log(data)
-      setMemory(data);
-      if (data.voice_clip) {
-        setAudioUrl(`http://localhost:8000${data.voice_clip}`);
-      }
+  async function fetchMemory() {
+    const res = await fetch(`http://localhost:8000/api/memory/${id}/`);
+    const data = await res.json();
+    setMemory(data);
+    if (data.voice_clip) {
+      setAudioUrl(`http://localhost:8000${data.voice_clip}`);
     }
+  }
+
+  useEffect(() => {
     fetchMemory();
   }, [id]);
 
@@ -159,6 +160,11 @@ export default function MemoryDetailPage() {
         <button className="btn btn-outline-primary" onClick={handleSuggestAgent}>
           🤖 Suggest Agent
         </button>
+        <MemoryForkButton
+          memoryId={memory.id}
+          assistantSlug={memory.linked_thought?.assistant_slug}
+          onForked={fetchMemory}
+        />
         {memory.is_conversation && memory.session_id && (
           <Link
             to={`/assistants/sessions/${memory.session_id}`}
@@ -176,7 +182,30 @@ export default function MemoryDetailPage() {
             🔙 Back to Memories
           </Link>
         )}
-      
+
+      </div>
+
+      <div className="mt-4">
+        <details>
+          <summary>🔮 Simulated Forks ({memory.simulated_forks?.length || 0})</summary>
+          {memory.simulated_forks && memory.simulated_forks.length > 0 ? (
+            memory.simulated_forks.map((fork) => (
+              <div key={fork.id} className="border rounded p-2 my-2">
+                {fork.hypothetical_action && (
+                  <div><strong>Action:</strong> {fork.hypothetical_action}</div>
+                )}
+                {fork.reason_for_simulation && (
+                  <div className="text-muted">{fork.reason_for_simulation}</div>
+                )}
+                <div className="mt-1" style={{ whiteSpace: "pre-wrap" }}>
+                  {fork.simulated_outcome}
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-muted">No simulations yet.</p>
+          )}
+        </details>
       </div>
     </div>
   );

@@ -2,9 +2,14 @@ from __future__ import annotations
 
 from typing import Optional
 
-from assistants.models import DelegationEvent, AssistantThoughtLog
+from assistants.models import (
+    DelegationEvent,
+    AssistantThoughtLog,
+    Assistant,
+)
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from mcp_core.models import Tag
+from memory.models import MemoryEntry, SimulatedMemoryFork
 
 
 def reflect_on_delegation(
@@ -69,3 +74,45 @@ def reflect_on_delegation(
         log.tags.add(*tag_objs)
 
     return log
+
+
+def simulate_memory_fork(
+    assistant: Assistant,
+    memory: MemoryEntry,
+    alternative_action: str | None = None,
+    notes: str | None = None,
+) -> SimulatedMemoryFork:
+    """Generate a hypothetical outcome for an alternate decision."""
+
+    details = [f"Original: {memory.event}"]
+    if alternative_action:
+        details.append(f"Hypothetical action: {alternative_action}")
+    if notes:
+        details.append(f"Notes: {notes}")
+
+    prompt = "\n".join(details) + "\nPredict the alternate outcome succinctly."
+
+    engine = AssistantReflectionEngine(assistant)
+    try:
+        outcome = engine.generate_reflection(prompt)
+    except Exception:
+        outcome = "Simulation failed"
+
+    thought = AssistantThoughtLog.objects.create(
+        assistant=assistant,
+        thought=outcome,
+        thought_type="reflection",
+        linked_memory=memory,
+        event="simulated_memory_fork",
+    )
+
+    fork = SimulatedMemoryFork.objects.create(
+        original_memory=memory,
+        assistant=assistant,
+        simulated_outcome=outcome,
+        hypothetical_action=alternative_action,
+        reason_for_simulation=notes or "",
+        thought_log=thought,
+    )
+
+    return fork

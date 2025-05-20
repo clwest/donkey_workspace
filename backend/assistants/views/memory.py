@@ -21,10 +21,15 @@ from project.models import ProjectMemoryLink
 from project.serializers import ProjectMemoryLinkSerializer
 
 from memory.models import MemoryEntry
-from memory.serializers import MemoryEntrySerializer, MemoryEntrySlimSerializer
+from memory.serializers import (
+    MemoryEntrySerializer,
+    MemoryEntrySlimSerializer,
+    SimulatedMemoryForkSerializer,
+)
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from assistants.utils.memory_filters import get_filtered_memories
 from memory.utils.context_helpers import get_or_create_context_from_memory
+from assistants.helpers.reflection_helpers import simulate_memory_fork
 from mcp_core.models import MemoryContext
 from django.contrib.contenttypes.models import ContentType
 from intel_core.models import Document
@@ -238,3 +243,20 @@ def assistant_memory_summary(request, slug):
             "most_recent": recent_list,
         }
     )
+
+
+@api_view(["POST"])
+def simulate_memory(request, slug):
+    """Create a simulated memory fork."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    memory_id = request.data.get("memory_id")
+    if not memory_id:
+        return Response({"error": "memory_id required"}, status=400)
+
+    memory = get_object_or_404(MemoryEntry, id=memory_id)
+    action = request.data.get("alternative_action")
+    notes = request.data.get("notes")
+
+    fork = simulate_memory_fork(assistant, memory, action, notes)
+    serializer = SimulatedMemoryForkSerializer(fork)
+    return Response(serializer.data, status=201)
