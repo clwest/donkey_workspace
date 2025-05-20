@@ -45,6 +45,7 @@ from tools.models import Tool, ToolUsageLog
 from prompts.models import Prompt
 from django.db import models
 from assistants.models import AssistantSkill
+from intel_core.models import Document
 
 
 logger = logging.getLogger("django")
@@ -557,6 +558,42 @@ def demo_assistant(request):
         for a in assistant
     ]
     return Response(data)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def add_document_to_assistant(request, slug):
+    """Attach an existing Document to an Assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+
+    doc_id = request.data.get("document_id")
+    if not doc_id:
+        return Response({"error": "document_id required"}, status=400)
+
+    try:
+        document = Document.objects.get(id=doc_id)
+    except Document.DoesNotExist:
+        return Response({"error": "Document not found"}, status=404)
+
+    if assistant.documents.filter(id=document.id).exists():
+        return Response({"error": "Document already linked"}, status=400)
+
+    assistant.documents.add(document)
+
+    reflect = str(request.data.get("reflect", "false")).lower() in ["1", "true", "yes"]
+
+    message = f"Linked new document: {document.title}."
+    if reflect:
+        engine = AssistantReflectionEngine(assistant)
+        try:
+            engine.reflect_on_document(document)
+            message += " Initiated reflection."
+        except Exception as e:
+            logger.error("Document reflection failed", exc_info=True)
+
+    log_assistant_thought(assistant, message, thought_type="reflection")
+
+    return Response({"assistant": assistant.slug})
 
 
 @api_view(["POST"])
