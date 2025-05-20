@@ -52,6 +52,7 @@ from .memory import (
     assistant_reflection_logs,
     assistant_reflection_detail,
     reflection_thoughts,
+    assistant_memory_documents,
     # memory_to_project,
 )
 from .prompts import (
@@ -154,6 +155,7 @@ __all__ = [
     "assistant_reflection_logs",
     "assistant_reflection_detail",
     "reflection_thoughts",
+    "assistant_memory_documents",
     # "memory_to_project",
     "linked_prompts",
     "link_prompt_to_project",

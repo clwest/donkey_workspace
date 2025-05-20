@@ -279,3 +279,45 @@ def simulate_memory(request, slug):
     fork = simulate_memory_fork(assistant, memory, action, notes)
     serializer = SimulatedMemoryForkSerializer(fork)
     return Response(serializer.data, status=201)
+
+
+@api_view(["GET"])
+def assistant_memory_documents(request, slug):
+    """List documents currently loaded in memory for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+
+    doc_ids = set(
+        assistant.documents.values_list("id", flat=True)
+    )
+
+    doc_ids.update(
+        MemoryEntry.objects.filter(assistant=assistant, document_id__isnull=False)
+        .values_list("document_id", flat=True)
+    )
+
+    doc_ids.update(
+        AssistantReflectionLog.objects.filter(
+            assistant=assistant,
+            linked_memory__document_id__isnull=False,
+        ).values_list("linked_memory__document_id", flat=True)
+    )
+
+    doc_ids.update(
+        AssistantReflectionInsight.objects.filter(assistant=assistant).values_list(
+            "linked_document_id", flat=True
+        )
+    )
+
+    doc_ids.update(
+        MemoryEntry.objects.filter(
+            assistantmemorychain__project__assistant=assistant,
+            document_id__isnull=False,
+        ).values_list("document_id", flat=True)
+    )
+
+    documents = Document.objects.filter(id__in=doc_ids).distinct()
+
+    from intel_core.helpers.document_helpers import get_document_memory_status
+
+    data = [get_document_memory_status(doc) for doc in documents]
+    return Response(data)

@@ -186,6 +186,11 @@ urlpatterns = [
         name="assistant-memory-summary",
     ),
     path(
+        "<slug:slug>/memory-documents/",
+        memory.assistant_memory_documents,
+        name="assistant-memory-documents",
+    ),
+    path(
         "<slug:slug>/memory-to-project/",
         projects.memory_to_project,
         name="memory-to-project",
