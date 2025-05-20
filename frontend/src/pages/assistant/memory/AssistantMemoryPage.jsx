@@ -2,24 +2,13 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
 import { mutateMemory } from "../../../api/memories";
+import MemoryVisualizer from "../../../components/assistant/memory/MemoryVisualizer";
+import ThoughtCloudPanel from "../../../components/assistant/memory/ThoughtCloudPanel";
 
 export default function AssistantMemoryPage() {
   const { slug } = useParams();
   const [memories, setMemories] = useState([]);
-  const [assistant, setAssistant] = useState(null);
-  const [filterMood, setFilterMood] = useState("");
 
-  useEffect(() => {
-    async function fetchAssistant() {
-      try {
-        const data = await apiFetch(`/assistants/${slug}/`);
-        setAssistant(data);
-      } catch (err) {
-        console.error("Failed to fetch assistant", err);
-      }
-    }
-    fetchAssistant();
-  }, [slug]);
 
   useEffect(() => {
     async function fetchMemories() {
@@ -27,6 +16,8 @@ export default function AssistantMemoryPage() {
       if (filterMood) url += `&emotion=${filterMood}`;
       const res = await apiFetch(url);
       setMemories(res);
+      const sum = await apiFetch(`/assistants/${slug}/memory/summary/`);
+      setSummary(sum);
     }
     fetchMemories();
   }, [slug, filterMood]);
@@ -58,6 +49,13 @@ export default function AssistantMemoryPage() {
             <option value="confident">Confident</option>
             <option value="neutral">Neutral</option>
           </select>
+        </div>
+      )}
+
+      {summary && (
+        <div className="mb-4">
+          <MemoryVisualizer memories={summary.most_recent} />
+          <ThoughtCloudPanel tagCounts={summary.recent_tags} />
         </div>
       )}
 

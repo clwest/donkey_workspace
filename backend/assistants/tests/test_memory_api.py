@@ -1,4 +1,5 @@
 import os
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 import django
 
@@ -9,7 +10,8 @@ from rest_framework.test import APITestCase
 
 from assistants.models import Assistant, AssistantReflectionLog
 from memory.models import MemoryEntry
-from mcp_core.models import NarrativeThread
+from mcp_core.models import NarrativeThread, Tag
+
 
 class AssistantMemoryAPITest(APITestCase):
     def setUp(self):
@@ -18,8 +20,23 @@ class AssistantMemoryAPITest(APITestCase):
         self.client.force_authenticate(user=self.user)
         self.assistant = Assistant.objects.create(name="Tester", specialty="test")
         self.thread = NarrativeThread.objects.create(title="T")
-        MemoryEntry.objects.create(event="one", assistant=self.assistant, summary="first", narrative_thread=self.thread)
-        MemoryEntry.objects.create(event="two", assistant=self.assistant, summary="second", narrative_thread=self.thread)
+        tag = Tag.objects.create(name="planning", slug="planning")
+        m1 = MemoryEntry.objects.create(
+            event="one",
+            assistant=self.assistant,
+            summary="first",
+            narrative_thread=self.thread,
+            emotion="curious",
+        )
+        m2 = MemoryEntry.objects.create(
+            event="two",
+            assistant=self.assistant,
+            summary="second",
+            narrative_thread=self.thread,
+            emotion="thoughtful",
+        )
+        m1.tags.add(tag)
+        m2.tags.add(tag)
 
     def test_list_memories(self):
         url = f"/api/assistants/{self.assistant.slug}/memories/"
@@ -31,8 +48,21 @@ class AssistantMemoryAPITest(APITestCase):
         self.assertIn("token_count", data[0])
 
     def test_reflect_now_creates_log(self):
-        mem = MemoryEntry.objects.create(event="three", assistant=self.assistant, summary="third")
+        mem = MemoryEntry.objects.create(
+            event="three", assistant=self.assistant, summary="third"
+        )
         url = f"/api/assistants/{self.assistant.slug}/reflect_now/"
         resp = self.client.post(url, {"memory_id": str(mem.id)}, format="json")
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(AssistantReflectionLog.objects.filter(assistant=self.assistant).count(), 1)
+        self.assertEqual(
+            AssistantReflectionLog.objects.filter(assistant=self.assistant).count(), 1
+        )
+
+    def test_memory_summary_endpoint(self):
+        url = f"/api/assistants/{self.assistant.slug}/memory/summary/"
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["total"], 2)
+        self.assertEqual(len(data["most_recent"]), 2)
+        self.assertIn("planning", data["recent_tags"])

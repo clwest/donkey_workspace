@@ -139,6 +139,11 @@ urlpatterns = [
         name="assistant-memories",
     ),
     path(
+        "<slug:slug>/memory/summary/",
+        memory.assistant_memory_summary,
+        name="assistant-memory-summary",
+    ),
+    path(
         "<slug:slug>/memory-to-project/",
         projects.memory_to_project,
         name="memory-to-project",

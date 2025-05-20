@@ -189,6 +189,52 @@ def assistant_reflection_detail(request, id):
 @api_view(["GET"])
 def reflection_thoughts(request, id):
     """Return thoughts linked to a specific reflection."""
-    thoughts = AssistantThoughtLog.objects.filter(linked_reflection_id=id).order_by("-created_at")
+    thoughts = AssistantThoughtLog.objects.filter(linked_reflection_id=id).order_by(
+        "-created_at"
+    )
     serializer = AssistantThoughtLogSerializer(thoughts, many=True)
     return Response(serializer.data)
+
+
+@api_view(["GET"])
+def assistant_memory_summary(request, slug):
+    """Return a summary of recent memories for the assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+
+    qs = MemoryEntry.objects.filter(assistant=assistant)
+    if assistant.current_project_id:
+        qs = qs.filter(related_project_id=assistant.current_project_id)
+
+    total = qs.count()
+    recent = list(qs.order_by("-created_at")[:30])
+
+    from collections import Counter
+
+    tag_counter = Counter()
+    mood_counter = Counter()
+    recent_list = []
+
+    for mem in recent:
+        tags = list(mem.tags.values_list("slug", flat=True))
+        for t in tags:
+            tag_counter[t] += 1
+        if mem.emotion:
+            mood_counter[mem.emotion.lower()] += 1
+        recent_list.append(
+            {
+                "id": str(mem.id),
+                "summary": mem.summary or (mem.event[:80] if mem.event else ""),
+                "tags": tags,
+                "mood": mem.emotion or "",
+                "created_at": mem.created_at.isoformat().replace("+00:00", "Z"),
+            }
+        )
+
+    return Response(
+        {
+            "total": total,
+            "recent_tags": dict(tag_counter),
+            "recent_moods": dict(mood_counter),
+            "most_recent": recent_list,
+        }
+    )
