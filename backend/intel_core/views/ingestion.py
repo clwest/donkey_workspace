@@ -44,16 +44,20 @@ def unified_ingestion_view(request):
     null_uuid = "00000000-0000-0000-0000-000000000000"
     assistant_id = request.data.get("assistant_id")
     project_id = request.data.get("project_id")
+
     if not session_id or session_id == null_uuid:
-        assistant = (
-            Assistant.objects.filter(id=assistant_id).first() if assistant_id else None
-        )
-        project = Project.objects.filter(id=project_id).first() if project_id else None
-        chat_session = ChatSession.objects.create(
+        session_id = str(uuid.uuid4())
+
+    assistant = (
+        Assistant.objects.filter(id=assistant_id).first() if assistant_id else None
+    )
+    project = Project.objects.filter(id=project_id).first() if project_id else None
+    if assistant or project:
+        ChatSession.objects.create(
+            session_id=session_id,
             assistant=assistant,
             project=project,
         )
-        session_id = str(chat_session.session_id)
 
     try:
         if source_type == "youtube":
@@ -61,6 +65,10 @@ def unified_ingestion_view(request):
             documents = load_videos(
                 video_urls, user_provided_title, project_name, session_id
             )
+            if assistant:
+                for doc in documents:
+                    if isinstance(doc, Document):
+                        doc.linked_assistants.add(assistant)
             serialized = [
                 DocumentSerializer(doc).data
                 for doc in documents
@@ -88,7 +96,10 @@ def unified_ingestion_view(request):
 
             docs = load_urls(urls, user_provided_title, project_name, session_id)
             for doc in docs:
-                doc.tags.set(tags)
+                if isinstance(doc, Document):
+                    doc.tags.set(tags)
+                    if assistant:
+                        doc.linked_assistants.add(assistant)
 
             serialized = [
                 DocumentSerializer(doc).data
@@ -115,6 +126,10 @@ def unified_ingestion_view(request):
             documents = load_pdfs(
                 file_paths, user_provided_title, project_name, session_id
             )
+            if assistant:
+                for doc in documents:
+                    if isinstance(doc, Document):
+                        doc.linked_assistants.add(assistant)
             serialized = [
                 DocumentSerializer(doc).data
                 for doc in documents
