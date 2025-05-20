@@ -56,7 +56,7 @@ export default function CustomReflectionPage() {
         // Show Global Success Modal
         setSuccessTitle("Custom Reflection Created! 🎯");
         setSuccessMessage("Your custom reflection is ready.");
-        setSuccessLink(`/reflections/${data.reflection_id}`);
+        setSuccessLink(`/reflections/${data.id || data.reflection_id}`);
         setShowSuccess(true);
 
       } else {

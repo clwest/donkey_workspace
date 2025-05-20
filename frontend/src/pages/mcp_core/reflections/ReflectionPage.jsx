@@ -32,7 +32,8 @@ export default function ReflectionPage() {
       // ✅ Update all states properly
       setReflection(data);
       setReflectionSummary(data.llm_summary);
-      setReflectionId(data.reflection_id);
+      // Some endpoints returned {id} but older clients expected {reflection_id}
+      setReflectionId(data.id || data.reflection_id);
 
     } catch (err) {
       console.error('Reflection error:', err);
