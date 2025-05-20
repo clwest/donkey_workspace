@@ -274,11 +274,11 @@ urlpatterns = [
         name="assistant-message-outbox",
     ),
     # Council
-    path("council/start/", council.start_session, name="council-start"),
-    path("council/<uuid:id>/", council.session_detail, name="council-detail"),
-    path("council/<uuid:id>/thoughts/", council.session_thoughts, name="council-thoughts"),
-    path("council/<uuid:id>/respond/", council.session_respond, name="council-respond"),
-    path("council/<uuid:id>/reflect/", council.session_reflect, name="council-reflect"),
+    # path("council/start/", council.start_session, name="council-start"),
+    # path("council/<uuid:id>/", council.session_detail, name="council-detail"),
+    # path("council/<uuid:id>/thoughts/", council.session_thoughts, name="council-thoughts"),
+    # path("council/<uuid:id>/respond/", council.session_respond, name="council-respond"),
+    # path("council/<uuid:id>/reflect/", council.session_reflect, name="council-reflect"),
     path("suggest_switch/", switching.suggest_switch, name="assistant-suggest-switch"),
     path("switch/", switching.switch_session, name="assistant-switch-session"),
     path("thoughts/<uuid:pk>/feedback/", thoughts.update_reflection_feedback),
@@ -464,17 +464,17 @@ urlpatterns = [
         name="assistant-drift-check",
     ),
     # ===== DEBATE ENDPOINTS =====
-    path("debate/start/", debate.start_debate, name="start-debate"),
-    path("debate/<uuid:debate_id>/", debate.get_debate, name="debate-detail"),
-    path(
-        "debate/<uuid:debate_id>/respond/",
-        debate.debate_respond,
-        name="debate-respond",
-    ),
-    path(
-        "debate/<uuid:debate_id>/consensus/",
-        debate.debate_consensus,
-        name="debate-consensus",
-    ),
+    # path("debate/start/", debate.start_debate, name="start-debate"),
+    # path("debate/<uuid:debate_id>/", debate.get_debate, name="debate-detail"),
+    # path(
+    #     "debate/<uuid:debate_id>/respond/",
+    #     debate.debate_respond,
+    #     name="debate-respond",
+    # ),
+    # path(
+    #     "debate/<uuid:debate_id>/consensus/",
+    #     debate.debate_consensus,
+    #     name="debate-consensus",
+    # ),
     path("<slug:slug>/", assistants.assistant_detail_view, name="assistant-detail"),
 ]
