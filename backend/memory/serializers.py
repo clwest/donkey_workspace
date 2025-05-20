@@ -11,6 +11,11 @@ from mcp_core.serializers_tags import NarrativeThreadSerializer
 from mcp_core.serializers_tags import TagSerializer
 
 
+class SimulatedMemoryForkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SimulatedMemoryFork
+        fields = "__all__"
+
 class MemoryEntrySerializer(serializers.ModelSerializer):
     linked_thought = serializers.SerializerMethodField()
     narrative_thread = NarrativeThreadSerializer(read_only=True)
@@ -96,11 +101,6 @@ class MemoryFeedbackSerializer(serializers.ModelSerializer):
         model = MemoryFeedback
         fields = "__all__"
 
-
-class SimulatedMemoryForkSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SimulatedMemoryFork
-        fields = "__all__"
 
 
 class MemoryChainSerializer(serializers.ModelSerializer):
