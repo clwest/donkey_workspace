@@ -16,6 +16,7 @@ from .views import (
     cache_tools,
     skills,
     messages,
+    handoffs,
 )
 
 urlpatterns = [
@@ -246,6 +247,8 @@ urlpatterns = [
         name="update_message_feedback",
     ),
     path("messages/send/", messages.send_message, name="assistant-message-send"),
+    path("handoff/", handoffs.create_handoff, name="create-handoff"),
+    path("handoff/<uuid:session_id>/", handoffs.list_handoffs, name="list-handoffs"),
     path(
         "messages/inbox/<slug:slug>/",
         messages.inbox,

@@ -4,6 +4,7 @@ import { useParams, Link } from "react-router-dom";
 import MessageCard from "../../../components/assistant/sessions/MessageCard";
 import { downloadFile } from "../../../utils/downloadFile";
 import CommonModal from "../../../components/CommonModal";
+import SessionHandoffModal from "../../../components/assistant/SessionHandoffModal";
 
 export default function AssistantSessionDetailPage() {
   const { sessionId } = useParams();
@@ -13,6 +14,8 @@ export default function AssistantSessionDetailPage() {
   const [showReplay, setShowReplay] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [summary, setSummary] = useState(null);
+  const [handoffs, setHandoffs] = useState([]);
+  const [showHandoff, setShowHandoff] = useState(false);
 
   useEffect(() => {
     async function fetchSessionDetail() {
@@ -21,6 +24,8 @@ export default function AssistantSessionDetailPage() {
         if (!res.ok) throw new Error("Failed to fetch session details");
         const data = await res.json();
         setSession(data);
+        const hres = await fetch(`http://localhost:8000/api/assistants/handoff/${sessionId}/`);
+        if (hres.ok) setHandoffs(await hres.json());
       } catch (err) {
         setError(err.message);
       } finally {
@@ -206,6 +211,23 @@ export default function AssistantSessionDetailPage() {
           />
         ))}
       </div>
+      <div className="my-4">
+        <h5>Handoff History</h5>
+        {handoffs.length === 0 ? (
+          <p>No handoffs recorded.</p>
+        ) : (
+          <ul className="list-group">
+            {handoffs.map((h) => (
+              <li key={h.id} className="list-group-item">
+                {h.from_assistant} → {h.to_assistant} – {h.reason}
+              </li>
+            ))}
+          </ul>
+        )}
+        <button className="btn btn-sm btn-outline-primary mt-2" onClick={() => setShowHandoff(true)}>
+          Delegate to Agent
+        </button>
+      </div>
       <CommonModal
         show={showReplay}
         onClose={() => setShowReplay(false)}
@@ -241,6 +263,16 @@ export default function AssistantSessionDetailPage() {
             </div>
           ))}
       </CommonModal>
+      <SessionHandoffModal
+        sessionId={session.session_id}
+        show={showHandoff}
+        onClose={(didCreate) => {
+          setShowHandoff(false);
+          if (didCreate) {
+            fetch(`http://localhost:8000/api/assistants/handoff/${sessionId}/`).then((r) => r.json()).then(setHandoffs);
+          }
+        }}
+      />
     </div>
   );
 }
