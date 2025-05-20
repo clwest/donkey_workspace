@@ -314,6 +314,68 @@ def run_drift_check_for_assistant(assistant_id: str):
         return str(log.id) if log else None
 
 
+def _simple_emotion_detect(text: str):
+    """Very basic keyword-based emotion detection."""
+    lowered = text.lower()
+    if any(w in lowered for w in ["happy", "glad", "joy"]):
+        return "joy", 0.8
+    if any(w in lowered for w in ["sad", "unhappy", "depress"]):
+        return "sadness", 0.8
+    if any(w in lowered for w in ["angry", "frustrated", "mad"]):
+        return "frustration", 0.7
+    if any(w in lowered for w in ["curious", "interesting", "wonder"]):
+        return "curiosity", 0.6
+    return "neutral", 0.0
+
+
+@shared_task
+def detect_emotional_resonance(memory_id: str):
+    from memory.models import MemoryEntry
+    from assistants.models import EmotionalResonanceLog
+
+    memory = MemoryEntry.objects.filter(id=memory_id).first()
+    if not memory or not memory.assistant:
+        return None
+
+    text = memory.full_transcript or memory.event
+    emotion, intensity = _simple_emotion_detect(text)
+
+    log = EmotionalResonanceLog.objects.create(
+        assistant=memory.assistant,
+        source_memory=memory,
+        detected_emotion=emotion,
+        intensity=float(intensity),
+        context_tags=memory.context_tags[:5] if memory.context_tags else [],
+    )
+    return str(log.id)
+
+
+@shared_task
+def reflect_on_emotional_resonance(assistant_id: str):
+    from assistants.models import EmotionalResonanceLog, AssistantThoughtLog, Assistant
+
+    assistant = Assistant.objects.filter(id=assistant_id).first()
+    if not assistant:
+        return "assistant not found"
+
+    logs = EmotionalResonanceLog.objects.filter(assistant=assistant).order_by("-created_at")[:20]
+    if not logs:
+        return "no resonance"
+
+    avg = sum(l.intensity for l in logs) / len(logs)
+    assistant.avg_empathy_score = round(avg, 2)
+    assistant.save(update_fields=["avg_empathy_score"])
+
+    summary = f"Avg intensity {avg:.2f} based on {len(logs)} memories"
+    AssistantThoughtLog.objects.create(
+        assistant=assistant,
+        thought=summary,
+        thought_type="reflection",
+        category="insight",
+    )
+    return summary
+
+
 @shared_task
 def run_council_deliberation(session_id: str):
     """Sequentially log council member thoughts for one round."""

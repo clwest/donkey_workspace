@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from assistants.views import empathy
 
 urlpatterns = [
     path("save/", views.save_memory, name="save_memory"),
@@ -28,4 +29,5 @@ urlpatterns = [
     path("update-tags/<uuid:id>/", views.update_memory_tags),
     path("replace/<uuid:id>/", views.replace_memory),
     path("vector/", views.vector_memories, name="vector-memories"),
+    path("<uuid:id>/resonance/", empathy.memory_resonance, name="memory-resonance"),
 ]

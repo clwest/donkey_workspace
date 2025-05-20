@@ -66,6 +66,7 @@ from .sessions import (
 )
 from .messages import send_message, inbox, outbox
 from .switching import suggest_switch, switch_session
+from .empathy import assistant_empathy, assistant_reflect_empathy, memory_resonance
 from .delegation import (
     recent_delegation_events,
     spawn_from_context,
@@ -193,4 +194,7 @@ __all__ = [
     "get_debate",
     "debate_respond",
     "debate_consensus",
+    "assistant_empathy",
+    "assistant_reflect_empathy",
+    "memory_resonance",
 ]

@@ -17,6 +17,7 @@ from .views import (
     skills,
     messages,
     switching,
+    empathy,
 
 )
 
@@ -355,6 +356,21 @@ urlpatterns = [
         "<slug:slug>/skills/",
         skills.assistant_skills,
         name="assistant-skills",
+    ),
+    path(
+        "<slug:slug>/empathy/",
+        empathy.assistant_empathy,
+        name="assistant-empathy",
+    ),
+    path(
+        "<slug:slug>/reflect_empathy/",
+        empathy.assistant_reflect_empathy,
+        name="assistant-reflect-empathy",
+    ),
+    path(
+        "memory/<uuid:id>/resonance/",
+        empathy.memory_resonance,
+        name="memory-resonance",
     ),
     # SLUGS MUST STAY AT THE BOTTOM!
     path(

@@ -5,6 +5,7 @@ from django.utils.text import slugify
 from mcp_core.models import Tag
 from memory.models import MemoryEntry
 from assistants.tasks import embed_and_tag_memory, run_assistant_reflection
+from assistants.tasks import detect_emotional_resonance
 from embeddings.helpers.helpers_io import save_embedding
 
 
@@ -62,6 +63,7 @@ def create_memory_from_chat(
 
     embed_and_tag_memory.delay(memory.id)
     run_assistant_reflection.delay(memory.id)
+    detect_emotional_resonance.delay(str(memory.id))
     return memory
 
 
