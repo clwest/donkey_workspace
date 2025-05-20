@@ -46,25 +46,31 @@ class AssistantReflectionEngine:
         return response.choices[0].message.content.strip()
 
     def reflect_now(self, context: MemoryContext) -> AssistantReflectionLog:
-        entries = MemoryEntry.objects.filter(context=context).order_by("-created_at")[
-            :30
-        ]
+        """Run a quick reflection over recent memories for the given context."""
+
+        entries = (
+            MemoryEntry.objects.filter(context=context)
+            .order_by("-created_at")[:30]
+        )
         texts = [e.event.strip() for e in entries if e.event.strip()]
 
-        if not texts:
-            logger.warning("[🧠] No recent memory content to reflect on.")
-            return "No meaningful content."
-
-        prompt = self.build_reflection_prompt(texts)
+        prompt = None
+        if texts:
+            prompt = self.build_reflection_prompt(texts)
 
         try:
-            reflection_text = self.generate_reflection(prompt)
+            reflection_text = (
+                self.generate_reflection(prompt) if prompt else "No meaningful content."
+            )
+
             log = AssistantReflectionLog.objects.create(
                 assistant=self.assistant,
-                context=context,
+                project=self.project,
+                title=f"Reflection for context {context.id}",
                 summary=reflection_text,
                 raw_prompt=prompt,
             )
+
             MemoryEntry.objects.create(
                 event=reflection_text,
                 assistant=self.assistant,
@@ -72,13 +78,14 @@ class AssistantReflectionEngine:
                 linked_content_type=ContentType.objects.get_for_model(self.assistant),
                 linked_object_id=self.assistant.id,
                 is_conversation=False,
-                related_project=context.project if context.project else None,
+                context=context,
             )
+
             logger.info(f"[🧠] Reflection saved for context {context.id}.")
             return log
         except Exception as e:
             logger.error(f"[❌] Reflection failed: {e}", exc_info=True)
-            return "Reflection failed."
+            raise
     
     @staticmethod
     def get_reflection_assistant():
