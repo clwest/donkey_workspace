@@ -20,6 +20,7 @@ from .views import (
     empathy,
     collaboration,
     knowledge,
+    dashboard,
     routing,
     handoffs,
 )
@@ -524,6 +525,11 @@ urlpatterns = [
         "<slug:slug>/diff-knowledge/",
         knowledge.diff_knowledge,
         name="assistant-diff-knowledge",
+    ),
+    path(
+        "<slug:slug>/dashboard/",
+        dashboard.assistant_dashboard,
+        name="assistant-dashboard",
     ),
     path(
         "<slug:slug>/collaboration_profile/",

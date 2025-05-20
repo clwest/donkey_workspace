@@ -16,6 +16,7 @@ from .assistants import (
     failure_log,
 )
 from .knowledge import diff_knowledge
+from .dashboard import assistant_dashboard
 from .thoughts import (
     submit_assistant_thought,
     assistant_thoughts_by_slug,
@@ -216,5 +217,6 @@ __all__ = [
     "evaluate_collaboration",
     "collaboration_logs_for_project",
     "collaboration_profile",
+    "assistant_dashboard",
     "diff_knowledge",
 ]
