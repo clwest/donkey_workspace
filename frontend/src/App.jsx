@@ -62,6 +62,7 @@ import AssistantThoughtMapPage from "./pages/assistant/thoughts/AssistantThought
 import AssistantMemoriesPage from "./pages/assistant/common/AssistantMemoriesPage";
 import AssistantMemoryPage from "./pages/assistant/memory/AssistantMemoryPage";
 import DelegationTracePage from "./pages/assistant/DelegationTracePage";
+import SkillGraphPage from "./pages/assistant/skills/SkillGraphPage";
 import MemoryToTaskPage from "./pages/assistant/objectives/MemoryToTaskPage";
 import MilestonesPage from "./pages/assistant/milestones/MilestonesPage";
 import MilestoneCreatePage from "./pages/assistant/milestones/MilestoneCreatePage";
@@ -272,6 +273,10 @@ export default function App() {
           <Route
             path="/assistants/:slug/delegation-trace"
             element={<DelegationTracePage />}
+          />
+          <Route
+            path="/assistants/:slug/skillgraph"
+            element={<SkillGraphPage />}
           />
           <Route
             path="/assistants/sessions/"

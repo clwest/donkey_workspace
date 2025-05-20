@@ -4,7 +4,7 @@ import apiFetch from "../../../utils/apiClient";
 import PrimaryStar from "../../../components/assistant/PrimaryStar";
 import MoodStabilityGauge from "../../../components/assistant/MoodStabilityGauge";
 import { toast } from "react-toastify";
-import "./styles/AssistantDetail.css"
+import "./styles/AssistantDetail.css";
 
 export default function AssistantDetailPage() {
   const { slug } = useParams();
@@ -22,13 +22,11 @@ export default function AssistantDetailPage() {
       try {
         const data = await apiFetch(`/assistants/${slug}/`);
         setAssistant(data);
-        
       } catch (err) {
         console.error("Error fetching assistant:", err);
       }
     }
     fetchAssistant();
-    
   }, [slug]);
 
   useEffect(() => {
@@ -39,18 +37,23 @@ export default function AssistantDetailPage() {
     if (memoryId) {
       toast.success("Assistant created and linked to memory!");
       setTimeout(() => {
-        document.getElementById(`memory-${memoryId}`)?.scrollIntoView({ behavior: "smooth" });
+        document
+          .getElementById(`memory-${memoryId}`)
+          ?.scrollIntoView({ behavior: "smooth" });
       }, 300);
     }
     if (objectiveId) {
       toast.info("Linked objective ready!");
       setTimeout(() => {
-        document.getElementById(`objective-${objectiveId}`)?.scrollIntoView({ behavior: "smooth" });
+        document
+          .getElementById(`objective-${objectiveId}`)
+          ?.scrollIntoView({ behavior: "smooth" });
       }, 300);
     }
   }, [threadId, memoryId, objectiveId]);
 
-  if (!assistant) return <div className="container my-5">Loading assistant...</div>;
+  if (!assistant)
+    return <div className="container my-5">Loading assistant...</div>;
 
   return (
     <div className="container my-5">
@@ -62,15 +65,30 @@ export default function AssistantDetailPage() {
       <p className="text-muted">Assistant Details Page</p>
 
       <div className="mb-4">
-        <p><strong>Slug:</strong> {assistant.slug}</p>
-        <p><strong>Description:</strong> {assistant.description || "No description yet."}</p>
-        <p><strong>Specialty:</strong> {assistant.specialty || "N/A"}</p>
-        <p><strong>Status:</strong> {assistant.is_active ? "Active" : "Inactive"}</p>
-        <p><strong>Created:</strong> {new Date(assistant.created_at).toLocaleString()}</p>
+        <p>
+          <strong>Slug:</strong> {assistant.slug}
+        </p>
+        <p>
+          <strong>Description:</strong>{" "}
+          {assistant.description || "No description yet."}
+        </p>
+        <p>
+          <strong>Specialty:</strong> {assistant.specialty || "N/A"}
+        </p>
+        <p>
+          <strong>Status:</strong> {assistant.is_active ? "Active" : "Inactive"}
+        </p>
+        <p>
+          <strong>Created:</strong>{" "}
+          {new Date(assistant.created_at).toLocaleString()}
+        </p>
       </div>
 
       {assistant.current_project ? (
-        <div className="alert alert-info">Assigned Project: {assistant.current_project.title} ({assistant.current_project.objective_count} objectives)</div>
+        <div className="alert alert-info">
+          Assigned Project: {assistant.current_project.title} (
+          {assistant.current_project.objective_count} objectives)
+        </div>
       ) : (
         <button
           className="btn btn-outline-secondary mb-3"
@@ -96,22 +114,57 @@ export default function AssistantDetailPage() {
       )}
 
       <div className="d-flex flex-wrap gap-3 mb-4">
-        <Link to={`/assistants/${slug}/chat`} className="btn btn-dark">💬 Chat</Link>
-        <Link to={`/assistants/${slug}/thoughts`} className="btn btn-outline-primary">🧠 Thought Log</Link>
-        <Link to={`/assistants/${slug}/projects`} className="btn btn-outline-success">📂 Projects</Link>
-        <Link to={`/assistants/${slug}/objectives`} className="btn btn-outline-success">🗂️ Project Objectives</Link>
-        <Link to={`/assistants/${slug}/memories`} className="btn btn-outline-warning">📘 Memory</Link>
-        <Link to={`/assistants/${slug}/reflect`} className="btn btn-outline-info">🔍 Reflections</Link>
-        <Link to={`/assistants/${slug}/sessions`} className="btn btn-outline-secondary">
+        <Link to={`/assistants/${slug}/chat`} className="btn btn-dark">
+          💬 Chat
+        </Link>
+        <Link
+          to={`/assistants/${slug}/thoughts`}
+          className="btn btn-outline-primary"
+        >
+          🧠 Thought Log
+        </Link>
+        <Link
+          to={`/assistants/${slug}/projects`}
+          className="btn btn-outline-success"
+        >
+          📂 Projects
+        </Link>
+        <Link
+          to={`/assistants/${slug}/objectives`}
+          className="btn btn-outline-success"
+        >
+          🗂️ Project Objectives
+        </Link>
+        <Link
+          to={`/assistants/${slug}/memories`}
+          className="btn btn-outline-warning"
+        >
+          📘 Memory
+        </Link>
+        <Link
+          to={`/assistants/${slug}/reflect`}
+          className="btn btn-outline-info"
+        >
+          🔍 Reflections
+        </Link>
+        <Link
+          to={`/assistants/${slug}/sessions`}
+          className="btn btn-outline-secondary"
+        >
           💬 Sessions
         </Link>
-        <Link to={`/assistants/${slug}/trace`} className="btn btn-outline-secondary">
+        <Link
+          to={`/assistants/${slug}/trace`}
+          className="btn btn-outline-secondary"
+        >
           🧬 Delegation Trace
         </Link>
-        <Link to={`/assistants/${assistant.slug}/dashboard`} className="btn btn-outline-primary">
+        <Link
+          to={`/assistants/${assistant.slug}/dashboard`}
+          className="btn btn-outline-primary"
+        >
           🧠 View Dashboard
         </Link>
-
       </div>
 
       <hr />
@@ -132,24 +185,34 @@ export default function AssistantDetailPage() {
         <>
           <h5 className="mt-4">📂 Linked Projects</h5>
           <ul className="list-group mb-3">
-          {assistant.projects.map((project) => (
-            <li key={project.id} id={`project-${project.id}`} className="list-group-item">
-              <Link to={`/assistants/projects/${project.id}`}>{project.title}</Link>
-              {project.objectives?.length > 0 && (
-                <ul className="mt-2 ms-3">
-                  {project.objectives.map((obj) => (
-                    <li key={obj.id} id={`objective-${obj.id}`} className="small">
-                      ✅ <strong>{obj.title}</strong>: {obj.description}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          ))}
+            {assistant.projects.map((project) => (
+              <li
+                key={project.id}
+                id={`project-${project.id}`}
+                className="list-group-item"
+              >
+                <Link to={`/assistants/projects/${project.id}`}>
+                  {project.title}
+                </Link>
+                {project.objectives?.length > 0 && (
+                  <ul className="mt-2 ms-3">
+                    {project.objectives.map((obj) => (
+                      <li
+                        key={obj.id}
+                        id={`objective-${obj.id}`}
+                        className="small"
+                      >
+                        ✅ <strong>{obj.title}</strong>: {obj.description}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
           </ul>
         </>
       )}
-      
+
       {assistant.child_assistants && assistant.child_assistants.length > 0 && (
         <div className="mt-4 container ">
           <h5 className="d-flex align-items-center">
@@ -177,10 +240,41 @@ export default function AssistantDetailPage() {
         </div>
       )}
 
+      {assistant.skills && assistant.skills.length > 0 && (
+        <div className="mt-4">
+          <h5 className="d-flex align-items-center">
+            🧠 Skills
+            <Link
+              to={`/assistants/${slug}/skillgraph`}
+              className="btn btn-sm btn-outline-secondary ms-2"
+            >
+              Graph
+            </Link>
+          </h5>
+          <ul className="list-group">
+            {assistant.skills.map((skill, idx) => (
+              <li key={idx} className="list-group-item">
+                <strong>{skill.name}</strong> - {skill.description || ""}
+                <div className="progress mt-1" style={{ height: "4px" }}>
+                  <div
+                    className="progress-bar"
+                    style={{ width: `${skill.confidence * 100}%` }}
+                  ></div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <hr />
       <h4>🪪 Identity</h4>
-      <p><strong>Persona:</strong> {assistant.persona_summary || "None"}</p>
-      <p><strong>Motto:</strong> {assistant.motto || "N/A"}</p>
+      <p>
+        <strong>Persona:</strong> {assistant.persona_summary || "None"}
+      </p>
+      <p>
+        <strong>Motto:</strong> {assistant.motto || "N/A"}
+      </p>
       {assistant.traits && (
         <p>
           <strong>Traits:</strong>
@@ -199,7 +293,9 @@ export default function AssistantDetailPage() {
       <button
         className="btn btn-outline-info mb-3"
         onClick={async () => {
-          await apiFetch(`/assistants/${slug}/self_reflect/`, { method: "POST" });
+          await apiFetch(`/assistants/${slug}/self_reflect/`, {
+            method: "POST",
+          });
           const data = await apiFetch(`/assistants/${slug}/`);
           setAssistant(data);
         }}
@@ -208,12 +304,27 @@ export default function AssistantDetailPage() {
       </button>
 
       <h4>🧠 Summary at a Glance</h4>
-      <p><strong>Personality:</strong> {assistant.personality || "Not configured"}</p>
-      <p><strong>Voice Style:</strong> {assistant.voice_style || "Default"}</p>
-      <p><strong>Reasoning Style:</strong> {assistant.reasoning_style || "Analytical"}</p>
-      <p><strong>Planning Mode:</strong> {assistant.planning_mode || "Goal-Driven"}</p>
-      <p><strong>Memory Mode:</strong> {assistant.memory_mode || "Short-Term"}</p>
-      <p><strong>Preferred Model:</strong> {assistant.preferred_model || "N/A"}</p>
+      <p>
+        <strong>Personality:</strong>{" "}
+        {assistant.personality || "Not configured"}
+      </p>
+      <p>
+        <strong>Voice Style:</strong> {assistant.voice_style || "Default"}
+      </p>
+      <p>
+        <strong>Reasoning Style:</strong>{" "}
+        {assistant.reasoning_style || "Analytical"}
+      </p>
+      <p>
+        <strong>Planning Mode:</strong>{" "}
+        {assistant.planning_mode || "Goal-Driven"}
+      </p>
+      <p>
+        <strong>Memory Mode:</strong> {assistant.memory_mode || "Short-Term"}
+      </p>
+      <p>
+        <strong>Preferred Model:</strong> {assistant.preferred_model || "N/A"}
+      </p>
       {assistant.is_primary && (
         <p>
           <strong>Primary Role:</strong> ✅ System Orchestrator
