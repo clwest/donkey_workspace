@@ -737,7 +737,13 @@ class AssistantReflectionLog(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Reflection on {self.project.title or self.linked_memory.id} @ {self.created_at.strftime('%Y-%m-%d %H:%M')}"
+        if self.project:
+            target = self.project.title
+        elif self.linked_memory:
+            target = str(self.linked_memory.id)
+        else:
+            target = "unknown"
+        return f"Reflection on {target} @ {self.created_at.strftime('%Y-%m-%d %H:%M')}"
 
 
 class AssistantObjective(models.Model):
