@@ -16,7 +16,7 @@ from .views import (
     cache_tools,
     skills,
     messages,
-    handoffs,
+
 )
 
 urlpatterns = [
@@ -39,6 +39,11 @@ urlpatterns = [
         "primary/delegations/",
         delegations.primary_delegations,
         name="primary-delegations",
+    ),
+    path(
+        "suggest/",
+        routing.suggest_assistant,
+        name="assistant-suggest",
     ),
     path(
         "suggest_delegate/",

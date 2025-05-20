@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
+import { suggestAssistant } from "../../../api/assistants";
 import "./styles/ChatView.css";
 
 export default function ChatWithAssistantPage() {
@@ -58,6 +59,24 @@ export default function ChatWithAssistantPage() {
     fetchSession();
   }, [slug]);
 
+  const handleSuggest = async () => {
+    try {
+      const summary = messages.map((m) => m.content).join(" ");
+      const data = await suggestAssistant({
+        context_summary: summary.slice(-500),
+        tags: [],
+        recent_messages: messages.slice(-5),
+      });
+      if (data.suggested_assistant) {
+        alert(`Try: ${data.suggested_assistant.name}\nReason: ${data.reasoning}`);
+      } else {
+        alert("No suggestion available");
+      }
+    } catch (err) {
+      alert("Failed to get suggestion");
+    }
+  };
+
   return (
     <div className="container my-5">
       <h1>💬 Chat with Assistant: <span className="text-primary">{slug}</span></h1>
@@ -113,6 +132,9 @@ export default function ChatWithAssistantPage() {
           {loading ? "Thinking..." : "Send"}
         </button>
       </form>
+      <button className="btn btn-outline-primary mt-2" onClick={handleSuggest}>
+        🤖 Suggest Assistant
+      </button>
 
       {error && <div className="alert alert-danger mt-3">{error}</div>}
     </div>
