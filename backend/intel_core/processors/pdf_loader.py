@@ -82,11 +82,22 @@ def load_pdfs(
                     pdf, pdf_title, project_name, session_id
                 )
 
+                if not processed_document:
+                    logger.info(
+                        f"Retrying chunk {i+1}/{len(pdf_list)} for '{pdf_title}'"
+                    )
+                    processed_document = process_pdfs(
+                        pdf, pdf_title, project_name, session_id
+                    )
+
                 if processed_document:
                     processed_documents.append(processed_document)
                     logger.info(f"Successfully processed chunk {i+1}/{len(pdf_list)}")
                 else:
-                    logger.warning(f"Failed to process chunk {i+1}/{len(pdf_list)}")
+                    logger.error(
+                        f"Failed to process chunk {i+1}/{len(pdf_list)} for '{pdf_title}'",
+                        exc_info=True,
+                    )
 
         except Exception as e:
             logger.error(f"Failed to process PDF {file_path}: {e}")
