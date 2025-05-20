@@ -21,6 +21,7 @@ from .views import (
     collaboration,
     knowledge,
     routing,
+    handoffs,
 )
 
 urlpatterns = [
@@ -283,12 +284,12 @@ urlpatterns = [
         name="update_message_feedback",
     ),
     path("messages/send/", messages.send_message, name="assistant-message-send"),
-    # path("handoff/", views.create_handoff, name="create-handoff"),
-    # path(
-    #     "handoff/<uuid:session_id>/",
-    #     views.list_handoffs,
-    #     name="list-handoffs",
-    # ),
+    path("handoff/", handoffs.create_handoff, name="create-handoff"),
+    path(
+        "handoff/<uuid:session_id>/",
+        handoffs.list_handoffs,
+        name="list-handoffs",
+    ),
     path(
         "messages/inbox/<slug:slug>/",
         messages.inbox,
