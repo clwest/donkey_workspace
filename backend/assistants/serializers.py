@@ -106,7 +106,9 @@ class AssistantReflectionLogDetailSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     linked_memory = MemoryEntrySerializer(read_only=True)
     project = ProjectSerializer(read_only=True)
-    raw_summary = serializers.CharField(source="raw_prompt", allow_null=True, read_only=True)
+    raw_summary = serializers.CharField(
+        source="raw_prompt", allow_null=True, read_only=True
+    )
 
     class Meta:
         model = AssistantReflectionLog
@@ -392,6 +394,7 @@ class AssistantThoughtLogSerializer(serializers.ModelSerializer):
             "thought_trace",
             "thought_type",
             "role",
+            "mode",
             "mood",
             "event",
             "source_reason",

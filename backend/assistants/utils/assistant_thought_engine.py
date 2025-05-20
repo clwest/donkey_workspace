@@ -79,6 +79,7 @@ Memories:
         thought_type="generated",
         steps=None,
         model="gpt-4o",
+        mode="default",
     ) -> dict:
         logger.debug(
             f"[LOGGING THOUGHT] Role={role}, Type={thought_type}, Content={content[:60]}"
@@ -94,6 +95,7 @@ Memories:
             role=role,
             thought_trace="\n".join(steps) if steps else "",
             mood=mood,
+            mode=mode,
         )
 
         # 🧠 Try OpenAI embedding + save it
@@ -342,6 +344,26 @@ Memories:
                 "model": None,
                 "created_at": None,
             }
+
+    def dream(self, topic: str = "") -> dict:
+        """Generate a speculative 'dream' thought."""
+        prompt = f"You are {self.assistant.name} entering a dream state. " + (
+            f"Dream about {topic}."
+            if topic
+            else "Imagine possibilities and long-term plans."
+        )
+        try:
+            thought = self.generate_thought(prompt, temperature=0.8)
+            result = self.log_thought(
+                content=thought,
+                role="assistant",
+                thought_type="generated",
+                mode="dream",
+            )
+            return result
+        except Exception as e:
+            logger.error(f"[dream()] failed: {e}", exc_info=True)
+            return {"text": "Dream failed."}
 
     def delegate_objective(
         self,

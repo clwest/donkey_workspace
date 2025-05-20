@@ -135,6 +135,11 @@ urlpatterns = [
         name="assistant-reflect-now",
     ),
     path(
+        "<slug:slug>/dream/",
+        thoughts.assistant_dream,
+        name="assistant-dream",
+    ),
+    path(
         "<slug:slug>/reflect_now/",
         memory.reflect_now,
         name="assistant-reflect-now-context",

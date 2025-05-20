@@ -123,7 +123,9 @@ def reflect_on_assistant_thoughts(request, slug):
 @api_view(["GET", "POST"])
 def assistant_project_thoughts(request, project_id):
     if request.method == "GET":
-        thoughts = AssistantThoughtLog.objects.filter(project_id=project_id).order_by("-created_at")
+        thoughts = AssistantThoughtLog.objects.filter(project_id=project_id).order_by(
+            "-created_at"
+        )
         assistant_id = request.GET.get("assistant_id")
         if assistant_id:
             thoughts = thoughts.filter(assistant_id=assistant_id)
@@ -225,6 +227,18 @@ def assistant_reflect_now(request, slug):
     )
 
 
+@api_view(["POST"])
+def assistant_dream(request, slug):
+    """Trigger dream mode for the assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    topic = request.data.get("topic", "")
+
+    engine = AssistantThoughtEngine(assistant=assistant)
+    result = engine.dream(topic)
+
+    return Response({"dream": result.get("thought")})
+
+
 @api_view(["PATCH"])
 def update_reflection_feedback(request, pk):
     try:
@@ -243,9 +257,7 @@ def update_reflection_feedback(request, pk):
 @api_view(["GET"])
 def get_recent_reflections(request, slug):
     assistant = get_object_or_404(Assistant, slug=slug)
-    logs = AssistantThoughtLog.objects.filter(
-        assistant=assistant, role="assistant"
-    )
+    logs = AssistantThoughtLog.objects.filter(assistant=assistant, role="assistant")
     if assistant.current_project_id:
         logs = logs.filter(project_id=assistant.current_project_id)
     logs = logs.order_by("-created_at")[:10]
@@ -434,10 +446,14 @@ def assistant_thought_map(request, slug):
     if end:
         thoughts = thoughts.filter(created_at__lte=end)
 
-    thoughts = thoughts.order_by("created_at").select_related(
-        "parent_thought",
-        "linked_memory",
-    ).prefetch_related("tags")
+    thoughts = (
+        thoughts.order_by("created_at")
+        .select_related(
+            "parent_thought",
+            "linked_memory",
+        )
+        .prefetch_related("tags")
+    )
 
     data = [
         {
@@ -449,8 +465,12 @@ def assistant_thought_map(request, slug):
             "feedback": t.feedback,
             "parent_thought": str(t.parent_thought_id) if t.parent_thought_id else None,
             "linked_memory": str(t.linked_memory_id) if t.linked_memory_id else None,
-            "linked_memory_summary": t.linked_memory.summary if t.linked_memory else None,
-            "narrative_thread": str(t.narrative_thread_id) if t.narrative_thread_id else None,
+            "linked_memory_summary": (
+                t.linked_memory.summary if t.linked_memory else None
+            ),
+            "narrative_thread": (
+                str(t.narrative_thread_id) if t.narrative_thread_id else None
+            ),
             "tags": list(t.tags.values_list("slug", flat=True)),
         }
         for t in thoughts
