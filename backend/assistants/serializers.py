@@ -545,6 +545,7 @@ class AssistantThoughtLogSerializer(serializers.ModelSerializer):
             "role",
             "mode",
             "mood",
+            "feedback",
             "event",
             "source_reason",
             "tags",

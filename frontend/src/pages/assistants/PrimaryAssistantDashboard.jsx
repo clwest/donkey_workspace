@@ -31,6 +31,17 @@ export default function PrimaryAssistantDashboard() {
       try {
         const res = await apiFetch("/assistants/primary/");
         setAssistant(res);
+        let thoughtsData = [];
+        try {
+          thoughtsData = await apiFetch(`/assistants/${res.slug}/thoughts/`);
+          console.log("🧠 Raw thoughts data", thoughtsData);
+        } catch (err) {
+          console.warn("Failed to load thoughts", err);
+        }
+        if (Array.isArray(thoughtsData)) {
+          res.recent_thoughts = thoughtsData;
+          setAssistant(res);
+        }
         const delRes = await apiFetch("/assistants/primary/delegations/");
         setDelegations(delRes || []);
         const summary = await apiFetch(`/assistants/${res.slug}/memory/summary/`);
