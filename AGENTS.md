@@ -98,12 +98,75 @@ We are now in **Phase 3**, focused on deepening long-term memory, task planning,
 - 📈 4.27+: Dynamic Planning based on Mood, Memory, and Context
 - 👁️‍🗨️ 4.29+: Memory Visualizer, Delegation Trace Views, Agent Feedback
 
-### 🔧 Assistant Recovery Workflow
+### ✅ Phase 4.26: Assistant Knowledge Diffing + System Prompt Refinement
 
-Phase 4.28 introduces a recovery system for misaligned assistants. When drift
-logs exceed the threshold, the assistant is flagged with `needs_recovery` and a
-recovery panel becomes available in the dashboard. The panel allows triggering a
-reflection-based recovery flow, prompt realignment, and project objective
-rebalancing.
+**Summary:**
 
----
+- Added a new backend API endpoint: `/api/assistants/<slug>/diff-knowledge/`
+- Enables comparing an assistant’s current prompt and memory state against new input text (e.g. updated documentation)
+- Uses OpenAI to generate:
+  - Suggested updates to system prompt
+  - Tone/style alignment
+  - Summary of knowledge gaps or contradictions
+
+**Implementation:**
+
+- `diff_knowledge()` view receives input text and assistant slug
+- Retrieves assistant’s system prompt + recent memory entries
+- Constructs a comparison prompt and submits to LLM
+- Returns proposed refinements and tone suggestions
+
+**Supporting Work:**
+
+- Included tests covering:
+  - Input validation
+  - Successful diff and structured output
+- Registered route and attached to assistant view module for use in frontend mutation workflows
+
+**Next Steps:**
+
+- Integrate with Assistant Prompt Edit UI for guided mutations
+- Display suggested changes in `PromptRefinementPanel.jsx`
+- Link this diff flow into the new **Assistant Recovery Workflow** (Phase 4.28)
+
+### ✅ Phase 4.27: Assistant Identity Self-Assessment + Role Reconfirmation
+
+**Summary:**
+
+- Added new `thought_type="identity_reflection"` to `AssistantThoughtLog`
+- Implemented `/api/assistants/<slug>/self_assess/` endpoint
+  - Evaluates whether the assistant’s current behavior aligns with its defined tone, system prompt, and persona
+  - Uses LLM to score tone, goal alignment, and recent behavior
+- Results are saved as `AssistantThoughtLog` entries
+- New modal `IdentityReflectionModal` displays this analysis in the dashboard
+- Dashboard self-assessment trigger added to Primary Assistant panel
+
+**Supporting Work:**
+
+- Expanded API client and frontend hooks
+- Added backend test verifying that self-assessment logs are stored properly
+
+### ✅ Phase 4.28: Assistant Recovery Workflow for Misalignment or Memory Drift
+
+**Summary:**
+
+- Added `needs_recovery` boolean field to `Assistant` model
+- Updated drift analysis (Phase 4.14) to mark assistants as needing recovery if drift threshold exceeded
+- Introduced `requires_retraining` field in `SpecializationDriftLog` model
+- Added `/api/assistants/<slug>/recover/` endpoint:
+  - Generates a summary of the drift
+  - Proposes edits to the assistant’s system prompt and personality
+  - Logs a meta-thought entry
+- Frontend Recovery Panel now displays when `needs_recovery` is true
+
+**Visual Additions:**
+
+- 🩹 "Misaligned" badge shown next to affected assistants
+- Recovery action modal added to Primary Assistant dashboard
+
+**Documentation:**
+
+- Assistant Recovery section added to `AGENTS.md` including:
+  - What triggers recovery
+  - How to resolve
+  - How logs are tracked
