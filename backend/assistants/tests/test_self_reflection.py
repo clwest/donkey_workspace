@@ -22,12 +22,12 @@ class SelfReflectionCommandTest(TestCase):
     )
     def test_self_reflection_updates_identity(self, mock_gen):
         mock_gen.return_value = (
-            "I improved.{\n\"persona_summary\":\"new\",\"traits\":{\"curious\":true},\"values\":[\"clarity\"],\"motto\":\"Try\"}"
+            "I improved.{\n\"persona_summary\":\"new\",\"traits\":[\"curious\"],\"values\":[\"clarity\"],\"motto\":\"Try\"}"
         )
         call_command("reflect_on_self", assistant=self.assistant.slug)
         self.assistant.refresh_from_db()
         self.assertEqual(self.assistant.persona_summary, "new")
-        self.assertTrue(self.assistant.traits["curious"])
+        self.assertIn("curious", self.assistant.traits)
         self.assertEqual(self.assistant.values, ["clarity"])
         self.assertEqual(self.assistant.motto, "Try")
         log = AssistantReflectionLog.objects.filter(

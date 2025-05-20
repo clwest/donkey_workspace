@@ -46,6 +46,14 @@ MEMORY_MODES = [
     ("long_term", "Long-Term"),
 ]
 
+# Persona reasoning style
+PERSONA_MODES = [
+    ("default", "Default"),
+    ("improviser", "Improviser"),
+    ("planner", "Planner"),
+    ("reflector", "Reflector"),
+]
+
 THINKING_STYLES = [
     ("cot", "Chain of Thought"),
     ("direct", "Direct Answer"),
@@ -139,7 +147,18 @@ class Assistant(models.Model):
     created_from_mood = models.CharField(max_length=20, null=True, blank=True)
     inherited_tone = models.CharField(max_length=20, null=True, blank=True)
     persona_summary = models.TextField(blank=True, null=True)
-    traits = models.JSONField(default=dict, blank=True)
+    personality_description = models.TextField(blank=True, null=True)
+    traits = models.JSONField(default=list, blank=True)
+    persona_mode = models.CharField(
+        max_length=20, choices=PERSONA_MODES, default="default"
+    )
+    default_memory_chain = models.ForeignKey(
+        "assistants.AssistantMemoryChain",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="default_for_assistants",
+    )
     capabilities = models.TextField(blank=True)
     capability_embedding = VectorField(dimensions=1536, null=True, blank=True)
     motto = models.CharField(max_length=200, blank=True)
@@ -236,10 +255,18 @@ class Assistant(models.Model):
         if self.persona_summary:
             parts.append(f"Persona summary: {self.persona_summary}")
         if self.traits:
-            trait_bits = []
-            for k, v in self.traits.items():
-                trait_bits.append(f"{k}={'yes' if v else 'no'}")
-            parts.append("Traits: " + ", ".join(trait_bits))
+            trait_list = []
+            if isinstance(self.traits, dict):
+                trait_list = [k for k, v in self.traits.items() if v]
+            else:
+                trait_list = list(self.traits)
+            parts.append("Traits: " + ", ".join(trait_list))
+        if self.personality_description:
+            parts.append(self.personality_description)
+        if self.tone:
+            parts.append(f"Tone: {self.tone}")
+        if self.persona_mode:
+            parts.append(f"Mode: {self.persona_mode}")
         if self.values:
             parts.append("Values: " + ", ".join(self.values))
         if self.motto:
@@ -955,6 +982,13 @@ class ChatSession(models.Model):
     )
     project = models.ForeignKey(
         "project.Project", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    memory_chain = models.ForeignKey(
+        "assistants.AssistantMemoryChain",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="sessions",
     )
     narrative_thread = models.ForeignKey(
         "mcp_core.NarrativeThread",

@@ -32,6 +32,8 @@ def prompt_to_assistant(name: str, tone: str, personality: str) -> Assistant:
             "specialty": "orchestration",
             "system_prompt": prompt,
             "is_primary": True,
+            "traits": ["strategic", "humorous"],
+            "persona_mode": "planner",
         },
     )
 
@@ -42,12 +44,14 @@ def prompt_to_assistant(name: str, tone: str, personality: str) -> Assistant:
             goal="Coordinate all assistants and maintain memory continuity.",
             status="active",
         )
-        AssistantMemoryChain.objects.create(
+        chain = AssistantMemoryChain.objects.create(
             project=project,
             title="Global Memory Chain",
             description="Auto mode chain for system-level memory.",
             mode="auto",
             filters={"session_id": None, "document_tags": ["system", "seeded"]},
         )
+        assistant.default_memory_chain = chain
+        assistant.save(update_fields=["default_memory_chain"])
 
     return assistant

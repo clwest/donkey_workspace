@@ -586,6 +586,10 @@ def self_reflect(request, slug):
             assistant.persona_summary = updates["persona_summary"]
         if updates.get("traits"):
             assistant.traits = updates["traits"]
+        if updates.get("personality_description"):
+            assistant.personality_description = updates["personality_description"]
+        if updates.get("persona_mode"):
+            assistant.persona_mode = updates["persona_mode"]
         if updates.get("values") is not None:
             assistant.values = updates["values"]
         if updates.get("motto"):
