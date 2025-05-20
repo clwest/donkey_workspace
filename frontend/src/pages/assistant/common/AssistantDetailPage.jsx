@@ -14,6 +14,10 @@ export default function AssistantDetailPage() {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   const [showTools, setShowTools] = useState(false);
+  const [availableDocs, setAvailableDocs] = useState([]);
+  const [selectedDoc, setSelectedDoc] = useState("");
+  const [reflectAfter, setReflectAfter] = useState(false);
+  const [linking, setLinking] = useState(false);
   const threadId = query.get("thread");
   const projectId = query.get("project");
   const memoryId = query.get("memory");
@@ -30,6 +34,18 @@ export default function AssistantDetailPage() {
     }
     fetchAssistant();
   }, [slug]);
+
+  useEffect(() => {
+    async function fetchDocs() {
+      try {
+        const res = await apiFetch("/intel/documents/");
+        setAvailableDocs(res);
+      } catch (err) {
+        console.error("Failed to load documents", err);
+      }
+    }
+    fetchDocs();
+  }, []);
 
   useEffect(() => {
     if (threadId) {
@@ -53,6 +69,27 @@ export default function AssistantDetailPage() {
       }, 300);
     }
   }, [threadId, memoryId, objectiveId]);
+
+  const handleLinkDocument = async (e) => {
+    e.preventDefault();
+    if (!selectedDoc) return;
+    setLinking(true);
+    try {
+      await apiFetch(`/assistants/${slug}/add_document/`, {
+        method: "POST",
+        body: { document_id: selectedDoc, reflect: reflectAfter },
+      });
+      const data = await apiFetch(`/assistants/${slug}/`);
+      setAssistant(data);
+      toast.success("Document linked");
+      setSelectedDoc("");
+    } catch (err) {
+      console.error("Link failed", err);
+      toast.error("Failed to link document");
+    } finally {
+      setLinking(false);
+    }
+  };
 
   if (!assistant)
     return <div className="container my-5">Loading assistant...</div>;
@@ -185,6 +222,39 @@ export default function AssistantDetailPage() {
           </ul>
         </>
       )}
+
+      <div className="mb-4">
+        <h6>🔗 Link Document</h6>
+        <form onSubmit={handleLinkDocument} className="d-flex align-items-end gap-2">
+          <select
+            className="form-select"
+            value={selectedDoc}
+            onChange={(e) => setSelectedDoc(e.target.value)}
+          >
+            <option value="">Select document</option>
+            {availableDocs.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.title}
+              </option>
+            ))}
+          </select>
+          <div className="form-check ms-2">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id="reflectAfter"
+              checked={reflectAfter}
+              onChange={(e) => setReflectAfter(e.target.checked)}
+            />
+            <label className="form-check-label" htmlFor="reflectAfter">
+              Reflect after linking
+            </label>
+          </div>
+          <button className="btn btn-primary" type="submit" disabled={linking}>
+            {linking ? "Linking..." : "Link"}
+          </button>
+        </form>
+      </div>
 
       {assistant.projects?.length > 0 && (
         <>

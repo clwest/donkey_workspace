@@ -279,21 +279,21 @@ urlpatterns = [
         name="assistant-message-outbox",
     ),
     # Council
-# <<<<<<< codex/implement-mood-driven-collaboration-styles
-#     path("council/start/", council.start_session, name="council-start"),
-#     path("council/<uuid:id>/", council.session_detail, name="council-detail"),
-#     path(
-#         "council/<uuid:id>/thoughts/", council.session_thoughts, name="council-thoughts"
-#     ),
-#     path("council/<uuid:id>/respond/", council.session_respond, name="council-respond"),
-#     path("council/<uuid:id>/reflect/", council.session_reflect, name="council-reflect"),
-# =======
-#     # path("council/start/", council.start_session, name="council-start"),
-#     # path("council/<uuid:id>/", council.session_detail, name="council-detail"),
-#     # path("council/<uuid:id>/thoughts/", council.session_thoughts, name="council-thoughts"),
-#     # path("council/<uuid:id>/respond/", council.session_respond, name="council-respond"),
-#     # path("council/<uuid:id>/reflect/", council.session_reflect, name="council-reflect"),
-# >>>>>>> main
+    # <<<<<<< codex/implement-mood-driven-collaboration-styles
+    #     path("council/start/", council.start_session, name="council-start"),
+    #     path("council/<uuid:id>/", council.session_detail, name="council-detail"),
+    #     path(
+    #         "council/<uuid:id>/thoughts/", council.session_thoughts, name="council-thoughts"
+    #     ),
+    #     path("council/<uuid:id>/respond/", council.session_respond, name="council-respond"),
+    #     path("council/<uuid:id>/reflect/", council.session_reflect, name="council-reflect"),
+    # =======
+    #     # path("council/start/", council.start_session, name="council-start"),
+    #     # path("council/<uuid:id>/", council.session_detail, name="council-detail"),
+    #     # path("council/<uuid:id>/thoughts/", council.session_thoughts, name="council-thoughts"),
+    #     # path("council/<uuid:id>/respond/", council.session_respond, name="council-respond"),
+    #     # path("council/<uuid:id>/reflect/", council.session_reflect, name="council-reflect"),
+    # >>>>>>> main
     path("suggest_switch/", switching.suggest_switch, name="assistant-suggest-switch"),
     path("switch/", switching.switch_session, name="assistant-switch-session"),
     path("thoughts/<uuid:pk>/feedback/", thoughts.update_reflection_feedback),
@@ -477,6 +477,11 @@ urlpatterns = [
         "<slug:slug>/simulate-memory/",
         memory.simulate_memory,
         name="assistant-simulate-memory",
+    ),
+    path(
+        "<slug:slug>/add_document/",
+        assistants.add_document_to_assistant,
+        name="assistant-add-document",
     ),
     path(
         "<slug:slug>/drift-check/",
