@@ -285,7 +285,6 @@ Return only JSON in this format:
 
         AssistantThoughtLog.objects.create(
             assistant=assistant,
-            project=assistant_project.project,
             thought_type="planning",
             thought=(
                 f"I was created to assist with {document.title} based on the linked document."
