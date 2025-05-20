@@ -408,3 +408,52 @@ def recent_feedback(request, slug):
     ]
 
     return Response(data)
+
+
+@api_view(["GET"])
+def assistant_thought_map(request, slug):
+    """Return thought logs for an assistant with lightweight linkage data."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+
+    thoughts = AssistantThoughtLog.objects.filter(assistant=assistant)
+
+    mood = request.GET.get("mood")
+    tag = request.GET.get("tag")
+    feedback = request.GET.get("feedback")
+    start = request.GET.get("start")
+    end = request.GET.get("end")
+
+    if mood:
+        thoughts = thoughts.filter(mood=mood)
+    if tag:
+        thoughts = thoughts.filter(tags__slug=tag)
+    if feedback:
+        thoughts = thoughts.filter(feedback=feedback)
+    if start:
+        thoughts = thoughts.filter(created_at__gte=start)
+    if end:
+        thoughts = thoughts.filter(created_at__lte=end)
+
+    thoughts = thoughts.order_by("created_at").select_related(
+        "parent_thought",
+        "linked_memory",
+    ).prefetch_related("tags")
+
+    data = [
+        {
+            "id": str(t.id),
+            "thought": t.thought,
+            "thought_type": t.thought_type,
+            "created_at": t.created_at,
+            "mood": t.mood,
+            "feedback": t.feedback,
+            "parent_thought": str(t.parent_thought_id) if t.parent_thought_id else None,
+            "linked_memory": str(t.linked_memory_id) if t.linked_memory_id else None,
+            "linked_memory_summary": t.linked_memory.summary if t.linked_memory else None,
+            "narrative_thread": str(t.narrative_thread_id) if t.narrative_thread_id else None,
+            "tags": list(t.tags.values_list("slug", flat=True)),
+        }
+        for t in thoughts
+    ]
+
+    return Response({"thoughts": data})

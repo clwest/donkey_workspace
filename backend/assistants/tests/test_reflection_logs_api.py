@@ -60,6 +60,7 @@ class AssistantReflectionLogAPITest(APITestCase):
         expected = {
             "id",
             "summary",
+            "raw_summary",
             "raw_prompt",
             "llm_summary",
             "linked_memory",
