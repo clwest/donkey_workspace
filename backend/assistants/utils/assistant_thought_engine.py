@@ -9,7 +9,12 @@ from assistants.helpers.redis_helpers import (
     get_cached_reflection,
     set_cached_reflection,
 )
-from assistants.models import Assistant, AssistantTask, AssistantObjective
+from assistants.models import (
+    Assistant,
+    AssistantTask,
+    AssistantObjective,
+    AssistantThoughtLog,
+)
 from assistants.utils.tag_thought import tag_thought_content
 from memory.models import MemoryEntry, ReflectionFlag
 from mcp_core.models import MemoryContext
