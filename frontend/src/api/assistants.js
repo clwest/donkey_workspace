@@ -73,3 +73,24 @@ export async function suggestAssistant(body) {
   }
   return res.json();
 }
+
+export async function clarifyPrompt(slug, text) {
+  const res = await fetch(`http://localhost:8000/api/assistants/${slug}/clarify_prompt/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+    credentials: "include",
+  });
+  if (!res.ok) {
+    throw new Error("Failed to clarify prompt");
+  }
+  return res.json();
+}
+
+export async function fetchFailureLog(slug) {
+  const res = await fetch(`http://localhost:8000/api/assistants/${slug}/failure_log/`);
+  if (!res.ok) {
+    throw new Error("Failed to load failure log");
+  }
+  return res.json();
+}

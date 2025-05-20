@@ -368,6 +368,16 @@ urlpatterns = [
         name="assistant-self-reflect",
     ),
     path(
+        "<slug:slug>/clarify_prompt/",
+        assistants.clarify_prompt,
+        name="assistant-clarify-prompt",
+    ),
+    path(
+        "<slug:slug>/failure_log/",
+        assistants.failure_log,
+        name="assistant-failure-log",
+    ),
+    path(
         "<slug:slug>/submit-thought/",
         thoughts.submit_assistant_thought,
         name="submit-assistant-thought",
