@@ -141,13 +141,16 @@ export default function AssistantThoughtCard({
       >
         <div className="card-body p-3">
           <div className="mb-2">
-            <span className={`badge bg-${color}`}>
-              {icon || typeEmojis[thought.thought_type] || "💭"} {badge || "Thought"}
-            </span>{" "}
-            <small className="text-muted">
-              🕒 {new Date(thought.created_at).toLocaleString()}
-            </small>
-          </div>
+          <span className={`badge bg-${color}`}>
+            {icon || typeEmojis[thought.thought_type] || "💭"} {badge || "Thought"}
+          </span>{" "}
+          <small className="text-muted">
+            🕒 {new Date(thought.created_at).toLocaleString()}
+          </small>
+          {thought.thought_type === "prompt_clarification" && (
+            <span className="badge bg-warning text-dark ms-2">⚠️ Clarified Prompt</span>
+          )}
+        </div>
 
           {thought.parent_thought && (
             <div className="text-muted small mb-1">

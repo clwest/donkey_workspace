@@ -10,6 +10,8 @@ from .assistants import (
     reflect_on_assistant,
     primary_reflect_now,
     primary_spawn_agent,
+    clarify_prompt,
+    failure_log,
 )
 from .thoughts import (
     submit_assistant_thought,
@@ -176,4 +178,6 @@ __all__ = [
     "list_handoffs",
     "suggest_assistant",
     "routing_history",
+    "clarify_prompt",
+    "failure_log",
 ]

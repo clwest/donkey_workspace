@@ -136,3 +136,23 @@ class PromptUsageTemplate(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.trigger_type}) for {self.agent.name}"
+
+
+class PromptMutationLog(models.Model):
+    """Track changes to prompts and their lineage."""
+
+    original_prompt = models.ForeignKey(
+        Prompt, on_delete=models.CASCADE, related_name="mutation_logs"
+    )
+    mutated_text = models.TextField()
+    mode = models.CharField(max_length=50)
+    parent = models.ForeignKey(
+        "self", null=True, blank=True, on_delete=models.SET_NULL, related_name="children"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Mutation of {self.original_prompt.slug} via {self.mode}"

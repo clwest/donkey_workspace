@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
+import { fetchFailureLog } from "../../api/assistants";
 import AssistantThoughtCard from "../../components/assistant/thoughts/AssistantThoughtCard";
 import AssistantMemoryPanel from "../../components/assistant/memory/AssistantMemoryPanel";
 import MemoryChainSettingsPanel from "../../components/assistant/memory/MemoryChainSettingsPanel";
@@ -18,6 +19,7 @@ export default function PrimaryAssistantDashboard() {
   const [outbox, setOutbox] = useState([]);
   const [allAssistants, setAllAssistants] = useState([]);
   const [routingHistory, setRoutingHistory] = useState([]);
+  const [failureLog, setFailureLog] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [recipient, setRecipient] = useState("");
 
@@ -38,6 +40,8 @@ export default function PrimaryAssistantDashboard() {
         setAllAssistants(all);
         const history = await apiFetch("/assistants/routing-history/?assistant=" + res.slug);
         setRoutingHistory(history.results || []);
+        const failures = await fetchFailureLog(res.slug);
+        setFailureLog(failures || []);
       } catch (err) {
         console.error("Failed to load primary assistant", err);
       } finally {
@@ -211,6 +215,21 @@ export default function PrimaryAssistantDashboard() {
                 <li key={r.id} className="list-group-item d-flex justify-content-between">
                   <span>{r.assistant || "none"}</span>
                   <span className="badge bg-secondary">{r.confidence_score.toFixed(2)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        <div className="mt-4">
+          <h4>Failure Log</h4>
+          {failureLog.length === 0 ? (
+            <p>No failures detected.</p>
+          ) : (
+            <ul className="list-group">
+              {failureLog.map((f) => (
+                <li key={f.id} className="list-group-item">
+                  <div className="small text-muted">{new Date(f.created_at).toLocaleString()}</div>
+                  {f.text}
                 </li>
               ))}
             </ul>

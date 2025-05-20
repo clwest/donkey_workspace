@@ -82,3 +82,24 @@ def complete_chat(
     except Exception as e:
         logger.error(f"❌ complete_chat failed: {e}", exc_info=True)
         return ""
+
+
+def reflect_on_prompt(text: str) -> str:
+    """Analyze a problematic prompt and produce clarification advice."""
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You clarify vague or failing prompts by suggesting concise improvements.",
+                },
+                {"role": "user", "content": text},
+            ],
+            temperature=0,
+            max_tokens=150,
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:  # pragma: no cover - network
+        logger.error(f"❌ reflect_on_prompt failed: {e}", exc_info=True)
+        return ""

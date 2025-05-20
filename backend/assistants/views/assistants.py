@@ -20,6 +20,7 @@ from assistants.models import (
     TokenUsage,
     ChatSession,
 )
+from prompts.models import PromptMutationLog
 from assistants.helpers.redis_helpers import get_cached_thoughts
 from assistants.serializers import AssistantSerializer
 from assistants.utils.assistant_session import (
@@ -48,6 +49,22 @@ from assistants.models import AssistantSkill
 
 logger = logging.getLogger("django")
 client = OpenAI()
+
+
+def _maybe_log_self_doubt(assistant: Assistant, reply: str) -> None:
+    """Detect low-confidence replies and log a self-doubt thought."""
+    if not reply:
+        return
+    too_long = len(reply.split()) > 250
+    uncertain = "i'm not sure" in reply.lower() or "i am not sure" in reply.lower()
+    if too_long or uncertain:
+        AssistantThoughtLog.objects.create(
+            assistant=assistant,
+            thought="Potential low confidence detected in last reply.",
+            thought_type="self_doubt",
+            clarification_needed=True,
+            clarification_prompt="Could you clarify your request?",
+        )
 
 
 @api_view(["GET", "POST"])
@@ -397,6 +414,7 @@ def chat_with_assistant_view(request, slug):
         temperature=0.7,
     )
     reply = completion.choices[0].message.content.strip()
+    _maybe_log_self_doubt(assistant, reply)
     tool_result = None
     tool_obj = None
     tool_match = re.match(r"^@tool:(\w+)\s+(\{.*\})", reply)
@@ -667,3 +685,54 @@ def reflect_on_assistant(request):
     return Response(
         {"message": "Reflection logged.", "thought": thought_text}, status=201
     )
+
+
+@api_view(["POST"])
+def clarify_prompt(request, slug):
+    """Trigger prompt clarification for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    text = request.data.get("text")
+    if not text:
+        return Response({"error": "text required"}, status=400)
+
+    from prompts.utils.mutation import mutate_prompt
+    from prompts.utils.openai_utils import reflect_on_prompt
+
+    clarified = mutate_prompt(text, "clarify")
+
+    PromptMutationLog.objects.create(
+        original_prompt=assistant.system_prompt,
+        mutated_text=clarified,
+        mode="clarify",
+    )
+
+    thought_text = reflect_on_prompt(text)
+    thought = AssistantThoughtLog.objects.create(
+        assistant=assistant,
+        thought=thought_text,
+        thought_type="prompt_clarification",
+        clarification_needed=False,
+    )
+
+    return Response({"clarified": clarified, "thought_id": str(thought.id)})
+
+
+@api_view(["GET"])
+def failure_log(request, slug):
+    """Return thought logs marked with self doubt or needing clarification."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    logs = AssistantThoughtLog.objects.filter(
+        assistant=assistant
+    ).filter(
+        models.Q(thought_type="self_doubt") | models.Q(clarification_needed=True)
+    )
+    data = [
+        {
+            "id": str(l.id),
+            "text": l.thought,
+            "created_at": l.created_at,
+            "clarification_prompt": l.clarification_prompt,
+        }
+        for l in logs
+    ]
+    return Response(data)

@@ -35,6 +35,8 @@ THOUGHT_TYPES = [
     ("planning", "Planning Step"),
     ("reflection", "Reflection"),
     ("mutation", "Mutation"),
+    ("self_doubt", "Self Doubt"),
+    ("prompt_clarification", "Prompt Clarification"),
     ("delegation_suggestion", "Delegation Suggestion"),
 ]
 
@@ -383,6 +385,9 @@ class AssistantThoughtLog(models.Model):
         related_name="thought_logs",
     )
     tool_result_summary = models.CharField(max_length=255, null=True, blank=True)
+
+    clarification_needed = models.BooleanField(default=False)
+    clarification_prompt = models.TextField(null=True, blank=True)
 
     narrative_thread = models.ForeignKey(
         "mcp_core.NarrativeThread",
