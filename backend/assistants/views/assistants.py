@@ -41,7 +41,7 @@ from tools.utils import call_tool, reflect_on_tool_output
 from tools.models import Tool
 from prompts.models import Prompt
 from tools.models import Tool, ToolUsageLog
-from tools.utils import execute_tool
+from tools.utils.tool_registry import execute_tool
 
 
 logger = logging.getLogger("django")

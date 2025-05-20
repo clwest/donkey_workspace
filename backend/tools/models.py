@@ -9,7 +9,11 @@ class Tool(models.Model):
     slug = models.SlugField(unique=True)
     description = models.TextField(blank=True)
     module_path = models.CharField(max_length=255)
-    function_name = models.CharField(max_length=100)
+    function_name = models.CharField(
+        max_length=100,
+        default="",          # ← one‐time default for existing + future rows
+        help_text="Name of the tool function"
+    )
     input_schema = models.JSONField(default=dict, blank=True)
     output_schema = models.JSONField(default=dict, blank=True)
     schema = models.JSONField(blank=True, null=True)
