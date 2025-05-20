@@ -1,6 +1,8 @@
 from langchain_community.document_loaders import PDFPlumberLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from intel_core.utils.processing import process_pdfs
+from intel_core.models import DocumentProgress
+from intel_core.core import clean_text
 import os
 import logging
 
@@ -62,9 +64,14 @@ def load_pdfs(
 
             logger.info(f"Successfully extracted {len(pdf_list)} chunks from PDF")
 
-            # Process each chunk
+            progress = DocumentProgress.objects.create(
+                title=pdf_title,
+                total_chunks=len(pdf_list),
+                status="in_progress",
+            )
+            failed_chunks = set()
+
             for i, pdf in enumerate(pdf_list):
-                # Enhance metadata
                 pdf.metadata.update(
                     {
                         "title": pdf_title,
@@ -74,30 +81,44 @@ def load_pdfs(
                         "session_id": session_id,
                         "chunk_index": i,
                         "total_chunks": len(pdf_list),
+                        "progress_id": str(progress.progress_id),
                     }
                 )
 
-                # Process the PDF document
-                processed_document = process_pdfs(
-                    pdf, pdf_title, project_name, session_id
-                )
+                cleaned = clean_text(pdf.page_content)
+                if not cleaned or len(cleaned.split()) < 20:
+                    logger.warning(
+                        f"Skipping chunk {i+1}/{len(pdf_list)} for '{pdf_title}' - too short"
+                    )
+                    failed_chunks.add(i)
+                    progress.failed_chunks = list(failed_chunks)
+                    progress.save()
+                    continue
 
-                if not processed_document:
+                processed_document = process_pdfs(pdf, pdf_title, project_name, session_id)
+
+                if not processed_document and i not in failed_chunks:
                     logger.info(
                         f"Retrying chunk {i+1}/{len(pdf_list)} for '{pdf_title}'"
                     )
-                    processed_document = process_pdfs(
-                        pdf, pdf_title, project_name, session_id
-                    )
+                    processed_document = process_pdfs(pdf, pdf_title, project_name, session_id)
 
                 if processed_document:
                     processed_documents.append(processed_document)
+                    progress.processed += 1
                     logger.info(f"Successfully processed chunk {i+1}/{len(pdf_list)}")
                 else:
                     logger.error(
                         f"Failed to process chunk {i+1}/{len(pdf_list)} for '{pdf_title}'",
                         exc_info=True,
                     )
+                    failed_chunks.add(i)
+
+                progress.failed_chunks = list(failed_chunks)
+                progress.save()
+
+            progress.status = "completed" if not failed_chunks else "failed"
+            progress.save()
 
         except Exception as e:
             logger.error(f"Failed to process PDF {file_path}: {e}")
