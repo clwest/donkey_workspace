@@ -496,7 +496,7 @@ return (
           <Route path="/assistants/:slug/memories" element={<AssistantMemoriesPage />} />
           <Route path="/assistants/:slug/memories" element={<AssistantMemoryPage />} />
           {/* Assistant Objectives */}
-          <Route path="/assistants/objectives" element={<ObjectivesPage />} />
+          <Route path="/assistants/:slug/objectives" element={<ObjectivesPage />} />
           <Route path="/assistants/next-actions" element={<NextActionsPage />} />
           <Route path="/assistants/memory/:memoryId/to-task" element={<MemoryToTaskPage />} />
           <Route path="/assistants/memory-chains" element={<MemoryChainsPage />} />
