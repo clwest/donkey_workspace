@@ -10,6 +10,8 @@ from celery import shared_task
 from embeddings.helpers.helpers_processing import generate_embedding
 from embeddings.helpers.helpers_io import save_embedding
 
+EMBEDDING_LENGTH = 1536
+
 logger = logging.getLogger("embeddings")
 
 
@@ -38,6 +40,12 @@ def embed_and_store(
         if not embedding:
             logger.error(
                 f"Embedding generation returned no result for {content_type}:{content_id}"
+            )
+            return None
+        if not isinstance(embedding, list) or len(embedding) != 1536:
+            logger.warning(
+                f"Skipping embed_and_store for {content_type}:{content_id} -- "
+                f"invalid vector size {len(embedding) if isinstance(embedding, list) else 'N/A'}"
             )
             return None
 
