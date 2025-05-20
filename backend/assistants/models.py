@@ -315,7 +315,7 @@ class AssistantThoughtLog(models.Model):
         related_name="thoughts",
     )
     thought_type = models.CharField(
-        max_length=20, choices=THOUGHT_TYPES, default="generated"
+        max_length=30, choices=THOUGHT_TYPES, default="generated"
     )
     thought = models.TextField()
     thought_trace = models.TextField(blank=True, default="")
