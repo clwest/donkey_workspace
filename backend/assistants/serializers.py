@@ -25,6 +25,9 @@ from .models import (
     AssistantSkill,
     SignalSource,
     SignalCatch,
+    CouncilSession,
+    CouncilThought,
+    CouncilOutcome,
 )
 
 from project.models import (
@@ -852,3 +855,48 @@ class AssistantFromPromptSerializer(serializers.Serializer):
             "assistant": assistant,
             "project": project,
         }
+
+
+class CouncilSessionSerializer(serializers.ModelSerializer):
+    members = AssistantSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = CouncilSession
+        fields = [
+            "id",
+            "topic",
+            "linked_memory",
+            "project",
+            "created_by",
+            "status",
+            "created_at",
+            "members",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
+class CouncilThoughtSerializer(serializers.ModelSerializer):
+    assistant_name = serializers.CharField(source="assistant.name", read_only=True)
+
+    class Meta:
+        model = CouncilThought
+        fields = [
+            "id",
+            "assistant",
+            "assistant_name",
+            "council_session",
+            "content",
+            "round",
+            "is_final",
+            "mood",
+            "role",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
+class CouncilOutcomeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CouncilOutcome
+        fields = ["council_session", "summary", "created_at"]
+        read_only_fields = ["created_at"]
