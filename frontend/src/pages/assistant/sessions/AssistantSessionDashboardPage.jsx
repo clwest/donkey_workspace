@@ -10,6 +10,8 @@ export default function AssistantSessionDashboardPage({ slug: slugProp }) {
   const [delegations, setDelegations] = useState([]);
   const [threads, setThreads] = useState([]);
   const [reflection, setReflection] = useState(null);
+  const [dreamText, setDreamText] = useState(null);
+  const [dreamLoading, setDreamLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [projectId, setProjectId] = useState(null);
 
@@ -46,6 +48,18 @@ export default function AssistantSessionDashboardPage({ slug: slugProp }) {
     }
   };
 
+  const handleDream = async () => {
+    try {
+      setDreamLoading(true);
+      const res = await apiFetch(`/assistants/${slug}/dream/`, { method: "POST" });
+      setDreamText(res.dream);
+    } catch (err) {
+      console.error("Dream failed", err);
+    } finally {
+      setDreamLoading(false);
+    }
+  };
+
   if (!slug)
     return <div className="container my-5">Assistant slug missing.</div>;
   if (loading) return <div className="container my-5">Loading...</div>;
@@ -64,12 +78,24 @@ export default function AssistantSessionDashboardPage({ slug: slugProp }) {
           <button className="btn btn-primary" onClick={handleReflect}>
             Reflect Now
           </button>
+          <button
+            className="btn btn-secondary ms-2"
+            onClick={handleDream}
+            disabled={dreamLoading}
+          >
+            {dreamLoading ? "Dreaming..." : "\uD83D\uDE34 Dream"}
+          </button>
         </div>
       </div>
 
       {reflection && (
         <div className="alert alert-info">
           <pre className="mb-0">{reflection.summary}</pre>
+        </div>
+      )}
+      {dreamText && (
+        <div className="alert alert-primary dream-output">
+          <pre className="mb-0">{dreamText}</pre>
         </div>
       )}
 

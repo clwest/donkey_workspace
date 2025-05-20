@@ -3,3 +3,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+
+.dream-bg {
+    background: rgba(230, 240, 255, 0.4);
+    backdrop-filter: blur(2px);
+}

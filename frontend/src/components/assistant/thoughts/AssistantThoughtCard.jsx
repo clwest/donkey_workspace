@@ -11,6 +11,7 @@ const typeEmojis = {
   cot: "🧩",
   reflection: "🪞",
   planning: "🛠️",
+  dream: "😴",
 };
 
 export default function AssistantThoughtCard({
@@ -132,7 +133,9 @@ export default function AssistantThoughtCard({
   return (
     <>
       <div
-        className="card mb-3 shadow-sm border-light"
+        className={`card mb-3 shadow-sm border-light${
+          thought.mode === "dream" ? " dream-bg" : ""
+        }`}
         onClick={() => setShowModal(true)}
         style={{ cursor: "pointer" }}
       >

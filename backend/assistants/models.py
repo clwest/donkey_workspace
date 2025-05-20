@@ -68,6 +68,12 @@ THOUGHT_CATEGORY_CHOICES = [
     ("other", "Other"),
 ]
 
+# Thought log modes
+THOUGHT_MODES = [
+    ("default", "Default"),
+    ("dream", "Dream"),
+]
+
 # Planning history event types
 PLANNING_EVENT_TYPES = [
     ("objective_added", "Objective Added"),
@@ -310,6 +316,7 @@ class AssistantThoughtLog(models.Model):
     role = models.CharField(
         max_length=20, choices=ROLE_CHOICES, default="assistant"
     )  # 👈 NEW
+    mode = models.CharField(max_length=20, choices=THOUGHT_MODES, default="default")
     feedback = models.CharField(
         max_length=50,
         null=True,
