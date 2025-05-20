@@ -37,11 +37,11 @@ from assistants.utils.assistant_reflection_engine import AssistantReflectionEngi
 from memory.utils.context_helpers import get_or_create_context_from_memory
 from embeddings.helpers.helpers_io import save_embedding
 from embeddings.helpers.helper_tagging import generate_tags_for_memory
-from tools.utils import call_tool, reflect_on_tool_output
-from tools.models import Tool
-from prompts.models import Prompt
+from tools.utils import call_tool, reflect_on_tool_output, execute_tool
 from tools.models import Tool, ToolUsageLog
-from tools.utils import execute_tool
+from prompts.models import Prompt
+from django.db import models
+from assistants.models import AssistantSkill
 
 
 logger = logging.getLogger("django")
@@ -74,8 +74,30 @@ def assistants_view(request):
         print("🔍 Incoming assistant data:", request.data)
         serializer = AssistantSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            assistant = serializer.save()
+            prompt_text = ""
+            if assistant.system_prompt:
+                prompt_text += assistant.system_prompt.content or ""
+            prompt_text += " " + (assistant.specialty or "")
+            from assistants.utils.skill_helpers import infer_skills_from_prompt
+
+            skill_data = infer_skills_from_prompt(prompt_text)
+            for item in skill_data:
+                skill = AssistantSkill.objects.create(
+                    assistant=assistant,
+                    name=item["name"],
+                    confidence=item.get("confidence", 0.5),
+                    related_tags=item.get("tags", []),
+                )
+                tools = Tool.objects.filter(
+                    models.Q(name__icontains=item["name"])
+                    | models.Q(description__icontains=item["name"])
+                )
+                if tools.exists():
+                    skill.related_tools.set(tools)
+            return Response(
+                AssistantSerializer(assistant).data, status=status.HTTP_201_CREATED
+            )
         print("❌ Assistant creation failed:", serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -90,7 +112,9 @@ def assistant_detail_view(request, slug):
             {"error": "Assistant not found."}, status=status.HTTP_404_NOT_FOUND
         )
 
-    serializer = AssistantSerializer(assistant)
+    from assistants.serializers import AssistantDetailSerializer
+
+    serializer = AssistantDetailSerializer(assistant)
     data = serializer.data
     if assistant.current_project:
         from assistants.serializers import ProjectOverviewSerializer
@@ -311,7 +335,9 @@ def chat_with_assistant_view(request, slug):
     if tool_slug:
         tool_input = request.data.get("tool_input") or {}
         tool_result = call_tool(tool_slug, tool_input, assistant)
-        reflection = reflect_on_tool_output(tool_result, tool_slug, tool_input, assistant)
+        reflection = reflect_on_tool_output(
+            tool_result, tool_slug, tool_input, assistant
+        )
         if not reflection.get("useful", True):
             if reflection.get("retry_input"):
                 tool_result = call_tool(tool_slug, reflection["retry_input"], assistant)
@@ -331,7 +357,9 @@ def chat_with_assistant_view(request, slug):
                     fallback_details={"tool": tool_slug},
                 )
                 return Response({"delegate_slug": delegate.slug})
-        messages.append({"role": "system", "content": f"Tool {tool_slug} output: {tool_result}"})
+        messages.append(
+            {"role": "system", "content": f"Tool {tool_slug} output: {tool_result}"}
+        )
 
     if should_delegate(assistant, token_usage, request.data.get("feedback_flag")):
         recent_memory = (

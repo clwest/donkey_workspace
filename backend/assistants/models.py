@@ -18,6 +18,7 @@ from django.conf import settings
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.fields import ArrayField
+from tools.models import Tool
 from pgvector.django import VectorField
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -261,6 +262,27 @@ class DelegationStrategy(models.Model):
 
     def __str__(self):
         return f"Strategy for {self.assistant.name}"
+
+
+class AssistantSkill(models.Model):
+    """Skill or capability associated with an assistant."""
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="skills",
+    )
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    confidence = models.FloatField(default=0.5)
+    related_tools = models.ManyToManyField("tools.Tool", blank=True)
+    related_tags = ArrayField(models.CharField(max_length=50), default=list)
+
+    class Meta:
+        unique_together = ("assistant", "name")
+
+    def __str__(self) -> str:  # pragma: no cover - display
+        return f"{self.assistant.name}: {self.name}"
 
 
 class AssistantThoughtLog(models.Model):
