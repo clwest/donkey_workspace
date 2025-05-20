@@ -17,6 +17,9 @@ export default function AssistantDashboardHeader({ assistant, memoryCoverage, on
         <div>
           <h3 className="mb-0">
             {assistant.name} <PrimaryStar isPrimary={assistant.is_primary} />
+            {assistant.needs_recovery && (
+              <span className="badge bg-warning text-dark ms-2">Misaligned</span>
+            )}
           </h3>
           <p className="text-muted mb-0">{assistant.specialty}</p>
           {memoryCoverage !== null && (

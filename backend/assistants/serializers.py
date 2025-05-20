@@ -254,6 +254,7 @@ class SpecializationDriftLogSerializer(serializers.ModelSerializer):
             "trigger_type",
             "auto_flagged",
             "resolved",
+            "requires_retraining",
             "timestamp",
         ]
         read_only_fields = fields
@@ -456,6 +457,7 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             "is_active",
             "is_demo",
             "is_primary",
+            "needs_recovery",
             "live_relay_enabled",
             "collaboration_style",
             "preferred_conflict_resolution",
@@ -782,6 +784,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "preferred_model",
             "mood_stability_index",
             "is_primary",
+            "needs_recovery",
             "live_relay_enabled",
             "collaboration_style",
             "preferred_conflict_resolution",

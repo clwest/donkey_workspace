@@ -54,11 +54,17 @@ def analyze_specialization_drift(assistant: Assistant) -> dict:
     avg_thought_sim = sum(scores) / len(scores) if scores else prompt_sim
     overall_sim = (prompt_sim + avg_thought_sim) / 2
 
+    flagged = overall_sim < SIMILARITY_THRESHOLD
+    if flagged:
+        assistant.needs_recovery = True
+        assistant.save(update_fields=["needs_recovery"])
+
     return {
         "drift_score": 1 - overall_sim,
         "prompt_similarity": prompt_sim,
         "thought_similarity": avg_thought_sim,
-        "flagged": overall_sim < SIMILARITY_THRESHOLD,
+        "flagged": flagged,
+        "requires_retraining": flagged,
         "summary": f"Similarity to baseline {overall_sim:.2f}",
     }
 

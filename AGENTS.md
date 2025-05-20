@@ -79,6 +79,7 @@ We are now in **Phase 3**, focused on deepening long-term memory, task planning,
 - ✅ 4.22: Emotional Resonance Logging + Assistant Empathy Tracing
 - ✅ 4.23: Mood-Driven Collaboration Styles + Conflict Avoidance
 - ✅ 4.24: Team Memory Chains + Assistant Roles in Shared Projects
+- ✅ 4.28: Assistant Recovery Workflow (Drift Detection + Recovery Panel)
 
 ---
 
@@ -96,5 +97,13 @@ We are now in **Phase 3**, focused on deepening long-term memory, task planning,
 - 🎭 4.26: Emotional Memory Mapping + Mood Influence
 - 📈 4.27+: Dynamic Planning based on Mood, Memory, and Context
 - 👁️‍🗨️ 4.29+: Memory Visualizer, Delegation Trace Views, Agent Feedback
+
+### 🔧 Assistant Recovery Workflow
+
+Phase 4.28 introduces a recovery system for misaligned assistants. When drift
+logs exceed the threshold, the assistant is flagged with `needs_recovery` and a
+recovery panel becomes available in the dashboard. The panel allows triggering a
+reflection-based recovery flow, prompt realignment, and project objective
+rebalancing.
 
 ---

@@ -4,6 +4,7 @@ import apiFetch from "../../../utils/apiClient";
 import PrimaryStar from "../../../components/assistant/PrimaryStar";
 import MoodStabilityGauge from "../../../components/assistant/MoodStabilityGauge";
 import DriftScoreChart from "../../../components/assistant/DriftScoreChart";
+import RecoveryPanel from "../../../components/assistant/RecoveryPanel";
 import { runDriftCheck } from "../../../api/assistants";
 import { toast } from "react-toastify";
 import "./styles/AssistantDetail.css";
@@ -376,6 +377,8 @@ export default function AssistantDetailPage() {
           <DriftScoreChart logs={assistant.drift_logs} />
         </div>
       )}
+
+      <RecoveryPanel assistantSlug={slug} />
 
       <hr />
       <h4>🪪 Identity</h4>

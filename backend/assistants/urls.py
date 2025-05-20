@@ -505,6 +505,11 @@ urlpatterns = [
         name="assistant-drift-check",
     ),
     path(
+        "<slug:slug>/recover/",
+        assistants.recover_assistant_view,
+        name="assistant-recover",
+    ),
+    path(
         "<slug:slug>/diff-knowledge/",
         knowledge.diff_knowledge,
         name="assistant-diff-knowledge",

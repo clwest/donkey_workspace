@@ -118,6 +118,21 @@ export async function runDriftCheck(slug) {
   return res.json();
 }
 
+export async function recoverAssistant(slug) {
+  const res = await fetch(
+    `http://localhost:8000/api/assistants/${slug}/recover/`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    },
+  );
+  if (!res.ok) {
+    throw new Error("Failed to run recovery");
+  }
+  return res.json();
+}
+
 export async function suggestSwitch(sessionId) {
   const res = await fetch(
     "http://localhost:8000/api/assistants/suggest_switch/",
