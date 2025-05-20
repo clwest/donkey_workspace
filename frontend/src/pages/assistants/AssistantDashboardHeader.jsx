@@ -1,6 +1,6 @@
 import PrimaryStar from "../../components/assistant/PrimaryStar";
 
-export default function AssistantDashboardHeader({ assistant, memoryCoverage, onReflect }) {
+export default function AssistantDashboardHeader({ assistant, memoryCoverage, onReflect, onSelfAssess }) {
   if (!assistant) return null;
   return (
     <div className="card mb-4 shadow-sm">
@@ -23,13 +23,18 @@ export default function AssistantDashboardHeader({ assistant, memoryCoverage, on
             <div className="small text-muted">🧠 Memory Coverage: {memoryCoverage}%</div>
           )}
         </div>
-        {onReflect && (
-          <div className="ms-auto">
+        <div className="ms-auto d-flex gap-2">
+          {onReflect && (
             <button className="btn btn-primary" onClick={onReflect}>
               Reflect Now
             </button>
-          </div>
-        )}
+          )}
+          {onSelfAssess && (
+            <button className="btn btn-outline-info" onClick={onSelfAssess}>
+              Self-Assessment
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

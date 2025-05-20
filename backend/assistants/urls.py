@@ -433,6 +433,11 @@ urlpatterns = [
         name="assistant-self-reflect",
     ),
     path(
+        "<slug:slug>/self-assess/",
+        assistants.self_assess,
+        name="assistant-self-assess",
+    ),
+    path(
         "<slug:slug>/clarify_prompt/",
         assistants.clarify_prompt,
         name="assistant-clarify-prompt",

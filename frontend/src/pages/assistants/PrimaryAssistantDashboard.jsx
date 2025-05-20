@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
-import { fetchFailureLog } from "../../api/assistants";
+import { fetchFailureLog, runSelfAssessment } from "../../api/assistants";
 import AssistantThoughtCard from "../../components/assistant/thoughts/AssistantThoughtCard";
 import AssistantMemoryPanel from "../../components/assistant/memory/AssistantMemoryPanel";
 import PrioritizedMemoryPanel from "../../components/assistant/memory/PrioritizedMemoryPanel";
@@ -10,6 +10,7 @@ import PrimaryStar from "../../components/assistant/PrimaryStar";
 import ThoughtCloudPanel from "../../components/assistant/memory/ThoughtCloudPanel";
 import MemoryMoodChart from "../../components/assistant/memory/MemoryMoodChart";
 import AssistantDashboardHeader from "./AssistantDashboardHeader";
+import SelfAssessmentModal from "../../components/assistant/SelfAssessmentModal";
 
 export default function PrimaryAssistantDashboard() {
   const [assistant, setAssistant] = useState(null);
@@ -25,6 +26,8 @@ export default function PrimaryAssistantDashboard() {
   const [failureLog, setFailureLog] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [recipient, setRecipient] = useState("");
+  const [assessment, setAssessment] = useState(null);
+  const [showAssess, setShowAssess] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -112,6 +115,18 @@ export default function PrimaryAssistantDashboard() {
     }
   };
 
+  const handleSelfAssess = async () => {
+    if (!assistant) return;
+    try {
+      const res = await runSelfAssessment(assistant.slug);
+      setAssessment(res);
+      setShowAssess(true);
+    } catch (err) {
+      console.error("Assessment failed", err);
+      alert("Failed to run self assessment");
+    }
+  };
+
   if (loading) return <div className="container my-5">Loading...</div>;
   if (!assistant) return <div className="container my-5">Primary assistant not found.</div>;
 
@@ -123,6 +138,7 @@ export default function PrimaryAssistantDashboard() {
         assistant={assistant}
         memoryCoverage={memoryCoverage}
         onReflect={handleReflect}
+        onSelfAssess={handleSelfAssess}
       />
       <div className="mb-3">
         <ul className="nav nav-tabs">
@@ -290,5 +306,10 @@ export default function PrimaryAssistantDashboard() {
         </div>
       )}
     </div>
+    <SelfAssessmentModal
+      show={showAssess}
+      onClose={() => setShowAssess(false)}
+      result={assessment}
+    />
   );
 }
