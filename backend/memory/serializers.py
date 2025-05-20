@@ -4,6 +4,8 @@ from .models import (
     MemoryFeedback,
     MemoryChain,
     SimulatedMemoryFork,
+    SharedMemoryPool,
+    SharedMemoryEntry,
 )
 
 from assistants.models import AssistantThoughtLog
@@ -150,3 +152,17 @@ class PrioritizedMemorySerializer(MemoryEntrySlimSerializer):
             "relevance_score",
             "feedback_count",
         ]
+
+
+class SharedMemoryPoolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SharedMemoryPool
+        fields = "__all__"
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class SharedMemoryEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SharedMemoryEntry
+        fields = "__all__"
+        read_only_fields = ["id", "created_at", "updated_at"]

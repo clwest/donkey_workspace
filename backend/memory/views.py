@@ -5,21 +5,30 @@ from django.db.models import Q
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
-from .models import MemoryEntry, MemoryChain
-from .serializers import MemoryEntrySerializer
+from .models import (
+    MemoryEntry,
+    MemoryChain,
+    MemoryFeedback,
+    SharedMemoryPool,
+    SharedMemoryEntry,
+)
+from .serializers import (
+    MemoryEntrySerializer,
+    MemoryFeedbackSerializer,
+    SharedMemoryPoolSerializer,
+    SharedMemoryEntrySerializer,
+)
 from prompts.serializers import PromptSerializer
 from prompts.models import Prompt
 from django.utils import timezone
 from openai import OpenAI
 from dotenv import load_dotenv
 from embeddings.helpers.helpers_io import save_embedding
-from .models import MemoryFeedback
 from prompts.utils.mutation import mutate_prompt as run_mutation
 from embeddings.helpers.helpers_io import get_embedding_for_text
 from mcp_core.utils.auto_tag_from_embedding import auto_tag_from_embedding
 from assistants.helpers.logging_helper import log_assistant_thought
 from assistants.models import Assistant, AssistantThoughtLog, AssistantReflectionLog
-from .serializers import MemoryFeedbackSerializer
 
 load_dotenv()
 
@@ -563,4 +572,46 @@ def vector_memories(request):
         :25
     ]
     serializer = MemoryEntrySerializer(entries, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["GET", "POST"])
+@permission_classes([AllowAny])
+def shared_memory_pools(request):
+    """Create or list shared memory pools."""
+    if request.method == "POST":
+        serializer = SharedMemoryPoolSerializer(data=request.data)
+        if serializer.is_valid():
+            pool = serializer.save()
+            return Response(SharedMemoryPoolSerializer(pool).data, status=201)
+        return Response(serializer.errors, status=400)
+
+    pools = SharedMemoryPool.objects.all().order_by("-created_at")
+    serializer = SharedMemoryPoolSerializer(pools, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def shared_memory_pool_detail(request, pool_id):
+    pool = get_object_or_404(SharedMemoryPool, id=pool_id)
+    serializer = SharedMemoryPoolSerializer(pool)
+    return Response(serializer.data)
+
+
+@api_view(["GET", "POST"])
+@permission_classes([AllowAny])
+def shared_memory_pool_entries(request, pool_id):
+    pool = get_object_or_404(SharedMemoryPool, id=pool_id)
+    if request.method == "POST":
+        data = request.data.copy()
+        data["pool"] = str(pool.id)
+        serializer = SharedMemoryEntrySerializer(data=data)
+        if serializer.is_valid():
+            entry = serializer.save(pool=pool)
+            return Response(SharedMemoryEntrySerializer(entry).data, status=201)
+        return Response(serializer.errors, status=400)
+
+    entries = pool.entries.order_by("-created_at")
+    serializer = SharedMemoryEntrySerializer(entries, many=True)
     return Response(serializer.data)
