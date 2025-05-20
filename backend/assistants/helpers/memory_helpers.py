@@ -63,3 +63,37 @@ def create_memory_from_chat(
     embed_and_tag_memory.delay(memory.id)
     run_assistant_reflection.delay(memory.id)
     return memory
+
+
+def get_relevant_memories_for_task(
+    assistant,
+    project=None,
+    task_type: str | None = None,
+    context=None,
+    limit: int = 10,
+):
+    """Return prioritized memories for a given task."""
+    from django.utils import timezone
+    from datetime import timedelta
+    from django.db.models import Count
+
+    qs = MemoryEntry.objects.filter(assistant=assistant)
+    if context:
+        qs = qs.filter(context=context)
+    elif project:
+        qs = qs.filter(related_project=project)
+
+    if task_type:
+        qs = qs.filter(context_tags__contains=[task_type])
+
+    # default to last 30 days
+    qs = qs.filter(created_at__gte=timezone.now() - timedelta(days=30))
+
+    qs = qs.annotate(feedback_count=Count("feedback"))
+    qs = qs.order_by(
+        "-relevance_score",
+        "-importance",
+        "-feedback_count",
+        "-created_at",
+    )
+    return list(qs[:limit])

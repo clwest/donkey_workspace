@@ -137,3 +137,16 @@ class MemoryEntrySlimSerializer(serializers.ModelSerializer):
             return count_tokens(text)
         except Exception:
             return len(text.split())
+
+
+class PrioritizedMemorySerializer(MemoryEntrySlimSerializer):
+    """Serializer with extra fields for prioritized listing."""
+
+    feedback_count = serializers.IntegerField(read_only=True)
+
+    class Meta(MemoryEntrySlimSerializer.Meta):
+        fields = MemoryEntrySlimSerializer.Meta.fields + [
+            "importance",
+            "relevance_score",
+            "feedback_count",
+        ]

@@ -51,9 +51,15 @@ class AssistantReflectionEngine:
     def reflect_now(self, context: MemoryContext) -> AssistantReflectionLog:
         """Run a quick reflection over recent memories for the given context."""
 
-        entries = MemoryEntry.objects.filter(context=context).order_by("-created_at")[
-            :30
-        ]
+        from assistants.helpers.memory_helpers import get_relevant_memories_for_task
+
+        entries = get_relevant_memories_for_task(
+            self.assistant,
+            project=self.project,
+            task_type="reflection",
+            context=context,
+            limit=30,
+        )
         texts = [e.event.strip() for e in entries if e.event.strip()]
 
         prompt = None
