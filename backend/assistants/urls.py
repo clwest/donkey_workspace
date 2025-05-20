@@ -16,7 +16,7 @@ from .views import (
     cache_tools,
     skills,
     messages,
-
+    switching,
 )
 
 urlpatterns = [
@@ -266,6 +266,8 @@ urlpatterns = [
         messages.outbox,
         name="assistant-message-outbox",
     ),
+    path("suggest_switch/", switching.suggest_switch, name="assistant-suggest-switch"),
+    path("switch/", switching.switch_session, name="assistant-switch-session"),
     path("thoughts/<uuid:pk>/feedback/", thoughts.update_reflection_feedback),
     path("thoughts/<uuid:id>/mutate/", thoughts.mutate_thought, name="mutate-thought"),
     path("thoughts/<uuid:id>/", thoughts.assistant_thought_detail),

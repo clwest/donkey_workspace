@@ -1,5 +1,6 @@
 from assistants.models import ChatSession, AssistantChatMessage
 from project.models import Project
+from memory.models import MemoryEntry
 
 
 def get_or_create_chat_session(session_id, assistant=None, project=None, thread=None):
@@ -12,10 +13,41 @@ def get_or_create_chat_session(session_id, assistant=None, project=None, thread=
     if project and not session.project:
         session.project = project
 
+    derived_thread = None
+
     if thread:
-        session.thread = thread
+        derived_thread = thread
+    else:
+        if session.thread:
+            derived_thread = session.thread
+        else:
+            memory = (
+                MemoryEntry.objects.filter(chat_session=session)
+                .order_by("-created_at")
+                .first()
+            )
+            if memory:
+                derived_thread = memory.narrative_thread or (
+                    memory.related_project.thread
+                    if memory.related_project and memory.related_project.thread
+                    else (
+                        memory.related_project.narrative_thread
+                        if memory.related_project
+                        else None
+                    )
+                )
+
+        if not derived_thread and (
+            project or assistant and getattr(assistant, "current_project", None)
+        ):
+            proj = project or assistant.current_project
+            if proj:
+                derived_thread = proj.thread or proj.narrative_thread
+
+    if derived_thread:
+        session.thread = derived_thread
         if not session.narrative_thread:
-            session.narrative_thread = thread
+            session.narrative_thread = derived_thread
 
     session.save()
     return session
