@@ -334,6 +334,8 @@ class AssistantThoughtLog(models.Model):
     mood = models.CharField(max_length=20, default="neutral", blank=True)
     event = models.CharField(max_length=50, null=True, blank=True)
     source_reason = models.CharField(max_length=20, null=True, blank=True)
+    fallback_reason = models.CharField(max_length=50, null=True, blank=True)
+    fallback_details = models.JSONField(null=True, blank=True)
     tags = models.ManyToManyField(
         "mcp_core.Tag", blank=True, related_name="assistant_thoughts"
     )
@@ -1039,6 +1041,13 @@ class DelegationEvent(models.Model):
     )
     objective = models.ForeignKey(
         "assistants.AssistantObjective",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="delegation_events",
+    )
+    triggered_by_tool = models.ForeignKey(
+        "tools.Tool",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
