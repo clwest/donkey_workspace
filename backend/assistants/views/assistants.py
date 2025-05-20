@@ -37,15 +37,12 @@ from assistants.utils.assistant_reflection_engine import AssistantReflectionEngi
 from memory.utils.context_helpers import get_or_create_context_from_memory
 from embeddings.helpers.helpers_io import save_embedding
 from embeddings.helpers.helper_tagging import generate_tags_for_memory
-from tools.utils import call_tool, reflect_on_tool_output, execute_tool
-from tools.models import Tool, ToolUsageLog
-<<<<<<< HEAD
+from tools.utils import call_tool, reflect_on_tool_output
 from tools.utils.tool_registry import execute_tool
-=======
+from tools.models import Tool, ToolUsageLog
 from prompts.models import Prompt
 from django.db import models
 from assistants.models import AssistantSkill
->>>>>>> 5680ac861cf01afd65ea561a18624249edd66c2c
 
 
 logger = logging.getLogger("django")
