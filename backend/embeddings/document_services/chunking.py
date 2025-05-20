@@ -27,6 +27,7 @@ __all__ = [
     "split_text",
     "fingerprint",
     "summarize_chunks",
+    "merge_and_score_chunks",
 ]
 
 
@@ -159,3 +160,73 @@ def summarize_chunks(chunks: List[str]) -> str:
         return summary
     truncated = summary[:MAX_SUMMARY_CHARS].rsplit(" ", 1)[0]
     return truncated + "..."
+
+
+def _token_count(text: str) -> int:
+    """Approximate token count using whitespace-separated words."""
+    return len(text.split())
+
+
+HEADER_FOOTER_RE = re.compile(r"page \d+ of \d+", re.IGNORECASE)
+
+
+def merge_and_score_chunks(
+    chunks: List[str],
+    small_threshold: int = 100,
+    max_total_tokens: int = 300,
+) -> List[Tuple[str, float, str]]:
+    """Clean up, merge, and score chunks.
+
+    Args:
+        chunks: Raw text chunks.
+        small_threshold: Token threshold for considering a chunk small.
+        max_total_tokens: Max tokens when merging adjacent small chunks.
+
+    Returns:
+        List of tuples ``(text, score, notes)``.
+    """
+
+    results: List[Tuple[str, float, str]] = []
+    seen_fps = set()
+    i = 0
+    while i < len(chunks):
+        text = chunks[i].strip()
+        if not text:
+            i += 1
+            continue
+
+        if HEADER_FOOTER_RE.match(text):
+            results.append((text, 0.0, "discarded header/footer"))
+            i += 1
+            continue
+
+        alnum_ratio = sum(c.isalnum() for c in text) / max(len(text), 1)
+        if alnum_ratio < 0.4:
+            results.append((text, 0.0, "discarded non-alphanumeric"))
+            i += 1
+            continue
+
+        fp = fingerprint(text)
+        if fp in seen_fps:
+            results.append((text, 0.0, "duplicate chunk"))
+            i += 1
+            continue
+
+        tokens = _token_count(text)
+        notes = ""
+        if tokens < small_threshold and i + 1 < len(chunks):
+            nxt = chunks[i + 1].strip()
+            if nxt:
+                combined = text + " " + nxt
+                if tokens + _token_count(nxt) <= max_total_tokens:
+                    text = combined
+                    tokens = _token_count(text)
+                    notes = "merged with next"
+                    i += 1
+
+        score = 0.5 if tokens < small_threshold else 1.0
+        results.append((text, score, notes))
+        seen_fps.add(fp)
+        i += 1
+
+    return results
