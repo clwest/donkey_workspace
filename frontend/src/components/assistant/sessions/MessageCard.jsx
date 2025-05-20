@@ -13,7 +13,11 @@ export default function MessageCard({ message, onFeedback, onTopicSave }) {
   };
 
   return (
-    <div className={`mb-4 ${message.role === "user" ? "text-end" : "text-start"}`}>
+    <div
+      className={`mb-4 card shadow-sm p-3 ${
+        message.role === "user" ? "text-end" : "text-start"
+      }`}
+    >
       <div>
         <span className={`badge ${message.role === "user" ? "bg-primary" : "bg-secondary"} me-2`}>
           {message.role}
@@ -21,7 +25,7 @@ export default function MessageCard({ message, onFeedback, onTopicSave }) {
         <small className="text-muted">{new Date(message.created_at).toLocaleTimeString()}</small>
       </div>
 
-      <div className={`p-3 rounded ${message.role === "user" ? "bg-light" : "bg-white border"}`}>
+      <div className={message.role === "user" ? "bg-light rounded" : "bg-white border rounded"}>
         <p className="mb-2">{message.content}</p>
         {message.message_type === "image" && message.image_url && (
           <img src={message.image_url} alt="generated" className="img-fluid mb-2" />

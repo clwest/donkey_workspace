@@ -43,7 +43,7 @@ export default function AssistantSessionsPage() {
             <Link
               key={session.session_id}
               to={`/assistants/sessions/${session.session_id}`}
-              className="list-group-item list-group-item-action"
+              className="list-group-item list-group-item-action shadow-sm p-3"
             >
               <div className="d-flex justify-content-between">
                 <strong>{session.assistant_name}</strong>

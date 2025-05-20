@@ -82,9 +82,9 @@ export default function PrimaryAssistantDashboard() {
 
       <div className="row g-4">
         <div className="col-md-6">
-          <h4 className="mb-3">Recent Thoughts</h4>
+          <h5 className="mb-3">Recent Thoughts</h5>
           {thoughts.length === 0 ? (
-            <p>No recent thoughts.</p>
+            <p>No thoughts yet! 😴</p>
           ) : (
             thoughts.map((t, idx) => (
               <AssistantThoughtCard key={idx} thought={t} />
@@ -92,7 +92,7 @@ export default function PrimaryAssistantDashboard() {
           )}
         </div>
         <div className="col-md-6">
-          <h4 className="mb-3">Memory</h4>
+          <h5 className="mb-3">Memory</h5>
           <AssistantMemoryPanel slug={assistant.slug} />
           <MemoryChainSettingsPanel slug={assistant.slug} />
           <Link
