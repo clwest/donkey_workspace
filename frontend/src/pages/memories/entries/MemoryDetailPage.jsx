@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import MemoryFlagPanel from "../../../components/memory/MemoryFlagPanel";
 import MemoryForkButton from "../../../components/memory/MemoryForkButton";
+import TagBadge from "../../../components/TagBadge";
 import { suggestDelegation } from "../../../api/assistants";
 import "../styles/MemoryDetailPage.css";
 
@@ -102,8 +103,8 @@ export default function MemoryDetailPage() {
         {memory.tags?.length > 0 && (
           <div className="mb-3">
             <strong>Tags:</strong>{" "}
-            {memory.tags.map((tag, i) => (
-              <span key={i} className="badge bg-info me-1">{tag}</span>
+            {memory.tags.map((tag) => (
+              <TagBadge key={tag.id} tag={tag} />
             ))}
           </div>
         )}
