@@ -2,15 +2,20 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
 import { mutateMemory } from "../../../api/memories";
+import MemoryVisualizer from "../../../components/assistant/memory/MemoryVisualizer";
+import ThoughtCloudPanel from "../../../components/assistant/memory/ThoughtCloudPanel";
 
 export default function AssistantMemoryPage() {
   const { slug } = useParams();
   const [memories, setMemories] = useState([]);
+  const [summary, setSummary] = useState(null);
 
   useEffect(() => {
     async function fetchMemories() {
       const res = await apiFetch(`/memory/list?assistant=${slug}`);
       setMemories(res);
+      const sum = await apiFetch(`/assistants/${slug}/memory/summary/`);
+      setSummary(sum);
     }
     fetchMemories();
   }, [slug]);
@@ -28,6 +33,13 @@ export default function AssistantMemoryPage() {
   return (
     <div className="container my-5">
       <h1>🧠 Memories Linked to {slug}</h1>
+
+      {summary && (
+        <div className="mb-4">
+          <MemoryVisualizer memories={summary.most_recent} />
+          <ThoughtCloudPanel tagCounts={summary.recent_tags} />
+        </div>
+      )}
 
       {memories.length === 0 ? (
         <p>No memories found for this assistant.</p>

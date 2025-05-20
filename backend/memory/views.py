@@ -274,8 +274,6 @@ def list_memories(request):
     return Response(serializer.data)
 
 
-
-
 @api_view(["POST"])
 @parser_classes([MultiPartParser, FormParser])
 def upload_voice_clip(request):
@@ -440,7 +438,7 @@ def create_memory_with_tags(request):
     }
     """
     from mcp_core.models import Tag
-    from django.utils.text import slugify
+    from memory.utils import normalize_tag_name
 
     data = request.data
     tag_names = data.pop("tags", [])
@@ -457,8 +455,8 @@ def create_memory_with_tags(request):
 
     tag_objs = []
     for name in tag_names:
-        slug = slugify(name)
-        tag, _ = Tag.objects.get_or_create(slug=slug, defaults={"name": name})
+        norm_name, slug = normalize_tag_name(name)
+        tag, _ = Tag.objects.get_or_create(slug=slug, defaults={"name": norm_name})
         tag_objs.append(tag)
 
     memory.tags.set(tag_objs)
@@ -487,7 +485,7 @@ def memories_by_tag(request, slug):
 @permission_classes([AllowAny])
 def update_memory_tags(request, id):
     from mcp_core.models import Tag
-    from django.utils.text import slugify
+    from memory.utils import normalize_tag_name
 
     memory = get_object_or_404(MemoryEntry, id=id)
     tag_names = request.data.get("tags", [])
@@ -497,8 +495,8 @@ def update_memory_tags(request, id):
 
     tag_objs = []
     for name in tag_names:
-        slug = slugify(name)
-        tag, _ = Tag.objects.get_or_create(slug=slug, defaults={"name": name})
+        norm_name, slug = normalize_tag_name(name)
+        tag, _ = Tag.objects.get_or_create(slug=slug, defaults={"name": norm_name})
         tag_objs.append(tag)
 
     memory.tags.set(tag_objs)
@@ -512,7 +510,7 @@ def update_memory_tags(request, id):
 @permission_classes([AllowAny])
 def replace_memory(request, id):
     from mcp_core.models import Tag
-    from django.utils.text import slugify
+    from memory.utils import normalize_tag_name
 
     memory = get_object_or_404(MemoryEntry, id=id)
     data = request.data
@@ -527,8 +525,8 @@ def replace_memory(request, id):
     if isinstance(tag_names, list):
         tag_objs = []
         for name in tag_names:
-            slug = slugify(name)
-            tag, _ = Tag.objects.get_or_create(slug=slug, defaults={"name": name})
+            norm_name, slug = normalize_tag_name(name)
+            tag, _ = Tag.objects.get_or_create(slug=slug, defaults={"name": norm_name})
             tag_objs.append(tag)
         memory.tags.set(tag_objs)
 
@@ -554,8 +552,11 @@ def assistant_memories(request, slug):
     serializer = MemoryEntrySerializer(memories, many=True)
     return Response(serializer.data)
 
+
 @api_view(["GET"])
 def vector_memories(request):
-    entries = MemoryEntry.objects.filter(type="vector_search").order_by("-created_at")[:25]
+    entries = MemoryEntry.objects.filter(type="vector_search").order_by("-created_at")[
+        :25
+    ]
     serializer = MemoryEntrySerializer(entries, many=True)
     return Response(serializer.data)

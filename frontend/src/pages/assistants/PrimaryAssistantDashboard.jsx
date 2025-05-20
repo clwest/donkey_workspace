@@ -5,11 +5,14 @@ import AssistantThoughtCard from "../../components/assistant/thoughts/AssistantT
 import AssistantMemoryPanel from "../../components/assistant/memory/AssistantMemoryPanel";
 import MemoryChainSettingsPanel from "../../components/assistant/memory/MemoryChainSettingsPanel";
 import PrimaryStar from "../../components/assistant/PrimaryStar";
+import ThoughtCloudPanel from "../../components/assistant/memory/ThoughtCloudPanel";
+import MemoryMoodChart from "../../components/assistant/memory/MemoryMoodChart";
 
 export default function PrimaryAssistantDashboard() {
   const [assistant, setAssistant] = useState(null);
   const [delegations, setDelegations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [memorySummary, setMemorySummary] = useState(null);
 
   useEffect(() => {
     async function load() {
@@ -18,6 +21,8 @@ export default function PrimaryAssistantDashboard() {
         setAssistant(res);
         const delRes = await apiFetch("/assistants/primary/delegations/");
         setDelegations(delRes || []);
+        const summary = await apiFetch(`/assistants/${res.slug}/memory/summary/`);
+        setMemorySummary(summary);
       } catch (err) {
         console.error("Failed to load primary assistant", err);
       } finally {
@@ -101,6 +106,22 @@ export default function PrimaryAssistantDashboard() {
           >
             View All Memories
           </Link>
+          {memorySummary && (
+            <div className="mt-3">
+              <button
+                className="btn btn-sm btn-outline-info mb-2"
+                data-bs-toggle="collapse"
+                data-bs-target="#memoryPulse"
+              >
+                🧠 Memory Pulse
+              </button>
+              <div className="collapse" id="memoryPulse">
+                <ThoughtCloudPanel tagCounts={memorySummary.recent_tags} />
+                <MemoryMoodChart moodCounts={memorySummary.recent_moods} />
+                <Link to={`/assistants/${assistant.slug}/memories/`} className="btn btn-sm btn-link">Full Visualizer</Link>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
