@@ -52,6 +52,7 @@ class ReflectionLogSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field="name"
     )
+    raw_summary = serializers.CharField(source="raw_prompt", allow_null=True, read_only=True)
 
     class Meta:
         model = AssistantReflectionLog  # or whatever model you're using

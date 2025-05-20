@@ -310,6 +310,11 @@ urlpatterns = [
         name="assistant_thoughts_by_slug",
     ),
     path(
+        "<slug:slug>/thought-map/",
+        thoughts.assistant_thought_map,
+        name="assistant-thought-map",
+    ),
+    path(
         "<slug:slug>/reflect/",
         thoughts.reflect_on_assistant_thoughts,
         name="assistant_reflect_on_thoughts",

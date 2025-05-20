@@ -58,6 +58,7 @@ import ProjectTimelinePage from "./pages/assistant/milestones/ProjectTimelinePag
 import ProjectObjectivesPage from "./pages/assistant/projects/ProjectObjectivesPage";
 import AssistantThoughtLogPage from "./pages/assistant/thoughts/AssistantThoughtLogPage";
 import ProjectThoughtLog from "./pages/assistant/thoughts/ProjectThoughtLog";
+import AssistantThoughtMapPage from "./pages/assistant/thoughts/AssistantThoughtMap";
 import AssistantMemoriesPage from "./pages/assistant/common/AssistantMemoriesPage";
 import AssistantMemoryPage from "./pages/assistant/memory/AssistantMemoryPage";
 import DelegationTracePage from "./pages/assistant/DelegationTracePage";
@@ -221,6 +222,10 @@ export default function App() {
           <Route
             path="/assistants/:slug/thoughts/:id"
             element={<AssistantThoughtDetailPage />}
+          />
+          <Route
+            path="/assistants/:slug/thought-map"
+            element={<AssistantThoughtMapPage />}
           />
           <Route
             path="/assistants/:slug/memories"
