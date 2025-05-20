@@ -191,6 +191,7 @@ class AssistantTaskSerializer(serializers.ModelSerializer):
     assigned_assistant_slug = serializers.CharField(
         source="assigned_assistant.slug", read_only=True
     )
+
     class Meta:
         model = AssistantTask
         fields = [
@@ -207,6 +208,8 @@ class AssistantTaskSerializer(serializers.ModelSerializer):
             "assigned_assistant",
             "assigned_assistant_name",
             "assigned_assistant_slug",
+            "tone",
+            "generated_from_mood",
             "confirmed_by_user",
             "created_at",
         ]
@@ -556,6 +559,7 @@ class AssistantSerializer(serializers.ModelSerializer):
     def get_delegation_events_count(self, obj):
         from assistants.models import DelegationEvent
         from django.utils import timezone
+
         week_ago = timezone.now() - timezone.timedelta(days=7)
         return DelegationEvent.objects.filter(
             child_assistant=obj, created_at__gte=week_ago
@@ -566,9 +570,9 @@ class AssistantSerializer(serializers.ModelSerializer):
         from django.db.models import Avg
 
         return (
-            DelegationEvent.objects.filter(child_assistant=obj).aggregate(avg=Avg("score"))[
-                "avg"
-            ]
+            DelegationEvent.objects.filter(child_assistant=obj).aggregate(
+                avg=Avg("score")
+            )["avg"]
             or 0
         )
 

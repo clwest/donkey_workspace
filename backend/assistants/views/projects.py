@@ -22,9 +22,11 @@ from embeddings.helpers.helpers_io import save_embedding
 from django.contrib.auth import get_user_model
 from memory.models import MemoryEntry
 from project.models import Project, ProjectMemoryLink, ProjectMilestone
-from assistants.models import AssistantObjective, AssistantTask
+from assistants.models import AssistantObjective, AssistantTask, ChatSession
+from assistants.helpers.mood import get_session_mood, map_mood_to_tone
 from assistants.utils.memory_project_planner import build_project_plan_from_memories
 import uuid
+
 
 @api_view(["GET", "POST"])
 @permission_classes([AllowAny])
@@ -39,10 +41,13 @@ def assistant_projects(request):
 
         if serializer.is_valid():
             project = serializer.save()
-            return Response(AssistantProjectSerializer(project).data, status=status.HTTP_201_CREATED)
+            return Response(
+                AssistantProjectSerializer(project).data, status=status.HTTP_201_CREATED
+            )
         else:
             print("🚨 Serializer errors:", serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
@@ -60,17 +65,23 @@ def assistant_project_detail(request, pk):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def bootstrap_assistant_from_prompt(request):
-    serializer = AssistantFromPromptSerializer(data=request.data, context={"request": request})
+    serializer = AssistantFromPromptSerializer(
+        data=request.data, context={"request": request}
+    )
     serializer.is_valid(raise_exception=True)
     result = serializer.save()
 
     assistant_data = AssistantSerializer(result["assistant"]).data
     project_data = AssistantProjectSerializer(result["project"]).data
 
-    return Response({
-        "assistant": assistant_data,
-        "project": project_data,
-    }, status=201)
+    return Response(
+        {
+            "assistant": assistant_data,
+            "project": project_data,
+        },
+        status=201,
+    )
+
 
 @api_view(["GET"])
 def projects_for_assistant(request, slug):
@@ -103,7 +114,9 @@ def assign_project(request, slug):
         return Response({"error": "Project not found"}, status=404)
 
     if project.assistant != assistant:
-        return Response({"error": "Project does not belong to this assistant"}, status=400)
+        return Response(
+            {"error": "Project does not belong to this assistant"}, status=400
+        )
 
     assistant.current_project = project
     assistant.save()
@@ -114,7 +127,9 @@ def assign_project(request, slug):
 def project_roles(request, project_id):
     """List or create roles for a project."""
     if request.method == "GET":
-        roles = AssistantProjectRole.objects.filter(project_id=project_id).select_related("assistant")
+        roles = AssistantProjectRole.objects.filter(
+            project_id=project_id
+        ).select_related("assistant")
         serializer = AssistantProjectRoleSerializer(roles, many=True)
         return Response(serializer.data)
 
@@ -133,7 +148,9 @@ def project_role_detail(request, role_id):
         return Response({"error": "Role not found"}, status=404)
 
     if request.method == "PATCH":
-        serializer = AssistantProjectRoleSerializer(role, data=request.data, partial=True)
+        serializer = AssistantProjectRoleSerializer(
+            role, data=request.data, partial=True
+        )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -146,7 +163,9 @@ def project_role_detail(request, role_id):
 @api_view(["GET"])
 def project_history(request, project_id):
     """Return planning log timeline for a project."""
-    logs = ProjectPlanningLog.objects.filter(project_id=project_id).order_by("-timestamp")
+    logs = ProjectPlanningLog.objects.filter(project_id=project_id).order_by(
+        "-timestamp"
+    )
     serializer = ProjectPlanningLogSerializer(logs, many=True)
     return Response(serializer.data)
 
@@ -200,10 +219,19 @@ def memory_to_project(request, slug):
             title=obj_title,
         )
         objectives.append(obj)
+        session = (
+            ChatSession.objects.filter(assistant=assistant, project=project)
+            .order_by("-created_at")
+            .first()
+        )
+        mood = get_session_mood(session)
+        tone = map_mood_to_tone(mood)
         AssistantTask.objects.create(
             project=project,
             objective=obj,
             title=f"Task for {obj_title}",
+            tone=tone,
+            generated_from_mood=mood,
         )
 
     for ms in plan.get("milestones", []):

@@ -171,6 +171,8 @@ def primary_spawn_agent(request):
                 "id": str(child.id),
                 "slug": child.slug,
                 "name": child.name,
+                "tone": child.inherited_tone,
+                "created_from_mood": child.created_from_mood,
             },
             "project_id": str(project.id) if project else None,
         },
@@ -424,9 +426,7 @@ def demo_assistant(request):
 def self_reflect(request, slug):
     assistant = get_object_or_404(Assistant, slug=slug)
     engine = AssistantReflectionEngine(assistant)
-    prompt = (
-        f"You are {assistant.name}. Reflect on your recent behavior and suggest updates to your persona_summary, traits, values or motto. Respond with reflection text followed by JSON updates if any."
-    )
+    prompt = f"You are {assistant.name}. Reflect on your recent behavior and suggest updates to your persona_summary, traits, values or motto. Respond with reflection text followed by JSON updates if any."
     output = engine.generate_reflection(prompt)
     text = output
     updates = {}

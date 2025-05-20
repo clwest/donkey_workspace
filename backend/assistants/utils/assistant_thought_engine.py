@@ -18,6 +18,7 @@ from assistants.models import (
 from assistants.utils.tag_thought import tag_thought_content
 from memory.models import MemoryEntry, ReflectionFlag
 from mcp_core.models import MemoryContext
+from assistants.models import ChatSession
 from assistants.helpers.logging_helper import log_assistant_thought
 from assistants.helpers.mood import detect_mood
 from assistants.helpers.delegation import spawn_delegated_assistant
@@ -243,9 +244,24 @@ Memories:
             f"Execute work related to {objective.title}",
         ]
         created = []
+        from assistants.helpers.mood import get_session_mood, map_mood_to_tone
+
+        session = (
+            ChatSession.objects.filter(
+                assistant=self.assistant, project=objective.project
+            )
+            .order_by("-created_at")
+            .first()
+        )
+        mood = get_session_mood(session)
+        tone = map_mood_to_tone(mood)
         for text in base_tasks:
             task = AssistantTask.objects.create(
-                project=objective.project, objective=objective, title=text
+                project=objective.project,
+                objective=objective,
+                title=text,
+                tone=tone,
+                generated_from_mood=mood,
             )
             created.append(task)
 

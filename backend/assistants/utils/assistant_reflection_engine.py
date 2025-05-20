@@ -34,6 +34,9 @@ class AssistantReflectionEngine:
     \"\"\"
     {joined_memories}
     \"\"\"
+
+    Was your tone appropriate for the tasks assigned?
+    Would a different emotional state have produced better results?
     """
 
     def generate_reflection(self, prompt: str, temperature: float = 0.5) -> str:
@@ -48,10 +51,9 @@ class AssistantReflectionEngine:
     def reflect_now(self, context: MemoryContext) -> AssistantReflectionLog:
         """Run a quick reflection over recent memories for the given context."""
 
-        entries = (
-            MemoryEntry.objects.filter(context=context)
-            .order_by("-created_at")[:30]
-        )
+        entries = MemoryEntry.objects.filter(context=context).order_by("-created_at")[
+            :30
+        ]
         texts = [e.event.strip() for e in entries if e.event.strip()]
 
         prompt = None
@@ -86,7 +88,7 @@ class AssistantReflectionEngine:
         except Exception as e:
             logger.error(f"[❌] Reflection failed: {e}", exc_info=True)
             raise
-    
+
     @staticmethod
     def get_reflection_assistant():
         slug = slugify("Reflection Engine")
@@ -114,7 +116,6 @@ class AssistantReflectionEngine:
             },
         )
         return project
-    
 
     def reflect_on_document(self, document):
         """Reflect on a Document or DevDoc instance and save insights."""
@@ -130,7 +131,7 @@ class AssistantReflectionEngine:
         logger.info(
             f"[ReflectionEngine] Reflecting on document: {target_document.title}"
         )
-        
+
         # Placeholder reflection logic (replace with your actual logic)
         summary = f"Auto-generated summary for {target_document.title}"
         insights = [
@@ -147,7 +148,7 @@ class AssistantReflectionEngine:
             )
 
         return summary, insights
-    
+
     def reflect_on_memory(self, memory: MemoryEntry) -> AssistantReflectionLog | None:
         """
         Create a reflection log for a single memory entry.
@@ -176,21 +177,28 @@ class AssistantReflectionEngine:
                 title=f"Reflection on memory {memory.id}",
                 summary=reflection_text,
                 raw_prompt=prompt,
-                category="meta"
+                category="meta",
             )
 
             logger.info(f"[✅] Reflection log created for memory {memory.id}")
             return log
         except Exception as e:
-            logger.error(f"[❌] Failed to reflect on memory {memory.id}: {e}", exc_info=True)
+            logger.error(
+                f"[❌] Failed to reflect on memory {memory.id}: {e}", exc_info=True
+            )
             return None
-    def reflect_on_assistant(self, assistant: Assistant, project: AssistantProject) -> AssistantReflectionLog:
+
+    def reflect_on_assistant(
+        self, assistant: Assistant, project: AssistantProject
+    ) -> AssistantReflectionLog:
         """Generate a reflection about a newly spawned assistant."""
         prompt = f"""You are {self.assistant.name}, reflecting on a delegated assistant you created.\n\n" \
                 f"Assistant Name: {assistant.name}\n" \
                 f"Specialty: {assistant.specialty or '(unspecified)'}\n" \
                 f"Description: {assistant.description or '(none)'}\n" \
-                "Provide constructive feedback on its purpose, tone, and any improvements."""
+                "Provide constructive feedback on its purpose, tone, and any improvements."\
+                "\nWas your tone appropriate for the tasks assigned?"\
+                "\nWould a different emotional state have produced better results?"""
         reflection_text = self.generate_reflection(prompt)
         log = AssistantReflectionLog.objects.create(
             assistant=self.assistant,

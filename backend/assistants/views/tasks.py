@@ -15,6 +15,7 @@ from assistants.models import (
     AssistantThoughtLog,
 )
 from memory.models import MemoryEntry
+from assistants.models import ChatSession
 from assistants.utils.task_generation import (
     generate_task_from_memory,
     generate_task_from_thought,
@@ -60,8 +61,6 @@ def assistant_project_tasks(request, project_id):
         return Response(serializer.errors, status=400)
 
 
-
-
 @api_view(["POST"])
 def generate_assistant_project_thought(request, project_id):
     try:
@@ -99,8 +98,6 @@ def update_or_delete_task(request, task_id):
     if request.method == "DELETE":
         task.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
 
 
 @api_view(["PATCH", "DELETE"])
@@ -161,7 +158,9 @@ def propose_task(request, slug):
 
     project = None
     if project_id:
-        project = get_object_or_404(AssistantProject, id=project_id, assistant=assistant)
+        project = get_object_or_404(
+            AssistantProject, id=project_id, assistant=assistant
+        )
 
     if memory_id:
         memory = get_object_or_404(MemoryEntry, id=memory_id)
@@ -169,17 +168,28 @@ def propose_task(request, slug):
         suggestion = generate_task_from_memory(memory)
         source_type = "memory"
         source_id = memory.id
+        session = memory.chat_session
     elif thought_id:
         thought = get_object_or_404(AssistantThoughtLog, id=thought_id)
         project = project or thought.project or assistant.current_project
         suggestion = generate_task_from_thought(thought)
         source_type = "thought"
         source_id = thought.id
+        session = (
+            ChatSession.objects.filter(assistant=assistant, project=project)
+            .order_by("-created_at")
+            .first()
+        )
     else:
         return Response({"error": "memory_id or thought_id required"}, status=400)
 
     if not project:
         return Response({"error": "Project context required"}, status=400)
+
+    from assistants.helpers.mood import get_session_mood, map_mood_to_tone
+
+    mood = get_session_mood(session)
+    tone = map_mood_to_tone(mood)
 
     task = AssistantTask.objects.create(
         project=project,
@@ -188,6 +198,8 @@ def propose_task(request, slug):
         source_type=source_type,
         source_id=source_id,
         proposed_by=assistant,
+        tone=tone,
+        generated_from_mood=mood,
     )
 
     serializer = AssistantTaskSerializer(task)

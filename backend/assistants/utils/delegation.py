@@ -13,9 +13,11 @@ from assistants.models import (
     TokenUsage,
 )
 from assistants.helpers.reflection_helpers import reflect_on_delegation
+from assistants.helpers.mood import get_session_mood, map_mood_to_tone
 from memory.models import MemoryEntry
 from mcp_core.models import NarrativeThread
 from project.models import Project
+from prompts.models import Prompt
 
 
 def should_delegate(
@@ -103,6 +105,9 @@ def spawn_delegated_assistant(
     if parent is None:
         raise ValueError("Parent assistant is required")
 
+    mood = get_session_mood(session)
+    tone = map_mood_to_tone(mood)
+
     child = Assistant.objects.create(
         name=name or f"{parent.name} Delegate",
         description=description,
@@ -110,7 +115,22 @@ def spawn_delegated_assistant(
         parent_assistant=parent,
         created_by=parent.created_by,
         preferred_model=parent.preferred_model,
+        created_from_mood=mood,
+        inherited_tone=tone,
     )
+
+    prompt = Prompt.objects.create(
+        title=f"{child.name} Creation Prompt",
+        content=(
+            f"You are being created by a parent assistant currently feeling {mood}.\n"
+            "Please respond with a tone that matches this mindset."
+        ),
+        type="system",
+        tone=tone,
+        source="delegation",
+    )
+    child.system_prompt = prompt
+    child.save()
 
     child_project = Project.objects.create(
         user=parent.created_by,

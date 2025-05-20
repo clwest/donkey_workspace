@@ -110,6 +110,8 @@ class Assistant(models.Model):
     )
     personality = models.TextField(max_length=300, blank=True, null=True)
     tone = models.CharField(max_length=300, blank=True, null=True)
+    created_from_mood = models.CharField(max_length=20, null=True, blank=True)
+    inherited_tone = models.CharField(max_length=20, null=True, blank=True)
     persona_summary = models.TextField(blank=True, null=True)
     traits = models.JSONField(default=dict, blank=True)
     motto = models.CharField(max_length=200, blank=True)
@@ -197,7 +199,9 @@ class DelegationStrategy(models.Model):
     """Preferences for how an assistant delegates work to agents."""
 
     assistant = models.OneToOneField(
-        "assistants.Assistant", on_delete=models.CASCADE, related_name="delegation_strategy"
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="delegation_strategy",
     )
     prefer_specialists = models.BooleanField(default=True)
     trust_threshold = models.FloatField(default=0.75)
@@ -406,6 +410,22 @@ class AssistantTask(models.Model):
         on_delete=models.SET_NULL,
         related_name="tasks_assigned",
     )
+    tone = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        choices=[
+            ("neutral", "Neutral"),
+            ("encouraging", "Encouraging"),
+            ("direct", "Direct"),
+            ("playful", "Playful"),
+            ("urgent", "Urgent"),
+            ("curious", "Curious"),
+            ("empathetic", "Empathetic"),
+        ],
+        help_text="Tone that should be used when performing this task",
+    )
+    generated_from_mood = models.CharField(max_length=20, null=True, blank=True)
     confirmed_by_user = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 

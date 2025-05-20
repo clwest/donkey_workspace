@@ -3,7 +3,7 @@ import Modal from "../CommonModal";
 import apiFetch from "../../utils/apiClient";
 import { toast } from "react-toastify";
 
-export default function SpawnAgentModal({ slug, show, onClose, contextType = "memory", contextId = "" }) {
+export default function SpawnAgentModal({ slug, show, onClose, contextType = "memory", contextId = "", mood = "unknown" }) {
   const [type, setType] = useState(contextType);
   const [id, setId] = useState(contextId);
   const [reason, setReason] = useState("");
@@ -41,6 +41,9 @@ export default function SpawnAgentModal({ slug, show, onClose, contextType = "me
       <div className="mb-3">
         <label>Reason</label>
         <input className="form-control" value={reason} onChange={(e) => setReason(e.target.value)} />
+      </div>
+      <div className="mb-3 text-muted small">
+        Originating mood: <span title="Tone will be adapted from this mood">{mood}</span>
       </div>
       <button className="btn btn-primary" onClick={handleSpawn} disabled={loading}>
         {loading ? "Spawning..." : "Spawn"}
