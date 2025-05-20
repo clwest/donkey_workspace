@@ -15,8 +15,12 @@ def list_documents(request):
     """Return distinct documents for linking."""
 
     docs = (
-        Document.objects.order_by("-created_at")
-        .distinct("title", "source_type", "source_url")
+        Document.objects.order_by(
+            "title",
+            "source_type",
+            "source_url",
+            "-created_at",
+        ).distinct("title", "source_type", "source_url")
     )
 
     assistant_slug = request.query_params.get("exclude_for")
