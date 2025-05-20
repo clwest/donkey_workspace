@@ -82,6 +82,8 @@ class DocumentChunk(models.Model):
     tokens = models.IntegerField()
     chunk_type = models.CharField(max_length=30, default="body")
     fingerprint = models.CharField(max_length=64, unique=True)
+    score = models.FloatField(default=1.0)
+    quality_notes = models.TextField(blank=True)
     embedding = models.OneToOneField(
         "EmbeddingMetadata",
         null=True,
