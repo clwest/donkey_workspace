@@ -50,8 +50,8 @@ urlpatterns = [
         delegation.suggest_delegate,
         name="suggest-delegate",
     ),
-    path("suggest/", routing.suggest_assistant, name="assistant-suggest"),
-    path("routing-history/", routing.routing_history, name="routing-history"),
+    # path("suggest/", routing.suggest_assistant, name="assistant-suggest"),
+    # path("routing-history/", routing.routing_history, name="routing-history"),
     path("", assistants.assistants_view, name="assistants_view"),
     path("create/", assistants.assistants_view, name="assistants-list-create"),
     # ===== PROJECTS =====
@@ -427,6 +427,11 @@ urlpatterns = [
         "<slug:slug>/simulate-memory/",
         memory.simulate_memory,
         name="assistant-simulate-memory",
+    ),
+    path(
+        "<slug:slug>/drift-check/",
+        assistants.drift_check,
+        name="assistant-drift-check",
     ),
     path("<slug:slug>/", assistants.assistant_detail_view, name="assistant-detail"),
 ]

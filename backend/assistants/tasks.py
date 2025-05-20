@@ -283,13 +283,17 @@ def delegation_health_check():
             )
 
 
-@shared_task
-def detect_assistant_drift():
-    """Analyze specialization drift for all active assistants."""
-    from assistants.utils.drift_detection import analyze_specialization_drift
-    from assistants.models import SpecializationDriftLog
+from assistants.utils.drift_detection import (
+    analyze_drift_for_assistant,
+    analyze_specialization_drift,
+)
+from assistants.models import SpecializationDriftLog
 
+
+def run_specialization_drift_checks():
+    """Run drift analysis using both lightweight and logged methods."""
     for assistant in Assistant.objects.filter(is_active=True):
+        analyze_drift_for_assistant(assistant)
         result = analyze_specialization_drift(assistant)
         if result.get("flagged"):
             SpecializationDriftLog.objects.create(
@@ -299,3 +303,12 @@ def detect_assistant_drift():
                 trigger_type="auto",
                 auto_flagged=True,
             )
+
+
+@shared_task
+def run_drift_check_for_assistant(assistant_id: str):
+    """Run drift check for a single assistant."""
+    assistant = Assistant.objects.filter(id=assistant_id).first()
+    if assistant:
+        log = analyze_drift_for_assistant(assistant)
+        return str(log.id) if log else None
