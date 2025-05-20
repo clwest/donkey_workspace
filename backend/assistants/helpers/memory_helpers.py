@@ -1,6 +1,5 @@
 import json
 import logging
-from openai import OpenAI
 from django.utils.text import slugify
 from mcp_core.models import Tag
 from memory.models import MemoryEntry
@@ -9,7 +8,6 @@ from assistants.tasks import detect_emotional_resonance
 from embeddings.helpers.helpers_io import save_embedding
 
 
-client = OpenAI()
 logger = logging.getLogger(__name__)
 
 

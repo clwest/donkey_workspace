@@ -8,7 +8,7 @@ from assistants.utils.assistant_reflection_engine import AssistantReflectionEngi
 from django.utils import timezone
 from django.utils.text import slugify
 from embeddings.helpers.helper_tagging import generate_tags_for_memory
-from utils.llm import call_gpt4
+from utils.llm_router import call_llm
 
 class Command(BaseCommand):
     help = "Summarize and group all DevDocs into thematic clusters"
@@ -36,7 +36,7 @@ Use JSON format.
 
         assistant = AssistantReflectionEngine.get_reflection_assistant()
         engine = AssistantReflectionEngine(assistant=assistant)
-        response = call_gpt4(prompt)
+        response = call_llm([{"role": "user", "content": prompt}])
 
         if not response or len(response.strip()) < 10:
             self.stdout.write(self.style.ERROR("Empty or invalid LLM response."))

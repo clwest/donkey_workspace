@@ -1,7 +1,6 @@
 import logging
-from openai import OpenAI
+from utils.llm_router import call_llm
 
-client = OpenAI()
 logger = logging.getLogger(__name__)
 
 
@@ -18,12 +17,11 @@ Example: planning, reflection, tone:curious
 """
 
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}],
+        raw = call_llm(
+            [{"role": "user", "content": prompt}],
+            model="gpt-4o",
             temperature=0.2,
         )
-        raw = response.choices[0].message.content.strip()
         tags = [tag.strip().lower() for tag in raw.split(",") if tag.strip()]
         return tags[:max_tags]
 

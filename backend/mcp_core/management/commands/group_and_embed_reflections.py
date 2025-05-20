@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from memory.models import MemoryEntry
 from mcp_core.models import MemoryContext
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
+from utils.llm_router import call_llm
 from embeddings.helpers.helpers_processing import generate_embedding
 from embeddings.helpers.helpers_io import save_embedding
 from django.utils.text import slugify
@@ -39,9 +40,9 @@ Reflections:
 {chr(10).join(chunks)}
         """
 
-        print("🤖 Calling GPT-4 to generate grouped reflection summary...")
-        engine = AssistantReflectionEngine.get_reflection_assistant()
-        response = engine.call_gpt4(prompt)
+        print("🤖 Calling LLM to generate grouped reflection summary...")
+        assistant = AssistantReflectionEngine.get_reflection_assistant()
+        response = call_llm([{"role": "user", "content": prompt}])
 
         if not response:
             print("❌ No response from LLM.")
