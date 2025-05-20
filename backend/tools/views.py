@@ -4,7 +4,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from .models import Tool, ToolUsageLog
-from .utils import execute_tool
+from tools.utils.tool_registry import execute_tool
 
 
 @api_view(["GET"])

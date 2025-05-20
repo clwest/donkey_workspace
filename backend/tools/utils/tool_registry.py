@@ -127,3 +127,8 @@ def discover_tools(directory: Path) -> None:
                     path=str(py),
                     success=True,
                 )
+
+def execute_tool(tool: Tool, payload: dict):
+    module = importlib.import_module(tool.module_path)
+    func = getattr(module, tool.function_name)
+    return func(**payload)

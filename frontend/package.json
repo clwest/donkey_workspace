@@ -30,7 +30,8 @@
     "react-toastify": "^11.0.5",
     "remark-gfm": "^4.0.1",
     "tailwind-variants": "^1.0.0",
-    "tiktoken": "^1.0.21"
+    "tiktoken": "^1.0.21",
+    "d3": "^7.9.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",

@@ -15,6 +15,7 @@ from .models import (
     AssistantNextAction,
     ProjectPlanningLog,
     DelegationEvent,
+    AssistantSkill,
     SignalSource,
     SignalCatch,
 )
@@ -29,6 +30,7 @@ from project.models import (
 )
 from mcp_core.serializers_tags import TagSerializer
 from intel_core.serializers import DocumentSerializer
+from tools.models import Tool
 
 from project.serializers import (
     ProjectSerializer,
@@ -69,6 +71,27 @@ class DelegationEventSerializer(serializers.ModelSerializer):
             "objective_title",
             "created_at",
         ]
+
+
+class AssistantSkillSerializer(serializers.ModelSerializer):
+    related_tools = serializers.SlugRelatedField(
+        slug_field="slug",
+        queryset=Tool.objects.all(),
+        many=True,
+        required=False,
+    )
+
+    class Meta:
+        model = AssistantSkill
+        fields = [
+            "id",
+            "name",
+            "description",
+            "confidence",
+            "related_tools",
+            "related_tags",
+        ]
+        read_only_fields = ["id"]
 
 
 class AssistantReflectionLogSerializer(serializers.ModelSerializer):
@@ -303,11 +326,12 @@ class AssistantProjectRoleSerializer(serializers.ModelSerializer):
 
 
 # assistants/serializers.py
-class AssistantSerializer(serializers.ModelSerializer):
+class AssistantDetailSerializer(serializers.ModelSerializer):
     documents = DocumentSerializer(many=True, read_only=True)
     projects = AssistantProjectSerializer(many=True, read_only=True)
     current_project = ProjectOverviewSerializer(read_only=True)
     child_assistants = serializers.SerializerMethodField()
+    skills = AssistantSkillSerializer(many=True, read_only=True)
     source_document_title = serializers.SerializerMethodField()
     source_document_url = serializers.SerializerMethodField()
 
@@ -328,6 +352,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "tone",
             "persona_summary",
             "traits",
+            "capabilities",
             "motto",
             "values",
             "documents",
@@ -336,6 +361,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "preferred_model",
             "mood_stability_index",
             "child_assistants",
+            "skills",
             "source_document_title",
             "source_document_url",
             "created_at",
@@ -551,6 +577,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "tone",
             "persona_summary",
             "traits",
+            "capabilities",
             "motto",
             "values",
             "specialty",

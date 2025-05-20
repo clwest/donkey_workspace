@@ -14,6 +14,7 @@ from .views import (
     tasks,
     objectives,
     cache_tools,
+    skills,
 )
 
 urlpatterns = [
@@ -36,6 +37,11 @@ urlpatterns = [
         "primary/delegations/",
         delegations.primary_delegations,
         name="primary-delegations",
+    ),
+    path(
+        "suggest_delegate/",
+        delegation.suggest_delegate,
+        name="suggest-delegate",
     ),
     path("", assistants.assistants_view, name="assistants_view"),
     path("create/", assistants.assistants_view, name="assistants-list-create"),
@@ -303,6 +309,11 @@ urlpatterns = [
         "<slug:slug>/feedback/",
         thoughts.recent_feedback,
         name="assistant-feedback",
+    ),
+    path(
+        "<slug:slug>/skills/",
+        skills.assistant_skills,
+        name="assistant-skills",
     ),
     # SLUGS MUST STAY AT THE BOTTOM!
     path(
