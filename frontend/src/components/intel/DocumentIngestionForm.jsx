@@ -51,7 +51,8 @@ export default function DocumentIngestionForm({ onSuccess }) {
 
         toast.success(`✅ Loaded ${res.documents?.length || 0} documents!`);
         if (onSuccess) await onSuccess();
-        console.log(documents)
+        // Log the API response for debugging purposes
+        console.log(res);
         setUrlInput("");
         setVideoInput("");
         setTags("");
