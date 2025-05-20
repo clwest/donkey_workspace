@@ -21,6 +21,7 @@ from .models import (
     DebateSession,
     DebateThoughtLog,
     DebateSummary,
+    RoutingSuggestionLog,
     DelegationEvent,
     SessionHandoff,
     AssistantSwitchEvent,
@@ -116,6 +117,33 @@ class AssistantSwitchEventSerializer(serializers.ModelSerializer):
             "automated",
             "created_at",
         ]
+
+
+class RoutingSuggestionLogSerializer(serializers.ModelSerializer):
+    """Serialize routing suggestion logs for API responses."""
+
+    assistant = serializers.CharField(
+        source="suggested_assistant.name", read_only=True
+    )
+    assistant_slug = serializers.CharField(
+        source="suggested_assistant.slug", read_only=True
+    )
+
+    class Meta:
+        model = RoutingSuggestionLog
+        fields = [
+            "id",
+            "context_summary",
+            "tags",
+            "assistant",
+            "assistant_slug",
+            "confidence_score",
+            "reasoning",
+            "selected",
+            "user_feedback",
+            "timestamp",
+        ]
+        read_only_fields = fields
 
 
 class AssistantSkillSerializer(serializers.ModelSerializer):

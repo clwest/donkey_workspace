@@ -93,6 +93,7 @@ from .debate import (
     debate_respond,
     debate_consensus,
 )
+from .routing import routing_history
 
 from .bootstrap import prompt_to_assistant
 from .signals import (
