@@ -358,7 +358,9 @@ def reflect_on_emotional_resonance(assistant_id: str):
     if not assistant:
         return "assistant not found"
 
-    logs = EmotionalResonanceLog.objects.filter(assistant=assistant).order_by("-created_at")[:20]
+    logs = EmotionalResonanceLog.objects.filter(assistant=assistant).order_by(
+        "-created_at"
+    )[:20]
     if not logs:
         return "no resonance"
 
@@ -414,3 +416,11 @@ def reflect_on_council(session_id: str):
     session.status = "finished"
     session.save(update_fields=["status"])
     return "ok"
+
+
+@shared_task
+def evaluate_team_alignment_task(project_id: str):
+    from assistants.helpers.collaboration import evaluate_team_alignment
+
+    log = evaluate_team_alignment(project_id)
+    return str(log.id) if log else None

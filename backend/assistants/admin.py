@@ -12,6 +12,7 @@ from .models import (
     SessionHandoff,
     AssistantMemoryChain,
     SpecializationDriftLog,
+    CollaborationLog,
 )
 from memory.models import MemoryEntry
 from mcp_core.models import Tag
@@ -180,6 +181,12 @@ class DelegationStrategyAdmin(admin.ModelAdmin):
         "trust_threshold",
         "max_active_delegations",
     )
+
+
+@admin.register(CollaborationLog)
+class CollaborationLogAdmin(admin.ModelAdmin):
+    list_display = ("project", "style_conflict_detected", "created_at")
+    filter_horizontal = ("participants",)
 
 
 # @admin.register(AssistantMemoryChain)
