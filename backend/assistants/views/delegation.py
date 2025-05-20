@@ -48,7 +48,14 @@ def spawn_from_context(request, slug):
         return Response({"error": "Invalid context"}, status=400)
 
     child = spawn_delegated_assistant(parent, memory_entry=memory_entry, reason=reason)
-    return Response({"slug": child.slug}, status=201)
+    return Response(
+        {
+            "slug": child.slug,
+            "tone": child.inherited_tone,
+            "created_from_mood": child.created_from_mood,
+        },
+        status=201,
+    )
 
 
 @api_view(["POST"])

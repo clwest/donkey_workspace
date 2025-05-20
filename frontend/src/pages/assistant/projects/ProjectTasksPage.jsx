@@ -97,7 +97,15 @@ export default function ProjectTasksPage() {
               </div>
             ) : (
               <>
-                <span>{task.title}</span>
+                <div className="flex-grow-1">
+                  <span>{task.title}</span>
+                  {task.tone && (
+                    <span className="badge bg-secondary ms-2">{task.tone}</span>
+                  )}
+                  {task.generated_from_mood && (
+                    <div className="text-muted small">from mood: {task.generated_from_mood}</div>
+                  )}
+                </div>
                 <div className="btn-group">
                   <button className="btn btn-outline-primary btn-sm" onClick={() => startEditing(task)}>✏️</button>
                   <button className="btn btn-outline-danger btn-sm" onClick={() => deleteTask(task.id)}>🗑️</button>
