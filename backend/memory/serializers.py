@@ -16,6 +16,7 @@ class SimulatedMemoryForkSerializer(serializers.ModelSerializer):
         model = SimulatedMemoryFork
         fields = "__all__"
 
+
 class MemoryEntrySerializer(serializers.ModelSerializer):
     linked_thought = serializers.SerializerMethodField()
     narrative_thread = NarrativeThreadSerializer(read_only=True)
@@ -47,6 +48,7 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
             "source_name",
             "parent_memory",
             "type",
+            "tool_response",
             "delegation_event_id",
             "assistant_name",
             "assistant_id",
@@ -100,7 +102,6 @@ class MemoryFeedbackSerializer(serializers.ModelSerializer):
     class Meta:
         model = MemoryFeedback
         fields = "__all__"
-
 
 
 class MemoryChainSerializer(serializers.ModelSerializer):

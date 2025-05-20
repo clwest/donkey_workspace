@@ -15,6 +15,7 @@ from assistants.models import (
     AssistantObjective,
     AssistantThoughtLog,
 )
+from tools.models import Tool
 from assistants.utils.tag_thought import tag_thought_content
 from memory.models import MemoryEntry, ReflectionFlag
 from mcp_core.models import MemoryContext
@@ -80,6 +81,8 @@ Memories:
         steps=None,
         model="gpt-4o",
         mode="default",
+        tool=None,
+        tool_result=None,
     ) -> dict:
         logger.debug(
             f"[LOGGING THOUGHT] Role={role}, Type={thought_type}, Content={content[:60]}"
@@ -96,6 +99,8 @@ Memories:
             thought_trace="\n".join(steps) if steps else "",
             mood=mood,
             mode=mode,
+            tool_used=tool,
+            tool_result_summary=str(tool_result)[:250] if tool_result else None,
         )
 
         # 🧠 Try OpenAI embedding + save it
@@ -125,6 +130,7 @@ Memories:
             linked_thought=log,
             linked_content_type=ContentType.objects.get_for_model(Assistant),
             linked_object_id=self.assistant.id,
+            tool_response=tool_result if tool_result else None,
         )
 
         log.linked_memory = memory

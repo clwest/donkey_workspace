@@ -117,6 +117,7 @@ class MemoryEntry(models.Model):
     )
     linked_object_id = models.UUIDField(null=True, blank=True)
     linked_object = GenericForeignKey("linked_content_type", "linked_object_id")
+    tool_response = models.JSONField(null=True, blank=True)
 
     class Meta:
         ordering = ["-created_at"]

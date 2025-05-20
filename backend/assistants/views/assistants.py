@@ -9,6 +9,7 @@ from openai import OpenAI
 from datetime import datetime
 import logging
 import json
+import re
 from django.conf import settings
 from project.models import Project
 from mcp_core.models import NarrativeThread
@@ -37,6 +38,8 @@ from memory.utils.context_helpers import get_or_create_context_from_memory
 from embeddings.helpers.helpers_io import save_embedding
 from embeddings.helpers.helper_tagging import generate_tags_for_memory
 from prompts.models import Prompt
+from tools.models import Tool, ToolUsageLog
+from tools.utils import execute_tool
 
 
 logger = logging.getLogger("django")
@@ -318,6 +321,36 @@ def chat_with_assistant_view(request, slug):
         temperature=0.7,
     )
     reply = completion.choices[0].message.content.strip()
+    tool_result = None
+    tool_obj = None
+    tool_match = re.match(r"^@tool:(\w+)\s+(\{.*\})", reply)
+    if tool_match:
+        tool_slug = tool_match.group(1)
+        try:
+            payload = json.loads(tool_match.group(2))
+        except Exception:
+            payload = {}
+        tool_obj = Tool.objects.filter(slug=tool_slug).first()
+        if tool_obj:
+            try:
+                tool_result = execute_tool(tool_obj, payload)
+                ToolUsageLog.objects.create(
+                    tool=tool_obj,
+                    assistant=assistant,
+                    input_payload=payload,
+                    output_payload=tool_result,
+                    success=True,
+                )
+                reply = json.dumps(tool_result)
+            except Exception as e:
+                ToolUsageLog.objects.create(
+                    tool=tool_obj,
+                    assistant=assistant,
+                    input_payload=payload,
+                    success=False,
+                    error=str(e),
+                )
+                reply = f"Tool {tool_slug} failed: {e}"
 
     usage = completion.usage
     token_usage.prompt_tokens += getattr(usage, "prompt_tokens", 0)
@@ -342,7 +375,7 @@ def chat_with_assistant_view(request, slug):
 
     # Save both messages to thought log
     engine.log_thought(message, role="user")
-    engine.log_thought(reply, role="assistant")
+    engine.log_thought(reply, role="assistant", tool=tool_obj, tool_result=tool_result)
 
     # Save memory entry
     chat_messages = [m for m in messages if m["role"] in ("user", "assistant")]
@@ -360,6 +393,7 @@ def chat_with_assistant_view(request, slug):
         chat_session=chat_session,
         assistant=assistant,
         project=chat_session.project,
+        tool_response=tool_result,
     )
 
     # Log thoughts
