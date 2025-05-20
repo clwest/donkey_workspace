@@ -14,6 +14,7 @@ from .assistants import (
     clarify_prompt,
     failure_log,
 )
+from .knowledge import diff_knowledge
 from .thoughts import (
     submit_assistant_thought,
     assistant_thoughts_by_slug,
@@ -212,4 +213,5 @@ __all__ = [
     "evaluate_collaboration",
     "collaboration_logs_for_project",
     "collaboration_profile",
+    "diff_knowledge",
 ]

@@ -19,6 +19,7 @@ from .views import (
     switching,
     empathy,
     collaboration,
+    knowledge,
     routing,
 )
 
@@ -502,6 +503,11 @@ urlpatterns = [
         "<slug:slug>/drift-check/",
         assistants.drift_check,
         name="assistant-drift-check",
+    ),
+    path(
+        "<slug:slug>/diff-knowledge/",
+        knowledge.diff_knowledge,
+        name="assistant-diff-knowledge",
     ),
     path(
         "<slug:slug>/collaboration_profile/",
