@@ -9,6 +9,7 @@ from openai import OpenAI
 from datetime import datetime
 import logging
 import json
+import re
 from django.conf import settings
 from project.models import Project
 from mcp_core.models import NarrativeThread
@@ -36,7 +37,11 @@ from assistants.utils.assistant_reflection_engine import AssistantReflectionEngi
 from memory.utils.context_helpers import get_or_create_context_from_memory
 from embeddings.helpers.helpers_io import save_embedding
 from embeddings.helpers.helper_tagging import generate_tags_for_memory
+from tools.utils import call_tool, reflect_on_tool_output
+from tools.models import Tool
 from prompts.models import Prompt
+from tools.models import Tool, ToolUsageLog
+from tools.utils import execute_tool
 
 
 logger = logging.getLogger("django")
@@ -302,6 +307,32 @@ def chat_with_assistant_view(request, slug):
         },
     )
 
+    tool_slug = request.data.get("tool_slug")
+    if tool_slug:
+        tool_input = request.data.get("tool_input") or {}
+        tool_result = call_tool(tool_slug, tool_input, assistant)
+        reflection = reflect_on_tool_output(tool_result, tool_slug, tool_input, assistant)
+        if not reflection.get("useful", True):
+            if reflection.get("retry_input"):
+                tool_result = call_tool(tool_slug, reflection["retry_input"], assistant)
+            else:
+                tool_obj = Tool.objects.filter(slug=tool_slug).first()
+                delegate = spawn_delegated_assistant(
+                    chat_session,
+                    reason="tool_unsatisfactory",
+                    summary=reflection.get("summary"),
+                    triggered_by_tool=tool_obj,
+                )
+                AssistantThoughtLog.objects.create(
+                    assistant=assistant,
+                    thought="Delegated due to tool failure",
+                    thought_type="reflection",
+                    fallback_reason="tool_unsatisfactory",
+                    fallback_details={"tool": tool_slug},
+                )
+                return Response({"delegate_slug": delegate.slug})
+        messages.append({"role": "system", "content": f"Tool {tool_slug} output: {tool_result}"})
+
     if should_delegate(assistant, token_usage, request.data.get("feedback_flag")):
         recent_memory = (
             MemoryEntry.objects.filter(chat_session=chat_session)
@@ -318,6 +349,36 @@ def chat_with_assistant_view(request, slug):
         temperature=0.7,
     )
     reply = completion.choices[0].message.content.strip()
+    tool_result = None
+    tool_obj = None
+    tool_match = re.match(r"^@tool:(\w+)\s+(\{.*\})", reply)
+    if tool_match:
+        tool_slug = tool_match.group(1)
+        try:
+            payload = json.loads(tool_match.group(2))
+        except Exception:
+            payload = {}
+        tool_obj = Tool.objects.filter(slug=tool_slug).first()
+        if tool_obj:
+            try:
+                tool_result = execute_tool(tool_obj, payload)
+                ToolUsageLog.objects.create(
+                    tool=tool_obj,
+                    assistant=assistant,
+                    input_payload=payload,
+                    output_payload=tool_result,
+                    success=True,
+                )
+                reply = json.dumps(tool_result)
+            except Exception as e:
+                ToolUsageLog.objects.create(
+                    tool=tool_obj,
+                    assistant=assistant,
+                    input_payload=payload,
+                    success=False,
+                    error=str(e),
+                )
+                reply = f"Tool {tool_slug} failed: {e}"
 
     usage = completion.usage
     token_usage.prompt_tokens += getattr(usage, "prompt_tokens", 0)
@@ -342,7 +403,7 @@ def chat_with_assistant_view(request, slug):
 
     # Save both messages to thought log
     engine.log_thought(message, role="user")
-    engine.log_thought(reply, role="assistant")
+    engine.log_thought(reply, role="assistant", tool=tool_obj, tool_result=tool_result)
 
     # Save memory entry
     chat_messages = [m for m in messages if m["role"] in ("user", "assistant")]
@@ -360,6 +421,7 @@ def chat_with_assistant_view(request, slug):
         chat_session=chat_session,
         assistant=assistant,
         project=chat_session.project,
+        tool_response=tool_result,
     )
 
     # Log thoughts

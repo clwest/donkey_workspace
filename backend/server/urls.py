@@ -38,6 +38,7 @@ urlpatterns = [
     path("api/assistants/", include("assistants.urls")),
     path("api/agents/", include("agents.urls")),
     path("api/intel/", include("intel_core.urls")),
+    path("api/tools/", include("tools.urls")),
     # Schema and Docs
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
