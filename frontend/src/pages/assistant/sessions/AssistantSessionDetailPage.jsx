@@ -36,6 +36,7 @@ export default function AssistantSessionDetailPage() {
   }, [sessionId]);
   
   function handleFeedback(uuid, value) {
+    if (!uuid) return;
     fetch(`http://localhost:8000/api/assistants/messages/${uuid}/update/`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -74,6 +75,7 @@ export default function AssistantSessionDetailPage() {
   }
   
   async function handleTopicChange(uuid, topic) {
+    if (!uuid) return;
     try {
       await fetch(`http://localhost:8000/api/assistants/messages/${uuid}/update/`, {
         method: "PATCH",
@@ -94,6 +96,7 @@ export default function AssistantSessionDetailPage() {
   }
   
   function handleTopicSubmit(uuid, value) {
+    if (!uuid) return;
     fetch(`http://localhost:8000/api/assistants/messages/${uuid}/update/`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
