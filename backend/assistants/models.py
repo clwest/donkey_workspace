@@ -1175,6 +1175,28 @@ class SessionHandoff(models.Model):
         return f"{self.from_assistant} -> {self.to_assistant} @ {self.session}"
 
 
+class SpecializationDriftLog(models.Model):
+    """Record detected drift from an assistant's original specialty or prompt."""
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="drift_logs",
+    )
+    timestamp = models.DateTimeField(auto_now_add=True)
+    drift_score = models.FloatField()
+    summary = models.TextField()
+    trigger_type = models.CharField(max_length=50)
+    auto_flagged = models.BooleanField(default=False)
+    resolved = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-timestamp"]
+
+    def __str__(self) -> str:  # pragma: no cover - display
+        return f"{self.assistant.name} drift {self.drift_score:.2f}"
+
+
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
