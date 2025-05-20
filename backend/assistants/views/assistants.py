@@ -53,6 +53,15 @@ def assistants_view(request):
     """
     if request.method == "GET":
         assistants = Assistant.objects.all()
+        order = request.GET.get("order")
+        if order == "msi":
+            assistants = assistants.order_by("-mood_stability_index")
+        min_msi = request.GET.get("min_msi")
+        if min_msi is not None:
+            try:
+                assistants = assistants.filter(mood_stability_index__gte=float(min_msi))
+            except ValueError:
+                pass
         serializer = AssistantSerializer(assistants, many=True)
         return Response(serializer.data)
 

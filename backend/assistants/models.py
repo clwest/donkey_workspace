@@ -116,6 +116,8 @@ class Assistant(models.Model):
     traits = models.JSONField(default=dict, blank=True)
     motto = models.CharField(max_length=200, blank=True)
     values = models.JSONField(default=list, blank=True)
+    mood_stability_index = models.FloatField(default=1.0)
+    last_mood_shift = models.DateTimeField(null=True, blank=True)
     preferred_model = models.CharField(max_length=100, default="gpt-4o")
     memory_mode = models.CharField(
         max_length=200, choices=MEMORY_MODES, default="long_term"
@@ -193,6 +195,48 @@ class Assistant(models.Model):
         if self.motto:
             parts.append(f'Motto: "{self.motto}"')
         return " \n".join(parts)
+
+    def record_mood_shift(self, new_mood: str):
+        """Update mood stability metrics when the assistant's mood changes."""
+        from django.utils import timezone
+        from datetime import timedelta
+
+        now = timezone.now()
+        last_log = self.thoughts.order_by("-created_at").first()
+        prev_mood = getattr(last_log, "mood", None)
+        if prev_mood != new_mood:
+            self.last_mood_shift = now
+
+        since = now - timedelta(hours=24)
+        moods = (
+            self.thoughts.filter(created_at__gte=since)
+            .order_by("created_at")
+            .values_list("mood", flat=True)
+        )
+        shifts = 0
+        last = None
+        for m in moods:
+            if last is not None and m != last:
+                shifts += 1
+            last = m
+
+        index = 1.0 - min(shifts, 5) * 0.2
+        if (
+            prev_mood
+            and prev_mood != new_mood
+            and {prev_mood, new_mood}
+            in [
+                {"playful", "urgent"},
+                {"optimistic", "anxious"},
+            ]
+        ):
+            index -= 0.1
+
+        if self.last_mood_shift and now - self.last_mood_shift > timedelta(hours=1):
+            index = min(1.0, index + 0.05)
+
+        self.mood_stability_index = round(max(index, 0.0), 2)
+        self.save(update_fields=["mood_stability_index", "last_mood_shift"])
 
 
 class DelegationStrategy(models.Model):

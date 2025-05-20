@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
 import PrimaryStar from "../../../components/assistant/PrimaryStar";
+import MoodStabilityGauge from "../../../components/assistant/MoodStabilityGauge";
 import { toast } from "react-toastify";
 import "./styles/AssistantDetail.css"
 
@@ -53,9 +54,10 @@ export default function AssistantDetailPage() {
 
   return (
     <div className="container my-5">
-      <h1 className="display-4">
+      <h1 className="display-4 d-flex align-items-center">
         {assistant.name}
         <PrimaryStar isPrimary={assistant.is_primary} />
+        <MoodStabilityGauge msi={assistant.mood_stability_index} />
       </h1>
       <p className="text-muted">Assistant Details Page</p>
 
