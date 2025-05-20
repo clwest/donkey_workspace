@@ -561,6 +561,11 @@ class AssistantMemoryChainSerializer(serializers.ModelSerializer):
             "filter_tags",
             "exclude_types",
             "memories",
+            "is_team_chain",
+            "team_members",
+            "linked_project",
+            "shared_tags",
+            "visibility_scope",
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]

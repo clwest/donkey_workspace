@@ -27,6 +27,20 @@ export default function ProjectDetailPage() {
   const [assistants, setAssistants] = useState([]);
   const [selectedAssistantId, setSelectedAssistantId] = useState("");
   const [changeMode, setChangeMode] = useState(false);
+  const [teamMemory, setTeamMemory] = useState([]);
+
+  useEffect(() => {
+    async function loadTeamMemory() {
+      if (!project) return;
+      try {
+        const data = await apiFetch(`/projects/${project.id}/team_memory/`);
+        setTeamMemory(data);
+      } catch (err) {
+        console.error("Failed to load team memory", err);
+      }
+    }
+    loadTeamMemory();
+  }, [project]);
 
   // === Initial Project + Memories ===
   useEffect(() => {
@@ -163,6 +177,28 @@ export default function ProjectDetailPage() {
   return (
     <div className="container my-5">
       <h1 className="mb-4">{project.title}</h1>
+      {project.team && project.team.length > 0 && (
+        <div className="mb-3">
+          <h6 className="text-muted">Team</h6>
+          <ul className="list-unstyled">
+            {project.team.map((member) => (
+              <li key={member.id}>
+                {member.name} - {project.roles?.[member.id] || "member"}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {teamMemory.length > 0 && (
+        <div className="mb-3">
+          <h6 className="text-muted">Team Memory Chain</h6>
+          <ul className="list-unstyled">
+            {teamMemory.slice(0, 5).map((m) => (
+              <li key={m.id}>{m.event.slice(0, 60)}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       <ProjectRolesRow projectId={id} />
 
       {/* Assistant Selector */}

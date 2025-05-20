@@ -26,6 +26,8 @@ class ProjectSerializer(serializers.ModelSerializer):
     assistant = serializers.SerializerMethodField()
     tts_audios = serializers.SerializerMethodField()
     narrative_thread = NarrativeThreadSerializer(read_only=True)
+    team = serializers.SerializerMethodField()
+    team_chain = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Project
@@ -53,6 +55,10 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     def get_completion_percent(self, obj):
         return obj.completion_percent()
+
+    def get_team(self, obj):
+        from assistants.serializers import AssistantSerializer
+        return AssistantSerializer(obj.team.all(), many=True).data
 
 
 class ProjectTaskSerializer(serializers.ModelSerializer):

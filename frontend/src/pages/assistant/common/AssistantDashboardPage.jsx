@@ -39,6 +39,9 @@ export default function AssistantDashboardPage() {
                     {assistant.name}
                     <PrimaryStar isPrimary={assistant.is_primary} />
                   </h5>
+                  {assistant.role && (
+                    <p className="small text-muted">Role: {assistant.role}</p>
+                  )}
                   <p className="text-muted mb-1">{assistant.specialty}</p>
                   <p className="card-text small">
                     {assistant.description?.slice(0, 100) || "No description."}
