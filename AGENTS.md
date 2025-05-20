@@ -94,3 +94,33 @@ These are active or queued for Codex tasks.
 - [ ] Add `/docs/dev/phase3/*` overview + visuals
 
 ---
+
+## Phase 4: Tools, API Access, and Execution Layer
+
+### Capabilities Introduced
+
+- Assistant tool usage (via MCP)
+- Real-time API querying and response interpretation
+- Delegation fallback when tools fail
+- Full integration with `intel_core` and `mcp_core` execution context
+
+### Key Models
+
+- `Tool`: Represents an available real-world integration (e.g. GitHub, Search)
+- `ToolUsageLog`: Tracks assistant tool calls and responses
+- `Capability`: Optional grouping for related tool types or scopes
+- `ToolResponse`: New optional link on `MemoryEntry`
+
+### Workflows Activated
+
+- Tools registered with JSON schema and callable logic
+- Assistants can list and call tools with plain language
+- Results stored to memory and reflected on
+- Delegation occurs only if tools fail or context exceeds scope
+
+### Example Use Case
+
+- 🧠 Thought: "I need to fetch open GitHub issues."
+- 🔧 Tool Use: Assistant invokes `github.list_issues()` MCP endpoint
+- 📎 ToolResponse attached to `MemoryEntry`
+- 🪞 Reflection summarizes impact of issue list on plan
