@@ -14,14 +14,11 @@ from assistants.models import Assistant
 def list_documents(request):
     """Return distinct documents for linking."""
 
-    docs = (
-        Document.objects.order_by(
-            "title",
-            "source_type",
-            "source_url",
-            "-created_at",
-        ).distinct("title", "source_type", "source_url")
-    )
+docs = (
+    Document.objects.order_by(
+        "title", "-created_at"
+    ).distinct("title", "source_type", "source_url")
+)
 
     assistant_slug = request.query_params.get("exclude_for")
     if assistant_slug:
@@ -30,6 +27,10 @@ def list_documents(request):
             docs = docs.exclude(linked_assistants=assistant)
         except Assistant.DoesNotExist:
             pass
+
+    docs = docs.order_by("title", "-created_at").distinct(
+        "title", "source_type", "source_url"
+    )
 
     serializer = DocumentSerializer(docs, many=True, context={"request": request})
     return Response(serializer.data)

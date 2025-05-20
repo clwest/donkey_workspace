@@ -35,3 +35,15 @@ class DocumentListAPITest(APITestCase):
         self.assertEqual(resp.status_code, 200)
         ids = [d["id"] for d in resp.json()]
         self.assertNotIn(str(self.other.id), ids)
+
+    def test_unlinked_duplicate_returned(self):
+        """Unlinked duplicate documents should still appear."""
+        self.assistant.documents.add(self.doc1)
+        resp = self.client.get(
+            f"/api/intel/documents/?exclude_for={self.assistant.slug}"
+        )
+        self.assertEqual(resp.status_code, 200)
+        ids = [d["id"] for d in resp.json()]
+        self.assertIn(str(self.doc2.id), ids)
+        self.assertIn(str(self.doc3.id), ids)
+        self.assertNotIn(str(self.doc1.id), ids)
