@@ -8,6 +8,7 @@ from .models import (
     AssistantReflectionLog,
     ChatSession,
     DelegationEvent,
+    DelegationStrategy,
     AssistantMemoryChain,
 )
 from memory.models import MemoryEntry
@@ -154,6 +155,16 @@ class DelegationEventAdmin(admin.ModelAdmin):
         "created_at",
     )
     list_filter = ("created_at",)
+
+
+@admin.register(DelegationStrategy)
+class DelegationStrategyAdmin(admin.ModelAdmin):
+    list_display = (
+        "assistant",
+        "prefer_specialists",
+        "trust_threshold",
+        "max_active_delegations",
+    )
 
 
 # @admin.register(AssistantMemoryChain)

@@ -254,3 +254,22 @@ def reflect_on_delegation(self, event_id: str):
     except Exception as e:
         logger.error("Failed to reflect on delegation %s: %s", event_id, e, exc_info=True)
         self.retry(exc=e, countdown=10, max_retries=3)
+
+
+@shared_task
+def delegation_health_check():
+    """Analyze recent delegation events and log warnings for failing agents."""
+    from django.db.models import Avg
+    week_ago = timezone.now() - timezone.timedelta(days=7)
+    for assistant in Assistant.objects.filter(is_active=True):
+        recent = DelegationEvent.objects.filter(child_assistant=assistant, created_at__gte=week_ago)
+        failures = recent.filter(score__lte=2).count()
+        if failures >= 3:
+            avg = recent.aggregate(avg=Avg("score"))["avg"] or 0
+            AssistantThoughtLog.objects.create(
+                assistant=assistant,
+                thought_type="reflection",
+                category="warning",
+                thought=f"Agent had {failures} failures in last week. Avg score {avg:.2f}",
+            )
+
