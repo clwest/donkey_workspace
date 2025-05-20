@@ -74,6 +74,7 @@ PLANNING_EVENT_TYPES = [
     ("task_modified", "Task Modified"),
     ("milestone_completed", "Milestone Completed"),
     ("reflection_recorded", "Reflection Recorded"),
+    ("plan_regenerated", "Plan Regenerated"),
 ]
 
 
@@ -324,6 +325,8 @@ class AssistantThoughtLog(models.Model):
         ],
     )
     mood = models.CharField(max_length=20, default="neutral", blank=True)
+    event = models.CharField(max_length=50, null=True, blank=True)
+    source_reason = models.CharField(max_length=20, null=True, blank=True)
     tags = models.ManyToManyField(
         "mcp_core.Tag", blank=True, related_name="assistant_thoughts"
     )
@@ -377,6 +380,8 @@ class AssistantProject(models.Model):
     )
     status = models.CharField(max_length=50, default="active")
     summary = models.TextField(blank=True, null=True)
+    mood = models.CharField(max_length=20, blank=True, null=True)
+    memory_shift_score = models.FloatField(default=0.0)
     documents = models.ManyToManyField("intel_core.Document", blank=True)
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -393,6 +398,54 @@ class AssistantProject(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.assistant.name})"
+
+    def regenerate_project_plan_from_memory(self, reason: str = "memory_shift"):
+        """Regenerate objectives and tasks from recent memories."""
+        from django.utils import timezone
+        from datetime import timedelta
+        from memory.models import MemoryEntry
+        from assistants.helpers.logging_helper import log_assistant_thought
+        from assistants.utils.memory_project_planner import (
+            build_project_plan_from_memories,
+        )
+
+        # Get recent high-importance memories for this assistant
+        memories = list(
+            MemoryEntry.objects.filter(assistant=self.assistant).order_by(
+                "-created_at"
+            )[:5]
+        )
+        if not memories:
+            return
+
+        plan = build_project_plan_from_memories(memories, title=self.title)
+        self.summary = "; ".join(plan.get("objectives", []))
+        self.memory_shift_score = sum(m.importance for m in memories) / len(memories)
+        self.save(update_fields=["summary", "memory_shift_score"])
+
+        ProjectPlanningLog.objects.create(
+            project=self,
+            event_type="plan_regenerated",
+            summary=f"Plan regenerated due to {reason}",
+        )
+
+        log = log_assistant_thought(
+            self.assistant,
+            f"Regenerated project plan due to {reason}",
+            project=self,
+            thought_type="planning",
+        )
+        log.event = "project_plan_revised"
+        log.source_reason = reason
+        log.save()
+
+        AssistantReflectionLog.objects.create(
+            project=self,
+            title="Plan regenerated",
+            summary=self.summary or "Plan updated",
+            mood=self.mood,
+            linked_memory=memories[0],
+        )
 
 
 class AssistantProjectRole(models.Model):
