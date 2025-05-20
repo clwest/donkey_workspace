@@ -264,7 +264,10 @@ def memory_to_project(request, slug):
         )
         objectives.append(obj)
         session = (
-            ChatSession.objects.filter(assistant=assistant, project=project)
+            ChatSession.objects.filter(
+                assistant=assistant,
+                project__assistant_project=project,
+            )
             .order_by("-created_at")
             .first()
         )
