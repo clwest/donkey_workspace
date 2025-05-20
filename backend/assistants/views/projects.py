@@ -172,11 +172,15 @@ def project_history(request, project_id):
 
 
 @api_view(["POST"])
-def create_project_from_memory(request):
+def create_project_from_memory(request, slug=None):
     """Create a new assistant project based on a memory entry."""
     data = request.data
-    assistant = get_object_or_404(Assistant, id=data.get("assistant_id"))
-    memory = get_object_or_404(MemoryEntry, id=data.get("memory_id"))
+    if slug:
+        assistant = get_object_or_404(Assistant, slug=slug)
+    else:
+        assistant = get_object_or_404(Assistant, id=data.get("assistant_id"))
+    memory_id = data.get("memory_id")
+    memory = get_object_or_404(MemoryEntry, id=memory_id)
 
     title = data.get(
         "title", f"Project from memory: {memory.summary or memory.event[:50]}"
