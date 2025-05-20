@@ -152,26 +152,23 @@ export default function App() {
             path="/assistants/primary/dashboard"
             element={<AssistantSessionDashboardPage slug="primary" />}
           />
-          <Route path="/assistants/:slug" element={<AssistantDetailPage />} />
+
+          {/* Project and Milestone Routes */}
           <Route
             path="/assistants/projects/create"
             element={<CreateProjectPage />}
-          />
-          <Route
-            path="/assistants/:slug/chat"
-            element={<ChatWithAssistantPage />}
           />
           <Route
             path="/assistants/projects"
             element={<ProjectsDashboardPage />}
           />
           <Route
-            path="/assistants/projects/:id"
-            element={<ProjectDetailPage />}
-          />
-          <Route
             path="/assistants/projects/create-from-memory"
             element={<ProjectCreateFromMemoryPage />}
+          />
+          <Route
+            path="/assistants/projects/:id"
+            element={<ProjectDetailPage />}
           />
           <Route
             path="/assistants/projects/:id/build"
@@ -213,11 +210,40 @@ export default function App() {
             path="/assistants/projects/:projectId/milestones/:milestoneId/edit"
             element={<MilestoneEditPage />}
           />
-          {/*Assistants Thoughts */}
+
+          {/* Top-level Assistant Views */}
           <Route
             path="/assistant/projects/:id/thoughts"
             element={<ProjectThoughtLog />}
           />
+          <Route
+            path="/assistants/next-actions"
+            element={<NextActionsPage />}
+          />
+          <Route
+            path="/assistants/memory/:memoryId/to-task"
+            element={<MemoryToTaskPage />}
+          />
+          <Route
+            path="/assistants/memory-chains"
+            element={<MemoryChainsPage />}
+          />
+          <Route path="/assistants/reflections" element={<ReflectionsPage />} />
+          <Route
+            path="/assistants/sessions/"
+            element={<AssistantSessionsPage />}
+          />
+          <Route
+            path="/assistants/sessions/:sessionId"
+            element={<AssistantSessionDetailPage />}
+          />
+          <Route path="/assistants/sources" element={<SignalSourcesPage />} />
+          <Route path="/assistants/signals" element={<SignalCatchesPage />} />
+          <Route path="/assistants/routing-history" element={<RoutingHistoryPage />} />
+          <Route path="/assistants/council/:id" element={<CouncilDashboardPage />} />
+          <Route path="/assistants-demos" element={<AssistantDemoPage />} />
+
+          {/* Assistant Detail Subroutes */}
           <Route
             path="/assistants/:slug/log_thought"
             element={<AssistantThoughtLogPage />}
@@ -238,24 +264,10 @@ export default function App() {
             path="/assistants/:slug/memories"
             element={<AssistantMemoryPage />}
           />
-          {/* Assistant Objectives */}
           <Route
             path="/assistants/:slug/objectives"
             element={<ObjectivesPage />}
           />
-          <Route
-            path="/assistants/next-actions"
-            element={<NextActionsPage />}
-          />
-          <Route
-            path="/assistants/memory/:memoryId/to-task"
-            element={<MemoryToTaskPage />}
-          />
-          <Route
-            path="/assistants/memory-chains"
-            element={<MemoryChainsPage />}
-          />
-          <Route path="/assistants/reflections" element={<ReflectionsPage />} />
           <Route
             path="/assistants/:slug/reflections"
             element={<AssistantReflectionLogsPage />}
@@ -281,14 +293,6 @@ export default function App() {
             element={<SkillGraphPage />}
           />
           <Route
-            path="/assistants/sessions/"
-            element={<AssistantSessionsPage />}
-          />
-          <Route
-            path="/assistants/sessions/:sessionId"
-            element={<AssistantSessionDetailPage />}
-          />
-          <Route
             path="/assistants/:slug/thoughts"
             element={<AssistantThoughtsPage />}
           />
@@ -296,7 +300,11 @@ export default function App() {
             path="/assistants/:slug/feedback"
             element={<FeedbackSummaryPage />}
           />
-          <Route path="/assistants-demos" element={<AssistantDemoPage />} />
+          <Route
+            path="/assistants/:slug/chat"
+            element={<ChatWithAssistantPage />}
+          />
+          <Route path="/assistants/:slug" element={<AssistantDetailPage />} />
           {/* MCP Core */}
           <Route path="/reflect" element={<ReflectionPage />} />
           <Route path="/reflections" element={<ReflectionHistoryPage />} />
