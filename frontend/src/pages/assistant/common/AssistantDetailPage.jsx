@@ -4,13 +4,9 @@ import apiFetch from "../../../utils/apiClient";
 import PrimaryStar from "../../../components/assistant/PrimaryStar";
 import MoodStabilityGauge from "../../../components/assistant/MoodStabilityGauge";
 import DriftScoreChart from "../../../components/assistant/DriftScoreChart";
-// <<<<<<< codex/implement-assistant-recovery-workflow
-// import RecoveryPanel from "../../../components/assistant/RecoveryPanel";
-// import { runDriftCheck } from "../../../api/assistants";
-// =======
-// import { runDriftCheck, runSelfAssessment } from "../../../api/assistants";
-// import SelfAssessmentModal from "../../../components/assistant/SelfAssessmentModal";
-// >>>>>>> main
+import RecoveryPanel from "../../../components/assistant/RecoveryPanel";
+import { runDriftCheck, runSelfAssessment } from "../../../api/assistants";
+import SelfAssessmentModal from "../../../components/assistant/SelfAssessmentModal";
 import { toast } from "react-toastify";
 import "./styles/AssistantDetail.css";
 import AssistantMemoryAuditPanel from "../../../components/assistant/memory/AssistantMemoryAuditPanel";
