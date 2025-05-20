@@ -302,6 +302,7 @@ def run_specialization_drift_checks():
                 summary=result["summary"],
                 trigger_type="auto",
                 auto_flagged=True,
+                requires_retraining=result.get("requires_retraining", False),
             )
 
 

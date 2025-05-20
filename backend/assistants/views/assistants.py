@@ -707,6 +707,31 @@ def drift_check(request, slug):
 
 
 @api_view(["POST"])
+def recover_assistant_view(request, slug):
+    """Generate a recovery summary and prompt revision for the assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    from assistants.utils.recovery import (
+        create_prompt_revision,
+        generate_recovery_summary,
+    )
+
+    summary = generate_recovery_summary(assistant)
+    create_prompt_revision(assistant)
+
+    assistant.needs_recovery = False
+    assistant.save(update_fields=["needs_recovery"])
+
+    AssistantThoughtLog.objects.create(
+        assistant=assistant,
+        thought=f"Recovery run: {summary}",
+        thought_type="reflection",
+        category="meta",
+    )
+
+    return Response({"summary": summary})
+
+
+@api_view(["POST"])
 def reflect_on_assistant(request):
     """
     POST /api/assistants/thoughts/reflect_on_assistant/

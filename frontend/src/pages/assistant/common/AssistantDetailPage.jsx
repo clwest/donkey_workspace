@@ -4,8 +4,13 @@ import apiFetch from "../../../utils/apiClient";
 import PrimaryStar from "../../../components/assistant/PrimaryStar";
 import MoodStabilityGauge from "../../../components/assistant/MoodStabilityGauge";
 import DriftScoreChart from "../../../components/assistant/DriftScoreChart";
-import { runDriftCheck, runSelfAssessment } from "../../../api/assistants";
-import SelfAssessmentModal from "../../../components/assistant/SelfAssessmentModal";
+// <<<<<<< codex/implement-assistant-recovery-workflow
+// import RecoveryPanel from "../../../components/assistant/RecoveryPanel";
+// import { runDriftCheck } from "../../../api/assistants";
+// =======
+// import { runDriftCheck, runSelfAssessment } from "../../../api/assistants";
+// import SelfAssessmentModal from "../../../components/assistant/SelfAssessmentModal";
+// >>>>>>> main
 import { toast } from "react-toastify";
 import "./styles/AssistantDetail.css";
 import AssistantMemoryAuditPanel from "../../../components/assistant/memory/AssistantMemoryAuditPanel";
@@ -389,6 +394,8 @@ export default function AssistantDetailPage() {
           <DriftScoreChart logs={assistant.drift_logs} />
         </div>
       )}
+
+      <RecoveryPanel assistantSlug={slug} />
 
       <hr />
       <h4>🪪 Identity</h4>

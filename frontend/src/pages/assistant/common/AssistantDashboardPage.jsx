@@ -51,6 +51,9 @@ export default function AssistantDashboardPage() {
                   >
                     {assistant.is_active ? "Active" : "Inactive"}
                   </span>
+                  {assistant.needs_recovery && (
+                    <span className="badge bg-warning text-dark ms-2">Misaligned</span>
+                  )}
                 </div>
               </div>
             </Link>

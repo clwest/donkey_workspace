@@ -179,6 +179,7 @@ class Assistant(models.Model):
     )  # adjust dim if needed
     initial_embedding = VectorField(dimensions=1536, null=True, blank=True)
     last_drift_check = models.DateTimeField(null=True, blank=True)
+    needs_recovery = models.BooleanField(default=False)
     documents = models.ManyToManyField(
         "intel_core.Document", blank=True, related_name="linked_assistants"
     )
@@ -1428,6 +1429,7 @@ class SpecializationDriftLog(models.Model):
     trigger_type = models.CharField(max_length=50)
     auto_flagged = models.BooleanField(default=False)
     resolved = models.BooleanField(default=False)
+    requires_retraining = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-timestamp"]
