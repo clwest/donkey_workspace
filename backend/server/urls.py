@@ -35,6 +35,7 @@ urlpatterns = [
     path("api/prompts/", include("prompts.urls")),
     path("api/mcp/", include("mcp_core.urls")),
     path("api/memory/", include("memory.urls")),
+    path("api/shared-memory-pools/", include("memory.shared_urls")),
     path("api/assistants/", include("assistants.urls")),
     path("api/agents/", include("agents.urls")),
     path("api/intel/", include("intel_core.urls")),

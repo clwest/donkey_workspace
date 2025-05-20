@@ -229,3 +229,42 @@ class SimulatedMemoryFork(models.Model):
 
     def __str__(self):
         return f"Fork of {self.original_memory_id} by {self.assistant.name}"
+
+
+class SharedMemoryPool(models.Model):
+    """Collection of shared key-value data accessible by multiple assistants."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    assistants = models.ManyToManyField(
+        "assistants.Assistant", blank=True, related_name="shared_pools"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+
+class SharedMemoryEntry(models.Model):
+    """Key-value pair stored within a SharedMemoryPool."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    pool = models.ForeignKey(
+        SharedMemoryPool, on_delete=models.CASCADE, related_name="entries"
+    )
+    key = models.CharField(max_length=255)
+    value = models.JSONField(default=dict, blank=True)
+    created_by = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("pool", "key")
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.key}: {self.value}"
