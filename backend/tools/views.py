@@ -7,6 +7,24 @@ from .models import Tool, ToolUsageLog
 from .utils import execute_tool
 
 
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def tool_list(request):
+    tools = Tool.objects.filter(is_active=True, is_enabled=True)
+    data = [
+        {
+            "name": t.name,
+            "slug": t.slug,
+            "description": t.description,
+            "input_schema": t.input_schema,
+            "output_schema": t.output_schema,
+            "tags": t.tags,
+        }
+        for t in tools
+    ]
+    return Response(data)
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def invoke_tool(request, slug):

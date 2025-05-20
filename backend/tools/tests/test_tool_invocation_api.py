@@ -20,7 +20,8 @@ class ToolInvocationAPITest(APITestCase):
         self.tool = Tool.objects.create(
             slug="echo",
             name="Echo",
-            function_path="tools.tests.test_tool_invocation_api.echo_tool",
+            module_path="tools.tests.test_tool_invocation_api",
+            function_name="echo_tool",
         )
 
     def test_invoke_tool(self):
