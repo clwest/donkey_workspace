@@ -6,28 +6,25 @@ from rest_framework.permissions import AllowAny
 from intel_core.models import Document, DocumentFavorite, DocumentProgress
 from intel_core.serializers import DocumentSerializer
 from prompts.utils.token_helpers import count_tokens, smart_chunk_prompt
-from django.db.models import OuterRef, Subquery, Exists
+from assistants.models import Assistant
 
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def list_documents(request):
-    # Subquery to find the latest doc by created_at for each (title, source_type) group
-    latest_docs = (
-        Document.objects
-        .filter(
-            title=OuterRef("title"),
-            source_type=OuterRef("source_type"),
-        )
-        .order_by("-created_at")
+    """Return distinct documents for linking."""
+
+    docs = Document.objects.order_by("title", "-created_at").distinct(
+        "title", "source_type", "source_url"
     )
 
-    # Only include the latest document per group
-    docs = (
-        Document.objects
-        .filter(Exists(latest_docs.values("id")[:1]))
-        .order_by("-created_at")
-    )
+    assistant_slug = request.query_params.get("exclude_for")
+    if assistant_slug:
+        try:
+            assistant = Assistant.objects.get(slug=assistant_slug)
+            docs = docs.exclude(linked_assistants=assistant)
+        except Assistant.DoesNotExist:
+            pass
 
     serializer = DocumentSerializer(docs, many=True, context={"request": request})
     return Response(serializer.data)
@@ -103,6 +100,7 @@ def toggle_favorite(request, pk):
 
     return Response({"favorited": True})
 
+
 # intel_core/views/documents.py
 
 from rest_framework.decorators import api_view, permission_classes
@@ -115,16 +113,15 @@ from django.db.models import Count, IntegerField, Sum, Value
 from django.db.models.functions import Cast, Coalesce
 from django.db.models.expressions import RawSQL
 
+
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def list_grouped_documents(request):
     # Step 1: Group by title + source_type + source_url
     grouped = (
-        Document.objects
-        .annotate(
+        Document.objects.annotate(
             token_count_casted=Cast(
-                RawSQL("(metadata->>'token_count')::int", ()),
-                IntegerField()
+                RawSQL("(metadata->>'token_count')::int", ()), IntegerField()
             )
         )
         .values("title", "source_type", "source_url")
@@ -135,27 +132,29 @@ def list_grouped_documents(request):
         )
         .order_by("-latest_created_at")
     )
-    
+
     # Step 2: Attach matching documents to each group
     results = []
     for group in grouped:
         docs = Document.objects.filter(
             title=group["title"],
             source_type=group["source_type"],
-            source_url=group["source_url"]
+            source_url=group["source_url"],
         ).order_by("created_at")
 
         serialized_docs = DocumentSerializer(docs, many=True).data
 
-        results.append({
-            "title": group["title"],
-            "source_type": group["source_type"],
-            "source_url": group["source_url"],
-            "total_tokens": group["total_tokens"],
-            "document_count": group["document_count"],
-            "latest_created": group["latest_created_at"],
-            "documents": serialized_docs,
-        })
+        results.append(
+            {
+                "title": group["title"],
+                "source_type": group["source_type"],
+                "source_url": group["source_url"],
+                "total_tokens": group["total_tokens"],
+                "document_count": group["document_count"],
+                "latest_created": group["latest_created_at"],
+                "documents": serialized_docs,
+            }
+        )
 
     return Response(results)
 
