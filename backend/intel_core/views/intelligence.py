@@ -15,7 +15,7 @@ from assistants.models import (
     AssistantObjective,
     AssistantThoughtLog,
 )
-from prompts.utils.token_helpers import count_tokens
+from prompts.utils.token_helpers import count_tokens, smart_chunk_prompt
 from memory.models import MemoryEntry
 from mcp_core.models import NarrativeThread, Tag
 
@@ -23,7 +23,7 @@ from mcp_core.models import NarrativeThread, Tag
 client = OpenAI()
 
 
-@api_view(["POST"])
+@api_view(["GET", "POST"])
 @permission_classes([AllowAny])
 def summarize_with_context(request, pk):
     try:
@@ -42,6 +42,50 @@ def summarize_with_context(request, pk):
                     "content": "You are a helpful assistant that summarizes technical documents.",
                 },
                 {"role": "user", "content": f"Summarize this document:\n\n{text}"},
+            ],
+            temperature=0.5,
+            max_tokens=200,
+        )
+        summary = response.choices[0].message.content.strip()
+        return Response({"summary": summary})
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def summarize_document_with_context(request, pk):
+    """Return an OpenAI summary using smart-chunked context."""
+    text = request.data.get("text")
+    document = None
+
+    if not text:
+        try:
+            document = Document.objects.get(pk=pk)
+            text = document.content
+        except Document.DoesNotExist:
+            return Response({"error": "Document not found"}, status=404)
+
+    chunks = smart_chunk_prompt(text)
+    sections = []
+    token_total = 0
+    for chunk in chunks:
+        if token_total + chunk["tokens"] > 7000:
+            break
+        sections.append(chunk["section"])
+        token_total += chunk["tokens"]
+
+    prompt_text = "\n\n".join(sections).strip()
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a helpful assistant that summarizes technical documents.",
+                },
+                {"role": "user", "content": f"Summarize this document:\n\n{prompt_text}"},
             ],
             temperature=0.5,
             max_tokens=200,
