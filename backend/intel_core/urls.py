@@ -20,6 +20,11 @@ urlpatterns = [
         name="summarize_with_context",
     ),
     path(
+        "documents/<uuid:pk>/summarize_with_context/",
+        intelligence.summarize_document_with_context,
+        name="document_summarize_with_context",
+    ),
+    path(
         "intelligence/bootstrap-agent/<uuid:pk>/",
         intelligence.bootstrap_agent_from_docs,
         name="bootstrap_agent_from_docs",

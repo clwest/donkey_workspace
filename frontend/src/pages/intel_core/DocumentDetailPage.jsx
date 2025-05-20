@@ -31,7 +31,11 @@ export default function DocumentDetailPage() {
   const handleSummarize = async () => {
     setSummaryLoading(true);
     try {
-      const res = await apiFetch(`/intel/intelligence/summarize/${id}/`);
+      const url = showSmartChunks
+        ? `/intel/documents/${id}/summarize_with_context/`
+        : `/intel/intelligence/summarize/${id}/`;
+      const options = showSmartChunks ? { method: "POST" } : {};
+      const res = await apiFetch(url, options);
       setDoc((prev) => ({ ...prev, summary: res.summary }));
     } catch (err) {
       console.error("Summary error:", err);
