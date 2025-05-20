@@ -1,4 +1,5 @@
 from assistants.models import AssistantThoughtLog
+from .mood import detect_mood
 
 
 def log_assistant_thought(
@@ -14,7 +15,8 @@ def log_assistant_thought(
     """
     Save a thought from or about the assistant to the AssistantThoughtLog.
     """
-    return AssistantThoughtLog.objects.create(
+    mood = detect_mood(thought)
+    log = AssistantThoughtLog.objects.create(
         assistant=assistant,
         thought=thought,
         thought_trace=trace or "",
@@ -22,6 +24,7 @@ def log_assistant_thought(
         linked_reflection=linked_reflection,
         project=project,
         thought_type=thought_type,
+        mood=mood,
     )
     if linked_memories:
         log.linked_memories.set(linked_memories)

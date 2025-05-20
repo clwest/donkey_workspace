@@ -19,6 +19,7 @@ from assistants.utils.tag_thought import tag_thought_content
 from memory.models import MemoryEntry, ReflectionFlag
 from mcp_core.models import MemoryContext
 from assistants.helpers.logging_helper import log_assistant_thought
+from assistants.helpers.mood import detect_mood
 from assistants.helpers.delegation import spawn_delegated_assistant
 from mcp_core.utils.auto_tag_from_embedding import auto_tag_from_embedding
 from embeddings.helpers.helpers_io import save_embedding, get_embedding_for_text
@@ -82,7 +83,8 @@ Memories:
             f"[LOGGING THOUGHT] Role={role}, Type={thought_type}, Content={content[:60]}"
         )
 
-        # Create the core thought log
+        # Create the core thought log with mood detection
+        mood = detect_mood(content)
         log = AssistantThoughtLog.objects.create(
             assistant=self.assistant,
             project=self.project,
@@ -90,6 +92,7 @@ Memories:
             thought_type=thought_type,
             role=role,
             thought_trace="\n".join(steps) if steps else "",
+            mood=mood,
         )
 
         # 🧠 Try OpenAI embedding + save it

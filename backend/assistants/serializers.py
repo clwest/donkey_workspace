@@ -382,6 +382,7 @@ class AssistantThoughtLogSerializer(serializers.ModelSerializer):
             "thought_trace",
             "thought_type",
             "role",
+            "mood",
             "tags",
             "category",
             "linked_memory",  # UUID only
