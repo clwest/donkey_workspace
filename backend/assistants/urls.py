@@ -17,6 +17,7 @@ from .views import (
     skills,
     messages,
     switching,
+    council,
 )
 
 urlpatterns = [
@@ -271,6 +272,12 @@ urlpatterns = [
         messages.outbox,
         name="assistant-message-outbox",
     ),
+    # Council
+    path("council/start/", council.start_session, name="council-start"),
+    path("council/<uuid:id>/", council.session_detail, name="council-detail"),
+    path("council/<uuid:id>/thoughts/", council.session_thoughts, name="council-thoughts"),
+    path("council/<uuid:id>/respond/", council.session_respond, name="council-respond"),
+    path("council/<uuid:id>/reflect/", council.session_reflect, name="council-reflect"),
     path("suggest_switch/", switching.suggest_switch, name="assistant-suggest-switch"),
     path("switch/", switching.switch_session, name="assistant-switch-session"),
     path("thoughts/<uuid:pk>/feedback/", thoughts.update_reflection_feedback),

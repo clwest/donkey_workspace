@@ -77,6 +77,7 @@ import AssistantSessionDashboardPage from "./pages/assistant/sessions/AssistantS
 import GroupedReflectionsPage from "./pages/mcp_core/reflections/GroupedReflectionsPage";
 import SignalSourcesPage from "./pages/assistant/signal_sources/SignalSourcesPage";
 import SignalCatchesPage from "./pages/assistant/signal_catches/SignalCatchesPage";
+import CouncilDashboardPage from "./pages/assistant/council/CouncilDashboardPage";
 
 import ReflectionsPage from "./pages/assistant/reflections/ReflectionsPage";
 import MemoryReflectionPage from "./pages/memories/reflections/MemoryReflectionPage";
@@ -336,6 +337,7 @@ export default function App() {
           <Route path="/assistants/sources" element={<SignalSourcesPage />} />
           <Route path="/assistants/signals" element={<SignalCatchesPage />} />
           <Route path="/assistants/routing-history" element={<RoutingHistoryPage />} />
+          <Route path="/assistants/council/:id" element={<CouncilDashboardPage />} />
         </Routes>
       </div>
     </Router>

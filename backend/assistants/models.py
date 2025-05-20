@@ -1354,3 +1354,82 @@ def log_reflection_event(sender, instance, created, **kwargs):
             summary=instance.summary[:200],
             related_object=instance,
         )
+
+
+class CouncilSession(models.Model):
+    """Group of assistants debating or collaborating on a topic."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    topic = models.CharField(max_length=255)
+    linked_memory = models.ForeignKey(
+        "memory.MemoryEntry",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="council_sessions",
+    )
+    project = models.ForeignKey(
+        "project.Project",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="council_sessions",
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="council_sessions",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(
+        max_length=20,
+        choices=[("active", "Active"), ("paused", "Paused"), ("finished", "Finished")],
+        default="active",
+    )
+    members = models.ManyToManyField(
+        "assistants.Assistant", blank=True, related_name="council_sessions"
+    )
+
+    def __str__(self) -> str:  # pragma: no cover - display
+        return self.topic
+
+
+class CouncilThought(models.Model):
+    """Individual assistant contribution during a council session."""
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="council_thoughts",
+    )
+    council_session = models.ForeignKey(
+        CouncilSession,
+        on_delete=models.CASCADE,
+        related_name="thoughts",
+    )
+    content = models.TextField()
+    round = models.IntegerField(default=1)
+    is_final = models.BooleanField(default=False)
+    mood = models.CharField(max_length=20, null=True, blank=True)
+    role = models.CharField(max_length=50, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:  # pragma: no cover - display
+        return f"{self.assistant} @ {self.council_session}"
+
+
+class CouncilOutcome(models.Model):
+    """Final summary or decision from a council session."""
+
+    council_session = models.OneToOneField(
+        CouncilSession,
+        on_delete=models.CASCADE,
+        related_name="outcome",
+    )
+    summary = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:  # pragma: no cover - display
+        return f"Outcome for {self.council_session}"

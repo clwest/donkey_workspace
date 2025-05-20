@@ -312,3 +312,43 @@ def run_drift_check_for_assistant(assistant_id: str):
     if assistant:
         log = analyze_drift_for_assistant(assistant)
         return str(log.id) if log else None
+
+
+@shared_task
+def run_council_deliberation(session_id: str):
+    """Sequentially log council member thoughts for one round."""
+    from django.db.models import Max
+    from assistants.models import CouncilSession, CouncilThought
+
+    session = CouncilSession.objects.filter(id=session_id).first()
+    if not session:
+        return "session not found"
+
+    max_round = session.thoughts.aggregate(max=Max("round"))["max"] or 0
+    next_round = max_round + 1
+
+    for member in session.members.all():
+        CouncilThought.objects.create(
+            assistant=member,
+            council_session=session,
+            content=f"[{next_round}] {member.name} shares thoughts on {session.topic}.",
+            round=next_round,
+        )
+
+    return f"round {next_round} completed"
+
+
+@shared_task
+def reflect_on_council(session_id: str):
+    """Summarize all thoughts and finalize the session."""
+    from assistants.models import CouncilSession, CouncilOutcome
+
+    session = CouncilSession.objects.filter(id=session_id).first()
+    if not session:
+        return "session not found"
+
+    summary = "\n".join(t.content for t in session.thoughts.order_by("created_at"))
+    CouncilOutcome.objects.create(council_session=session, summary=summary)
+    session.status = "finished"
+    session.save(update_fields=["status"])
+    return "ok"
