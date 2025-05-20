@@ -174,6 +174,21 @@ class Assistant(models.Model):
                 raise ValidationError("Only one assistant can be primary.")
 
 
+class DelegationStrategy(models.Model):
+    """Preferences for how an assistant delegates work to agents."""
+
+    assistant = models.OneToOneField(
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="delegation_strategy"
+    )
+    prefer_specialists = models.BooleanField(default=True)
+    trust_threshold = models.FloatField(default=0.75)
+    avoid_recent_failures = models.BooleanField(default=True)
+    max_active_delegations = models.IntegerField(default=5)
+
+    def __str__(self):
+        return f"Strategy for {self.assistant.name}"
+
+
 class AssistantThoughtLog(models.Model):
     """Record of thoughts generated during assistant reasoning.
 
@@ -891,6 +906,8 @@ class DelegationEvent(models.Model):
         blank=True,
     )
     notes = models.TextField(blank=True, null=True)
+    completed = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     objects = DelegationEventManager()

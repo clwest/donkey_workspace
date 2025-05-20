@@ -225,6 +225,8 @@ def suggest_delegation(request, slug):
         "slug": rec.slug,
         "score": suggestion.get("score"),
         "reason": suggestion.get("match_reason"),
+        "adjusted_for_trust": suggestion.get("adjusted_for_trust"),
+        "recent_failures": suggestion.get("recent_failures"),
     }
     trust = get_trust_score(rec)
     if trust.get("overall_label"):
