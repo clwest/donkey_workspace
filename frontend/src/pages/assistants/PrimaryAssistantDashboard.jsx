@@ -81,9 +81,22 @@ export default function PrimaryAssistantDashboard() {
   const handleReflect = async () => {
     if (!assistant) return;
     try {
+      let memoryId = null;
+      if (memorySummary?.most_recent && memorySummary.most_recent.length > 0) {
+        memoryId = memorySummary.most_recent[0].id;
+      } else {
+        const mems = await apiFetch(`/assistants/${assistant.slug}/memories/`);
+        memoryId = mems?.[0]?.id;
+      }
+
+      if (!memoryId) {
+        alert("No memories available for reflection");
+        return;
+      }
+
       const res = await apiFetch("/assistants/primary/reflect-now/", {
         method: "POST",
-        body: { memory_id: assistant.recent_thoughts?.[0]?.id },
+        body: { memory_id: memoryId },
       });
       setAssistant((prev) => ({
         ...prev,

@@ -114,7 +114,9 @@ export default function DocumentIntelligencePanel({ docId }) {
       {config && (
         <div className="alert alert-success">
           <strong>Assistant Config:</strong>
-          <pre className="mb-0 small">{config}</pre>
+          <pre className="mb-0 small">
+            {typeof config === "string" ? config : JSON.stringify(config, null, 2)}
+          </pre>
         </div>
       )}
     </div>
