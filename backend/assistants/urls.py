@@ -18,6 +18,7 @@ from .views import (
     messages,
     switching,
     empathy,
+    collaboration,
 )
 
 urlpatterns = [

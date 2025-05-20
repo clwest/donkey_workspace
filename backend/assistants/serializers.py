@@ -239,21 +239,7 @@ class EmotionalResonanceLogSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-class CollaborationLogSerializer(serializers.ModelSerializer):
-    participants = AssistantSerializer(many=True, read_only=True)
 
-    class Meta:
-        model = CollaborationLog
-        fields = [
-            "id",
-            "participants",
-            "project",
-            "mood_state",
-            "style_conflict_detected",
-            "resolution_action",
-            "created_at",
-        ]
-        read_only_fields = ["id", "created_at"]
 
 
 class AssistantNextActionSerializer(serializers.ModelSerializer):
@@ -961,3 +947,19 @@ class CouncilOutcomeSerializer(serializers.ModelSerializer):
         model = CouncilOutcome
         fields = ["council_session", "summary", "created_at"]
         read_only_fields = ["created_at"]
+
+class CollaborationLogSerializer(serializers.ModelSerializer):
+    participants = AssistantSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = CollaborationLog
+        fields = [
+            "id",
+            "participants",
+            "project",
+            "mood_state",
+            "style_conflict_detected",
+            "resolution_action",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]

@@ -23,7 +23,7 @@ We are now in **Phase 3**, focused on deepening long-term memory, task planning,
 
 ---
 
-### 📌 Core Milestones Completed (Phase 3.0–3.32):
+### ✅ Core Milestones Completed (Phase 3.0–3.32)
 
 - ✅ Assistants linked to Projects + Objectives
 - ✅ AssistantMemoryChain linked and editable with reflection filters
@@ -41,86 +41,60 @@ We are now in **Phase 3**, focused on deepening long-term memory, task planning,
 
 ---
 
-## 📋 Current Phase 3 Task Seeds (3.33 → 3.40)
+### 🔄 Phase 3.33–3.37 — In Progress / Queued
 
-These are active or queued for Codex tasks.
-
----
-
-### 3.33: Agent Success Review + Task Reintegration
-
-- Summarize completed agents and integrate memory into parent
-- Reflect on completed delegation outcomes
-- Link final output back to originating AssistantObjective
+- [x] 3.33: Agent Success Review + Task Reintegration
+- [x] 3.34: Memory Validation Interface
+- [x] 3.35: Assistant Planning Timeline View
+- [x] 3.36: Thought Tag Training + Context Embedding
+- [x] 3.37: Reflection Reprioritization + Auto-Summarization
 
 ---
 
-### 3.34: Memory Validation Interface
+## 🛠️ Phase 4: Tools, API Access, and Execution Layer
 
-- Create UI for reviewing assistant memories
-- Allow rating, editing, or flagging of memory events
-- Support reflection reuse or suppression
+### ✅ Completed through 4.24
 
----
-
-### 3.35: Assistant Planning Timeline View
-
-- Add Gantt-style or timeline view to ProjectDetailPage
-- Display milestones, tasks, reflections, and assistant thoughts
-
----
-
-### 3.36: Thought Tag Training + Context Embedding
-
-- Train model on user-defined thought tags
-- Suggest tags in UI based on recent entries
-- Embed contextually tagged thoughts for rapid lookup
-
----
-
-### 3.37: Reflection Reprioritization + Auto-Summarization
-
-- Add endpoint to re-cluster and reprioritize recent reflections
-- Auto-group related thoughts and prompt assistant to summarize
-- Integrate with mood/memory tags for prioritization
-
----
-
-## 🧭 Next Steps
-
-- [ ] Open Codex tasks for 3.33–3.37
-- [ ] Confirm frontend alignment with new data APIs
-- [ ] Expand `AssistantPersonality`, `MoodEntry`, and `MemoryTrait` models
-- [ ] Add `/docs/dev/phase3/*` overview + visuals
+- ✅ 4.1: Tool Registry Model + Execution Endpoint
+- ✅ 4.2: Tool Invocation from Thought Context
+- ✅ 4.3: Tool Reflection + Fallback Delegation Logic
+- ✅ 4.4: Tool Scoring System + Context-Aware Selection
+- ✅ 4.5: Self-Updating Tool Registry + Capability Awareness
+- ✅ 4.6: Assistant Capability Profiles + Skill Graph
+- ✅ 4.7: Delegation Routing via Capability Match
+- ✅ 4.8: Tool-Enhanced Thought Generation + Planning Support
+- ✅ 4.9: Assistant-to-Assistant Messaging + Live Relay Mode
+- ✅ 4.10: Conversation Handoff + Agent Takeover
+- ✅ 4.11: Routing Confidence Logs + Fallback Overrides
+- ✅ 4.12: Assistant Routing Suggestions Based on Context & Tags
+- ✅ 4.13: Assistant Routing History + Confidence Debugging Tools
+- ✅ 4.14: Assistant Specialization Drift + Retraining Signal Detection
+- ✅ 4.15: Self-Healing Assistants via Prompt Clarification + Reflection
+- ✅ 4.16: Shared Assistant Memory Pools + Dynamic Linkage
+- ✅ 4.17: Context-Aware Memory Retrieval and Prioritization
+- ✅ 4.18: Dynamic Context Expansion via Related Memory & Mood
+- ✅ 4.19: Multi-Agent Socratic Debugging Mode
+- ✅ 4.20: Multi-Agent Debate + Consensus Building
+- ✅ 4.21: Council Convene Protocol + Vote Handling
+- ✅ 4.22: Emotional Resonance Logging + Assistant Empathy Tracing
+- ✅ 4.23: Mood-Driven Collaboration Styles + Conflict Avoidance
+- ✅ 4.24: Team Memory Chains + Assistant Roles in Shared Projects
 
 ---
 
-## Phase 4: Tools, API Access, and Execution Layer
+## ✅ Current Status
 
-### Capabilities Introduced
+- Codex is actively iterating through Phase 4 features.
+- Frontend and backend are linked and handling real assistant-to-agent flows.
+- Primary assistant “DonkGPT” is now seeded, delegated, and operational.
 
-- Assistant tool usage (via MCP)
-- Real-time API querying and response interpretation
-- Delegation fallback when tools fail
-- Full integration with `intel_core` and `mcp_core` execution context
+---
 
-### Key Models
+## 🧭 Next Up (Phase 4.25+ Preview)
 
-- `Tool`: Represents an available real-world integration (e.g. GitHub, Search)
-- `ToolUsageLog`: Tracks assistant tool calls and responses
-- `Capability`: Optional grouping for related tool types or scopes
-- `ToolResponse`: New optional link on `MemoryEntry`
+- 🧠 4.25: Persistent Assistant Personas + Custom Traits
+- 🎭 4.26: Emotional Memory Mapping + Mood Influence
+- 📈 4.27+: Dynamic Planning based on Mood, Memory, and Context
+- 👁️‍🗨️ 4.29+: Memory Visualizer, Delegation Trace Views, Agent Feedback
 
-### Workflows Activated
-
-- Tools registered with JSON schema and callable logic
-- Assistants can list and call tools with plain language
-- Results stored to memory and reflected on
-- Delegation occurs only if tools fail or context exceeds scope
-
-### Example Use Case
-
-- 🧠 Thought: "I need to fetch open GitHub issues."
-- 🔧 Tool Use: Assistant invokes `github.list_issues()` MCP endpoint
-- 📎 ToolResponse attached to `MemoryEntry`
-- 🪞 Reflection summarizes impact of issue list on plan
+---
