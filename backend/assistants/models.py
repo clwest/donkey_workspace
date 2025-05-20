@@ -1297,6 +1297,83 @@ class SpecializationDriftLog(models.Model):
         return f"{self.assistant.name} drift {self.drift_score:.2f}"
 
 
+class DebateSession(models.Model):
+    """Session tracking a multi-assistant debate."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    topic = models.CharField(max_length=255)
+    memory = models.ForeignKey(
+        "memory.MemoryEntry",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="debate_sessions",
+    )
+    project = models.ForeignKey(
+        "project.Project",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="debate_sessions",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):  # pragma: no cover - display
+        return self.topic
+
+
+class DebateThoughtLog(models.Model):
+    """Argument or rebuttal from an assistant in a debate session."""
+
+    POSITION_CHOICES = [
+        ("agree", "Agree"),
+        ("disagree", "Disagree"),
+        ("expand", "Expand"),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    debate_session = models.ForeignKey(
+        DebateSession, on_delete=models.CASCADE, related_name="logs"
+    )
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="debate_logs"
+    )
+    round = models.IntegerField(default=1)
+    position = models.CharField(max_length=10, choices=POSITION_CHOICES)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):  # pragma: no cover - display
+        return f"{self.assistant.name} {self.position}"
+
+
+class DebateSummary(models.Model):
+    """Final consensus or summary for a debate session."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    session = models.ForeignKey(
+        DebateSession, on_delete=models.CASCADE, related_name="summaries"
+    )
+    summary = models.TextField()
+    created_by = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="debate_summaries",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display
+        return f"Summary for {self.session.topic}"
+
+
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 

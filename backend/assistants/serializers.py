@@ -16,6 +16,9 @@ from .models import (
     AssistantNextAction,
     ProjectPlanningLog,
     SpecializationDriftLog,
+    DebateSession,
+    DebateThoughtLog,
+    DebateSummary,
     DelegationEvent,
     SessionHandoff,
     AssistantSwitchEvent,
@@ -617,6 +620,41 @@ class ChatSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChatSession
         fields = "__all__"
+
+
+class DebateThoughtLogSerializer(serializers.ModelSerializer):
+    assistant = serializers.SlugRelatedField(read_only=True, slug_field="slug")
+
+    class Meta:
+        model = DebateThoughtLog
+        fields = [
+            "id",
+            "debate_session",
+            "assistant",
+            "round",
+            "position",
+            "content",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
+class DebateSessionSerializer(serializers.ModelSerializer):
+    logs = DebateThoughtLogSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = DebateSession
+        fields = ["id", "topic", "memory", "project", "created_at", "logs"]
+        read_only_fields = ["id", "created_at"]
+
+
+class DebateSummarySerializer(serializers.ModelSerializer):
+    created_by = serializers.SlugRelatedField(read_only=True, slug_field="slug")
+
+    class Meta:
+        model = DebateSummary
+        fields = ["id", "session", "summary", "created_by", "created_at"]
+        read_only_fields = ["id", "created_at"]
 
 
 class AssistantMessageSerializer(serializers.ModelSerializer):
