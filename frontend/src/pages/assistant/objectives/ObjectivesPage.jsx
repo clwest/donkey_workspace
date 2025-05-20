@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import apiFetch from "../../../utils/apiClient";
+import { suggestDelegation } from "../../../api/assistants";
 
 export default function ObjectivesPage() {
   const { slug } = useParams();
@@ -78,7 +79,7 @@ export default function ObjectivesPage() {
                 >
                   📋 Plan Tasks
                 </button>
-                <button
+               <button
                   className="btn btn-sm btn-outline-secondary"
                   onClick={() => {
                     setSelected(obj);
@@ -86,6 +87,28 @@ export default function ObjectivesPage() {
                   }}
                 >
                   🤖 Delegate
+                </button>
+                <button
+                  className="btn btn-sm btn-outline-primary"
+                  onClick={async () => {
+                    try {
+                      const data = await suggestDelegation(slug, {
+                        context_type: "objective",
+                        context_id: obj.id,
+                      });
+                      if (data.recommended_assistant) {
+                        alert(
+                          `Recommend: ${data.recommended_assistant.name}\nReason: ${data.recommended_assistant.reason}`
+                        );
+                      } else {
+                        alert("No suggestion available");
+                      }
+                    } catch (err) {
+                      alert("Failed to get recommendation");
+                    }
+                  }}
+                >
+                  💡 Suggest Agent
                 </button>
               </div>
             </li>

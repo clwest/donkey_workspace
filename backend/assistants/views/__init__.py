@@ -69,6 +69,7 @@ from .delegations import (
     primary_delegations,
     delegation_trace,
     hierarchical_memory,
+    suggest_delegation,
 )
 from .bootstrap import prompt_to_assistant
 from .signals import (
@@ -156,6 +157,7 @@ __all__ = [
     "hierarchical_memory",
     "spawn_from_context",
     "delegation_event_feedback",
+    "suggest_delegation",
     "prompt_to_assistant",
     "reflect_to_objectives",
     "objective_from_reflection",

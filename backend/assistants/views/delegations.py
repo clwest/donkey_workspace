@@ -8,6 +8,7 @@ from assistants.utils.delegation import (
     should_delegate,
 )
 from assistants.models import Assistant, TokenUsage, ChatSession
+from assistants.utils.delegation_helpers import get_trust_score
 from memory.models import MemoryEntry
 from memory.serializers import MemoryEntrySerializer
 from assistants.utils.delegation_trace import build_delegation_trace
@@ -189,3 +190,44 @@ def evaluate_delegation(request, slug):
         return Response({"should_delegate": True, "suggested_agent": new_agent.slug})
 
     return Response({"should_delegate": False, "suggested_agent": None})
+
+
+@api_view(["POST"])
+def suggest_delegation(request, slug):
+    """Suggest an assistant to delegate a memory or objective."""
+    assistant = Assistant.objects.filter(slug=slug).first()
+    if not assistant:
+        return Response({"error": "Assistant not found"}, status=404)
+
+    ctx_type = request.data.get("context_type")
+    ctx_id = request.data.get("context_id")
+    context = None
+    if ctx_type == "memory":
+        context = MemoryEntry.objects.filter(id=ctx_id).first()
+    elif ctx_type == "objective":
+        from assistants.models import AssistantObjective
+
+        context = AssistantObjective.objects.filter(id=ctx_id).first()
+    if context is None:
+        return Response({"error": "Context not found"}, status=404)
+
+    from assistants.utils.recommendation_engine import suggest_agent_for_task
+
+    suggestion = suggest_agent_for_task(assistant, context)
+    if not suggestion:
+        return Response(
+            {"recommended_assistant": None, "message": "No suitable assistant found"}
+        )
+
+    rec = Assistant.objects.get(id=suggestion["assistant_id"])
+    resp = {
+        "name": rec.name,
+        "slug": rec.slug,
+        "score": suggestion.get("score"),
+        "reason": suggestion.get("match_reason"),
+    }
+    trust = get_trust_score(rec)
+    if trust.get("overall_label"):
+        resp["trust_label"] = trust["overall_label"]
+
+    return Response({"recommended_assistant": resp})
