@@ -15,7 +15,8 @@ class Document(models.Model):
     slug = models.SlugField(unique=True, null=True, blank=True, max_length=120)
     description = models.TextField(null=True, blank=True)
     source = models.CharField(max_length=50, null=True, blank=True)
-    source_url = models.URLField(blank=True)
+    # Allow source_url to be optional for locally uploaded documents
+    source_url = models.URLField(blank=True, null=True)
     summary = models.TextField(null=True, blank=True)  # ✅ Add this
     SOURCE_TYPE_CHOICES = [
         ("url", "URL"),
@@ -31,7 +32,9 @@ class Document(models.Model):
     content = models.TextField()
     metadata = models.JSONField(default=dict)
     duration = models.IntegerField(null=True, blank=True)
-    tags = models.ManyToManyField("mcp_core.Tag", blank=True, related_name="document_tags")
+    tags = models.ManyToManyField(
+        "mcp_core.Tag", blank=True, related_name="document_tags"
+    )
     ingested_by = models.CharField(max_length=128, blank=True, null=True)
     token_count_int = models.IntegerField(default=0)
     status = models.CharField(
@@ -48,11 +51,14 @@ class Document(models.Model):
 
     def __str__(self):
         return self.title
-    
+
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.title)[:50]  # Ensure it's under VARCHAR(50) if limited
+            self.slug = slugify(self.title)[
+                :50
+            ]  # Ensure it's under VARCHAR(50) if limited
         super().save(*args, **kwargs)
+
 
 class DocumentInteraction(models.Model):
     document = models.ForeignKey(
