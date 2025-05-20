@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 
 
 class Tool(models.Model):
@@ -43,3 +44,22 @@ class ToolUsageLog(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - simple display
         return f"{self.tool.slug} ({self.status})"
+
+
+class ToolScore(models.Model):
+    """Tracks tool performance per assistant with contextual tags."""
+
+    tool = models.ForeignKey(Tool, on_delete=models.CASCADE, related_name="scores")
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="tool_scores"
+    )
+    score = models.FloatField(default=0.0)
+    usage_count = models.IntegerField(default=0)
+    last_used = models.DateTimeField(auto_now=True)
+    context_tags = ArrayField(models.CharField(max_length=50), default=list)
+
+    class Meta:
+        unique_together = ("tool", "assistant")
+
+    def __str__(self) -> str:  # pragma: no cover - simple display
+        return f"{self.tool.slug} -> {self.assistant.slug}: {self.score}"
