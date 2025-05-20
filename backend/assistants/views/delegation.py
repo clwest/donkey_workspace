@@ -52,6 +52,28 @@ def spawn_from_context(request, slug):
 
 
 @api_view(["POST"])
+def delegation_event_feedback(request, id):
+    """Attach feedback to a delegation event."""
+    event = get_object_or_404(DelegationEvent, id=id)
+    score = request.data.get("score")
+    trust_label = request.data.get("trust_label")
+    notes = request.data.get("notes")
+
+    if score is not None:
+        try:
+            event.score = int(score)
+        except (TypeError, ValueError):
+            pass
+    if trust_label in {"trusted", "neutral", "unreliable"}:
+        event.trust_label = trust_label
+    if notes is not None:
+        event.notes = notes
+
+    event.save()
+    return Response({"success": True})
+
+
+@api_view(["POST"])
 def delegate_from_objective(request, slug, objective_id):
     """Delegate an objective to a new assistant."""
     parent = get_object_or_404(Assistant, slug=slug)

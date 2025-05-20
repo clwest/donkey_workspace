@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
+import DelegationFeedbackModal from "../../components/assistant/DelegationFeedbackModal";
 
-function MemoryRow({ entry }) {
+function MemoryRow({ entry, onRate }) {
   const indent = { marginLeft: `${entry.depth * 20}px` };
   return (
     <li style={indent} className="mb-2">
@@ -20,6 +21,13 @@ function MemoryRow({ entry }) {
           <>
             {" | "}
             <Link to={`/delegations/${entry.delegation_event_id}`}>Jump to Delegation Event</Link>
+            {" | "}
+            <button
+              className="btn btn-sm btn-link p-0"
+              onClick={() => onRate(entry.delegation_event_id)}
+            >
+              📝 Rate This Agent
+            </button>
           </>
         )}
         {" | "}
@@ -33,6 +41,7 @@ export default function DelegationTracePage() {
   const { slug } = useParams();
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [feedbackId, setFeedbackId] = useState(null);
 
   useEffect(() => {
     async function fetchTrace() {
@@ -58,13 +67,18 @@ export default function DelegationTracePage() {
       ) : (
         <ul className="list-unstyled">
           {entries.map((m) => (
-            <MemoryRow key={m.id} entry={m} />
+            <MemoryRow key={m.id} entry={m} onRate={(id) => setFeedbackId(id)} />
           ))}
         </ul>
       )}
       <Link to={`/assistants/${slug}`} className="btn btn-outline-secondary">
         🔙 Back
       </Link>
+      <DelegationFeedbackModal
+        eventId={feedbackId}
+        show={!!feedbackId}
+        onClose={() => setFeedbackId(null)}
+      />
     </div>
   );
 }

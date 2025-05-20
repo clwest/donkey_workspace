@@ -8,6 +8,7 @@ from prompts.models import Prompt
 from memory.models import MemoryEntry
 from mcp_core.models import NarrativeThread
 from project.models import Project
+from django.db.models import Avg, Count
 
 
 def spawn_delegated_assistant(
@@ -77,3 +78,27 @@ def spawn_delegated_assistant(
     reflect_on_delegation(event)
 
     return child
+
+
+def get_trust_score(assistant: Assistant) -> dict:
+    """Return aggregate trust info for the given assistant."""
+    qs = DelegationEvent.objects.filter(child_assistant=assistant)
+    avg = qs.aggregate(avg=Avg("score"))["avg"] if qs.exists() else None
+    label_counts = {
+        item["trust_label"]: item["count"]
+        for item in qs.values("trust_label").annotate(count=Count("id"))
+        if item["trust_label"]
+    }
+    if avg is None:
+        overall = None
+    elif avg >= 4:
+        overall = "trusted"
+    elif avg >= 2:
+        overall = "neutral"
+    else:
+        overall = "unreliable"
+    return {
+        "average_score": avg,
+        "label_counts": label_counts,
+        "overall_label": overall,
+    }

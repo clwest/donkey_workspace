@@ -59,7 +59,11 @@ from .sessions import (
     sessions_for_assistant,
     session_summary,
 )
-from .delegation import recent_delegation_events, spawn_from_context
+from .delegation import (
+    recent_delegation_events,
+    spawn_from_context,
+    delegation_event_feedback,
+)
 from .delegations import (
     delegation_events_for_assistant,
     primary_delegations,
@@ -151,6 +155,7 @@ __all__ = [
     "delegation_trace",
     "hierarchical_memory",
     "spawn_from_context",
+    "delegation_event_feedback",
     "prompt_to_assistant",
     "reflect_to_objectives",
     "objective_from_reflection",

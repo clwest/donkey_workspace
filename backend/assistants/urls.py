@@ -224,6 +224,11 @@ urlpatterns = [
     # path("delegations/recent/", views.recent_delegation_events),
     # path("delegation_events/recent/", views.recent_delegation_events),
     path(
+        "delegation/<uuid:id>/feedback/",
+        delegation.delegation_event_feedback,
+        name="delegation-event-feedback",
+    ),
+    path(
         "<slug:slug>/sessions/",
         sessions.sessions_for_assistant,
         name="assistant-sessions",

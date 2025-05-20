@@ -61,6 +61,9 @@ class DelegationEventSerializer(serializers.ModelSerializer):
             "child_slug",
             "reason",
             "summary",
+            "score",
+            "trust_label",
+            "notes",
             "memory_id",
             "session_id",
             "objective_title",
@@ -514,6 +517,7 @@ class ChatSessionSerializer(serializers.ModelSerializer):
 
 class AssistantSerializer(serializers.ModelSerializer):
     current_project = ProjectOverviewSerializer(read_only=True)
+    trust = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -526,7 +530,13 @@ class AssistantSerializer(serializers.ModelSerializer):
             "preferred_model",
             "is_primary",
             "current_project",
+            "trust",
         ]
+
+    def get_trust(self, obj):
+        from assistants.utils.delegation_helpers import get_trust_score
+
+        return get_trust_score(obj)
 
 
 class AssistantProjectSerializer(serializers.ModelSerializer):
