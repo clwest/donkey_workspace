@@ -13,6 +13,12 @@ export default function PrimaryAssistantDashboard() {
   const [delegations, setDelegations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [memorySummary, setMemorySummary] = useState(null);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [inbox, setInbox] = useState([]);
+  const [outbox, setOutbox] = useState([]);
+  const [allAssistants, setAllAssistants] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [recipient, setRecipient] = useState("");
 
   useEffect(() => {
     async function load() {
@@ -23,6 +29,12 @@ export default function PrimaryAssistantDashboard() {
         setDelegations(delRes || []);
         const summary = await apiFetch(`/assistants/${res.slug}/memory/summary/`);
         setMemorySummary(summary);
+        const inboxData = await apiFetch(`/assistants/messages/inbox/${res.slug}`);
+        setInbox(inboxData || []);
+        const outData = await apiFetch(`/assistants/messages/outbox/${res.slug}`);
+        setOutbox(outData || []);
+        const all = await apiFetch("/assistants/");
+        setAllAssistants(all);
       } catch (err) {
         console.error("Failed to load primary assistant", err);
       } finally {
@@ -49,6 +61,23 @@ export default function PrimaryAssistantDashboard() {
     } catch (err) {
       console.error("Reflection failed", err);
       alert("Failed to trigger reflection");
+    }
+  };
+
+  const handleSendRelay = async () => {
+    if (!newMessage || !recipient) return;
+    try {
+      await apiFetch("/assistants/messages/send/", {
+        method: "POST",
+        body: { sender: assistant.slug, recipient, content: newMessage },
+      });
+      const inboxData = await apiFetch(`/assistants/messages/inbox/${assistant.slug}`);
+      const outData = await apiFetch(`/assistants/messages/outbox/${assistant.slug}`);
+      setInbox(inboxData || []);
+      setOutbox(outData || []);
+      setNewMessage("");
+    } catch (err) {
+      alert("Failed to send message");
     }
   };
 
@@ -84,69 +113,140 @@ export default function PrimaryAssistantDashboard() {
           </div>
         </div>
       </div>
-
-      <div className="row g-4">
-        <div className="col-md-6">
-          <h5 className="mb-3">Recent Thoughts</h5>
-          {thoughts.length === 0 ? (
-            <p>No thoughts yet! 😴</p>
-          ) : (
-            thoughts.map((t, idx) => (
-              <AssistantThoughtCard key={idx} thought={t} />
-            ))
-          )}
-        </div>
-        <div className="col-md-6">
-          <h5 className="mb-3">Memory</h5>
-          <AssistantMemoryPanel slug={assistant.slug} />
-          <MemoryChainSettingsPanel slug={assistant.slug} />
-          <Link
-            to={`/assistants/${assistant.slug}/memories/`}
-            className="btn btn-sm btn-outline-secondary mt-2"
-          >
-            View All Memories
-          </Link>
-          {memorySummary && (
-            <div className="mt-3">
-              <button
-                className="btn btn-sm btn-outline-info mb-2"
-                data-bs-toggle="collapse"
-                data-bs-target="#memoryPulse"
-              >
-                🧠 Memory Pulse
-              </button>
-              <div className="collapse" id="memoryPulse">
-                <ThoughtCloudPanel tagCounts={memorySummary.recent_tags} />
-                <MemoryMoodChart moodCounts={memorySummary.recent_moods} />
-                <Link to={`/assistants/${assistant.slug}/memories/`} className="btn btn-sm btn-link">Full Visualizer</Link>
-              </div>
-            </div>
-          )}
-        </div>
+      <div className="mb-3">
+        <ul className="nav nav-tabs">
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === "overview" ? "active" : ""}`}
+              onClick={() => setActiveTab("overview")}
+            >
+              Overview
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === "relay" ? "active" : ""}`}
+              onClick={() => setActiveTab("relay")}
+            >
+              🛰️ Relay
+            </button>
+          </li>
+        </ul>
       </div>
 
-      <div className="mt-5">
-        <h4>Delegation Log</h4>
-        {delegations.length === 0 ? (
-          <p>No delegation events.</p>
-        ) : (
-          <ul className="list-group">
-            {delegations.map((d, idx) => (
-              <li key={idx} className="list-group-item">
-                <strong>
-                  {d.parent} ➡ {" "}
-                  <Link to={`/assistants/${d.child_slug}`}>{d.child}</Link>
-                </strong>
-                {d.objective_title && (
-                  <div className="small">Objective: {d.objective_title}</div>
-                )}
-                <div>{d.reason}</div>
-                {d.summary && <div className="text-muted small">{d.summary}</div>}
+      {activeTab === "overview" && (
+        <>
+          <div className="row g-4">
+            <div className="col-md-6">
+              <h5 className="mb-3">Recent Thoughts</h5>
+              {thoughts.length === 0 ? (
+                <p>No thoughts yet! 😴</p>
+              ) : (
+                thoughts.map((t, idx) => (
+                  <AssistantThoughtCard key={idx} thought={t} />
+                ))
+              )}
+            </div>
+            <div className="col-md-6">
+              <h5 className="mb-3">Memory</h5>
+              <AssistantMemoryPanel slug={assistant.slug} />
+              <MemoryChainSettingsPanel slug={assistant.slug} />
+              <Link
+                to={`/assistants/${assistant.slug}/memories/`}
+                className="btn btn-sm btn-outline-secondary mt-2"
+              >
+                View All Memories
+              </Link>
+              {memorySummary && (
+                <div className="mt-3">
+                  <button
+                    className="btn btn-sm btn-outline-info mb-2"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#memoryPulse"
+                  >
+                    🧠 Memory Pulse
+                  </button>
+                  <div className="collapse" id="memoryPulse">
+                    <ThoughtCloudPanel tagCounts={memorySummary.recent_tags} />
+                    <MemoryMoodChart moodCounts={memorySummary.recent_moods} />
+                    <Link to={`/assistants/${assistant.slug}/memories/`} className="btn btn-sm btn-link">Full Visualizer</Link>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-5">
+            <h4>Delegation Log</h4>
+            {delegations.length === 0 ? (
+              <p>No delegation events.</p>
+            ) : (
+              <ul className="list-group">
+                {delegations.map((d, idx) => (
+                  <li key={idx} className="list-group-item">
+                    <strong>
+                      {d.parent} ➡ {" "}
+                      <Link to={`/assistants/${d.child_slug}`}>{d.child}</Link>
+                    </strong>
+                    {d.objective_title && (
+                      <div className="small">Objective: {d.objective_title}</div>
+                    )}
+                    <div>{d.reason}</div>
+                    {d.summary && <div className="text-muted small">{d.summary}</div>}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </>
+      )}
+
+      {activeTab === "relay" && (
+        <div className="mt-4">
+          <div className="mb-3">
+            <select
+              className="form-select mb-2"
+              value={recipient}
+              onChange={(e) => setRecipient(e.target.value)}
+            >
+              <option value="">Select Assistant...</option>
+              {allAssistants
+                .filter((a) => a.slug !== assistant.slug)
+                .map((a) => (
+                  <option key={a.id} value={a.slug}>
+                    {a.name}
+                  </option>
+                ))}
+            </select>
+            <textarea
+              className="form-control mb-2"
+              rows="3"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Type a message..."
+            ></textarea>
+            <button className="btn btn-primary" onClick={handleSendRelay}>
+              Send
+            </button>
+          </div>
+          <h5>Outgoing</h5>
+          <ul className="list-group mb-4">
+            {outbox.map((m) => (
+              <li key={m.id} className="list-group-item">
+                to {m.recipient} - {m.content} ({m.status})
               </li>
             ))}
           </ul>
-        )}
-      </div>
+          <h5>Incoming</h5>
+          <ul className="list-group">
+            {inbox.map((m) => (
+              <li key={m.id} className="list-group-item">
+                from {m.sender} - {m.content} ({m.status})
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

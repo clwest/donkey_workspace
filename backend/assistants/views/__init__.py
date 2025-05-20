@@ -62,6 +62,7 @@ from .sessions import (
     sessions_for_assistant,
     session_summary,
 )
+from .messages import send_message, inbox, outbox
 from .delegation import (
     recent_delegation_events,
     spawn_from_context,
@@ -166,4 +167,7 @@ __all__ = [
     "prompt_to_assistant",
     "reflect_to_objectives",
     "objective_from_reflection",
+    "send_message",
+    "inbox",
+    "outbox",
 ]

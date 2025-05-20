@@ -33,6 +33,7 @@ from assistants.helpers.chat_helper import get_or_create_chat_session, save_chat
 from assistants.utils.delegation import spawn_delegated_assistant, should_delegate
 from assistants.helpers.memory_helpers import create_memory_from_chat
 from memory.models import MemoryEntry
+from assistants.models import AssistantMessage
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from memory.utils.context_helpers import get_or_create_context_from_memory
 from embeddings.helpers.helpers_io import save_embedding
@@ -321,6 +322,24 @@ def chat_with_assistant_view(request, slug):
     thought_engine.think_from_user_message(message)
 
     chat_session = get_or_create_chat_session(session_id, assistant=assistant)
+
+    if assistant.is_primary and assistant.live_relay_enabled:
+        delegate = assistant.sub_assistants.filter(is_active=True).first()
+        if delegate:
+            mem = MemoryEntry.objects.create(
+                event=f"Relayed message to {delegate.name}: {message}",
+                assistant=delegate,
+                related_project=chat_session.project,
+                chat_session=chat_session,
+                source_role="assistant",
+            )
+            AssistantMessage.objects.create(
+                sender=assistant,
+                recipient=delegate,
+                content=message,
+                session=chat_session,
+                related_memory=mem,
+            )
     token_usage, _ = TokenUsage.objects.get_or_create(
         session=chat_session,
         defaults={

@@ -15,6 +15,7 @@ from .views import (
     objectives,
     cache_tools,
     skills,
+    messages,
 )
 
 urlpatterns = [
@@ -238,6 +239,17 @@ urlpatterns = [
         "messages/<uuid:uuid>/update/",
         thoughts.update_message_feedback,
         name="update_message_feedback",
+    ),
+    path("messages/send/", messages.send_message, name="assistant-message-send"),
+    path(
+        "messages/inbox/<slug:slug>/",
+        messages.inbox,
+        name="assistant-message-inbox",
+    ),
+    path(
+        "messages/outbox/<slug:slug>/",
+        messages.outbox,
+        name="assistant-message-outbox",
     ),
     path("thoughts/<uuid:pk>/feedback/", thoughts.update_reflection_feedback),
     path("thoughts/<uuid:id>/mutate/", thoughts.mutate_thought, name="mutate-thought"),

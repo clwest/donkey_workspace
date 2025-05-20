@@ -158,6 +158,7 @@ class Assistant(models.Model):
     auto_delegate_on_feedback = ArrayField(
         models.CharField(max_length=50), null=True, blank=True
     )
+    live_relay_enabled = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -1097,6 +1098,42 @@ class DelegationEvent(models.Model):
 
     def __str__(self):
         return f"{self.parent_assistant} -> {self.child_assistant}"
+
+
+class AssistantMessage(models.Model):
+    """Direct message sent between assistants."""
+
+    sender = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="messages_sent",
+    )
+    recipient = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="messages_received",
+    )
+    content = models.TextField()
+    session = models.ForeignKey(
+        "assistants.ChatSession",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="assistant_messages",
+    )
+    related_memory = models.ForeignKey(
+        "memory.MemoryEntry",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="assistant_messages",
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=[("pending", "Pending"), ("delivered", "Delivered"), ("seen", "Seen")],
+        default="pending",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 from django.db.models.signals import post_save

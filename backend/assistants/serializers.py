@@ -11,6 +11,7 @@ from .models import (
     AssistantMemoryChain,
     AssistantReflectionInsight,
     AssistantChatMessage,
+    AssistantMessage,
     ChatSession,
     AssistantNextAction,
     ProjectPlanningLog,
@@ -347,6 +348,7 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             "is_active",
             "is_demo",
             "is_primary",
+            "live_relay_enabled",
             "system_prompt",
             "personality",
             "tone",
@@ -560,6 +562,25 @@ class ChatSessionSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class AssistantMessageSerializer(serializers.ModelSerializer):
+    sender = serializers.SlugRelatedField(read_only=True, slug_field="slug")
+    recipient = serializers.SlugRelatedField(read_only=True, slug_field="slug")
+
+    class Meta:
+        model = AssistantMessage
+        fields = [
+            "id",
+            "sender",
+            "recipient",
+            "content",
+            "status",
+            "created_at",
+            "session",
+            "related_memory",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
 class AssistantSerializer(serializers.ModelSerializer):
     current_project = ProjectOverviewSerializer(read_only=True)
     trust = serializers.SerializerMethodField()
@@ -582,6 +603,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "preferred_model",
             "mood_stability_index",
             "is_primary",
+            "live_relay_enabled",
             "current_project",
             "trust",
             "delegation_events_count",
