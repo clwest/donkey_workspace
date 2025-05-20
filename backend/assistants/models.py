@@ -139,9 +139,7 @@ class Assistant(models.Model):
     embedding = VectorField(
         dimensions=1536, null=True, blank=True
     )  # adjust dim if needed
-    initial_embedding = VectorField(
-        dimensions=1536, null=True, blank=True
-    )
+    initial_embedding = VectorField(dimensions=1536, null=True, blank=True)
     last_drift_check = models.DateTimeField(null=True, blank=True)
     documents = models.ManyToManyField(
         "intel_core.Document", blank=True, related_name="linked_assistants"
@@ -799,6 +797,7 @@ class SpecializationDriftLog(models.Model):
     def __str__(self):  # pragma: no cover - display only
         return f"Drift {self.score:.2f} @ {self.created_at.strftime('%Y-%m-%d')}"
 
+
 # backend/assistants/models.py
 class SignalSource(models.Model):
     """External platform or feed monitored for signals."""
@@ -1233,6 +1232,47 @@ class SessionHandoff(models.Model):
 
     def __str__(self):
         return f"{self.from_assistant} -> {self.to_assistant} @ {self.session}"
+
+
+class AssistantSwitchEvent(models.Model):
+    """Record when a session is switched to a different assistant."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    from_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="switches_from",
+    )
+    to_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="switches_to",
+    )
+    from_session = models.ForeignKey(
+        "assistants.ChatSession",
+        on_delete=models.CASCADE,
+        related_name="switch_from_events",
+        to_field="session_id",
+    )
+    to_session = models.ForeignKey(
+        "assistants.ChatSession",
+        on_delete=models.CASCADE,
+        related_name="switch_to_events",
+        to_field="session_id",
+    )
+    narrative_thread = models.ForeignKey(
+        "mcp_core.NarrativeThread",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="assistant_switches",
+    )
+    reason = models.TextField(blank=True)
+    automated = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.from_assistant} -> {self.to_assistant}"
 
 
 class SpecializationDriftLog(models.Model):

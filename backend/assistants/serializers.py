@@ -18,6 +18,7 @@ from .models import (
     SpecializationDriftLog,
     DelegationEvent,
     SessionHandoff,
+    AssistantSwitchEvent,
     AssistantSkill,
     SignalSource,
     SignalCatch,
@@ -80,6 +81,7 @@ class DelegationEventSerializer(serializers.ModelSerializer):
 class SessionHandoffSerializer(serializers.ModelSerializer):
     from_assistant = serializers.CharField(source="from_assistant.name", read_only=True)
     to_assistant = serializers.CharField(source="to_assistant.name", read_only=True)
+
     class Meta:
         model = SessionHandoff
         fields = [
@@ -88,6 +90,22 @@ class SessionHandoffSerializer(serializers.ModelSerializer):
             "to_assistant",
             "reason",
             "handoff_summary",
+            "created_at",
+        ]
+
+
+class AssistantSwitchEventSerializer(serializers.ModelSerializer):
+    from_assistant = serializers.CharField(source="from_assistant.name", read_only=True)
+    to_assistant = serializers.CharField(source="to_assistant.name", read_only=True)
+
+    class Meta:
+        model = AssistantSwitchEvent
+        fields = [
+            "id",
+            "from_assistant",
+            "to_assistant",
+            "reason",
+            "automated",
             "created_at",
         ]
 

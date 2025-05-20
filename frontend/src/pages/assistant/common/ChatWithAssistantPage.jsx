@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { suggestAssistant } from "../../../api/assistants";
+import { suggestAssistant, suggestSwitch, switchAssistant } from "../../../api/assistants";
 import "./styles/ChatView.css";
 
 export default function ChatWithAssistantPage() {
@@ -9,6 +9,8 @@ export default function ChatWithAssistantPage() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [switchSuggestion, setSwitchSuggestion] = useState(null);
+  const [sessionId] = useState(() => crypto.randomUUID());
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -29,7 +31,7 @@ export default function ChatWithAssistantPage() {
       const res = await fetch(`/api/assistants/${slug}/chat/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ message: input, session_id: sessionId }),
       });
 
       if (!res.ok) throw new Error("Failed to send message");
@@ -49,7 +51,7 @@ export default function ChatWithAssistantPage() {
       const res = await fetch(`/api/assistants/${slug}/chat/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: "__ping__" }),
+        body: JSON.stringify({ message: "__ping__", session_id: sessionId }),
       });
 
       const data = await res.json();
@@ -74,6 +76,23 @@ export default function ChatWithAssistantPage() {
       }
     } catch (err) {
       alert("Failed to get suggestion");
+    }
+  };
+
+  const handleSwitchSuggest = async () => {
+    try {
+      const data = await suggestSwitch(sessionId);
+      if (data.suggested_assistant) {
+        const a = data.suggested_assistant;
+        if (window.confirm(`Switch to ${a.name}?\nReason: ${a.reason}`)) {
+          const res = await switchAssistant(sessionId, a.slug);
+          window.location.href = `/assistants/${a.slug}/chat/`;
+        }
+      } else {
+        alert("No switch suggested");
+      }
+    } catch (err) {
+      alert("Failed to suggest switch");
     }
   };
 
@@ -134,6 +153,9 @@ export default function ChatWithAssistantPage() {
       </form>
       <button className="btn btn-outline-primary mt-2" onClick={handleSuggest}>
         🤖 Suggest Assistant
+      </button>
+      <button className="btn btn-outline-warning mt-2 ms-2" onClick={handleSwitchSuggest}>
+        🔄 Suggest Switch
       </button>
 
       {error && <div className="alert alert-danger mt-3">{error}</div>}

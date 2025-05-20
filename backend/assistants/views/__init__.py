@@ -65,6 +65,7 @@ from .sessions import (
     session_summary,
 )
 from .messages import send_message, inbox, outbox
+from .switching import suggest_switch, switch_session
 from .delegation import (
     recent_delegation_events,
     spawn_from_context,
@@ -180,4 +181,6 @@ __all__ = [
     "routing_history",
     "clarify_prompt",
     "failure_log",
+    "suggest_switch",
+    "switch_session",
 ]

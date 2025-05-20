@@ -109,3 +109,29 @@ export async function runDriftCheck(slug) {
   }
   return res.json();
 }
+
+export async function suggestSwitch(sessionId) {
+  const res = await fetch("http://localhost:8000/api/assistants/suggest_switch/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ session_id: sessionId }),
+    credentials: "include",
+  });
+  if (!res.ok) {
+    throw new Error("Failed to get switch suggestion");
+  }
+  return res.json();
+}
+
+export async function switchAssistant(sessionId, assistantSlug, reason = "switch") {
+  const res = await fetch("http://localhost:8000/api/assistants/switch/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ session_id: sessionId, assistant_slug: assistantSlug, reason }),
+    credentials: "include",
+  });
+  if (!res.ok) {
+    throw new Error("Failed to switch assistant");
+  }
+  return res.json();
+}
