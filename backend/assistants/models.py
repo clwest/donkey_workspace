@@ -79,6 +79,20 @@ THOUGHT_MODES = [
     ("dream", "Dream"),
 ]
 
+COLLABORATION_STYLES = [
+    ("harmonizer", "Harmonizer"),
+    ("challenger", "Challenger"),
+    ("strategist", "Strategist"),
+    ("supporter", "Supporter"),
+    ("autonomous", "Autonomous"),
+]
+
+CONFLICT_RESOLUTIONS = [
+    ("pause_and_reflect", "Pause and Reflect"),
+    ("delegate_to_mediator", "Delegate to Mediator"),
+    ("suppress_and_continue", "Suppress and Continue"),
+]
+
 # Planning history event types
 PLANNING_EVENT_TYPES = [
     ("objective_added", "Objective Added"),
@@ -171,6 +185,16 @@ class Assistant(models.Model):
         models.CharField(max_length=50), null=True, blank=True
     )
     live_relay_enabled = models.BooleanField(default=False)
+    collaboration_style = models.CharField(
+        max_length=20,
+        choices=COLLABORATION_STYLES,
+        default="supporter",
+    )
+    preferred_conflict_resolution = models.CharField(
+        max_length=30,
+        choices=CONFLICT_RESOLUTIONS,
+        default="pause_and_reflect",
+    )
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -439,6 +463,25 @@ class EmotionalResonanceLog(models.Model):
     intensity = models.FloatField(default=0.0)
     comment = models.TextField(blank=True, null=True)
     context_tags = ArrayField(models.CharField(max_length=50), default=list, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class CollaborationLog(models.Model):
+    """Snapshot of collaboration moods and conflicts."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    participants = models.ManyToManyField(
+        "assistants.Assistant", related_name="collaboration_logs"
+    )
+    project = models.ForeignKey(
+        "project.Project", on_delete=models.CASCADE, related_name="collaboration_logs"
+    )
+    mood_state = models.CharField(max_length=255, blank=True)
+    style_conflict_detected = models.BooleanField(default=False)
+    resolution_action = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

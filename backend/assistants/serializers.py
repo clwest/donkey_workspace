@@ -17,6 +17,7 @@ from .models import (
     ProjectPlanningLog,
     SpecializationDriftLog,
     EmotionalResonanceLog,
+    CollaborationLog,
     DebateSession,
     DebateThoughtLog,
     DebateSummary,
@@ -238,6 +239,23 @@ class EmotionalResonanceLogSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+class CollaborationLogSerializer(serializers.ModelSerializer):
+    participants = AssistantSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = CollaborationLog
+        fields = [
+            "id",
+            "participants",
+            "project",
+            "mood_state",
+            "style_conflict_detected",
+            "resolution_action",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
 class AssistantNextActionSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssistantNextAction
@@ -417,6 +435,8 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             "is_demo",
             "is_primary",
             "live_relay_enabled",
+            "collaboration_style",
+            "preferred_conflict_resolution",
             "system_prompt",
             "personality",
             "tone",
@@ -576,6 +596,18 @@ class SignalCatchSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+class AssistantCollaborationProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Assistant
+        fields = [
+            "id",
+            "slug",
+            "name",
+            "collaboration_style",
+            "preferred_conflict_resolution",
+        ]
+
+
 # assistants/serializers.py
 
 
@@ -723,6 +755,8 @@ class AssistantSerializer(serializers.ModelSerializer):
             "mood_stability_index",
             "is_primary",
             "live_relay_enabled",
+            "collaboration_style",
+            "preferred_conflict_resolution",
             "current_project",
             "avg_empathy_score",
             "trust",

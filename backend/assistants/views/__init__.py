@@ -79,6 +79,11 @@ from .delegations import (
     hierarchical_memory,
     suggest_delegation,
 )
+from .collaboration import (
+    evaluate_collaboration,
+    collaboration_logs_for_project,
+    collaboration_profile,
+)
 from .debate import (
     start_debate,
     get_debate,
@@ -197,4 +202,7 @@ __all__ = [
     "assistant_empathy",
     "assistant_reflect_empathy",
     "memory_resonance",
+    "evaluate_collaboration",
+    "collaboration_logs_for_project",
+    "collaboration_profile",
 ]

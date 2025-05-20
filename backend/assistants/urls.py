@@ -18,7 +18,6 @@ from .views import (
     messages,
     switching,
     empathy,
-
 )
 
 urlpatterns = [
@@ -80,6 +79,11 @@ urlpatterns = [
         "projects/<uuid:project_id>/history/",
         projects.project_history,
         name="assistant-project-history",
+    ),
+    path(
+        "projects/<uuid:project_id>/collaboration_logs/",
+        collaboration.collaboration_logs_for_project,
+        name="project-collaboration-logs",
     ),
     path(
         "projects/<uuid:pk>/regenerate-plan/",
@@ -276,7 +280,9 @@ urlpatterns = [
     # Council
     path("council/start/", council.start_session, name="council-start"),
     path("council/<uuid:id>/", council.session_detail, name="council-detail"),
-    path("council/<uuid:id>/thoughts/", council.session_thoughts, name="council-thoughts"),
+    path(
+        "council/<uuid:id>/thoughts/", council.session_thoughts, name="council-thoughts"
+    ),
     path("council/<uuid:id>/respond/", council.session_respond, name="council-respond"),
     path("council/<uuid:id>/reflect/", council.session_reflect, name="council-reflect"),
     path("suggest_switch/", switching.suggest_switch, name="assistant-suggest-switch"),
@@ -320,6 +326,11 @@ urlpatterns = [
         "<slug:slug>/evaluate-delegation/",
         delegations.evaluate_delegation,
         name="assistant-evaluate-delegation",
+    ),
+    path(
+        "<slug:slug>/evaluate-collaboration/",
+        collaboration.evaluate_collaboration,
+        name="assistant-evaluate-collaboration",
     ),
     path(
         "<slug:slug>/suggest-delegation/",
@@ -462,6 +473,11 @@ urlpatterns = [
         "<slug:slug>/drift-check/",
         assistants.drift_check,
         name="assistant-drift-check",
+    ),
+    path(
+        "<slug:slug>/collaboration_profile/",
+        collaboration.collaboration_profile,
+        name="assistant-collaboration-profile",
     ),
     # ===== DEBATE ENDPOINTS =====
     path("debate/start/", debate.start_debate, name="start-debate"),

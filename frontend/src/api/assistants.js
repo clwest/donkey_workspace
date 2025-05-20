@@ -6,7 +6,7 @@ export async function generateAssistantThought(slug) {
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-    }
+    },
   );
 
   if (!res.ok) {
@@ -23,7 +23,7 @@ export async function mutateThought(id, style = "clarify") {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ style }),
-    }
+    },
   );
 
   if (!res.ok) {
@@ -33,12 +33,15 @@ export async function mutateThought(id, style = "clarify") {
   return res.json();
 }
 export async function planProjectFromMemory(slug, body) {
-  const res = await fetch(`http://localhost:8000/api/assistants/${slug}/memory-to-project/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-    credentials: "include",
-  });
+  const res = await fetch(
+    `http://localhost:8000/api/assistants/${slug}/memory-to-project/`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      credentials: "include",
+    },
+  );
   if (!res.ok) {
     throw new Error("Failed to plan project");
   }
@@ -53,7 +56,7 @@ export async function suggestDelegation(slug, body) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
       credentials: "include",
-    }
+    },
   );
   if (!res.ok) {
     throw new Error("Failed to get recommendation");
@@ -75,12 +78,15 @@ export async function suggestAssistant(body) {
 }
 
 export async function clarifyPrompt(slug, text) {
-  const res = await fetch(`http://localhost:8000/api/assistants/${slug}/clarify_prompt/`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text }),
-    credentials: "include",
-  });
+  const res = await fetch(
+    `http://localhost:8000/api/assistants/${slug}/clarify_prompt/`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+      credentials: "include",
+    },
+  );
   if (!res.ok) {
     throw new Error("Failed to clarify prompt");
   }
@@ -88,7 +94,9 @@ export async function clarifyPrompt(slug, text) {
 }
 
 export async function fetchFailureLog(slug) {
-  const res = await fetch(`http://localhost:8000/api/assistants/${slug}/failure_log/`);
+  const res = await fetch(
+    `http://localhost:8000/api/assistants/${slug}/failure_log/`,
+  );
   if (!res.ok) {
     throw new Error("Failed to load failure log");
   }
@@ -102,7 +110,7 @@ export async function runDriftCheck(slug) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-    }
+    },
   );
   if (!res.ok) {
     throw new Error("Failed to run drift check");
@@ -111,27 +119,74 @@ export async function runDriftCheck(slug) {
 }
 
 export async function suggestSwitch(sessionId) {
-  const res = await fetch("http://localhost:8000/api/assistants/suggest_switch/", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ session_id: sessionId }),
-    credentials: "include",
-  });
+  const res = await fetch(
+    "http://localhost:8000/api/assistants/suggest_switch/",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session_id: sessionId }),
+      credentials: "include",
+    },
+  );
   if (!res.ok) {
     throw new Error("Failed to get switch suggestion");
   }
   return res.json();
 }
 
-export async function switchAssistant(sessionId, assistantSlug, reason = "switch") {
+export async function switchAssistant(
+  sessionId,
+  assistantSlug,
+  reason = "switch",
+) {
   const res = await fetch("http://localhost:8000/api/assistants/switch/", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ session_id: sessionId, assistant_slug: assistantSlug, reason }),
+    body: JSON.stringify({
+      session_id: sessionId,
+      assistant_slug: assistantSlug,
+      reason,
+    }),
     credentials: "include",
   });
   if (!res.ok) {
     throw new Error("Failed to switch assistant");
+  }
+  return res.json();
+}
+
+export async function evaluateCollaboration(slug, body) {
+  const res = await fetch(
+    `http://localhost:8000/api/assistants/${slug}/evaluate-collaboration/`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      credentials: "include",
+    },
+  );
+  if (!res.ok) {
+    throw new Error("Failed to evaluate collaboration");
+  }
+  return res.json();
+}
+
+export async function fetchCollaborationLogs(projectId) {
+  const res = await fetch(
+    `http://localhost:8000/api/projects/${projectId}/collaboration_logs/`,
+  );
+  if (!res.ok) {
+    throw new Error("Failed to load collaboration logs");
+  }
+  return res.json();
+}
+
+export async function fetchCollaborationProfile(slug) {
+  const res = await fetch(
+    `http://localhost:8000/api/assistants/${slug}/collaboration_profile/`,
+  );
+  if (!res.ok) {
+    throw new Error("Failed to load collaboration profile");
   }
   return res.json();
 }

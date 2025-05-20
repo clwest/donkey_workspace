@@ -24,17 +24,23 @@ export default function AssistantThoughtCard({
 }) {
   if (!thought) {
     console.warn("AssistantThoughtCard missing thought prop");
-    return <div className="alert alert-warning">⚠️ Invalid thought object.</div>;
+    return (
+      <div className="alert alert-warning">⚠️ Invalid thought object.</div>
+    );
   }
 
   if (!thought.summary && !thought.thought) {
     console.warn("Invalid thought object", thought);
-    return <div className="alert alert-warning">⚠️ Invalid thought object.</div>;
+    return (
+      <div className="alert alert-warning">⚠️ Invalid thought object.</div>
+    );
   }
 
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editValue, setEditValue] = useState(thought.thought || thought.summary || "");
+  const [editValue, setEditValue] = useState(
+    thought.thought || thought.summary || "",
+  );
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [feedbackValue, setFeedbackValue] = useState(thought.feedback || "");
@@ -129,6 +135,7 @@ export default function AssistantThoughtCard({
   const baseText = thought.summary || thought.thought || "";
   const preview =
     baseText.length > 120 ? baseText.slice(0, 120) + "..." : baseText;
+  const moodClash = thought.mood === "frustrated" || thought.mood === "angry";
 
   return (
     <>
@@ -141,16 +148,22 @@ export default function AssistantThoughtCard({
       >
         <div className="card-body p-3">
           <div className="mb-2">
-          <span className={`badge bg-${color}`}>
-            {icon || typeEmojis[thought.thought_type] || "💭"} {badge || "Thought"}
-          </span>{" "}
-          <small className="text-muted">
-            🕒 {new Date(thought.created_at).toLocaleString()}
-          </small>
-          {thought.thought_type === "prompt_clarification" && (
-            <span className="badge bg-warning text-dark ms-2">⚠️ Clarified Prompt</span>
-          )}
-        </div>
+            <span className={`badge bg-${color}`}>
+              {icon || typeEmojis[thought.thought_type] || "💭"}{" "}
+              {badge || "Thought"}
+            </span>{" "}
+            {moodClash && (
+              <span className="text-warning ms-2">⚠️ Mood clash</span>
+            )}
+            <small className="text-muted">
+              🕒 {new Date(thought.created_at).toLocaleString()}
+            </small>
+            {thought.thought_type === "prompt_clarification" && (
+              <span className="badge bg-warning text-dark ms-2">
+                ⚠️ Clarified Prompt
+              </span>
+            )}
+          </div>
 
           {thought.parent_thought && (
             <div className="text-muted small mb-1">
@@ -190,7 +203,12 @@ export default function AssistantThoughtCard({
       </div>
 
       {/* 🔍 Modal */}
-      <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
+      <Modal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        centered
+        size="lg"
+      >
         <Modal.Header closeButton>
           <Modal.Title>{badge || "🧠 Thought Detail"}</Modal.Title>
         </Modal.Header>
@@ -239,7 +257,9 @@ export default function AssistantThoughtCard({
 
               {thought.linked_reflection && (
                 <div className="mt-2">
-                  <a href={`/reflections/${thought.linked_reflection}`}>View Reflection</a>
+                  <a href={`/reflections/${thought.linked_reflection}`}>
+                    View Reflection
+                  </a>
                 </div>
               )}
 
@@ -299,7 +319,7 @@ export default function AssistantThoughtCard({
                 </Button>
               )}
               {["unclear", "too_long", "irrelevant"].includes(
-                feedbackValue
+                feedbackValue,
               ) && (
                 <div className="dropdown ms-2">
                   <button
