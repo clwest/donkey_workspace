@@ -34,6 +34,7 @@ THOUGHT_TYPES = [
     ("planning", "Planning Step"),
     ("reflection", "Reflection"),
     ("mutation", "Mutation"),
+    ("delegation_suggestion", "Delegation Suggestion"),
 ]
 
 MEMORY_MODES = [
@@ -122,6 +123,8 @@ class Assistant(models.Model):
     inherited_tone = models.CharField(max_length=20, null=True, blank=True)
     persona_summary = models.TextField(blank=True, null=True)
     traits = models.JSONField(default=dict, blank=True)
+    capabilities = models.TextField(blank=True)
+    capability_embedding = VectorField(dimensions=1536, null=True, blank=True)
     motto = models.CharField(max_length=200, blank=True)
     values = models.JSONField(default=list, blank=True)
     mood_stability_index = models.FloatField(default=1.0)

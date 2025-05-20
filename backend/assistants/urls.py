@@ -38,6 +38,11 @@ urlpatterns = [
         delegations.primary_delegations,
         name="primary-delegations",
     ),
+    path(
+        "suggest_delegate/",
+        delegation.suggest_delegate,
+        name="suggest-delegate",
+    ),
     path("", assistants.assistants_view, name="assistants_view"),
     path("create/", assistants.assistants_view, name="assistants-list-create"),
     # ===== PROJECTS =====
