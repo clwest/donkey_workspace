@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import MemoryFlagPanel from "../../../components/memory/MemoryFlagPanel";
+import { suggestDelegation } from "../../../api/assistants";
 import "../styles/MemoryDetailPage.css";
 
 export default function MemoryDetailPage() {
@@ -38,6 +39,24 @@ export default function MemoryDetailPage() {
       navigate(`/projects/${data.project_id}`);
     } else {
       alert("Failed to create project from memory.");
+    }
+  }
+
+  async function handleSuggestAgent() {
+    const slug = memory.linked_thought?.assistant_slug;
+    if (!slug) return;
+    try {
+      const data = await suggestDelegation(slug, {
+        context_type: "memory",
+        context_id: memory.id,
+      });
+      if (data.recommended_assistant) {
+        alert(`Recommend: ${data.recommended_assistant.name}\nReason: ${data.recommended_assistant.reason}`);
+      } else {
+        alert("No suggestion available");
+      }
+    } catch (err) {
+      alert("Failed to get recommendation");
     }
   }
 
@@ -136,6 +155,9 @@ export default function MemoryDetailPage() {
       <div className="d-flex gap-3">
         <button className="btn btn-primary" onClick={handleCreateProjectFromMemory}>
           🚀 Create Project from Memory
+        </button>
+        <button className="btn btn-outline-primary" onClick={handleSuggestAgent}>
+          🤖 Suggest Agent
         </button>
         {memory.is_conversation && memory.session_id && (
           <Link

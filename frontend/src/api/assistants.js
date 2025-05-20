@@ -44,3 +44,19 @@ export async function planProjectFromMemory(slug, body) {
   }
   return res.json();
 }
+
+export async function suggestDelegation(slug, body) {
+  const res = await fetch(
+    `http://localhost:8000/api/assistants/${slug}/suggest-delegation/`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      credentials: "include",
+    }
+  );
+  if (!res.ok) {
+    throw new Error("Failed to get recommendation");
+  }
+  return res.json();
+}

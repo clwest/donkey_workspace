@@ -518,6 +518,9 @@ class ChatSessionSerializer(serializers.ModelSerializer):
 class AssistantSerializer(serializers.ModelSerializer):
     current_project = ProjectOverviewSerializer(read_only=True)
     trust = serializers.SerializerMethodField()
+    delegation_events_count = serializers.SerializerMethodField()
+    average_delegation_score = serializers.SerializerMethodField()
+    tags = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -531,12 +534,41 @@ class AssistantSerializer(serializers.ModelSerializer):
             "is_primary",
             "current_project",
             "trust",
+            "delegation_events_count",
+            "average_delegation_score",
+            "tags",
         ]
 
     def get_trust(self, obj):
         from assistants.utils.delegation_helpers import get_trust_score
 
         return get_trust_score(obj)
+
+    def get_delegation_events_count(self, obj):
+        from assistants.models import DelegationEvent
+        from django.utils import timezone
+        week_ago = timezone.now() - timezone.timedelta(days=7)
+        return DelegationEvent.objects.filter(
+            child_assistant=obj, created_at__gte=week_ago
+        ).count()
+
+    def get_average_delegation_score(self, obj):
+        from assistants.models import DelegationEvent
+        from django.db.models import Avg
+
+        return (
+            DelegationEvent.objects.filter(child_assistant=obj).aggregate(avg=Avg("score"))[
+                "avg"
+            ]
+            or 0
+        )
+
+    def get_tags(self, obj):
+        from mcp_core.models import Tag
+        from mcp_core.serializers_tags import TagSerializer
+
+        tags = Tag.objects.filter(assistant_thoughts__assistant=obj).distinct()[:5]
+        return TagSerializer(tags, many=True).data
 
 
 class AssistantProjectSerializer(serializers.ModelSerializer):
