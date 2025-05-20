@@ -16,6 +16,7 @@ from .models import (
     AssistantNextAction,
     ProjectPlanningLog,
     SpecializationDriftLog,
+    EmotionalResonanceLog,
     DebateSession,
     DebateThoughtLog,
     DebateSummary,
@@ -219,6 +220,22 @@ class SpecializationDriftLogSerializer(serializers.ModelSerializer):
         model = SpecializationDriftLog
         fields = ["id", "score", "summary", "created_at"]
         read_only_fields = fields
+
+
+class EmotionalResonanceLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmotionalResonanceLog
+        fields = [
+            "id",
+            "assistant",
+            "source_memory",
+            "detected_emotion",
+            "intensity",
+            "comment",
+            "context_tags",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
 
 
 class AssistantNextActionSerializer(serializers.ModelSerializer):
@@ -496,6 +513,8 @@ class AssistantThoughtLogSerializer(serializers.ModelSerializer):
             "parent_thought",
             "linked_memory_preview",  # 🆕 Text preview
             "narrative_thread",
+            "empathy_response",
+            "resonated_with_user",
             "created_at",
         ]
 
@@ -685,6 +704,7 @@ class AssistantSerializer(serializers.ModelSerializer):
     delegation_events_count = serializers.SerializerMethodField()
     average_delegation_score = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
+    empathy_tags = serializers.ListField(child=serializers.CharField(), read_only=True)
 
     class Meta:
         model = Assistant
@@ -704,10 +724,12 @@ class AssistantSerializer(serializers.ModelSerializer):
             "is_primary",
             "live_relay_enabled",
             "current_project",
+            "avg_empathy_score",
             "trust",
             "delegation_events_count",
             "average_delegation_score",
             "tags",
+            "empathy_tags",
         ]
 
     def get_trust(self, obj):

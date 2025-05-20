@@ -132,6 +132,10 @@ class Assistant(models.Model):
     values = models.JSONField(default=list, blank=True)
     mood_stability_index = models.FloatField(default=1.0)
     last_mood_shift = models.DateTimeField(null=True, blank=True)
+
+    # Empathy metrics
+    avg_empathy_score = models.FloatField(default=0.0)
+    empathy_tags = ArrayField(models.CharField(max_length=50), default=list, blank=True)
     preferred_model = models.CharField(max_length=100, default="gpt-4o")
     memory_mode = models.CharField(
         max_length=200, choices=MEMORY_MODES, default="long_term"
@@ -384,6 +388,10 @@ class AssistantThoughtLog(models.Model):
     )
     tool_result_summary = models.CharField(max_length=255, null=True, blank=True)
 
+    # Empathy tracing
+    empathy_response = models.CharField(max_length=255, null=True, blank=True)
+    resonated_with_user = models.BooleanField(default=False)
+
     clarification_needed = models.BooleanField(default=False)
     clarification_prompt = models.TextField(null=True, blank=True)
 
@@ -411,6 +419,30 @@ class AssistantThoughtLog(models.Model):
             raise ValidationError(
                 "Thought must be linked to either an assistant or a project."
             )
+
+
+class EmotionalResonanceLog(models.Model):
+    """Detected emotional resonance for a memory entry."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="emotional_resonance_logs",
+    )
+    source_memory = models.ForeignKey(
+        "memory.MemoryEntry",
+        on_delete=models.CASCADE,
+        related_name="emotional_resonances",
+    )
+    detected_emotion = models.CharField(max_length=50)
+    intensity = models.FloatField(default=0.0)
+    comment = models.TextField(blank=True, null=True)
+    context_tags = ArrayField(models.CharField(max_length=50), default=list, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
 
 
 class AssistantProject(models.Model):
