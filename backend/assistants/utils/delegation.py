@@ -18,6 +18,7 @@ from memory.models import MemoryEntry
 from mcp_core.models import NarrativeThread
 from project.models import Project
 from prompts.models import Prompt
+from tools.models import Tool
 
 
 def should_delegate(
@@ -49,6 +50,7 @@ def spawn_delegated_assistant(
     reason: str = "delegation",
     summary: Optional[str] = None,
     objective: Optional["AssistantObjective"] = None,
+    triggered_by_tool: Optional["Tool"] = None,
 ) -> Assistant:
     """Create a child assistant inheriting context from the parent.
 
@@ -162,6 +164,7 @@ def spawn_delegated_assistant(
         triggering_memory=memory_entry,
         triggering_session=session,
         objective=objective,
+        triggered_by_tool=triggered_by_tool,
         reason=reason,
         summary=summary,
     )

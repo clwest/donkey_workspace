@@ -36,6 +36,8 @@ from assistants.utils.assistant_reflection_engine import AssistantReflectionEngi
 from memory.utils.context_helpers import get_or_create_context_from_memory
 from embeddings.helpers.helpers_io import save_embedding
 from embeddings.helpers.helper_tagging import generate_tags_for_memory
+from tools.utils import call_tool, reflect_on_tool_output
+from tools.models import Tool
 from prompts.models import Prompt
 
 
@@ -301,6 +303,32 @@ def chat_with_assistant_view(request, slug):
             "usage_type": "chat",
         },
     )
+
+    tool_slug = request.data.get("tool_slug")
+    if tool_slug:
+        tool_input = request.data.get("tool_input") or {}
+        tool_result = call_tool(tool_slug, tool_input, assistant)
+        reflection = reflect_on_tool_output(tool_result, tool_slug, tool_input, assistant)
+        if not reflection.get("useful", True):
+            if reflection.get("retry_input"):
+                tool_result = call_tool(tool_slug, reflection["retry_input"], assistant)
+            else:
+                tool_obj = Tool.objects.filter(slug=tool_slug).first()
+                delegate = spawn_delegated_assistant(
+                    chat_session,
+                    reason="tool_unsatisfactory",
+                    summary=reflection.get("summary"),
+                    triggered_by_tool=tool_obj,
+                )
+                AssistantThoughtLog.objects.create(
+                    assistant=assistant,
+                    thought="Delegated due to tool failure",
+                    thought_type="reflection",
+                    fallback_reason="tool_unsatisfactory",
+                    fallback_details={"tool": tool_slug},
+                )
+                return Response({"delegate_slug": delegate.slug})
+        messages.append({"role": "system", "content": f"Tool {tool_slug} output: {tool_result}"})
 
     if should_delegate(assistant, token_usage, request.data.get("feedback_flag")):
         recent_memory = (
