@@ -5,6 +5,8 @@ from rest_framework.response import Response
 
 from .models import Tool, ToolUsageLog
 from tools.utils.tool_registry import execute_tool
+from tools.utils import mutate_prompt_based_on_tool_feedback
+from assistants.models import AssistantReflectionLog
 
 
 @api_view(["GET"])
@@ -53,3 +55,27 @@ def invoke_tool(request, slug):
     return Response(
         {"result": result, "success": success, "error": error}, status=status_code
     )
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def submit_tool_feedback(request, id):
+    """Record feedback on a tool usage log and trigger prompt mutation."""
+    log = get_object_or_404(ToolUsageLog, id=id)
+    feedback = request.data.get("feedback")
+    message = request.data.get("message", "")
+    if feedback not in dict(ToolUsageLog.FEEDBACK_CHOICES):
+        return Response({"error": "Invalid feedback"}, status=400)
+    log.feedback = feedback
+    log.save(update_fields=["feedback"])
+
+    if log.assistant:
+        mutate_prompt_based_on_tool_feedback(log, feedback, log.assistant, message)
+        if message:
+            AssistantReflectionLog.objects.create(
+                assistant=log.assistant,
+                title="Tool Feedback",
+                summary=message,
+            )
+
+    return Response({"status": "saved"})
