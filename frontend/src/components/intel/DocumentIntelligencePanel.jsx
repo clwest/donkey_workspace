@@ -3,6 +3,7 @@ import apiFetch from "../../utils/apiClient";
 import { Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { suggestAssistant } from "../../api/assistants";
 
 export default function DocumentIntelligencePanel({ docId }) {
   const [summary, setSummary] = useState(null);
@@ -55,6 +56,25 @@ export default function DocumentIntelligencePanel({ docId }) {
     }
   };
 
+  const handleSuggest = async () => {
+    try {
+      const data = await suggestAssistant({
+        context_summary: summary || "",
+        tags: [],
+        recent_messages: [],
+      });
+      if (data.suggested_assistant) {
+        alert(
+          `Suggested assistant: ${data.suggested_assistant.name}\nReason: ${data.reasoning}`
+        );
+      } else {
+        alert("No suggestion available");
+      }
+    } catch (err) {
+      alert("Failed to get suggestion");
+    }
+  };
+
   return (
     <div className="mt-4 border-top pt-3">
       <h5>🧠 AI Intelligence Tools</h5>
@@ -77,6 +97,9 @@ export default function DocumentIntelligencePanel({ docId }) {
         ) : (
           "🤖 Bootstrap Assistant"
         )}
+      </button>
+      <button className="btn btn-outline-primary" onClick={handleSuggest}>
+        🤖 Suggest Assistant
       </button>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import apiFetch from "../../../utils/apiClient"
+import apiFetch from "../../../utils/apiClient";
+import { suggestAssistant } from "../../../api/assistants";
 
 export default function CreateProjectPage() {
   const [title, setTitle] = useState("");
@@ -49,6 +50,25 @@ export default function CreateProjectPage() {
     }
   }
 
+  async function handleSuggest() {
+    try {
+      const data = await suggestAssistant({
+        context_summary: description,
+        tags: [],
+        recent_messages: [],
+      });
+      if (data.suggested_assistant) {
+        alert(
+          `Try assigning to ${data.suggested_assistant.name}\nReason: ${data.reasoning}`
+        );
+      } else {
+        alert("No suggestion available");
+      }
+    } catch (err) {
+      alert("Failed to get suggestion");
+    }
+  }
+
   return (
     <div className="container mt-4">
       <h2>Create New Assistant Project</h2>
@@ -91,6 +111,13 @@ export default function CreateProjectPage() {
         {error && <div className="alert alert-danger">{error}</div>}
         <button type="submit" className="btn btn-primary">
           Create Project
+        </button>
+        <button
+          type="button"
+          className="btn btn-outline-primary ms-2"
+          onClick={handleSuggest}
+        >
+          🤖 Suggest Assistant
         </button>
       </form>
     </div>

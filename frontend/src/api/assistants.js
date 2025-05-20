@@ -60,3 +60,16 @@ export async function suggestDelegation(slug, body) {
   }
   return res.json();
 }
+
+export async function suggestAssistant(body) {
+  const res = await fetch("http://localhost:8000/api/assistants/suggest/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    credentials: "include",
+  });
+  if (!res.ok) {
+    throw new Error("Failed to get suggestion");
+  }
+  return res.json();
+}
