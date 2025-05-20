@@ -78,6 +78,12 @@ from .delegations import (
     hierarchical_memory,
     suggest_delegation,
 )
+from .debate import (
+    start_debate,
+    get_debate,
+    debate_respond,
+    debate_consensus,
+)
 
 from .bootstrap import prompt_to_assistant
 from .signals import (
@@ -183,4 +189,8 @@ __all__ = [
     "failure_log",
     "suggest_switch",
     "switch_session",
+    "start_debate",
+    "get_debate",
+    "debate_respond",
+    "debate_consensus",
 ]

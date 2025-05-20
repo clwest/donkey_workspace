@@ -17,7 +17,7 @@ from .views import (
     skills,
     messages,
     switching,
-    council,
+
 )
 
 urlpatterns = [
@@ -446,6 +446,19 @@ urlpatterns = [
         "<slug:slug>/drift-check/",
         assistants.drift_check,
         name="assistant-drift-check",
+    ),
+    # ===== DEBATE ENDPOINTS =====
+    path("debate/start/", debate.start_debate, name="start-debate"),
+    path("debate/<uuid:debate_id>/", debate.get_debate, name="debate-detail"),
+    path(
+        "debate/<uuid:debate_id>/respond/",
+        debate.debate_respond,
+        name="debate-respond",
+    ),
+    path(
+        "debate/<uuid:debate_id>/consensus/",
+        debate.debate_consensus,
+        name="debate-consensus",
     ),
     path("<slug:slug>/", assistants.assistant_detail_view, name="assistant-detail"),
 ]
