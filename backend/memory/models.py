@@ -119,6 +119,10 @@ class MemoryEntry(models.Model):
     linked_object = GenericForeignKey("linked_content_type", "linked_object_id")
     tool_response = models.JSONField(null=True, blank=True)
 
+    # 📈 Scoring & Context
+    relevance_score = models.FloatField(default=0.0)
+    context_tags = models.JSONField(default=list, blank=True)
+
     class Meta:
         ordering = ["-created_at"]
 
@@ -145,6 +149,8 @@ class MemoryChain(models.Model):
     title = models.CharField(max_length=255)
     memories = models.ManyToManyField(MemoryEntry, related_name="chains")
     created_at = models.DateTimeField(auto_now_add=True)
+    context_tags = models.JSONField(default=list, blank=True)
+    task_type = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         ordering = ["created_at"]

@@ -24,6 +24,7 @@ from memory.models import MemoryEntry
 from memory.serializers import (
     MemoryEntrySerializer,
     MemoryEntrySlimSerializer,
+    PrioritizedMemorySerializer,
     SimulatedMemoryForkSerializer,
 )
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
@@ -108,6 +109,24 @@ def assistant_memories(request, slug):
         entries = entries.filter(related_project_id=assistant.current_project_id)
     entries = entries.order_by("-created_at")
     serializer = MemoryEntrySlimSerializer(entries, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+def prioritized_memories(request, slug):
+    """Return prioritized memories for the assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    task = request.GET.get("task")
+    project = assistant.current_project
+    from assistants.helpers.memory_helpers import get_relevant_memories_for_task
+
+    memories = get_relevant_memories_for_task(
+        assistant,
+        project=project,
+        task_type=task,
+        limit=10,
+    )
+    serializer = PrioritizedMemorySerializer(memories, many=True)
     return Response(serializer.data)
 
 

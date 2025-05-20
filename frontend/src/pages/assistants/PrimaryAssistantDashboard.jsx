@@ -4,6 +4,7 @@ import apiFetch from "../../utils/apiClient";
 import { fetchFailureLog } from "../../api/assistants";
 import AssistantThoughtCard from "../../components/assistant/thoughts/AssistantThoughtCard";
 import AssistantMemoryPanel from "../../components/assistant/memory/AssistantMemoryPanel";
+import PrioritizedMemoryPanel from "../../components/assistant/memory/PrioritizedMemoryPanel";
 import MemoryChainSettingsPanel from "../../components/assistant/memory/MemoryChainSettingsPanel";
 import PrimaryStar from "../../components/assistant/PrimaryStar";
 import ThoughtCloudPanel from "../../components/assistant/memory/ThoughtCloudPanel";
@@ -157,6 +158,7 @@ export default function PrimaryAssistantDashboard() {
             <div className="col-md-6">
               <h5 className="mb-3">Memory</h5>
               <AssistantMemoryPanel slug={assistant.slug} />
+              <PrioritizedMemoryPanel slug={assistant.slug} />
               <MemoryChainSettingsPanel slug={assistant.slug} />
               <Link
                 to={`/assistants/${assistant.slug}/memories/`}

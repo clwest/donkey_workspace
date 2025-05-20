@@ -169,6 +169,11 @@ urlpatterns = [
         name="assistant-memories",
     ),
     path(
+        "<slug:slug>/memories/prioritized/",
+        memory.prioritized_memories,
+        name="assistant-prioritized-memories",
+    ),
+    path(
         "<slug:slug>/memory/summary/",
         memory.assistant_memory_summary,
         name="assistant-memory-summary",
