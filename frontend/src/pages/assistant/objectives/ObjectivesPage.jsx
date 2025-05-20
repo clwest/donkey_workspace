@@ -13,7 +13,10 @@ export default function ObjectivesPage() {
 
 
   useEffect(() => {
-    if (!slug) return;
+    if (!slug) {
+      console.warn("ObjectivesPage: missing assistant slug");
+      return;
+    }
     async function fetchObjectives() {
       try {
         const data = await apiFetch(`/assistants/${slug}/objectives/`);

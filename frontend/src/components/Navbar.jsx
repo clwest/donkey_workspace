@@ -105,7 +105,7 @@ export default function Navbar() {
                   </Link>
                 </li>
                 <li>
-                  <Link className="dropdown-item" to="/assistants/objectives">
+                  <Link className="dropdown-item" to="/assistants/primary/objectives">
                     🎯 Objectives
                   </Link>
                 </li>

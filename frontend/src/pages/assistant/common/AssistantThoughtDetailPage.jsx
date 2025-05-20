@@ -9,6 +9,10 @@ export default function AssistantThoughtDetailPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!id) {
+      console.warn("AssistantThoughtDetailPage: missing thought id");
+      return;
+    }
     const fetchThought = async () => {
       try {
         const res = await fetch(`/api/assistants/thoughts/${id}/`);

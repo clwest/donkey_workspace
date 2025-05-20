@@ -12,6 +12,10 @@ export default function GroupedReflectionDetailPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!id) {
+      console.warn("GroupedReflectionDetailPage: missing reflection id");
+      return;
+    }
     const loadReflection = async () => {
       try {
         const res = await apiFetch(`/mcp/dev_docs/grouped/${id}/`);

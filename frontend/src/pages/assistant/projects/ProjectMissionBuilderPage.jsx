@@ -9,6 +9,10 @@ export default function ProjectMissionBuilderPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!id) {
+      console.warn("ProjectMissionBuilderPage: missing project id");
+      return;
+    }
     async function fetchProject() {
       try {
         const res = await fetch(`http://localhost:8000/api/assistants/project/${id}/`);

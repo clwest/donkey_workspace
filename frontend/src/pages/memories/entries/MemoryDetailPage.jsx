@@ -30,7 +30,12 @@ export default function MemoryDetailPage() {
   }, [id]);
 
   async function handleCreateProjectFromMemory() {
-    const res = await fetch(`http://localhost:8000/api/assistants/projects/from-memory/`, {
+    const slug = memory.linked_thought?.assistant_slug;
+    if (!slug) {
+      console.warn("MemoryDetailPage: missing assistant slug for project creation");
+      return;
+    }
+    const res = await fetch(`http://localhost:8000/api/assistants/${slug}/projects/from-memory/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ memory_id: id }),
