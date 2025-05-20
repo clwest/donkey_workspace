@@ -47,6 +47,31 @@ def generate_unique_slug(title):
         counter += 1
     return slug
 
+from embeddings.document_services.chunking import (
+    generate_chunks,
+    generate_chunk_fingerprint,
+)
+from prompts.utils.token_helpers import count_tokens
+from intel_core.models import DocumentChunk
+
+
+def _create_document_chunks(document: Document):
+    """Create DocumentChunk objects for ``document`` if none exist."""
+    if DocumentChunk.objects.filter(document=document).exists():
+        return
+
+    chunks = generate_chunks(document.content)
+    for i, chunk in enumerate(chunks):
+        DocumentChunk.objects.create(
+            document=document,
+            order=i,
+            text=chunk,
+            tokens=count_tokens(chunk),
+            chunk_type="body",
+            fingerprint=generate_chunk_fingerprint(chunk),
+        )
+
+
 def save_document_to_db(content, metadata, session_id=None):
     logger.info(f"🧐 Full Metadata: {metadata}")
 
@@ -67,6 +92,8 @@ def save_document_to_db(content, metadata, session_id=None):
         title = metadata.get("title", "Untitled")
         slug = generate_unique_slug(title)
         session_id = metadata.get("session_id", session_id)
+        if not session_id or str(session_id) == "00000000-0000-0000-0000-000000000000":
+            session_id = uuid.uuid4()
 
         if not metadata.get("source_url"):
             file_hint = metadata.get("source_path") or title
@@ -80,15 +107,19 @@ def save_document_to_db(content, metadata, session_id=None):
                 session_id = uuid.UUID(session_id)
             except Exception as e:
                 logger.warning(f"⚠️ Invalid session_id format: {e}")
-                session_id = None
+                session_id = uuid.uuid4()
 
         summary = generate_summary(content)
         source_type = metadata.get("source_type", "Unknown")
 
-        # Use update_or_create to avoid duplicates
-        document, created = Document.objects.update_or_create(
-            slug=slug,
-            defaults={
+        existing = None
+        if metadata.get("source_url"):
+            existing = Document.objects.filter(source_url=metadata["source_url"]).first()
+        if not existing and metadata.get("source_path"):
+            existing = Document.objects.filter(metadata__source_path=metadata["source_path"]).first()
+
+        if existing:
+            for field, value in {
                 "content": content,
                 "title": title,
                 "source_type": source_type,
@@ -97,8 +128,24 @@ def save_document_to_db(content, metadata, session_id=None):
                 "session_id": session_id,
                 "description": f"Ingested from {source_type} - {title}",
                 "summary": summary,
-            },
-        )
+            }.items():
+                setattr(existing, field, value)
+            existing.save()
+            document = existing
+            created = False
+        else:
+            document = Document.objects.create(
+                slug=slug,
+                content=content,
+                title=title,
+                source_type=source_type,
+                source_url=metadata.get("source_url"),
+                metadata=metadata,
+                session_id=session_id,
+                description=f"Ingested from {source_type} - {title}",
+                summary=summary,
+            )
+            created = True
 
         if created:
             logger.info(f"✅ Created new Document: {document.title}")
@@ -118,6 +165,8 @@ def save_document_to_db(content, metadata, session_id=None):
             )
             embedding_id = save_embedding(document, embedding_list)
             logger.info(f"✅ Saved embedding: {embedding_id} for document: {document.title}")
+
+        _create_document_chunks(document)
 
         return document
 

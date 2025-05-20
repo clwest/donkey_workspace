@@ -27,10 +27,12 @@ export default function DocumentIngestionForm({ onSuccess }) {
       .map((t) => t.trim().toLowerCase())
       .filter((t) => t.length > 0);
 
+    const sessionId = crypto.randomUUID();
+
     const payload = {
         title,
         project_name: "General",
-        session_id: "00000000-0000-0000-0000-000000000000",
+        session_id: sessionId,
         tags: parsedTags,
     };
 
@@ -42,7 +44,7 @@ export default function DocumentIngestionForm({ onSuccess }) {
         formData.append("source_type", "pdf");
         formData.append("title", title);
         formData.append("project_name", "General");
-        formData.append("session_id", "00000000-0000-0000-0000-000000000000");
+        formData.append("session_id", sessionId);
         parsedTags.forEach((t) => formData.append("tags", t));
         pdfFiles.forEach((file) => formData.append("files", file));
         console.log("Uploading PDFs", pdfFiles);
@@ -71,6 +73,8 @@ export default function DocumentIngestionForm({ onSuccess }) {
             }
           }, 2000);
         }
+        setLoading(false);
+        return;
         } else if (urlInput.trim()) {
         payload.urls = urlInput
             .split(",")
