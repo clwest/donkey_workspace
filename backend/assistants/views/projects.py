@@ -20,6 +20,7 @@ from prompts.models import Prompt
 from prompts.utils.embeddings import get_prompt_embedding
 from embeddings.helpers.helpers_io import save_embedding
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from memory.models import MemoryEntry
 from project.models import Project, ProjectMemoryLink, ProjectMilestone
 from assistants.models import AssistantObjective, AssistantTask, ChatSession
@@ -168,6 +169,49 @@ def project_history(request, project_id):
     )
     serializer = ProjectPlanningLogSerializer(logs, many=True)
     return Response(serializer.data)
+
+
+@api_view(["POST"])
+def create_project_from_memory(request):
+    """Create a new assistant project based on a memory entry."""
+    data = request.data
+    assistant = get_object_or_404(Assistant, id=data.get("assistant_id"))
+    memory = get_object_or_404(MemoryEntry, id=data.get("memory_id"))
+
+    title = data.get(
+        "title", f"Project from memory: {memory.summary or memory.event[:50]}"
+    )
+
+    project = AssistantProject.objects.create(
+        assistant=assistant,
+        title=title,
+        created_by=assistant.created_by,
+    )
+
+    User = get_user_model()
+    user = request.user if request.user.is_authenticated else assistant.created_by
+    if not user:
+        user = User.objects.first()
+
+    core_project = Project.objects.create(
+        user=user,
+        title=title,
+        assistant=assistant,
+        assistant_project=project,
+        created_from_memory=memory,
+    )
+
+    ProjectMemoryLink.objects.create(project=core_project, memory=memory)
+
+    AssistantObjective.objects.create(
+        assistant=assistant,
+        project=project,
+        title="Build a project based on the memory provided.",
+        description=memory.summary or memory.event[:300],
+        source_memory=memory,
+    )
+
+    return Response({"project_id": project.id, "slug": project.slug}, status=201)
 
 
 @api_view(["POST"])
