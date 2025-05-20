@@ -16,7 +16,13 @@ export default function ThoughtsPanel({ projectId }) {
       try {
         const res = await fetch(`http://localhost:8000/api/assistants/projects/${projectId}/thoughts/`);
         const data = await res.json();
-        setThoughts(data);
+        console.log("🧠 Fetched thoughts", data);
+        if (Array.isArray(data)) {
+          setThoughts(data);
+        } else {
+          console.warn("Unexpected thoughts payload", data);
+          setThoughts([]);
+        }
       } catch (err) {
         toast.error("❌ Failed to load thoughts.");
       } finally {
