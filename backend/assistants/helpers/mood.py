@@ -51,3 +51,13 @@ def get_session_mood(session) -> str:
     if memory:
         return memory.memory_value
     return "neutral"
+
+
+def is_in_cooldown(assistant) -> bool:
+    """Return True if the assistant's mood stability index is low."""
+    return assistant.mood_stability_index < 0.5
+
+
+def update_mood_stability(assistant, new_mood: str):
+    """Recalculate and store the assistant's mood stability index."""
+    assistant.record_mood_shift(new_mood)
