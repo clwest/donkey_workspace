@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from openai import OpenAI
+from utils.llm_router import call_llm
 from datetime import datetime
 import logging
 import json
