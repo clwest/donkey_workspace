@@ -564,7 +564,11 @@ def self_reflect(request, slug):
     assistant = get_object_or_404(Assistant, slug=slug)
     engine = AssistantReflectionEngine(assistant)
     prompt = f"You are {assistant.name}. Reflect on your recent behavior and suggest updates to your persona_summary, traits, values or motto. Respond with reflection text followed by JSON updates if any."
-    output = engine.generate_reflection(prompt)
+    try:
+        output = engine.generate_reflection(prompt)
+    except Exception as e:
+        logger.error("Self reflection failed", exc_info=True)
+        return Response({"error": "Failed to generate reflection."}, status=500)
     text = output
     updates = {}
     if "{" in output:
@@ -725,9 +729,7 @@ def clarify_prompt(request, slug):
 def failure_log(request, slug):
     """Return thought logs marked with self doubt or needing clarification."""
     assistant = get_object_or_404(Assistant, slug=slug)
-    logs = AssistantThoughtLog.objects.filter(
-        assistant=assistant
-    ).filter(
+    logs = AssistantThoughtLog.objects.filter(assistant=assistant).filter(
         models.Q(thought_type="self_doubt") | models.Q(clarification_needed=True)
     )
     data = [
