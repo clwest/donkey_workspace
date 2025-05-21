@@ -11,6 +11,13 @@ EMBEDDING_LENGTH = 1536
 class Document(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     session_id = models.UUIDField(default=uuid.uuid4)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="documents",
+        null=True,
+        blank=True,
+    )
     title = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, null=True, blank=True, max_length=120)
     description = models.TextField(null=True, blank=True)
