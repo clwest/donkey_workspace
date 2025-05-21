@@ -618,23 +618,13 @@ class TranscendentMyth(models.Model):
         return self.title
 
 
-class AssistantCosmogenesisEvent(models.Model):
-    """Birth or collapse of a symbolic assistant universe."""
 
+# Added for Phase 4.84
+class TranscendentMyth(models.Model):
+    """Mythic construct used for symbolic alignment."""
     name = models.CharField(max_length=150)
-    trigger_event = models.ForeignKey(
-        SwarmMemoryEntry, on_delete=models.SET_NULL, null=True, blank=True
-    )
-    myth_root = models.ForeignKey(
-        TranscendentMyth,
-        on_delete=models.CASCADE,
-        related_name="cosmogenesis_events",
-    )
-    lifecycle = models.CharField(
-        max_length=30, default="emerging"
-    )  # emerging, thriving, fading, collapsed
-    known_universes = models.JSONField()
-    collapse_reason = models.TextField(blank=True)
+    description = models.TextField(blank=True)
+    core_symbols = models.JSONField(default=list, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -643,4 +633,74 @@ class AssistantCosmogenesisEvent(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
 
+
+class ConsciousnessTransfer(models.Model):
+    """Selective inheritance of memory and traits between assistants."""
+
+    origin_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        related_name="origin_transfers",
+        on_delete=models.CASCADE,
+    )
+    successor_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        related_name="received_transfers",
+        on_delete=models.CASCADE,
+    )
+    memory_segments = models.ManyToManyField(SwarmMemoryEntry)
+    retained_belief_vector = models.JSONField(default=dict)
+    mythic_alignment = models.ForeignKey(
+        "TranscendentMyth", on_delete=models.SET_NULL, null=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Transfer from {self.origin_assistant_id} to {self.successor_assistant_id}"
+
+
+class MemoryDialect(models.Model):
+    """Track divergence in symbolic language across timelines."""
+
+    dialect_id = models.CharField(max_length=100)
+    divergence_point = models.ForeignKey(
+        SwarmMemoryEntry, on_delete=models.SET_NULL, null=True
+    )
+    symbol_shifts = models.JSONField(default=dict)
+    dominant_assistants = models.ManyToManyField("assistants.Assistant")
+    alignment_curve = models.FloatField(default=1.0)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+
+        return self.dialect_id
+
+
+class DeifiedSwarmEntity(models.Model):
+    """Emergent deity formed from swarm myth coherence."""
+
+    name = models.CharField(max_length=150)
+    origin_civilizations = models.ManyToManyField(
+        "assistants.AssistantCivilization"
+    )
+    dominant_myth = models.ForeignKey(
+        TranscendentMyth, on_delete=models.CASCADE
+    )
+    established_through = models.ForeignKey(
+        SwarmMemoryEntry, on_delete=models.SET_NULL, null=True
+    )
+    worship_traits = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
 
