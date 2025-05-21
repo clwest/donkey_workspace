@@ -1,6 +1,12 @@
 import PrimaryStar from "../../components/assistant/PrimaryStar";
 
-export default function AssistantDashboardHeader({ assistant, memoryCoverage, onReflect, onSelfAssess }) {
+export default function AssistantDashboardHeader({
+  assistant,
+  memoryCoverage,
+  onReflect,
+  onSelfAssess,
+  onRegeneratePlan,
+}) {
   if (!assistant) return null;
   return (
     <div className="card mb-4 shadow-sm">
@@ -20,6 +26,9 @@ export default function AssistantDashboardHeader({ assistant, memoryCoverage, on
             {assistant.needs_recovery && (
               <span className="badge bg-warning text-dark ms-2">Misaligned</span>
             )}
+            {!assistant.needs_recovery && assistant.recovered && (
+              <span className="badge bg-success ms-2">Recovered</span>
+            )}
           </h3>
           <p className="text-muted mb-0">{assistant.specialty}</p>
           {memoryCoverage !== null && (
@@ -35,6 +44,11 @@ export default function AssistantDashboardHeader({ assistant, memoryCoverage, on
           {onSelfAssess && (
             <button className="btn btn-outline-info" onClick={onSelfAssess}>
               Self-Assessment
+            </button>
+          )}
+          {assistant.needs_recovery && onRegeneratePlan && (
+            <button className="btn btn-warning" onClick={onRegeneratePlan}>
+              🧠 Regenerate Plan
             </button>
           )}
         </div>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
-import { fetchFailureLog, runSelfAssessment } from "../../api/assistants";
+import { fetchFailureLog, runSelfAssessment, regeneratePlan } from "../../api/assistants";
 import AssistantThoughtCard from "../../components/assistant/thoughts/AssistantThoughtCard";
 import AssistantMemoryPanel from "../../components/assistant/memory/AssistantMemoryPanel";
 import PrioritizedMemoryPanel from "../../components/assistant/memory/PrioritizedMemoryPanel";
@@ -147,6 +147,17 @@ export default function PrimaryAssistantDashboard() {
     }
   };
 
+  const handleRegeneratePlan = async () => {
+    if (!assistant?.needs_recovery) return;
+    try {
+      await regeneratePlan(assistant.slug, { approve: true });
+      setAssistant((prev) => ({ ...prev, needs_recovery: false, recovered: true }));
+    } catch (err) {
+      console.error("Regeneration failed", err);
+      alert("Failed to regenerate plan");
+    }
+  };
+
   if (loading) return <div className="container my-5">Loading...</div>;
   if (!assistant) return <div className="container my-5">Primary assistant not found.</div>;
 
@@ -160,6 +171,7 @@ export default function PrimaryAssistantDashboard() {
         memoryCoverage={memoryCoverage}
         onReflect={handleReflect}
         onSelfAssess={handleSelfAssess}
+        onRegeneratePlan={handleRegeneratePlan}
       />
       <div className="mb-3">
         <ul className="nav nav-tabs">
