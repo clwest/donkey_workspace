@@ -185,6 +185,7 @@ export default function ProjectDetailPage() {
   if (!project) return <div className="container my-5">Loading project...</div>;
 
   return (
+    <>
     <div className="container my-5">
       <h1 className="mb-4">{project.title}</h1>
       {project.team && project.team.length > 0 && (
@@ -315,5 +316,6 @@ export default function ProjectDetailPage() {
       assistantSlug={project.assistant?.slug}
       projectId={project.id}
     />
+    </>
   );
 }
