@@ -247,8 +247,20 @@ export default function Navbar() {
 
           {/* Right-aligned Links */}
           <span className="navbar-text">
-            <Link className="btn btn-outline-primary btn-sm" to="/">
+            <Link className="btn btn-outline-primary btn-sm me-2" to="/">
               🏠 Home
+            </Link>
+            <Link className="btn btn-outline-secondary btn-sm me-2" to="/login">
+              Login
+            </Link>
+            <Link className="btn btn-outline-secondary btn-sm me-2" to="/register">
+              Register
+            </Link>
+            <Link className="btn btn-outline-secondary btn-sm me-2" to="/profile">
+              Profile
+            </Link>
+            <Link className="btn btn-outline-secondary btn-sm" to="/logout">
+              Logout
             </Link>
           </span>
         </div>
