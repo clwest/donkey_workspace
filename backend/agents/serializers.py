@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from agents.models import Agent, AgentFeedbackLog
+from agents.models import Agent, AgentFeedbackLog, AgentCluster
 from intel_core.serializers import DocumentSerializer
 
 class AgentSerializer(serializers.ModelSerializer):
@@ -30,3 +30,26 @@ class AgentFeedbackLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = AgentFeedbackLog
         fields = ["id", "task", "feedback_text", "feedback_type", "score", "created_at"]
+
+
+class AgentClusterSerializer(serializers.ModelSerializer):
+    agents = AgentSerializer(many=True, read_only=True)
+    project = serializers.SerializerMethodField()
+    skill_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = AgentCluster
+        fields = ["id", "name", "purpose", "project", "agents", "skill_count"]
+
+    def get_project(self, obj):
+        from assistants.serializers import AssistantProjectSerializer
+
+        if obj.project:
+            return AssistantProjectSerializer(obj.project).data
+        return None
+
+    def get_skill_count(self, obj):
+        skills = set()
+        for a in obj.agents.all():
+            skills.update(a.skills or [])
+        return len(skills)

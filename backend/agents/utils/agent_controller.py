@@ -383,6 +383,27 @@ def recommend_training_documents(agent: Agent) -> List["Document"]:
     return [doc for _, doc in scored[:5]]
 
 
+def evaluate_agent_lifecycle(agent: Agent) -> dict:
+    """Return lifecycle action suggestion for the agent."""
+    from mcp_core.models import ActionLog
+    from agents.models import AgentCluster, AgentFeedbackLog
+    from django.utils import timezone
+    from datetime import timedelta
+
+    now = timezone.now()
+    last_action = ActionLog.objects.filter(related_agent=agent).order_by("-created_at").first()
+    days_since_action = (now - last_action.created_at).days if last_action else 999
+    recent_feedback = AgentFeedbackLog.objects.filter(agent=agent, created_at__gte=now - timedelta(days=7)).exists()
+    active_cluster = AgentCluster.objects.filter(agents=agent, is_active=True).exists()
+
+    if not active_cluster or days_since_action > 30:
+        return {"action": "archive", "reason": "inactive or cluster dissolved"}
+    if agent.readiness_score < 0.5 or not recent_feedback:
+        return {"action": "retrain", "reason": "low readiness or stale feedback"}
+    return {"action": "keep", "reason": "agent active"}
+
+
+
 def find_complementary_agents(
     target_agent: Agent, required_skills: List[str]
 ) -> List[Agent]:

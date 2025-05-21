@@ -573,6 +573,58 @@ def reflect_on_agent_swarm(assistant: Assistant) -> AssistantReflectionLog:
         temperature=0.4,
     )
 
+def reflect_on_agent_swarm(assistant: Assistant) -> AssistantReflectionLog:
+    """
+    Reflects on both agent‐cluster evolution and mentoring/swarm dynamics,
+    then logs the insight as an AssistantReflectionLog.
+    """
+    # 1) Cluster context
+    clusters = AgentCluster.objects.filter(
+        agents__parent_assistant=assistant
+    ).distinct()
+    cluster_lines = [
+        f"{c.name} ({c.agents.count()} agents) – {c.purpose}" for c in clusters
+    ]
+    cluster_context = "\n".join(cluster_lines) or "No clusters defined."
+
+    # 2) Mentoring/swarm context
+    agents = list(assistant.assigned_agents.all())
+    if agents:
+        mentoring_entries = (
+            MemoryEntry.objects
+            .filter(linked_agents__in=agents, tags__name__iexact="mentoring")
+            .order_by("-created_at")[:20]
+        )
+        interaction_lines = [f"- {m.event}" for m in mentoring_entries] or ["- No mentoring interactions."]
+        agent_metrics = []
+        for a in agents:
+            taught = sum(1 for m in mentoring_entries if m.event.startswith(a.name))
+            learned = sum(1 for m in mentoring_entries if f"taught {a.name}" in m.event)
+            agent_metrics.append(f"{a.name}: taught {taught}, learned {learned}")
+        mentoring_context = "\n".join(agent_metrics + [""] + interaction_lines)
+    else:
+        mentoring_context = "No agents assigned."
+
+    # 3) Build prompt
+    prompt = (
+        f"### Agent Swarm & Cluster Reflection\n\n"
+        f"You are {assistant.name}, overseeing a network of AI agents.\n\n"
+        f"**Clusters:**\n{cluster_context}\n\n"
+        f"**Mentoring & Interactions:**\n{mentoring_context}\n\n"
+        "Please cover:\n"
+        "- Which clusters have grown or dissolved?\n"
+        "- Are any roles redundant or missing?\n"
+        "- Which agents are mentoring vs being mentored?\n"
+        "- Propose spawn, merge, repurpose, or retraining actions.\n\n"
+        "Respond with 4–6 concise bullet points."
+    )
+
+    summary = call_llm(
+        [{"role": "user", "content": prompt}],
+        model=assistant.preferred_model or "gpt-4o",
+        temperature=0.4,
+    )
+
     return AssistantReflectionLog.objects.create(
         assistant=assistant,
         title="Agent Swarm & Cluster Reflection",
@@ -582,20 +634,22 @@ def reflect_on_agent_swarm(assistant: Assistant) -> AssistantReflectionLog:
 
 def suggest_agent_resurrections(assistant: Assistant) -> list[str]:
     """
-    Looks for archived agents with needed skills.
-    Returns markdown bullet list with reasons and scores.
+    Looks for recently‐archived agents with strong skills and logs suggestions.
+    Returns markdown bullets like:
+      - **AgentName** – skill **SkillName** (0.85)
     """
-    from datetime import timedelta
-
     thirty_days_ago = timezone.now() - timedelta(days=30)
     archived = (
-        Agent.objects.filter(parent_assistant=assistant, is_active=False)
+        Agent.objects
+        .filter(parent_assistant=assistant, is_active=False)
         .exclude(reactivated_at__gte=thirty_days_ago)
     )
-    bullets = []
+
+    bullets: list[str] = []
     for agent in archived:
         link = (
-            AgentSkillLink.objects.filter(agent=agent, strength__gte=0.6)
+            AgentSkillLink.objects
+            .filter(agent=agent, strength__gte=0.6)
             .order_by("-strength")
             .first()
         )
@@ -611,4 +665,7 @@ def suggest_agent_resurrections(assistant: Assistant) -> list[str]:
             title="Agent Resurrection Suggestions",
             summary="\n".join(bullets),
         )
+
     return bullets
+
+   
