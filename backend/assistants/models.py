@@ -209,6 +209,7 @@ class Assistant(models.Model):
         models.CharField(max_length=50), null=True, blank=True
     )
     live_relay_enabled = models.BooleanField(default=False)
+    memory_summon_enabled = models.BooleanField(default=False)
     collaboration_style = models.CharField(
         max_length=20,
         choices=COLLABORATION_STYLES,
@@ -465,6 +466,7 @@ class AssistantThoughtLog(models.Model):
 
     clarification_needed = models.BooleanField(default=False)
     clarification_prompt = models.TextField(null=True, blank=True)
+    summoned_memory_ids = ArrayField(models.UUIDField(), default=list, blank=True)
 
     narrative_thread = models.ForeignKey(
         "mcp_core.NarrativeThread",

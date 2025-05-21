@@ -25,6 +25,7 @@ from assistants.helpers.delegation import spawn_delegated_assistant
 from mcp_core.utils.auto_tag_from_embedding import auto_tag_from_embedding
 from embeddings.helpers.helpers_io import save_embedding, get_embedding_for_text
 from utils.llm_router import call_llm
+
 logger = logging.getLogger(__name__)
 
 
@@ -156,6 +157,7 @@ Memories:
             "steps": steps or [],
             "model": model,
             "created_at": str(log.created_at),
+            "log": log,
         }
 
     def run_reflection_guard(self, content: str, memory: MemoryEntry):
