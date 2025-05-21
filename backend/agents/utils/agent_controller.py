@@ -4,15 +4,10 @@ from django.contrib.contenttypes.models import ContentType
 from openai import OpenAI
 from django.utils import timezone
 
-from mcp_core.models import (
-    MemoryContext,
-    Plan,
-    Task,
-    Agent,
-    ActionLog,
-    AgentThoughtLog,
-    Tag,
-)
+
+from mcp_core.models import MemoryContext, Plan, Task, ActionLog, Tag
+from agents.models import Agent, AgentThought
+
 from embeddings.helpers.helpers_io import save_embedding
 
 client = OpenAI()
@@ -130,7 +125,7 @@ class AgentController:
         thought = response.choices[0].message.content.strip()
         thought_trace.append("Received model response.")
 
-        log = AgentThoughtLog.objects.create(
+        log = AgentThought.objects.create(
             agent=agent,
             thought=thought,
             thought_trace="\n".join(f"• {s}" for s in thought_trace),
@@ -177,8 +172,8 @@ class AgentController:
 
     def log_thought(
         self, agent: Agent, thought: str, trace: Optional[List[str]] = None
-    ) -> AgentThoughtLog:
-        log = AgentThoughtLog.objects.create(
+    ) -> AgentThought:
+        log = AgentThought.objects.create(
             agent=agent,
             thought=thought,
             thought_trace="\n".join(f"• {s}" for s in (trace or [])),
@@ -187,10 +182,10 @@ class AgentController:
         return log
 
 
-
-
 # codex-optimize:feedback-profile
-def update_agent_profile_from_feedback(agent: Agent, feedback_logs: List["AgentFeedbackLog"]):
+def update_agent_profile_from_feedback(
+    agent: Agent, feedback_logs: List["AgentFeedbackLog"]
+):
     """Update agent metadata fields based on feedback logs."""
     if agent.metadata is None:
         agent.metadata = {}
@@ -220,10 +215,12 @@ def update_agent_profile_from_feedback(agent: Agent, feedback_logs: List["AgentF
         "strength_score": agent.strength_score,
     }
 
-# CODEx MARKER: recommend_agent_for_task
-def recommend_agent_for_task(
-    self, task_description: str, thread
-) -> Optional[Agent]:
+
+    # CODEx MARKER: recommend_agent_for_task
+    def recommend_agent_for_task(
+        self, task_description: str, thread
+    ) -> Optional[Agent]:
+
         """Select an agent based on tags, specialty, and thread overlap."""
         from agents.models import Agent as AgentModel
         from memory.models import MemoryEntry
