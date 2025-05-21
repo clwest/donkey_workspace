@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from django.db.models import Count
 from django.utils import timezone
 
@@ -9,6 +9,27 @@ from agents.models import (
     AgentSkillLink,
     SwarmMemoryEntry,
 )
+
+
+def get_season_marker(date: datetime) -> str:
+    """Return the season tag for a given date."""
+    month = date.month
+    if month in [3, 4, 5]:
+        return "spring"
+    if month in [6, 7, 8]:
+        return "summer"
+    if month in [9, 10, 11]:
+        return "fall"
+    return "winter"
+
+
+def get_swarm_snapshot(date: datetime):
+    """Retrieve agents, clusters and memories active up to a given date."""
+    return {
+        "agents": Agent.objects.filter(created_at__lte=date),
+        "clusters": AgentCluster.objects.filter(created_at__lte=date),
+        "memories": SwarmMemoryEntry.objects.filter(created_at__lte=date),
+    }
 
 
 def generate_temporal_swarm_report() -> dict:

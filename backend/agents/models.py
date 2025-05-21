@@ -207,6 +207,26 @@ class AgentReactivationVote(models.Model):
 
 
 
+class FarewellTemplate(models.Model):
+    """Stores customizable farewell message templates."""
+
+    name = models.CharField(max_length=100)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return self.name
+
+
+def _current_season():
+    from .utils.swarm_analytics import get_season_marker
+
+    return get_season_marker(timezone.now())
+
+
 class SwarmMemoryEntry(models.Model):
     """Persistent swarm-wide memory record"""
 
@@ -219,6 +239,7 @@ class SwarmMemoryEntry(models.Model):
         "assistants.AssistantProject", blank=True
     )
     origin = models.CharField(max_length=50, default="reflection")
+    season = models.CharField(max_length=10, default=_current_season)
     created_at = models.DateTimeField(auto_now_add=True)
 
 
