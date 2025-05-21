@@ -131,3 +131,20 @@
 - Enable agents to run real-time peer simulations for untrained skills
 - Create self-governing clusters of agents that coordinate training autonomously
 - Integrate mentoring metrics into delegation logic and swarm health scores
+
+### Phase 4.60 — Cluster Management & Lifecycle
+
+This phase introduced seeded AgentClusters, a frontend dashboard for swarm visualization, and automatic archival/retraining logic for agents.
+
+Clusters are now first-class citizens of the orchestration layer and include:
+- Linked project
+- Shared skill domain
+- Live memory and delegation tracking
+
+Assistants can now suggest lifecycle actions based on:
+- Inactivity
+- Skill degradation
+- Cluster dissolution
+- Task history
+
+Next: Introduce feedback-driven agent resurrection and voting-based reactivation in Phase 4.61

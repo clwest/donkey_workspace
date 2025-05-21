@@ -2,8 +2,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from agents.models import Agent, AgentFeedbackLog
-from agents.serializers import AgentSerializer, AgentFeedbackLogSerializer
+from agents.models import Agent, AgentFeedbackLog, AgentCluster
+from agents.serializers import AgentSerializer, AgentFeedbackLogSerializer, AgentClusterSerializer
 from agents.utils.agent_controller import (
     update_agent_profile_from_feedback,
     train_agent_from_documents,
@@ -78,3 +78,15 @@ def recommend_training_docs(request, id):
 
     data = DocumentSerializer(docs, many=True).data
     return Response(data)
+
+@api_view(["GET"])
+def list_clusters(request):
+    clusters = AgentCluster.objects.all().order_by("-created_at")
+    serializer = AgentClusterSerializer(clusters, many=True)
+    return Response(serializer.data)
+
+@api_view(["GET"])
+def cluster_detail_view(request, id):
+    cluster = get_object_or_404(AgentCluster, id=id)
+    serializer = AgentClusterSerializer(cluster)
+    return Response(serializer.data)
