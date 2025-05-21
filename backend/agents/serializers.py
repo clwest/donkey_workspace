@@ -4,13 +4,15 @@ from agents.models import (
     AgentFeedbackLog,
     AgentCluster,
     SwarmMemoryEntry,
+    LoreEpoch,
     LoreEntry,
     RetconRequest,
     RealityConsensusVote,
-
     MythDiplomacySession,
     RitualCollapseLog,
+
     LocalMythProtocol,
+
 
 )
 from assistants.models import Assistant, AssistantCouncil
@@ -90,7 +92,6 @@ class SwarmMemoryEntrySerializer(serializers.ModelSerializer):
         return list(obj.tags.values_list("name", flat=True))
 
 
-
 class SwarmJournalEntrySerializer(serializers.ModelSerializer):
     author_name = serializers.CharField(source="author.name", read_only=True)
     tags = serializers.SerializerMethodField()
@@ -111,6 +112,7 @@ class SwarmJournalEntrySerializer(serializers.ModelSerializer):
 
     def get_tags(self, obj):
         return list(obj.tags.values_list("name", flat=True))
+
 
 class LoreEntrySerializer(serializers.ModelSerializer):
     """Serialize LoreEntry records."""
@@ -192,5 +194,6 @@ class RitualCollapseLogSerializer(serializers.ModelSerializer):
 class LocalMythProtocolSerializer(serializers.ModelSerializer):
     class Meta:
         model = LocalMythProtocol
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]

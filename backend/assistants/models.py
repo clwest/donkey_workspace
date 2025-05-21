@@ -25,6 +25,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 
+from story.models import LoreEntry
+
 
 # Used for structured memory and assistant sessions
 
@@ -1821,6 +1823,7 @@ class AssistantCouncil(models.Model):
         return self.name
 
 
+
 class AssistantCivilization(models.Model):
     """Cohesive mythic society of assistants."""
 
@@ -1844,6 +1847,7 @@ class AssistantGuild(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
+
 
 class OracleLayer(models.Model):
     """Prophetic advisory memory segment for an assistant."""
@@ -1891,3 +1895,39 @@ class NarrativeDebate(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display
         return f"Debate on {self.topic[:30]}..."
 
+
+
+class AssistantGuild(models.Model):
+    """Belief-aligned guild of assistants."""
+
+    name = models.CharField(max_length=150)
+    purpose = models.TextField(blank=True)
+    members = models.ManyToManyField("assistants.Assistant", blank=True)
+    founding_myth = models.ForeignKey(
+        LoreEntry, null=True, blank=True, on_delete=models.SET_NULL, related_name="guilds"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
+
+
+class AssistantCivilization(models.Model):
+    """Civilization of assistants evolved from mythic lineage."""
+
+    name = models.CharField(max_length=150)
+    myth_root = models.ForeignKey(LoreEntry, on_delete=models.CASCADE)
+    founding_guilds = models.ManyToManyField(AssistantGuild)
+    belief_alignment = models.JSONField(default=dict)
+    symbolic_domain = models.TextField()
+    legacy_score = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name

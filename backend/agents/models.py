@@ -517,7 +517,6 @@ class SwarmJournalEntry(models.Model):
     season_tag = models.CharField(max_length=20, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
 
@@ -567,6 +566,7 @@ class RitualCollapseLog(models.Model):
         return f"Collapse: {self.retired_entity}"
 
 
+
 class LocalMythProtocol(models.Model):
     """Guild-driven evolution process for localized mythologies."""
 
@@ -577,11 +577,14 @@ class LocalMythProtocol(models.Model):
     evolution_log = models.TextField()
     mutation_path = models.JSONField()
     resolved = models.BooleanField(default=False)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return f"Protocol for {self.base_lore.title}"
+
 
