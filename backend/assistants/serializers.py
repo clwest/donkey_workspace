@@ -425,6 +425,7 @@ class AssistantProjectSerializer(serializers.ModelSerializer):
     delegations = DelegationEventSerializer(
         many=True, read_only=True, source="delegation_events"
     )
+    core_project_id = serializers.SerializerMethodField()
 
     class Meta:
         model = AssistantProject
@@ -441,9 +442,15 @@ class AssistantProjectSerializer(serializers.ModelSerializer):
             "next_actions",
             "reflections",
             "delegations",
+            "core_project_id",
             "created_at",
         ]
         read_only_fields = ["id", "slug", "created_at"]
+
+
+    def get_core_project_id(self, obj):
+        project = obj.linked_projects.first()
+        return project.id if project else None
 
 
 class ProjectOverviewSerializer(serializers.ModelSerializer):
