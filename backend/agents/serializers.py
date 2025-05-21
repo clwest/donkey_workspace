@@ -4,6 +4,7 @@ from agents.models import (
     AgentFeedbackLog,
     AgentCluster,
     SwarmMemoryEntry,
+    SwarmJournalEntry,
     LoreEpoch,
     LoreEntry,
     RetconRequest,
@@ -13,7 +14,6 @@ from agents.models import (
     LegacyArtifact,
     ReincarnationLog,
     ReturnCycle,
-
 )
 from assistants.models import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -210,4 +210,3 @@ class ReturnCycleSerializer(serializers.ModelSerializer):
         model = ReturnCycle
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
-

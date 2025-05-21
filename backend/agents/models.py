@@ -518,7 +518,7 @@ class SwarmJournalEntry(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:  # pragma: no cover - display helper
-        return self.name
+        return f"{self.author.name}: {self.content[:20]}"
 
 
 class MythDiplomacySession(models.Model):
@@ -761,4 +761,3 @@ class ReturnCycle(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.cycle_name
-
