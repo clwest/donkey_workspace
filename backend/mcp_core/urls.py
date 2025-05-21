@@ -63,11 +63,13 @@ urlpatterns = [
         name="thread-summary",
     ),
     path(
+
         "threads/<uuid:thread_id>/replay/",
         threading.thread_replay,
         name="thread-replay",
     ),
     path(
+
         "threads/<uuid:id>/merge/",
         threading.merge_thread,
         name="merge-thread",

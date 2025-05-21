@@ -96,15 +96,15 @@ class NarrativeThreadSerializer(serializers.ModelSerializer):
             gaps.append("missing_reflections")
         return gaps
 
-def get_potential_link_suggestions(self, obj):
-    return getattr(obj, "_link_suggestions", [])
+    def get_potential_link_suggestions(self, obj):
+        return getattr(obj, "_link_suggestions", [])
 
-def get_objective_reflections(self, obj):
-    return [
-        {
-            "id": str(r.id),
-            "thought": r.thought[:200],
-            "created_at": r.created_at,
-        }
-        for r in obj.objective_reflections.all().order_by("-created_at")
-    ]
+    def get_objective_reflections(self, obj):
+        return [
+            {
+                "id": str(r.id),
+                "thought": r.thought[:200],
+                "created_at": r.created_at,
+            }
+            for r in obj.objective_reflections.all().order_by("-created_at")
+        ]
