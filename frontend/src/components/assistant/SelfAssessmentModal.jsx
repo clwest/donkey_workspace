@@ -28,7 +28,11 @@ export default function SelfAssessmentModal({ show, onClose, result, onApply }) 
       )}
       {result.summary && <p>{result.summary}</p>}
       {result.prompt_tweaks && (
-        <pre className="small bg-light p-2">{result.prompt_tweaks}</pre>
+        <pre className="small bg-light p-2">
+          {typeof result.prompt_tweaks === "string"
+            ? result.prompt_tweaks
+            : JSON.stringify(result.prompt_tweaks, null, 2)}
+        </pre>
       )}
     </Modal>
   );
