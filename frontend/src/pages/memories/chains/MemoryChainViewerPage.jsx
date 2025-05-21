@@ -4,12 +4,14 @@ import { Tabs, Tab } from "react-bootstrap";
 import apiFetch from "../../../utils/apiClient";
 import ChainSummaryPanel from "../../../components/memory/ChainSummaryPanel";
 import MemoryFlowVisualizer from "../../../components/memory/MemoryFlowVisualizer";
+import CrossThreadRecallPanel from "../../../components/memory/CrossThreadRecallPanel";
 
 export default function MemoryChainViewerPage() {
   const { id } = useParams();
   const [chain, setChain] = useState(null);
   const [summary, setSummary] = useState("");
   const [flowmap, setFlowmap] = useState(null);
+  const [recallEntries, setRecallEntries] = useState(null);
 
   useEffect(() => {
     apiFetch(`/memory/chains/${id}/`).then(setChain).catch(() => {});
@@ -29,6 +31,15 @@ export default function MemoryChainViewerPage() {
     }
   };
 
+  const handleRecall = async () => {
+    try {
+      const data = await apiFetch(`/memory/chains/${id}/cross_project_recall/`);
+      setRecallEntries(data);
+    } catch (err) {
+      console.error("Recall error", err);
+    }
+  };
+
   if (!chain) return <div className="container my-5">Loading chain...</div>;
 
   return (
@@ -37,7 +48,11 @@ export default function MemoryChainViewerPage() {
       <button className="btn btn-primary mb-3" onClick={handleSummarize}>
         🧠 Summarize Chain
       </button>
+      <button className="btn btn-outline-primary mb-3 ms-2" onClick={handleRecall}>
+        🔎 Recall from Linked Chains
+      </button>
       {summary && <ChainSummaryPanel summary={summary} />}
+      {recallEntries && <CrossThreadRecallPanel entries={recallEntries} />}
 
       <Tabs defaultActiveKey="memories" className="mt-3">
         <Tab eventKey="memories" title="Memories">
