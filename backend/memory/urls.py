@@ -25,6 +25,13 @@ urlpatterns = [
     ),
     path("<uuid:id>/mutate/", views.mutate_memory, name="mutate-memory"),
     path("<uuid:id>/", views.memory_detail, name="memory_detail"),
+    path("<uuid:memory_id>/bookmark/", views.bookmark_memory, name="bookmark_memory"),
+    path(
+        "<uuid:memory_id>/unbookmark/",
+        views.unbookmark_memory,
+        name="unbookmark_memory",
+    ),
+    path("bookmarked/", views.bookmarked_memories, name="bookmarked_memories"),
     path("by-tag/<slug:slug>/", views.memories_by_tag),
     path("update-tags/<uuid:id>/", views.update_memory_tags),
     path("replace/<uuid:id>/", views.replace_memory),

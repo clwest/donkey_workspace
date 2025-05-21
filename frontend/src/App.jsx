@@ -26,6 +26,7 @@ import AssistantSessionDetailPage from "./pages/assistant/sessions/AssistantSess
 }
 import MemoryBrowserPage from "./pages/memories/entries/MemoryBrowserPage";
 import MemoryDetailPage from "./pages/memories/entries/MemoryDetailPage";
+import BookmarkedMemoriesPage from "./pages/memories/entries/BookmarkedMemoriesPage";
 
 import MemoryChainBuilderPage from "./pages/memories/chains/MemoryChainBuilderPage";
 import MemoryChainViewerPage from "./pages/memories/chains/MemoryChainViewerPage";
@@ -119,6 +120,7 @@ export default function App() {
           {/* Memories */}
           <Route path="/memories/new" element={<MemoryEntryCreatePage />} />
           <Route path="/memories" element={<MemoryBrowserPage />} /> {/* ➕ */}
+          <Route path="/memories/bookmarked" element={<BookmarkedMemoriesPage />} />
           <Route path="/memories/:id" element={<MemoryDetailPage />} />{" "}
           {/* 🧠 */}
           <Route path="/memories/reflect" element={<MemoryReflectionPage />} />
