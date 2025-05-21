@@ -14,14 +14,10 @@ from mcp_core.models import (
 )
 from mcp_core.serializers_tags import (
     NarrativeThreadSerializer,
-)
-from mcp_core.utils.thread_diagnostics import run_thread_diagnostics
-
-
-from mcp_core.serializers_tags import (
-    NarrativeThreadSerializer,
     ThreadObjectiveReflectionSerializer,
 )
+from memory.serializers import NarrativeThreadOverviewSerializer
+from mcp_core.utils.thread_diagnostics import run_thread_diagnostics
 from mcp_core.utils.thread_helpers import (
     get_or_create_thread,
     attach_memory_to_thread,
@@ -105,7 +101,7 @@ def list_overview_threads(request):
         threads = threads.filter(memories__related_project_id=project).distinct()
 
     serialized = [
-        NarrativeThreadSerializer(t).data for t in threads
+        NarrativeThreadOverviewSerializer(t).data for t in threads
     ]
     serialized.sort(
         key=lambda x: x.get("last_updated") or "",

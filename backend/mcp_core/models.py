@@ -225,13 +225,10 @@ class NarrativeThread(models.Model):
         on_delete=models.SET_NULL,
         related_name="origin_threads",
     )
-# <<<<<<< codex/add-thread-continuity-diagnostics
     continuity_score = models.FloatField(null=True, blank=True)
     last_diagnostic_run = models.DateTimeField(null=True, blank=True)
-# =======
-#     long_term_objective = models.TextField(blank=True, null=True)
-#     milestones = models.JSONField(default=list, blank=True)
-# >>>>>>> main
+    long_term_objective = models.TextField(blank=True, null=True)
+    milestones = models.JSONField(default=list, blank=True)
 
     def __str__(self):
         return self.title
