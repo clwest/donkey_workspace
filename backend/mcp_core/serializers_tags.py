@@ -1,10 +1,8 @@
 from rest_framework import serializers
-# <<<<<<< codex/add-thread-continuity-diagnostics
-# from mcp_core.models import Tag, NarrativeThread, ThreadDiagnosticLog
-# =======
-# from mcp_core.models import Tag, NarrativeThread
-# from mcp_core.models import ThreadObjectiveReflection
-# >>>>>>> main
+
+from mcp_core.models import Tag, NarrativeThread
+from mcp_core.models import ThreadObjectiveReflection
+
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -42,10 +40,16 @@ class NarrativeThreadSerializer(serializers.ModelSerializer):
             "tags",
             "created_by",
             "created_at",
-            "continuity_score",
-            "last_diagnostic_run",
-            "last_updated",
-            "reflection_count",
+# <<<<<<< codex/implement-multi-thread-continuity-dashboard
+#             "continuity_score",
+#             "last_diagnostic_run",
+#             "last_updated",
+#             "reflection_count",
+# =======
+
+#             "last_refocus_prompt",
+
+# >>>>>>> main
             "origin_memory",
             "origin_memory_preview",
             "related_memory_previews",
