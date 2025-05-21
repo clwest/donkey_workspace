@@ -59,6 +59,8 @@ class Agent(models.Model):
     strength_score = models.FloatField(default=0.0)
     readiness_score = models.FloatField(default=0.0)
     is_demo = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    reactivated_at = models.DateTimeField(null=True, blank=True)
     preferred_llm = models.CharField(
         max_length=50, choices=LLM_CHOICES, default="gpt-4o"
     )
@@ -186,3 +188,14 @@ class AgentCluster(models.Model):
 
     def __str__(self):  # pragma: no cover - display only
         return self.name
+
+
+class AgentReactivationVote(models.Model):
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE)
+    voter = models.ForeignKey(
+        Agent, null=True, blank=True, on_delete=models.SET_NULL, related_name="reactivation_votes"
+    )
+    reason = models.TextField()
+    approved = models.BooleanField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+

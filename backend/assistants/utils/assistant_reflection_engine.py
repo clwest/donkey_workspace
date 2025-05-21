@@ -578,3 +578,37 @@ def reflect_on_agent_swarm(assistant: Assistant) -> AssistantReflectionLog:
         title="Agent Swarm & Cluster Reflection",
         summary=summary,
     )
+
+
+def suggest_agent_resurrections(assistant: Assistant) -> list[str]:
+    """
+    Looks for archived agents with needed skills.
+    Returns markdown bullet list with reasons and scores.
+    """
+    from datetime import timedelta
+
+    thirty_days_ago = timezone.now() - timedelta(days=30)
+    archived = (
+        Agent.objects.filter(parent_assistant=assistant, is_active=False)
+        .exclude(reactivated_at__gte=thirty_days_ago)
+    )
+    bullets = []
+    for agent in archived:
+        link = (
+            AgentSkillLink.objects.filter(agent=agent, strength__gte=0.6)
+            .order_by("-strength")
+            .first()
+        )
+        if not link:
+            continue
+        bullets.append(
+            f"- **{agent.name}** – skill **{link.skill.name}** ({link.strength:.2f})"
+        )
+
+    if bullets:
+        AssistantReflectionLog.objects.create(
+            assistant=assistant,
+            title="Agent Resurrection Suggestions",
+            summary="\n".join(bullets),
+        )
+    return bullets
