@@ -424,3 +424,39 @@ def find_complementary_agents(
         .values_list("agent_id", flat=True)
     )
     return list(Agent.objects.filter(id__in=agent_ids).distinct())
+
+
+def spawn_agent_for_skill(skill: str, base_profile: dict) -> Agent:
+    """Create a new specialized agent for the given skill gap."""
+    from agents.models import Agent, AgentSkill, AgentSkillLink
+    from intel_core.models import Document
+    from memory.models import MemoryEntry
+    from django.contrib.contenttypes.models import ContentType
+
+    name = base_profile.get("name") or f"{skill.title()} Specialist"
+    agent = Agent.objects.create(
+        name=name,
+        description=base_profile.get("description", ""),
+        specialty=skill,
+        metadata=base_profile.get("metadata", {}),
+        preferred_llm=base_profile.get("preferred_llm", "gpt-4o"),
+        execution_mode=base_profile.get("execution_mode", "direct"),
+        parent_assistant=base_profile.get("parent_assistant"),
+    )
+
+    skill_obj, _ = AgentSkill.objects.get_or_create(name=skill)
+    AgentSkillLink.objects.create(agent=agent, skill=skill_obj, source="spawn")
+
+    docs = Document.objects.filter(tags__name__iexact=skill)[:3]
+    if docs:
+        train_agent_from_documents(agent, list(docs))
+
+    MemoryEntry.objects.create(
+        event=f"Agent {agent.name} spawned with focus on {skill}",
+        assistant=agent.parent_assistant,
+        source_role="system",
+        linked_content_type=ContentType.objects.get_for_model(Agent),
+        linked_object_id=agent.id,
+    )
+
+    return agent

@@ -171,6 +171,7 @@ class AgentSkillLink(models.Model):
 
 
 class AgentCluster(models.Model):
+
     name = models.CharField(max_length=255)
     purpose = models.TextField(blank=True)
     project = models.ForeignKey("assistants.AssistantProject", null=True, blank=True, on_delete=models.SET_NULL, related_name="agent_clusters")
@@ -178,6 +179,7 @@ class AgentCluster(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
 
     class Meta:
         ordering = ["-created_at"]
