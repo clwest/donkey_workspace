@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
 import TagFilterBar from "../../../components/mcp_core/TagFilterBar";
-import ThreadCard from "../../../components/mcp_core/ThreadCard";
+import ThreadDiagnosticsPanel from "../../../components/mcp_core/ThreadDiagnosticsPanel";
 
 export default function ThreadsOverviewPage() {
   const [threads, setThreads] = useState([]);
@@ -10,7 +10,7 @@ export default function ThreadsOverviewPage() {
 
   useEffect(() => {
     const fetchThreads = async () => {
-      const data = await apiFetch("/mcp/threads/");
+      const data = await apiFetch("/mcp/threads/overview/");
       setThreads(data || []);
     };
     fetchThreads();
@@ -24,20 +24,51 @@ export default function ThreadsOverviewPage() {
 
   return (
     <div className="container my-5">
-      <h2 className="mb-4">🧵 Narrative Threads</h2>
+      <h2 className="mb-4">🧵 Thread Continuity Overview</h2>
 
       <TagFilterBar tags={extractUniqueTags(threads)} onFilter={setFilteredTags} />
 
       {filtered.length === 0 ? (
         <p className="text-muted mt-4">No threads match current filters.</p>
       ) : (
-        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-          {filtered.map((thread) => (
-            <div key={thread.id} className="col">
-              <ThreadCard thread={thread} />
-            </div>
-          ))}
-        </div>
+        <table className="table table-sm align-middle">
+          <thead>
+            <tr>
+              <th>Thread</th>
+              <th>Reflections</th>
+              <th>Last Updated</th>
+              <th>Gaps</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered
+              .sort(
+                (a, b) => new Date(b.last_updated) - new Date(a.last_updated)
+              )
+              .map((thread) => (
+                <tr key={thread.id}>
+                  <td>
+                    <Link to={`/threads/${thread.id}`}>{thread.title}</Link>
+                    <div className="text-muted small">
+                      {thread.summary?.slice(0, 80)}
+                    </div>
+                    <ThreadDiagnosticsPanel thread={thread} />
+                  </td>
+                  <td>{thread.reflection_count}</td>
+                  <td>
+                    {thread.last_updated
+                      ? new Date(thread.last_updated).toLocaleString()
+                      : ""}
+                  </td>
+                  <td>
+                    {thread.gaps_detected && thread.gaps_detected.length > 0
+                      ? thread.gaps_detected.join(", ")
+                      : ""}
+                  </td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
       )}
     </div>
   );

@@ -331,6 +331,7 @@ export default function App() {
             path="/reflections/custom"
             element={<CustomReflectionPage />}
           />
+          <Route path="/threads/overview" element={<ThreadsOverviewPage />} />
           <Route path="/threads" element={<ThreadsOverviewPage />} />
           <Route path="/threads/:id" element={<ThreadDetailPage />} />
           <Route path="/dev-dashboard" element={<DevDashboard />} />

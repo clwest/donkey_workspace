@@ -43,6 +43,7 @@ urlpatterns = [
         reflection.project_reflections,
         name="agent-project-reflection",
     ),
+    path("threads/overview/", threading.list_overview_threads, name="threads_overview"),
     path("threads/", threading.narrative_thread_list, name="narrative_thread_list"),
     path(
         "threads/<uuid:id>/",

@@ -27,6 +27,9 @@ class NarrativeThreadSerializer(serializers.ModelSerializer):
     origin_memory_preview = serializers.SerializerMethodField()
     created_by = serializers.StringRelatedField()
     objective_reflections = serializers.SerializerMethodField()
+    last_updated = serializers.SerializerMethodField()
+    reflection_count = serializers.SerializerMethodField()
+    gaps_detected = serializers.SerializerMethodField()
 
     class Meta:
         model = NarrativeThread
@@ -41,10 +44,13 @@ class NarrativeThreadSerializer(serializers.ModelSerializer):
             "created_at",
             "continuity_score",
             "last_diagnostic_run",
+            "last_updated",
+            "reflection_count",
             "origin_memory",
             "origin_memory_preview",
             "related_memory_previews",
             "objective_reflections",
+            "gaps_detected",
         ]
 
     def get_origin_memory_preview(self, obj):
@@ -65,6 +71,29 @@ class NarrativeThreadSerializer(serializers.ModelSerializer):
             }
             for mem in obj.related_memories.all().order_by("-created_at")
         ]
+
+    def get_last_updated(self, obj):
+        from django.db.models import Max
+        from django.utils import timezone
+
+        mem_time = obj.thread_memories.aggregate(Max("created_at"))["created_at__max"]
+        thought_time = obj.thoughts.aggregate(Max("created_at"))["created_at__max"]
+        times = [t for t in [mem_time, thought_time] if t]
+        return max(times) if times else obj.created_at
+
+    def get_reflection_count(self, obj):
+        return obj.thoughts.filter(thought_type="reflection").count()
+
+    def get_gaps_detected(self, obj):
+        from django.utils import timezone
+
+        gaps = []
+        last = self.get_last_updated(obj)
+        if last and (timezone.now() - last).days > 7:
+            gaps.append("inactive")
+        if self.get_reflection_count(obj) == 0:
+            gaps.append("missing_reflections")
+        return gaps
 
 # <<<<<<< codex/add-thread-continuity-diagnostics
 

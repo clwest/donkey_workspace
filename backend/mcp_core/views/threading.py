@@ -91,6 +91,29 @@ def narrative_thread_list(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def list_overview_threads(request):
+    """Return threads with activity metrics for dashboard overview."""
+    threads = NarrativeThread.objects.all()
+
+    assistant = request.GET.get("assistant")
+    project = request.GET.get("project")
+    if assistant:
+        threads = threads.filter(memories__assistant_id=assistant).distinct()
+    if project:
+        threads = threads.filter(memories__related_project_id=project).distinct()
+
+    serialized = [
+        NarrativeThreadSerializer(t).data for t in threads
+    ]
+    serialized.sort(
+        key=lambda x: x.get("last_updated") or "",
+        reverse=True,
+    )
+    return Response(serialized)
+
+
 @api_view(["GET", "PATCH", "DELETE"])
 @permission_classes([AllowAny])
 def narrative_thread_detail(request, id):
