@@ -7,6 +7,7 @@ urlpatterns = [
     path("swarm-temporal-report/", agents.swarm_temporal_report),
     path("swarm-memory/", agents.swarm_memory),
     path("swarm-snapshot/<str:date>/", agents.swarm_snapshot_view),
+    path("swarm-treaties/", agents.list_treaties),
     path("retire/", agents.retire_agents),
     path("clusters/", agents.list_clusters),
     path("clusters/<uuid:id>/", agents.cluster_detail_view),

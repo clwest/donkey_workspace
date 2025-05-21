@@ -224,6 +224,9 @@ class Assistant(models.Model):
         default="pause_and_reflect",
     )
 
+    ideology = models.JSONField(default=dict)
+    is_alignment_flexible = models.BooleanField(default=True)
+
     def save(self, *args, **kwargs):
         if not self.slug:
             base_slug = slugify(self.name)
@@ -1783,6 +1786,22 @@ class AssistantCouncil(models.Model):
     charter = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self) -> str:  # pragma: no cover - display
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"{self.predecessor} -> {self.successor}"
+
+
+class AssistantCouncil(models.Model):
+    """Persistent group of assistants for deliberation and voting."""
+
+    name = models.CharField(max_length=150)
+    description = models.TextField(blank=True)
+    members = models.ManyToManyField(
+        "assistants.Assistant", related_name="councils", blank=True
+    )
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
 
