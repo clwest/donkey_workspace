@@ -906,6 +906,23 @@ class LoreTokenCraftingRitual(models.Model):
         return f"Ritual by {self.initiating_assistant.name}"
 
 
+class LoreTokenSignature(models.Model):
+    """Verified digital signature for a lore token."""
+
+    token = models.ForeignKey(LoreToken, on_delete=models.CASCADE)
+    signed_by = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    signature = models.CharField(max_length=256)
+    method = models.CharField(max_length=50, default="SHA256")
+    verified = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Signature for {self.token.name}"
+
+
 class TokenGuildVote(models.Model):
     """Guild-level vote on a lore token's fate."""
 
