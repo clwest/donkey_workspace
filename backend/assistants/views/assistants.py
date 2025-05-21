@@ -17,6 +17,7 @@ from mcp_core.models import NarrativeThread
 from assistants.helpers.logging_helper import log_assistant_thought
 from assistants.models import (
     Assistant,
+    AssistantReflectionLog,
     AssistantThoughtLog,
     TokenUsage,
     ChatSession,
