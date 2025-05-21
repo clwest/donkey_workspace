@@ -31,3 +31,10 @@ def attach_memory_to_thread(memory: MemoryContext, thread: NarrativeThread) -> N
 def get_threads_for_memory(memory: MemoryContext):
     """Return all narrative threads linked to a memory."""
     return memory.narrative_threads.all()
+
+
+def generate_thread_reflection(thread: NarrativeThread) -> str:
+    """Summarize progress toward the thread's objective."""
+    milestone_count = len(thread.milestones or [])
+    objective = thread.long_term_objective or "No objective set"
+    return f"Objective: {objective}\nMilestones tracked: {milestone_count}."

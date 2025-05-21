@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from prompts.models import Prompt, PromptUsageTemplate
-from intel_core.models import Document 
+from intel_core.models import Document
 import uuid
 from pgvector.django import VectorField
 from django.utils.text import slugify
@@ -84,7 +84,6 @@ class Task(models.Model):
 
     def __str__(self):
         return self.title
-
 
 
 class Fault(models.Model):
@@ -209,9 +208,7 @@ class NarrativeThread(models.Model):
     summary = models.TextField(blank=True, null=True)
     tags = models.ManyToManyField("Tag", blank=True, related_name="narrative_threads")
     documents = models.ManyToManyField(
-        Document,
-        blank=True,
-        related_name="threads"
+        Document, blank=True, related_name="threads"
     )  # ✅ Add this line
     created_by = models.ForeignKey(
         User, null=True, blank=True, on_delete=models.SET_NULL
@@ -227,6 +224,8 @@ class NarrativeThread(models.Model):
         on_delete=models.SET_NULL,
         related_name="origin_threads",
     )
+    long_term_objective = models.TextField(blank=True, null=True)
+    milestones = models.JSONField(default=list, blank=True)
 
     def __str__(self):
         return self.title
@@ -242,7 +241,7 @@ class DevDoc(models.Model):
     source_file = models.CharField(max_length=255, blank=True)
     embedding = VectorField(dimensions=1536, null=True, blank=True)
     reflected_at = models.DateTimeField(null=True, blank=True)
-    
+
     # 🧠 NEW LINK TO TRUE DOCUMENT
     linked_document = models.ForeignKey(
         "intel_core.Document",
@@ -263,7 +262,9 @@ class DevDoc(models.Model):
         # Auto-link document if none set
         if not self.linked_document:
             try:
-                self.linked_document = Document.objects.get(title__iexact=self.title.strip())
+                self.linked_document = Document.objects.get(
+                    title__iexact=self.title.strip()
+                )
             except Document.DoesNotExist:
                 pass  # Optional: log warning if you want
 
@@ -271,6 +272,7 @@ class DevDoc(models.Model):
 
     def __str__(self):
         return self.title
+
 
 # mcp_core/models.py
 class GroupedDevDocReflection(models.Model):
@@ -285,3 +287,24 @@ class GroupedDevDocReflection(models.Model):
 
     def __str__(self):
         return f"Grouped Reflection @ {self.created_at.strftime('%Y-%m-%d %H:%M')}"
+
+
+class ThreadObjectiveReflection(models.Model):
+    """Reflection on progress toward a thread's long-term objective."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    thread = models.ForeignKey(
+        NarrativeThread, on_delete=models.CASCADE, related_name="objective_reflections"
+    )
+    thought = models.TextField()
+    created_by = models.ForeignKey(
+        "assistants.Assistant",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="thread_reflections",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Reflection for {self.thread.title} @ {self.created_at.strftime('%Y-%m-%d %H:%M')}"
