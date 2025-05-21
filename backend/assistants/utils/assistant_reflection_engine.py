@@ -13,8 +13,54 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.text import slugify
 from assistants.models import AssistantProject
 from utils.llm_router import call_llm
+from agents.models import Agent, AgentTrainingAssignment, AgentFeedbackLog
 
 logger = logging.getLogger(__name__)
+
+
+def reflect_on_agent_training(assistant: Assistant, agent: Agent) -> str:
+    """
+    Generates a reflection summary for an agent's recent training progress.
+    Returns a markdown string with bullet points.
+    """
+
+    assignments = AgentTrainingAssignment.objects.filter(agent=agent)
+    total = assignments.count()
+    completed = assignments.filter(completed=True).count()
+    completion_rate = completed / total if total else 0.0
+
+    skill_tags = set()
+    for a in assignments:
+        skill_tags.update(a.document.tags.values_list("name", flat=True))
+
+    feedback_logs = list(
+        AgentFeedbackLog.objects.filter(agent=agent, score__isnull=False).order_by("-created_at")[:6]
+    )
+    recent_scores = [f.score for f in feedback_logs[:3]]
+    past_scores = [f.score for f in feedback_logs[3:]]
+    recent_avg = sum(recent_scores) / len(recent_scores) if recent_scores else 0.0
+    past_avg = sum(past_scores) / len(past_scores) if past_scores else 0.0
+    if recent_avg > past_avg + 0.05:
+        trajectory = "improving"
+    elif recent_avg + 0.05 < past_avg:
+        trajectory = "declining"
+    else:
+        trajectory = "stable"
+
+    readiness = max(agent.readiness_score, completion_rate)
+
+    lines = [
+        f"- Training completion rate: {completion_rate:.0%} ({completed}/{total})",
+    ]
+    if skill_tags:
+        lines.append("- Acquired skills: " + ", ".join(sorted(skill_tags)))
+    if agent.verified_skills:
+        lines.append("- Verified skills: " + ", ".join(agent.verified_skills))
+    lines.append(f"- Task performance trajectory appears **{trajectory}**")
+    lines.append(f"- Suggested readiness score: {readiness:.2f}")
+    lines.append("- Next steps: continue practicing and gather more feedback")
+
+    return "\n".join(lines)
 
 
 class AssistantReflectionEngine:

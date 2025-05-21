@@ -48,6 +48,8 @@ class Agent(models.Model):
     )
     verified_skills = models.JSONField(default=list, blank=True)
     strength_score = models.FloatField(default=0.0)
+    readiness_score = models.FloatField(default=0.0)
+    is_demo = models.BooleanField(default=False)
     preferred_llm = models.CharField(max_length=50, choices=LLM_CHOICES, default="gpt-4o")
     execution_mode = models.CharField(max_length=50, choices=EXECUTION_MODE_CHOICES, default="direct")
 
@@ -104,3 +106,30 @@ class AgentFeedbackLog(models.Model):
 
     def __str__(self):  # pragma: no cover - display only
         return f"Feedback for {self.agent.name} ({self.feedback_type})"
+
+
+class AgentTrainingAssignment(models.Model):
+    agent = models.ForeignKey(
+        "Agent", on_delete=models.CASCADE, related_name="training_assignments"
+    )
+    document = models.ForeignKey(
+        "intel_core.Document",
+        on_delete=models.CASCADE,
+        related_name="agent_training_assignments",
+    )
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="agent_training_assignments",
+    )
+    completed = models.BooleanField(default=False)
+    assigned_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-assigned_at"]
+
+    def __str__(self):  # pragma: no cover - display only
+        return f"Training for {self.agent.name} -> {self.document.title}"
