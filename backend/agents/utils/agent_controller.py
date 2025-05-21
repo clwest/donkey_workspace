@@ -6,7 +6,7 @@ from django.utils import timezone
 
 
 from mcp_core.models import MemoryContext, Plan, Task, ActionLog, Tag
-from agents.models import Agent, AgentThought
+from agents.models import Agent, AgentThought, AgentTrainingAssignment
 
 from embeddings.helpers.helpers_io import save_embedding
 
@@ -228,6 +228,7 @@ def update_agent_profile_from_feedback(
         candidates = AgentModel.objects.all()
         best_score = 0.0
         best_agent = None
+        task_lower = task_description.lower()
         thread_tags = (
             set(t.name.lower() for t in thread.tags.all())
             if hasattr(thread, "tags")
@@ -235,13 +236,53 @@ def update_agent_profile_from_feedback(
         )
 
         for agent in candidates:
+            readiness = getattr(agent, "readiness_score", 0.0)
+            if readiness < 0.75:
+                continue
+
+            score = 0.0
+
+            for skill in agent.verified_skills or []:
+                if skill.lower() in task_lower:
+                    score += 0.6
+                    break
+
+            if AgentTrainingAssignment.objects.filter(
+                agent=agent, completed=True
+            ).order_by("-completed_at").exists():
+                score += 0.3
+
+            if agent.specialty:
+                for tag in thread_tags:
+                    if tag in agent.specialty.lower():
+                        score += 0.2
+                        break
+
+            if task_lower in (agent.description or "").lower():
+                score += 0.1
+
+            if MemoryEntry.objects.filter(
+                narrative_thread=thread, assistant=agent.parent_assistant
+            ).exists():
+                score += 0.2
+
+            if score > best_score:
+                best_score = score
+                best_agent = agent
+
+        if best_agent:
+            return best_agent
+
+        # Fallback to basic tag/specialty matching
+        best_score = 0.0
+        for agent in candidates:
             score = 0.0
             if agent.specialty:
                 for tag in thread_tags:
                     if tag in agent.specialty.lower():
                         score += 0.5
                         break
-            if task_description.lower() in (agent.description or "").lower():
+            if task_lower in (agent.description or "").lower():
                 score += 0.2
             if MemoryEntry.objects.filter(
                 narrative_thread=thread, assistant=agent.parent_assistant

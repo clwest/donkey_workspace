@@ -48,6 +48,8 @@ class Agent(models.Model):
     )
     verified_skills = models.JSONField(default=list, blank=True)
     strength_score = models.FloatField(default=0.0)
+    readiness_score = models.FloatField(default=0.0)
+    is_demo = models.BooleanField(default=False)
     preferred_llm = models.CharField(max_length=50, choices=LLM_CHOICES, default="gpt-4o")
     execution_mode = models.CharField(max_length=50, choices=EXECUTION_MODE_CHOICES, default="direct")
 
@@ -107,24 +109,49 @@ class AgentFeedbackLog(models.Model):
 
 
 class AgentTrainingAssignment(models.Model):
-    """Track training documents assigned by an assistant to an agent."""
 
-    assistant = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE, related_name="training_assignments"
-    )
     agent = models.ForeignKey(
-        "agents.Agent", on_delete=models.CASCADE, related_name="training_assignments"
+        "Agent", on_delete=models.CASCADE, related_name="training_assignments"
     )
     document = models.ForeignKey(
-        "intel_core.Document", on_delete=models.CASCADE, related_name="agent_training_assignments"
+        "intel_core.Document",
+        on_delete=models.CASCADE,
+        related_name="agent_training_assignments",
     )
-    status = models.CharField(max_length=20, default="pending")
-    notes = models.TextField(blank=True)
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="agent_training_assignments",
+    )
+    completed = models.BooleanField(default=False)
     assigned_at = models.DateTimeField(auto_now_add=True)
-    reviewed_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+# =======
+#     """Track training documents assigned by an assistant to an agent."""
+
+#     assistant = models.ForeignKey(
+#         "assistants.Assistant", on_delete=models.CASCADE, related_name="training_assignments"
+#     )
+#     agent = models.ForeignKey(
+#         "agents.Agent", on_delete=models.CASCADE, related_name="training_assignments"
+#     )
+#     document = models.ForeignKey(
+#         "intel_core.Document", on_delete=models.CASCADE, related_name="agent_training_assignments"
+#     )
+#     status = models.CharField(max_length=20, default="pending")
+#     notes = models.TextField(blank=True)
+#     assigned_at = models.DateTimeField(auto_now_add=True)
+#     reviewed_at = models.DateTimeField(null=True, blank=True)
+# >>>>>>> main
 
     class Meta:
         ordering = ["-assigned_at"]
 
     def __str__(self):  # pragma: no cover - display only
-        return f"{self.agent.name} -> {self.document.title} ({self.status})"
+
+        return f"Training for {self.agent.name} -> {self.document.title}"
+# =======
+#         return f"{self.agent.name} -> {self.document.title} ({self.status})"
+# >>>>>>> main
