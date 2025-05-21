@@ -101,6 +101,7 @@ from .routing import routing_history
 from .scene import replay_scene_view, chat_with_scene
 from .recovery import regenerate_plan
 from .intelligence import plan_from_thread
+from .training import assign_training, evaluate_agent
 
 from .bootstrap import prompt_to_assistant
 from .signals import (
@@ -228,4 +229,6 @@ __all__ = [
     "chat_with_scene",
     "regenerate_plan",
     "plan_from_thread",
+    "assign_training",
+    "evaluate_agent",
 ]

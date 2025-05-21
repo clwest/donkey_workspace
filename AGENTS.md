@@ -106,6 +106,10 @@
 
 - Add assistant-driven agent supervision — assistants can assign training, score agents, and reflect on agent readiness
 
+### 📝 Phase 4.56 Notes
+
+- Support multi-stage curriculum and adaptive training plans across projects
+
 ---
 
 ## ✅ Status
