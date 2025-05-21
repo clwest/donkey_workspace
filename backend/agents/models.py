@@ -123,6 +123,8 @@ class AgentFeedbackLog(models.Model):
     feedback_text = models.TextField()
     feedback_type = models.CharField(max_length=50, default="reflection")
     score = models.FloatField(null=True, blank=True)
+    dissent_reason = models.TextField(blank=True)
+    is_dissent = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
