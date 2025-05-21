@@ -58,6 +58,10 @@ class AgentClusterSerializer(serializers.ModelSerializer):
 
 
 class SwarmMemoryEntrySerializer(serializers.ModelSerializer):
+
+    tags = serializers.SerializerMethodField()
+
+
     class Meta:
         model = SwarmMemoryEntry
         fields = [
@@ -65,6 +69,12 @@ class SwarmMemoryEntrySerializer(serializers.ModelSerializer):
             "title",
             "content",
             "origin",
-            "season_tag",
+
+            "season",
+            "tags",
             "created_at",
         ]
+
+    def get_tags(self, obj):
+        return list(obj.tags.values_list("name", flat=True))
+

@@ -98,6 +98,7 @@ import StoryListPage from "./pages/media/StoryListPage";
 import AgentPage from "./pages/agents/AgentPage";
 import AgentDetailPage from "./pages/agents/AgentDetailPage";
 import AgentArchivePage from "./pages/agents/AgentArchivePage";
+import SwarmTimelinePage from "./pages/agents/SwarmTimelinePage";
 import RoutingHistoryPage from "./pages/assistants/RoutingHistoryPage";
 import StoryboardEditorPage from "./pages/storyboard/StoryboardEditorPage";
 import NarrativeEventDetailPage from "./pages/storyboard/NarrativeEventDetailPage";
@@ -354,6 +355,7 @@ export default function App() {
           />
           <Route path="/agents" element={<AgentPage />} />
           <Route path="/agents/archive" element={<AgentArchivePage />} />
+          <Route path="/swarm/timeline" element={<SwarmTimelinePage />} />
           <Route path="/agents/:slug" element={<AgentDetailPage />} />
           <Route path="/intel/documents" element={<DocumentBrowserPage />} />
           <Route path="/intel/documents/:id" element={<DocumentDetailPage />} />

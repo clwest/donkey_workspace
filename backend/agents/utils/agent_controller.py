@@ -1,8 +1,8 @@
 from typing import Optional, List
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from openai import OpenAI
 from django.utils import timezone
+from utils.llm_router import call_llm
 
 FAREWELL_TEMPLATE = (
     "Agent {agent_name} has completed their mission as part of the {cluster_name} cluster.\n\n"
@@ -21,12 +21,12 @@ from agents.models import (
     AgentSkill,
     AgentSkillLink,
     AgentLegacy,
+    FarewellTemplate,
     SwarmMemoryEntry,
 )
 
 from embeddings.helpers.helpers_io import save_embedding
 
-client = OpenAI()
 User = get_user_model()
 
 
@@ -157,14 +157,13 @@ class AgentController:
 
         thought_trace = ["Generated agent identity and purpose prompt."]
 
-        response = client.chat.completions.create(
+        thought = call_llm(
+            [{"role": "user", "content": prompt}],
             model="gpt-4o",
-            messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
             max_tokens=300,
         )
-
-        thought = response.choices[0].message.content.strip()
+        thought = thought.strip()
         thought_trace.append("Received model response.")
 
         log = AgentThought.objects.create(
@@ -187,17 +186,15 @@ class AgentController:
 
         full_context = f"{context or ''}\n\nUser: {message}".strip()
 
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
+        reply = call_llm(
+            [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": full_context},
             ],
+            model="gpt-4o",
             temperature=0.7,
             max_tokens=500,
-        )
-
-        reply = response.choices[0].message.content.strip()
+        ).strip()
 
         memory = MemoryContext.objects.create(
             target_content_type=ContentType.objects.get_for_model(Agent),
@@ -358,13 +355,12 @@ def train_agent_from_documents(agent: Agent, documents: List["Document"]) -> dic
     prompt += "\n" + combined_text
 
     try:
-        response = client.chat.completions.create(
+        parsed = call_llm(
+            [{"role": "user", "content": prompt}],
             model="gpt-4o",
-            messages=[{"role": "user", "content": prompt}],
             temperature=0.2,
             max_tokens=150,
         )
-        parsed = response.choices[0].message.content
         new_skills = [s.strip() for s in parsed.split(",") if s.strip()]
     except Exception:
         new_skills = []
@@ -558,14 +554,41 @@ def record_project_completion(project: "AssistantProject") -> None:
         legacy.save(update_fields=["missions_completed", "updated_at"])
 
 
-def retire_agent(agent: Agent, reason: str) -> SwarmMemoryEntry:
+def retire_agent(agent: Agent, reason: str, farewell_text: Optional[str] = None) -> SwarmMemoryEntry:
     """Archive the agent and record a farewell message."""
     agent.is_active = False
     agent.save(update_fields=["is_active"])
 
     legacy, _ = AgentLegacy.objects.get_or_create(agent=agent)
 
-    farewell = render_farewell(agent, reason)
+
+    if not farewell_text:
+        template = FarewellTemplate.objects.order_by("-created_at").first()
+        if template:
+            farewell_text = template.content
+        else:
+            farewell_text = (
+                "Agent {{ agent.name }} has completed their mission as part of the {{ cluster.name }} cluster.\n\n"
+                "Skills contributed: {{ skills }}\n"
+                "Last active: {{ last_active }}\n\n"
+                "Legacy Note:\n\"{{ legacy_notes }}\"\n\n"
+                "Farewell, and thank you for your service."
+            )
+
+    cluster = agent.clusters.first()
+    context = {
+        "agent": agent,
+        "cluster": cluster or {},
+        "skills": ", ".join(agent.skills or []),
+        "last_active": agent.updated_at.strftime("%Y-%m-%d"),
+        "legacy_notes": legacy.legacy_notes or "",
+    }
+
+    farewell = farewell_text
+    for key, val in context.items():
+        placeholder = "{{ " + key + " }}"
+        farewell = farewell.replace(placeholder, str(val))
+
 
     entry = SwarmMemoryEntry.objects.create(
         title=f"Agent retired: {agent.name}",
