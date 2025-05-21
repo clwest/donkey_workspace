@@ -3,14 +3,19 @@ import { useParams, Link } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
 import TagBadge from "../../../components/TagBadge";
 import { Spinner } from "react-bootstrap";
-import LongTermObjectiveEditor from "../../../components/mcp_core/LongTermObjectiveEditor";
-import MilestoneTimeline from "../../../components/mcp_core/MilestoneTimeline";
-import ObjectiveReflectionLog from "../../../components/mcp_core/ObjectiveReflectionLog";
+// <<<<<<< codex/implement-long-term-objective-tracking-for-threads
+// import LongTermObjectiveEditor from "../../../components/mcp_core/LongTermObjectiveEditor";
+// import MilestoneTimeline from "../../../components/mcp_core/MilestoneTimeline";
+// import ObjectiveReflectionLog from "../../../components/mcp_core/ObjectiveReflectionLog";
+// =======
+import LinkedChainList from "../../../components/memory/LinkedChainList";
+// >>>>>>> main
 
 export default function ThreadDetailPage() {
   const { id } = useParams();
   const [thread, setThread] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [chains, setChains] = useState(null);
 
   useEffect(() => {
     const fetchThread = async () => {
@@ -25,6 +30,12 @@ export default function ThreadDetailPage() {
       }
     };
     fetchThread();
+  }, [id]);
+
+  useEffect(() => {
+    apiFetch(`/memory/threads/${id}/linked_chains/`)
+      .then(setChains)
+      .catch(() => {});
   }, [id]);
 
   if (loading) return <Spinner className="m-5" animation="border" />;
@@ -105,6 +116,13 @@ export default function ThreadDetailPage() {
               </li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {chains && (
+        <div className="mt-4">
+          <h5>🔗 Linked Memory Chains</h5>
+          <LinkedChainList chains={chains} />
         </div>
       )}
 

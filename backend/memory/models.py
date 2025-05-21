@@ -157,6 +157,13 @@ class MemoryChain(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=255)
     memories = models.ManyToManyField(MemoryEntry, related_name="chains")
+    thread = models.ForeignKey(
+        "mcp_core.NarrativeThread",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="chains",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     context_tags = models.JSONField(default=list, blank=True)
     task_type = models.CharField(max_length=100, blank=True, null=True)
