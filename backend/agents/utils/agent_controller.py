@@ -426,6 +426,35 @@ def find_complementary_agents(
     return list(Agent.objects.filter(id__in=agent_ids).distinct())
 
 
+def recommend_agent_resurrection(skill: str) -> Optional[Agent]:
+    """
+    Finds an archived agent with matching or related skills.
+    If task demands it, suggest reactivation.
+    """
+    from datetime import timedelta
+
+    thirty_days_ago = timezone.now() - timedelta(days=30)
+
+    try:
+        base_skill = AgentSkill.objects.get(name__iexact=skill)
+        related = list(base_skill.related_skills.all())
+        skills = [base_skill] + related
+    except AgentSkill.DoesNotExist:
+        skills = []
+
+    links = AgentSkillLink.objects.filter(skill__in=skills, strength__gte=0.6)
+    agent_ids = links.values_list("agent_id", flat=True)
+    candidates = (
+        Agent.objects.filter(id__in=agent_ids, is_active=False)
+        .filter(
+            models.Q(reactivated_at__isnull=True)
+            | models.Q(reactivated_at__lt=thirty_days_ago)
+        )
+        .order_by("-strength_score")
+    )
+    return candidates.first()
+
+
 def spawn_agent_for_skill(skill: str, base_profile: dict) -> Agent:
     """Create a new specialized agent for the given skill gap."""
     from agents.models import Agent, AgentSkill, AgentSkillLink
