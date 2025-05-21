@@ -439,6 +439,14 @@ class AssistantThoughtLog(models.Model):
     tags = models.ManyToManyField(
         "mcp_core.Tag", blank=True, related_name="assistant_thoughts"
     )
+    linked_event = models.ForeignKey(
+        "storyboard.NarrativeEvent",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="thought_logs",
+    )
+    origin = models.CharField(max_length=50, null=True, blank=True)
     tool_used = models.ForeignKey(
         "tools.Tool",
         null=True,

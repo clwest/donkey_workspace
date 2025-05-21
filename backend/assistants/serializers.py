@@ -571,6 +571,7 @@ class AssistantThoughtLogSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     narrative_thread = serializers.PrimaryKeyRelatedField(read_only=True)
     parent_thought = serializers.PrimaryKeyRelatedField(read_only=True)
+    linked_event = serializers.PrimaryKeyRelatedField(read_only=True)
     category = serializers.ChoiceField(
         choices=THOUGHT_CATEGORY_CHOICES, default="other"
     )
@@ -590,6 +591,7 @@ class AssistantThoughtLogSerializer(serializers.ModelSerializer):
             "mood",
             "feedback",
             "event",
+            "origin",
             "source_reason",
             "tags",
             "category",
@@ -597,6 +599,7 @@ class AssistantThoughtLogSerializer(serializers.ModelSerializer):
             "linked_memories",
             "linked_reflection",
             "parent_thought",
+            "linked_event",
             "linked_memory_preview",  # 🆕 Text preview
             "narrative_thread",
             "linked_event",
