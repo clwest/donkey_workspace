@@ -15,8 +15,8 @@ from agents.models import (
     MythDiplomacySession,
     RitualCollapseLog,
     AssistantCivilization,
-    LoreInheritanceLine,
-    MythSimulationArena,
+    # LoreInheritanceLine,
+    # MythSimulationArena,
 )
 from agents.serializers import (
     AgentSerializer,
@@ -24,14 +24,14 @@ from agents.serializers import (
     AgentClusterSerializer,
     SwarmMemoryEntrySerializer,
     LoreEntrySerializer,
-    LoreEpochSerializer,
+    # LoreEpochSerializer,
     RetconRequestSerializer,
     RealityConsensusVoteSerializer,
     MythDiplomacySessionSerializer,
     RitualCollapseLogSerializer,
     AssistantCivilizationSerializer,
-    LoreInheritanceLineSerializer,
-    MythSimulationArenaSerializer,
+    # LoreInheritanceLineSerializer,
+    # MythSimulationArenaSerializer,
 )
 
 from agents.utils.agent_controller import (
@@ -204,16 +204,16 @@ def retcon_requests(request):
     return Response(RetconRequestSerializer(req).data, status=201)
 
 
-@api_view(["GET", "POST"])
-def lore_epochs(request):
-    if request.method == "GET":
-        epochs = LoreEpoch.objects.all().order_by("-created_at")
-        return Response(LoreEpochSerializer(epochs, many=True).data)
+# @api_view(["GET", "POST"])
+# def lore_epochs(request):
+#     if request.method == "GET":
+#         epochs = LoreEpoch.objects.all().order_by("-created_at")
+#         return Response(LoreEpochSerializer(epochs, many=True).data)
 
-    serializer = LoreEpochSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    epoch = serializer.save()
-    return Response(LoreEpochSerializer(epoch).data, status=201)
+#     serializer = LoreEpochSerializer(data=request.data)
+#     serializer.is_valid(raise_exception=True)
+#     epoch = serializer.save()
+#     return Response(LoreEpochSerializer(epoch).data, status=201)
 
 
 @api_view(["POST"])
@@ -261,28 +261,28 @@ def belief_clusters(request):
     return Response(data)
 
 
-@api_view(["GET", "POST"])
-def lore_inheritance_lines(request):
-    if request.method == "GET":
-        lines = LoreInheritanceLine.objects.all().order_by("-created_at")
-        return Response(LoreInheritanceLineSerializer(lines, many=True).data)
+# @api_view(["GET", "POST"])
+# def lore_inheritance_lines(request):
+#     if request.method == "GET":
+#         lines = LoreInheritanceLine.objects.all().order_by("-created_at")
+#         return Response(LoreInheritanceLineSerializer(lines, many=True).data)
 
-    serializer = LoreInheritanceLineSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    line = serializer.save()
-    return Response(LoreInheritanceLineSerializer(line).data, status=201)
+#     serializer = LoreInheritanceLineSerializer(data=request.data)
+#     serializer.is_valid(raise_exception=True)
+#     line = serializer.save()
+#     return Response(LoreInheritanceLineSerializer(line).data, status=201)
 
 
-@api_view(["GET", "POST"])
-def myth_simulation_arenas(request):
-    if request.method == "GET":
-        arenas = MythSimulationArena.objects.all().order_by("-created_at")
-        return Response(MythSimulationArenaSerializer(arenas, many=True).data)
+# @api_view(["GET", "POST"])
+# def myth_simulation_arenas(request):
+#     if request.method == "GET":
+#         arenas = MythSimulationArena.objects.all().order_by("-created_at")
+#         return Response(MythSimulationArenaSerializer(arenas, many=True).data)
 
-    serializer = MythSimulationArenaSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    arena = serializer.save()
-    return Response(MythSimulationArenaSerializer(arena).data, status=201)
+#     serializer = MythSimulationArenaSerializer(data=request.data)
+#     serializer.is_valid(raise_exception=True)
+#     arena = serializer.save()
+#     return Response(MythSimulationArenaSerializer(arena).data, status=201)
 
 
 @api_view(["GET"])
