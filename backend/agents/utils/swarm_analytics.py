@@ -1,0 +1,60 @@
+from datetime import timedelta
+from django.db.models import Count
+from django.utils import timezone
+
+from agents.models import (
+    Agent,
+    AgentLegacy,
+    AgentCluster,
+    AgentSkillLink,
+    SwarmMemoryEntry,
+)
+
+
+def generate_temporal_swarm_report() -> dict:
+    """Returns stats and insights over time."""
+    now = timezone.now()
+    windows = {
+        "7d": now - timedelta(days=7),
+        "30d": now - timedelta(days=30),
+        "90d": now - timedelta(days=90),
+    }
+
+    report: dict[str, dict] = {}
+    for label, start in windows.items():
+        created = Agent.objects.filter(created_at__gte=start).count()
+        archived = Agent.objects.filter(is_active=False, updated_at__gte=start).count()
+        resurrected = Agent.objects.filter(reactivated_at__gte=start).count()
+
+        gained_qs = (
+            AgentSkillLink.objects.filter(created_at__gte=start)
+            .values("skill__name")
+            .annotate(c=Count("id"))
+            .order_by("-c")[:5]
+        )
+        gained = [f"{d['skill__name']} ({d['c']})" for d in gained_qs if d["skill__name"]]
+
+        clusters_created = AgentCluster.objects.filter(created_at__gte=start).count()
+        clusters_archived = AgentCluster.objects.filter(is_active=False, updated_at__gte=start).count()
+
+        report[label] = {
+            "agents_created": created,
+            "agents_archived": archived,
+            "agents_resurrected": resurrected,
+            "top_skills_gained": gained,
+            "cluster_churn": {
+                "created": clusters_created,
+                "archived": clusters_archived,
+            },
+        }
+
+    trending_tags = (
+        SwarmMemoryEntry.objects.filter(created_at__gte=windows["90d"])
+        .values("tags__name")
+        .annotate(c=Count("id"))
+        .order_by("-c")[:5]
+    )
+    forecasted_skills = [t["tags__name"] for t in trending_tags if t["tags__name"]]
+
+    report["forecasted_skills"] = forecasted_skills
+    return report

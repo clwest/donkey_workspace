@@ -529,3 +529,40 @@ def record_project_completion(project: "AssistantProject") -> None:
         legacy, _ = AgentLegacy.objects.get_or_create(agent=agent)
         legacy.missions_completed += 1
         legacy.save(update_fields=["missions_completed", "updated_at"])
+
+
+def retire_agent(agent: Agent, reason: str) -> SwarmMemoryEntry:
+    """Archive the agent and record a farewell message."""
+    agent.is_active = False
+    agent.save(update_fields=["is_active"])
+
+    legacy, _ = AgentLegacy.objects.get_or_create(agent=agent)
+
+    prompt = (
+        f"Write a short farewell message for retiring agent {agent.name}. "
+        f"Reason: {reason}"
+    )
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.5,
+            max_tokens=120,
+        )
+        farewell = response.choices[0].message.content.strip()
+    except Exception as e:
+        farewell = f"{agent.name} has been retired. ({e})"
+
+    entry = SwarmMemoryEntry.objects.create(
+        title=f"Agent retired: {agent.name}",
+        content=farewell,
+        origin="retirement",
+    )
+    entry.linked_agents.add(agent)
+    from mcp_core.models import Tag
+
+    for name in ["farewell", "retired", "mentor-passed"]:
+        tag, _ = Tag.objects.get_or_create(name=name, defaults={"slug": name})
+        entry.tags.add(tag)
+
+    return entry

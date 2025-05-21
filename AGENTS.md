@@ -161,3 +161,15 @@ Agents now maintain a legacy profile including:
 Assistants can reuse past project structures via MissionArchetypes, and SwarmMemoryEntries ensure long-term intelligence retention across assistant lifecycles.
 
 Next: Phase 4.63 — Temporal swarm analysis, reflective forecasting, and agent retirement rituals.
+
+## Phase 4.63 — Temporal Forecasting & Retirement
+
+The swarm is now aware of its growth, decay, and transformation over time.
+
+Features:
+- SwarmAnalytics engine
+- Assistant-led forecasting
+- Agent retirement system with memory preservation
+- Swarm health charts and skill drift reporting
+
+Next: Phase 4.64 — Legacy Agent Resurrection Events & Seasonal Swarm Cadence
