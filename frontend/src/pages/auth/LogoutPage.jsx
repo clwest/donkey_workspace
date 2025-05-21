@@ -9,6 +9,8 @@ export default function LogoutPage() {
     async function doLogout() {
       try {
         await apiFetch("/dj-rest-auth/logout/", { method: "POST" });
+        localStorage.removeItem("access");
+        localStorage.removeItem("refresh");
         toast.success("✅ Logged out");
       } catch {
         toast.error("❌ Logout failed");

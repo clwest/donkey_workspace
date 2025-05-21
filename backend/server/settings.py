@@ -135,6 +135,12 @@ REST_AUTH = {
         "email": {"required": True},
     }
 }
+# Enable JWT support so dj-rest-auth login works with SIMPLE_JWT
+REST_USE_JWT = True
+# Store auth tokens in HttpOnly cookies so the frontend fetch helper can send
+# credentials automatically
+JWT_AUTH_COOKIE = "access"
+JWT_AUTH_REFRESH_COOKIE = "refresh"
 
 # === 🔐 JWT Config ===
 SIMPLE_JWT = {
