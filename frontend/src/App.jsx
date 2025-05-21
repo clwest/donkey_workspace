@@ -91,6 +91,10 @@ import GroupedReflectionPage from "./pages/dev/GroupedReflectionPage";
 import GroupedReflectionDetailPage from "./pages/dev/GroupedReflectionDetailPage";
 import DocumentBrowserPage from "./pages/intel_core/DocumentBrowserPage";
 import DocumentDetailPage from "./pages/intel_core/DocumentDetailPage";
+import ImageGalleryPage from "./pages/media/ImageGalleryPage";
+import ImageCreatePage from "./pages/media/ImageCreatePage";
+import CharacterListPage from "./pages/media/CharacterListPage";
+import StoryListPage from "./pages/media/StoryListPage";
 import AgentPage from "./pages/agents/AgentPage";
 import AgentDetailPage from "./pages/agents/AgentDetailPage";
 import RoutingHistoryPage from "./pages/assistants/RoutingHistoryPage";
@@ -351,6 +355,10 @@ export default function App() {
           <Route path="/agents/:slug" element={<AgentDetailPage />} />
           <Route path="/intel/documents" element={<DocumentBrowserPage />} />
           <Route path="/intel/documents/:id" element={<DocumentDetailPage />} />
+          <Route path="/images" element={<ImageGalleryPage />} />
+          <Route path="/images/new" element={<ImageCreatePage />} />
+          <Route path="/characters" element={<CharacterListPage />} />
+          <Route path="/stories" element={<StoryListPage />} />
           <Route path="/storyboard" element={<StoryboardEditorPage />} />
           <Route path="/storyboard/events/:id" element={<NarrativeEventDetailPage />} />
           <Route path="/assistants/sources" element={<SignalSourcesPage />} />
