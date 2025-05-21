@@ -49,3 +49,13 @@ pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
 ```
+
+### Seeding All Data
+
+Once your backend is running, you can populate every model and DevDoc dataset in one command:
+
+```bash
+bash backend/seed_all.sh
+```
+
+This script runs all individual seeders and dev documentation scripts sequentially.
