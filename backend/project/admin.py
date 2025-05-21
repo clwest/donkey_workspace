@@ -1,5 +1,11 @@
 from django.contrib import admin
-from .models import Project, ProjectTask, ProjectMilestone, ProjectMemoryLink
+from .models import (
+    Project,
+    ProjectTask,
+    ProjectMilestone,
+    ProjectMemoryLink,
+    ProjectParticipant,
+)
 
 
 @admin.register(Project)
@@ -30,3 +36,10 @@ class ProjectMemoryLinkAdmin(admin.ModelAdmin):
     list_display = ("project", "memory", "linked_at")
     search_fields = ("project__title", "memory__content")
     ordering = ("-linked_at",)
+
+
+@admin.register(ProjectParticipant)
+class ProjectParticipantAdmin(admin.ModelAdmin):
+    list_display = ("project", "user", "role", "created_at")
+    search_fields = ("project__title", "user__username", "role")
+    ordering = ("-created_at",)
