@@ -21,6 +21,8 @@ from agents.models import (
     AgentSkillLink,
     SwarmMemoryEntry,
 )
+from agents.utils.swarm_analytics import generate_temporal_swarm_report
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -677,5 +679,40 @@ def suggest_agent_resurrections(assistant: Assistant) -> list[str]:
         )
 
     return bullets
+
+
+def forecast_future_swarm_needs(assistant: Assistant) -> str:
+    """Reflect on temporal analytics and recommend future swarm actions."""
+    report = generate_temporal_swarm_report()
+    prompt = (
+        f"### Swarm Temporal Report\n{json.dumps(report, indent=2)}\n\n"
+        "Based on this data, outline recommendations for:\n"
+        "- New training paths\n"
+        "- Archetype mutations\n"
+        "- Cluster merging or splitting\n"
+        "- Retiring agents gracefully"
+    )
+    try:
+        forecast = call_llm(
+            [{"role": "user", "content": prompt}],
+            model=assistant.preferred_model or "gpt-4o",
+            temperature=0.3,
+            max_tokens=400,
+        )
+    except Exception:
+        forecast = "Unable to generate forecast."
+
+    log = AssistantReflectionLog.objects.create(
+        assistant=assistant,
+        title="Swarm Forecast",
+        summary=forecast,
+    )
+    entry = SwarmMemoryEntry.objects.create(
+        title="Swarm Forecast",
+        content=forecast,
+        origin="forecast",
+    )
+    entry.linked_agents.set(assistant.assigned_agents.all())
+    return forecast
 
    
