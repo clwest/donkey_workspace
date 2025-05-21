@@ -8,6 +8,7 @@ import useAutoReflectionLoop from "../../../components/assistant/AutoModeControl
 import AutoModeToggle from "../../../components/assistant/AutoModeToggle";
 import PrimaryStar from "../../../components/assistant/PrimaryStar";
 import AssistantSpawnForm from "../../../components/assistant/AssistantSpawnForm";
+import SwarmMemoryViewer from "../../../components/agents/SwarmMemoryViewer";
 import apiFetch from "../../../utils/apiClient";
 import ProjectRolesRow from "../../../components/assistant/roles/ProjectRolesRow";
 import ProjectHistoryPanel from "../../../components/assistant/project_history/ProjectHistoryPanel";
@@ -276,6 +277,7 @@ export default function ProjectDetailPage() {
       <AssistantIntelligencePanel projectId={id} />
       <ProjectTaskManager />
       <ProjectHistoryPanel projectId={id} />
+      <SwarmMemoryViewer />
 
     {project?.dev_docs?.length > 0 && (
       <ul className="list-group">

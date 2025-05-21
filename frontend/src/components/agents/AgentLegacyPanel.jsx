@@ -1,29 +1,22 @@
-import { useEffect, useState } from "react";
-import apiFetch from "../../utils/apiClient";
 
-const AgentLegacyPanel = ({ agentId }) => {
-  const [legacy, setLegacy] = useState(null);
+import React from "react";
 
-  useEffect(() => {
-    if (!agentId) return;
-    apiFetch(`/agents/${agentId}/legacy/`)
-      .then(setLegacy)
-      .catch((err) => console.error("Failed to load legacy", err));
-  }, [agentId]);
-
+export default function AgentLegacyPanel({ legacy }) {
   if (!legacy) {
-    return <div className="text-muted">No legacy data.</div>;
+    return <div className="alert alert-secondary">No legacy data.</div>;
   }
-
   return (
     <div>
-      <h5>Agent Legacy</h5>
-      <p className="mb-1">Resurrections: {legacy.resurrection_count}</p>
-      <p className="mb-1">Missions Completed: {legacy.missions_completed}</p>
+      <p>
+        <strong>Resurrections:</strong> {legacy.resurrection_count}
+      </p>
+      <p>
+        <strong>Missions Completed:</strong> {legacy.missions_completed}
+      </p>
       {legacy.legacy_notes && <p>{legacy.legacy_notes}</p>}
     </div>
   );
-};
+}
 
-export default AgentLegacyPanel;
+
 

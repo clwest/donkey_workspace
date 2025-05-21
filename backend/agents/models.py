@@ -4,6 +4,9 @@ from django.contrib.auth import get_user_model
 from mcp_core.models import MemoryContext
 from django.contrib.postgres.fields import ArrayField
 from pgvector.django import VectorField
+
+from taggit.managers import TaggableManager
+
 from django.utils import timezone
 
 
@@ -202,18 +205,26 @@ class AgentReactivationVote(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+
+
 class SwarmMemoryEntry(models.Model):
-    """Persistent swarm-level memory across projects."""
+    """Persistent swarm-wide memory record"""
 
     title = models.CharField(max_length=200)
     content = models.TextField()
-    tags = models.ManyToManyField("mcp_core.Tag", blank=True)
+    tags = TaggableManager()
+
     linked_agents = models.ManyToManyField(Agent, blank=True)
     linked_projects = models.ManyToManyField(
         "assistants.AssistantProject", blank=True
     )
     origin = models.CharField(max_length=50, default="reflection")
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+
+class AgentLegacy(models.Model):
+    """Tracks accomplishments and resurrections for an agent"""
 
     class Meta:
         ordering = ["-created_at"]
@@ -225,6 +236,7 @@ class SwarmMemoryEntry(models.Model):
 class AgentLegacy(models.Model):
     """Track agent resurrection history and missions completed."""
 
+
     agent = models.OneToOneField(Agent, on_delete=models.CASCADE)
     resurrection_count = models.IntegerField(default=0)
     missions_completed = models.IntegerField(default=0)
@@ -232,12 +244,14 @@ class AgentLegacy(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):  # pragma: no cover - display only
-        return f"Legacy of {self.agent.name}"
 
 
 class MissionArchetype(models.Model):
-    """Reusable template for seeding agent clusters."""
+    """Reusable mission structures for clusters"""
+
+    def __str__(self):  # pragma: no cover - display only
+        return f"Legacy of {self.agent.name}"
+
 
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField()
@@ -248,6 +262,61 @@ class MissionArchetype(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):  # pragma: no cover - display only
-        return self.name
+
+
+# ==== Signals ====
+from django.db.models.signals import pre_save, post_save
+from django.dispatch import receiver
+
+
+@receiver(post_save, sender=Agent)
+def ensure_agent_legacy(sender, instance, created, **kwargs):
+    if created:
+        AgentLegacy.objects.get_or_create(agent=instance)
+
+
+@receiver(pre_save, sender=Agent)
+def increment_resurrections(sender, instance, **kwargs):
+    if not instance.pk:
+        return
+    try:
+        prev = Agent.objects.get(pk=instance.pk)
+    except Agent.DoesNotExist:
+        return
+    if not prev.is_active and instance.is_active:
+        legacy, _ = AgentLegacy.objects.get_or_create(agent=instance)
+        legacy.resurrection_count += 1
+        legacy.save()
+        instance.reactivated_at = timezone.now()
+
+
+@receiver(pre_save, sender="assistants.AssistantProject")
+def cache_previous_status(sender, instance, **kwargs):
+    if instance.pk:
+        try:
+            prev = sender.objects.get(pk=instance.pk)
+            instance._prev_status = prev.status
+        except sender.DoesNotExist:
+            instance._prev_status = None
+
+
+@receiver(post_save, sender="assistants.AssistantProject")
+def handle_project_completion(sender, instance, created, **kwargs):
+    prev_status = getattr(instance, "_prev_status", None)
+    if not created and prev_status != "completed" and instance.status == "completed":
+        agents = list(instance.agents.all())
+        for agent in agents:
+            legacy, _ = AgentLegacy.objects.get_or_create(agent=agent)
+            legacy.missions_completed += 1
+            legacy.save()
+        entry = SwarmMemoryEntry.objects.create(
+            title=f"Project Completed: {instance.title}",
+            content=instance.summary or "Project completed",
+            origin="project",
+        )
+        if agents:
+            entry.linked_agents.set(agents)
+        entry.linked_projects.add(instance)
+
+
 
