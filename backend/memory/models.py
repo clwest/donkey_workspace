@@ -74,6 +74,13 @@ class MemoryEntry(models.Model):
         on_delete=models.SET_NULL,
         related_name="memories",
     )
+    thread = models.ForeignKey(
+        "mcp_core.NarrativeThread",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="thread_memories",
+    )
 
     parent_memory = models.ForeignKey(
         "self",

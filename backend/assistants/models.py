@@ -473,6 +473,13 @@ class AssistantThoughtLog(models.Model):
         on_delete=models.SET_NULL,
         related_name="thoughts",
     )
+    replayed_thread = models.ForeignKey(
+        "mcp_core.NarrativeThread",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="replay_thoughts",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

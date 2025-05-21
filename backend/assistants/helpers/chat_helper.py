@@ -31,13 +31,17 @@ def get_or_create_chat_session(session_id, assistant=None, project=None, thread=
                 .first()
             )
             if memory:
-                derived_thread = memory.narrative_thread or (
-                    memory.related_project.thread
-                    if memory.related_project and memory.related_project.thread
-                    else (
-                        memory.related_project.narrative_thread
-                        if memory.related_project
-                        else None
+                derived_thread = (
+                    memory.thread
+                    or memory.narrative_thread
+                    or (
+                        memory.related_project.thread
+                        if memory.related_project and memory.related_project.thread
+                        else (
+                            memory.related_project.narrative_thread
+                            if memory.related_project
+                            else None
+                        )
                     )
                 )
 

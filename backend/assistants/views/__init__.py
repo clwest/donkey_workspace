@@ -97,6 +97,7 @@ from .debate import (
     debate_consensus,
 )
 from .routing import routing_history
+from .scene import replay_scene_view, chat_with_scene
 
 from .bootstrap import prompt_to_assistant
 from .signals import (
@@ -219,4 +220,6 @@ __all__ = [
     "collaboration_profile",
     "assistant_dashboard",
     "diff_knowledge",
+    "replay_scene_view",
+    "chat_with_scene",
 ]

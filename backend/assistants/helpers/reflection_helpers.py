@@ -31,7 +31,7 @@ def reflect_on_delegation(
         if not project:
             project = memory.related_project or project
         if not thread:
-            thread = memory.narrative_thread or thread
+            thread = memory.thread or memory.narrative_thread or thread
 
     details = [
         f"Delegated to {child.name}",
