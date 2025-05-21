@@ -19,12 +19,13 @@ from mcp_core.models import (
 from mcp_core.serializers_tags import (
     NarrativeThreadSerializer,
     ThreadObjectiveReflectionSerializer,
-    # ThreadDiagnosticLogSerializer
 )
+from mcp_core.serializers_threads import ThreadDiagnosticLogSerializer
 from memory.serializers import NarrativeThreadOverviewSerializer
 from mcp_core.utils.thread_diagnostics import run_thread_diagnostics
 from memory.models import MemoryEntry
 from assistants.models import AssistantThoughtLog, AssistantReflectionLog
+from assistants.utils.planning_alignment import suggest_planning_realignment
 from mcp_core.utils.thread_helpers import (
     get_or_create_thread,
     attach_memory_to_thread,
@@ -32,7 +33,6 @@ from mcp_core.utils.thread_helpers import (
     generate_thread_refocus_prompt,
     suggest_continuity,
 )
-from assistants.models import AssistantThoughtLog, AssistantReflectionLog
 from memory.models import MemoryEntry
 from django.utils import timezone
 
@@ -273,6 +273,28 @@ def refocus_thread(request, thread_id):
     thread.last_refocus_prompt = timezone.now()
     thread.save(update_fields=["last_refocus_prompt"])
     return Response({"prompt": prompt})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def realign_thread(request, thread_id):
+    """Run planning realignment based on diagnostics and mood."""
+    thread = get_object_or_404(NarrativeThread, id=thread_id)
+    thoughts = (
+        AssistantThoughtLog.objects.filter(narrative_thread=thread)
+        .order_by("-created_at")[:20]
+    )
+    suggestion = suggest_planning_realignment(thread, thoughts)
+
+    log = ThreadDiagnosticLog.objects.create(
+        thread=thread,
+        score=thread.continuity_score or 0.0,
+        summary=suggestion["summary"],
+        type="realignment_suggestion",
+        proposed_changes=suggestion,
+    )
+    serializer = ThreadDiagnosticLogSerializer(log)
+    return Response(serializer.data)
 
 
 @api_view(["POST"])

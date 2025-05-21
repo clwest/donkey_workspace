@@ -100,6 +100,11 @@ urlpatterns = [
         threading.suggest_continuity_view,
         name="suggest-thread-continuity",
     ),
+    path(
+        "threads/<uuid:thread_id>/realign/",
+        threading.realign_thread,
+        name="realign-thread",
+    ),
 
     path(
         "threads/from-memory/", threading.thread_from_memory, name="thread_from_memory"
