@@ -7,7 +7,10 @@ from agents.models import (
     LoreEntry,
     RetconRequest,
     RealityConsensusVote,
-    SwarmJournalEntry,
+
+    MythDiplomacySession,
+    RitualCollapseLog,
+
 )
 from assistants.models import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -86,6 +89,7 @@ class SwarmMemoryEntrySerializer(serializers.ModelSerializer):
         return list(obj.tags.values_list("name", flat=True))
 
 
+
 class SwarmJournalEntrySerializer(serializers.ModelSerializer):
     author_name = serializers.CharField(source="author.name", read_only=True)
     tags = serializers.SerializerMethodField()
@@ -106,7 +110,6 @@ class SwarmJournalEntrySerializer(serializers.ModelSerializer):
 
     def get_tags(self, obj):
         return list(obj.tags.values_list("name", flat=True))
-
 
 class LoreEntrySerializer(serializers.ModelSerializer):
     """Serialize LoreEntry records."""
@@ -171,3 +174,15 @@ class RealityConsensusVoteSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+class MythDiplomacySessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythDiplomacySession
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RitualCollapseLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RitualCollapseLog
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
