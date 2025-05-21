@@ -568,6 +568,7 @@ class AssistantThoughtLogSerializer(serializers.ModelSerializer):
     linked_memory_preview = serializers.SerializerMethodField()
     tags = TagSerializer(many=True, read_only=True)
     narrative_thread = serializers.PrimaryKeyRelatedField(read_only=True)
+    replayed_thread = serializers.PrimaryKeyRelatedField(read_only=True)
     parent_thought = serializers.PrimaryKeyRelatedField(read_only=True)
     linked_event = serializers.PrimaryKeyRelatedField(read_only=True)
     category = serializers.ChoiceField(
@@ -600,6 +601,7 @@ class AssistantThoughtLogSerializer(serializers.ModelSerializer):
             "linked_event",
             "linked_memory_preview",  # 🆕 Text preview
             "narrative_thread",
+            "replayed_thread",
             "linked_event",
             "summoned_memory_ids",
             "empathy_response",

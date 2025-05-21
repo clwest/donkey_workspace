@@ -25,6 +25,7 @@ def create_memory_from_chat(
     project=None,
     importance=5,
     narrative_thread=None,
+    thread=None,
     tool_response=None,
 ):
     transcript = "\n".join(
@@ -36,10 +37,12 @@ def create_memory_from_chat(
         + [f"Assistant: {reply}"]
     )
 
-    if not narrative_thread and chat_session:
-        narrative_thread = chat_session.thread or chat_session.narrative_thread
-    if not narrative_thread and project:
-        narrative_thread = project.thread or project.narrative_thread
+    if not thread and chat_session:
+        thread = chat_session.thread or chat_session.narrative_thread
+    if not thread and project:
+        thread = project.thread or project.narrative_thread
+    if not narrative_thread:
+        narrative_thread = thread
 
     identity = assistant.get_identity_prompt() if assistant else ""
     event_text = f"Conversation with assistant {assistant_name}"
@@ -56,6 +59,7 @@ def create_memory_from_chat(
         assistant=assistant,
         related_project=project,
         narrative_thread=narrative_thread,
+        thread=thread,
         tool_response=tool_response,
     )
 

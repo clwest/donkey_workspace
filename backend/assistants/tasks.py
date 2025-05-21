@@ -241,7 +241,10 @@ def reflect_on_delegation(self, event_id: str):
             project = event.triggering_session.project
             thread = event.triggering_session.narrative_thread
         if not thread and event.triggering_memory:
-            thread = event.triggering_memory.narrative_thread
+            thread = (
+                event.triggering_memory.thread
+                or event.triggering_memory.narrative_thread
+            )
 
         AssistantThoughtLog.objects.create(
             assistant=parent,

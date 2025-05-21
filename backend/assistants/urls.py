@@ -23,6 +23,7 @@ from .views import (
     dashboard,
     routing,
     handoffs,
+    scene,
 )
 
 urlpatterns = [
@@ -549,6 +550,16 @@ urlpatterns = [
         "<slug:slug>/collaboration_profile/",
         collaboration.collaboration_profile,
         name="assistant-collaboration-profile",
+    ),
+    path(
+        "<slug:slug>/replay_scene/<uuid:thread_id>/",
+        scene.replay_scene_view,
+        name="assistant-replay-scene",
+    ),
+    path(
+        "<slug:slug>/chat_with_scene/",
+        scene.chat_with_scene,
+        name="assistant-chat-with-scene",
     ),
     # ===== DEBATE ENDPOINTS =====
     # path("debate/start/", debate.start_debate, name="start-debate"),
