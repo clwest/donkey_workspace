@@ -485,6 +485,8 @@ class AssistantThoughtLog(models.Model):
         on_delete=models.SET_NULL,
         related_name="replay_thoughts",
     )
+    is_auto_generated = models.BooleanField(default=False)
+    coherence_score = models.FloatField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -924,21 +926,33 @@ class AssistantNextAction(models.Model):
     content = models.CharField(max_length=255)
     completed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
     assigned_agent = models.ForeignKey(
         "agents.Agent",
+
+    thread = models.ForeignKey(
+        "mcp_core.NarrativeThread",
+
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
         related_name="next_actions",
     )
+
     linked_thread = models.ForeignKey(
         "mcp_core.NarrativeThread",
+
+    origin_thought = models.ForeignKey(
+        "assistants.AssistantThoughtLog",
+
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
         related_name="next_actions",
     )
+
     importance_score = models.FloatField(default=0.5)
+
 
 
 class ProjectPlanningLog(models.Model):

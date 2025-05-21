@@ -93,6 +93,11 @@
 - Dashboard shows mood timelines next to thread health
 - Celery task `analyze_mood_impact_on_thread_continuity` added
 
+### 📝 Phase 4.52 Notes
+
+- Enable assistants to detect when they’re drifting from a narrative thread and self-correct
+- Auto-create thread summaries per project milestone
+
 ---
 
 ## ✅ Status

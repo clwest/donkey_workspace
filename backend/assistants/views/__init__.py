@@ -90,6 +90,7 @@ from .collaboration import (
     collaboration_logs_for_project,
     collaboration_profile,
 )
+from .reflection import evaluate_continuity
 from .debate import (
     start_debate,
     get_debate,
@@ -218,6 +219,7 @@ __all__ = [
     "assistant_reflect_empathy",
     "memory_resonance",
     "evaluate_collaboration",
+    "evaluate_continuity",
     "collaboration_logs_for_project",
     "collaboration_profile",
     "assistant_dashboard",

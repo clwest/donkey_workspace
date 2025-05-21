@@ -19,6 +19,7 @@ from .views import (
     switching,
     empathy,
     collaboration,
+    reflection,
     knowledge,
     dashboard,
     routing,
@@ -380,6 +381,11 @@ urlpatterns = [
         "<slug:slug>/evaluate-collaboration/",
         collaboration.evaluate_collaboration,
         name="assistant-evaluate-collaboration",
+    ),
+    path(
+        "<slug:slug>/evaluate-continuity/",
+        reflection.evaluate_continuity,
+        name="assistant-evaluate-continuity",
     ),
     path(
         "<slug:slug>/suggest-delegation/",
