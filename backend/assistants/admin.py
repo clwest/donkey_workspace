@@ -14,6 +14,7 @@ from .models import (
     AssistantMemoryChain,
     SpecializationDriftLog,
     CollaborationLog,
+    AssistantMythLayer,
 )
 from memory.models import MemoryEntry
 from mcp_core.models import Tag
@@ -194,6 +195,11 @@ class DelegationStrategyAdmin(admin.ModelAdmin):
 class CollaborationLogAdmin(admin.ModelAdmin):
     list_display = ("project", "style_conflict_detected", "created_at")
     filter_horizontal = ("participants",)
+
+
+@admin.register(AssistantMythLayer)
+class AssistantMythLayerAdmin(admin.ModelAdmin):
+    list_display = ("assistant", "last_updated")
 
 
 # @admin.register(AssistantMemoryChain)

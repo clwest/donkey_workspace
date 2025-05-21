@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import (
     Assistant,
+    AssistantMythLayer,
     AssistantThoughtLog,
     AssistantProject,
     AssistantObjective,
@@ -1114,3 +1115,20 @@ class CollaborationLogSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]
+
+
+class AssistantMythLayerSerializer(serializers.ModelSerializer):
+    assistant_name = serializers.CharField(source="assistant.name", read_only=True)
+
+    class Meta:
+        model = AssistantMythLayer
+        fields = [
+            "id",
+            "assistant",
+            "assistant_name",
+            "origin_story",
+            "legendary_traits",
+            "last_updated",
+        ]
+        read_only_fields = ["id", "last_updated"]
+

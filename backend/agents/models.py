@@ -487,17 +487,23 @@ def handle_project_completion(sender, instance, created, **kwargs):
         entry.linked_projects.add(instance)
 
 
-class SwarmTreaty(models.Model):
-    """Formal agreement between assistant councils."""
+class SwarmJournalEntry(models.Model):
+    """Personal journal entry written by a swarm entity."""
 
-    name = models.CharField(max_length=150)
-    participants = models.ManyToManyField(
-        "assistants.AssistantCouncil", related_name="treaties"
+    author = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="journal_entries"
     )
-    objectives = models.TextField()
-    terms = models.JSONField()
-    status = models.CharField(max_length=20, default="active")
+    content = models.TextField()
+    tags = models.ManyToManyField(Tag, blank=True)
+    is_private = models.BooleanField(default=True)
+    season_tag = models.CharField(max_length=20, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return self.name
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display
+        return f"Journal by {self.author.name}"
+
+
+

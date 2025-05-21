@@ -1820,3 +1820,19 @@ class AssistantCouncil(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
 
+
+
+class AssistantMythLayer(models.Model):
+    """Narrative layer capturing mythos and legacy for an assistant."""
+
+    assistant = models.OneToOneField(
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="myth_layer"
+    )
+    origin_story = models.TextField()
+    legendary_traits = models.JSONField(default=dict)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:  # pragma: no cover - display
+        return f"MythLayer for {self.assistant.name}"
+
+

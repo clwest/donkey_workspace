@@ -102,6 +102,7 @@ from .scene import replay_scene_view, chat_with_scene
 from .recovery import regenerate_plan
 from .intelligence import plan_from_thread
 from .training import assign_training, evaluate_agent
+from .myth import assistant_myth_layer, assistant_journals
 
 from .bootstrap import prompt_to_assistant
 from .signals import (
@@ -231,4 +232,6 @@ __all__ = [
     "plan_from_thread",
     "assign_training",
     "evaluate_agent",
+    "assistant_myth_layer",
+    "assistant_journals",
 ]
