@@ -144,6 +144,15 @@ class LoreEntrySerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+class LoreEpochSerializer(serializers.ModelSerializer):
+    """Serialize LoreEpoch records."""
+
+    class Meta:
+        model = LoreEpoch
+        fields = ["id", "title", "summary", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+
 class RetconRequestSerializer(serializers.ModelSerializer):
     """Serialize RetconRequest proposals."""
 
