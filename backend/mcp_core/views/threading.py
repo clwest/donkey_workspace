@@ -390,3 +390,24 @@ def split_thread(request, id):
     )
 
     return Response(NarrativeThreadSerializer(new_thread).data, status=201)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def thread_progress(request, id):
+    """Return completion progress for a thread and trigger sync."""
+    thread = get_object_or_404(NarrativeThread, id=id)
+
+    from mcp_core.tasks.thread_sync import update_thread_progress
+
+    # Sync progress before returning
+    update_thread_progress.delay(str(thread.id))
+    thread.refresh_from_db()
+
+    data = {
+        "completion_status": thread.completion_status,
+        "progress_percent": thread.progress_percent,
+        "completed_milestones": thread.completed_milestones,
+        "completed_at": thread.completed_at,
+    }
+    return Response(data)

@@ -235,6 +235,21 @@ class NarrativeThread(models.Model):
     )
     long_term_objective = models.TextField(blank=True, null=True)
     milestones = models.JSONField(default=list, blank=True)
+    completed_milestones = models.JSONField(default=list, blank=True)
+
+    class CompletionStatus(models.TextChoices):
+        DRAFT = "draft", "Draft"
+        IN_PROGRESS = "in_progress", "In Progress"
+        COMPLETED = "completed", "Completed"
+        STALLED = "stalled", "Stalled"
+
+    completion_status = models.CharField(
+        max_length=20,
+        choices=CompletionStatus.choices,
+        default=CompletionStatus.DRAFT,
+    )
+    progress_percent = models.PositiveIntegerField(default=0)
+    completed_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.title

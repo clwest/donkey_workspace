@@ -7,6 +7,7 @@ import ThreadDiagnosticsPanel from "../../../components/mcp_core/ThreadDiagnosti
 export default function ThreadsOverviewPage() {
   const [threads, setThreads] = useState([]);
   const [filteredTags, setFilteredTags] = useState([]);
+  const [statusFilter, setStatusFilter] = useState("");
 
   useEffect(() => {
     const fetchThreads = async () => {
@@ -21,14 +22,30 @@ export default function ThreadsOverviewPage() {
         t.tags.some((tag) => filteredTags.includes(tag.slug))
       )
     : threads;
+  const statusFiltered = statusFilter
+    ? filtered.filter((t) => t.completion_status === statusFilter)
+    : filtered;
 
   return (
     <div className="container my-5">
       <h2 className="mb-4">🧵 Thread Continuity Overview</h2>
 
       <TagFilterBar tags={extractUniqueTags(threads)} onFilter={setFilteredTags} />
+      <div className="mb-3">
+        <select
+          className="form-select w-auto d-inline"
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+        >
+          <option value="">All Statuses</option>
+          <option value="in_progress">In Progress</option>
+          <option value="completed">Completed</option>
+          <option value="stalled">Stalled</option>
+          <option value="draft">Draft</option>
+        </select>
+      </div>
 
-      {filtered.length === 0 ? (
+      {statusFiltered.length === 0 ? (
         <p className="text-muted mt-4">No threads match current filters.</p>
       ) : (
         <table className="table table-sm align-middle">
@@ -36,12 +53,13 @@ export default function ThreadsOverviewPage() {
             <tr>
               <th>Thread</th>
               <th>Reflections</th>
+              <th>Progress</th>
               <th>Last Updated</th>
               <th>Gaps</th>
             </tr>
           </thead>
           <tbody>
-            {filtered
+            {statusFiltered
               .sort(
                 (a, b) => new Date(b.last_updated) - new Date(a.last_updated)
               )
@@ -55,6 +73,7 @@ export default function ThreadsOverviewPage() {
                     <ThreadDiagnosticsPanel thread={thread} />
                   </td>
                   <td>{thread.reflection_count}</td>
+                  <td>{thread.progress_percent ?? 0}%</td>
                   <td>
                     {thread.last_updated
                       ? new Date(thread.last_updated).toLocaleString()

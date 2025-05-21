@@ -14,6 +14,8 @@ function ThreadCard({ thread }) {
     tags = [],
     created_at,
     origin_memory,
+    progress_percent,
+    completion_status,
   } = thread;
 
   const formattedDate = created_at
@@ -28,6 +30,21 @@ function ThreadCard({ thread }) {
         </h5>
         <p className="card-text text-muted small">{formattedDate}</p>
         <p className="card-text">{summary}</p>
+
+        {typeof progress_percent === "number" && (
+          <div className="mb-2">
+            <div className="progress">
+              <div
+                className="progress-bar"
+                role="progressbar"
+                style={{ width: `${progress_percent}%` }}
+              >
+                {progress_percent}%
+              </div>
+            </div>
+            <div className="small text-muted">Status: {completion_status}</div>
+          </div>
+        )}
 
         {tags.length > 0 && (
           <div className="mb-2">

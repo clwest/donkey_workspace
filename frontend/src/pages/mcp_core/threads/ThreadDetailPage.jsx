@@ -18,6 +18,7 @@ export default function ThreadDetailPage() {
   const [diagnostic, setDiagnostic] = useState(null);
   const [continuity, setContinuity] = useState(null);
   const [realignments, setRealignments] = useState([]);
+  const [progress, setProgress] = useState(null);
 
   useEffect(() => {
     const fetchThread = async () => {
@@ -31,6 +32,7 @@ export default function ThreadDetailPage() {
       }
     };
     fetchThread();
+    apiFetch(`/mcp/threads/${id}/progress/`).then(setProgress).catch(() => {});
   }, [id]);
 
   useEffect(() => {
@@ -85,6 +87,23 @@ export default function ThreadDetailPage() {
         <p className="lead" style={{ whiteSpace: "pre-line" }}>
           {thread.summary}
         </p>
+      )}
+
+      {progress && (
+        <div className="mb-3">
+          <div className="progress">
+            <div
+              className="progress-bar"
+              role="progressbar"
+              style={{ width: `${progress.progress_percent}%` }}
+            >
+              {progress.progress_percent}%
+            </div>
+          </div>
+          <div className="small text-muted mt-1">
+            Status: {progress.completion_status}
+          </div>
+        </div>
       )}
 
       {diagnostic && diagnostic.refocus_prompt && (
