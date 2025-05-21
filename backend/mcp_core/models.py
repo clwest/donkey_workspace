@@ -412,18 +412,18 @@ class ThreadMergeLog(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-class ThreadSplitLog(models.Model):
-    """Record of a thread split operation."""
+# class ThreadSplitLog(models.Model):
+#     """Record of a thread split operation."""
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    original_thread = models.ForeignKey(
-        NarrativeThread, on_delete=models.CASCADE, related_name="splits_from"
-    )
-    new_thread = models.ForeignKey(
-        NarrativeThread, on_delete=models.CASCADE, related_name="splits_to"
-    )
-    moved_entries = models.JSONField()
-    summary = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+#     original_thread = models.ForeignKey(
+#         NarrativeThread, on_delete=models.CASCADE, related_name="splits_from"
+#     )
+#     new_thread = models.ForeignKey(
+#         NarrativeThread, on_delete=models.CASCADE, related_name="splits_to"
+#     )
+#     moved_entries = models.JSONField()
+#     summary = models.TextField(blank=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
 
 
