@@ -170,3 +170,19 @@ class SharedMemoryEntrySerializer(serializers.ModelSerializer):
         model = SharedMemoryEntry
         fields = "__all__"
         read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class NarrativeThreadOverviewSerializer(NarrativeThreadSerializer):
+    """Lightweight serializer for thread overview dashboard."""
+
+    class Meta(NarrativeThreadSerializer.Meta):
+        fields = [
+            "id",
+            "title",
+            "summary",
+            "tags",
+            "created_at",
+            "last_updated",
+            "reflection_count",
+            "gaps_detected",
+        ]
