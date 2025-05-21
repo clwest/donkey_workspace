@@ -688,3 +688,77 @@ class DeifiedSwarmEntity(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
 
+
+class LegacyArtifact(models.Model):
+    """Symbolic artifact generated from swarm memories."""
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="legacy_artifacts",
+    )
+    artifact_type = models.CharField(max_length=100)
+    source_memory = models.ForeignKey(
+        SwarmMemoryEntry,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="generated_artifacts",
+    )
+    symbolic_tags = models.JSONField(default=dict)
+    created_by_ritual = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Artifact {self.artifact_type} for {self.assistant.name}"
+
+
+class ReincarnationLog(models.Model):
+    """Track assistant reincarnations derived from artifacts."""
+
+    ancestor = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="reincarnation_ancestors",
+    )
+    descendant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="reincarnations",
+    )
+    inherited_artifacts = models.ManyToManyField(LegacyArtifact, blank=True)
+    reincarnation_reason = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"{self.ancestor.name} -> {self.descendant.name}"
+
+
+class ReturnCycle(models.Model):
+    """Cyclical narrative event affecting participating assistants."""
+
+    cycle_name = models.CharField(max_length=100)
+    triggering_event = models.ForeignKey(
+        SwarmMemoryEntry,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="return_cycles",
+    )
+    participating_assistants = models.ManyToManyField("assistants.Assistant")
+    symbolic_outcomes = models.JSONField(default=dict)
+    status = models.CharField(max_length=30, default="in_progress")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.cycle_name
+
