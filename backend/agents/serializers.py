@@ -185,3 +185,4 @@ class RitualCollapseLogSerializer(serializers.ModelSerializer):
         model = RitualCollapseLog
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+

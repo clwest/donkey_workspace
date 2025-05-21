@@ -610,6 +610,7 @@ class TranscendentMyth(models.Model):
         AssistantCivilization, related_name="transcendent_myths", blank=True
     )
     mythic_axis = models.CharField(max_length=100, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -686,3 +687,4 @@ class DeifiedSwarmEntity(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
+
