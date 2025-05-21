@@ -234,3 +234,51 @@ class AssistantReflectionEngine:
             title=f"Reflection on assistant {assistant.name}",
         )
         return log
+
+    # === Codex-managed ===
+    def evaluate_thought_continuity(
+        self, *, project: AssistantProject | None = None
+    ) -> dict:
+        """Assess continuity of recent thoughts and suggest next actions."""
+
+        qs = AssistantThoughtLog.objects.filter(assistant=self.assistant)
+        if project:
+            qs = qs.filter(project=project)
+
+        recent = list(qs.order_by("-created_at")[:5])
+        if not recent:
+            return {
+                "continuity_score": 1.0,
+                "recent_thoughts": [],
+                "suggestions": [],
+            }
+
+        expected_thread = None
+        if project:
+            expected_thread = project.thread or project.narrative_thread
+        if not expected_thread:
+            expected_thread = recent[0].narrative_thread
+
+        total = len(recent)
+        aligned = sum(
+            1 for t in recent if t.narrative_thread_id == getattr(expected_thread, "id", None)
+        )
+        score = aligned / total if total else 1.0
+
+        suggestions = []
+        if score < 0.6:
+            suggestions.append("review recent events and reconnect to the main thread")
+
+        return {
+            "continuity_score": round(score, 2),
+            "recent_thoughts": [
+                {
+                    "id": str(t.id),
+                    "text": t.thought,
+                    "thread": str(t.narrative_thread_id) if t.narrative_thread_id else None,
+                }
+                for t in recent
+            ],
+            "thread_id": str(expected_thread.id) if expected_thread else None,
+            "suggestions": suggestions,
+        }
