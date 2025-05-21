@@ -85,6 +85,14 @@
 - 📈 4.37: Memory Bookmarking, Recall-on-Demand
 - 🔁 4.38–4.41: Thread Reuse, Cross-Project Recall, Narrative Health Score
 
+### 🆕 Phase 4.48: Mood Impact on Thread Continuity
+
+- Capture assistant mood on thread creation
+- Log mood snapshots with thoughts
+- Diagnostics correlate mood volatility with plan drift
+- Dashboard shows mood timelines next to thread health
+- Celery task `analyze_mood_impact_on_thread_continuity` added
+
 ---
 
 ## ✅ Status

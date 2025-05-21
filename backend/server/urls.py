@@ -14,6 +14,7 @@ from drf_spectacular.views import (
 )
 from django.urls import get_resolver
 from story.views import storyboard_list
+from mcp_core.views import threading as thread_views
 
 
 urlpatterns = [
@@ -29,9 +30,7 @@ urlpatterns = [
     path("api/images/", include("images.urls")),
     path("api/projects/", include("project.urls")),
     path("api/characters/", include("characters.urls")),
-
     path("api/storyboard/", include("storyboard.urls")),
-
     # Embedding chunk-match endpoint
     path("api/embeddings/", include("embeddings.urls")),
     # Trainers app endpoints
@@ -44,6 +43,11 @@ urlpatterns = [
     path("api/agents/", include("agents.urls")),
     path("api/intel/", include("intel_core.urls")),
     path("api/tools/", include("tools.urls")),
+    path(
+        "api/threads/<uuid:thread_id>/replay/",
+        thread_views.thread_replay,
+        name="thread-replay",
+    ),
     # Schema and Docs
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(

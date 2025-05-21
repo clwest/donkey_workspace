@@ -58,12 +58,18 @@ urlpatterns = [
         name="narrative_thread_detail",
     ),
     path(
-
         "threads/<uuid:id>/summary/",
         threading.thread_summary,
         name="thread-summary",
     ),
     path(
+
+        "threads/<uuid:thread_id>/replay/",
+        threading.thread_replay,
+        name="thread-replay",
+    ),
+    path(
+
         "threads/<uuid:id>/merge/",
         threading.merge_thread,
         name="merge-thread",
@@ -72,10 +78,8 @@ urlpatterns = [
         "threads/<uuid:id>/split/",
         threading.split_thread,
         name="split-thread",
-
     ),
     path(
-
         "threads/<uuid:thread_id>/diagnose/",
         threading.diagnose_thread,
         name="diagnose-thread",
@@ -84,12 +88,10 @@ urlpatterns = [
     #     "threads/<uuid:thread_id>/diagnostics/",
     #     threading.list_thread_diagnostics,
     #     name="list-thread-diagnostics",
-
     #     "threads/<uuid:thread_id>/set_objective/",
     #     threading.set_thread_objective,
     #     name="set-thread-objective",
     # ),
-
     path(
         "threads/<uuid:thread_id>/diagnose/",
         threading.diagnose_thread,
@@ -100,11 +102,13 @@ urlpatterns = [
         threading.suggest_continuity_view,
         name="suggest-thread-continuity",
     ),
+
     path(
         "threads/<uuid:thread_id>/realign/",
         threading.realign_thread,
         name="realign-thread",
     ),
+
 
     path(
         "threads/from-memory/", threading.thread_from_memory, name="thread_from_memory"
