@@ -98,10 +98,16 @@ export default function PrimaryAssistantDashboard() {
         method: "POST",
         body: { memory_id: memoryId },
       });
+      // Push a new reflection entry matching AssistantThoughtCard shape
       setAssistant((prev) => ({
         ...prev,
         recent_thoughts: [
-          { content: res.summary, timestamp: new Date().toISOString(), role: "assistant" },
+          {
+            summary: res.summary,
+            thought_type: "reflection",
+            role: "assistant",
+            created_at: new Date().toISOString(),
+          },
           ...(prev.recent_thoughts || []),
         ],
       }));
