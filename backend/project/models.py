@@ -12,6 +12,8 @@ class ProjectType(models.TextChoices):
     GENERAL = "general", "General"
     ASSISTANT = "assistant", "Assistant"
     STORYBOOK = "storybook", "Storybook"
+    GARDENING = "gardening", "Gardening"
+    FARMING = "farming", "Farming"
 
 
 class ProjectStatus(models.TextChoices):

@@ -7507,11 +7507,15 @@ components:
       - general
       - assistant
       - storybook
+      - gardening
+      - farming
       type: string
       description: |-
         * `general` - General
         * `assistant` - Assistant
         * `storybook` - Storybook
+        * `gardening` - Gardening
+        * `farming` - Farming
     PromptHelper:
       type: object
       properties:
