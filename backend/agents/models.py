@@ -596,42 +596,27 @@ class AssistantCivilization(models.Model):
 
 
 class TranscendentMyth(models.Model):
-    """Supra-mythic narrative spanning epochs and civilizations."""
+    """Mythic narrative construct spanning epochs and civilizations."""
 
-    title = models.CharField(max_length=150)
-    core_tenets = models.JSONField()
+    name = models.CharField(max_length=150, blank=True)
+    title = models.CharField(max_length=150, blank=True)
+    description = models.TextField(blank=True)
+    core_tenets = models.JSONField(default=list, blank=True)
+    core_symbols = models.JSONField(default=list, blank=True)
     originating_epochs = models.ManyToManyField(
         LoreEpoch, related_name="transcendent_myths", blank=True
     )
     sustaining_civilizations = models.ManyToManyField(
         AssistantCivilization, related_name="transcendent_myths", blank=True
     )
-    mythic_axis = models.CharField(max_length=100)
-
+    mythic_axis = models.CharField(max_length=100, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
-
-        return self.title
-
-
-
-# Added for Phase 4.84
-class TranscendentMyth(models.Model):
-    """Mythic construct used for symbolic alignment."""
-    name = models.CharField(max_length=150)
-    description = models.TextField(blank=True)
-    core_symbols = models.JSONField(default=list, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return self.name
+        return self.name or self.title
 
 
 class ConsciousnessTransfer(models.Model):
@@ -658,7 +643,9 @@ class ConsciousnessTransfer(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
-        return f"Transfer from {self.origin_assistant_id} to {self.successor_assistant_id}"
+        return (
+            f"Transfer from {self.origin_assistant_id} to {self.successor_assistant_id}"
+        )
 
 
 class MemoryDialect(models.Model):
@@ -686,12 +673,8 @@ class DeifiedSwarmEntity(models.Model):
     """Emergent deity formed from swarm myth coherence."""
 
     name = models.CharField(max_length=150)
-    origin_civilizations = models.ManyToManyField(
-        "assistants.AssistantCivilization"
-    )
-    dominant_myth = models.ForeignKey(
-        TranscendentMyth, on_delete=models.CASCADE
-    )
+    origin_civilizations = models.ManyToManyField("assistants.AssistantCivilization")
+    dominant_myth = models.ForeignKey(TranscendentMyth, on_delete=models.CASCADE)
     established_through = models.ForeignKey(
         SwarmMemoryEntry, on_delete=models.SET_NULL, null=True
     )
@@ -703,4 +686,3 @@ class DeifiedSwarmEntity(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
-

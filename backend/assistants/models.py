@@ -1814,21 +1814,6 @@ class CouncilOutcome(models.Model):
 
 
 class AssistantCouncil(models.Model):
-    """Persistent group of assistants co-owning a mission node."""
-
-    name = models.CharField(max_length=100)
-    mission_node = models.ForeignKey(
-        "agents.GlobalMissionNode", on_delete=models.CASCADE
-    )
-    members = models.ManyToManyField("assistants.Assistant")
-    charter = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return f"{self.predecessor} -> {self.successor}"
-
-
-class AssistantCouncil(models.Model):
     """Persistent group of assistants for deliberation and voting."""
 
     name = models.CharField(max_length=150)
@@ -1837,32 +1822,6 @@ class AssistantCouncil(models.Model):
         "assistants.Assistant", related_name="councils", blank=True
     )
     is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return self.name
-
-
-
-class AssistantCivilization(models.Model):
-    """Cohesive mythic society of assistants."""
-
-    name = models.CharField(max_length=100)
-    description = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return self.name
-
-
-class AssistantGuild(models.Model):
-    """Guild of assistants collaborating on specialized lore."""
-
-    name = models.CharField(max_length=100)
-    description = models.TextField(blank=True)
-    members = models.ManyToManyField(
-        "assistants.Assistant", related_name="guilds", blank=True
-    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:  # pragma: no cover - display helper
@@ -1916,7 +1875,6 @@ class NarrativeDebate(models.Model):
         return f"Debate on {self.topic[:30]}..."
 
 
-
 class AssistantGuild(models.Model):
     """Belief-aligned guild of assistants."""
 
@@ -1924,7 +1882,11 @@ class AssistantGuild(models.Model):
     purpose = models.TextField(blank=True)
     members = models.ManyToManyField("assistants.Assistant", blank=True)
     founding_myth = models.ForeignKey(
-        LoreEntry, null=True, blank=True, on_delete=models.SET_NULL, related_name="guilds"
+        LoreEntry,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="guilds",
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
