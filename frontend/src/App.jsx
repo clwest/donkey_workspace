@@ -102,6 +102,7 @@ import SwarmTimelinePage from "./pages/agents/SwarmTimelinePage";
 import RoutingHistoryPage from "./pages/assistants/RoutingHistoryPage";
 import StoryboardEditorPage from "./pages/storyboard/StoryboardEditorPage";
 import NarrativeEventDetailPage from "./pages/storyboard/NarrativeEventDetailPage";
+import RealityShaperDashboard from "./pages/lore/RealityShaperDashboard";
 
 import { ToastContainer } from "react-toastify";
 import Navbar from "./components/Navbar";
@@ -365,6 +366,7 @@ export default function App() {
           <Route path="/stories" element={<StoryListPage />} />
           <Route path="/storyboard" element={<StoryboardEditorPage />} />
           <Route path="/storyboard/events/:id" element={<NarrativeEventDetailPage />} />
+          <Route path="/lore" element={<RealityShaperDashboard />} />
           <Route path="/assistants/sources" element={<SignalSourcesPage />} />
           <Route path="/assistants/signals" element={<SignalCatchesPage />} />
           <Route path="/assistants/routing-history" element={<RoutingHistoryPage />} />
