@@ -165,6 +165,13 @@ Features:
 
 Next: Phase 4.64 — Legacy Agent Resurrection Events & Seasonal Swarm Cadence
 
+### Phase 4.85 Additions
+
+- Introduced `DivineTask`, `SwarmTheocracy`, and `DreamCultSimulation` models
+- Added React components `DivineTaskConsole`, `TheocracyManager`, and
+  `DreamCultSimulator`
+- Enabled symbolic governance and dream-cult simulations for assistants
+
 ### Phase 4.86 Additions
 
 - Introduced `LegacyArtifact`, `ReincarnationLog`, and `ReturnCycle` models
