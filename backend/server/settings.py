@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     "story",
     "tts",
     "videos",
+    "storyboard",
     "intel_core",
     "capabilities.dev_docs",
     "tools",

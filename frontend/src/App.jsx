@@ -91,6 +91,7 @@ import DocumentBrowserPage from "./pages/intel_core/DocumentBrowserPage";
 import DocumentDetailPage from "./pages/intel_core/DocumentDetailPage";
 import AgentPage from "./pages/agents/AgentPage";
 import RoutingHistoryPage from "./pages/assistants/RoutingHistoryPage";
+import StoryboardEditorPage from "./pages/storyboard/StoryboardEditorPage";
 
 import { ToastContainer } from "react-toastify";
 import Navbar from "./components/Navbar";
@@ -342,6 +343,7 @@ export default function App() {
           <Route path="/agent" element={<AgentPage />} />
           <Route path="/intel/documents" element={<DocumentBrowserPage />} />
           <Route path="/intel/documents/:id" element={<DocumentDetailPage />} />
+          <Route path="/storyboard" element={<StoryboardEditorPage />} />
           <Route path="/assistants/sources" element={<SignalSourcesPage />} />
           <Route path="/assistants/signals" element={<SignalCatchesPage />} />
           <Route path="/assistants/routing-history" element={<RoutingHistoryPage />} />
