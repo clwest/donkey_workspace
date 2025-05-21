@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import (
     Assistant,
+    AssistantMythLayer,
     AssistantThoughtLog,
     AssistantProject,
     AssistantObjective,
@@ -541,6 +542,8 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             "is_active",
             "is_demo",
             "is_primary",
+            "is_ephemeral",
+            "expiration_event",
             "needs_recovery",
             "live_relay_enabled",
             "memory_summon_enabled",
@@ -1114,7 +1117,6 @@ class CollaborationLogSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "created_at"]
 
-
 class OracleLayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = OracleLayer
@@ -1128,3 +1130,4 @@ class OracleLayerSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]
+

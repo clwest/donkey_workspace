@@ -123,6 +123,8 @@ class AgentFeedbackLog(models.Model):
     feedback_text = models.TextField()
     feedback_type = models.CharField(max_length=50, default="reflection")
     score = models.FloatField(null=True, blank=True)
+    dissent_reason = models.TextField(blank=True)
+    is_dissent = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -257,6 +259,23 @@ class SwarmMemoryEntry(models.Model):
         super().save(*args, **kwargs)
 
 
+class SwarmMemoryArchive(models.Model):
+    """Collection of swarm memories preserved for historical reference."""
+
+    title = models.CharField(max_length=200)
+    summary = models.TextField()
+    memory_entries = models.ManyToManyField("SwarmMemoryEntry", blank=True)
+    tags = models.ManyToManyField("mcp_core.Tag", blank=True)
+    sealed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display only
+        return self.title
+
+
 class AgentLegacy(models.Model):
     """Track agent resurrection history and missions completed."""
 
@@ -266,6 +285,32 @@ class AgentLegacy(models.Model):
     legacy_notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class AssistantMythosLog(models.Model):
+    """Record mythic achievements or stories about assistants."""
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="mythos_logs",
+    )
+    myth_title = models.CharField(max_length=150)
+    myth_summary = models.TextField()
+    origin_event = models.ForeignKey(
+        SwarmMemoryEntry,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="mythos_entries",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return self.myth_title
 
 
 class MissionArchetype(models.Model):
@@ -328,6 +373,64 @@ class GlobalMissionNode(models.Model):
         return self.title
 
 
+class LoreEntry(models.Model):
+    """Narrative lore record derived from swarm memories."""
+
+    title = models.CharField(max_length=200)
+    summary = models.TextField()
+    associated_events = models.ManyToManyField(SwarmMemoryEntry, blank=True)
+    authors = models.ManyToManyField("assistants.Assistant", blank=True)
+    is_canon = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display
+        return self.title
+
+
+class RetconRequest(models.Model):
+    """Proposed rewrite or redaction of a memory entry."""
+
+    target_entry = models.ForeignKey(
+        SwarmMemoryEntry, on_delete=models.CASCADE, related_name="retcon_requests"
+    )
+    proposed_rewrite = models.TextField()
+    justification = models.TextField()
+    submitted_by = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    approved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display
+        return f"Retcon for {self.target_entry.title}"
+
+
+class RealityConsensusVote(models.Model):
+    """Council vote on promoting lore into canon."""
+
+    topic = models.TextField()
+    proposed_lore = models.ForeignKey(
+        LoreEntry, on_delete=models.CASCADE, related_name="consensus_votes"
+    )
+    council = models.ForeignKey(
+        "assistants.AssistantCouncil", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    vote_result = models.CharField(max_length=20, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display
+        return f"Vote on {self.topic}"
+
+
 # ==== Signals ====
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
@@ -383,17 +486,23 @@ def handle_project_completion(sender, instance, created, **kwargs):
         entry.linked_projects.add(instance)
 
 
-class SwarmTreaty(models.Model):
-    """Formal agreement between assistant councils."""
+class SwarmJournalEntry(models.Model):
+    """Personal journal entry written by a swarm entity."""
 
-    name = models.CharField(max_length=150)
-    participants = models.ManyToManyField(
-        "assistants.AssistantCouncil", related_name="treaties"
+    author = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="journal_entries"
     )
-    objectives = models.TextField()
-    terms = models.JSONField()
-    status = models.CharField(max_length=20, default="active")
+    content = models.TextField()
+    tags = models.ManyToManyField(Tag, blank=True)
+    is_private = models.BooleanField(default=True)
+    season_tag = models.CharField(max_length=20, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return self.name
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display
+        return f"Journal by {self.author.name}"
+
+
+

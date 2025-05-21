@@ -129,6 +129,14 @@ class Assistant(models.Model):
     is_active = models.BooleanField(default=True)
     is_demo = models.BooleanField(default=False)
     is_primary = models.BooleanField(default=False)
+    is_ephemeral = models.BooleanField(default=False)
+    expiration_event = models.ForeignKey(
+        SwarmMemoryEntry,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="ephemeral_assistants",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     avatar = models.URLField(blank=True, null=True)
     system_prompt = models.ForeignKey(
@@ -326,6 +334,13 @@ class Assistant(models.Model):
 
         self.mood_stability_index = round(max(index, 0.0), 2)
         self.save(update_fields=["mood_stability_index", "last_mood_shift"])
+
+    def check_expiration(self):
+        """Deactivate the assistant if its expiration event has passed."""
+        if self.is_ephemeral and self.expiration_event:
+            if timezone.now() >= self.expiration_event.created_at and self.is_active:
+                self.is_active = False
+                self.save(update_fields=["is_active"])
 
 
 class DelegationStrategy(models.Model):
@@ -1803,7 +1818,6 @@ class AssistantCouncil(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
 
-
 class OracleLayer(models.Model):
     """Prophetic advisory memory segment for an assistant."""
 
@@ -1818,3 +1832,4 @@ class OracleLayer(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"OracleLayer for {self.assistant.name}"
+

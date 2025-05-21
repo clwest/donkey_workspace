@@ -4,8 +4,12 @@ from agents.models import (
     AgentFeedbackLog,
     AgentCluster,
     SwarmMemoryEntry,
-    SwarmTreaty,
+    LoreEntry,
+    RetconRequest,
+    RealityConsensusVote,
+    SwarmJournalEntry,
 )
+from assistants.models import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
 
 
@@ -82,19 +86,88 @@ class SwarmMemoryEntrySerializer(serializers.ModelSerializer):
         return list(obj.tags.values_list("name", flat=True))
 
 
-class SwarmTreatySerializer(serializers.ModelSerializer):
-    participants = serializers.SlugRelatedField(
-        many=True, read_only=True, slug_field="name"
+class SwarmJournalEntrySerializer(serializers.ModelSerializer):
+    author_name = serializers.CharField(source="author.name", read_only=True)
+    tags = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SwarmJournalEntry
+        fields = [
+            "id",
+            "author",
+            "author_name",
+            "content",
+            "tags",
+            "is_private",
+            "season_tag",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+    def get_tags(self, obj):
+        return list(obj.tags.values_list("name", flat=True))
+
+
+class LoreEntrySerializer(serializers.ModelSerializer):
+    """Serialize LoreEntry records."""
+
+    associated_event_ids = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=SwarmMemoryEntry.objects.all(),
+        source="associated_events",
+        required=False,
+    )
+    author_ids = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Assistant.objects.all(),
+        source="authors",
+        required=False,
     )
 
     class Meta:
-        model = SwarmTreaty
+        model = LoreEntry
         fields = [
             "id",
-            "name",
-            "participants",
-            "objectives",
-            "terms",
-            "status",
+            "title",
+            "summary",
+            "associated_event_ids",
+            "author_ids",
+            "is_canon",
             "created_at",
         ]
+        read_only_fields = ["id", "created_at"]
+
+
+class RetconRequestSerializer(serializers.ModelSerializer):
+    """Serialize RetconRequest proposals."""
+
+    class Meta:
+        model = RetconRequest
+        fields = [
+            "id",
+            "target_entry",
+            "proposed_rewrite",
+            "justification",
+            "submitted_by",
+            "approved",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
+class RealityConsensusVoteSerializer(serializers.ModelSerializer):
+    """Serialize council voting records."""
+
+    class Meta:
+        model = RealityConsensusVote
+        fields = [
+            "id",
+            "topic",
+            "proposed_lore",
+            "council",
+            "vote_result",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
