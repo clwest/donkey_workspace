@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
 import AgentFeedbackPanel from "../../components/agents/AgentFeedbackPanel";
 import AgentTrainingPanel from "../../components/agents/AgentTrainingPanel";
+import AgentSkillGraph from "../../components/agents/AgentSkillGraph";
 
 const AgentDetailPage = () => {
   const { slug } = useParams();
@@ -61,6 +62,7 @@ const AgentDetailPage = () => {
           <p>
             <strong>Execution:</strong> {agent.execution_mode}
           </p>
+          <AgentSkillGraph agent={agent} />
         </div>
       )}
       {activeTab === "feedback" && <AgentFeedbackPanel agentId={agent.id} />}

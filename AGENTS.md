@@ -110,6 +110,12 @@
 
 - Support multi-stage curriculum and adaptive training plans across projects
 
+### 📝 Phase 4.57 Notes
+
+- Introduce collaborative training simulations (agent A teaches agent B)
+- Visualize SkillGraph in frontend with interactive node-link explorer
+- Enable agents to request new training independently based on upcoming tasks
+
 ---
 
 ## ✅ Status

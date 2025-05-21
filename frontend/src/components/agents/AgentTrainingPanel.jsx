@@ -34,9 +34,10 @@ const AgentTrainingPanel = ({ agent }) => {
     <div>
       <h5>Skills</h5>
       <ul>
-        {(agent.verified_skills || []).map((skill) => (
-          <li key={skill}>{skill}</li>
-        ))}
+        {(agent.verified_skills || []).map((skill) => {
+          const name = typeof skill === "string" ? skill : skill.skill;
+          return <li key={name}>{name}</li>;
+        })}
         {(!agent.verified_skills || agent.verified_skills.length === 0) && (
           <li className="text-muted">No skills yet.</li>
         )}

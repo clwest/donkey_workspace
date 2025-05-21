@@ -6,12 +6,28 @@ from django.utils import timezone
 
 
 from mcp_core.models import MemoryContext, Plan, Task, ActionLog, Tag
-from agents.models import Agent, AgentThought, AgentTrainingAssignment
+from agents.models import (
+    Agent,
+    AgentThought,
+    AgentTrainingAssignment,
+    AgentSkill,
+    AgentSkillLink,
+)
 
 from embeddings.helpers.helpers_io import save_embedding
 
 client = OpenAI()
 User = get_user_model()
+
+
+def _skill_names(skills: list) -> List[str]:
+    names = []
+    for s in skills or []:
+        if isinstance(s, dict) and s.get("skill"):
+            names.append(s["skill"])
+        elif isinstance(s, str):
+            names.append(s)
+    return names
 
 
 class AgentController:
@@ -190,7 +206,9 @@ def update_agent_profile_from_feedback(
     if agent.metadata is None:
         agent.metadata = {}
     tags = set(agent.metadata.get("tags", [])) | set(agent.tags or [])
-    skills = set(agent.metadata.get("skills", [])) | set(agent.skills or [])
+    skills = set(agent.metadata.get("skills", [])) | set(
+        _skill_names(agent.verified_skills)
+    )
     scores = []
 
     for log in feedback_logs:
@@ -207,6 +225,15 @@ def update_agent_profile_from_feedback(
     agent.metadata["last_updated"] = timezone.now().isoformat()
     agent.tags = list(tags)
     agent.skills = list(skills)
+    agent.verified_skills = [
+        {
+            "skill": s,
+            "source": "feedback",
+            "confidence": 0.5,
+            "last_verified": timezone.now().isoformat(),
+        }
+        for s in skills
+    ]
     agent.save()
 
     return {
@@ -215,12 +242,10 @@ def update_agent_profile_from_feedback(
         "strength_score": agent.strength_score,
     }
 
-
     # CODEx MARKER: recommend_agent_for_task
     def recommend_agent_for_task(
         self, task_description: str, thread
     ) -> Optional[Agent]:
-
         """Select an agent based on tags, specialty, and thread overlap."""
         from agents.models import Agent as AgentModel
         from memory.models import MemoryEntry
@@ -242,14 +267,16 @@ def update_agent_profile_from_feedback(
 
             score = 0.0
 
-            for skill in agent.verified_skills or []:
+            for skill in _skill_names(agent.verified_skills):
                 if skill.lower() in task_lower:
                     score += 0.6
                     break
 
-            if AgentTrainingAssignment.objects.filter(
-                agent=agent, completed=True
-            ).order_by("-completed_at").exists():
+            if (
+                AgentTrainingAssignment.objects.filter(agent=agent, completed=True)
+                .order_by("-completed_at")
+                .exists()
+            ):
                 score += 0.3
 
             if agent.specialty:
@@ -300,12 +327,8 @@ def train_agent_from_documents(agent: Agent, documents: List["Document"]) -> dic
     """Generates summary skills from docs, embeds them, and updates agent profile."""
     from intel_core.models import Document
 
-    combined_text = "\n".join(
-        (doc.summary or doc.content[:200]) for doc in documents
-    )
-    prompt = (
-        "Summarize key skills an AI agent would learn from these documents as a comma separated list."\
-    )
+    combined_text = "\n".join((doc.summary or doc.content[:200]) for doc in documents)
+    prompt = "Summarize key skills an AI agent would learn from these documents as a comma separated list."
     prompt += "\n" + combined_text
 
     try:
@@ -320,10 +343,19 @@ def train_agent_from_documents(agent: Agent, documents: List["Document"]) -> dic
     except Exception:
         new_skills = []
 
-    current_skills = set(agent.verified_skills or []) | set(agent.skills or [])
-    current_skills.update(new_skills)
-    agent.verified_skills = list(current_skills)
-    agent.skills = list(current_skills)
+    existing = {
+        s.get("skill") if isinstance(s, dict) else str(s): s
+        for s in (agent.verified_skills or [])
+    }
+    for name in new_skills:
+        existing[name] = {
+            "skill": name,
+            "source": "training",
+            "confidence": 0.6,
+            "last_verified": timezone.now().isoformat(),
+        }
+    agent.verified_skills = list(existing.values())
+    agent.skills = list({*agent.skills, *existing.keys()})
     for doc in documents:
         agent.trained_documents.add(doc)
     agent.save()
@@ -342,7 +374,7 @@ def recommend_training_documents(agent: Agent) -> List["Document"]:
         doc_tags = set(doc.tags.values_list("name", flat=True))
         score = len(agent_tags & doc_tags)
         title_summary = (doc.title + " " + (doc.summary or "")).lower()
-        for skill in agent.verified_skills or []:
+        for skill in _skill_names(agent.verified_skills):
             if skill.lower() in title_summary:
                 score += 1
         scored.append((score, doc))
@@ -350,3 +382,24 @@ def recommend_training_documents(agent: Agent) -> List["Document"]:
     scored.sort(key=lambda x: x[0], reverse=True)
     return [doc for _, doc in scored[:5]]
 
+
+def find_complementary_agents(
+    target_agent: Agent, required_skills: List[str]
+) -> List[Agent]:
+    """Return agents with matching or related skills based on the skill graph."""
+    skill_names = {s.lower() for s in required_skills}
+    related = set()
+    for name in list(skill_names):
+        try:
+            skill_obj = AgentSkill.objects.get(name__iexact=name)
+            related.update(skill_obj.related_skills.values_list("name", flat=True))
+        except AgentSkill.DoesNotExist:
+            continue
+    search_names = skill_names | {s.lower() for s in related}
+    skills = AgentSkill.objects.filter(name__in=search_names)
+    agent_ids = (
+        AgentSkillLink.objects.filter(skill__in=skills)
+        .exclude(agent=target_agent)
+        .values_list("agent_id", flat=True)
+    )
+    return list(Agent.objects.filter(id__in=agent_ids).distinct())
