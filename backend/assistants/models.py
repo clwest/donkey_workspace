@@ -929,7 +929,9 @@ class AssistantNextAction(models.Model):
 
     assigned_agent = models.ForeignKey(
         "agents.Agent",
-
+        on_delete=models.CASCADE,
+        related_name="agents_assigned",
+    ),
     thread = models.ForeignKey(
         "mcp_core.NarrativeThread",
 
@@ -937,11 +939,12 @@ class AssistantNextAction(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="next_actions",
-    )
+    ),
 
     linked_thread = models.ForeignKey(
         "mcp_core.NarrativeThread",
-
+        on_delete=models.CASCADE,
+    ),
     origin_thought = models.ForeignKey(
         "assistants.AssistantThoughtLog",
 
@@ -949,7 +952,7 @@ class AssistantNextAction(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="next_actions",
-    )
+    ),
 
     importance_score = models.FloatField(default=0.5)
 
