@@ -848,6 +848,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "average_delegation_score",
             "tags",
             "empathy_tags",
+            "preferred_scene_tags",
         ]
 
     def get_trust(self, obj):

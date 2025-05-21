@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import apiFetch from "../../utils/apiClient";
+import NarrativeEventEditor from "../../components/storyboard/NarrativeEventEditor";
 
 export function NarrativeTimeline({ events }) {
   if (!events?.length) return <p>No events.</p>;
@@ -32,9 +33,22 @@ export default function StoryboardEditorPage() {
       .catch((err) => console.error("Failed to fetch events", err));
   }, []);
 
+  const handleSave = async (data) => {
+    try {
+      const res = await apiFetch("/storyboard/", {
+        method: "POST",
+        body: data,
+      });
+      setEvents((prev) => [...prev, res]);
+    } catch (err) {
+      console.error("Failed to save event", err);
+    }
+  };
+
   return (
     <div className="container my-5">
       <h1 className="mb-4">🎞️ Storyboard Editor</h1>
+      <NarrativeEventEditor onSave={handleSave} />
       <NarrativeTimeline events={events} />
     </div>
   );
