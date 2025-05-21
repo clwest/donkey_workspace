@@ -10,11 +10,16 @@ from mcp_core.models import (
     MemoryContext,
     NarrativeThread,
     Tag,
+    ThreadMergeLog,
+    ThreadSplitLog,
+    ThreadDiagnosticLog,
+    ThreadObjectiveReflection
 
 )
 from mcp_core.serializers_tags import (
     NarrativeThreadSerializer,
     ThreadObjectiveReflectionSerializer,
+    # ThreadDiagnosticLogSerializer
 )
 from memory.serializers import NarrativeThreadOverviewSerializer
 from mcp_core.utils.thread_diagnostics import run_thread_diagnostics
@@ -25,8 +30,10 @@ from mcp_core.utils.thread_helpers import (
     attach_memory_to_thread,
     generate_thread_reflection,
     generate_thread_refocus_prompt,
+    suggest_continuity,
 )
-from assistants.models import AssistantThoughtLog
+from assistants.models import AssistantThoughtLog, AssistantReflectionLog
+from memory.models import MemoryEntry
 from django.utils import timezone
 
 
@@ -102,13 +109,12 @@ def list_overview_threads(request):
     if project:
         threads = threads.filter(memories__related_project_id=project).distinct()
 
-    serialized = [
-        NarrativeThreadOverviewSerializer(t).data for t in threads
-    ]
+    serializer_class = NarrativeThreadOverviewSerializer 
+    serialized = [serializer_class(t).data for t in threads]
     serialized.sort(
-        key=lambda x: x.get("last_updated") or "",
-        reverse=True,
-    )
+            key=lambda x: x.get("last_updated") or "",
+            reverse=True,
+        )
     return Response(serialized)
 
 
@@ -188,76 +194,144 @@ def thread_summary(request, id):
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
-
 def diagnose_thread(request, thread_id):
     thread = get_object_or_404(NarrativeThread, id=thread_id)
     result = run_thread_diagnostics(thread)
     return Response(result)
 
 
-
-@api_view(["GET"])
+@api_view(["POST"])
 @permission_classes([AllowAny])
-def list_thread_diagnostics(request, thread_id):
+def suggest_continuity_view(request, thread_id):
     thread = get_object_or_404(NarrativeThread, id=thread_id)
-    logs = ThreadDiagnosticLog.objects.filter(thread=thread).order_by("-created_at")
-    return Response(ThreadDiagnosticLogSerializer(logs, many=True).data)
-
-# <<<<<<< codex/add-healing-suggestions-for-low-continuity-threads
-
-# @api_view(["POST"])
-# @permission_classes([AllowAny])
-# def reflect_on_thread_objective(request, thread_id):
-#     thread = get_object_or_404(NarrativeThread, id=thread_id)
-#     reflection_text = generate_thread_reflection(thread)
-#     reflection = ThreadObjectiveReflection.objects.create(
-#         thread=thread,
-#         thought=reflection_text,
-#         created_by=None,
-#     )
-#     serializer = ThreadObjectiveReflectionSerializer(reflection)
-#     return Response(serializer.data, status=201)
+    result = suggest_continuity(thread_id)
+    thread._link_suggestions = result.get("link_suggestions", [])
+    serializer = NarrativeThreadSerializer(thread)
+    data = serializer.data
+    data.update(result)
+    return Response(data)
 
 
 # @api_view(["GET"])
 # @permission_classes([AllowAny])
-# def diagnose_thread(request, thread_id):
-#     """Return a simple continuity score for the thread."""
+# def list_thread_diagnostics(request, thread_id):
 #     thread = get_object_or_404(NarrativeThread, id=thread_id)
-#     memory_count = thread.related_memories.count()
-#     memory_count += MemoryContext.objects.filter(
-#         models.Q(narrative_thread=thread) | models.Q(thread=thread)
-#     ).count()
-#     if thread.origin_memory:
-#         memory_count += 1
-#     score = min(1.0, memory_count / 5)
-#     refocus_prompt = None
-#     if score < 0.5:
-#         refocus_prompt = generate_thread_refocus_prompt(thread)
-#         AssistantThoughtLog.objects.create(
-#             thought_type="refocus",
-#             thought=refocus_prompt,
-#             narrative_thread=thread,
-#         )
-#         thread.last_refocus_prompt = timezone.now()
-#         thread.save(update_fields=["last_refocus_prompt"])
-#     return Response(
-#         {"continuity_score": round(score, 2), "refocus_prompt": refocus_prompt}
-#     )
+#     logs = ThreadDiagnosticLog.objects.filter(thread=thread).order_by("-created_at")
+#     return Response(ThreadDiagnosticLogSerializer(logs, many=True).data)
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def reflect_on_thread_objective(request, thread_id):
+    thread = get_object_or_404(NarrativeThread, id=thread_id)
+    reflection_text = generate_thread_reflection(thread)
+    reflection = ThreadObjectiveReflection.objects.create(
+        thread=thread,
+        thought=reflection_text,
+        created_by=None,
+    )
+    serializer = ThreadObjectiveReflectionSerializer(reflection)
+    return Response(serializer.data, status=201)
 
 
-# @api_view(["POST"])
-# @permission_classes([AllowAny])
-# def refocus_thread(request, thread_id):
-#     thread = get_object_or_404(NarrativeThread, id=thread_id)
-#     prompt = generate_thread_refocus_prompt(thread)
-#     AssistantThoughtLog.objects.create(
-#         thought_type="refocus",
-#         thought=prompt,
-#         narrative_thread=thread,
-#     )
-#     thread.last_refocus_prompt = timezone.now()
-#     thread.save(update_fields=["last_refocus_prompt"])
-#     return Response({"prompt": prompt})
-# =======
-# >>>>>>> main
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def diagnose_thread(request, thread_id):
+    """Return a simple continuity score for the thread."""
+    thread = get_object_or_404(NarrativeThread, id=thread_id)
+    memory_count = thread.related_memories.count()
+    memory_count += MemoryContext.objects.filter(
+        models.Q(narrative_thread=thread) | models.Q(thread=thread)
+    ).count()
+    if thread.origin_memory:
+        memory_count += 1
+    score = min(1.0, memory_count / 5)
+    refocus_prompt = None
+    if score < 0.5:
+        refocus_prompt = generate_thread_refocus_prompt(thread)
+        AssistantThoughtLog.objects.create(
+            thought_type="refocus",
+            thought=refocus_prompt,
+            narrative_thread=thread,
+        )
+        thread.last_refocus_prompt = timezone.now()
+        thread.save(update_fields=["last_refocus_prompt"])
+    return Response(
+        {"continuity_score": round(score, 2), "refocus_prompt": refocus_prompt}
+    )
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def refocus_thread(request, thread_id):
+    thread = get_object_or_404(NarrativeThread, id=thread_id)
+    prompt = generate_thread_refocus_prompt(thread)
+    AssistantThoughtLog.objects.create(
+        thought_type="refocus",
+        thought=prompt,
+        narrative_thread=thread,
+    )
+    thread.last_refocus_prompt = timezone.now()
+    thread.save(update_fields=["last_refocus_prompt"])
+    return Response({"prompt": prompt})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def merge_thread(request, id):
+    """Merge another thread into this one."""
+    thread = get_object_or_404(NarrativeThread, id=id)
+    target_id = request.data.get("target_thread_id")
+    if not target_id:
+        return Response({"detail": "target_thread_id required"}, status=400)
+    target = get_object_or_404(NarrativeThread, id=target_id)
+
+    MemoryEntry.objects.filter(thread=target).update(thread=thread)
+    MemoryEntry.objects.filter(narrative_thread=target).update(narrative_thread=thread)
+    AssistantThoughtLog.objects.filter(narrative_thread=target).update(narrative_thread=thread)
+    if hasattr(AssistantReflectionLog, "narrative_thread"):
+        AssistantReflectionLog.objects.filter(narrative_thread=target).update(narrative_thread=thread)
+
+    ThreadMergeLog.objects.create(from_thread=target, to_thread=thread, summary=request.data.get("summary", ""))
+
+    target.delete()
+
+    return Response(NarrativeThreadSerializer(thread).data)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def split_thread(request, id):
+    """Split a thread, moving selected entries to a new thread."""
+    thread = get_object_or_404(NarrativeThread, id=id)
+    from_index = request.data.get("from_index")
+    entry_ids = request.data.get("entry_ids")
+    if from_index is None and not entry_ids:
+        return Response({"detail": "from_index or entry_ids required"}, status=400)
+
+    entries_qs = MemoryEntry.objects.filter(thread=thread).order_by("created_at")
+    if from_index is not None:
+        try:
+            from_index = int(from_index)
+        except (TypeError, ValueError):
+            return Response({"detail": "from_index must be int"}, status=400)
+        entries = list(entries_qs[from_index:])
+    else:
+        entries = list(entries_qs.filter(id__in=entry_ids))
+
+    new_thread = NarrativeThread.objects.create(title=f"{thread.title} Split")
+
+    moved_ids = []
+    for entry in entries:
+        entry.thread = new_thread
+        entry.narrative_thread = new_thread
+        entry.save(update_fields=["thread", "narrative_thread"])
+        moved_ids.append(str(entry.id))
+
+    ThreadSplitLog.objects.create(
+        original_thread=thread,
+        new_thread=new_thread,
+        moved_entries=moved_ids,
+        summary=request.data.get("summary", ""),
+    )
+
+    return Response(NarrativeThreadSerializer(new_thread).data, status=201)

@@ -227,6 +227,10 @@ class NarrativeThread(models.Model):
     )
     continuity_score = models.FloatField(null=True, blank=True)
     last_diagnostic_run = models.DateTimeField(null=True, blank=True)
+    continuity_summary = models.TextField(null=True, blank=True)
+    linked_threads = models.ManyToManyField(
+        "self", symmetrical=False, blank=True, related_name="linked_to"
+    )
     long_term_objective = models.TextField(blank=True, null=True)
     milestones = models.JSONField(default=list, blank=True)
 
@@ -292,6 +296,24 @@ class GroupedDevDocReflection(models.Model):
         return f"Grouped Reflection @ {self.created_at.strftime('%Y-%m-%d %H:%M')}"
 
 
+
+class ThreadDiagnosticLog(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    thread = models.ForeignKey(
+        NarrativeThread, on_delete=models.CASCADE, related_name="diagnostics"
+    )
+    score = models.FloatField()
+    summary = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+    def __str__(self):
+        return f"Diagnostic {self.score:.2f} for {self.thread.title}"
+
+
 class ThreadObjectiveReflection(models.Model):
     """Reflection on progress toward a thread's long-term objective."""
 
@@ -311,6 +333,7 @@ class ThreadObjectiveReflection(models.Model):
 
     def __str__(self):
         return f"Reflection for {self.thread.title} @ {self.created_at.strftime('%Y-%m-%d %H:%M')}"
+
 
 
 class ThreadSplitLog(models.Model):
@@ -345,4 +368,33 @@ class ThreadSplitLog(models.Model):
 
     def __str__(self):  # pragma: no cover - simple display
         return f"Moved {self.moved_entry_id} -> {self.to_thread_id}"
+
+class ThreadMergeLog(models.Model):
+    """Administrative record of merged narrative threads."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    from_thread = models.ForeignKey(
+        NarrativeThread, on_delete=models.CASCADE, related_name="merges_from"
+    )
+    to_thread = models.ForeignKey(
+        NarrativeThread, on_delete=models.CASCADE, related_name="merges_to"
+    )
+    summary = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class ThreadSplitLog(models.Model):
+    """Record of a thread split operation."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    original_thread = models.ForeignKey(
+        NarrativeThread, on_delete=models.CASCADE, related_name="splits_from"
+    )
+    new_thread = models.ForeignKey(
+        NarrativeThread, on_delete=models.CASCADE, related_name="splits_to"
+    )
+    moved_entries = models.JSONField()
+    summary = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
 
