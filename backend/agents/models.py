@@ -123,6 +123,8 @@ class AgentFeedbackLog(models.Model):
     feedback_text = models.TextField()
     feedback_type = models.CharField(max_length=50, default="reflection")
     score = models.FloatField(null=True, blank=True)
+    dissent_reason = models.TextField(blank=True)
+    is_dissent = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -198,25 +200,6 @@ class AgentCluster(models.Model):
         return self.name
 
 
-class GlobalMissionNode(models.Model):
-    """Hierarchical mission tree used for global objectives."""
-
-    name = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-    parent = models.ForeignKey(
-        "self",
-        null=True,
-        blank=True,
-        on_delete=models.CASCADE,
-        related_name="children",
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["name"]
-
-    def __str__(self):  # pragma: no cover - display
-        return self.name
 
 
 class AgentReactivationVote(models.Model):
@@ -277,6 +260,23 @@ class SwarmMemoryEntry(models.Model):
         super().save(*args, **kwargs)
 
 
+class SwarmMemoryArchive(models.Model):
+    """Collection of swarm memories preserved for historical reference."""
+
+    title = models.CharField(max_length=200)
+    summary = models.TextField()
+    memory_entries = models.ManyToManyField("SwarmMemoryEntry", blank=True)
+    tags = models.ManyToManyField("mcp_core.Tag", blank=True)
+    sealed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display only
+        return self.title
+
+
 class AgentLegacy(models.Model):
     """Track agent resurrection history and missions completed."""
 
@@ -286,6 +286,32 @@ class AgentLegacy(models.Model):
     legacy_notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class AssistantMythosLog(models.Model):
+    """Record mythic achievements or stories about assistants."""
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="mythos_logs",
+    )
+    myth_title = models.CharField(max_length=150)
+    myth_summary = models.TextField()
+    origin_event = models.ForeignKey(
+        SwarmMemoryEntry,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="mythos_entries",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return self.myth_title
 
 
 class MissionArchetype(models.Model):
@@ -459,3 +485,19 @@ def handle_project_completion(sender, instance, created, **kwargs):
         if agents:
             entry.linked_agents.set(agents)
         entry.linked_projects.add(instance)
+
+
+class SwarmTreaty(models.Model):
+    """Formal agreement between assistant councils."""
+
+    name = models.CharField(max_length=150)
+    participants = models.ManyToManyField(
+        "assistants.AssistantCouncil", related_name="treaties"
+    )
+    objectives = models.TextField()
+    terms = models.JSONField()
+    status = models.CharField(max_length=20, default="active")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name

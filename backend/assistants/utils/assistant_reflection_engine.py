@@ -715,4 +715,42 @@ def forecast_future_swarm_needs(assistant: Assistant) -> str:
     entry.linked_agents.set(assistant.assigned_agents.all())
     return forecast
 
+
+def reflect_on_dissent_signals(assistant: Assistant) -> str:
+    """Aggregate dissent logs and propose realignment actions."""
+    logs = (
+        AgentFeedbackLog.objects.filter(is_dissent=True)
+        .select_related("agent")
+        .order_by("-created_at")[:20]
+    )
+    if logs:
+        lines = [
+            f"- {log.agent.name}: {log.dissent_reason or log.feedback_text}" for log in logs
+        ]
+        summary = "\n".join(lines)
+    else:
+        summary = "No dissent signals detected."
+
+    AssistantReflectionLog.objects.create(
+        assistant=assistant,
+        title="Dissent Review",
+        summary=summary,
+    )
+    entry = SwarmMemoryEntry.objects.create(
+        title="Dissent Review",
+        content=summary,
+        origin="dissent_review",
+    )
+    entry.linked_agents.set([log.agent for log in logs])
+    from mcp_core.models import Tag
+    from django.utils.text import slugify
+
+    tags = []
+    for name in ["dissent", "realignment", "resistance"]:
+        tag, _ = Tag.objects.get_or_create(name=name, defaults={"slug": slugify(name)})
+        tags.append(tag)
+    entry.tags.set(tags)
+
+    return summary
+
    
