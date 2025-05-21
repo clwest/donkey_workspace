@@ -834,3 +834,43 @@ class LoreToken(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
+
+
+class LoreTokenExchange(models.Model):
+    """Record of lore token transfers or endorsements."""
+
+    token = models.ForeignKey(LoreToken, on_delete=models.CASCADE)
+    sender = models.ForeignKey(
+        "assistants.Assistant", related_name="sent_tokens", on_delete=models.CASCADE
+    )
+    receiver = models.ForeignKey(
+        "assistants.Assistant",
+        related_name="received_tokens",
+        on_delete=models.CASCADE,
+    )
+    intent = models.CharField(max_length=100)
+    context = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"{self.sender} -> {self.receiver} ({self.intent})"
+
+
+class TokenMarket(models.Model):
+    """Marketplace listing for lore tokens."""
+
+    token = models.ForeignKey(LoreToken, on_delete=models.CASCADE)
+    listed_by = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    visibility = models.CharField(max_length=20, default="public")
+    endorsement_count = models.IntegerField(default=0)
+    average_rating = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Listing for {self.token.name}"

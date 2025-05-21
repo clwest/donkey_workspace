@@ -29,6 +29,7 @@ from .views import (
     intelligence,
     training,
     myth,
+    reputation,
 )
 
 urlpatterns = [
@@ -609,6 +610,11 @@ urlpatterns = [
         "<slug:slug>/journals/",
         myth.assistant_journals,
         name="assistant-journals",
+    ),
+    path(
+        "<slug:slug>/reputation/",
+        reputation.assistant_reputation,
+        name="assistant-reputation",
     ),
     # ===== DEBATE ENDPOINTS =====
     # path("debate/start/", debate.start_debate, name="start-debate"),

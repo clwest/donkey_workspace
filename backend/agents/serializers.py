@@ -15,6 +15,8 @@ from agents.models import (
     ReincarnationLog,
     ReturnCycle,
     LoreToken,
+    LoreTokenExchange,
+    TokenMarket,
 )
 from assistants.models import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -241,3 +243,17 @@ class LoreTokenSerializer(serializers.ModelSerializer):
         model = LoreToken
         fields = ["id", "name", "summary", "source_memory_ids", "source_memories", "symbolic_tags", "embedding", "created_by", "created_at"]
         read_only_fields = ["id", "embedding", "created_at", "source_memories"]
+
+
+class LoreTokenExchangeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LoreTokenExchange
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class TokenMarketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TokenMarket
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]

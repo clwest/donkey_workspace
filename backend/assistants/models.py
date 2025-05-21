@@ -1913,3 +1913,20 @@ class AssistantCivilization(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
+
+
+class AssistantReputation(models.Model):
+    """Track lore token influence and peer recognition."""
+
+    assistant = models.OneToOneField(Assistant, on_delete=models.CASCADE)
+    tokens_created = models.IntegerField(default=0)
+    tokens_endorsed = models.IntegerField(default=0)
+    tokens_received = models.IntegerField(default=0)
+    reputation_score = models.FloatField(default=0.0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-reputation_score"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Reputation for {self.assistant.name}"

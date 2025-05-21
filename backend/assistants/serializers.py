@@ -38,6 +38,7 @@ from .models import (
     ProphecyNode,
     AssistantGuild,
     AssistantCivilization,
+    AssistantReputation,
 
 )
 
@@ -1189,5 +1190,12 @@ class AssistantCivilizationSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]
+
+
+class AssistantReputationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantReputation
+        fields = "__all__"
+        read_only_fields = ["id", "updated_at"]
 
 
