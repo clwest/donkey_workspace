@@ -1930,3 +1930,45 @@ class AssistantReputation(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Reputation for {self.assistant.name}"
+
+
+class ConscienceModule(models.Model):
+    """Ethical profile and mythic alignment for an assistant."""
+
+    assistant = models.OneToOneField(
+        Assistant, on_delete=models.CASCADE, related_name="conscience"
+    )
+    core_values = models.JSONField(default=dict, blank=True)
+    ethical_constraints = models.JSONField(default=dict, blank=True)
+    guiding_myths = models.ManyToManyField(
+        "agents.TranscendentMyth", blank=True, related_name="conscience_modules"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Conscience for {self.assistant.name}"
+
+
+class DecisionFramework(models.Model):
+    """Record of myth-weighted decision strategies."""
+
+    assistant = models.ForeignKey(
+        Assistant, on_delete=models.CASCADE, related_name="decision_frameworks"
+    )
+    linked_conscience = models.ForeignKey(
+        ConscienceModule, on_delete=models.CASCADE, related_name="decisions"
+    )
+    myth_weight_map = models.JSONField(default=dict, blank=True)
+    scenario_description = models.TextField()
+    selected_strategy = models.TextField(blank=True)
+    evaluation_summary = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Decision {self.id} for {self.assistant.name}"

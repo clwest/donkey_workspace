@@ -30,6 +30,7 @@ from .views import (
     training,
     myth,
     reputation,
+    conscience,
 )
 
 urlpatterns = [
@@ -37,6 +38,9 @@ urlpatterns = [
     path("reflection/", assistants.reflect_on_assistant),
     path("create_from_thought/", assistants.create_assistant_from_thought),
     path("thoughts/reflect-on-assistant/", assistants.reflect_on_assistant),
+    path("conscience/", conscience.conscience_profiles),
+    path("reflexive-epistemology/", conscience.reflexive_epistemology),
+    path("decision-frameworks/", conscience.decision_frameworks),
     path("primary/", assistants.primary_assistant_view, name="primary-assistant"),
     path(
         "primary/reflect-now/",

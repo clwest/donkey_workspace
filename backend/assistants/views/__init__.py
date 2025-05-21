@@ -104,6 +104,11 @@ from .intelligence import plan_from_thread
 from .training import assign_training, evaluate_agent
 from .myth import assistant_myth_layer, assistant_journals
 from .reputation import assistant_reputation
+from .conscience import (
+    conscience_profiles,
+    reflexive_epistemology,
+    decision_frameworks,
+)
 
 from .bootstrap import prompt_to_assistant
 from .signals import (
@@ -236,4 +241,7 @@ __all__ = [
     "assistant_myth_layer",
     "assistant_journals",
     "assistant_reputation",
+    "conscience_profiles",
+    "reflexive_epistemology",
+    "decision_frameworks",
 ]
