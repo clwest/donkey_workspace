@@ -243,6 +243,7 @@ class SwarmMemoryEntry(models.Model):
     linked_agents = models.ManyToManyField(Agent, blank=True)
     linked_projects = models.ManyToManyField("assistants.AssistantProject", blank=True)
     tags = models.ManyToManyField(Tag, blank=True)
+    metaphor_tags = models.JSONField(default=list, blank=True)
     origin = models.CharField(max_length=50, default="reflection")
 
     season = models.CharField(max_length=10, default=_current_season)
@@ -310,6 +311,25 @@ class AssistantMythosLog(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return self.myth_title
+
+
+class MythLink(models.Model):
+    """Link between assistants showing mythic resonance."""
+
+    source_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        related_name="myth_links_from",
+        on_delete=models.CASCADE,
+    )
+    target_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        related_name="myth_links_to",
+        on_delete=models.CASCADE,
+    )
+    shared_symbols = models.JSONField()
+    shared_events = models.ManyToManyField(SwarmMemoryEntry)
+    strength = models.FloatField(default=0.0)
+    last_updated = models.DateTimeField(auto_now=True)
 
 
 class MissionArchetype(models.Model):
@@ -485,17 +505,18 @@ def handle_project_completion(sender, instance, created, **kwargs):
         entry.linked_projects.add(instance)
 
 
-class SwarmTreaty(models.Model):
-    """Formal agreement between assistant councils."""
+class SwarmJournalEntry(models.Model):
+    """Personal journal entry written by a swarm entity."""
 
-    name = models.CharField(max_length=150)
-    participants = models.ManyToManyField(
-        "assistants.AssistantCouncil", related_name="treaties"
+    author = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="journal_entries"
     )
-    objectives = models.TextField()
-    terms = models.JSONField()
-    status = models.CharField(max_length=20, default="active")
+    content = models.TextField()
+    tags = models.ManyToManyField(Tag, blank=True)
+    is_private = models.BooleanField(default=True)
+    season_tag = models.CharField(max_length=20, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
@@ -537,3 +558,4 @@ class RitualCollapseLog(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Collapse: {self.retired_entity}"
+

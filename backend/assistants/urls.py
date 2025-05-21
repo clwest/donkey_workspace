@@ -28,6 +28,7 @@ from .views import (
     recovery,
     intelligence,
     training,
+    myth,
 )
 
 urlpatterns = [
@@ -595,6 +596,16 @@ urlpatterns = [
         "<slug:slug>/chat_with_scene/",
         scene.chat_with_scene,
         name="assistant-chat-with-scene",
+    ),
+    path(
+        "<slug:slug>/myth-layer/",
+        myth.assistant_myth_layer,
+        name="assistant-myth-layer",
+    ),
+    path(
+        "<slug:slug>/journals/",
+        myth.assistant_journals,
+        name="assistant-journals",
     ),
     # ===== DEBATE ENDPOINTS =====
     # path("debate/start/", debate.start_debate, name="start-debate"),
