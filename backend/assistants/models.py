@@ -577,11 +577,13 @@ class AssistantProject(models.Model):
     memory_shift_score = models.FloatField(default=0.0)
     documents = models.ManyToManyField("intel_core.Document", blank=True)
     agents = models.ManyToManyField("agents.Agent", blank=True, related_name="projects")
+
     shared_objectives = models.ManyToManyField(
         "assistants.AssistantObjective",
         blank=True,
         related_name="shared_in_projects",
     )
+
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -1480,6 +1482,36 @@ class AssistantSwitchEvent(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
+        return f"{self.from_assistant} -> {self.to_assistant}"
+
+
+class AssistantHandoffLog(models.Model):
+    """High-level log when responsibility is transferred between assistants."""
+
+    from_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="handoff_logs_from",
+    )
+    to_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="handoff_logs_to",
+    )
+    project = models.ForeignKey(
+        "assistants.AssistantProject",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="handoff_logs",
+    )
+    summary = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display only
         return f"{self.from_assistant} -> {self.to_assistant}"
 
 
