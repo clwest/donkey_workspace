@@ -335,7 +335,6 @@ class AssistantObjectiveSerializer(serializers.ModelSerializer):
         queryset=NarrativeEvent.objects.all(),
         required=False,
         allow_null=True,
-        source="linked_event",
     )
     linked_event_title = serializers.CharField(source="linked_event.title", read_only=True)
 
