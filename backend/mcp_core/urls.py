@@ -53,6 +53,16 @@ urlpatterns = [
         name="narrative_thread_detail",
     ),
     path(
+        "threads/<uuid:id>/merge/",
+        threading.merge_thread,
+        name="merge-thread",
+    ),
+    path(
+        "threads/<uuid:id>/split/",
+        threading.split_thread,
+        name="split-thread",
+    ),
+    path(
 
         "threads/<uuid:thread_id>/diagnose/",
         threading.diagnose_thread,
