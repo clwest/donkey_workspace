@@ -559,3 +559,39 @@ class RitualCollapseLog(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Collapse: {self.retired_entity}"
 
+
+class AssistantGuild(models.Model):
+    """Semi-autonomous faction of assistants sharing a mythic alignment."""
+
+    name = models.CharField(max_length=150)
+    charter = models.TextField()
+    myth_alignment = models.ForeignKey(
+        LoreEntry, null=True, on_delete=models.SET_NULL
+    )
+    ideological_vector = models.JSONField(default=dict)
+    members = models.ManyToManyField("assistants.Assistant")
+    established_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-established_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
+
+
+class SwarmAlliance(models.Model):
+    """Treaty or cooperative agreement between assistant guilds."""
+
+    name = models.CharField(max_length=150)
+    founding_guilds = models.ManyToManyField(AssistantGuild)
+    purpose = models.TextField()
+    terms = models.JSONField()
+    ritual_initiated = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
+
