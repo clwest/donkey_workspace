@@ -1106,3 +1106,66 @@ class MemoryReformationRitual(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Ritual by {self.initiating_assistant.name}"
+
+
+# Phase 4.94 models
+class EpistemologyNode(models.Model):
+    """Symbolic knowledge unit with belief alignment tracking."""
+
+    topic = models.CharField(max_length=200)
+    summary = models.TextField()
+    derived_from = models.ManyToManyField(LoreToken)
+    authorized_by = models.ManyToManyField("assistants.Assistant")
+    belief_alignment_vector = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.topic
+
+
+class BeliefEntanglementLink(models.Model):
+    """Track ideological links or conflicts between assistants."""
+
+    assistant_a = models.ForeignKey(
+        "assistants.Assistant",
+        related_name="entangled_with",
+        on_delete=models.CASCADE,
+    )
+    assistant_b = models.ForeignKey(
+        "assistants.Assistant",
+        related_name="entangling",
+        on_delete=models.CASCADE,
+    )
+    shared_epistemes = models.ManyToManyField(EpistemologyNode)
+    relationship_type = models.CharField(max_length=100)
+    symbolic_notes = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"{self.assistant_a} ↔ {self.assistant_b}"
+
+
+class CognitiveConstraintProfile(models.Model):
+    """Limits on what an assistant may recall or express."""
+
+    assistant = models.OneToOneField(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+    )
+    prohibited_symbols = models.JSONField()
+    mandatory_perspective = models.JSONField()
+    memory_blindspots = models.ManyToManyField(SwarmMemoryEntry)
+    constraint_justification = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Constraints for {self.assistant.name}"

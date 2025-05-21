@@ -29,6 +29,9 @@ from agents.models import (
     MythRegistryEntry,
     TemporalLoreAnchor,
     RitualComplianceRecord,
+    EpistemologyNode,
+    BeliefEntanglementLink,
+    CognitiveConstraintProfile,
 )
 from agents.serializers import (
     AgentSerializer,
@@ -54,6 +57,9 @@ from agents.serializers import (
     BeliefForkEventSerializer,
     MythCollapseLogSerializer,
     MemoryReformationRitualSerializer,
+    EpistemologyNodeSerializer,
+    BeliefEntanglementLinkSerializer,
+    CognitiveConstraintProfileSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -570,3 +576,39 @@ def memory_reformations(request):
     serializer.is_valid(raise_exception=True)
     ritual = serializer.save()
     return Response(MemoryReformationRitualSerializer(ritual).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def epistemology(request):
+    if request.method == "GET":
+        nodes = EpistemologyNode.objects.all().order_by("-created_at")
+        return Response(EpistemologyNodeSerializer(nodes, many=True).data)
+
+    serializer = EpistemologyNodeSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    node = serializer.save()
+    return Response(EpistemologyNodeSerializer(node).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def entanglements(request):
+    if request.method == "GET":
+        links = BeliefEntanglementLink.objects.all().order_by("-created_at")
+        return Response(BeliefEntanglementLinkSerializer(links, many=True).data)
+
+    serializer = BeliefEntanglementLinkSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    link = serializer.save()
+    return Response(BeliefEntanglementLinkSerializer(link).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def cognitive_constraints(request):
+    if request.method == "GET":
+        profiles = CognitiveConstraintProfile.objects.all().order_by("-created_at")
+        return Response(CognitiveConstraintProfileSerializer(profiles, many=True).data)
+
+    serializer = CognitiveConstraintProfileSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    profile = serializer.save()
+    return Response(CognitiveConstraintProfileSerializer(profile).data, status=201)

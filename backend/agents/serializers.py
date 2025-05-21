@@ -26,6 +26,9 @@ from agents.models import (
     BeliefForkEvent,
     MythCollapseLog,
     MemoryReformationRitual,
+    EpistemologyNode,
+    BeliefEntanglementLink,
+    CognitiveConstraintProfile,
 )
 from assistants.models import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -353,5 +356,26 @@ class MythCollapseLogSerializer(serializers.ModelSerializer):
 class MemoryReformationRitualSerializer(serializers.ModelSerializer):
     class Meta:
         model = MemoryReformationRitual
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class EpistemologyNodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EpistemologyNode
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class BeliefEntanglementLinkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BeliefEntanglementLink
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CognitiveConstraintProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CognitiveConstraintProfile
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
