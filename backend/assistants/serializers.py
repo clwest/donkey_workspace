@@ -32,6 +32,7 @@ from .models import (
     CouncilSession,
     CouncilThought,
     CouncilOutcome,
+    OracleLayer,
 )
 
 from project.models import (
@@ -1109,6 +1110,21 @@ class CollaborationLogSerializer(serializers.ModelSerializer):
             "mood_state",
             "style_conflict_detected",
             "resolution_action",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
+class OracleLayerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OracleLayer
+        fields = [
+            "id",
+            "assistant",
+            "memory_focus",
+            "tone",
+            "tag_scope",
+            "summary_insight",
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]

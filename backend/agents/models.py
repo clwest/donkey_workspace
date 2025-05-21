@@ -198,8 +198,6 @@ class AgentCluster(models.Model):
         return self.name
 
 
-
-
 class AgentReactivationVote(models.Model):
     agent = models.ForeignKey(Agent, on_delete=models.CASCADE)
     voter = models.ForeignKey(
@@ -243,6 +241,7 @@ class SwarmMemoryEntry(models.Model):
     linked_agents = models.ManyToManyField(Agent, blank=True)
     linked_projects = models.ManyToManyField("assistants.AssistantProject", blank=True)
     tags = models.ManyToManyField(Tag, blank=True)
+    metaphor_tags = models.JSONField(default=list, blank=True)
     origin = models.CharField(max_length=50, default="reflection")
 
     season = models.CharField(max_length=10, default=_current_season)

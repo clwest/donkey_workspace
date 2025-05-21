@@ -1774,7 +1774,6 @@ class CouncilOutcome(models.Model):
         return f"Outcome for {self.council_session}"
 
 
-
 class AssistantCouncil(models.Model):
     """Persistent group of assistants co-owning a mission node."""
 
@@ -1785,7 +1784,6 @@ class AssistantCouncil(models.Model):
     members = models.ManyToManyField("assistants.Assistant")
     charter = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"{self.predecessor} -> {self.successor}"
@@ -1805,3 +1803,18 @@ class AssistantCouncil(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
 
+
+class OracleLayer(models.Model):
+    """Prophetic advisory memory segment for an assistant."""
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="oracle_layers"
+    )
+    memory_focus = models.TextField()
+    tone = models.CharField(max_length=50, default="mystic")
+    tag_scope = models.JSONField()
+    summary_insight = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"OracleLayer for {self.assistant.name}"
