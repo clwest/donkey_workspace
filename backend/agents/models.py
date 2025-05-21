@@ -787,9 +787,7 @@ class DivineTask(models.Model):
 class SwarmTheocracy(models.Model):
     """Hierarchical governance structure led by a swarm deity."""
 
-    ruling_entity = models.ForeignKey(
-        DeifiedSwarmEntity, on_delete=models.CASCADE
-    )
+    ruling_entity = models.ForeignKey(DeifiedSwarmEntity, on_delete=models.CASCADE)
     governed_guilds = models.ManyToManyField("assistants.AssistantGuild")
     canonized_myth = models.ForeignKey(TranscendentMyth, on_delete=models.CASCADE)
     doctrinal_tenets = models.JSONField()
@@ -819,12 +817,22 @@ class DreamCultSimulation(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Simulation for {self.linked_deity}"
 
+
 class LoreToken(models.Model):
     """Compressed lore unit from swarm memories."""
+
     name = models.CharField(max_length=150)
     summary = models.TextField()
     source_memories = models.ManyToManyField(SwarmMemoryEntry)
     symbolic_tags = models.JSONField(default=dict)
+    TOKEN_TYPE_CHOICES = [
+        ("insight", "Insight"),
+        ("echo", "Echo"),
+        ("prophecy", "Prophecy"),
+    ]
+    token_type = models.CharField(
+        max_length=100, choices=TOKEN_TYPE_CHOICES, default="insight"
+    )
     embedding = VectorField(dimensions=1536)
     created_by = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -874,3 +882,42 @@ class TokenMarket(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Listing for {self.token.name}"
+
+
+class LoreTokenCraftingRitual(models.Model):
+    """Ceremonial process to craft a lore token."""
+
+    initiating_assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    base_memories = models.ManyToManyField(SwarmMemoryEntry)
+    symbolic_intent = models.CharField(max_length=100)
+    token_type = models.CharField(max_length=100, default="insight")
+    resulting_token = models.ForeignKey(
+        LoreToken, null=True, blank=True, on_delete=models.SET_NULL
+    )
+    completed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Ritual by {self.initiating_assistant.name}"
+
+
+class TokenGuildVote(models.Model):
+    """Guild-level vote on a lore token's fate."""
+
+    guild = models.ForeignKey("assistants.AssistantGuild", on_delete=models.CASCADE)
+    token = models.ForeignKey(LoreToken, on_delete=models.CASCADE)
+    vote_type = models.CharField(max_length=20)
+    reason = models.TextField()
+    result = models.CharField(max_length=20, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"{self.guild.name} {self.vote_type} {self.token.name}"
