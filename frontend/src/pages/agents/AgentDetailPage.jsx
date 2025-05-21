@@ -4,11 +4,13 @@ import apiFetch from "../../utils/apiClient";
 import AgentFeedbackPanel from "../../components/agents/AgentFeedbackPanel";
 import AgentTrainingPanel from "../../components/agents/AgentTrainingPanel";
 import AgentSkillGraph from "../../components/agents/AgentSkillGraph";
+import AgentTrainingSuggestionModal from "../../components/agents/AgentTrainingSuggestionModal";
 
 const AgentDetailPage = () => {
   const { slug } = useParams();
   const [agent, setAgent] = useState(null);
   const [activeTab, setActiveTab] = useState("overview");
+  const [showSuggest, setShowSuggest] = useState(false);
 
   useEffect(() => {
     apiFetch(`/agents/${slug}/`)
@@ -66,7 +68,24 @@ const AgentDetailPage = () => {
         </div>
       )}
       {activeTab === "feedback" && <AgentFeedbackPanel agentId={agent.id} />}
-      {activeTab === "training" && <AgentTrainingPanel agent={agent} />}
+      {activeTab === "training" && (
+        <div>
+          <div className="text-end mb-2">
+            <button
+              className="btn btn-sm btn-outline-primary"
+              onClick={() => setShowSuggest(true)}
+            >
+              Suggest Training
+            </button>
+          </div>
+          <AgentTrainingPanel agent={agent} />
+          <AgentTrainingSuggestionModal
+            show={showSuggest}
+            onHide={() => setShowSuggest(false)}
+            agent={agent}
+          />
+        </div>
+      )}
     </div>
   );
 };
