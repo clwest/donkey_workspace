@@ -79,6 +79,16 @@ def agent_feedback_logs(request, id):
 
 
 @api_view(["POST"])
+def create_agent_feedback(request, id):
+    agent = get_object_or_404(Agent, id=id)
+    serializer = AgentFeedbackLogSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(agent=agent)
+        return Response(serializer.data, status=201)
+    return Response(serializer.errors, status=400)
+
+
+@api_view(["POST"])
 def update_agent_from_feedback(request, id):
     agent = get_object_or_404(Agent, id=id)
     records = request.data.get("feedback", [])

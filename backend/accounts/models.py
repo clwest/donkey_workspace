@@ -5,6 +5,8 @@ from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from django.utils import timezone
 
+from assistants.models import Assistant
+
 
 class CustomUser(AbstractUser):
     """Custom user model."""
@@ -28,6 +30,13 @@ class CustomUser(AbstractUser):
     assistant_personality = models.TextField(
         default="empathetic and helpful",
         help_text="Describe the personality of your assistant (e.g., 'professional', 'friendly').",
+    )
+    personal_assistant = models.OneToOneField(
+        Assistant,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="user_personal_assistant",
     )
 
     # Add custom fields

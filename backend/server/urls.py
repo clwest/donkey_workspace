@@ -31,6 +31,7 @@ urlpatterns = [
     path("api/images/", include("images.urls")),
     path("api/projects/", include("project.urls")),
     path("api/characters/", include("characters.urls")),
+    path("api/users/", include("accounts.urls")),
     path("api/storyboard/", include("storyboard.urls")),
     # Embedding chunk-match endpoint
     path("api/embeddings/", include("embeddings.urls")),

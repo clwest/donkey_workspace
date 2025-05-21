@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "django_redis",
     # Local Apps
-    "accounts",
+    "accounts.apps.AccountsConfig",
     "assistants",
     "agents",
     "embeddings",

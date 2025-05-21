@@ -9,11 +9,13 @@ class DocumentSerializer(serializers.ModelSerializer):
     tags = serializers.SerializerMethodField()
     token_count = serializers.IntegerField(source="token_count_int", read_only=True)
     chunk_count = serializers.SerializerMethodField()
+    user = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = Document
         fields = [
             "id",
+            "user",
             "title",
             "content",
             "description",
