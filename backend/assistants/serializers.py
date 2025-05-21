@@ -36,6 +36,8 @@ from .models import (
     OracleLayer,
 
     ProphecyNode,
+    AssistantGuild,
+    AssistantCivilization,
 
 )
 
@@ -1160,5 +1162,32 @@ class AssistantMythLayerSerializer(serializers.ModelSerializer):
             "last_updated",
         ]
         read_only_fields = ["id", "created_at", "last_updated"]
+
+
+class AssistantGuildSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantGuild
+        fields = ["id", "name", "purpose", "founding_myth", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+
+class AssistantCivilizationSerializer(serializers.ModelSerializer):
+    founding_guilds = AssistantGuildSerializer(many=True, read_only=True)
+    myth_root_title = serializers.CharField(source="myth_root.title", read_only=True)
+
+    class Meta:
+        model = AssistantCivilization
+        fields = [
+            "id",
+            "name",
+            "myth_root",
+            "myth_root_title",
+            "founding_guilds",
+            "belief_alignment",
+            "symbolic_domain",
+            "legacy_score",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
 
 

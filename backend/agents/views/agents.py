@@ -14,7 +14,6 @@ from agents.models import (
     RealityConsensusVote,
     MythDiplomacySession,
     RitualCollapseLog,
-    AssistantCivilization,
     # LoreInheritanceLine,
     # MythSimulationArena,
 )
@@ -29,7 +28,6 @@ from agents.serializers import (
     RealityConsensusVoteSerializer,
     MythDiplomacySessionSerializer,
     RitualCollapseLogSerializer,
-    AssistantCivilizationSerializer,
     # LoreInheritanceLineSerializer,
     # MythSimulationArenaSerializer,
 )
