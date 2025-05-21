@@ -307,9 +307,31 @@ class EmotionalResonanceLogSerializer(serializers.ModelSerializer):
 
 
 class AssistantNextActionSerializer(serializers.ModelSerializer):
+    assigned_agent_slug = serializers.CharField(
+        source="assigned_agent.slug", read_only=True
+    )
+    assigned_agent_name = serializers.CharField(
+        source="assigned_agent.name", read_only=True
+    )
+    linked_thread_title = serializers.CharField(
+        source="linked_thread.title", read_only=True
+    )
+
     class Meta:
         model = AssistantNextAction
-        fields = ["id", "objective", "content", "completed", "created_at"]
+        fields = [
+            "id",
+            "objective",
+            "content",
+            "completed",
+            "created_at",
+            "assigned_agent",
+            "assigned_agent_slug",
+            "assigned_agent_name",
+            "linked_thread",
+            "linked_thread_title",
+            "importance_score",
+        ]
         read_only_fields = ["id", "created_at"]
 
 

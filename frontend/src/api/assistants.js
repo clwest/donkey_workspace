@@ -237,3 +237,19 @@ export async function fetchCollaborationProfile(slug) {
   }
   return res.json();
 }
+
+export async function planFromThread(slug, body) {
+  const res = await fetch(
+    `http://localhost:8000/api/assistants/${slug}/plan-from-thread/`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      credentials: "include",
+    },
+  );
+  if (!res.ok) {
+    throw new Error("Failed to generate plan");
+  }
+  return res.json();
+}
