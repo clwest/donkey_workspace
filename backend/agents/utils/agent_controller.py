@@ -2,6 +2,7 @@ from typing import Optional, List
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from openai import OpenAI
+from django.utils import timezone
 
 from mcp_core.models import (
     MemoryContext,
@@ -184,3 +185,36 @@ class AgentController:
         )
         save_embedding(log)
         return log
+
+
+
+# codex-optimize:feedback-profile
+def update_agent_profile_from_feedback(agent: Agent, feedback_logs: List["AgentFeedbackLog"]):
+    """Update agent metadata fields based on feedback logs."""
+    if agent.metadata is None:
+        agent.metadata = {}
+    tags = set(agent.metadata.get("tags", [])) | set(agent.tags or [])
+    skills = set(agent.metadata.get("skills", [])) | set(agent.skills or [])
+    scores = []
+
+    for log in feedback_logs:
+        words = [w.strip(".,! ").lower() for w in log.feedback_text.split()]
+        tags.update({w for w in words if len(w) > 4})
+        if log.score is not None:
+            scores.append(log.score)
+
+    if scores:
+        agent.strength_score = sum(scores) / len(scores)
+
+    agent.metadata["tags"] = list(tags)
+    agent.metadata["skills"] = list(skills)
+    agent.metadata["last_updated"] = timezone.now().isoformat()
+    agent.tags = list(tags)
+    agent.skills = list(skills)
+    agent.save()
+
+    return {
+        "tags": list(tags),
+        "skills": list(skills),
+        "strength_score": agent.strength_score,
+    }

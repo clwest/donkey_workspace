@@ -92,6 +92,7 @@ import GroupedReflectionDetailPage from "./pages/dev/GroupedReflectionDetailPage
 import DocumentBrowserPage from "./pages/intel_core/DocumentBrowserPage";
 import DocumentDetailPage from "./pages/intel_core/DocumentDetailPage";
 import AgentPage from "./pages/agents/AgentPage";
+import AgentDetailPage from "./pages/agents/AgentDetailPage";
 import RoutingHistoryPage from "./pages/assistants/RoutingHistoryPage";
 import StoryboardEditorPage from "./pages/storyboard/StoryboardEditorPage";
 import NarrativeEventDetailPage from "./pages/storyboard/NarrativeEventDetailPage";
@@ -346,7 +347,8 @@ export default function App() {
             path="/grouped-reflection/:id"
             element={<GroupedReflectionDetailPage />}
           />
-          <Route path="/agent" element={<AgentPage />} />
+          <Route path="/agents" element={<AgentPage />} />
+          <Route path="/agents/:slug" element={<AgentDetailPage />} />
           <Route path="/intel/documents" element={<DocumentBrowserPage />} />
           <Route path="/intel/documents/:id" element={<DocumentDetailPage />} />
           <Route path="/storyboard" element={<StoryboardEditorPage />} />
