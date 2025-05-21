@@ -1143,3 +1143,22 @@ class ProphecyNodeSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+class AssistantMythLayerSerializer(serializers.ModelSerializer):
+    assistant_name = serializers.CharField(source="assistant.name", read_only=True)
+
+    class Meta:
+        model = AssistantMythLayer
+        fields = [
+            "id",
+            "assistant",
+            "assistant_name",
+            "origin_story",
+            "legendary_traits",
+            "summary",
+            "archived",
+            "created_at",
+            "last_updated",
+        ]
+        read_only_fields = ["id", "created_at", "last_updated"]
+
+
