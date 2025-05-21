@@ -576,9 +576,7 @@ class AssistantProject(models.Model):
     mood = models.CharField(max_length=20, blank=True, null=True)
     memory_shift_score = models.FloatField(default=0.0)
     documents = models.ManyToManyField("intel_core.Document", blank=True)
-    agents = models.ManyToManyField(
-        "agents.Agent", blank=True, related_name="projects"
-    )
+    agents = models.ManyToManyField("agents.Agent", blank=True, related_name="projects")
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -931,35 +929,40 @@ class AssistantNextAction(models.Model):
     completed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    assigned_agent = models.ForeignKey(
-        "agents.Agent",
-        on_delete=models.CASCADE,
-        related_name="agents_assigned",
-    ),
-    thread = models.ForeignKey(
-        "mcp_core.NarrativeThread",
+    assigned_agent = (
+        models.ForeignKey(
+            "agents.Agent",
+            on_delete=models.CASCADE,
+            related_name="agents_assigned",
+        ),
+    )
+    thread = (
+        models.ForeignKey(
+            "mcp_core.NarrativeThread",
+            null=True,
+            blank=True,
+            on_delete=models.SET_NULL,
+            related_name="next_actions",
+        ),
+    )
 
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="next_actions",
-    ),
-
-    linked_thread = models.ForeignKey(
-        "mcp_core.NarrativeThread",
-        on_delete=models.CASCADE,
-    ),
-    origin_thought = models.ForeignKey(
-        "assistants.AssistantThoughtLog",
-
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="next_actions",
-    ),
+    linked_thread = (
+        models.ForeignKey(
+            "mcp_core.NarrativeThread",
+            on_delete=models.CASCADE,
+        ),
+    )
+    origin_thought = (
+        models.ForeignKey(
+            "assistants.AssistantThoughtLog",
+            null=True,
+            blank=True,
+            on_delete=models.SET_NULL,
+            related_name="next_actions",
+        ),
+    )
 
     importance_score = models.FloatField(default=0.5)
-
 
 
 class ProjectPlanningLog(models.Model):
@@ -989,9 +992,6 @@ class ProjectPlanningLog(models.Model):
 
     def __str__(self):
         return f"{self.event_type} @ {self.timestamp.strftime('%Y-%m-%d %H:%M')}"
-
-
-
 
 
 # backend/assistants/models.py
@@ -1478,8 +1478,39 @@ class AssistantSwitchEvent(models.Model):
         return f"{self.from_assistant} -> {self.to_assistant}"
 
 
+class AssistantHandoffLog(models.Model):
+    """High-level log when responsibility is transferred between assistants."""
+
+    from_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="handoff_logs_from",
+    )
+    to_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="handoff_logs_to",
+    )
+    project = models.ForeignKey(
+        "assistants.AssistantProject",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="handoff_logs",
+    )
+    summary = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display only
+        return f"{self.from_assistant} -> {self.to_assistant}"
+
+
 class SpecializationDriftLog(models.Model):
     """Record detected drift from an assistant's original specialty or prompt."""
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     assistant = models.ForeignKey(
         "assistants.Assistant",
