@@ -1,6 +1,13 @@
 from rest_framework import serializers
-from agents.models import Agent, AgentFeedbackLog, AgentCluster
-from agents.models import SwarmMemoryEntry
+from agents.models import (
+    Agent,
+    AgentFeedbackLog,
+    AgentCluster,
+    SwarmMemoryEntry,
+
+    SwarmJournalEntry,
+
+)
 from intel_core.serializers import DocumentSerializer
 
 
@@ -61,7 +68,6 @@ class SwarmMemoryEntrySerializer(serializers.ModelSerializer):
 
     tags = serializers.SerializerMethodField()
 
-
     class Meta:
         model = SwarmMemoryEntry
         fields = [
@@ -69,7 +75,6 @@ class SwarmMemoryEntrySerializer(serializers.ModelSerializer):
             "title",
             "content",
             "origin",
-
             "season",
             "tags",
             "created_at",
@@ -77,4 +82,27 @@ class SwarmMemoryEntrySerializer(serializers.ModelSerializer):
 
     def get_tags(self, obj):
         return list(obj.tags.values_list("name", flat=True))
+
+
+class SwarmJournalEntrySerializer(serializers.ModelSerializer):
+    author_name = serializers.CharField(source="author.name", read_only=True)
+    tags = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SwarmJournalEntry
+        fields = [
+            "id",
+            "author",
+            "author_name",
+            "content",
+            "tags",
+            "is_private",
+            "season_tag",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+    def get_tags(self, obj):
+        return list(obj.tags.values_list("name", flat=True))
+
 

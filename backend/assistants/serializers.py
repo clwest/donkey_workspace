@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import (
     Assistant,
+    AssistantMythLayer,
     AssistantThoughtLog,
     AssistantProject,
     AssistantObjective,
@@ -540,6 +541,8 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             "is_active",
             "is_demo",
             "is_primary",
+            "is_ephemeral",
+            "expiration_event",
             "needs_recovery",
             "live_relay_enabled",
             "memory_summon_enabled",
@@ -553,6 +556,8 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             "capabilities",
             "motto",
             "values",
+            "ideology",
+            "is_alignment_flexible",
             "documents",
             "projects",
             "current_project",
@@ -883,6 +888,8 @@ class AssistantSerializer(serializers.ModelSerializer):
             "capabilities",
             "motto",
             "values",
+            "ideology",
+            "is_alignment_flexible",
             "specialty",
             "preferred_model",
             "mood_stability_index",
@@ -1108,3 +1115,20 @@ class CollaborationLogSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]
+
+
+class AssistantMythLayerSerializer(serializers.ModelSerializer):
+    assistant_name = serializers.CharField(source="assistant.name", read_only=True)
+
+    class Meta:
+        model = AssistantMythLayer
+        fields = [
+            "id",
+            "assistant",
+            "assistant_name",
+            "origin_story",
+            "legendary_traits",
+            "last_updated",
+        ]
+        read_only_fields = ["id", "last_updated"]
+
