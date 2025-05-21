@@ -36,8 +36,9 @@ export default async function apiFetch(url, options = {}) {
 }
 
 // Media helpers
+// Fetch publicly visible images for gallery views
 export const fetchImages = (params) =>
-  apiFetch(`/images/`, { params });
+  apiFetch(`/images/gallery/`, { params });
 
 export const generateImage = (payload) =>
   apiFetch(`/images/generate/`, { method: "POST", body: payload });
