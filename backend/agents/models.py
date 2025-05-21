@@ -561,6 +561,7 @@ class RitualCollapseLog(models.Model):
 
 
 
+
 class LoreEpoch(models.Model):
     """Historical narrative arc for swarm lore."""
 
@@ -580,10 +581,13 @@ class LoreEpoch(models.Model):
     )
     tags = models.ManyToManyField("mcp_core.Tag", blank=True)
     closed = models.BooleanField(default=False)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return self.title
+

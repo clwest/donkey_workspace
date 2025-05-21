@@ -1134,6 +1134,7 @@ class OracleLayerSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+
 class AssistantGuildSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssistantGuild
@@ -1146,4 +1147,5 @@ class AssistantCivilizationSerializer(serializers.ModelSerializer):
         model = AssistantCivilization
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 
