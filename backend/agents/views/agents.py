@@ -2,19 +2,28 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from agents.models import Agent, AgentFeedbackLog, AgentCluster
+
+from agents.models import Agent, AgentFeedbackLog, AgentCluster, SwarmMemoryEntry
 from agents.serializers import AgentSerializer, AgentFeedbackLogSerializer, AgentClusterSerializer
+from agents.serializers import SwarmMemoryEntrySerializer
+
 from agents.utils.agent_controller import (
     update_agent_profile_from_feedback,
     train_agent_from_documents,
     recommend_training_documents,
+    retire_agent,
 )
+
+from agents.utils.swarm_analytics import generate_temporal_swarm_report, get_swarm_snapshot
+from datetime import datetime
+
 
 @api_view(["GET"])
 def list_agents(request):
     agents = Agent.objects.all().order_by("created_at")
     serializer = AgentSerializer(agents, many=True)
     return Response(serializer.data)
+
 
 @api_view(["GET"])
 def agent_detail_view(request, slug):
@@ -79,14 +88,58 @@ def recommend_training_docs(request, id):
     data = DocumentSerializer(docs, many=True).data
     return Response(data)
 
+
 @api_view(["GET"])
 def list_clusters(request):
     clusters = AgentCluster.objects.all().order_by("-created_at")
     serializer = AgentClusterSerializer(clusters, many=True)
     return Response(serializer.data)
 
+
 @api_view(["GET"])
 def cluster_detail_view(request, id):
     cluster = get_object_or_404(AgentCluster, id=id)
     serializer = AgentClusterSerializer(cluster)
     return Response(serializer.data)
+
+
+@api_view(["GET"])
+
+def swarm_temporal_report(request):
+    data = generate_temporal_swarm_report()
+    return Response(data)
+
+
+@api_view(["GET"])
+def swarm_memory(request):
+    tag = request.query_params.get("tag")
+    qs = SwarmMemoryEntry.objects.all().order_by("-created_at")
+    if tag:
+        qs = qs.filter(tags__name__iexact=tag)
+    serializer = SwarmMemoryEntrySerializer(qs[:50], many=True)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+def swarm_snapshot_view(request, date):
+    try:
+        dt = datetime.fromisoformat(date)
+    except ValueError:
+        return Response({"error": "Invalid date"}, status=400)
+    snapshot = get_swarm_snapshot(dt)
+    return Response({
+        "agents": AgentSerializer(snapshot["agents"], many=True).data,
+        "clusters": AgentClusterSerializer(snapshot["clusters"], many=True).data,
+        "memories": SwarmMemoryEntrySerializer(snapshot["memories"], many=True).data,
+    })
+
+
+@api_view(["POST"])
+def retire_agents(request):
+    reason = request.data.get("reason", "No reason provided")
+    retired = []
+    for agent in Agent.objects.filter(is_active=True)[:1]:
+        entry = retire_agent(agent, reason)
+        retired.append(entry.id)
+    return Response({"retired": retired})
+

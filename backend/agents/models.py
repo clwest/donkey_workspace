@@ -5,7 +5,7 @@ from mcp_core.models import MemoryContext
 from django.contrib.postgres.fields import ArrayField
 from pgvector.django import VectorField
 
-from taggit.managers import TaggableManager
+
 
 from django.utils import timezone
 
@@ -180,12 +180,17 @@ class AgentCluster(models.Model):
 
     name = models.CharField(max_length=255)
     purpose = models.TextField(blank=True)
-    project = models.ForeignKey("assistants.AssistantProject", null=True, blank=True, on_delete=models.SET_NULL, related_name="agent_clusters")
+    project = models.ForeignKey(
+        "assistants.AssistantProject",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="agent_clusters",
+    )
     agents = models.ManyToManyField(Agent, related_name="clusters", blank=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
 
     class Meta:
         ordering = ["-created_at"]
@@ -194,11 +199,14 @@ class AgentCluster(models.Model):
         return self.name
 
 
-
 class AgentReactivationVote(models.Model):
     agent = models.ForeignKey(Agent, on_delete=models.CASCADE)
     voter = models.ForeignKey(
-        Agent, null=True, blank=True, on_delete=models.SET_NULL, related_name="reactivation_votes"
+        Agent,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="reactivation_votes",
     )
     reason = models.TextField()
     approved = models.BooleanField(null=True)
@@ -207,35 +215,52 @@ class AgentReactivationVote(models.Model):
 
 
 
+class FarewellTemplate(models.Model):
+    """Stores customizable farewell message templates."""
+
+    name = models.CharField(max_length=100)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return self.name
+
+
+def _current_season():
+    from .utils.swarm_analytics import get_season_marker
+
+    return get_season_marker(timezone.now())
+
+
+
 class SwarmMemoryEntry(models.Model):
     """Persistent swarm-wide memory record"""
 
     title = models.CharField(max_length=200)
     content = models.TextField()
-    tags = TaggableManager()
+    
 
     linked_agents = models.ManyToManyField(Agent, blank=True)
-    linked_projects = models.ManyToManyField(
-        "assistants.AssistantProject", blank=True
-    )
+    linked_projects = models.ManyToManyField("assistants.AssistantProject", blank=True)
     origin = models.CharField(max_length=50, default="reflection")
+
+    season = models.CharField(max_length=10, default=_current_season)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def save(self, *args, **kwargs):
+        if not self.season_tag:
+            from .utils.swarm_temporal import get_season_marker
 
-
-class AgentLegacy(models.Model):
-    """Tracks accomplishments and resurrections for an agent"""
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self):  # pragma: no cover - display only
-        return self.title
-
+            date = self.created_at or timezone.now()
+            self.season_tag = get_season_marker(date)
+        super().save(*args, **kwargs)
 
 class AgentLegacy(models.Model):
     """Track agent resurrection history and missions completed."""
-
 
     agent = models.OneToOneField(Agent, on_delete=models.CASCADE)
     resurrection_count = models.IntegerField(default=0)
@@ -245,13 +270,11 @@ class AgentLegacy(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
-
 class MissionArchetype(models.Model):
     """Reusable mission structures for clusters"""
 
     def __str__(self):  # pragma: no cover - display only
         return f"Legacy of {self.agent.name}"
-
 
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField()
@@ -261,6 +284,7 @@ class MissionArchetype(models.Model):
         "assistants.Assistant", on_delete=models.SET_NULL, null=True
     )
     created_at = models.DateTimeField(auto_now_add=True)
+
 
 
 class SwarmCadenceLog(models.Model):
@@ -278,8 +302,6 @@ class SwarmCadenceLog(models.Model):
 
     def __str__(self):  # pragma: no cover - display only
         return f"{self.season.title()} {self.year}"
-
-
 
 # ==== Signals ====
 from django.db.models.signals import pre_save, post_save
@@ -334,6 +356,3 @@ def handle_project_completion(sender, instance, created, **kwargs):
         if agents:
             entry.linked_agents.set(agents)
         entry.linked_projects.add(instance)
-
-
-

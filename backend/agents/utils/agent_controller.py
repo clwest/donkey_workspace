@@ -1,8 +1,16 @@
 from typing import Optional, List
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from openai import OpenAI
 from django.utils import timezone
+from utils.llm_router import call_llm
+
+FAREWELL_TEMPLATE = (
+    "Agent {agent_name} has completed their mission as part of the {cluster_name} cluster.\n\n"
+    "Skills contributed: {skills}\n"
+    "Last active: {last_active}\n\n"
+    "Legacy Note:\n{legacy_notes}\n\n"
+    "Farewell, and thank you for your service."
+)
 
 
 from mcp_core.models import MemoryContext, Plan, Task, ActionLog, Tag
@@ -13,12 +21,12 @@ from agents.models import (
     AgentSkill,
     AgentSkillLink,
     AgentLegacy,
+    FarewellTemplate,
     SwarmMemoryEntry,
 )
 
 from embeddings.helpers.helpers_io import save_embedding
 
-client = OpenAI()
 User = get_user_model()
 
 
@@ -30,6 +38,22 @@ def _skill_names(skills: list) -> List[str]:
         elif isinstance(s, str):
             names.append(s)
     return names
+
+
+def render_farewell(agent: Agent, reason: str = "") -> str:
+    cluster = agent.clusters.first()
+    cluster_name = cluster.name if cluster else "swarm"
+    skills = ", ".join(_skill_names(agent.verified_skills)) or "None"
+    legacy = getattr(agent, "agentlegacy", None)
+    legacy_notes = legacy.legacy_notes if legacy else ""
+    last_active = agent.updated_at.strftime("%Y-%m-%d") if agent.updated_at else "n/a"
+    return FAREWELL_TEMPLATE.format(
+        agent_name=agent.name,
+        cluster_name=cluster_name,
+        skills=skills,
+        last_active=last_active,
+        legacy_notes=legacy_notes,
+    )
 
 
 class AgentController:
@@ -133,14 +157,13 @@ class AgentController:
 
         thought_trace = ["Generated agent identity and purpose prompt."]
 
-        response = client.chat.completions.create(
+        thought = call_llm(
+            [{"role": "user", "content": prompt}],
             model="gpt-4o",
-            messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
             max_tokens=300,
         )
-
-        thought = response.choices[0].message.content.strip()
+        thought = thought.strip()
         thought_trace.append("Received model response.")
 
         log = AgentThought.objects.create(
@@ -163,17 +186,15 @@ class AgentController:
 
         full_context = f"{context or ''}\n\nUser: {message}".strip()
 
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
+        reply = call_llm(
+            [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": full_context},
             ],
+            model="gpt-4o",
             temperature=0.7,
             max_tokens=500,
-        )
-
-        reply = response.choices[0].message.content.strip()
+        ).strip()
 
         memory = MemoryContext.objects.create(
             target_content_type=ContentType.objects.get_for_model(Agent),
@@ -334,13 +355,12 @@ def train_agent_from_documents(agent: Agent, documents: List["Document"]) -> dic
     prompt += "\n" + combined_text
 
     try:
-        response = client.chat.completions.create(
+        parsed = call_llm(
+            [{"role": "user", "content": prompt}],
             model="gpt-4o",
-            messages=[{"role": "user", "content": prompt}],
             temperature=0.2,
             max_tokens=150,
         )
-        parsed = response.choices[0].message.content
         new_skills = [s.strip() for s in parsed.split(",") if s.strip()]
     except Exception:
         new_skills = []
@@ -393,9 +413,13 @@ def evaluate_agent_lifecycle(agent: Agent) -> dict:
     from datetime import timedelta
 
     now = timezone.now()
-    last_action = ActionLog.objects.filter(related_agent=agent).order_by("-created_at").first()
+    last_action = (
+        ActionLog.objects.filter(related_agent=agent).order_by("-created_at").first()
+    )
     days_since_action = (now - last_action.created_at).days if last_action else 999
-    recent_feedback = AgentFeedbackLog.objects.filter(agent=agent, created_at__gte=now - timedelta(days=7)).exists()
+    recent_feedback = AgentFeedbackLog.objects.filter(
+        agent=agent, created_at__gte=now - timedelta(days=7)
+    ).exists()
     active_cluster = AgentCluster.objects.filter(agents=agent, is_active=True).exists()
 
     if not active_cluster or days_since_action > 30:
@@ -403,7 +427,6 @@ def evaluate_agent_lifecycle(agent: Agent) -> dict:
     if agent.readiness_score < 0.5 or not recent_feedback:
         return {"action": "retrain", "reason": "low readiness or stale feedback"}
     return {"action": "keep", "reason": "agent active"}
-
 
 
 def find_complementary_agents(
@@ -577,27 +600,41 @@ def record_project_completion(project: "AssistantProject") -> None:
         legacy.save(update_fields=["missions_completed", "updated_at"])
 
 
-def retire_agent(agent: Agent, reason: str) -> SwarmMemoryEntry:
+def retire_agent(agent: Agent, reason: str, farewell_text: Optional[str] = None) -> SwarmMemoryEntry:
     """Archive the agent and record a farewell message."""
     agent.is_active = False
     agent.save(update_fields=["is_active"])
 
     legacy, _ = AgentLegacy.objects.get_or_create(agent=agent)
 
-    prompt = (
-        f"Write a short farewell message for retiring agent {agent.name}. "
-        f"Reason: {reason}"
-    )
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.5,
-            max_tokens=120,
-        )
-        farewell = response.choices[0].message.content.strip()
-    except Exception as e:
-        farewell = f"{agent.name} has been retired. ({e})"
+
+    if not farewell_text:
+        template = FarewellTemplate.objects.order_by("-created_at").first()
+        if template:
+            farewell_text = template.content
+        else:
+            farewell_text = (
+                "Agent {{ agent.name }} has completed their mission as part of the {{ cluster.name }} cluster.\n\n"
+                "Skills contributed: {{ skills }}\n"
+                "Last active: {{ last_active }}\n\n"
+                "Legacy Note:\n\"{{ legacy_notes }}\"\n\n"
+                "Farewell, and thank you for your service."
+            )
+
+    cluster = agent.clusters.first()
+    context = {
+        "agent": agent,
+        "cluster": cluster or {},
+        "skills": ", ".join(agent.skills or []),
+        "last_active": agent.updated_at.strftime("%Y-%m-%d"),
+        "legacy_notes": legacy.legacy_notes or "",
+    }
+
+    farewell = farewell_text
+    for key, val in context.items():
+        placeholder = "{{ " + key + " }}"
+        farewell = farewell.replace(placeholder, str(val))
+
 
     entry = SwarmMemoryEntry.objects.create(
         title=f"Agent retired: {agent.name}",
