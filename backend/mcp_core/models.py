@@ -227,6 +227,8 @@ class NarrativeThread(models.Model):
         on_delete=models.SET_NULL,
         related_name="origin_threads",
     )
+    continuity_score = models.FloatField(null=True, blank=True)
+    last_diagnostic_run = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.title
@@ -285,3 +287,19 @@ class GroupedDevDocReflection(models.Model):
 
     def __str__(self):
         return f"Grouped Reflection @ {self.created_at.strftime('%Y-%m-%d %H:%M')}"
+
+
+class ThreadDiagnosticLog(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    thread = models.ForeignKey(
+        NarrativeThread, on_delete=models.CASCADE, related_name="diagnostics"
+    )
+    score = models.FloatField()
+    summary = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Diagnostic {self.score:.2f} for {self.thread.title}"

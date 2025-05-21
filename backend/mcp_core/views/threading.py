@@ -5,8 +5,17 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from mcp_core.models import MemoryContext, NarrativeThread, Tag
-from mcp_core.serializers_tags import NarrativeThreadSerializer
+from mcp_core.models import (
+    MemoryContext,
+    NarrativeThread,
+    Tag,
+    ThreadDiagnosticLog,
+)
+from mcp_core.serializers_tags import (
+    NarrativeThreadSerializer,
+    ThreadDiagnosticLogSerializer,
+)
+from mcp_core.utils.thread_diagnostics import run_thread_diagnostics
 from mcp_core.utils.thread_helpers import (
     get_or_create_thread,
     attach_memory_to_thread,
@@ -94,3 +103,19 @@ def narrative_thread_detail(request, id):
     return Response(
         {"error": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED
     )
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def diagnose_thread(request, thread_id):
+    thread = get_object_or_404(NarrativeThread, id=thread_id)
+    result = run_thread_diagnostics(thread)
+    return Response(result)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def list_thread_diagnostics(request, thread_id):
+    thread = get_object_or_404(NarrativeThread, id=thread_id)
+    logs = ThreadDiagnosticLog.objects.filter(thread=thread).order_by("-created_at")
+    return Response(ThreadDiagnosticLogSerializer(logs, many=True).data)

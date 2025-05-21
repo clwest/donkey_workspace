@@ -50,6 +50,16 @@ urlpatterns = [
         name="narrative_thread_detail",
     ),
     path(
+        "threads/<uuid:thread_id>/diagnose/",
+        threading.diagnose_thread,
+        name="diagnose-thread",
+    ),
+    path(
+        "threads/<uuid:thread_id>/diagnostics/",
+        threading.list_thread_diagnostics,
+        name="list-thread-diagnostics",
+    ),
+    path(
         "threads/from-memory/", threading.thread_from_memory, name="thread_from_memory"
     ),
     path(
