@@ -566,17 +566,47 @@ class RitualCollapseLog(models.Model):
         return f"Collapse: {self.retired_entity}"
 
 
+class LoreEpoch(models.Model):
+    """Historical era for myth evolution."""
 
-class LocalMythProtocol(models.Model):
-    """Guild-driven evolution process for localized mythologies."""
+    title = models.CharField(max_length=150)
+    summary = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
-    steward_guild = models.ForeignKey(
-        "assistants.AssistantGuild", on_delete=models.CASCADE
+    class Meta:
+        ordering = ["title"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.title
+
+
+class AssistantCivilization(models.Model):
+    """Collection of assistants sharing a cultural lineage."""
+
+    name = models.CharField(max_length=150)
+    ethos = models.JSONField(default=dict, blank=True)
+    members = models.ManyToManyField("assistants.Assistant", blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
+
+
+class TranscendentMyth(models.Model):
+    """Supra-mythic narrative spanning epochs and civilizations."""
+
+    title = models.CharField(max_length=150)
+    core_tenets = models.JSONField()
+    originating_epochs = models.ManyToManyField(
+        LoreEpoch, related_name="transcendent_myths", blank=True
     )
-    base_lore = models.ForeignKey(LoreEntry, on_delete=models.CASCADE)
-    evolution_log = models.TextField()
-    mutation_path = models.JSONField()
-    resolved = models.BooleanField(default=False)
+    sustaining_civilizations = models.ManyToManyField(
+        AssistantCivilization, related_name="transcendent_myths", blank=True
+    )
+    mythic_axis = models.CharField(max_length=100)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -585,6 +615,32 @@ class LocalMythProtocol(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
 
-        return f"Protocol for {self.base_lore.title}"
+        return self.title
+
+
+class AssistantCosmogenesisEvent(models.Model):
+    """Birth or collapse of a symbolic assistant universe."""
+
+    name = models.CharField(max_length=150)
+    trigger_event = models.ForeignKey(
+        SwarmMemoryEntry, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    myth_root = models.ForeignKey(
+        TranscendentMyth,
+        on_delete=models.CASCADE,
+        related_name="cosmogenesis_events",
+    )
+    lifecycle = models.CharField(
+        max_length=30, default="emerging"
+    )  # emerging, thriving, fading, collapsed
+    known_universes = models.JSONField()
+    collapse_reason = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
 
 
