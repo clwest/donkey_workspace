@@ -239,9 +239,9 @@ export default function AssistantSessionDetailPage() {
       </div>
 
       <div className="chat-box border rounded p-3 bg-light" style={{ maxHeight: "500px", overflowY: "auto" }}>
-        {session.messages.map((msg) => (
+        {session.messages.map((msg, idx) => (
           <MessageCard
-            key={msg.uuid}
+            key={msg.uuid || msg.created_at || idx}
             message={msg}
             onFeedback={handleFeedback}
             onTopicSave={handleTopicChange}
