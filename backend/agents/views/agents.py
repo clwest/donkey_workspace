@@ -14,6 +14,7 @@ from agents.models import (
     RealityConsensusVote,
     MythDiplomacySession,
     RitualCollapseLog,
+
     AssistantCivilization,
 
     LoreInheritanceLine,
@@ -21,7 +22,6 @@ from agents.models import (
     LegacyArtifact,
     ReincarnationLog,
     ReturnCycle,
-
 )
 from agents.serializers import (
     AgentSerializer,
@@ -40,7 +40,6 @@ from agents.serializers import (
     LegacyArtifactSerializer,
     ReincarnationLogSerializer,
     ReturnCycleSerializer,
-
 )
 
 from agents.utils.agent_controller import (
