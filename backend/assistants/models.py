@@ -12,6 +12,7 @@ class DelegationEventManager(models.Manager):
 from memory.models import MemoryEntry
 from prompts.models import Prompt
 from project.models import ProjectTask, ProjectMilestone
+from agents.models import SwarmMemoryEntry
 from django.utils.text import slugify
 from django.core.exceptions import ValidationError
 from django.conf import settings
@@ -1635,6 +1636,22 @@ def log_reflection_event(sender, instance, created, **kwargs):
             summary=instance.summary[:200],
             related_object=instance,
         )
+
+
+@receiver(post_save, sender=AssistantReflectionLog)
+def record_swarm_memory(sender, instance, created, **kwargs):
+    if not created:
+        return
+    entry = SwarmMemoryEntry.objects.create(
+        title=instance.title,
+        content=instance.summary,
+        origin="reflection",
+    )
+    if instance.project:
+        entry.linked_projects.add(instance.project)
+        entry.linked_agents.set(list(instance.project.agents.all()))
+    if instance.assistant:
+        entry.linked_agents.add(*instance.assistant.assigned_agents.all())
 
 
 class CouncilSession(models.Model):

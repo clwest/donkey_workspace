@@ -6,6 +6,7 @@ import AgentTrainingPanel from "../../components/agents/AgentTrainingPanel";
 import AgentSkillGraph from "../../components/agents/AgentSkillGraph";
 import AgentTrainingSuggestionModal from "../../components/agents/AgentTrainingSuggestionModal";
 import MentoringThread from "../../components/agents/MentoringThread";
+import AgentLegacyPanel from "../../components/agents/AgentLegacyPanel";
 
 const AgentDetailPage = () => {
   const { slug } = useParams();
@@ -13,6 +14,7 @@ const AgentDetailPage = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [showSuggest, setShowSuggest] = useState(false);
   const [mentoringEvents, setMentoringEvents] = useState([]);
+  const [legacy, setLegacy] = useState(null);
 
   useEffect(() => {
     apiFetch(`/agents/${slug}/`)
@@ -22,6 +24,10 @@ const AgentDetailPage = () => {
     apiFetch(`/agents/${slug}/mentoring-events/`)
       .then(setMentoringEvents)
       .catch(() => setMentoringEvents([]));
+
+    apiFetch(`/agents/${slug}/legacy/`)
+      .then(setLegacy)
+      .catch(() => setLegacy(null));
   }, [slug]);
 
   if (!agent) return <div className="container my-5">Loading...</div>;
@@ -60,6 +66,14 @@ const AgentDetailPage = () => {
             onClick={() => setActiveTab("mentoring")}
           >
             Mentoring
+          </button>
+        </li>
+        <li className="nav-item">
+          <button
+            className={`nav-link ${activeTab === "legacy" ? "active" : ""}`}
+            onClick={() => setActiveTab("legacy")}
+          >
+            Legacy
           </button>
         </li>
       </ul>
@@ -103,6 +117,7 @@ const AgentDetailPage = () => {
       {activeTab === "mentoring" && (
         <MentoringThread events={mentoringEvents} />
       )}
+      {activeTab === "legacy" && <AgentLegacyPanel legacy={legacy} />}
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import AgentClusterCard from "../../components/agents/AgentClusterCard";
+import MissionArchetypeBrowser from "../../components/agents/MissionArchetypeBrowser";
 import apiFetch from "../../utils/apiClient";
 
 const ClusterOverviewPage = () => {
@@ -21,6 +22,7 @@ const ClusterOverviewPage = () => {
           </div>
         ))}
       </div>
+      <MissionArchetypeBrowser />
     </div>
   );
 };
