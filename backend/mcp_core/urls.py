@@ -73,6 +73,11 @@ urlpatterns = [
         threading.diagnose_thread,
         name="diagnose-thread",
     ),
+    path(
+        "threads/<uuid:thread_id>/suggest-continuity/",
+        threading.suggest_continuity_view,
+        name="suggest-thread-continuity",
+    ),
 
     path(
         "threads/from-memory/", threading.thread_from_memory, name="thread_from_memory"
