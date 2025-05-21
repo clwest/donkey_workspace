@@ -4,8 +4,10 @@ from django.contrib.contenttypes.models import ContentType
 from openai import OpenAI
 from django.utils import timezone
 
+
 from mcp_core.models import MemoryContext, Plan, Task, ActionLog, Tag
 from agents.models import Agent, AgentThought
+
 from embeddings.helpers.helpers_io import save_embedding
 
 client = OpenAI()
@@ -248,3 +250,4 @@ def update_agent_profile_from_feedback(
                 best_agent = agent
 
         return best_agent
+
