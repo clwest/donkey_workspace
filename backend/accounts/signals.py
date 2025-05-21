@@ -4,6 +4,7 @@ from django.conf import settings
 
 from .models import CustomUser
 from assistants.models import Assistant, AssistantProject, ChatSession, AssistantChatMessage
+from project.models import Project, ProjectType, ProjectStatus
 
 @receiver(post_save, sender=CustomUser)
 def create_personal_assistant(sender, instance, created, **kwargs):
@@ -19,10 +20,19 @@ def create_personal_assistant(sender, instance, created, **kwargs):
     instance.personal_assistant = assistant
     instance.save(update_fields=["personal_assistant"])
 
-    project = AssistantProject.objects.create(
+    assistant_project = AssistantProject.objects.create(
         assistant=assistant,
         title=f"{assistant.name}'s Project",
         created_by=instance,
+    )
+
+    project = Project.objects.create(
+        user=instance,
+        title=f"{assistant.name} Project",
+        assistant=assistant,
+        assistant_project=assistant_project,
+        project_type=ProjectType.ASSISTANT,
+        status=ProjectStatus.ACTIVE,
     )
 
     session = ChatSession.objects.create(
