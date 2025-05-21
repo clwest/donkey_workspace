@@ -45,7 +45,13 @@ cd backend
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-# Run the initial migration manually to set up the database
+# Run initial migrations for all apps
+python manage.py makemigrations
 python manage.py migrate
 python manage.py runserver
 ```
+
+If you encounter a `ProgrammingError` complaining that `assistants_assistant`
+does not exist, ensure you ran `python manage.py makemigrations` before
+`python manage.py migrate`. This generates all initial migration files so Django
+creates the required tables.
