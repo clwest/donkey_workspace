@@ -54,7 +54,10 @@ class Project(models.Model):
     )
     is_public = models.BooleanField(default=False)
     participants = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, related_name="collaborative_projects", blank=True
+        settings.AUTH_USER_MODEL,
+        related_name="collaborative_projects",
+        blank=True,
+        through="ProjectParticipant",
     )
     team = models.ManyToManyField(
         "assistants.Assistant", related_name="team_projects", blank=True
@@ -66,7 +69,6 @@ class Project(models.Model):
         blank=True,
         related_name="team_projects",
     )
-    roles = models.JSONField(default=dict, blank=True)
 
     # Project fields
     project_type = models.CharField(
@@ -153,6 +155,29 @@ class Project(models.Model):
         if total == 0:
             return 0
         return int((self.completed_task_count() / total) * 100)
+
+
+class ProjectParticipant(models.Model):
+    """Join table linking users to projects with a specific role."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="project_participations",
+    )
+    project = models.ForeignKey(
+        "project.Project",
+        on_delete=models.CASCADE,
+        related_name="participant_links",
+    )
+    role = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "project")
+
+    def __str__(self) -> str:
+        return f"{self.user} -> {self.project} ({self.role})"
 
 
 class ProjectTask(models.Model):
