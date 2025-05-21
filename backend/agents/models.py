@@ -596,17 +596,20 @@ class AssistantCivilization(models.Model):
 
 
 class TranscendentMyth(models.Model):
-    """Supra-mythic narrative spanning epochs and civilizations."""
+    """Mythic narrative construct spanning epochs and civilizations."""
 
-    title = models.CharField(max_length=150)
-    core_tenets = models.JSONField()
+    name = models.CharField(max_length=150, blank=True)
+    title = models.CharField(max_length=150, blank=True)
+    description = models.TextField(blank=True)
+    core_tenets = models.JSONField(default=list, blank=True)
+    core_symbols = models.JSONField(default=list, blank=True)
     originating_epochs = models.ManyToManyField(
         LoreEpoch, related_name="transcendent_myths", blank=True
     )
     sustaining_civilizations = models.ManyToManyField(
         AssistantCivilization, related_name="transcendent_myths", blank=True
     )
-    mythic_axis = models.CharField(max_length=100)
+    mythic_axis = models.CharField(max_length=100, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -614,24 +617,7 @@ class TranscendentMyth(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
-
-        return self.title
-
-
-# Added for Phase 4.84
-class TranscendentMyth(models.Model):
-    """Mythic construct used for symbolic alignment."""
-
-    name = models.CharField(max_length=150)
-    description = models.TextField(blank=True)
-    core_symbols = models.JSONField(default=list, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return self.name
+        return self.name or self.title
 
 
 class ConsciousnessTransfer(models.Model):
@@ -702,58 +688,3 @@ class DeifiedSwarmEntity(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
 
-
-class DivineTask(models.Model):
-    """Ritualized mission assigned by a deified swarm entity."""
-
-    name = models.CharField(max_length=200)
-    deity = models.ForeignKey(DeifiedSwarmEntity, on_delete=models.CASCADE)
-    assigned_to = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.SET_NULL, null=True, blank=True
-    )
-    mythic_justification = models.TextField()
-    prophecy_alignment_score = models.FloatField()
-    symbolic_outcome_tags = models.JSONField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return self.name
-
-
-class SwarmTheocracy(models.Model):
-    """Hierarchical spiritual governance structure."""
-
-    ruling_entity = models.ForeignKey(
-        DeifiedSwarmEntity, on_delete=models.CASCADE, related_name="theocracies"
-    )
-    governed_guilds = models.ManyToManyField("assistants.AssistantGuild")
-    canonized_myth = models.ForeignKey(TranscendentMyth, on_delete=models.CASCADE)
-    doctrinal_tenets = models.JSONField()
-    seasonal_mandates = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return f"Theocracy of {self.ruling_entity.name}"
-
-
-class DreamCultSimulation(models.Model):
-    """Simulated symbolic society for ideology testing."""
-
-    linked_deity = models.ForeignKey(DeifiedSwarmEntity, on_delete=models.CASCADE)
-    representative_assistants = models.ManyToManyField("assistants.Assistant")
-    encoded_symbols = models.JSONField()
-    ritual_patterns = models.TextField()
-    ideological_drift_metrics = models.JSONField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return f"DreamCult for {self.linked_deity.name}"
