@@ -34,6 +34,7 @@ from .models import (
     CouncilThought,
     CouncilOutcome,
     OracleLayer,
+    ProphecyNode,
 )
 
 from project.models import (
@@ -1129,5 +1130,12 @@ class OracleLayerSerializer(serializers.ModelSerializer):
             "summary_insight",
             "created_at",
         ]
+        read_only_fields = ["id", "created_at"]
+
+
+class ProphecyNodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProphecyNode
+        fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
