@@ -83,6 +83,26 @@ def list_memory_chains(request):
     return Response(data)
 
 
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def summarize_chain_view(request, chain_id):
+    chain = get_object_or_404(MemoryChain, id=chain_id)
+    from .utils.chain_helpers import summarize_memory_chain
+
+    summary = summarize_memory_chain(chain)
+    return Response({"chain_id": str(chain.id), "summary": summary})
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def chain_flowmap_view(request, chain_id):
+    chain = get_object_or_404(MemoryChain, id=chain_id)
+    from .utils.chain_helpers import generate_flowmap_from_chain
+
+    data = generate_flowmap_from_chain(chain)
+    return Response(data)
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def reflect_on_memory(request):

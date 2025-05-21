@@ -10,6 +10,16 @@ urlpatterns = [
     path("chains/create/", views.create_memory_chain, name="create_memory_chain"),
     path("chains/<uuid:pk>/", views.get_memory_chain, name="get_memory_chain"),
     path("chains/list/", views.list_memory_chains, name="list_memory_chains"),
+    path(
+        "chains/<uuid:chain_id>/summarize/",
+        views.summarize_chain_view,
+        name="summarize_memory_chain",
+    ),
+    path(
+        "chains/<uuid:chain_id>/flowmap/",
+        views.chain_flowmap_view,
+        name="memory_chain_flowmap",
+    ),
     path("reflect-on-memories/", views.reflect_on_memories, name="reflect_on_memories"),
     path("reflection/", views.save_reflection, name="save-reflection"),
     path("upload-voice/", views.upload_voice_clip, name="upload_voice_clip"),

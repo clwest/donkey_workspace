@@ -151,6 +151,7 @@ class MemoryChain(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     context_tags = models.JSONField(default=list, blank=True)
     task_type = models.CharField(max_length=100, blank=True, null=True)
+    summary = models.TextField(blank=True, null=True)
 
     class Meta:
         ordering = ["created_at"]
