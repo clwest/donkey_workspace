@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.db import models
+from itertools import chain
 from mcp_core.models import (
     MemoryContext,
     NarrativeThread,
@@ -13,14 +14,14 @@ from mcp_core.models import (
     ThreadMergeLog,
     ThreadSplitLog,
     ThreadDiagnosticLog,
-    ThreadObjectiveReflection
-
+    ThreadObjectiveReflection,
 )
 from mcp_core.serializers_tags import (
     NarrativeThreadSerializer,
     ThreadObjectiveReflectionSerializer,
     # ThreadDiagnosticLogSerializer
 )
+from mcp_core.serializers_replay import ThreadReplayItemSerializer
 from memory.serializers import NarrativeThreadOverviewSerializer
 from mcp_core.utils.thread_diagnostics import run_thread_diagnostics
 from memory.models import MemoryEntry
@@ -109,12 +110,12 @@ def list_overview_threads(request):
     if project:
         threads = threads.filter(memories__related_project_id=project).distinct()
 
-    serializer_class = NarrativeThreadOverviewSerializer 
+    serializer_class = NarrativeThreadOverviewSerializer
     serialized = [serializer_class(t).data for t in threads]
     serialized.sort(
-            key=lambda x: x.get("last_updated") or "",
-            reverse=True,
-        )
+        key=lambda x: x.get("last_updated") or "",
+        reverse=True,
+    )
     return Response(serialized)
 
 
@@ -150,9 +151,9 @@ def thread_summary(request, id):
     thread = get_object_or_404(NarrativeThread, id=id)
 
     memories = MemoryEntry.objects.filter(thread=thread).order_by("created_at")
-    thoughts = AssistantThoughtLog.objects.filter(
-        narrative_thread=thread
-    ).order_by("created_at")
+    thoughts = AssistantThoughtLog.objects.filter(narrative_thread=thread).order_by(
+        "created_at"
+    )
     reflections = AssistantReflectionLog.objects.filter(
         linked_memory__thread=thread
     ).order_by("created_at")
@@ -192,6 +193,28 @@ def thread_summary(request, id):
     return Response(data)
 
 
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def thread_replay(request, thread_id):
+    """Return merged timeline of memories, thoughts, and reflections."""
+    thread = get_object_or_404(NarrativeThread, id=thread_id)
+    with_context = request.GET.get("with_context") == "true"
+
+    memories = list(MemoryEntry.objects.filter(thread=thread))
+    thoughts = list(AssistantThoughtLog.objects.filter(narrative_thread=thread))
+    reflections = list(
+        AssistantReflectionLog.objects.filter(linked_memory__thread=thread)
+    )
+
+    items = list(chain(memories, thoughts, reflections))
+    items.sort(key=lambda x: x.created_at)
+
+    serializer = ThreadReplayItemSerializer(
+        items, many=True, context={"with_context": with_context}
+    )
+    return Response(serializer.data)
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def diagnose_thread(request, thread_id):
@@ -218,6 +241,7 @@ def suggest_continuity_view(request, thread_id):
 #     thread = get_object_or_404(NarrativeThread, id=thread_id)
 #     logs = ThreadDiagnosticLog.objects.filter(thread=thread).order_by("-created_at")
 #     return Response(ThreadDiagnosticLogSerializer(logs, many=True).data)
+
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
@@ -287,11 +311,17 @@ def merge_thread(request, id):
 
     MemoryEntry.objects.filter(thread=target).update(thread=thread)
     MemoryEntry.objects.filter(narrative_thread=target).update(narrative_thread=thread)
-    AssistantThoughtLog.objects.filter(narrative_thread=target).update(narrative_thread=thread)
+    AssistantThoughtLog.objects.filter(narrative_thread=target).update(
+        narrative_thread=thread
+    )
     if hasattr(AssistantReflectionLog, "narrative_thread"):
-        AssistantReflectionLog.objects.filter(narrative_thread=target).update(narrative_thread=thread)
+        AssistantReflectionLog.objects.filter(narrative_thread=target).update(
+            narrative_thread=thread
+        )
 
-    ThreadMergeLog.objects.create(from_thread=target, to_thread=thread, summary=request.data.get("summary", ""))
+    ThreadMergeLog.objects.create(
+        from_thread=target, to_thread=thread, summary=request.data.get("summary", "")
+    )
 
     target.delete()
 
