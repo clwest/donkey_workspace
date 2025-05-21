@@ -401,3 +401,24 @@ def handle_project_completion(sender, instance, created, **kwargs):
         if agents:
             entry.linked_agents.set(agents)
         entry.linked_projects.add(instance)
+
+
+class SwarmJournalEntry(models.Model):
+    """Personal journal entry written by a swarm entity."""
+
+    author = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="journal_entries"
+    )
+    content = models.TextField()
+    tags = models.ManyToManyField(Tag, blank=True)
+    is_private = models.BooleanField(default=True)
+    season_tag = models.CharField(max_length=20, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display
+        return f"Journal by {self.author.name}"
+
+
