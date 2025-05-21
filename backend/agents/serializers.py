@@ -32,16 +32,21 @@ class AgentFeedbackLogSerializer(serializers.ModelSerializer):
         fields = ["id", "task", "feedback_text", "feedback_type", "score", "created_at"]
 
 
-from assistants.serializers import AssistantProjectSerializer
-
 class AgentClusterSerializer(serializers.ModelSerializer):
     agents = AgentSerializer(many=True, read_only=True)
-    project = AssistantProjectSerializer(read_only=True)
+    project = serializers.SerializerMethodField()
     skill_count = serializers.SerializerMethodField()
 
     class Meta:
         model = AgentCluster
         fields = ["id", "name", "purpose", "project", "agents", "skill_count"]
+
+    def get_project(self, obj):
+        from assistants.serializers import AssistantProjectSerializer
+
+        if obj.project:
+            return AssistantProjectSerializer(obj.project).data
+        return None
 
     def get_skill_count(self, obj):
         skills = set()
