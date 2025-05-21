@@ -186,26 +186,27 @@ def create_project_from_memory(request, slug=None):
         "title", f"Project from memory: {memory.summary or memory.event[:50]}"
     )
 
-    project = AssistantProject.objects.create(
+    project, created = AssistantProject.objects.get_or_create(
         assistant=assistant,
         title=title,
-        created_by=assistant.created_by,
+        defaults={"created_by": assistant.created_by},
     )
 
-    User = get_user_model()
-    user = request.user if request.user.is_authenticated else assistant.created_by
-    if not user:
-        user = User.objects.first()
+    if created:
+        User = get_user_model()
+        user = request.user if request.user.is_authenticated else assistant.created_by
+        if not user:
+            user = User.objects.first()
 
-    core_project = Project.objects.create(
-        user=user,
-        title=title,
-        assistant=assistant,
-        assistant_project=project,
-        created_from_memory=memory,
-    )
+        core_project = Project.objects.create(
+            user=user,
+            title=title,
+            assistant=assistant,
+            assistant_project=project,
+            created_from_memory=memory,
+        )
 
-    ProjectMemoryLink.objects.create(project=core_project, memory=memory)
+        ProjectMemoryLink.objects.create(project=core_project, memory=memory)
 
     AssistantObjective.objects.create(
         assistant=assistant,

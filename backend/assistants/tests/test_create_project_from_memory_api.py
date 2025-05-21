@@ -72,3 +72,21 @@ class CreateProjectFromMemoryAPITest(APITestCase):
         )
         obj = project.objectives.first()
         self.assertEqual(obj.source_memory, self.memory)
+
+    def test_create_project_from_memory_idempotent(self):
+        url = "/api/assistants/projects/from-memory/"
+        data = {
+            "assistant_id": str(self.assistant.id),
+            "memory_id": str(self.memory.id),
+            "title": "Memory Project",
+        }
+        resp1 = self.client.post(url, data, format="json")
+        self.assertEqual(resp1.status_code, 201)
+        resp2 = self.client.post(url, data, format="json")
+        self.assertEqual(resp2.status_code, 201)
+        self.assertEqual(
+            AssistantProject.objects.filter(
+                assistant=self.assistant, title="Memory Project"
+            ).count(),
+            1,
+        )
