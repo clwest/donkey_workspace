@@ -24,6 +24,7 @@ urlpatterns = [
     path("reincarnations/", agents.reincarnations),
     path("return-cycles/", agents.return_cycles),
     path("belief-clusters/", agents.belief_clusters),
+    path("lore-tokens/", agents.lore_tokens),
     path("clusters/", agents.list_clusters),
     path("clusters/<uuid:id>/", agents.cluster_detail_view),
     path("", agents.list_agents),

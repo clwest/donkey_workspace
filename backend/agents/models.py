@@ -818,3 +818,19 @@ class DreamCultSimulation(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Simulation for {self.linked_deity}"
+
+class LoreToken(models.Model):
+    """Compressed lore unit from swarm memories."""
+    name = models.CharField(max_length=150)
+    summary = models.TextField()
+    source_memories = models.ManyToManyField(SwarmMemoryEntry)
+    symbolic_tags = models.JSONField(default=dict)
+    embedding = VectorField(dimensions=1536)
+    created_by = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
