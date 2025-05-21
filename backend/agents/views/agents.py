@@ -171,6 +171,24 @@ def swarm_snapshot_view(request, date):
     )
 
 
+@api_view(["GET"])
+def list_treaties(request):
+    """Return active diplomacy treaties."""
+    sessions = MythDiplomacySession.objects.all().order_by("-created_at")
+    data = []
+    for session in sessions:
+        participants = [c.name for c in session.factions.all()]
+        data.append(
+            {
+                "id": session.id,
+                "name": session.topic,
+                "participants": participants,
+                "status": session.status,
+            }
+        )
+    return Response(data)
+
+
 @api_view(["POST"])
 def retire_agents(request):
     reason = request.data.get("reason", "No reason provided")
