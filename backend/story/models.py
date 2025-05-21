@@ -96,6 +96,8 @@ class NarrativeEvent(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
+    scene_summary = models.TextField(blank=True, null=True)
+    summary_generated = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
     project = models.ForeignKey(
         "project.Project",

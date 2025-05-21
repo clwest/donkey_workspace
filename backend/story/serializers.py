@@ -72,7 +72,15 @@ class StorySerializer(serializers.ModelSerializer):
 class NarrativeEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = NarrativeEvent
-        fields = ["id", "title", "description", "timestamp", "project"]
+        fields = [
+            "id",
+            "title",
+            "description",
+            "scene_summary",
+            "summary_generated",
+            "timestamp",
+            "project",
+        ]
         read_only_fields = ["id", "timestamp"]
 
     def get_image_url(self, obj):
