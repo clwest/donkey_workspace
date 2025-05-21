@@ -14,6 +14,9 @@ from agents.models import (
     RealityConsensusVote,
     MythDiplomacySession,
     RitualCollapseLog,
+    AssistantCivilization,
+    LoreInheritanceLine,
+    MythSimulationArena,
 )
 from agents.serializers import (
     AgentSerializer,
@@ -26,6 +29,9 @@ from agents.serializers import (
     RealityConsensusVoteSerializer,
     MythDiplomacySessionSerializer,
     RitualCollapseLogSerializer,
+    AssistantCivilizationSerializer,
+    LoreInheritanceLineSerializer,
+    MythSimulationArenaSerializer,
 )
 
 from agents.utils.agent_controller import (
@@ -39,7 +45,9 @@ from agents.utils.swarm_analytics import (
     generate_temporal_swarm_report,
     get_swarm_snapshot,
 )
-from agents.utils import run_myth_reset_cycle
+
+from agents.utils import harmonize_global_narrative
+
 from datetime import datetime
 
 
@@ -250,4 +258,34 @@ def belief_clusters(request):
     from assistants.utils.belief_clustering import cluster_assistant_beliefs
 
     data = cluster_assistant_beliefs()
+    return Response(data)
+
+
+@api_view(["GET", "POST"])
+def lore_inheritance_lines(request):
+    if request.method == "GET":
+        lines = LoreInheritanceLine.objects.all().order_by("-created_at")
+        return Response(LoreInheritanceLineSerializer(lines, many=True).data)
+
+    serializer = LoreInheritanceLineSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    line = serializer.save()
+    return Response(LoreInheritanceLineSerializer(line).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def myth_simulation_arenas(request):
+    if request.method == "GET":
+        arenas = MythSimulationArena.objects.all().order_by("-created_at")
+        return Response(MythSimulationArenaSerializer(arenas, many=True).data)
+
+    serializer = MythSimulationArenaSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    arena = serializer.save()
+    return Response(MythSimulationArenaSerializer(arena).data, status=201)
+
+
+@api_view(["GET"])
+def harmonize_global(request):
+    data = harmonize_global_narrative()
     return Response(data)

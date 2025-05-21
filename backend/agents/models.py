@@ -517,7 +517,6 @@ class SwarmJournalEntry(models.Model):
     season_tag = models.CharField(max_length=20, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
 
@@ -530,6 +529,13 @@ class MythDiplomacySession(models.Model):
     )
     topic = models.TextField()
     proposed_adjustments = models.TextField()
+    ritual_type = models.CharField(max_length=100)
+    symbolic_offering = models.TextField()
+    hosting_civilization = models.ForeignKey(
+        "assistants.AssistantCivilization",
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     status = models.CharField(max_length=30, default="pending")
     resolution_summary = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -560,27 +566,47 @@ class RitualCollapseLog(models.Model):
         return f"Collapse: {self.retired_entity}"
 
 
-
-
 class LoreEpoch(models.Model):
-    """Historical narrative arc for swarm lore."""
+    """Historical era for myth evolution."""
 
     title = models.CharField(max_length=150)
-    summary = models.TextField()
-    start_event = models.ForeignKey(
-        SwarmMemoryEntry,
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name="epoch_start",
+    summary = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["title"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.title
+
+
+class AssistantCivilization(models.Model):
+    """Collection of assistants sharing a cultural lineage."""
+
+    name = models.CharField(max_length=150)
+    ethos = models.JSONField(default=dict, blank=True)
+    members = models.ManyToManyField("assistants.Assistant", blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
+
+
+class TranscendentMyth(models.Model):
+    """Supra-mythic narrative spanning epochs and civilizations."""
+
+    title = models.CharField(max_length=150)
+    core_tenets = models.JSONField()
+    originating_epochs = models.ManyToManyField(
+        LoreEpoch, related_name="transcendent_myths", blank=True
     )
-    end_event = models.ForeignKey(
-        SwarmMemoryEntry,
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name="epoch_end",
+    sustaining_civilizations = models.ManyToManyField(
+        AssistantCivilization, related_name="transcendent_myths", blank=True
     )
-    tags = models.ManyToManyField("mcp_core.Tag", blank=True)
-    closed = models.BooleanField(default=False)
+    mythic_axis = models.CharField(max_length=100)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -590,6 +616,7 @@ class LoreEpoch(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
 
         return self.title
+
 
 
 # Added for Phase 4.84
@@ -644,12 +671,14 @@ class MemoryDialect(models.Model):
     symbol_shifts = models.JSONField(default=dict)
     dominant_assistants = models.ManyToManyField("assistants.Assistant")
     alignment_curve = models.FloatField(default=1.0)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return self.dialect_id
 
 
@@ -674,3 +703,4 @@ class DeifiedSwarmEntity(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
+

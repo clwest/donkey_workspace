@@ -34,8 +34,9 @@ from .models import (
     CouncilThought,
     CouncilOutcome,
     OracleLayer,
-    AssistantGuild,
-    AssistantCivilization,
+
+    ProphecyNode,
+
 )
 
 from project.models import (
@@ -1135,16 +1136,9 @@ class OracleLayerSerializer(serializers.ModelSerializer):
 
 
 
-class AssistantGuildSerializer(serializers.ModelSerializer):
+class ProphecyNodeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AssistantGuild
-        fields = "__all__"
-        read_only_fields = ["id", "created_at"]
-
-
-class AssistantCivilizationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AssistantCivilization
+        model = ProphecyNode
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
