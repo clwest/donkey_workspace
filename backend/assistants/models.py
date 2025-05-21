@@ -232,6 +232,8 @@ class Assistant(models.Model):
         default="pause_and_reflect",
     )
 
+    belief_vector = models.JSONField(default=dict)
+
     ideology = models.JSONField(default=dict)
     is_alignment_flexible = models.BooleanField(default=True)
 
@@ -1832,4 +1834,18 @@ class OracleLayer(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"OracleLayer for {self.assistant.name}"
+
+
+class NarrativeDebate(models.Model):
+    """Structured debate between assistants from mythic perspectives."""
+
+    topic = models.TextField()
+    participants = models.ManyToManyField("assistants.Assistant")
+    perspectives = models.JSONField()
+    outcome_summary = models.TextField(blank=True)
+    resolved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:  # pragma: no cover - display
+        return f"Debate on {self.topic[:30]}..."
 
