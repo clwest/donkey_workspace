@@ -10,6 +10,9 @@ from mcp_core.models import (
     MemoryContext,
     NarrativeThread,
     Tag,
+    ThreadMergeLog,
+    ThreadSplitLog,
+
 )
 from mcp_core.serializers_tags import (
     NarrativeThreadSerializer,
@@ -24,7 +27,8 @@ from mcp_core.utils.thread_helpers import (
     generate_thread_refocus_prompt,
     suggest_continuity,
 )
-from assistants.models import AssistantThoughtLog
+from assistants.models import AssistantThoughtLog, AssistantReflectionLog
+from memory.models import MemoryEntry
 from django.utils import timezone
 
 
@@ -219,3 +223,65 @@ def list_thread_diagnostics(request, thread_id):
 #     return Response({"prompt": prompt})
 # =======
 # >>>>>>> main
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def merge_thread(request, id):
+    """Merge another thread into this one."""
+    thread = get_object_or_404(NarrativeThread, id=id)
+    target_id = request.data.get("target_thread_id")
+    if not target_id:
+        return Response({"detail": "target_thread_id required"}, status=400)
+    target = get_object_or_404(NarrativeThread, id=target_id)
+
+    MemoryEntry.objects.filter(thread=target).update(thread=thread)
+    MemoryEntry.objects.filter(narrative_thread=target).update(narrative_thread=thread)
+    AssistantThoughtLog.objects.filter(narrative_thread=target).update(narrative_thread=thread)
+    if hasattr(AssistantReflectionLog, "narrative_thread"):
+        AssistantReflectionLog.objects.filter(narrative_thread=target).update(narrative_thread=thread)
+
+    ThreadMergeLog.objects.create(from_thread=target, to_thread=thread, summary=request.data.get("summary", ""))
+
+    target.delete()
+
+    return Response(NarrativeThreadSerializer(thread).data)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def split_thread(request, id):
+    """Split a thread, moving selected entries to a new thread."""
+    thread = get_object_or_404(NarrativeThread, id=id)
+    from_index = request.data.get("from_index")
+    entry_ids = request.data.get("entry_ids")
+    if from_index is None and not entry_ids:
+        return Response({"detail": "from_index or entry_ids required"}, status=400)
+
+    entries_qs = MemoryEntry.objects.filter(thread=thread).order_by("created_at")
+    if from_index is not None:
+        try:
+            from_index = int(from_index)
+        except (TypeError, ValueError):
+            return Response({"detail": "from_index must be int"}, status=400)
+        entries = list(entries_qs[from_index:])
+    else:
+        entries = list(entries_qs.filter(id__in=entry_ids))
+
+    new_thread = NarrativeThread.objects.create(title=f"{thread.title} Split")
+
+    moved_ids = []
+    for entry in entries:
+        entry.thread = new_thread
+        entry.narrative_thread = new_thread
+        entry.save(update_fields=["thread", "narrative_thread"])
+        moved_ids.append(str(entry.id))
+
+    ThreadSplitLog.objects.create(
+        original_thread=thread,
+        new_thread=new_thread,
+        moved_entries=moved_ids,
+        summary=request.data.get("summary", ""),
+    )
+
+    return Response(NarrativeThreadSerializer(new_thread).data, status=201)
