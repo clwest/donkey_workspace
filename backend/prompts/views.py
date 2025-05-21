@@ -31,6 +31,7 @@ def list_prompts(request):
     query = request.query_params.get("q")
     show_all = request.query_params.get("show_all", "false").lower() == "true"
     sort = request.query_params.get("sort", "created")
+    type_filter = request.query_params.get("type")
 
     prompts = Prompt.objects.none()
 
@@ -49,12 +50,15 @@ def list_prompts(request):
             ids = [row[0] for row in cursor.fetchall()]
         prompts = Prompt.objects.filter(id__in=ids)
 
-    elif show_all:
+    elif show_all or type_filter:
         prompts = Prompt.objects.all()
         if sort == "tokens":
             prompts = prompts.order_by("-token_count")
         else:
             prompts = prompts.order_by("-created_at")
+
+    if type_filter:
+        prompts = prompts.filter(type=type_filter)
 
     serializer = PromptSerializer(prompts, many=True)
     return Response(serializer.data)
