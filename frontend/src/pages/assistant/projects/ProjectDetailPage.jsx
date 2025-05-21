@@ -35,16 +35,18 @@ export default function ProjectDetailPage() {
 
   useEffect(() => {
     async function loadTeamMemory() {
-      if (!project) return;
-      const coreId = project.core_project_id || project.id;
-      if (!coreId) return;
+      if (!project || !project.core_project_id) {
+        return;
+      }
+
       try {
-        const data = await apiFetch(`/projects/${coreId}/team_memory/`);
+        const data = await apiFetch(`/projects/${project.core_project_id}/team_memory/`);
         setTeamMemory(data);
       } catch (err) {
         console.error("Failed to load team memory", err);
       }
     }
+
     loadTeamMemory();
   }, [project]);
 

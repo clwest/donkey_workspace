@@ -84,7 +84,7 @@ export default function ProjectTaskEditorPage() {
         </button>
       </div>
 
-      <Link to={`/assistant/projects/${id}`} className="btn btn-outline-secondary mt-4">
+      <Link to={`/assistants/projects/${id}`} className="btn btn-outline-secondary mt-4">
         🔙 Back to Project
       </Link>
     </div>

@@ -226,7 +226,7 @@ export default function App() {
 
           {/* Top-level Assistant Views */}
           <Route
-            path="/assistant/projects/:id/thoughts"
+            path="/assistants/projects/:id/thoughts"
             element={<ProjectThoughtLog />}
           />
           <Route
