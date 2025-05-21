@@ -17,8 +17,6 @@ from agents.models import (
 
     AssistantCivilization,
 
-    LoreInheritanceLine,
-    MythSimulationArena,
     LegacyArtifact,
     ReincarnationLog,
     ReturnCycle,
@@ -35,8 +33,6 @@ from agents.serializers import (
     MythDiplomacySessionSerializer,
     RitualCollapseLogSerializer,
     AssistantCivilizationSerializer,
-    LoreInheritanceLineSerializer,
-    MythSimulationArenaSerializer,
     LegacyArtifactSerializer,
     ReincarnationLogSerializer,
     ReturnCycleSerializer,
