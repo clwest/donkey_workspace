@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from mcp_core.models import MemoryContext
 from django.contrib.postgres.fields import ArrayField
 from pgvector.django import VectorField
+from django.utils import timezone
 
 
 User = get_user_model()
@@ -199,4 +200,54 @@ class AgentReactivationVote(models.Model):
     reason = models.TextField()
     approved = models.BooleanField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class SwarmMemoryEntry(models.Model):
+    """Persistent swarm-level memory across projects."""
+
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    tags = models.ManyToManyField("mcp_core.Tag", blank=True)
+    linked_agents = models.ManyToManyField(Agent, blank=True)
+    linked_projects = models.ManyToManyField(
+        "assistants.AssistantProject", blank=True
+    )
+    origin = models.CharField(max_length=50, default="reflection")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display only
+        return self.title
+
+
+class AgentLegacy(models.Model):
+    """Track agent resurrection history and missions completed."""
+
+    agent = models.OneToOneField(Agent, on_delete=models.CASCADE)
+    resurrection_count = models.IntegerField(default=0)
+    missions_completed = models.IntegerField(default=0)
+    legacy_notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):  # pragma: no cover - display only
+        return f"Legacy of {self.agent.name}"
+
+
+class MissionArchetype(models.Model):
+    """Reusable template for seeding agent clusters."""
+
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField()
+    core_skills = models.JSONField()
+    preferred_cluster_structure = models.JSONField()
+    created_by = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.SET_NULL, null=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):  # pragma: no cover - display only
+        return self.name
 
