@@ -28,8 +28,16 @@ export default async function apiFetch(url, options = {}) {
   });
 
   if (!res.ok) {
-    console.error(`API Error ${res.status}: ${res.statusText}`);
-    throw new Error("API Error");
+    let errorMsg = `API Error ${res.status}`;
+    try {
+      const errData = await res.json();
+      const detail = errData.error || JSON.stringify(errData);
+      errorMsg += `: ${detail}`;
+    } catch {
+      errorMsg += `: ${res.statusText}`;
+    }
+    console.error(errorMsg);
+    throw new Error(errorMsg);
   }
 
   return res.json();
