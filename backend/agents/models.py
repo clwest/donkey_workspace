@@ -921,3 +921,63 @@ class TokenGuildVote(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"{self.guild.name} {self.vote_type} {self.token.name}"
+
+
+class TokenArbitrationSession(models.Model):
+    """Formal dispute resolution over a lore token."""
+
+    guilds = models.ManyToManyField("assistants.AssistantGuild")
+    token = models.ForeignKey(LoreToken, on_delete=models.CASCADE)
+    conflict_type = models.CharField(max_length=100)
+    initiating_guild = models.ForeignKey(
+        "assistants.AssistantGuild",
+        related_name="initiated_arbitrations",
+        on_delete=models.CASCADE,
+    )
+    resolution_summary = models.TextField(blank=True)
+    outcome = models.CharField(max_length=50, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Arbitration for {self.token.name}"
+
+
+class SymbolicConflict(models.Model):
+    """Structured debate or disagreement between assistants."""
+
+    topic = models.TextField()
+    participating_assistants = models.ManyToManyField("assistants.Assistant")
+    memory_context = models.ManyToManyField(SwarmMemoryEntry)
+    token_context = models.ManyToManyField(LoreToken)
+    symbolic_position_map = models.JSONField()
+    resolution = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.topic[:50]
+
+
+class LorechainLink(models.Model):
+    """Lineage connection between lore tokens."""
+
+    source_token = models.ForeignKey(
+        LoreToken, related_name="lorechain_source", on_delete=models.CASCADE
+    )
+    descendant_token = models.ForeignKey(
+        LoreToken, related_name="lorechain_descendant", on_delete=models.CASCADE
+    )
+    mutation_type = models.CharField(max_length=100)
+    symbolic_inheritance_notes = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"{self.source_token.name} -> {self.descendant_token.name}"
