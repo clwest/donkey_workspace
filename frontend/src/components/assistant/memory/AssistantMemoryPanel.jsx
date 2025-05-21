@@ -40,23 +40,21 @@ export default function AssistantMemoryPanel({ slug }) {
       ) : (
         <ul className="list-group">
           {memories.map((m) => {
-            const preview = m.summary
-              ? m.summary
-              : m.event
-              ? m.event.length > 120
-                ? m.event.slice(0, 120) + "..."
-                : m.event
-              : "(no summary)";
+            const summary =
+              m.summary || (m.event ? `${m.event.slice(0, 120)}…` : "(no content)");
+
             return (
               <li
                 key={m.id}
                 className="list-group-item d-flex justify-content-between align-items-start shadow-sm p-3"
               >
                 <div className="me-2">
-                  <div>
-                    <strong>{preview}</strong>
+
+                  <div className="memory-summary">
+                    <strong>{summary}</strong>
                   </div>
-                  <div className="small text-muted">
+                  <div className="memory-meta small text-muted">
+
                     {new Date(m.created_at).toLocaleString()} • {m.token_count} tokens
                   </div>
                   {m.tags && m.tags.length > 0 && (

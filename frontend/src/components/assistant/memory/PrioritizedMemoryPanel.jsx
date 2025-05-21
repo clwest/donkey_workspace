@@ -31,28 +31,32 @@ export default function PrioritizedMemoryPanel({ slug }) {
     <div className="p-2 border rounded">
       <h5 className="mb-3">Prioritized Memories</h5>
       <ul className="list-group">
-        {memories.map((m) => (
-          <li
-            key={m.id}
-            className="list-group-item d-flex justify-content-between align-items-start"
-          >
-            <div className="me-2">
-              <div>
-                <strong>{m.summary || m.event || "(no summary)"}</strong>
-              </div>
-              <div className="small text-muted">
-                {new Date(m.created_at).toLocaleString()} • importance {m.importance}
-              </div>
-              {m.tags && m.tags.length > 0 && (
-                <div className="mt-1">
-                  {m.tags.map((t) => (
-                    <TagBadge key={t.id} tag={t} className="me-1" />
-                  ))}
+        {memories.map((m) => {
+          const summary =
+            m.summary || (m.event ? `${m.event.slice(0, 120)}…` : "(no content)");
+          return (
+            <li
+              key={m.id}
+              className="list-group-item d-flex justify-content-between align-items-start"
+            >
+              <div className="me-2">
+                <div className="memory-summary">
+                  <strong>{summary}</strong>
                 </div>
-              )}
-            </div>
-          </li>
-        ))}
+                <div className="memory-meta small text-muted">
+                  {new Date(m.created_at).toLocaleString()} • importance {m.importance}
+                </div>
+                {m.tags && m.tags.length > 0 && (
+                  <div className="mt-1">
+                    {m.tags.map((t) => (
+                      <TagBadge key={t.id} tag={t} className="me-1" />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

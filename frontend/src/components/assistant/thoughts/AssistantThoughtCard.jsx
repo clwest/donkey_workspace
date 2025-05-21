@@ -5,6 +5,86 @@ import { mutateThought } from "../../../api/assistants";
 import TagBadge from "../../TagBadge"; // ✅ Display badge-style tags
 import "./styles/AssistantCardStyle.css";
 
+function ThoughtTrace({ trace }) {
+  const [showRaw, setShowRaw] = useState(false);
+  let data = null;
+  if (trace) {
+    if (typeof trace === "string") {
+      try {
+        data = JSON.parse(trace);
+      } catch (err) {
+        data = null;
+      }
+    } else if (typeof trace === "object") {
+      data = trace;
+    }
+  }
+
+  if (!data) {
+    return (
+      <div className="bg-light p-3 rounded mt-3">
+        <h6 className="text-muted">🧩 Chain of Thought</h6>
+        <pre className="mb-0" style={{ whiteSpace: "pre-wrap" }}>{trace}</pre>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-light p-3 rounded mt-3">
+      <h6 className="text-muted">🧩 Chain of Thought</h6>
+      <dl className="thought-details">
+        {data.score !== undefined && (
+          <>
+            <dt>Score</dt>
+            <dd>{data.score}</dd>
+          </>
+        )}
+        {data.role && (
+          <>
+            <dt>Role</dt>
+            <dd>{data.role}</dd>
+          </>
+        )}
+        {data.summary && (
+          <>
+            <dt>Summary</dt>
+            <dd>{data.summary}</dd>
+          </>
+        )}
+        {data.focus && (
+          <>
+            <dt>Focus</dt>
+            <dd>{data.focus}</dd>
+          </>
+        )}
+        {data.personality && (
+          <>
+            <dt>Personality</dt>
+            <dd>{data.personality}</dd>
+          </>
+        )}
+        {data.prompt_tweaks && (
+          <>
+            <dt>Prompt Tweaks</dt>
+            <dd>{String(data.prompt_tweaks)}</dd>
+          </>
+        )}
+      </dl>
+      <button
+        className="btn btn-link btn-sm px-0"
+        onClick={() => setShowRaw((v) => !v)}
+      >
+        {showRaw ? "Hide Raw JSON" : "View Raw JSON"}
+      </button>
+      {showRaw && (
+        <pre className="bg-light p-2 mt-2 small">
+          {typeof trace === "string" ? trace : JSON.stringify(trace, null, 2)}
+        </pre>
+      )}
+    </div>
+  );
+}
+
 const typeEmojis = {
   user: "👤",
   assistant: "🤖",
@@ -227,12 +307,7 @@ export default function AssistantThoughtCard({
               </p>
 
               {thought.thought_trace && (
-                <div className="bg-light p-3 rounded mt-3">
-                  <h6 className="text-muted">🧩 Chain of Thought</h6>
-                  <pre className="mb-0" style={{ whiteSpace: "pre-wrap" }}>
-                    {thought.thought_trace}
-                  </pre>
-                </div>
+                <ThoughtTrace trace={thought.thought_trace} />
               )}
 
               {thought.linked_memory_preview && (
