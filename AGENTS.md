@@ -19,155 +19,76 @@
 
 ## 🚀 Phase 3: Contextual Memory, Task Planning & Project Linking
 
-We are now in **Phase 3**, focused on deepening long-term memory, task planning, and assistant collaboration.
+### ✅ Completed 3.0–3.32 Milestones
+
+- ✅ Assistants linked to Projects, Objectives, and MemoryChains
+- ✅ Assistant-to-Agent delegation chain with threading and context reuse
+- ✅ Multi-assistant planning, thoughts-to-tasks, drift analysis
+- ✅ Project planning timelines and session memory replay
+- ✅ Feedback-based mutation, prompt refinement, and tone adjustment
+- ✅ Dream Mode and speculative memory planning
+- ✅ Reflection scoring, mood tagging, and assistant identity reconfirmation
 
 ---
 
-### ✅ Core Milestones Completed (Phase 3.0–3.32)
+## 🛠️ Phase 4: Tools, API Access, Agent Collaboration
 
-- ✅ Assistants linked to Projects + Objectives
-- ✅ AssistantMemoryChain linked and editable with reflection filters
-- ✅ Reflection reuse, feedback categorization, and prompt mutation
-- ✅ Agents can spawn with inheritance of thread + memory context
-- ✅ Hierarchical thought → project → milestone planning flow
-- ✅ Delegation log, trust scores, and agent status summaries
-- ✅ Multi-assistant project views with memory/role summaries
-- ✅ Conversational session browser + replay
-- ✅ Assistant mood tracking + tone-aware reflection
-- ✅ Assistant personality and custom traits model
-- ✅ Emotional memory mapping and mood-based planning shifts
-- ✅ Thought-based objective generation and evolution
-- ✅ Dream Mode: speculative planning thoughts
+### ✅ Phase 4.1–4.28 Completed
 
----
-
-### 🔄 Phase 3.33–3.37 — In Progress / Queued
-
-- [x] 3.33: Agent Success Review + Task Reintegration
-- [x] 3.34: Memory Validation Interface
-- [x] 3.35: Assistant Planning Timeline View
-- [x] 3.36: Thought Tag Training + Context Embedding
-- [x] 3.37: Reflection Reprioritization + Auto-Summarization
+- ✅ Tool Registry with scoring, fallback, and execution routing
+- ✅ Self-updating registry + tool usage feedback and prompt mutation
+- ✅ Assistant-to-Assistant messaging + live relay support
+- ✅ Emotional memory influence on task planning and delegation tone
+- ✅ Team memory pools, delegation trust scores, and recovery workflows
+- ✅ Assistant specialization drift detection and retraining suggestion
+- ✅ Memory replay, bookmark, and recall from session context
+- ✅ Identity self-assessment with dashboard logging
+- ✅ `diff_knowledge` endpoint to compare assistant memory vs new input
+- ✅ Recovery panel and misalignment status visualization
 
 ---
 
-## 🛠️ Phase 4: Tools, API Access, and Execution Layer
+## 🧠 Current Focus: Phase 4.29–4.40 (Memory Linking, Narrative Threading, Visuals)
 
-### ✅ Completed through 4.24
+### ✅ Recently Completed
 
-- ✅ 4.1: Tool Registry Model + Execution Endpoint
-- ✅ 4.2: Tool Invocation from Thought Context
-- ✅ 4.3: Tool Reflection + Fallback Delegation Logic
-- ✅ 4.4: Tool Scoring System + Context-Aware Selection
-- ✅ 4.5: Self-Updating Tool Registry + Capability Awareness
-- ✅ 4.6: Assistant Capability Profiles + Skill Graph
-- ✅ 4.7: Delegation Routing via Capability Match
-- ✅ 4.8: Tool-Enhanced Thought Generation + Planning Support
-- ✅ 4.9: Assistant-to-Assistant Messaging + Live Relay Mode
-- ✅ 4.10: Conversation Handoff + Agent Takeover
-- ✅ 4.11: Routing Confidence Logs + Fallback Overrides
-- ✅ 4.12: Assistant Routing Suggestions Based on Context & Tags
-- ✅ 4.13: Assistant Routing History + Confidence Debugging Tools
-- ✅ 4.14: Assistant Specialization Drift + Retraining Signal Detection
-- ✅ 4.15: Self-Healing Assistants via Prompt Clarification + Reflection
-- ✅ 4.16: Shared Assistant Memory Pools + Dynamic Linkage
-- ✅ 4.17: Context-Aware Memory Retrieval and Prioritization
-- ✅ 4.18: Dynamic Context Expansion via Related Memory & Mood
-- ✅ 4.19: Multi-Agent Socratic Debugging Mode
-- ✅ 4.20: Multi-Agent Debate + Consensus Building
-- ✅ 4.21: Council Convene Protocol + Vote Handling
-- ✅ 4.22: Emotional Resonance Logging + Assistant Empathy Tracing
-- ✅ 4.23: Mood-Driven Collaboration Styles + Conflict Avoidance
-- ✅ 4.24: Team Memory Chains + Assistant Roles in Shared Projects
-- ✅ 4.28: Assistant Recovery Workflow (Drift Detection + Recovery Panel)
+- ✅ Linked character, image, story, and video app endpoints from legacy Magical Mountains app
+- ✅ Exposed `/api/images/`, `/api/characters/`, `/api/videos/`, `/api/story/`, `/api/tts/`
+- ✅ Connected assistant → project → media asset pipelines
+- ✅ Implemented context-aware memory chunk injection into assistant planning
+- ✅ Chunk-level retry support and progress feedback from PDF ingestions
+- ✅ Linking DevDocs and Videos to Assistants post-creation
+- ✅ Memory visualizer in development: preparing chunk map, vector replay, timeline summaries
 
 ---
 
-## ✅ Current Status
+## 📌 TODO for Route & API Coverage
 
-- Codex is actively iterating through Phase 4 features.
-- Frontend and backend are linked and handling real assistant-to-agent flows.
-- Primary assistant “DonkGPT” is now seeded, delegated, and operational.
+- [ ] ✅ Reconnect `/assistants/suggest/` and `/assistants/generate-mission/`
+- [ ] ✅ Fix `/prompts/search/` endpoint or update frontend calls
+- [ ] ✅ Enable council APIs `/assistants/council/` block
+- [ ] ✅ Implement `/api/mcp/agent/<slug>/think/`
+- [ ] ✅ Align `/api/projects/<uuid>` with frontend calls
+- [ ] ✅ Map dashboard routes (slug-aware and primary-aware)
+- [ ] ✅ Connect character/image/video frontend with linked assistant context
 
 ---
 
-## 🧭 Next Up (Phase 4.25+ Preview)
+## 🎯 Next Up: Phase 4.29–4.40 Deep Narrative Linking
 
-- 🧠 4.25: Persistent Assistant Personas + Custom Traits
-- 🎭 4.26: Emotional Memory Mapping + Mood Influence
-- 📈 4.27+: Dynamic Planning based on Mood, Memory, and Context
-- 👁️‍🗨️ 4.29+: Memory Visualizer, Delegation Trace Views, Agent Feedback
+- 🧠 4.29: Memory Summarization + Feedback Tag Filters
+- 🪄 4.30: Prompt Enhancement via Memory Review and Reuse
+- 📚 4.31: Project Thread Rebuilding from Assistant Memory
+- 🧵 4.32: Narrative-Based Delegation + Mood Replay
+- 🕵️‍♂️ 4.33: Scene-Aware Memory Mapping
+- 📽️ 4.34–4.36: Scene Replay, Agent Injection, Mood-Aware Planning
+- 📈 4.37: Memory Bookmarking, Recall-on-Demand
+- 🔁 4.38–4.41: Thread Reuse, Cross-Project Recall, Narrative Health Score
 
-### ✅ Phase 4.26: Assistant Knowledge Diffing + System Prompt Refinement
+---
 
-**Summary:**
+## ✅ Status
 
-- Added a new backend API endpoint: `/api/assistants/<slug>/diff-knowledge/`
-- Enables comparing an assistant’s current prompt and memory state against new input text (e.g. updated documentation)
-- Uses OpenAI to generate:
-  - Suggested updates to system prompt
-  - Tone/style alignment
-  - Summary of knowledge gaps or contradictions
-
-**Implementation:**
-
-- `diff_knowledge()` view receives input text and assistant slug
-- Retrieves assistant’s system prompt + recent memory entries
-- Constructs a comparison prompt and submits to LLM
-- Returns proposed refinements and tone suggestions
-
-**Supporting Work:**
-
-- Included tests covering:
-  - Input validation
-  - Successful diff and structured output
-- Registered route and attached to assistant view module for use in frontend mutation workflows
-
-**Next Steps:**
-
-- Integrate with Assistant Prompt Edit UI for guided mutations
-- Display suggested changes in `PromptRefinementPanel.jsx`
-- Link this diff flow into the new **Assistant Recovery Workflow** (Phase 4.28)
-
-### ✅ Phase 4.27: Assistant Identity Self-Assessment + Role Reconfirmation
-
-**Summary:**
-
-- Added new `thought_type="identity_reflection"` to `AssistantThoughtLog`
-- Implemented `/api/assistants/<slug>/self_assess/` endpoint
-  - Evaluates whether the assistant’s current behavior aligns with its defined tone, system prompt, and persona
-  - Uses LLM to score tone, goal alignment, and recent behavior
-- Results are saved as `AssistantThoughtLog` entries
-- New modal `IdentityReflectionModal` displays this analysis in the dashboard
-- Dashboard self-assessment trigger added to Primary Assistant panel
-
-**Supporting Work:**
-
-- Expanded API client and frontend hooks
-- Added backend test verifying that self-assessment logs are stored properly
-
-### ✅ Phase 4.28: Assistant Recovery Workflow for Misalignment or Memory Drift
-
-**Summary:**
-
-- Added `needs_recovery` boolean field to `Assistant` model
-- Updated drift analysis (Phase 4.14) to mark assistants as needing recovery if drift threshold exceeded
-- Introduced `requires_retraining` field in `SpecializationDriftLog` model
-- Added `/api/assistants/<slug>/recover/` endpoint:
-  - Generates a summary of the drift
-  - Proposes edits to the assistant’s system prompt and personality
-  - Logs a meta-thought entry
-- Frontend Recovery Panel now displays when `needs_recovery` is true
-
-**Visual Additions:**
-
-- 🩹 "Misaligned" badge shown next to affected assistants
-- Recovery action modal added to Primary Assistant dashboard
-
-**Documentation:**
-
-- Assistant Recovery section added to `AGENTS.md` including:
-  - What triggers recovery
-  - How to resolve
-  - How logs are tracked
-- Root TTS API now available at `/api/tts/`
+- Primary Assistant **DonkGPT** seeded and operational
+- Codex handling backend & frontend flows via AGENTS.md guidance
+- Assistants are reflecting, delegating, and now triggering tools + visual media
