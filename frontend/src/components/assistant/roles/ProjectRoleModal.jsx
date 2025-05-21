@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import CommonModal from "../../CommonModal";
 import apiFetch from "../../../utils/apiClient";
 
@@ -16,14 +17,20 @@ export default function ProjectRoleModal({ projectId, show, onClose, onSaved }) 
 
   async function handleAssign() {
     if (!assistantId || !roleName) return;
-    await apiFetch(`/assistants/projects/${projectId}/roles/`, {
-      method: "POST",
-      body: { assistant: assistantId, role_name: roleName, description },
-    });
-    setAssistantId("");
-    setRoleName("");
-    setDescription("");
-    if (onSaved) onSaved();
+    try {
+      await apiFetch(`/assistants/projects/${projectId}/roles/`, {
+        method: "POST",
+        body: { assistant: assistantId, role_name: roleName, description },
+      });
+      setAssistantId("");
+      setRoleName("");
+      setDescription("");
+      if (onSaved) onSaved();
+      toast.success("Role assigned!");
+    } catch (err) {
+      console.error("Failed to assign role", err);
+      toast.error(err.message || "Failed to assign role");
+    }
   }
 
   return (
