@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -7,6 +7,21 @@ export default function AssistantThoughtLogPage() {
   const [thought, setThought] = useState("");
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [events, setEvents] = useState([]);
+  const [eventId, setEventId] = useState("");
+
+  useEffect(() => {
+    async function fetchEvents() {
+      try {
+        const res = await fetch("http://localhost:8000/api/storyboard/");
+        const data = await res.json();
+        setEvents(data);
+      } catch (err) {
+        console.error("Failed to load events", err);
+      }
+    }
+    fetchEvents();
+  }, []);
 
   const handleLogThought = async () => {
     if (!thought.trim()) return;
@@ -16,7 +31,7 @@ export default function AssistantThoughtLogPage() {
       const res = await fetch(`http://localhost:8000/api/assistants/${slug}/log_thought/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ thought }), // ✅ renamed from "message"
+        body: JSON.stringify({ thought, narrative_event_id: eventId }),
       });
 
       const data = await res.json();
@@ -45,6 +60,21 @@ export default function AssistantThoughtLogPage() {
         onChange={(e) => setThought(e.target.value)}
         placeholder="What do you want the assistant to log as a thought?"
       />
+
+      {events.length > 0 && (
+        <select
+          className="form-select mb-3"
+          value={eventId}
+          onChange={(e) => setEventId(e.target.value)}
+        >
+          <option value="">(Optional) Link to event</option>
+          {events.map((ev) => (
+            <option key={ev.id} value={ev.id}>
+              {ev.title}
+            </option>
+          ))}
+        </select>
+      )}
 
       <button className="btn btn-primary mb-3" onClick={handleLogThought} disabled={loading}>
         {loading ? "Logging..." : "💾 Log Thought"}

@@ -53,6 +53,7 @@ from project.serializers import (
 )
 from mcp_core.serializers_tags import NarrativeThreadSerializer
 from mcp_core.models import NarrativeThread
+from story.models import NarrativeEvent
 from memory.models import MemoryEntry
 from memory.serializers import MemoryEntrySerializer
 from assistants.utils.bootstrap_helpers import generate_objectives_from_prompt
@@ -168,6 +169,7 @@ class AssistantSkillSerializer(serializers.ModelSerializer):
 
 
 class AssistantReflectionLogSerializer(serializers.ModelSerializer):
+    linked_event = serializers.SerializerMethodField()
     class Meta:
         model = AssistantReflectionLog
         fields = [
@@ -177,13 +179,23 @@ class AssistantReflectionLogSerializer(serializers.ModelSerializer):
             "mood",
             "summary",
             "llm_summary",
+            "linked_event",
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]
 
+    def get_linked_event(self, obj):
+        if obj.linked_event:
+            return {
+                "id": str(obj.linked_event.id),
+                "title": obj.linked_event.title,
+            }
+        return None
+
 
 class AssistantReflectionLogListSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
+    linked_event = serializers.SerializerMethodField()
 
     class Meta:
         model = AssistantReflectionLog
@@ -193,15 +205,25 @@ class AssistantReflectionLogListSerializer(serializers.ModelSerializer):
             "project",
             "summary",
             "linked_memory",
+            "linked_event",
             "tags",
         ]
         read_only_fields = ["id", "created_at"]
+
+    def get_linked_event(self, obj):
+        if obj.linked_event:
+            return {
+                "id": str(obj.linked_event.id),
+                "title": obj.linked_event.title,
+            }
+        return None
 
 
 class AssistantReflectionLogDetailSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     linked_memory = MemoryEntrySerializer(read_only=True)
     project = ProjectSerializer(read_only=True)
+    linked_event = serializers.SerializerMethodField()
     raw_summary = serializers.CharField(
         source="raw_prompt", allow_null=True, read_only=True
     )
@@ -218,11 +240,20 @@ class AssistantReflectionLogDetailSerializer(serializers.ModelSerializer):
             "llm_summary",
             "insights",
             "linked_memory",
+            "linked_event",
             "tags",
             "mood",
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]
+
+    def get_linked_event(self, obj):
+        if obj.linked_event:
+            return {
+                "id": str(obj.linked_event.id),
+                "title": obj.linked_event.title,
+            }
+        return None
 
 
 class ProjectPlanningLogSerializer(serializers.ModelSerializer):
@@ -300,6 +331,13 @@ class AssistantObjectiveSerializer(serializers.ModelSerializer):
         source="generated_from_reflection.created_at", read_only=True
     )
     source_memory = serializers.UUIDField(source="source_memory.id", read_only=True)
+    linked_event = serializers.PrimaryKeyRelatedField(
+        queryset=NarrativeEvent.objects.all(),
+        required=False,
+        allow_null=True,
+        source="linked_event",
+    )
+    linked_event_title = serializers.CharField(source="linked_event.title", read_only=True)
 
     class Meta:
         model = AssistantObjective
@@ -314,6 +352,8 @@ class AssistantObjectiveSerializer(serializers.ModelSerializer):
             "generated_from_reflection",
             "reflection_created_at",
             "source_memory",
+            "linked_event",
+            "linked_event_title",
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]
@@ -526,6 +566,7 @@ class AssistantThoughtLogSerializer(serializers.ModelSerializer):
     linked_memory = serializers.PrimaryKeyRelatedField(read_only=True)
     linked_memories = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     linked_reflection = serializers.PrimaryKeyRelatedField(read_only=True)
+    linked_event = serializers.SerializerMethodField()
     linked_memory_preview = serializers.SerializerMethodField()
     tags = TagSerializer(many=True, read_only=True)
     narrative_thread = serializers.PrimaryKeyRelatedField(read_only=True)
@@ -558,6 +599,7 @@ class AssistantThoughtLogSerializer(serializers.ModelSerializer):
             "parent_thought",
             "linked_memory_preview",  # 🆕 Text preview
             "narrative_thread",
+            "linked_event",
             "empathy_response",
             "resonated_with_user",
             "created_at",
@@ -565,6 +607,14 @@ class AssistantThoughtLogSerializer(serializers.ModelSerializer):
 
     def get_linked_memory_preview(self, obj):
         return obj.linked_memory.event if obj.linked_memory else None
+
+    def get_linked_event(self, obj):
+        if obj.linked_event:
+            return {
+                "id": str(obj.linked_event.id),
+                "title": obj.linked_event.title,
+            }
+        return None
 
 
 class AssistantPromptLinkSerializer(serializers.ModelSerializer):

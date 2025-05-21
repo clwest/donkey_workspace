@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from story.models import Story
+from story.models import Story, NarrativeEvent
 from images.serializers import ImageSerializer
 from tts.serializers import StoryAudioSerializer
 from images.models import PromptHelper
@@ -67,6 +67,13 @@ class StorySerializer(serializers.ModelSerializer):
                 else obj.tts.audio_file.url
             )
         return None
+
+
+class NarrativeEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NarrativeEvent
+        fields = ["id", "title", "description", "timestamp", "project"]
+        read_only_fields = ["id", "timestamp"]
 
     def get_image_url(self, obj):
         request = self.context.get("request")

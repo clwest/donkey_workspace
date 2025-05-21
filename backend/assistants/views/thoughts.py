@@ -35,7 +35,18 @@ def submit_assistant_thought(request, slug):
     if not thought_text:
         return Response({"error": "Thought text is required."}, status=400)
 
-    log = AssistantThoughtLog.objects.create(assistant=assistant, thought=thought_text)
+    event_id = request.data.get("narrative_event_id")
+    event = None
+    if event_id:
+        from story.models import NarrativeEvent
+
+        event = NarrativeEvent.objects.filter(id=event_id).first()
+
+    log = AssistantThoughtLog.objects.create(
+        assistant=assistant,
+        thought=thought_text,
+        linked_event=event,
+    )
 
     return Response(
         {
@@ -142,9 +153,17 @@ def assistant_project_thoughts(request, project_id):
         if not thought_text.strip():
             return Response({"error": "Thought text is required."}, status=400)
 
+        event_id = request.data.get("narrative_event_id")
+        event = None
+        if event_id:
+            from story.models import NarrativeEvent
+
+            event = NarrativeEvent.objects.filter(id=event_id).first()
+
         thought = AssistantThoughtLog.objects.create(
             project=project,
             thought=thought_text,
+            linked_event=event,
         )
 
         return Response(

@@ -87,3 +87,25 @@ class Story(models.Model):
 
     def __str__(self):
         return self.title or f"Story {self.id} by {self.user.username}"
+
+
+class NarrativeEvent(models.Model):
+    """Discrete event or milestone in a storyboard or timeline."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    project = models.ForeignKey(
+        "project.Project",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="narrative_events",
+    )
+
+    class Meta:
+        ordering = ["-timestamp"]
+
+    def __str__(self):
+        return self.title
