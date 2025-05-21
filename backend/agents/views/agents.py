@@ -3,18 +3,27 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from agents.models import Agent, AgentFeedbackLog, AgentCluster
-from agents.serializers import AgentSerializer, AgentFeedbackLogSerializer, AgentClusterSerializer
+from agents.serializers import (
+    AgentSerializer,
+    AgentFeedbackLogSerializer,
+    AgentClusterSerializer,
+    SwarmMemoryEntrySerializer,
+)
 from agents.utils.agent_controller import (
     update_agent_profile_from_feedback,
     train_agent_from_documents,
     recommend_training_documents,
 )
+from agents.utils.swarm_temporal import get_swarm_snapshot
+from django.utils import timezone
+
 
 @api_view(["GET"])
 def list_agents(request):
     agents = Agent.objects.all().order_by("created_at")
     serializer = AgentSerializer(agents, many=True)
     return Response(serializer.data)
+
 
 @api_view(["GET"])
 def agent_detail_view(request, slug):
@@ -79,14 +88,33 @@ def recommend_training_docs(request, id):
     data = DocumentSerializer(docs, many=True).data
     return Response(data)
 
+
 @api_view(["GET"])
 def list_clusters(request):
     clusters = AgentCluster.objects.all().order_by("-created_at")
     serializer = AgentClusterSerializer(clusters, many=True)
     return Response(serializer.data)
 
+
 @api_view(["GET"])
 def cluster_detail_view(request, id):
     cluster = get_object_or_404(AgentCluster, id=id)
     serializer = AgentClusterSerializer(cluster)
     return Response(serializer.data)
+
+
+@api_view(["GET"])
+def swarm_snapshot(request, date):
+    try:
+        snapshot_date = timezone.datetime.fromisoformat(date)
+    except ValueError:
+        return Response({"error": "Invalid date"}, status=400)
+
+    data = get_swarm_snapshot(snapshot_date)
+    return Response(
+        {
+            "agents": AgentSerializer(data["agents"], many=True).data,
+            "clusters": AgentClusterSerializer(data["clusters"], many=True).data,
+            "memories": SwarmMemoryEntrySerializer(data["memories"], many=True).data,
+        }
+    )
