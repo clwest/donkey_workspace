@@ -4,7 +4,10 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from assistants.models import Assistant, AssistantProject
-from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
+from assistants.utils.assistant_reflection_engine import (
+    AssistantReflectionEngine,
+    evaluate_thought_continuity,
+)
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
@@ -15,5 +18,5 @@ def evaluate_continuity(request, slug):
     if project_id:
         project = get_object_or_404(AssistantProject, id=project_id)
     engine = AssistantReflectionEngine(assistant)
-    result = engine.evaluate_thought_continuity(project=project)
+    result = evaluate_thought_continuity(engine, project=project)
     return Response(result)
