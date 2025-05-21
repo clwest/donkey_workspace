@@ -11,6 +11,7 @@ import AssistantSpawnForm from "../../../components/assistant/AssistantSpawnForm
 import apiFetch from "../../../utils/apiClient";
 import ProjectRolesRow from "../../../components/assistant/roles/ProjectRolesRow";
 import ProjectHistoryPanel from "../../../components/assistant/project_history/ProjectHistoryPanel";
+import ContinuityModal from "../../../components/assistant/ContinuityModal";
 
 export default function ProjectDetailPage() {
   const { id } = useParams();
@@ -28,6 +29,7 @@ export default function ProjectDetailPage() {
   const [selectedAssistantId, setSelectedAssistantId] = useState("");
   const [changeMode, setChangeMode] = useState(false);
   const [teamMemory, setTeamMemory] = useState([]);
+  const [showContinuity, setShowContinuity] = useState(false);
 
   useEffect(() => {
     async function loadTeamMemory() {
@@ -258,6 +260,15 @@ export default function ProjectDetailPage() {
 
 
       <AutoModeToggle enabled={autoMode} onToggle={setAutoMode} />
+      <div className="my-3">
+        <button
+          className="btn btn-outline-secondary"
+          onClick={() => setShowContinuity(true)}
+          disabled={!project.assistant}
+        >
+          Continuity Check
+        </button>
+      </div>
       <AssistantPromptPanel projectId={project.id} />
       <AssistantIntelligencePanel projectId={id} />
       <ProjectTaskManager />
@@ -298,5 +309,11 @@ export default function ProjectDetailPage() {
       </ul>
     )}
     </div>
+    <ContinuityModal
+      show={showContinuity}
+      onClose={() => setShowContinuity(false)}
+      assistantSlug={project.assistant?.slug}
+      projectId={project.id}
+    />
   );
 }
