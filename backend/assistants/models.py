@@ -40,6 +40,7 @@ THOUGHT_TYPES = [
     ("delegation_suggestion", "Delegation Suggestion"),
     ("identity_reflection", "Identity Reflection"),
     ("refocus", "Refocus Suggestion"),
+    ("regeneration", "Plan Regeneration"),
 ]
 
 MEMORY_MODES = [

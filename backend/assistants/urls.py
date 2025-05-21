@@ -24,6 +24,7 @@ from .views import (
     routing,
     handoffs,
     scene,
+    recovery,
 )
 
 urlpatterns = [
@@ -535,6 +536,11 @@ urlpatterns = [
         "<slug:slug>/recover/",
         assistants.recover_assistant_view,
         name="assistant-recover",
+    ),
+    path(
+        "<slug:slug>/regenerate_plan/",
+        recovery.regenerate_plan,
+        name="assistant-regenerate-plan",
     ),
     path(
         "<slug:slug>/diff-knowledge/",
