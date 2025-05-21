@@ -21,12 +21,21 @@ from intel_core.serializers import DocumentSerializer
 
 class AgentSerializer(serializers.ModelSerializer):
     trained_documents = DocumentSerializer(many=True, read_only=True)
+    parent_assistant_id = serializers.SerializerMethodField()
+    parent_assistant_name = serializers.CharField(
+        source="parent_assistant.name", read_only=True
+    )
+    parent_assistant_slug = serializers.CharField(
+        source="parent_assistant.slug", read_only=True
+    )
 
     class Meta:
         model = Agent
         fields = [
             "id",
-            "assistant",
+            "parent_assistant_id",
+            "parent_assistant_slug",
+            "parent_assistant_name",
             "name",
             "slug",
             "description",
@@ -41,6 +50,9 @@ class AgentSerializer(serializers.ModelSerializer):
             "trained_documents",
             "created_at",
         ]
+
+    def get_parent_assistant_id(self, obj):
+        return str(obj.parent_assistant_id) if obj.parent_assistant_id else None
 
 
 class AgentFeedbackLogSerializer(serializers.ModelSerializer):
