@@ -206,7 +206,7 @@ def primary_spawn_agent(request):
     reason = request.data.get("reason") or request.data.get("goal") or "delegation"
 
     memory = get_object_or_404(MemoryEntry, id=memory_id)
-
+    
     child = spawn_delegated_assistant(parent, memory_entry=memory, reason=reason)
 
     project = Project.objects.filter(assistant=child).first()

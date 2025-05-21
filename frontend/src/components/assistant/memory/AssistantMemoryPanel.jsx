@@ -16,6 +16,8 @@ export default function AssistantMemoryPanel({ slug }) {
           apiFetch(`/assistants/${slug}/memories/`),
           apiFetch(`/assistants/${slug}/`),
         ]);
+        console.log(memRes)
+        console.log(asst)
         setMemories(memRes || []);
         setProject(asst.current_project || null);
       } catch (err) {

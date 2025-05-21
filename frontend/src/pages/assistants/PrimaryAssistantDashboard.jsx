@@ -38,7 +38,7 @@ export default function PrimaryAssistantDashboard() {
         let thoughtsData = [];
         try {
           thoughtsData = await apiFetch(`/assistants/${res.slug}/thoughts/`);
-          console.log("🧠 Raw thoughts data", thoughtsData);
+          // console.log("🧠 Raw thoughts data", thoughtsData);
         } catch (err) {
           console.warn("Failed to load thoughts", err);
         }
@@ -49,6 +49,7 @@ export default function PrimaryAssistantDashboard() {
         const delRes = await apiFetch("/assistants/primary/delegations/");
         setDelegations(delRes || []);
         const summary = await apiFetch(`/assistants/${res.slug}/memory/summary/`);
+        
         setMemorySummary(summary);
         const docs = await apiFetch(`/assistants/${res.slug}/memory-documents/`);
         if (docs) {
@@ -87,6 +88,7 @@ export default function PrimaryAssistantDashboard() {
         memoryId = memorySummary.most_recent[0].id;
       } else {
         const mems = await apiFetch(`/assistants/${assistant.slug}/memories/`);
+      
         memoryId = mems?.[0]?.id;
       }
 
