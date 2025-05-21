@@ -14,8 +14,14 @@ from agents.models import (
     RealityConsensusVote,
     MythDiplomacySession,
     RitualCollapseLog,
-    # LoreInheritanceLine,
-    # MythSimulationArena,
+
+    AssistantCivilization,
+
+    LoreInheritanceLine,
+    MythSimulationArena,
+    LegacyArtifact,
+    ReincarnationLog,
+    ReturnCycle,
 )
 from agents.serializers import (
     AgentSerializer,
@@ -28,8 +34,12 @@ from agents.serializers import (
     RealityConsensusVoteSerializer,
     MythDiplomacySessionSerializer,
     RitualCollapseLogSerializer,
-    # LoreInheritanceLineSerializer,
-    # MythSimulationArenaSerializer,
+    AssistantCivilizationSerializer,
+    LoreInheritanceLineSerializer,
+    MythSimulationArenaSerializer,
+    LegacyArtifactSerializer,
+    ReincarnationLogSerializer,
+    ReturnCycleSerializer,
 )
 
 from agents.utils.agent_controller import (
@@ -287,3 +297,39 @@ def belief_clusters(request):
 def harmonize_global(request):
     data = harmonize_global_narrative()
     return Response(data)
+
+
+@api_view(["GET", "POST"])
+def artifacts(request):
+    if request.method == "GET":
+        items = LegacyArtifact.objects.all().order_by("-created_at")
+        return Response(LegacyArtifactSerializer(items, many=True).data)
+
+    serializer = LegacyArtifactSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    artifact = serializer.save()
+    return Response(LegacyArtifactSerializer(artifact).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def reincarnations(request):
+    if request.method == "GET":
+        logs = ReincarnationLog.objects.all().order_by("-created_at")
+        return Response(ReincarnationLogSerializer(logs, many=True).data)
+
+    serializer = ReincarnationLogSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    log = serializer.save()
+    return Response(ReincarnationLogSerializer(log).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def return_cycles(request):
+    if request.method == "GET":
+        cycles = ReturnCycle.objects.all().order_by("-created_at")
+        return Response(ReturnCycleSerializer(cycles, many=True).data)
+
+    serializer = ReturnCycleSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    cycle = serializer.save()
+    return Response(ReturnCycleSerializer(cycle).data, status=201)

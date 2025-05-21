@@ -10,7 +10,10 @@ from agents.models import (
     RealityConsensusVote,
     MythDiplomacySession,
     RitualCollapseLog,
-    SwarmJournalEntry
+    LegacyArtifact,
+    ReincarnationLog,
+    ReturnCycle,
+
 )
 from assistants.models import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -184,6 +187,27 @@ class MythDiplomacySessionSerializer(serializers.ModelSerializer):
 class RitualCollapseLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = RitualCollapseLog
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class LegacyArtifactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LegacyArtifact
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class ReincarnationLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReincarnationLog
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class ReturnCycleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReturnCycle
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

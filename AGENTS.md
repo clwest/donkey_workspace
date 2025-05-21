@@ -164,3 +164,9 @@ Features:
 - Swarm health charts and skill drift reporting
 
 Next: Phase 4.64 — Legacy Agent Resurrection Events & Seasonal Swarm Cadence
+
+### Phase 4.86 Additions
+
+- Introduced `LegacyArtifact`, `ReincarnationLog`, and `ReturnCycle` models
+- Exposed `/api/artifacts/`, `/api/reincarnations/`, and `/api/return-cycles/`
+- Utility `reincarnate_assistant_from_artifact` seeds new assistants from artifacts

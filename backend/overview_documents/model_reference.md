@@ -12,6 +12,9 @@ This document lists notable models and their API exposure.
 | NarrativeDebate | assistants | inactive | n/a | no |
 | SwarmCadenceLog | agents | inactive | n/a | no |
 | SwarmMemoryArchive | agents | inactive | n/a | no |
+| LegacyArtifact | agents | active | /api/artifacts/ | LegacyArtifactSerializer |
+| ReincarnationLog | agents | active | /api/reincarnations/ | ReincarnationLogSerializer |
+| ReturnCycle | agents | active | /api/return-cycles/ | ReturnCycleSerializer |
 | UserInteractionSummary | accounts | inactive | n/a | no |
 | UserMemory | accounts | inactive | n/a | no |
 | UserPrompts | accounts | inactive | n/a | no |
