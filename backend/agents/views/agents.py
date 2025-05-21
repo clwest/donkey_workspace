@@ -3,9 +3,20 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 
-from agents.models import Agent, AgentFeedbackLog, AgentCluster, SwarmMemoryEntry
-from agents.serializers import AgentSerializer, AgentFeedbackLogSerializer, AgentClusterSerializer
-from agents.serializers import SwarmMemoryEntrySerializer
+from agents.models import (
+    Agent,
+    AgentFeedbackLog,
+    AgentCluster,
+    SwarmMemoryEntry,
+    SwarmTreaty,
+)
+from agents.serializers import (
+    AgentSerializer,
+    AgentFeedbackLogSerializer,
+    AgentClusterSerializer,
+    SwarmMemoryEntrySerializer,
+    SwarmTreatySerializer,
+)
 
 from agents.utils.agent_controller import (
     update_agent_profile_from_feedback,
@@ -14,7 +25,10 @@ from agents.utils.agent_controller import (
     retire_agent,
 )
 
-from agents.utils.swarm_analytics import generate_temporal_swarm_report, get_swarm_snapshot
+from agents.utils.swarm_analytics import (
+    generate_temporal_swarm_report,
+    get_swarm_snapshot,
+)
 from datetime import datetime
 
 
@@ -104,7 +118,6 @@ def cluster_detail_view(request, id):
 
 
 @api_view(["GET"])
-
 def swarm_temporal_report(request):
     data = generate_temporal_swarm_report()
     return Response(data)
@@ -127,11 +140,15 @@ def swarm_snapshot_view(request, date):
     except ValueError:
         return Response({"error": "Invalid date"}, status=400)
     snapshot = get_swarm_snapshot(dt)
-    return Response({
-        "agents": AgentSerializer(snapshot["agents"], many=True).data,
-        "clusters": AgentClusterSerializer(snapshot["clusters"], many=True).data,
-        "memories": SwarmMemoryEntrySerializer(snapshot["memories"], many=True).data,
-    })
+    return Response(
+        {
+            "agents": AgentSerializer(snapshot["agents"], many=True).data,
+            "clusters": AgentClusterSerializer(snapshot["clusters"], many=True).data,
+            "memories": SwarmMemoryEntrySerializer(
+                snapshot["memories"], many=True
+            ).data,
+        }
+    )
 
 
 @api_view(["POST"])
@@ -143,3 +160,9 @@ def retire_agents(request):
         retired.append(entry.id)
     return Response({"retired": retired})
 
+
+@api_view(["GET"])
+def list_treaties(request):
+    treaties = SwarmTreaty.objects.all().order_by("-created_at")
+    serializer = SwarmTreatySerializer(treaties, many=True)
+    return Response(serializer.data)

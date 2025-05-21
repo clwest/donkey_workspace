@@ -379,3 +379,19 @@ def handle_project_completion(sender, instance, created, **kwargs):
         if agents:
             entry.linked_agents.set(agents)
         entry.linked_projects.add(instance)
+
+
+class SwarmTreaty(models.Model):
+    """Formal agreement between assistant councils."""
+
+    name = models.CharField(max_length=150)
+    participants = models.ManyToManyField(
+        "assistants.AssistantCouncil", related_name="treaties"
+    )
+    objectives = models.TextField()
+    terms = models.JSONField()
+    status = models.CharField(max_length=20, default="active")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
