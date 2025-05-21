@@ -181,6 +181,11 @@ class ProjectMilestone(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     due_date = models.DateField(blank=True, null=True)
+    status = models.CharField(
+        max_length=50,
+        choices=MilestoneStatus.choices,
+        default=MilestoneStatus.PLANNED,
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -190,7 +195,7 @@ class ProjectMilestone(models.Model):
     @property
     def is_completed(self) -> bool:
         """Return True if the milestone status denotes completion."""
-        return self.status == "Completed"
+        return self.status == MilestoneStatus.COMPLETED
 
     def __str__(self):
         return f"{self.title} ({'Done' if self.is_completed else 'Pending'})"

@@ -18,11 +18,11 @@ class ProjectTaskAdmin(admin.ModelAdmin):
     search_fields = ("title", "notes", "project__title")
 
 
-# @admin.register(ProjectMilestone)
-# class ProjectMilestoneAdmin(admin.ModelAdmin):
-#     list_display = ("title", "project", "status", "due_date", "is_completed")
-#     list_filter = ("status", "due_date")
-#     search_fields = ("title", "description", "project__title")
+@admin.register(ProjectMilestone)
+class ProjectMilestoneAdmin(admin.ModelAdmin):
+    list_display = ("title", "project", "status", "due_date", "is_completed")
+    list_filter = ("status", "due_date")
+    search_fields = ("title", "description", "project__title")
 
 
 @admin.register(ProjectMemoryLink)
