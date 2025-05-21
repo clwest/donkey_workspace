@@ -228,6 +228,51 @@ def memory_detail(request, id):
 
 
 @api_view(["POST"])
+@permission_classes([AllowAny])
+def bookmark_memory(request, memory_id):
+    memory = get_object_or_404(MemoryEntry, id=memory_id)
+    label = request.data.get("label")
+    memory.is_bookmarked = True
+    memory.bookmark_label = label
+    memory.save()
+    return Response(MemoryEntrySerializer(memory).data)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def unbookmark_memory(request, memory_id):
+    memory = get_object_or_404(MemoryEntry, id=memory_id)
+    memory.is_bookmarked = False
+    memory.bookmark_label = None
+    memory.save()
+    return Response(MemoryEntrySerializer(memory).data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def bookmarked_memories(request):
+    queryset = MemoryEntry.objects.filter(is_bookmarked=True).order_by("-created_at")
+    assistant_slug = request.GET.get("assistant")
+    project_id = request.GET.get("project")
+    label = request.GET.get("label")
+    tag_slug = request.GET.get("tag")
+    date = request.GET.get("date")
+
+    if assistant_slug:
+        queryset = queryset.filter(assistant__slug=assistant_slug)
+    if project_id:
+        queryset = queryset.filter(related_project_id=project_id)
+    if label:
+        queryset = queryset.filter(bookmark_label__icontains=label)
+    if tag_slug:
+        queryset = queryset.filter(tags__slug=tag_slug)
+    if date:
+        queryset = queryset.filter(created_at__date=date)
+
+    return Response(MemoryEntrySerializer(queryset, many=True).data)
+
+
+@api_view(["POST"])
 def save_memory(request):
     data = request.data
     event = data.get("event")

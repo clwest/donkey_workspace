@@ -12,6 +12,7 @@ def log_assistant_thought(
     linked_event=None,
     project=None,
     thought_type: str = "generated",
+    bookmark_label: str | None = None,
 ):
     """
     Save a thought from or about the assistant to the AssistantThoughtLog.
@@ -31,4 +32,8 @@ def log_assistant_thought(
     if linked_memories:
         log.linked_memories.set(linked_memories)
     update_mood_stability(assistant, mood)
+    if bookmark_label and linked_memory:
+        linked_memory.is_bookmarked = True
+        linked_memory.bookmark_label = bookmark_label
+        linked_memory.save()
     return log

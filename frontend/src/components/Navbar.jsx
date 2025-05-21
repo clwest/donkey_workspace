@@ -37,6 +37,11 @@ export default function Navbar() {
               </Link>
             </li>
             <li className="nav-item">
+              <Link className="nav-link" to="/memories/bookmarked">
+                ⭐️ Bookmarked
+              </Link>
+            </li>
+            <li className="nav-item">
               <Link className="nav-link" to="/memories/chains">
                 🔗 Memory Chains
               </Link>

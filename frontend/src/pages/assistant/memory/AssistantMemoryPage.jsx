@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
-import { mutateMemory } from "../../../api/memories";
+import { mutateMemory, toggleBookmark as apiToggleBookmark } from "../../../api/memories";
 import MemoryVisualizer from "../../../components/assistant/memory/MemoryVisualizer";
 import ThoughtCloudPanel from "../../../components/assistant/memory/ThoughtCloudPanel";
 
@@ -30,6 +30,21 @@ export default function AssistantMemoryPage() {
       console.error("Mutation failed", err);
       alert("Failed to refine memory");
     }
+  }
+
+  async function toggleBookmark(memory) {
+    const updated = await apiToggleBookmark(
+      memory.id,
+      memory.is_bookmarked,
+      memory.bookmark_label || "Important"
+    );
+    setMemories((prev) =>
+      prev.map((m) =>
+        m.id === memory.id
+          ? { ...m, is_bookmarked: updated.is_bookmarked, bookmark_label: updated.bookmark_label }
+          : m
+      )
+    );
   }
 
   return (
@@ -102,6 +117,12 @@ export default function AssistantMemoryPage() {
                     <li><button className="dropdown-item" onClick={() => handleMutate(m.id, "rephrase")}>Rephrase</button></li>
                   </ul>
                 </div>
+                <button
+                  className={`btn btn-sm ms-2 ${m.is_bookmarked ? "btn-warning" : "btn-outline-warning"}`}
+                  onClick={() => toggleBookmark(m)}
+                >
+                  {m.is_bookmarked ? "Bookmarked" : "Bookmark"}
+                </button>
               </div>
             </li>
           ))}

@@ -51,6 +51,8 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
             "parent_memory",
             "type",
             "tool_response",
+            "is_bookmarked",
+            "bookmark_label",
             "delegation_event_id",
             "assistant_name",
             "assistant_id",
@@ -129,6 +131,8 @@ class MemoryEntrySlimSerializer(serializers.ModelSerializer):
             "token_count",
             "created_at",
             "parent_memory",
+            "is_bookmarked",
+            "bookmark_label",
         ]
 
     def get_token_count(self, obj):

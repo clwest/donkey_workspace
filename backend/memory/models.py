@@ -36,6 +36,8 @@ class MemoryEntry(models.Model):
     )
     type = models.CharField(max_length=100, default="general")
     auto_tagged = models.BooleanField(default=False)
+    is_bookmarked = models.BooleanField(default=False)
+    bookmark_label = models.CharField(max_length=100, blank=True, null=True)
 
     # 🔗 Relations (project, assistant, chat session)
     related_project = models.ForeignKey(
