@@ -39,6 +39,8 @@ from .models import (
     AssistantGuild,
     AssistantCivilization,
     AssistantReputation,
+    ConscienceModule,
+    DecisionFramework,
 
 )
 
@@ -1198,5 +1200,19 @@ class AssistantReputationSerializer(serializers.ModelSerializer):
         model = AssistantReputation
         fields = "__all__"
         read_only_fields = ["id", "updated_at"]
+
+
+class ConscienceModuleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ConscienceModule
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class DecisionFrameworkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DecisionFramework
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
 
 
