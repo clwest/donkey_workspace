@@ -224,8 +224,13 @@ class NarrativeThread(models.Model):
         on_delete=models.SET_NULL,
         related_name="origin_threads",
     )
-    long_term_objective = models.TextField(blank=True, null=True)
-    milestones = models.JSONField(default=list, blank=True)
+# <<<<<<< codex/add-thread-continuity-diagnostics
+#     continuity_score = models.FloatField(null=True, blank=True)
+#     last_diagnostic_run = models.DateTimeField(null=True, blank=True)
+# =======
+#     long_term_objective = models.TextField(blank=True, null=True)
+#     milestones = models.JSONField(default=list, blank=True)
+# >>>>>>> main
 
     def __str__(self):
         return self.title
@@ -289,22 +294,39 @@ class GroupedDevDocReflection(models.Model):
         return f"Grouped Reflection @ {self.created_at.strftime('%Y-%m-%d %H:%M')}"
 
 
-class ThreadObjectiveReflection(models.Model):
-    """Reflection on progress toward a thread's long-term objective."""
+# <<<<<<< codex/add-thread-continuity-diagnostics
+# class ThreadDiagnosticLog(models.Model):
+#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+#     thread = models.ForeignKey(
+#         NarrativeThread, on_delete=models.CASCADE, related_name="diagnostics"
+#     )
+#     score = models.FloatField()
+#     summary = models.TextField()
+#     created_at = models.DateTimeField(auto_now_add=True)
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    thread = models.ForeignKey(
-        NarrativeThread, on_delete=models.CASCADE, related_name="objective_reflections"
-    )
-    thought = models.TextField()
-    created_by = models.ForeignKey(
-        "assistants.Assistant",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="thread_reflections",
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
+#     class Meta:
+#         ordering = ["-created_at"]
 
-    def __str__(self):
-        return f"Reflection for {self.thread.title} @ {self.created_at.strftime('%Y-%m-%d %H:%M')}"
+#     def __str__(self):
+#         return f"Diagnostic {self.score:.2f} for {self.thread.title}"
+# =======
+# class ThreadObjectiveReflection(models.Model):
+#     """Reflection on progress toward a thread's long-term objective."""
+
+#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+#     thread = models.ForeignKey(
+#         NarrativeThread, on_delete=models.CASCADE, related_name="objective_reflections"
+#     )
+#     thought = models.TextField()
+#     created_by = models.ForeignKey(
+#         "assistants.Assistant",
+#         null=True,
+#         blank=True,
+#         on_delete=models.SET_NULL,
+#         related_name="thread_reflections",
+#     )
+#     created_at = models.DateTimeField(auto_now_add=True)
+
+#     def __str__(self):
+#         return f"Reflection for {self.thread.title} @ {self.created_at.strftime('%Y-%m-%d %H:%M')}"
+# >>>>>>> main

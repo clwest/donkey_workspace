@@ -9,6 +9,10 @@ import { Spinner } from "react-bootstrap";
 // import ObjectiveReflectionLog from "../../../components/mcp_core/ObjectiveReflectionLog";
 // =======
 import LinkedChainList from "../../../components/memory/LinkedChainList";
+// <<<<<<< codex/add-thread-continuity-diagnostics
+// import ThreadDiagnosticsPanel from "../../../components/mcp_core/ThreadDiagnosticsPanel";
+// =======
+// // >>>>>>> main
 // >>>>>>> main
 
 export default function ThreadDetailPage() {
@@ -16,6 +20,7 @@ export default function ThreadDetailPage() {
   const [thread, setThread] = useState(null);
   const [loading, setLoading] = useState(true);
   const [chains, setChains] = useState(null);
+  const [diag, setDiag] = useState(null);
 
   useEffect(() => {
     const fetchThread = async () => {
@@ -31,6 +36,16 @@ export default function ThreadDetailPage() {
     };
     fetchThread();
   }, [id]);
+
+  const handleDiagnostic = async () => {
+    try {
+      const data = await apiFetch(`/mcp/threads/${id}/diagnose/`, { method: "POST" });
+      setDiag(data);
+      setThread({ ...thread, continuity_score: data.score, last_diagnostic_run: new Date().toISOString() });
+    } catch (err) {
+      console.error("Diagnostic failed", err);
+    }
+  };
 
   useEffect(() => {
     apiFetch(`/memory/threads/${id}/linked_chains/`)
@@ -125,6 +140,11 @@ export default function ThreadDetailPage() {
           <LinkedChainList chains={chains} />
         </div>
       )}
+
+      <ThreadDiagnosticsPanel thread={thread} />
+      <button className="btn btn-primary mb-3" onClick={handleDiagnostic}>
+        Run Diagnostic
+      </button>
 
       <div className="mt-4">
         <Link to="/threads" className="btn btn-outline-secondary">

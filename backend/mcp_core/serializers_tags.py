@@ -1,6 +1,10 @@
 from rest_framework import serializers
-from mcp_core.models import Tag, NarrativeThread
-from mcp_core.models import ThreadObjectiveReflection
+# <<<<<<< codex/add-thread-continuity-diagnostics
+# from mcp_core.models import Tag, NarrativeThread, ThreadDiagnosticLog
+# =======
+# from mcp_core.models import Tag, NarrativeThread
+# from mcp_core.models import ThreadObjectiveReflection
+# >>>>>>> main
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -35,6 +39,8 @@ class NarrativeThreadSerializer(serializers.ModelSerializer):
             "tags",
             "created_by",
             "created_at",
+            "continuity_score",
+            "last_diagnostic_run",
             "origin_memory",
             "origin_memory_preview",
             "related_memory_previews",
@@ -60,12 +66,20 @@ class NarrativeThreadSerializer(serializers.ModelSerializer):
             for mem in obj.related_memories.all().order_by("-created_at")
         ]
 
-    def get_objective_reflections(self, obj):
-        return [
-            {
-                "id": str(r.id),
-                "thought": r.thought[:200],
-                "created_at": r.created_at,
-            }
-            for r in obj.objective_reflections.all().order_by("-created_at")
-        ]
+# <<<<<<< codex/add-thread-continuity-diagnostics
+
+# class ThreadDiagnosticLogSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = ThreadDiagnosticLog
+#         fields = ["id", "score", "summary", "created_at"]
+# =======
+#     def get_objective_reflections(self, obj):
+#         return [
+#             {
+#                 "id": str(r.id),
+#                 "thought": r.thought[:200],
+#                 "created_at": r.created_at,
+#             }
+#             for r in obj.objective_reflections.all().order_by("-created_at")
+#         ]
+# >>>>>>> main
