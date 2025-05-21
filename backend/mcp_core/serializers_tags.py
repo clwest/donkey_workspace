@@ -4,7 +4,6 @@ from mcp_core.models import Tag, NarrativeThread
 from mcp_core.models import ThreadObjectiveReflection
 
 
-
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
@@ -28,6 +27,7 @@ class NarrativeThreadSerializer(serializers.ModelSerializer):
     last_updated = serializers.SerializerMethodField()
     reflection_count = serializers.SerializerMethodField()
     gaps_detected = serializers.SerializerMethodField()
+    potential_link_suggestions = serializers.SerializerMethodField()
 
     class Meta:
         model = NarrativeThread
@@ -40,16 +40,18 @@ class NarrativeThreadSerializer(serializers.ModelSerializer):
             "tags",
             "created_by",
             "created_at",
-            "continuity_score",
-            "last_diagnostic_run",
-            "last_refocus_prompt",
-            "last_updated",
-            "reflection_count",
+              "continuity_summary",
+              "continuity_score",
+              "last_diagnostic_run",
+              "last_refocus_prompt",
+              "last_updated",
+              "reflection_count",
             "origin_memory",
             "origin_memory_preview",
             "related_memory_previews",
             "objective_reflections",
             "gaps_detected",
+            "potential_link_suggestions",
         ]
 
     def get_origin_memory_preview(self, obj):
@@ -94,12 +96,15 @@ class NarrativeThreadSerializer(serializers.ModelSerializer):
             gaps.append("missing_reflections")
         return gaps
 
-    def get_objective_reflections(self, obj):
-        return [
-            {
-                "id": str(r.id),
-                "thought": r.thought[:200],
-                "created_at": r.created_at,
-            }
-            for r in obj.objective_reflections.all().order_by("-created_at")
-        ]
+def get_potential_link_suggestions(self, obj):
+    return getattr(obj, "_link_suggestions", [])
+
+def get_objective_reflections(self, obj):
+    return [
+        {
+            "id": str(r.id),
+            "thought": r.thought[:200],
+            "created_at": r.created_at,
+        }
+        for r in obj.objective_reflections.all().order_by("-created_at")
+    ]

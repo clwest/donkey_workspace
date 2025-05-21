@@ -12,6 +12,7 @@ from mcp_core.models import (
     Tag,
     ThreadMergeLog,
     ThreadSplitLog,
+
 )
 from mcp_core.serializers_tags import (
     NarrativeThreadSerializer,
@@ -24,6 +25,7 @@ from mcp_core.utils.thread_helpers import (
     attach_memory_to_thread,
     generate_thread_reflection,
     generate_thread_refocus_prompt,
+    suggest_continuity,
 )
 from assistants.models import AssistantThoughtLog, AssistantReflectionLog
 from memory.models import MemoryEntry
@@ -102,14 +104,13 @@ def list_overview_threads(request):
     if project:
         threads = threads.filter(memories__related_project_id=project).distinct()
 
-    serialized = [
-        NarrativeThreadOverviewSerializer(t).data for t in threads
-    ]
-    serialized.sort(
-        key=lambda x: x.get("last_updated") or "",
-        reverse=True,
-    )
-    return Response(serialized)
+    serializer_class = NarrativeThreadOverviewSerializer if is_dashboard_view else NarrativeThreadSerializer
+    serialized = [serializer_class(t).data for t in threads]
+        serialized.sort(
+            key=lambda x: x.get("last_updated") or "",
+            reverse=True,
+        )
+        return Response(serialized)
 
 
 @api_view(["GET", "PATCH", "DELETE"])
@@ -138,12 +139,22 @@ def narrative_thread_detail(request, id):
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
-
 def diagnose_thread(request, thread_id):
     thread = get_object_or_404(NarrativeThread, id=thread_id)
     result = run_thread_diagnostics(thread)
     return Response(result)
 
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def suggest_continuity_view(request, thread_id):
+    thread = get_object_or_404(NarrativeThread, id=thread_id)
+    result = suggest_continuity(thread_id)
+    thread._link_suggestions = result.get("link_suggestions", [])
+    serializer = NarrativeThreadSerializer(thread)
+    data = serializer.data
+    data.update(result)
+    return Response(data)
 
 
 @api_view(["GET"])
@@ -152,6 +163,7 @@ def list_thread_diagnostics(request, thread_id):
     thread = get_object_or_404(NarrativeThread, id=thread_id)
     logs = ThreadDiagnosticLog.objects.filter(thread=thread).order_by("-created_at")
     return Response(ThreadDiagnosticLogSerializer(logs, many=True).data)
+
 
 # <<<<<<< codex/add-healing-suggestions-for-low-continuity-threads
 

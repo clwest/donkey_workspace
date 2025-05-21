@@ -46,3 +46,46 @@ def generate_thread_refocus_prompt(thread: NarrativeThread) -> str:
     summary = thread.summary or ""
     base = f"Let's refocus on the thread '{thread.title}'."
     return f"{base} Objective: {objective}. {summary}".strip()
+
+
+def suggest_continuity(thread_id: str) -> dict:
+    """Simple heuristic continuity analysis and link suggestions."""
+    from django.utils import timezone
+
+    thread = NarrativeThread.objects.get(id=thread_id)
+    memories = list(thread.related_memories.all().order_by("-created_at")[:5])
+    reflections = list(
+        thread.thoughts.filter(thought_type="reflection").order_by("-created_at")[:5]
+    )
+
+    last_times = [m.created_at for m in memories]
+    last_times += [r.created_at for r in reflections]
+    last_activity = max(last_times) if last_times else None
+
+    days_since = (timezone.now() - last_activity).days if last_activity else None
+    summary_parts = [
+        f"{len(memories)} memories",
+        f"{len(reflections)} reflections",
+    ]
+    if days_since is not None:
+        summary_parts.append(f"last activity {days_since}d ago")
+    summary = ", ".join(summary_parts)
+
+    similar = (
+        NarrativeThread.objects.filter(tags__in=thread.tags.all())
+        .exclude(id=thread.id)
+        .distinct()[:3]
+    )
+    suggestions = [
+        {
+            "action": "link",
+            "target_thread_id": str(t.id),
+            "reason": "shared tags",
+        }
+        for t in similar
+    ]
+
+    thread.continuity_summary = summary
+    thread.save(update_fields=["continuity_summary"])
+
+    return {"continuity_summary": summary, "link_suggestions": suggestions}

@@ -225,10 +225,14 @@ class NarrativeThread(models.Model):
         on_delete=models.SET_NULL,
         related_name="origin_threads",
     )
-    continuity_score = models.FloatField(null=True, blank=True)
-    last_diagnostic_run = models.DateTimeField(null=True, blank=True)
-    long_term_objective = models.TextField(blank=True, null=True)
-    milestones = models.JSONField(default=list, blank=True)
+continuity_score = models.FloatField(null=True, blank=True)
+last_diagnostic_run = models.DateTimeField(null=True, blank=True)
+continuity_summary = models.TextField(null=True, blank=True)
+linked_threads = models.ManyToManyField(
+    "self", symmetrical=False, blank=True, related_name="linked_to"
+)
+long_term_objective = models.TextField(blank=True, null=True)
+milestones = models.JSONField(default=list, blank=True)
 
     def __str__(self):
         return self.title
@@ -292,22 +296,23 @@ class GroupedDevDocReflection(models.Model):
         return f"Grouped Reflection @ {self.created_at.strftime('%Y-%m-%d %H:%M')}"
 
 
-# <<<<<<< codex/add-thread-continuity-diagnostics
-# class ThreadDiagnosticLog(models.Model):
-#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-#     thread = models.ForeignKey(
-#         NarrativeThread, on_delete=models.CASCADE, related_name="diagnostics"
-#     )
-#     score = models.FloatField()
-#     summary = models.TextField()
-#     created_at = models.DateTimeField(auto_now_add=True)
 
-#     class Meta:
-#         ordering = ["-created_at"]
+class ThreadDiagnosticLog(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    thread = models.ForeignKey(
+        NarrativeThread, on_delete=models.CASCADE, related_name="diagnostics"
+    )
+    score = models.FloatField()
+    summary = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
 
-#     def __str__(self):
-#         return f"Diagnostic {self.score:.2f} for {self.thread.title}"
-# =======
+    class Meta:
+        ordering = ["-created_at"]
+
+
+    def __str__(self):
+        return f"Diagnostic {self.score:.2f} for {self.thread.title}"
+
 class ThreadObjectiveReflection(models.Model):
     """Reflection on progress toward a thread's long-term objective."""
 
@@ -356,4 +361,4 @@ class ThreadSplitLog(models.Model):
     moved_entries = models.JSONField()
     summary = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-# >>>>>>> main
+
