@@ -16,8 +16,9 @@ from mcp_core.models import DevDoc
 from project.models import Project  # ← main Project model
 from django.utils.text import slugify
 from django.contrib.auth import get_user_model
+from django.conf import settings
 
-User = get_user_model()
+User = settings.AUTH_USER_MODEL
 
 
 class Command(BaseCommand):
@@ -28,7 +29,7 @@ class Command(BaseCommand):
         project_name = "DevOps Reflection"
 
         # Get fallback user if needed
-        fallback_user = User.objects.first()
+        fallback_user = get_user_model().objects.first()
 
         # Get or create assistant
         assistant, created = Assistant.objects.get_or_create(

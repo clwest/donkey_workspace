@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.conf import settings
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -12,7 +13,7 @@ from django.utils.text import slugify
 EMBEDDING_MODEL = "text-embedding-3-small"
 EMBEDDING_LENGTH = 1536
 
-User = get_user_model()
+User = settings.AUTH_USER_MODEL
 
 
 class MemoryContext(models.Model):
@@ -313,7 +314,6 @@ class GroupedDevDocReflection(models.Model):
         return f"Grouped Reflection @ {self.created_at.strftime('%Y-%m-%d %H:%M')}"
 
 
-
 class ThreadDiagnosticLog(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     thread = models.ForeignKey(
@@ -328,7 +328,9 @@ class ThreadDiagnosticLog(models.Model):
     score = models.FloatField()
     summary = models.TextField()
 
-    type = models.CharField(max_length=30, choices=TYPE_CHOICES, default="continuity_diagnostic")
+    type = models.CharField(
+        max_length=30, choices=TYPE_CHOICES, default="continuity_diagnostic"
+    )
     proposed_changes = models.JSONField(null=True, blank=True)
 
     mood_influence = models.TextField(blank=True)
@@ -337,7 +339,6 @@ class ThreadDiagnosticLog(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
-
 
     def __str__(self):
         return f"Diagnostic {self.score:.2f} for {self.thread.title}"
@@ -362,7 +363,6 @@ class ThreadObjectiveReflection(models.Model):
 
     def __str__(self):
         return f"Reflection for {self.thread.title} @ {self.created_at.strftime('%Y-%m-%d %H:%M')}"
-
 
 
 class ThreadSplitLog(models.Model):
@@ -398,6 +398,7 @@ class ThreadSplitLog(models.Model):
     def __str__(self):  # pragma: no cover - simple display
         return f"Moved {self.moved_entry_id} -> {self.to_thread_id}"
 
+
 class ThreadMergeLog(models.Model):
     """Administrative record of merged narrative threads."""
 
@@ -425,5 +426,3 @@ class ThreadMergeLog(models.Model):
 #     moved_entries = models.JSONField()
 #     summary = models.TextField(blank=True)
 #     created_at = models.DateTimeField(auto_now_add=True)
-
-

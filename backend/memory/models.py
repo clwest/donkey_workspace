@@ -6,7 +6,7 @@ from django.contrib.contenttypes.fields import GenericRelation, GenericForeignKe
 from django.contrib.contenttypes.models import ContentType
 from agents.models import SwarmMemoryEntry
 
-User = get_user_model()
+User = settings.AUTH_USER_MODEL
 
 
 class MemoryEntry(models.Model):

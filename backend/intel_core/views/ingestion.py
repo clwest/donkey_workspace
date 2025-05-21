@@ -8,6 +8,7 @@ import json
 import uuid
 from openai import OpenAI
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from intel_core.models import Document
 from assistants.models import (
     Assistant,
@@ -27,7 +28,7 @@ from intel_core.processors.video_loader import load_videos
 from intel_core.processors.pdf_loader import load_pdfs
 
 client = OpenAI()
-User = get_user_model()
+User = settings.AUTH_USER_MODEL
 
 
 @api_view(["POST"])
