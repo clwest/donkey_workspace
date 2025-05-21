@@ -5,7 +5,7 @@ from mcp_core.models import MemoryContext
 from django.contrib.postgres.fields import ArrayField
 from pgvector.django import VectorField
 
-from taggit.managers import TaggableManager
+
 
 from django.utils import timezone
 
@@ -218,7 +218,7 @@ class SwarmMemoryEntry(models.Model):
 
     title = models.CharField(max_length=200)
     content = models.TextField()
-    tags = TaggableManager()
+    
 
     linked_agents = models.ManyToManyField(Agent, blank=True)
     linked_projects = models.ManyToManyField("assistants.AssistantProject", blank=True)
@@ -233,17 +233,6 @@ class SwarmMemoryEntry(models.Model):
             date = self.created_at or timezone.now()
             self.season_tag = get_season_marker(date)
         super().save(*args, **kwargs)
-
-
-class AgentLegacy(models.Model):
-    """Tracks accomplishments and resurrections for an agent"""
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self):  # pragma: no cover - display only
-        return self.title
-
 
 class AgentLegacy(models.Model):
     """Track agent resurrection history and missions completed."""
