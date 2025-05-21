@@ -26,6 +26,7 @@ from .views import (
     handoffs,
     scene,
     recovery,
+    intelligence,
 )
 
 urlpatterns = [
@@ -547,6 +548,11 @@ urlpatterns = [
         "<slug:slug>/regenerate_plan/",
         recovery.regenerate_plan,
         name="assistant-regenerate-plan",
+    ),
+    path(
+        "<slug:slug>/plan-from-thread/",
+        intelligence.plan_from_thread,
+        name="assistant-plan-from-thread",
     ),
     path(
         "<slug:slug>/diff-knowledge/",
