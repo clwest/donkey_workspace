@@ -981,3 +981,51 @@ class LorechainLink(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"{self.source_token.name} -> {self.descendant_token.name}"
+
+
+class MythRegistryEntry(models.Model):
+    """Permanent symbolic memory registry with verification metadata."""
+
+    memory = models.ForeignKey(SwarmMemoryEntry, on_delete=models.CASCADE)
+    registered_by = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    signature = models.CharField(max_length=128)
+    verified_token = models.ForeignKey(LoreToken, on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Registry for {self.memory.id}"
+
+
+class TemporalLoreAnchor(models.Model):
+    """Timestamped anchor aligning lore tokens to seasonal events."""
+
+    anchor_type = models.CharField(max_length=50)
+    timestamp = models.DateTimeField()
+    attached_tokens = models.ManyToManyField(LoreToken)
+    coordinating_civilizations = models.ManyToManyField("assistants.AssistantCivilization")
+    narrative_impact_summary = models.TextField()
+
+    class Meta:
+        ordering = ["-timestamp"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"{self.anchor_type} at {self.timestamp}"
+
+
+class RitualComplianceRecord(models.Model):
+    """Track cross-civilization ritual participation status."""
+
+    civilization = models.ForeignKey("assistants.AssistantCivilization", on_delete=models.CASCADE)
+    anchor = models.ForeignKey(TemporalLoreAnchor, on_delete=models.CASCADE)
+    compliance_status = models.CharField(max_length=20)
+    reflection_summary = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"{self.civilization.name} - {self.compliance_status}"

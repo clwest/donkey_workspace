@@ -19,6 +19,9 @@ from agents.models import (
     TokenMarket,
     LoreTokenCraftingRitual,
     TokenGuildVote,
+    MythRegistryEntry,
+    TemporalLoreAnchor,
+    RitualComplianceRecord,
 )
 from assistants.models import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -298,5 +301,26 @@ class LoreTokenCraftingRitualSerializer(serializers.ModelSerializer):
 class TokenGuildVoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = TokenGuildVote
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MythRegistryEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythRegistryEntry
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class TemporalLoreAnchorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TemporalLoreAnchor
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RitualComplianceRecordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RitualComplianceRecord
         fields = "__all__"
         read_only_fields = ["id", "created_at"]

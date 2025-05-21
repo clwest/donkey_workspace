@@ -22,6 +22,9 @@ from agents.models import (
     TokenMarket,
     LoreTokenCraftingRitual,
     TokenGuildVote,
+    MythRegistryEntry,
+    TemporalLoreAnchor,
+    RitualComplianceRecord,
 )
 from agents.serializers import (
     AgentSerializer,
@@ -40,6 +43,9 @@ from agents.serializers import (
     LoreTokenSerializer,
     LoreTokenCraftingRitualSerializer,
     TokenGuildVoteSerializer,
+    MythRegistryEntrySerializer,
+    TemporalLoreAnchorSerializer,
+    RitualComplianceRecordSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -454,3 +460,39 @@ def token_votes(request):
     serializer.is_valid(raise_exception=True)
     vote = serializer.save()
     return Response(TokenGuildVoteSerializer(vote).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def myth_registry(request):
+    if request.method == "GET":
+        entries = MythRegistryEntry.objects.all().order_by("-created_at")
+        return Response(MythRegistryEntrySerializer(entries, many=True).data)
+
+    serializer = MythRegistryEntrySerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    entry = serializer.save()
+    return Response(MythRegistryEntrySerializer(entry).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def lore_anchors(request):
+    if request.method == "GET":
+        anchors = TemporalLoreAnchor.objects.all().order_by("-timestamp")
+        return Response(TemporalLoreAnchorSerializer(anchors, many=True).data)
+
+    serializer = TemporalLoreAnchorSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    anchor = serializer.save()
+    return Response(TemporalLoreAnchorSerializer(anchor).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def ritual_compliance(request):
+    if request.method == "GET":
+        records = RitualComplianceRecord.objects.all().order_by("-created_at")
+        return Response(RitualComplianceRecordSerializer(records, many=True).data)
+
+    serializer = RitualComplianceRecordSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    record = serializer.save()
+    return Response(RitualComplianceRecordSerializer(record).data, status=201)
