@@ -15,6 +15,7 @@ from .models import (
 from .serializers import (
     MemoryEntrySerializer,
     MemoryFeedbackSerializer,
+    MemoryChainSerializer,
     SharedMemoryPoolSerializer,
     SharedMemoryEntrySerializer,
 )
@@ -29,6 +30,8 @@ from embeddings.helpers.helpers_io import get_embedding_for_text
 from mcp_core.utils.auto_tag_from_embedding import auto_tag_from_embedding
 from assistants.helpers.logging_helper import log_assistant_thought
 from assistants.models import Assistant, AssistantThoughtLog, AssistantReflectionLog
+from mcp_core.models import NarrativeThread
+from memory.utils.thread_helpers import get_linked_chains, recall_from_thread
 
 load_dotenv()
 
@@ -101,6 +104,55 @@ def chain_flowmap_view(request, chain_id):
 
     data = generate_flowmap_from_chain(chain)
     return Response(data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def linked_chains_view(request, thread_id):
+    thread = get_object_or_404(NarrativeThread, id=thread_id)
+    chains = get_linked_chains(thread)
+    serialized = []
+    for chain in chains:
+        projects = list(
+            chain.memories.values_list("related_project__title", flat=True).distinct()
+        )
+        assistants = list(
+            chain.memories.values_list("assistant__name", flat=True).distinct()
+        )
+        serialized.append(
+            {
+                "id": str(chain.id),
+                "title": chain.title,
+                "summary": chain.summary,
+                "projects": [p for p in projects if p],
+                "assistants": [a for a in assistants if a],
+            }
+        )
+    return Response(serialized)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def link_chain_to_thread(request):
+    chain_id = request.data.get("chain_id")
+    thread_id = request.data.get("thread_id")
+    if not chain_id or not thread_id:
+        return Response({"error": "chain_id and thread_id required"}, status=400)
+
+    chain = get_object_or_404(MemoryChain, id=chain_id)
+    thread = get_object_or_404(NarrativeThread, id=thread_id)
+    chain.thread = thread
+    chain.save(update_fields=["thread"])
+    return Response(MemoryChainSerializer(chain).data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def cross_project_recall_view(request, chain_id):
+    chain = get_object_or_404(MemoryChain, id=chain_id)
+    memories = recall_from_thread(chain)
+    serializer = MemoryEntrySerializer(memories, many=True)
+    return Response(serializer.data)
 
 
 @api_view(["POST"])

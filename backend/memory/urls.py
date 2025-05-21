@@ -20,6 +20,17 @@ urlpatterns = [
         views.chain_flowmap_view,
         name="memory_chain_flowmap",
     ),
+    path(
+        "chains/<uuid:chain_id>/cross_project_recall/",
+        views.cross_project_recall_view,
+        name="memory_chain_cross_recall",
+    ),
+    path(
+        "threads/<uuid:thread_id>/linked_chains/",
+        views.linked_chains_view,
+        name="memory_thread_linked_chains",
+    ),
+    path("threads/link_chain/", views.link_chain_to_thread, name="link_chain_thread"),
     path("reflect-on-memories/", views.reflect_on_memories, name="reflect_on_memories"),
     path("reflection/", views.save_reflection, name="save-reflection"),
     path("upload-voice/", views.upload_voice_clip, name="upload_voice_clip"),
