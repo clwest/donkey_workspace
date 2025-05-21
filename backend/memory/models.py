@@ -28,6 +28,7 @@ class MemoryEntry(models.Model):
     voice_clip = models.FileField(upload_to="memory_voices/", blank=True, null=True)
 
     summary = models.TextField(blank=True, null=True)
+    title = models.CharField(max_length=200, blank=True, default="")
     document = models.ForeignKey(
         "intel_core.Document",
         null=True,
@@ -142,6 +143,18 @@ class MemoryEntry(models.Model):
 
     def __str__(self):
         return f"{self.timestamp} - {self.event[:30]}..."
+
+    def generate_memory_title(self):
+        if self.title:
+            return self.title
+        if self.summary:
+            return self.summary[:60]
+        return self.event[:60]
+
+    def save(self, *args, **kwargs):
+        if not self.title:
+            self.title = self.generate_memory_title()
+        super().save(*args, **kwargs)
 
     @property
     def source_name(self):

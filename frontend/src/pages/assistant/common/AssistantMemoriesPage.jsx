@@ -53,7 +53,7 @@ export default function AssistantMemoriesPage() {
                 }
               />
               <Link to={`/memories/${memory.id}`} className="ms-2 text-decoration-none">
-                <strong>{memory.event?.slice(0, 60) || "Untitled Memory"}</strong>
+                <strong>{memory.title || memory.summary?.slice(0, 60) || memory.event?.slice(0, 60) || "Untitled Memory"}</strong>
                 <br />
                 <small className="text-muted">
                   Saved on {new Date(memory.created_at).toLocaleString()}

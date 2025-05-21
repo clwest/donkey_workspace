@@ -13,13 +13,19 @@ export default function MemoryDetailPage() {
   const [memory, setMemory] = useState(null);
   const [audioUrl, setAudioUrl] = useState(null);
   const [editMode, setEditMode] = useState(false)
-  const [formData, setFormData] = useState({event: "", emotion: "", importance: 5});
+  const [formData, setFormData] = useState({ title: "", event: "", emotion: "", importance: 5 });
   const navigate = useNavigate();
 
   async function fetchMemory() {
     const res = await fetch(`http://localhost:8000/api/memory/${id}/`);
     const data = await res.json();
     setMemory(data);
+    setFormData({
+      title: data.title || "",
+      event: data.event || "",
+      emotion: data.emotion || "",
+      importance: data.importance || 5,
+    });
     if (data.voice_clip) {
       setAudioUrl(`http://localhost:8000${data.voice_clip}`);
     }
@@ -90,7 +96,7 @@ export default function MemoryDetailPage() {
 
   return (
     <div className="container my-5">
-      <h2 className="mb-3">🧠 Memory Detail</h2>
+      <h2 className="mb-3">🧠 {memory.title || "Memory Detail"}</h2>
 
       <div className="card p-4 mb-4 shadow-sm">
         {memory.parent_memory && (
@@ -144,6 +150,7 @@ export default function MemoryDetailPage() {
       </div>
       {editMode ? (
           <div>
+            <input value={formData.title} placeholder="Title" onChange={e => setFormData({ ...formData, title: e.target.value })} />
             <input value={formData.event} onChange={e => setFormData({ ...formData, event: e.target.value })} />
             <input value={formData.emotion} onChange={e => setFormData({ ...formData, emotion: e.target.value })} />
             <input type="number" value={formData.importance} onChange={e => setFormData({ ...formData, importance: e.target.value })} />
@@ -152,6 +159,7 @@ export default function MemoryDetailPage() {
           </div>
         ) : (
           <div>
+            <p className="fw-bold">{memory.title}</p>
             <p>{memory.event}</p>
             <p>{memory.emotion}</p>
             <p>{memory.importance}/10</p>
