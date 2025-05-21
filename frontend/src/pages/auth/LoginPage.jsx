@@ -18,7 +18,7 @@ export default function LoginPage() {
       if (data.access) localStorage.setItem("access", data.access);
       if (data.refresh) localStorage.setItem("refresh", data.refresh);
       toast.success("✅ Logged in!");
-      navigate("/");
+      navigate("/onboarding");
     } catch (err) {
       toast.error("❌ Login failed");
     }
