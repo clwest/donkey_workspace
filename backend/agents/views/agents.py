@@ -14,6 +14,9 @@ from agents.models import (
     RealityConsensusVote,
     MythDiplomacySession,
     RitualCollapseLog,
+    BeliefForkEvent,
+    MythCollapseLog,
+    MemoryReformationRitual,
     LegacyArtifact,
     ReincarnationLog,
     ReturnCycle,
@@ -48,6 +51,9 @@ from agents.serializers import (
     MythRegistryEntrySerializer,
     TemporalLoreAnchorSerializer,
     RitualComplianceRecordSerializer,
+    BeliefForkEventSerializer,
+    MythCollapseLogSerializer,
+    MemoryReformationRitualSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -529,3 +535,38 @@ def myth_verification(request):
 def chronomyth_sync(request):
     sync_chronomyth_state()
     return Response({"status": "ok"})
+
+@api_view(["GET", "POST"])
+def belief_forks(request):
+    if request.method == "GET":
+        forks = BeliefForkEvent.objects.all().order_by("-created_at")
+        return Response(BeliefForkEventSerializer(forks, many=True).data)
+
+    serializer = BeliefForkEventSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    fork = serializer.save()
+    return Response(BeliefForkEventSerializer(fork).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def myth_collapses(request):
+    if request.method == "GET":
+        logs = MythCollapseLog.objects.all().order_by("-created_at")
+        return Response(MythCollapseLogSerializer(logs, many=True).data)
+
+    serializer = MythCollapseLogSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    log = serializer.save()
+    return Response(MythCollapseLogSerializer(log).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def memory_reformations(request):
+    if request.method == "GET":
+        rituals = MemoryReformationRitual.objects.all().order_by("-created_at")
+        return Response(MemoryReformationRitualSerializer(rituals, many=True).data)
+
+    serializer = MemoryReformationRitualSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    ritual = serializer.save()
+    return Response(MemoryReformationRitualSerializer(ritual).data, status=201)
