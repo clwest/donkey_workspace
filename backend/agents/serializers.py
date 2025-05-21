@@ -18,6 +18,7 @@ from agents.models import (
     LoreTokenExchange,
     TokenMarket,
     LoreTokenCraftingRitual,
+    LoreTokenSignature,
     TokenGuildVote,
     MythRegistryEntry,
     TemporalLoreAnchor,
@@ -296,6 +297,13 @@ class LoreTokenCraftingRitualSerializer(serializers.ModelSerializer):
         model = LoreTokenCraftingRitual
         fields = "__all__"
         read_only_fields = ["id", "resulting_token", "completed", "created_at"]
+
+
+class LoreTokenSignatureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LoreTokenSignature
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
 
 
 class TokenGuildVoteSerializer(serializers.ModelSerializer):

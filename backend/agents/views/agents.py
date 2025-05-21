@@ -21,6 +21,7 @@ from agents.models import (
     LoreTokenExchange,
     TokenMarket,
     LoreTokenCraftingRitual,
+    LoreTokenSignature,
     TokenGuildVote,
     MythRegistryEntry,
     TemporalLoreAnchor,
@@ -42,6 +43,7 @@ from agents.serializers import (
     ReturnCycleSerializer,
     LoreTokenSerializer,
     LoreTokenCraftingRitualSerializer,
+    LoreTokenSignatureSerializer,
     TokenGuildVoteSerializer,
     MythRegistryEntrySerializer,
     TemporalLoreAnchorSerializer,
@@ -64,6 +66,11 @@ from agents.utils.lore_token import compress_memories_to_token, perform_token_ri
 from agents.utils.swarm_analytics import (
     generate_temporal_swarm_report,
     get_swarm_snapshot,
+)
+
+from agents.utils.myth_verification import (
+    verify_lore_token_signature,
+    sync_chronomyth_state,
 )
 
 from agents.utils import harmonize_global_narrative
@@ -496,3 +503,29 @@ def ritual_compliance(request):
     serializer.is_valid(raise_exception=True)
     record = serializer.save()
     return Response(RitualComplianceRecordSerializer(record).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def token_signatures(request):
+    if request.method == "GET":
+        sigs = LoreTokenSignature.objects.all().order_by("-created_at")
+        return Response(LoreTokenSignatureSerializer(sigs, many=True).data)
+
+    serializer = LoreTokenSignatureSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    sig = serializer.save()
+    return Response(LoreTokenSignatureSerializer(sig).data, status=201)
+
+
+@api_view(["POST"])
+def myth_verification(request):
+    token_id = request.data.get("token")
+    token = get_object_or_404(LoreToken, id=token_id)
+    result = verify_lore_token_signature(token)
+    return Response({"verified": result})
+
+
+@api_view(["POST"])
+def chronomyth_sync(request):
+    sync_chronomyth_state()
+    return Response({"status": "ok"})
