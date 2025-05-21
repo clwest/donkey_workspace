@@ -38,6 +38,7 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
             "id",
             "event",
             "summary",
+            "title",
             "timestamp",
             "emotion",
             "importance",
@@ -129,6 +130,7 @@ class MemoryEntrySlimSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "summary",
+            "title",
             "tags",
             "type",
             "token_count",
