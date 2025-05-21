@@ -6,7 +6,6 @@ from django.contrib.postgres.fields import ArrayField
 from pgvector.django import VectorField
 
 
-
 from django.utils import timezone
 
 
@@ -234,8 +233,6 @@ class AgentReactivationVote(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-
-
 class FarewellTemplate(models.Model):
     """Stores customizable farewell message templates."""
 
@@ -256,13 +253,11 @@ def _current_season():
     return get_season_marker(timezone.now())
 
 
-
 class SwarmMemoryEntry(models.Model):
     """Persistent swarm-wide memory record"""
 
     title = models.CharField(max_length=200)
     content = models.TextField()
-    
 
     linked_agents = models.ManyToManyField(Agent, blank=True)
     linked_projects = models.ManyToManyField("assistants.AssistantProject", blank=True)
@@ -280,6 +275,7 @@ class SwarmMemoryEntry(models.Model):
             date = self.created_at or timezone.now()
             self.season_tag = get_season_marker(date)
         super().save(*args, **kwargs)
+
 
 class AgentLegacy(models.Model):
     """Track agent resurrection history and missions completed."""
@@ -308,7 +304,6 @@ class MissionArchetype(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-
 class SwarmCadenceLog(models.Model):
     """Track seasonal cadence windows"""
 
@@ -324,6 +319,34 @@ class SwarmCadenceLog(models.Model):
 
     def __str__(self):  # pragma: no cover - display only
         return f"{self.season.title()} {self.year}"
+
+
+class GlobalMissionNode(models.Model):
+    """Nodes in the global mission tree for assistants."""
+
+    title = models.CharField(max_length=150)
+    description = models.TextField()
+    parent = models.ForeignKey(
+        "self",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="children",
+    )
+    assigned_assistants = models.ManyToManyField(
+        "assistants.Assistant",
+        blank=True,
+        related_name="mission_nodes",
+    )
+    status = models.CharField(max_length=30, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+    def __str__(self):  # pragma: no cover - display only
+        return self.title
+
 
 # ==== Signals ====
 from django.db.models.signals import pre_save, post_save

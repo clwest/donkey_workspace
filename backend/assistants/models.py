@@ -577,6 +577,13 @@ class AssistantProject(models.Model):
     memory_shift_score = models.FloatField(default=0.0)
     documents = models.ManyToManyField("intel_core.Document", blank=True)
     agents = models.ManyToManyField("agents.Agent", blank=True, related_name="projects")
+
+    shared_objectives = models.ManyToManyField(
+        "assistants.AssistantObjective",
+        blank=True,
+        related_name="shared_in_projects",
+    )
+
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -1764,6 +1771,7 @@ class CouncilOutcome(models.Model):
         return f"Outcome for {self.council_session}"
 
 
+
 class AssistantCouncil(models.Model):
     """Persistent group of assistants co-owning a mission node."""
 
@@ -1777,3 +1785,4 @@ class AssistantCouncil(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display
         return self.name
+
