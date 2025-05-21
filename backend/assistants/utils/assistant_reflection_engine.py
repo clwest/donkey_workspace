@@ -6,7 +6,7 @@ from assistants.models import (
     AssistantReflectionInsight,
     AssistantThoughtLog,
 )
-from mcp_core.models import MemoryContext, DevDoc
+from mcp_core.models import MemoryContext, DevDoc, NarrativeThread
 from intel_core.models import Document
 from memory.models import MemoryEntry
 from django.contrib.contenttypes.models import ContentType
@@ -235,50 +235,109 @@ class AssistantReflectionEngine:
         )
         return log
 
-    # === Codex-managed ===
-    def evaluate_thought_continuity(
-        self, *, project: AssistantProject | None = None
-    ) -> dict:
-        """Assess continuity of recent thoughts and suggest next actions."""
 
-        qs = AssistantThoughtLog.objects.filter(assistant=self.assistant)
-        if project:
-            qs = qs.filter(project=project)
+    # CODEx MARKER: plan_from_thread_context
+def plan_from_thread_context(
+    self,
+    thread: "NarrativeThread",
+    assistant: Assistant,
+    project: AssistantProject | None = None,
+):
+    """Generate next actions from a narrative thread."""
+    from agents.utils.agent_controller import AgentController
+    from assistants.models import AssistantObjective, AssistantNextAction
 
-        recent = list(qs.order_by("-created_at")[:5])
-        if not recent:
-            return {
-                "continuity_score": 1.0,
-                "recent_thoughts": [],
-                "suggestions": [],
-            }
-
-        expected_thread = None
-        if project:
-            expected_thread = project.thread or project.narrative_thread
-        if not expected_thread:
-            expected_thread = recent[0].narrative_thread
-
-        total = len(recent)
-        aligned = sum(
-            1 for t in recent if t.narrative_thread_id == getattr(expected_thread, "id", None)
+    project = project or self.get_or_create_project(assistant)
+    objective = (
+        AssistantObjective.objects.filter(project=project, assistant=assistant)
+        .order_by("created_at")
+        .first()
+    )
+    if not objective:
+        objective = AssistantObjective.objects.create(
+            project=project,
+            assistant=assistant,
+            title=f"Thread: {thread.title}",
+            description=thread.summary or "",
         )
-        score = aligned / total if total else 1.0
 
-        suggestions = []
-        if score < 0.6:
-            suggestions.append("review recent events and reconnect to the main thread")
+    summary = thread.continuity_summary or thread.summary or thread.title
+    prompt = (
+        f"You are planning actions for the thread '{thread.title}'. "
+        f"Context: {summary}\n"
+        "List 3 to 5 short actionable next steps."
+    )
+    try:
+        output = call_llm(
+            [{"role": "user", "content": prompt}],
+            model=assistant.preferred_model or "gpt-4o",
+            temperature=0.4,
+            max_tokens=300,
+        )
+    except Exception as e:
+        logger.error(f"plan_from_thread_context failed: {e}")
+        output = "- Review recent memories\n- Clarify goals"
 
+    lines = [l.strip("- •\t ") for l in output.splitlines() if l.strip()]
+    lines = [l for l in lines if l][:5]
+    controller = AgentController()
+    actions = []
+    for idx, line in enumerate(lines):
+        agent = controller.recommend_agent_for_task(line, thread)
+        action = AssistantNextAction.objects.create(
+            objective=objective,
+            content=line,
+            assigned_agent=agent,
+            linked_thread=thread,
+            importance_score=max(0.0, 1.0 - idx * 0.1),
+        )
+        actions.append(action)
+    return actions
+
+def evaluate_thought_continuity(
+    self, *, project: AssistantProject | None = None
+) -> dict:
+    """Assess continuity of recent thoughts and suggest next actions."""
+
+    qs = AssistantThoughtLog.objects.filter(assistant=self.assistant)
+    if project:
+        qs = qs.filter(project=project)
+
+    recent = list(qs.order_by("-created_at")[:5])
+    if not recent:
         return {
-            "continuity_score": round(score, 2),
-            "recent_thoughts": [
-                {
-                    "id": str(t.id),
-                    "text": t.thought,
-                    "thread": str(t.narrative_thread_id) if t.narrative_thread_id else None,
-                }
-                for t in recent
-            ],
-            "thread_id": str(expected_thread.id) if expected_thread else None,
-            "suggestions": suggestions,
+            "continuity_score": 1.0,
+            "recent_thoughts": [],
+            "suggestions": [],
         }
+
+    expected_thread = None
+    if project:
+        expected_thread = project.thread or project.narrative_thread
+    if not expected_thread:
+        expected_thread = recent[0].narrative_thread
+
+    total = len(recent)
+    aligned = sum(
+        1 for t in recent if t.narrative_thread_id == getattr(expected_thread, "id", None)
+    )
+    score = aligned / total if total else 1.0
+
+    suggestions = []
+    if score < 0.6:
+        suggestions.append("review recent events and reconnect to the main thread")
+
+    return {
+        "continuity_score": round(score, 2),
+        "recent_thoughts": [
+            {
+                "id": str(t.id),
+                "text": t.thought,
+                "thread": str(t.narrative_thread_id) if t.narrative_thread_id else None,
+            }
+            for t in recent
+        ],
+        "thread_id": str(expected_thread.id) if expected_thread else None,
+        "suggestions": suggestions,
+    }
+

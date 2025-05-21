@@ -926,20 +926,36 @@ class AssistantNextAction(models.Model):
     content = models.CharField(max_length=255)
     completed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    assigned_agent = models.ForeignKey(
+        "agents.Agent",
+        on_delete=models.CASCADE,
+        related_name="agents_assigned",
+    ),
     thread = models.ForeignKey(
         "mcp_core.NarrativeThread",
+
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
         related_name="next_actions",
-    )
+    ),
+
+    linked_thread = models.ForeignKey(
+        "mcp_core.NarrativeThread",
+        on_delete=models.CASCADE,
+    ),
     origin_thought = models.ForeignKey(
         "assistants.AssistantThoughtLog",
+
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
         related_name="next_actions",
-    )
+    ),
+
+    importance_score = models.FloatField(default=0.5)
+
 
 
 class ProjectPlanningLog(models.Model):

@@ -9,6 +9,7 @@ import MilestoneTimeline from "../../../components/mcp_core/MilestoneTimeline";
 import ObjectiveReflectionLog from "../../../components/mcp_core/ObjectiveReflectionLog";
 import LinkedChainList from "../../../components/memory/LinkedChainList";
 import ThreadDiagnosticsPanel from "../../../components/mcp_core/ThreadDiagnosticsPanel";
+import ThreadPlanningModal from "../../../components/assistant/ThreadPlanningModal";
 
 export default function ThreadDetailPage() {
   const { id } = useParams();
@@ -19,6 +20,8 @@ export default function ThreadDetailPage() {
   const [continuity, setContinuity] = useState(null);
   const [realignments, setRealignments] = useState([]);
   const [progress, setProgress] = useState(null);
+  const [primarySlug, setPrimarySlug] = useState(null);
+  const [showPlan, setShowPlan] = useState(false);
 
   useEffect(() => {
     const fetchThread = async () => {
@@ -39,6 +42,12 @@ export default function ThreadDetailPage() {
     apiFetch(`/mcp/threads/${id}/diagnose/`).then(setDiagnostic).catch(() => {});
     apiFetch(`/memory/threads/${id}/linked_chains/`).then(setChains).catch(() => {});
   }, [id]);
+
+  useEffect(() => {
+    apiFetch("/assistants/primary/")
+      .then((a) => setPrimarySlug(a.slug))
+      .catch(() => {});
+  }, []);
 
   const handleDiagnostic = async () => {
     try {
@@ -202,6 +211,19 @@ export default function ThreadDetailPage() {
       <button className="btn btn-info mb-3 ms-2" onClick={handleRealign}>
         🧠 Realign Plan
       </button>
+      <button
+        className="btn btn-success mb-3 ms-2"
+        onClick={() => setShowPlan(true)}
+        disabled={!primarySlug}
+      >
+        📋 Generate Plan
+      </button>
+      <ThreadPlanningModal
+        slug={primarySlug}
+        threadId={id}
+        show={showPlan}
+        onClose={() => setShowPlan(false)}
+      />
 
       {continuity && (
         <div className="alert alert-info">

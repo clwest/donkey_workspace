@@ -188,6 +188,7 @@ class AgentController:
 
 
 
+
 # codex-optimize:feedback-profile
 def update_agent_profile_from_feedback(agent: Agent, feedback_logs: List["AgentFeedbackLog"]):
     """Update agent metadata fields based on feedback logs."""
@@ -218,3 +219,40 @@ def update_agent_profile_from_feedback(agent: Agent, feedback_logs: List["AgentF
         "skills": list(skills),
         "strength_score": agent.strength_score,
     }
+=======
+    # CODEx MARKER: recommend_agent_for_task
+    def recommend_agent_for_task(
+        self, task_description: str, thread
+    ) -> Optional[Agent]:
+        """Select an agent based on tags, specialty, and thread overlap."""
+        from agents.models import Agent as AgentModel
+        from memory.models import MemoryEntry
+
+        candidates = AgentModel.objects.all()
+        best_score = 0.0
+        best_agent = None
+        thread_tags = (
+            set(t.name.lower() for t in thread.tags.all())
+            if hasattr(thread, "tags")
+            else set()
+        )
+
+        for agent in candidates:
+            score = 0.0
+            if agent.specialty:
+                for tag in thread_tags:
+                    if tag in agent.specialty.lower():
+                        score += 0.5
+                        break
+            if task_description.lower() in (agent.description or "").lower():
+                score += 0.2
+            if MemoryEntry.objects.filter(
+                narrative_thread=thread, assistant=agent.parent_assistant
+            ).exists():
+                score += 0.3
+            if score > best_score:
+                best_score = score
+                best_agent = agent
+
+        return best_agent
+
