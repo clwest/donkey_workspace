@@ -23,6 +23,7 @@ from agents.models import (
     AgentLegacy,
     FarewellTemplate,
     SwarmMemoryEntry,
+    AgentCluster,
 )
 
 from embeddings.helpers.helpers_io import save_embedding
