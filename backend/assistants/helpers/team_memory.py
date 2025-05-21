@@ -1,15 +1,19 @@
 from typing import Optional
 from assistants.models import Assistant, AssistantMemoryChain, AssistantReflectionLog
 from memory.models import MemoryEntry
-from project.models import Project
+from project.models import Project, ProjectParticipant
 
 
 def assign_project_role(assistant: Assistant, project: Project, role: str) -> None:
-    roles = project.roles or {}
-    roles[str(assistant.id)] = role
-    project.roles = roles
+    """Assign a role to an assistant's user within the project team."""
+    if assistant.created_by:
+        ProjectParticipant.objects.update_or_create(
+            user=assistant.created_by,
+            project=project,
+            defaults={"role": role},
+        )
     project.team.add(assistant)
-    project.save(update_fields=["roles"])
+    project.save()
 
 
 def get_visible_memories(project: Project, assistant: Optional[Assistant]):

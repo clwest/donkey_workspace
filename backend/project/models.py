@@ -1,7 +1,7 @@
 # project/models.py
 
 import uuid
-from django.db import models
+from django.db import models, IntegrityError
 from django.conf import settings
 from django.utils.text import slugify
 from django.core.validators import MaxLengthValidator
@@ -12,6 +12,8 @@ class ProjectType(models.TextChoices):
     GENERAL = "general", "General"
     ASSISTANT = "assistant", "Assistant"
     STORYBOOK = "storybook", "Storybook"
+    GARDENING = "gardening", "Gardening"
+    FARMING = "farming", "Farming"
 
 
 class ProjectStatus(models.TextChoices):
@@ -52,7 +54,10 @@ class Project(models.Model):
     )
     is_public = models.BooleanField(default=False)
     participants = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, related_name="collaborative_projects", blank=True
+        settings.AUTH_USER_MODEL,
+        related_name="collaborative_projects",
+        blank=True,
+        through="ProjectParticipant",
     )
     team = models.ManyToManyField(
         "assistants.Assistant", related_name="team_projects", blank=True
@@ -64,7 +69,6 @@ class Project(models.Model):
         blank=True,
         related_name="team_projects",
     )
-    roles = models.JSONField(default=dict, blank=True)
 
     # Project fields
     project_type = models.CharField(
@@ -120,13 +124,33 @@ class Project(models.Model):
     class Meta:
         ordering = ["created_at"]
 
+    def _generate_unique_slug(self, base_slug: str) -> str:
+        """Return a slug that is unique for the given base."""
+        slug = base_slug
+        counter = 1
+        while Project.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+            slug = f"{base_slug}-{counter}"
+            counter += 1
+        return slug
+
     def save(self, *args, **kwargs):
         if not self.slug:
             base_slug = slugify(self.title)[:40]
             if not base_slug:
                 base_slug = "project"
-            self.slug = f"{base_slug}-{str(self.id)[:8]}"
-        super().save(*args, **kwargs)
+            self.slug = self._generate_unique_slug(base_slug)
+
+        attempts = 0
+        while True:
+            try:
+                super().save(*args, **kwargs)
+                break
+            except IntegrityError:
+                attempts += 1
+                if attempts > 5:
+                    raise
+                base_slug = slugify(self.title)[:40] or "project"
+                self.slug = self._generate_unique_slug(base_slug)
 
     def __str__(self):
         return f"{self.title} ({self.project_type})"
@@ -151,6 +175,29 @@ class Project(models.Model):
         if total == 0:
             return 0
         return int((self.completed_task_count() / total) * 100)
+
+
+class ProjectParticipant(models.Model):
+    """Join table linking users to projects with a specific role."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="project_participations",
+    )
+    project = models.ForeignKey(
+        "project.Project",
+        on_delete=models.CASCADE,
+        related_name="participant_links",
+    )
+    role = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "project")
+
+    def __str__(self) -> str:
+        return f"{self.user} -> {self.project} ({self.role})"
 
 
 class ProjectTask(models.Model):
@@ -181,6 +228,11 @@ class ProjectMilestone(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     due_date = models.DateField(blank=True, null=True)
+    status = models.CharField(
+        max_length=50,
+        choices=MilestoneStatus.choices,
+        default=MilestoneStatus.PLANNED,
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -190,7 +242,7 @@ class ProjectMilestone(models.Model):
     @property
     def is_completed(self) -> bool:
         """Return True if the milestone status denotes completion."""
-        return self.status == "Completed"
+        return self.status == MilestoneStatus.COMPLETED
 
     def __str__(self):
         return f"{self.title} ({'Done' if self.is_completed else 'Pending'})"
@@ -215,3 +267,8 @@ class ProjectMemoryLink(models.Model):
                 name="unique_project_memory",
             )
         ]
+        ordering = ["-linked_at"]
+
+    def __str__(self):
+        return f"{self.project} -> {self.memory}"
+

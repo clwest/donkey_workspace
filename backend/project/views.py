@@ -8,6 +8,7 @@ from .serializers import (
     ProjectMilestoneSerializer,
 )
 from rest_framework.permissions import AllowAny
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
@@ -21,12 +22,36 @@ from assistants.helpers.team_memory import (
 )
 
 
+def user_can_access_project(user, project) -> bool:
+    """Return True if the user can access the given project."""
+    if project.is_public:
+        return True
+    if not user or not user.is_authenticated:
+        return False
+    if user == project.user or user.is_staff or project.participants.filter(id=user.id).exists():
+        return True
+    return False
+
+
 class ProjectViewSet(viewsets.ModelViewSet):
     """CRUD operations for :class:`Project` instances returned as JSON."""
 
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """Return projects owned by the user, where the user is a participant,
+        or that are marked as public."""
+        user = self.request.user
+        return (
+            Project.objects.filter(
+                Q(user=user)
+                | Q(participants=user)
+                | Q(is_public=True)
+            )
+            .distinct()
+        )
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -36,6 +61,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
 @permission_classes([AllowAny])
 def assign_role(request, id):
     project = get_object_or_404(Project, id=id)
+    if not user_can_access_project(request.user, project):
+        return Response(status=status.HTTP_403_FORBIDDEN)
     assistant_id = request.data.get("assistant_id")
     role = request.data.get("role")
     if not assistant_id or not role:
@@ -49,6 +76,8 @@ def assign_role(request, id):
 @permission_classes([AllowAny])
 def team_memory(request, id):
     project = get_object_or_404(Project, id=id)
+    if not user_can_access_project(request.user, project):
+        return Response(status=status.HTTP_403_FORBIDDEN)
     assistant_id = request.GET.get("assistant_id")
     assistant = None
     if assistant_id:
@@ -62,6 +91,8 @@ def team_memory(request, id):
 @permission_classes([AllowAny])
 def team_reflections(request, id):
     project = get_object_or_404(Project, id=id)
+    if not user_can_access_project(request.user, project):
+        return Response(status=status.HTTP_403_FORBIDDEN)
     logs = AssistantReflectionLog.objects.filter(
         project__linked_projects=project
     ).order_by("-created_at")

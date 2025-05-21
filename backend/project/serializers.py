@@ -6,6 +6,7 @@ from .models import (
     ProjectTask,
     ProjectMilestone,
     ProjectMemoryLink,
+    ProjectParticipant,
     ProjectType,
     ProjectStatus,
     TaskStatus,
@@ -92,6 +93,15 @@ class ProjectMemoryLinkSerializer(serializers.ModelSerializer):
         model = ProjectMemoryLink
         fields = ["id", "project", "memory", "reason", "linked_at"]
         read_only_fields = ["id", "linked_at"]
+
+
+class ProjectParticipantSerializer(serializers.ModelSerializer):
+    """Serialize project participant roles."""
+
+    class Meta:
+        model = ProjectParticipant
+        fields = ["id", "user", "project", "role", "created_at"]
+        read_only_fields = ["id", "created_at"]
 
 
 class DevDocPreviewSerializer(serializers.ModelSerializer):

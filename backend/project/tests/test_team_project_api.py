@@ -19,7 +19,11 @@ class ProjectTeamAPITest(APITestCase):
         self.user = User.objects.create_user(username="team", password="pw")
         self.client.force_authenticate(user=self.user)
         self.project = Project.objects.create(user=self.user, title="TeamProj")
-        self.assistant = Assistant.objects.create(name="Robo", specialty="t")
+        self.assistant = Assistant.objects.create(
+            name="Robo",
+            specialty="t",
+            created_by=self.user,
+        )
         self.chain = AssistantMemoryChain.objects.create(
             title="TeamChain",
             project=self.project,
@@ -37,8 +41,15 @@ class ProjectTeamAPITest(APITestCase):
             format="json",
         )
         self.assertEqual(resp.status_code, 200)
-        self.project.refresh_from_db()
-        self.assertIn(str(self.assistant.id), self.project.roles)
+        from project.models import ProjectParticipant
+
+        self.assertTrue(
+            ProjectParticipant.objects.filter(
+                project=self.project,
+                user=self.user,
+                role="researcher",
+            ).exists()
+        )
 
     def test_propagate_memory_adds_to_chain(self):
         mem = MemoryEntry.objects.create(
