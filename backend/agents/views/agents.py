@@ -14,9 +14,6 @@ from agents.models import (
     RealityConsensusVote,
     MythDiplomacySession,
     RitualCollapseLog,
-
-    AssistantCivilization,
-
     LegacyArtifact,
     ReincarnationLog,
     ReturnCycle,
@@ -32,11 +29,11 @@ from agents.serializers import (
     RealityConsensusVoteSerializer,
     MythDiplomacySessionSerializer,
     RitualCollapseLogSerializer,
-    AssistantCivilizationSerializer,
     LegacyArtifactSerializer,
     ReincarnationLogSerializer,
     ReturnCycleSerializer,
 )
+from assistants.serializers import AssistantCivilizationSerializer
 
 from agents.utils.agent_controller import (
     update_agent_profile_from_feedback,
@@ -229,7 +226,6 @@ def myth_reset_cycle(request):
 @api_view(["GET"])
 def assistant_civilizations(request):
     from assistants.models import AssistantCivilization
-    from assistants.serializers import AssistantCivilizationSerializer
 
     civs = AssistantCivilization.objects.all().order_by("-created_at")
     serializer = AssistantCivilizationSerializer(civs, many=True)
