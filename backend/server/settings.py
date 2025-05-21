@@ -155,7 +155,10 @@ SIMPLE_JWT = {
 # === 🔄 DRF Settings ===
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        # Enable JWT auth via HttpOnly cookies. This allows the frontend to rely
+        # on cookies set by dj-rest-auth without manually attaching the access
+        # token in the Authorization header.
+        "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.AllowAny",
