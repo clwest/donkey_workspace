@@ -41,6 +41,12 @@ class Agent(models.Model):
     metadata = models.JSONField(default=dict, blank=True)
     tags = ArrayField(models.CharField(max_length=100), blank=True, default=list)
     skills = ArrayField(models.CharField(max_length=100), blank=True, default=list)
+    trained_documents = models.ManyToManyField(
+        "intel_core.Document",
+        blank=True,
+        related_name="trained_agents",
+    )
+    verified_skills = models.JSONField(default=list, blank=True)
     strength_score = models.FloatField(default=0.0)
     preferred_llm = models.CharField(max_length=50, choices=LLM_CHOICES, default="gpt-4o")
     execution_mode = models.CharField(max_length=50, choices=EXECUTION_MODE_CHOICES, default="direct")
