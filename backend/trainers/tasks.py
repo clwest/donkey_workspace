@@ -1,12 +1,13 @@
 from celery import shared_task
 from django.contrib.auth import get_user_model
+from django.conf import settings
 
 from .models import ReplicatePrediction, ReplicateModel
 from .helpers.replicate_helpers import generate_image, get_prediction_detail
 import requests
 from .helpers.trainers_logic import perform_clear_and_optimize_image
 
-User = get_user_model()
+User = settings.AUTH_USER_MODEL
 
 
 @shared_task
@@ -17,7 +18,7 @@ def generate_prediction_task(
     Task to generate a new prediction via Replicate and save to database.
     Returns the primary key of the created ReplicatePrediction.
     """
-    user = User.objects.get(pk=user_id)
+    user = get_user_model().objects.get(pk=user_id)
     model = ReplicateModel.objects.get(pk=model_id)
     # Call external service
     prediction = generate_image(prompt, require_trigger_word)

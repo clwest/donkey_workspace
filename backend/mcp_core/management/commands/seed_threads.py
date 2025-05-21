@@ -1,11 +1,12 @@
 from django.core.management.base import BaseCommand
 from mcp_core.models import NarrativeThread, Tag
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from random import sample, randint
 from faker import Faker
 
 fake = Faker()
-User = get_user_model()
+User = settings.AUTH_USER_MODEL
 
 THREAD_TITLES = [
     "Origin of Memory Linking",
@@ -38,7 +39,7 @@ class Command(BaseCommand):
     help = "Seed example narrative threads"
 
     def handle(self, *args, **kwargs):
-        user = User.objects.first()
+        user = get_user_model().objects.first()
         if not user:
             self.stdout.write(
                 self.style.ERROR("No users found. Please create a user first.")

@@ -1,8 +1,9 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 
-User = get_user_model()
+User = settings.AUTH_USER_MODEL
 
 
 class StoryAudio(models.Model):

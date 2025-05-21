@@ -1,5 +1,6 @@
-from typing import Optional, List
+from typing import Optional, List, Any
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from utils.llm_router import call_llm
@@ -28,7 +29,7 @@ from agents.models import (
 
 from embeddings.helpers.helpers_io import save_embedding
 
-User = get_user_model()
+User = settings.AUTH_USER_MODEL
 
 
 def _skill_names(skills: list) -> List[str]:
@@ -58,7 +59,7 @@ def render_farewell(agent: Agent, reason: str = "") -> str:
 
 
 class AgentController:
-    def __init__(self, user: Optional[User] = None):
+    def __init__(self, user: Optional[Any] = None):
         self.user = user
 
     def reflect(
@@ -69,7 +70,7 @@ class AgentController:
         tag_names: Optional[List[str]] = None,
     ) -> MemoryContext:
         memory = MemoryContext.objects.create(
-            target_content_type=ContentType.objects.get_for_model(User),
+            target_content_type=ContentType.objects.get_for_model(get_user_model()),
             target_object_id=self.user.id if self.user else None,
             content=content,
             important=important,
@@ -601,13 +602,14 @@ def record_project_completion(project: "AssistantProject") -> None:
         legacy.save(update_fields=["missions_completed", "updated_at"])
 
 
-def retire_agent(agent: Agent, reason: str, farewell_text: Optional[str] = None) -> SwarmMemoryEntry:
+def retire_agent(
+    agent: Agent, reason: str, farewell_text: Optional[str] = None
+) -> SwarmMemoryEntry:
     """Archive the agent and record a farewell message."""
     agent.is_active = False
     agent.save(update_fields=["is_active"])
 
     legacy, _ = AgentLegacy.objects.get_or_create(agent=agent)
-
 
     if not farewell_text:
         template = FarewellTemplate.objects.order_by("-created_at").first()
@@ -618,7 +620,7 @@ def retire_agent(agent: Agent, reason: str, farewell_text: Optional[str] = None)
                 "Agent {{ agent.name }} has completed their mission as part of the {{ cluster.name }} cluster.\n\n"
                 "Skills contributed: {{ skills }}\n"
                 "Last active: {{ last_active }}\n\n"
-                "Legacy Note:\n\"{{ legacy_notes }}\"\n\n"
+                'Legacy Note:\n"{{ legacy_notes }}"\n\n'
                 "Farewell, and thank you for your service."
             )
 
@@ -635,7 +637,6 @@ def retire_agent(agent: Agent, reason: str, farewell_text: Optional[str] = None)
     for key, val in context.items():
         placeholder = "{{ " + key + " }}"
         farewell = farewell.replace(placeholder, str(val))
-
 
     entry = SwarmMemoryEntry.objects.create(
         title=f"Agent retired: {agent.name}",
@@ -667,7 +668,9 @@ def realign_agent(agent: Agent, target_cluster: AgentCluster) -> str:
         origin="realignment",
     )
     entry.linked_agents.add(agent)
-    entry.linked_projects.set([target_cluster.project] if target_cluster.project else [])
+    entry.linked_projects.set(
+        [target_cluster.project] if target_cluster.project else []
+    )
     from mcp_core.models import Tag
     from django.utils.text import slugify
 
@@ -678,4 +681,3 @@ def realign_agent(agent: Agent, target_cluster: AgentCluster) -> str:
     entry.tags.set(tags)
 
     return f"Agent {agent.name} realigned to {target_cluster.name}"
-

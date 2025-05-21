@@ -1,6 +1,7 @@
 from django.db import models
 import uuid
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from mcp_core.models import MemoryContext, Tag
 from django.contrib.postgres.fields import ArrayField
 from pgvector.django import VectorField
@@ -9,7 +10,7 @@ from pgvector.django import VectorField
 from django.utils import timezone
 
 
-User = get_user_model()
+User = settings.AUTH_USER_MODEL
 
 LLM_CHOICES = [
     ("gpt-4o", "GPT-4o"),
