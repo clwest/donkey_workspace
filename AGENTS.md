@@ -148,3 +148,16 @@ Assistants can now suggest lifecycle actions based on:
 - Task history
 
 Next: Introduce feedback-driven agent resurrection and voting-based reactivation in Phase 4.61
+
+## Phase 4.62 — Long-Term Swarm Memory & Agent Legacy
+
+This phase introduces persistent swarm-wide memory, agent legacy tracking, and reusable mission archetypes.
+
+Agents now maintain a legacy profile including:
+- Resurrection history
+- Missions completed
+- Reflections and coordination logs
+
+Assistants can reuse past project structures via MissionArchetypes, and SwarmMemoryEntries ensure long-term intelligence retention across assistant lifecycles.
+
+Next: Phase 4.63 — Temporal swarm analysis, reflective forecasting, and agent retirement rituals.
