@@ -1821,18 +1821,40 @@ class AssistantCouncil(models.Model):
         return self.name
 
 
-
 class AssistantMythLayer(models.Model):
-    """Narrative layer capturing mythos and legacy for an assistant."""
+    """Symbolic mythos associated with an assistant."""
 
-    assistant = models.OneToOneField(
-        "assistants.Assistant", on_delete=models.CASCADE, related_name="myth_layer"
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="myth_layers"
     )
-    origin_story = models.TextField()
-    legendary_traits = models.JSONField(default=dict)
-    last_updated = models.DateTimeField(auto_now=True)
+    summary = models.TextField()
+    content = models.TextField(blank=True)
+    archived = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
 
     def __str__(self) -> str:  # pragma: no cover - display
         return f"MythLayer for {self.assistant.name}"
 
+
+class MythMergeProposal(models.Model):
+    """Proposal to merge myth layers between assistants."""
+
+    initiator = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="myth_merge_initiated",
+    )
+    target_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="merge_target",
+    )
+    proposed_summary = models.TextField()
+    vote_required = models.BooleanField(default=True)
+    approved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:  # pragma: no cover - display
+        return f"Merge {self.initiator.name} → {self.target_assistant.name}"
 
