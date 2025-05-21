@@ -58,6 +58,10 @@ class MemoryEntry(models.Model):
         "assistants.ChatSession", on_delete=models.SET_NULL, null=True, blank=True
     )
 
+    linked_agents = models.ManyToManyField(
+        "agents.Agent", blank=True, related_name="memory_entries"
+    )
+
     # 🧬 Embeddings
     embeddings = GenericRelation("embeddings.Embedding")
 

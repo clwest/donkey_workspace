@@ -5,17 +5,23 @@ import AgentFeedbackPanel from "../../components/agents/AgentFeedbackPanel";
 import AgentTrainingPanel from "../../components/agents/AgentTrainingPanel";
 import AgentSkillGraph from "../../components/agents/AgentSkillGraph";
 import AgentTrainingSuggestionModal from "../../components/agents/AgentTrainingSuggestionModal";
+import MentoringThread from "../../components/agents/MentoringThread";
 
 const AgentDetailPage = () => {
   const { slug } = useParams();
   const [agent, setAgent] = useState(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [showSuggest, setShowSuggest] = useState(false);
+  const [mentoringEvents, setMentoringEvents] = useState([]);
 
   useEffect(() => {
     apiFetch(`/agents/${slug}/`)
       .then(setAgent)
       .catch((err) => console.error("Failed to load agent", err));
+
+    apiFetch(`/agents/${slug}/mentoring-events/`)
+      .then(setMentoringEvents)
+      .catch(() => setMentoringEvents([]));
   }, [slug]);
 
   if (!agent) return <div className="container my-5">Loading...</div>;
@@ -46,6 +52,14 @@ const AgentDetailPage = () => {
             onClick={() => setActiveTab("training")}
           >
             Training
+          </button>
+        </li>
+        <li className="nav-item">
+          <button
+            className={`nav-link ${activeTab === "mentoring" ? "active" : ""}`}
+            onClick={() => setActiveTab("mentoring")}
+          >
+            Mentoring
           </button>
         </li>
       </ul>
@@ -85,6 +99,9 @@ const AgentDetailPage = () => {
             agent={agent}
           />
         </div>
+      )}
+      {activeTab === "mentoring" && (
+        <MentoringThread events={mentoringEvents} />
       )}
     </div>
   );
