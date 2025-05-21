@@ -1,10 +1,14 @@
 """Viewsets providing API endpoints for working with ``Project`` objects."""
 
 from rest_framework import viewsets
-from .models import Project
-from .serializers import ProjectSerializer
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from django.db.models import Q
+from .models import Project, ProjectTask, ProjectMilestone
+from .serializers import (
+    ProjectSerializer,
+    ProjectTaskSerializer,
+    ProjectMilestoneSerializer,
+)
+from rest_framework.permissions import AllowAny
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
@@ -94,3 +98,35 @@ def team_reflections(request, id):
     ).order_by("-created_at")
     data = AssistantReflectionLogSerializer(logs, many=True).data
     return Response(data)
+
+
+class ProjectTaskViewSet(viewsets.ModelViewSet):
+    """Manage tasks for a specific project (``project_pk`` URL kwarg)."""
+
+    serializer_class = ProjectTaskSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        return ProjectTask.objects.filter(
+            project_id=self.kwargs.get("project_pk"),
+            project__user=self.request.user,
+        ).order_by("-created_at")
+
+    def perform_create(self, serializer):
+        serializer.save(project_id=self.kwargs.get("project_pk"))
+
+
+class ProjectMilestoneViewSet(viewsets.ModelViewSet):
+    """Manage milestones for a specific project (``project_pk`` URL kwarg)."""
+
+    serializer_class = ProjectMilestoneSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        return ProjectMilestone.objects.filter(
+            project_id=self.kwargs.get("project_pk"),
+            project__user=self.request.user,
+        )
+
+    def perform_create(self, serializer):
+        serializer.save(project_id=self.kwargs.get("project_pk"))
