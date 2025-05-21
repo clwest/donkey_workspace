@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation, GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from agents.models import SwarmMemoryEntry
 
 User = get_user_model()
 
@@ -256,6 +257,20 @@ class SimulatedMemoryFork(models.Model):
 
     def __str__(self):
         return f"Fork of {self.original_memory_id} by {self.assistant.name}"
+
+
+class MemoryBranch(models.Model):
+    """Branch speculative timeline from a SwarmMemoryEntry."""
+
+    root_entry = models.ForeignKey(
+        "agents.SwarmMemoryEntry",
+        on_delete=models.CASCADE,
+        related_name="branches",
+    )
+    fork_reason = models.TextField()
+    speculative_outcome = models.TextField()
+    approved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class SharedMemoryPool(models.Model):

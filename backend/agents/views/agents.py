@@ -3,9 +3,27 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 
-from agents.models import Agent, AgentFeedbackLog, AgentCluster, SwarmMemoryEntry
-from agents.serializers import AgentSerializer, AgentFeedbackLogSerializer, AgentClusterSerializer
-from agents.serializers import SwarmMemoryEntrySerializer
+from agents.models import (
+    Agent,
+    AgentFeedbackLog,
+    AgentCluster,
+    SwarmMemoryEntry,
+
+    LoreEntry,
+    RetconRequest,
+    RealityConsensusVote,
+
+)
+from agents.serializers import (
+    AgentSerializer,
+    AgentFeedbackLogSerializer,
+    AgentClusterSerializer,
+    SwarmMemoryEntrySerializer,
+    LoreEntrySerializer,
+    RetconRequestSerializer,
+    RealityConsensusVoteSerializer,
+
+)
 
 from agents.utils.agent_controller import (
     update_agent_profile_from_feedback,
@@ -14,7 +32,10 @@ from agents.utils.agent_controller import (
     retire_agent,
 )
 
-from agents.utils.swarm_analytics import generate_temporal_swarm_report, get_swarm_snapshot
+from agents.utils.swarm_analytics import (
+    generate_temporal_swarm_report,
+    get_swarm_snapshot,
+)
 from datetime import datetime
 
 
@@ -104,7 +125,6 @@ def cluster_detail_view(request, id):
 
 
 @api_view(["GET"])
-
 def swarm_temporal_report(request):
     data = generate_temporal_swarm_report()
     return Response(data)
@@ -127,11 +147,15 @@ def swarm_snapshot_view(request, date):
     except ValueError:
         return Response({"error": "Invalid date"}, status=400)
     snapshot = get_swarm_snapshot(dt)
-    return Response({
-        "agents": AgentSerializer(snapshot["agents"], many=True).data,
-        "clusters": AgentClusterSerializer(snapshot["clusters"], many=True).data,
-        "memories": SwarmMemoryEntrySerializer(snapshot["memories"], many=True).data,
-    })
+    return Response(
+        {
+            "agents": AgentSerializer(snapshot["agents"], many=True).data,
+            "clusters": AgentClusterSerializer(snapshot["clusters"], many=True).data,
+            "memories": SwarmMemoryEntrySerializer(
+                snapshot["memories"], many=True
+            ).data,
+        }
+    )
 
 
 @api_view(["POST"])
@@ -142,4 +166,36 @@ def retire_agents(request):
         entry = retire_agent(agent, reason)
         retired.append(entry.id)
     return Response({"retired": retired})
+
+
+
+@api_view(["GET", "POST"])
+def lore_entries(request):
+    if request.method == "GET":
+        entries = LoreEntry.objects.all().order_by("-created_at")
+        return Response(LoreEntrySerializer(entries, many=True).data)
+
+    serializer = LoreEntrySerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    entry = serializer.save()
+    return Response(LoreEntrySerializer(entry).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def retcon_requests(request):
+    if request.method == "GET":
+        requests = RetconRequest.objects.all().order_by("-created_at")
+        return Response(RetconRequestSerializer(requests, many=True).data)
+
+    serializer = RetconRequestSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    req = serializer.save()
+    return Response(RetconRequestSerializer(req).data, status=201)
+
+
+@api_view(["GET"])
+def consensus_votes(request):
+    votes = RealityConsensusVote.objects.all().order_by("-created_at")
+    serializer = RealityConsensusVoteSerializer(votes, many=True)
+    return Response(serializer.data)
 

@@ -4,7 +4,9 @@ from agents.models import (
     AgentFeedbackLog,
     AgentCluster,
     SwarmMemoryEntry,
+
     SwarmJournalEntry,
+
 )
 from intel_core.serializers import DocumentSerializer
 
@@ -66,7 +68,6 @@ class SwarmMemoryEntrySerializer(serializers.ModelSerializer):
 
     tags = serializers.SerializerMethodField()
 
-
     class Meta:
         model = SwarmMemoryEntry
         fields = [
@@ -74,7 +75,6 @@ class SwarmMemoryEntrySerializer(serializers.ModelSerializer):
             "title",
             "content",
             "origin",
-
             "season",
             "tags",
             "created_at",
@@ -82,7 +82,6 @@ class SwarmMemoryEntrySerializer(serializers.ModelSerializer):
 
     def get_tags(self, obj):
         return list(obj.tags.values_list("name", flat=True))
-
 
 
 class SwarmJournalEntrySerializer(serializers.ModelSerializer):
@@ -105,4 +104,5 @@ class SwarmJournalEntrySerializer(serializers.ModelSerializer):
 
     def get_tags(self, obj):
         return list(obj.tags.values_list("name", flat=True))
+
 

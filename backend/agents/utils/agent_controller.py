@@ -646,22 +646,35 @@ def retire_agent(agent: Agent, reason: str, farewell_text: Optional[str] = None)
 
     for name in ["farewell", "retired", "mentor-passed"]:
         tag, _ = Tag.objects.get_or_create(name=name, defaults={"slug": name})
-        entry.tags.add(tag)
+    entry.tags.add(tag)
 
     return entry
 
 
-def log_ceremony(kind: str, summary: str, assistants: list[Agent] | None = None) -> SwarmMemoryEntry:
-    """Record a formal ceremony memory entry."""
+def realign_agent(agent: Agent, target_cluster: AgentCluster) -> str:
+    """Move an agent to a new cluster and log the realignment."""
+    # Remove from existing clusters
+    for cluster in agent.clusters.all():
+        cluster.agents.remove(agent)
+    target_cluster.agents.add(agent)
+    agent.tags = list(set(agent.tags or []) - {str(c.id) for c in agent.clusters.all()})
+    agent.save(update_fields=["tags", "updated_at"])
 
     entry = SwarmMemoryEntry.objects.create(
-        title=f"Ceremony: {kind.title()}",
-        content=summary,
-        origin="ceremony",
+        title=f"Agent Realigned: {agent.name}",
+        content=f"Moved to cluster {target_cluster.name}",
+        origin="realignment",
     )
-    if assistants:
-        entry.linked_agents.add(*assistants)
-    for name in ["ceremony", kind]:
-        tag, _ = Tag.objects.get_or_create(name=name, defaults={"slug": name})
-        entry.tags.add(tag)
-    return entry
+    entry.linked_agents.add(agent)
+    entry.linked_projects.set([target_cluster.project] if target_cluster.project else [])
+    from mcp_core.models import Tag
+    from django.utils.text import slugify
+
+    tags = []
+    for name in ["realignment", "mission_shift"]:
+        tag, _ = Tag.objects.get_or_create(name=name, defaults={"slug": slugify(name)})
+        tags.append(tag)
+    entry.tags.set(tags)
+
+    return f"Agent {agent.name} realigned to {target_cluster.name}"
+
