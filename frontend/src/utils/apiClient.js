@@ -6,6 +6,8 @@ export default async function apiFetch(url, options = {}) {
     ? { "Content-Type": "application/json" }
     : {};
 
+  const authToken = localStorage.getItem("access");
+
   let fullUrl = API_URL + url;
   if (params) {
     const q = new URLSearchParams(params).toString();
@@ -18,6 +20,7 @@ export default async function apiFetch(url, options = {}) {
     ...fetchOptions,
     headers: {
       ...defaultHeaders,
+      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
       ...(fetchOptions.headers || {}),
     },
     body:

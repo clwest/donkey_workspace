@@ -11,10 +11,12 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await apiFetch("/dj-rest-auth/login/", {
+      const data = await apiFetch("/dj-rest-auth/login/", {
         method: "POST",
         body: { username, password },
       });
+      if (data.access) localStorage.setItem("access", data.access);
+      if (data.refresh) localStorage.setItem("refresh", data.refresh);
       toast.success("✅ Logged in!");
       navigate("/");
     } catch (err) {
