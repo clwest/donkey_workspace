@@ -1,7 +1,7 @@
 from django.db import models
 import uuid
 from django.contrib.auth import get_user_model
-from mcp_core.models import MemoryContext
+from mcp_core.models import MemoryContext, Tag
 from django.contrib.postgres.fields import ArrayField
 from pgvector.django import VectorField
 
@@ -198,6 +198,8 @@ class AgentCluster(models.Model):
         return self.name
 
 
+
+
 class AgentReactivationVote(models.Model):
     agent = models.ForeignKey(Agent, on_delete=models.CASCADE)
     voter = models.ForeignKey(
@@ -240,6 +242,7 @@ class SwarmMemoryEntry(models.Model):
 
     linked_agents = models.ManyToManyField(Agent, blank=True)
     linked_projects = models.ManyToManyField("assistants.AssistantProject", blank=True)
+    tags = models.ManyToManyField(Tag, blank=True)
     origin = models.CharField(max_length=50, default="reflection")
 
     season = models.CharField(max_length=10, default=_current_season)

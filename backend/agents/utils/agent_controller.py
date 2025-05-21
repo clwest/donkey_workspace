@@ -649,3 +649,19 @@ def retire_agent(agent: Agent, reason: str, farewell_text: Optional[str] = None)
         entry.tags.add(tag)
 
     return entry
+
+
+def log_ceremony(kind: str, summary: str, assistants: list[Agent] | None = None) -> SwarmMemoryEntry:
+    """Record a formal ceremony memory entry."""
+
+    entry = SwarmMemoryEntry.objects.create(
+        title=f"Ceremony: {kind.title()}",
+        content=summary,
+        origin="ceremony",
+    )
+    if assistants:
+        entry.linked_agents.add(*assistants)
+    for name in ["ceremony", kind]:
+        tag, _ = Tag.objects.get_or_create(name=name, defaults={"slug": name})
+        entry.tags.add(tag)
+    return entry
