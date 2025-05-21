@@ -559,6 +559,7 @@ class RitualCollapseLog(models.Model):
         return f"Collapse: {self.retired_entity}"
 
 
+
 class AssistantCivilization(models.Model):
     """Cohesive society or faction formed by assistants."""
 
@@ -585,12 +586,14 @@ class LoreInheritanceLine(models.Model):
     )
     traits_passed = models.JSONField()
     mutation_summary = models.TextField(blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return f"{self.source} -> {self.descendant}"
 
 
@@ -609,3 +612,4 @@ class MythSimulationArena(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
+

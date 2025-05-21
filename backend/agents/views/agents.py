@@ -8,6 +8,7 @@ from agents.models import (
     AgentFeedbackLog,
     AgentCluster,
     SwarmMemoryEntry,
+    LoreEpoch,
     LoreEntry,
     RetconRequest,
     RealityConsensusVote,
@@ -23,6 +24,7 @@ from agents.serializers import (
     AgentClusterSerializer,
     SwarmMemoryEntrySerializer,
     LoreEntrySerializer,
+    LoreEpochSerializer,
     RetconRequestSerializer,
     RealityConsensusVoteSerializer,
     MythDiplomacySessionSerializer,
@@ -43,7 +45,9 @@ from agents.utils.swarm_analytics import (
     generate_temporal_swarm_report,
     get_swarm_snapshot,
 )
+
 from agents.utils import harmonize_global_narrative
+
 from datetime import datetime
 
 
@@ -198,6 +202,34 @@ def retcon_requests(request):
     serializer.is_valid(raise_exception=True)
     req = serializer.save()
     return Response(RetconRequestSerializer(req).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def lore_epochs(request):
+    if request.method == "GET":
+        epochs = LoreEpoch.objects.all().order_by("-created_at")
+        return Response(LoreEpochSerializer(epochs, many=True).data)
+
+    serializer = LoreEpochSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    epoch = serializer.save()
+    return Response(LoreEpochSerializer(epoch).data, status=201)
+
+
+@api_view(["POST"])
+def myth_reset_cycle(request):
+    result = run_myth_reset_cycle()
+    return Response(result)
+
+
+@api_view(["GET"])
+def assistant_civilizations(request):
+    from assistants.models import AssistantCivilization
+    from assistants.serializers import AssistantCivilizationSerializer
+
+    civs = AssistantCivilization.objects.all().order_by("-created_at")
+    serializer = AssistantCivilizationSerializer(civs, many=True)
+    return Response(serializer.data)
 
 
 @api_view(["GET"])
