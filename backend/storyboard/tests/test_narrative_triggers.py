@@ -16,7 +16,9 @@ from storyboard.tasks import evaluate_narrative_triggers
 
 class NarrativeTriggerTaskTest(APITestCase):
     def setUp(self):
-        self.assistant = Assistant.objects.create(name="Main", specialty="root")
+        self.assistant = Assistant.objects.create(
+            name="Main", specialty="root", preferred_scene_tags=["lab"]
+        )
 
     @patch("storyboard.tasks.spawn_delegated_assistant")
     def test_auto_delegate_spawns_child(self, mock_spawn):
@@ -26,6 +28,7 @@ class NarrativeTriggerTaskTest(APITestCase):
             end_time=timezone.now() + timedelta(hours=2),
             linked_assistant=self.assistant,
             auto_delegate=True,
+            scene="lab",
         )
 
         evaluate_narrative_triggers()

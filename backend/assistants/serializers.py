@@ -820,6 +820,7 @@ class AssistantSerializer(serializers.ModelSerializer):
     average_delegation_score = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
     empathy_tags = serializers.ListField(child=serializers.CharField(), read_only=True)
+    preferred_scene_tags = serializers.ListField(child=serializers.CharField(), read_only=True)
 
     class Meta:
         model = Assistant

@@ -32,6 +32,9 @@ def evaluate_narrative_triggers():
 
         # Upcoming
         if event.start_time and event.start_time > now and event.auto_delegate:
+            if event.scene and assistant.preferred_scene_tags:
+                if event.scene not in assistant.preferred_scene_tags:
+                    continue
             spawn_delegated_assistant(
                 assistant,
                 narrative_thread=event.narrative_thread,
