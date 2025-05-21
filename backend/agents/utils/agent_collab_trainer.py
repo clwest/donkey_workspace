@@ -1,8 +1,11 @@
-def simulate_agent_skill_conversation(teacher, learner, skill):
+def simulate_agent_skill_conversation(teacher, learner, skill, *, thread=None):
     """Simulates a short skill explanation conversation."""
     from openai import OpenAI
     from agents.models import AgentFeedbackLog, AgentTrainingAssignment
     from intel_core.models import Document
+    from memory.models import MemoryEntry
+    from mcp_core.models import Tag
+    from django.utils.text import slugify
 
     client = OpenAI()
     prompt = (
@@ -25,6 +28,22 @@ def simulate_agent_skill_conversation(teacher, learner, skill):
         feedback_text=f"{teacher.name} taught {skill.name}.\n{transcript}",
         feedback_type="collab",
     )
+
+    memory = MemoryEntry.objects.create(
+        event=f"{teacher.name} taught {learner.name} {skill.name}",
+        full_transcript=transcript,
+        is_conversation=True,
+        source_role="agent",
+        narrative_thread=thread,
+    )
+    memory.linked_agents.set([teacher, learner])
+
+    tag_names = ["mentoring", skill.name.lower()]
+    tags = []
+    for name in tag_names:
+        tag, _ = Tag.objects.get_or_create(name=name, defaults={"slug": slugify(name)})
+        tags.append(tag)
+    memory.tags.set(tags)
 
     lowered = transcript.lower()
     if "follow" in lowered or "more" in lowered:

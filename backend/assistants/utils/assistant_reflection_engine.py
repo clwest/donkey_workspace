@@ -518,33 +518,63 @@ Agents snapshot:\n{context}\n\nReturn a markdown summary in 4-6 bullet points.""
         return "- Unable to generate reflection."
 
 
-def reflect_on_agent_clusters(assistant: Assistant) -> AssistantReflectionLog:
-    """Analyze evolution of agent clusters and log a reflection."""
-    from agents.models import AgentCluster
-
-    clusters = AgentCluster.objects.filter(agents__parent_assistant=assistant).distinct()
-    lines = [
+def reflect_on_agent_swarm(assistant: Assistant) -> AssistantReflectionLog:
+    """
+    Reflects on both agent-cluster evolution and mentoring/swarm dynamics,
+    then logs the insight as an AssistantReflectionLog.
+    """
+    # 1) Build cluster context
+    clusters = AgentCluster.objects.filter(
+        agents__parent_assistant=assistant
+    ).distinct()
+    cluster_lines = [
         f"{c.name} ({c.agents.count()} agents) – {c.purpose}" for c in clusters
     ]
-    context = "\n".join(lines) or "No clusters"
+    cluster_context = "\n".join(cluster_lines) or "No clusters defined."
+
+    # 2) Build mentoring/swarm context
+    agents = list(assistant.assigned_agents.all())
+    if agents:
+        mentoring_entries = (
+            MemoryEntry.objects
+            .filter(linked_agents__in=agents, tags__name__iexact="mentoring")
+            .order_by("-created_at")[:20]
+        )
+        # Interaction bullet points
+        interaction_lines = [f"- {m.event}" for m in mentoring_entries] or ["- No mentoring interactions."]
+        # Per-agent metrics
+        agent_metrics = []
+        for a in agents:
+            taught = sum(1 for m in mentoring_entries if m.event.startswith(a.name))
+            learned = sum(1 for m in mentoring_entries if f"taught {a.name}" in m.event)
+            agent_metrics.append(f"{a.name}: taught {taught}, learned {learned}")
+        mentoring_context = "\n".join(agent_metrics + [""] + interaction_lines)
+    else:
+        mentoring_context = "No agents assigned."
+
+    # 3) Compose the combined prompt
     prompt = (
-        "### Cluster Evolution Reflection\n\n"
-        f"You are {assistant.name}. Review the current agent clusters and answer:\n"
+        f"### Agent Swarm & Cluster Reflection\n\n"
+        f"You are {assistant.name}, overseeing a network of AI agents.\n\n"
+        f"**Clusters:**\n{cluster_context}\n\n"
+        f"**Mentoring & Interactions:**\n{mentoring_context}\n\n"
+        "Please cover:\n"
         "- Which clusters have grown or dissolved?\n"
-        "- Are roles redundant or missing?\n"
-        "- Should any agents be repurposed, archived, or re-trained?\n"
-        "- Recommend spawn or merge actions.\n\n"
-        f"Clusters:\n{context}\n\nRespond in 4-6 concise bullet points."
+        "- Are any roles redundant or missing?\n"
+        "- Which agents are mentoring vs being mentored?\n"
+        "- Propose spawn, merge, repurpose, or retraining actions.\n\n"
+        "Respond with 4–6 concise bullet points."
     )
+
+    # 4) Call the LLM and log the result
     summary = call_llm(
         [{"role": "user", "content": prompt}],
         model=assistant.preferred_model or "gpt-4o",
         temperature=0.4,
     )
 
-    log = AssistantReflectionLog.objects.create(
+    return AssistantReflectionLog.objects.create(
         assistant=assistant,
+        title="Agent Swarm & Cluster Reflection",
         summary=summary,
-        title="Cluster Reflection",
     )
-    return log
