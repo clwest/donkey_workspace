@@ -17,6 +17,7 @@ export default function ThreadDetailPage() {
   const [chains, setChains] = useState(null);
   const [diagnostic, setDiagnostic] = useState(null);
   const [continuity, setContinuity] = useState(null);
+  const [realignments, setRealignments] = useState([]);
 
   useEffect(() => {
     const fetchThread = async () => {
@@ -58,6 +59,15 @@ export default function ThreadDetailPage() {
       setThread({ ...thread, continuity_summary: data.continuity_summary });
     } catch (err) {
       console.error("Suggestion failed", err);
+    }
+  };
+
+  const handleRealign = async () => {
+    try {
+      const data = await apiFetch(`/mcp/threads/${id}/realign/`, { method: "POST" });
+      setRealignments([data, ...realignments]);
+    } catch (err) {
+      console.error("Realign failed", err);
     }
   };
 
@@ -170,6 +180,9 @@ export default function ThreadDetailPage() {
       <button className="btn btn-secondary mb-3" onClick={handleSuggest}>
         🧩 Suggest Continuity Fix
       </button>
+      <button className="btn btn-info mb-3 ms-2" onClick={handleRealign}>
+        🧠 Realign Plan
+      </button>
 
       {continuity && (
         <div className="alert alert-info">
@@ -181,6 +194,22 @@ export default function ThreadDetailPage() {
               ))}
             </ul>
           )}
+        </div>
+      )}
+
+      {realignments.length > 0 && (
+        <div className="mt-3">
+          <h6>Realignment Suggestions</h6>
+          {realignments.map((r, idx) => (
+            <div key={idx} className="alert alert-secondary">
+              <div>{r.summary}</div>
+              {r.proposed_objective && (
+                <div className="small mt-1">
+                  <strong>Proposed Objective:</strong> {r.proposed_objective}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
 

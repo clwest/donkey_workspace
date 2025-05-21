@@ -304,9 +304,20 @@ class ThreadDiagnosticLog(models.Model):
     thread = models.ForeignKey(
         NarrativeThread, on_delete=models.CASCADE, related_name="diagnostics"
     )
+    TYPE_CHOICES = [
+        ("continuity_diagnostic", "Continuity Diagnostic"),
+        ("emotional_diagnostic", "Emotional Diagnostic"),
+        ("realignment_suggestion", "Realignment Suggestion"),
+    ]
+
     score = models.FloatField()
     summary = models.TextField()
+
+    type = models.CharField(max_length=30, choices=TYPE_CHOICES, default="continuity_diagnostic")
+    proposed_changes = models.JSONField(null=True, blank=True)
+
     mood_influence = models.TextField(blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
