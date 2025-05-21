@@ -12,7 +12,7 @@ class DelegationEventManager(models.Manager):
 from memory.models import MemoryEntry
 from prompts.models import Prompt
 from project.models import ProjectTask, ProjectMilestone
-from agents.models import SwarmMemoryEntry
+from agents.models import SwarmMemoryEntry, GlobalMissionNode
 from django.utils.text import slugify
 from django.core.exceptions import ValidationError
 from django.conf import settings
@@ -1771,34 +1771,18 @@ class CouncilOutcome(models.Model):
         return f"Outcome for {self.council_session}"
 
 
-class AssistantSuccessorLog(models.Model):
-    """Record legacy handoff from one assistant to another."""
 
-    predecessor = models.ForeignKey(
-        "assistants.Assistant",
-        on_delete=models.CASCADE,
-        related_name="successor_logs_from",
+class AssistantCouncil(models.Model):
+    """Persistent group of assistants co-owning a mission node."""
+
+    name = models.CharField(max_length=100)
+    mission_node = models.ForeignKey(
+        "agents.GlobalMissionNode", on_delete=models.CASCADE
     )
-    successor = models.ForeignKey(
-        "assistants.Assistant",
-        on_delete=models.CASCADE,
-        related_name="successor_logs_to",
-    )
-    reason = models.TextField()
-    transferred_projects = models.ManyToManyField(
-        "assistants.AssistantProject",
-        blank=True,
-        related_name="succession_logs",
-    )
-    memory_snapshot = models.TextField()
-    session_handoff = models.ForeignKey(
-        "assistants.SessionHandoff",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="succession_logs",
-    )
+    members = models.ManyToManyField("assistants.Assistant")
+    charter = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return f"{self.predecessor} -> {self.successor}"
+    def __str__(self) -> str:  # pragma: no cover - display
+        return self.name
+

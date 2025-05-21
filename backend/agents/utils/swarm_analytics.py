@@ -10,6 +10,10 @@ from agents.models import (
     AgentFeedbackLog,
     SwarmMemoryEntry,
 )
+from assistants.models import AssistantProject, AssistantReflectionLog, AssistantCouncil
+from django.db.models import Avg
+from django.db.models.functions import Length
+from mcp_core.models import Tag
 
 
 def get_season_marker(date: datetime) -> str:
@@ -134,3 +138,45 @@ def evaluate_cluster_health(cluster: AgentCluster) -> dict:
         "feedback_sentiment": sentiment,
         "projected_viability": viability,
     }
+
+
+def score_global_strategy() -> dict:
+    """Evaluate overall strategy alignment and cohesion."""
+
+    total_projects = AssistantProject.objects.count()
+    aligned_projects = AssistantCouncil.objects.exclude(mission_node=None).count()
+    alignment = aligned_projects / float(total_projects or 1)
+
+    participation = (
+        AssistantReflectionLog.objects.values("assistant_id").distinct().count()
+    )
+
+    reflection_depth = (
+        AssistantReflectionLog.objects.annotate(l=Length("summary"))
+        .aggregate(avg=Avg("l"))
+        .get("avg")
+        or 0.0
+    )
+
+    councils = AssistantCouncil.objects.all()
+    total_memberships = sum(c.members.count() for c in councils) or 1
+    unique_members = {a.id for c in councils for a in c.members.all()}
+    cohesion = len(unique_members) / float(total_memberships)
+
+    metrics = {
+        "alignment": round(alignment, 2),
+        "participation": participation,
+        "reflection_depth": round(reflection_depth, 2),
+        "cohesion": round(cohesion, 2),
+    }
+
+    entry = SwarmMemoryEntry.objects.create(
+        title="Global Strategy Score",
+        content=str(metrics),
+        origin="strategy_score",
+    )
+    for name in ["strategy_score", "alignment", "cohesion"]:
+        tag, _ = Tag.objects.get_or_create(name=name, defaults={"slug": name})
+        entry.tags.add(tag)
+
+    return metrics
