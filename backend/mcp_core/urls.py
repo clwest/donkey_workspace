@@ -1,7 +1,7 @@
 from django.urls import path
 
 from uuid import UUID
-from .views import threading, reflection, tags, memories, prompts
+from .views import threading, reflection, tags, memories, prompts, narrative_events
 from mcp_core.capabilities.dev_docs import views as dev_docs
 
 urlpatterns = [
@@ -63,4 +63,9 @@ urlpatterns = [
     path("dev_docs/<slug:slug>/", dev_docs.get_dev_doc, name="get-dev-doc"),
     path("dev_docs/<slug:slug>/detail", dev_docs.devdoc_detail),
     path("dev_docs/<slug:slug>/reflection/", dev_docs.devdoc_reflection_by_slug),
+    path(
+        "narrative_events/<uuid:event_id>/summarize/",
+        narrative_events.summarize_event,
+        name="summarize-narrative-event",
+    ),
 ]
