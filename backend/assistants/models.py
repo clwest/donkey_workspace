@@ -577,6 +577,13 @@ class AssistantProject(models.Model):
     memory_shift_score = models.FloatField(default=0.0)
     documents = models.ManyToManyField("intel_core.Document", blank=True)
     agents = models.ManyToManyField("agents.Agent", blank=True, related_name="projects")
+
+    shared_objectives = models.ManyToManyField(
+        "assistants.AssistantObjective",
+        blank=True,
+        related_name="shared_in_projects",
+    )
+
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -1762,3 +1769,36 @@ class CouncilOutcome(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display
         return f"Outcome for {self.council_session}"
+
+
+class AssistantSuccessorLog(models.Model):
+    """Record legacy handoff from one assistant to another."""
+
+    predecessor = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="successor_logs_from",
+    )
+    successor = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="successor_logs_to",
+    )
+    reason = models.TextField()
+    transferred_projects = models.ManyToManyField(
+        "assistants.AssistantProject",
+        blank=True,
+        related_name="succession_logs",
+    )
+    memory_snapshot = models.TextField()
+    session_handoff = models.ForeignKey(
+        "assistants.SessionHandoff",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="succession_logs",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"{self.predecessor} -> {self.successor}"
