@@ -677,3 +677,4 @@ def realign_agent(agent: Agent, target_cluster: AgentCluster) -> str:
     entry.tags.set(tags)
 
     return f"Agent {agent.name} realigned to {target_cluster.name}"
+

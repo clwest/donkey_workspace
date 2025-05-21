@@ -1,7 +1,7 @@
 from django.db import models
 import uuid
 from django.contrib.auth import get_user_model
-from mcp_core.models import MemoryContext
+from mcp_core.models import MemoryContext, Tag
 from django.contrib.postgres.fields import ArrayField
 from pgvector.django import VectorField
 
@@ -200,6 +200,8 @@ class AgentCluster(models.Model):
         return self.name
 
 
+
+
 class AgentReactivationVote(models.Model):
     agent = models.ForeignKey(Agent, on_delete=models.CASCADE)
     voter = models.ForeignKey(
@@ -242,6 +244,7 @@ class SwarmMemoryEntry(models.Model):
 
     linked_agents = models.ManyToManyField(Agent, blank=True)
     linked_projects = models.ManyToManyField("assistants.AssistantProject", blank=True)
+    tags = models.ManyToManyField(Tag, blank=True)
     origin = models.CharField(max_length=50, default="reflection")
 
     season = models.CharField(max_length=10, default=_current_season)
@@ -381,3 +384,19 @@ def handle_project_completion(sender, instance, created, **kwargs):
         if agents:
             entry.linked_agents.set(agents)
         entry.linked_projects.add(instance)
+
+
+class SwarmTreaty(models.Model):
+    """Formal agreement between assistant councils."""
+
+    name = models.CharField(max_length=150)
+    participants = models.ManyToManyField(
+        "assistants.AssistantCouncil", related_name="treaties"
+    )
+    objectives = models.TextField()
+    terms = models.JSONField()
+    status = models.CharField(max_length=20, default="active")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
