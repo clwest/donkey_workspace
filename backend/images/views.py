@@ -57,7 +57,7 @@ from tts.models import SceneAudio
 from tts.serializers import SceneAudioSerializer
 from tts.tasks import queue_tts_scene
 from rest_framework import generics
-from images.helpers.permissions import AllowAny
+# from images.helpers.permissions import AllowAny
 from images.helpers.image_urls import generate_absolute_urls
 from images.helpers.prompt_generation_hook import prepare_final_prompt
 
