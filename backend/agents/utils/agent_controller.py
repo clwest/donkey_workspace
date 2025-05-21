@@ -4,16 +4,10 @@ from django.contrib.contenttypes.models import ContentType
 from openai import OpenAI
 from django.utils import timezone
 
-from mcp_core.models import (
-    MemoryContext,
-    Plan,
-    Task,
-   
-    ActionLog,
 
-    Tag,
-)
-from agents.models import Agent, AgentThoughtLog
+from mcp_core.models import MemoryContext, Plan, Task, ActionLog, Tag
+from agents.models import Agent, AgentThought
+
 from embeddings.helpers.helpers_io import save_embedding
 
 client = OpenAI()
@@ -131,7 +125,7 @@ class AgentController:
         thought = response.choices[0].message.content.strip()
         thought_trace.append("Received model response.")
 
-        log = AgentThoughtLog.objects.create(
+        log = AgentThought.objects.create(
             agent=agent,
             thought=thought,
             thought_trace="\n".join(f"• {s}" for s in thought_trace),
@@ -178,8 +172,8 @@ class AgentController:
 
     def log_thought(
         self, agent: Agent, thought: str, trace: Optional[List[str]] = None
-    ) -> AgentThoughtLog:
-        log = AgentThoughtLog.objects.create(
+    ) -> AgentThought:
+        log = AgentThought.objects.create(
             agent=agent,
             thought=thought,
             thought_trace="\n".join(f"• {s}" for s in (trace or [])),
@@ -188,10 +182,10 @@ class AgentController:
         return log
 
 
-
-
 # codex-optimize:feedback-profile
-def update_agent_profile_from_feedback(agent: Agent, feedback_logs: List["AgentFeedbackLog"]):
+def update_agent_profile_from_feedback(
+    agent: Agent, feedback_logs: List["AgentFeedbackLog"]
+):
     """Update agent metadata fields based on feedback logs."""
     if agent.metadata is None:
         agent.metadata = {}
@@ -221,38 +215,39 @@ def update_agent_profile_from_feedback(agent: Agent, feedback_logs: List["AgentF
         "strength_score": agent.strength_score,
     }
 
-def recommend_agent_for_task(
-    self, task_description: str, thread
-) -> Optional[Agent]:
-    """Select an agent based on tags, specialty, and thread overlap."""
-    from agents.models import Agent as AgentModel
-    from memory.models import MemoryEntry
+    # CODEx MARKER: recommend_agent_for_task
+    def recommend_agent_for_task(
+        self, task_description: str, thread
+    ) -> Optional[Agent]:
+        """Select an agent based on tags, specialty, and thread overlap."""
+        from agents.models import Agent as AgentModel
+        from memory.models import MemoryEntry
 
-    candidates = AgentModel.objects.all()
-    best_score = 0.0
-    best_agent = None
-    thread_tags = (
-        set(t.name.lower() for t in thread.tags.all())
-        if hasattr(thread, "tags")
-        else set()
-    )
+        candidates = AgentModel.objects.all()
+        best_score = 0.0
+        best_agent = None
+        thread_tags = (
+            set(t.name.lower() for t in thread.tags.all())
+            if hasattr(thread, "tags")
+            else set()
+        )
 
-    for agent in candidates:
-        score = 0.0
-        if agent.specialty:
-            for tag in thread_tags:
-                if tag in agent.specialty.lower():
-                    score += 0.5
-                    break
-        if task_description.lower() in (agent.description or "").lower():
-            score += 0.2
-        if MemoryEntry.objects.filter(
-            narrative_thread=thread, assistant=agent.parent_assistant
-        ).exists():
-            score += 0.3
-        if score > best_score:
-            best_score = score
-            best_agent = agent
+        for agent in candidates:
+            score = 0.0
+            if agent.specialty:
+                for tag in thread_tags:
+                    if tag in agent.specialty.lower():
+                        score += 0.5
+                        break
+            if task_description.lower() in (agent.description or "").lower():
+                score += 0.2
+            if MemoryEntry.objects.filter(
+                narrative_thread=thread, assistant=agent.parent_assistant
+            ).exists():
+                score += 0.3
+            if score > best_score:
+                best_score = score
+                best_agent = agent
 
-    return best_agent
+        return best_agent
 
