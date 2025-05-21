@@ -108,6 +108,11 @@ urlpatterns = [
         threading.realign_thread,
         name="realign-thread",
     ),
+    path(
+        "threads/<uuid:id>/progress/",
+        threading.thread_progress,
+        name="thread-progress",
+    ),
 
 
     path(
