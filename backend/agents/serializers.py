@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from agents.models import Agent, AgentFeedbackLog, AgentCluster
+from agents.models import SwarmMemoryEntry
 from intel_core.serializers import DocumentSerializer
+
 
 class AgentSerializer(serializers.ModelSerializer):
     trained_documents = DocumentSerializer(many=True, read_only=True)
@@ -53,3 +55,16 @@ class AgentClusterSerializer(serializers.ModelSerializer):
         for a in obj.agents.all():
             skills.update(a.skills or [])
         return len(skills)
+
+
+class SwarmMemoryEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SwarmMemoryEntry
+        fields = [
+            "id",
+            "title",
+            "content",
+            "origin",
+            "season_tag",
+            "created_at",
+        ]
