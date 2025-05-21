@@ -170,3 +170,4 @@ We are now in **Phase 3**, focused on deepening long-term memory, task planning,
   - What triggers recovery
   - How to resolve
   - How logs are tracked
+- Root TTS API now available at `/api/tts/`
