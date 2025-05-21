@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.auth import get_user_model
 
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -12,7 +13,7 @@ from django.utils.text import slugify
 EMBEDDING_MODEL = "text-embedding-3-small"
 EMBEDDING_LENGTH = 1536
 
-User = get_user_model()
+User = settings.AUTH_USER_MODEL
 
 
 class MemoryContext(models.Model):
