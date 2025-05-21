@@ -50,7 +50,7 @@ def assistant_projects(request):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(["GET"])
+@api_view(["GET", "PATCH", "DELETE"])
 @permission_classes([AllowAny])
 def assistant_project_detail(request, pk):
     try:
@@ -61,6 +61,18 @@ def assistant_project_detail(request, pk):
     if request.method == "GET":
         serializer = AssistantProjectSerializer(project)
         return Response(serializer.data)
+
+    if request.method == "PATCH":
+        serializer = AssistantProjectSerializer(
+            project, data=request.data, partial=True
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    project.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(["POST"])
