@@ -214,6 +214,8 @@ class NarrativeThread(models.Model):
         User, null=True, blank=True, on_delete=models.SET_NULL
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    mood_at_creation = models.CharField(max_length=20, null=True, blank=True)
+    avg_mood = models.CharField(max_length=20, null=True, blank=True)
     last_refocus_prompt = models.DateTimeField(null=True, blank=True)
     related_memories = models.ManyToManyField(
         "memory.MemoryEntry", related_name="related_threads", blank=True
@@ -304,6 +306,7 @@ class ThreadDiagnosticLog(models.Model):
     )
     score = models.FloatField()
     summary = models.TextField()
+    mood_influence = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

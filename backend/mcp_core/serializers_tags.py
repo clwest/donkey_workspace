@@ -28,6 +28,7 @@ class NarrativeThreadSerializer(serializers.ModelSerializer):
     reflection_count = serializers.SerializerMethodField()
     gaps_detected = serializers.SerializerMethodField()
     potential_link_suggestions = serializers.SerializerMethodField()
+    recent_moods = serializers.SerializerMethodField()
 
     class Meta:
         model = NarrativeThread
@@ -40,6 +41,8 @@ class NarrativeThreadSerializer(serializers.ModelSerializer):
             "tags",
             "created_by",
             "created_at",
+            "mood_at_creation",
+            "avg_mood",
               "continuity_summary",
               "continuity_score",
               "last_diagnostic_run",
@@ -52,6 +55,7 @@ class NarrativeThreadSerializer(serializers.ModelSerializer):
             "objective_reflections",
             "gaps_detected",
             "potential_link_suggestions",
+            "recent_moods",
         ]
 
     def get_origin_memory_preview(self, obj):
@@ -108,3 +112,14 @@ def get_objective_reflections(self, obj):
         }
         for r in obj.objective_reflections.all().order_by("-created_at")
     ]
+
+    def get_recent_moods(self, obj):
+        logs = obj.thoughts.order_by("-created_at")[:10]
+        return [
+            {
+                "mood": t.mood,
+                "created_at": t.created_at,
+            }
+            for t in logs
+            if t.mood
+        ]

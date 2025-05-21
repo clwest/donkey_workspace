@@ -1,7 +1,15 @@
-# from embeddings.utils import embed_text
-# from mcp_core.models import DevDoc
+from celery import shared_task
 
-# for doc in DevDoc.objects.filter(embedding__isnull=True):
-#     doc.embedding = embed_text(doc.content)
-#     doc.save()
-#     print(f"✅ Embedded {doc.slug}")
+from mcp_core.models import NarrativeThread
+from mcp_core.utils.thread_diagnostics import run_thread_diagnostics
+
+
+@shared_task
+def analyze_mood_impact_on_thread_continuity(thread_id: str):
+    """Run diagnostics and mood analysis for a thread."""
+    try:
+        thread = NarrativeThread.objects.get(id=thread_id)
+    except NarrativeThread.DoesNotExist:
+        return "thread not found"
+    run_thread_diagnostics(thread)
+    return "ok"

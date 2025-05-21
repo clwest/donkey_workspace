@@ -28,6 +28,7 @@ def log_assistant_thought(
         project=project,
         thought_type=thought_type,
         mood=mood,
+        mood_snapshot={"mood": mood, "stability": assistant.mood_stability_index},
     )
     if linked_memories:
         log.linked_memories.set(linked_memories)

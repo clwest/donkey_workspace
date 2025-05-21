@@ -437,6 +437,7 @@ class AssistantThoughtLog(models.Model):
         ],
     )
     mood = models.CharField(max_length=20, default="neutral", blank=True)
+    mood_snapshot = models.JSONField(null=True, blank=True)
     event = models.CharField(max_length=50, null=True, blank=True)
     source_reason = models.CharField(max_length=20, null=True, blank=True)
     fallback_reason = models.CharField(max_length=50, null=True, blank=True)
