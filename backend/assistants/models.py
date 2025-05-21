@@ -1820,6 +1820,26 @@ class AssistantCouncil(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
 
+
+class AssistantMythLayer(models.Model):
+    """Mythic backstory and legendary traits for an assistant."""
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="myth_layers"
+    )
+    origin_story = models.TextField(blank=True)
+    legendary_traits = models.JSONField(default=dict, blank=True)
+    summary = models.TextField(blank=True)
+    archived = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-last_updated"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"MythLayer for {self.assistant.name}"
+
 class OracleLayer(models.Model):
     """Prophetic advisory memory segment for an assistant."""
 
