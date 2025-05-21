@@ -102,6 +102,10 @@
 
 - Enable agents to train new skills or fetch relevant documents based on feedback content
 
+### 📝 Phase 4.55 Preview
+
+- Add assistant-driven agent supervision — assistants can assign training, score agents, and reflect on agent readiness
+
 ---
 
 ## ✅ Status

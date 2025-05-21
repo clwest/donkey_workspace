@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
 import AgentFeedbackPanel from "../../components/agents/AgentFeedbackPanel";
+import AgentTrainingPanel from "../../components/agents/AgentTrainingPanel";
 
 const AgentDetailPage = () => {
   const { slug } = useParams();
@@ -36,6 +37,14 @@ const AgentDetailPage = () => {
             Feedback
           </button>
         </li>
+        <li className="nav-item">
+          <button
+            className={`nav-link ${activeTab === "training" ? "active" : ""}`}
+            onClick={() => setActiveTab("training")}
+          >
+            Training
+          </button>
+        </li>
       </ul>
 
       {activeTab === "overview" && (
@@ -55,6 +64,7 @@ const AgentDetailPage = () => {
         </div>
       )}
       {activeTab === "feedback" && <AgentFeedbackPanel agentId={agent.id} />}
+      {activeTab === "training" && <AgentTrainingPanel agent={agent} />}
     </div>
   );
 };

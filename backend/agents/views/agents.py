@@ -4,7 +4,11 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from agents.models import Agent, AgentFeedbackLog
 from agents.serializers import AgentSerializer, AgentFeedbackLogSerializer
-from agents.utils.agent_controller import update_agent_profile_from_feedback
+from agents.utils.agent_controller import (
+    update_agent_profile_from_feedback,
+    train_agent_from_documents,
+    recommend_training_documents,
+)
 
 @api_view(["GET"])
 def list_agents(request):
@@ -50,3 +54,27 @@ def update_agent_from_feedback(request, id):
 
     summary = update_agent_profile_from_feedback(agent, logs)
     return Response({"updated": True, "summary": summary})
+
+
+@api_view(["POST"])
+def train_agent(request, id):
+    agent = get_object_or_404(Agent, id=id)
+    doc_ids = request.data.get("document_ids", [])
+    if not isinstance(doc_ids, list):
+        return Response({"error": "document_ids must be a list"}, status=400)
+    from intel_core.models import Document
+
+    docs = Document.objects.filter(id__in=doc_ids)
+    result = train_agent_from_documents(agent, list(docs))
+    serializer = AgentSerializer(agent)
+    return Response({"agent": serializer.data, "result": result})
+
+
+@api_view(["GET"])
+def recommend_training_docs(request, id):
+    agent = get_object_or_404(Agent, id=id)
+    docs = recommend_training_documents(agent)
+    from intel_core.serializers import DocumentSerializer
+
+    data = DocumentSerializer(docs, many=True).data
+    return Response(data)

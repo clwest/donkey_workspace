@@ -215,10 +215,12 @@ def update_agent_profile_from_feedback(
         "strength_score": agent.strength_score,
     }
 
+
     # CODEx MARKER: recommend_agent_for_task
     def recommend_agent_for_task(
         self, task_description: str, thread
     ) -> Optional[Agent]:
+
         """Select an agent based on tags, specialty, and thread overlap."""
         from agents.models import Agent as AgentModel
         from memory.models import MemoryEntry
@@ -250,4 +252,60 @@ def update_agent_profile_from_feedback(
                 best_agent = agent
 
         return best_agent
+
+
+# codex-optimize:training
+def train_agent_from_documents(agent: Agent, documents: List["Document"]) -> dict:
+    """Generates summary skills from docs, embeds them, and updates agent profile."""
+    from intel_core.models import Document
+
+    combined_text = "\n".join(
+        (doc.summary or doc.content[:200]) for doc in documents
+    )
+    prompt = (
+        "Summarize key skills an AI agent would learn from these documents as a comma separated list."\
+    )
+    prompt += "\n" + combined_text
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.2,
+            max_tokens=150,
+        )
+        parsed = response.choices[0].message.content
+        new_skills = [s.strip() for s in parsed.split(",") if s.strip()]
+    except Exception:
+        new_skills = []
+
+    current_skills = set(agent.verified_skills or []) | set(agent.skills or [])
+    current_skills.update(new_skills)
+    agent.verified_skills = list(current_skills)
+    agent.skills = list(current_skills)
+    for doc in documents:
+        agent.trained_documents.add(doc)
+    agent.save()
+
+    return {"skills": agent.verified_skills, "trained": [str(d.id) for d in documents]}
+
+
+def recommend_training_documents(agent: Agent) -> List["Document"]:
+    """Return top recent documents that may fill gaps in the agent profile."""
+    from intel_core.models import Document
+
+    recent_docs = Document.objects.order_by("-created_at")[:50]
+    agent_tags = set(agent.tags or [])
+    scored = []
+    for doc in recent_docs:
+        doc_tags = set(doc.tags.values_list("name", flat=True))
+        score = len(agent_tags & doc_tags)
+        title_summary = (doc.title + " " + (doc.summary or "")).lower()
+        for skill in agent.verified_skills or []:
+            if skill.lower() in title_summary:
+                score += 1
+        scored.append((score, doc))
+
+    scored.sort(key=lambda x: x[0], reverse=True)
+    return [doc for _, doc in scored[:5]]
 
