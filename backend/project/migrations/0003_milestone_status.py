@@ -4,7 +4,7 @@ import project.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("project", "0001_initial"),
+        ("project", "0002_project_roles_project_team_project_team_chain"),
     ]
 
     operations = [
