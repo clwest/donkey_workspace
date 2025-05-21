@@ -198,25 +198,6 @@ class AgentCluster(models.Model):
         return self.name
 
 
-class GlobalMissionNode(models.Model):
-    """Hierarchical mission tree used for global objectives."""
-
-    name = models.CharField(max_length=200)
-    description = models.TextField(blank=True)
-    parent = models.ForeignKey(
-        "self",
-        null=True,
-        blank=True,
-        on_delete=models.CASCADE,
-        related_name="children",
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["name"]
-
-    def __str__(self):  # pragma: no cover - display
-        return self.name
 
 
 class AgentReactivationVote(models.Model):
