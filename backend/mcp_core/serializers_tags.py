@@ -114,26 +114,26 @@ def get_objective_reflections(self, obj):
         for r in obj.objective_reflections.all().order_by("-created_at")
     ]
 
-    def get_recent_moods(self, obj):
-        logs = obj.thoughts.order_by("-created_at")[:10]
-        return [
-            {
-                "mood": t.mood,
-                "created_at": t.created_at,
-            }
-            for t in logs
-            if t.mood
+def get_recent_moods(self, obj):
+    logs = obj.thoughts.order_by("-created_at")[:10]
+    return [
+        {
+            "mood": t.mood,
+            "created_at": t.created_at,
+        }
+        for t in logs
+        if t.mood
+    ]
+def get_potential_link_suggestions(self, obj):
+    return getattr(obj, "_link_suggestions", [])
 
-    def get_potential_link_suggestions(self, obj):
-        return getattr(obj, "_link_suggestions", [])
+def get_objective_reflections(self, obj):
+    return [
+        {
+            "id": str(r.id),
+            "thought": r.thought[:200],
+            "created_at": r.created_at,
+        }
+        for r in obj.objective_reflections.all().order_by("-created_at")
 
-    def get_objective_reflections(self, obj):
-        return [
-            {
-                "id": str(r.id),
-                "thought": r.thought[:200],
-                "created_at": r.created_at,
-            }
-            for r in obj.objective_reflections.all().order_by("-created_at")
-
-        ]
+    ]
