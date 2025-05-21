@@ -62,7 +62,8 @@ urlpatterns = [
         "threads/<uuid:id>/summary/",
         threading.thread_summary,
         name="thread-summary",
-
+    ),
+    path(
         "threads/<uuid:id>/merge/",
         threading.merge_thread,
         name="merge-thread",
