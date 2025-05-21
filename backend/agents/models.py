@@ -109,6 +109,7 @@ class AgentFeedbackLog(models.Model):
 
 
 class AgentTrainingAssignment(models.Model):
+
     agent = models.ForeignKey(
         "Agent", on_delete=models.CASCADE, related_name="training_assignments"
     )
@@ -127,9 +128,30 @@ class AgentTrainingAssignment(models.Model):
     completed = models.BooleanField(default=False)
     assigned_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
+# =======
+#     """Track training documents assigned by an assistant to an agent."""
+
+#     assistant = models.ForeignKey(
+#         "assistants.Assistant", on_delete=models.CASCADE, related_name="training_assignments"
+#     )
+#     agent = models.ForeignKey(
+#         "agents.Agent", on_delete=models.CASCADE, related_name="training_assignments"
+#     )
+#     document = models.ForeignKey(
+#         "intel_core.Document", on_delete=models.CASCADE, related_name="agent_training_assignments"
+#     )
+#     status = models.CharField(max_length=20, default="pending")
+#     notes = models.TextField(blank=True)
+#     assigned_at = models.DateTimeField(auto_now_add=True)
+#     reviewed_at = models.DateTimeField(null=True, blank=True)
+# >>>>>>> main
 
     class Meta:
         ordering = ["-assigned_at"]
 
     def __str__(self):  # pragma: no cover - display only
+
         return f"Training for {self.agent.name} -> {self.document.title}"
+# =======
+#         return f"{self.agent.name} -> {self.document.title} ({self.status})"
+# >>>>>>> main

@@ -27,6 +27,7 @@ from .views import (
     scene,
     recovery,
     intelligence,
+    training,
 )
 
 urlpatterns = [
@@ -558,6 +559,16 @@ urlpatterns = [
         "<slug:slug>/diff-knowledge/",
         knowledge.diff_knowledge,
         name="assistant-diff-knowledge",
+    ),
+    path(
+        "<slug:slug>/assign-training/",
+        training.assign_training,
+        name="assistant-assign-training",
+    ),
+    path(
+        "<slug:slug>/evaluate-agent/<uuid:agent_id>/",
+        training.evaluate_agent,
+        name="assistant-evaluate-agent",
     ),
     path(
         "<slug:slug>/dashboard/",

@@ -387,3 +387,60 @@ def evaluate_thought_continuity(
         "suggestions": suggestions,
     }
 
+
+# codex-coach:assign-training
+def assign_training_documents(assistant: Assistant, agent: "Agent", docs: list["Document"], train: bool = True) -> list["AgentTrainingAssignment"]:
+    """Assign documents to an agent and optionally trigger training."""
+    from agents.models import AgentTrainingAssignment
+    from agents.utils.agent_controller import train_agent_from_documents
+
+    assignments = []
+    for doc in docs:
+        assignment = AgentTrainingAssignment.objects.create(
+            assistant=assistant,
+            agent=agent,
+            document=doc,
+        )
+        assignments.append(assignment)
+
+    if train and docs:
+        result = train_agent_from_documents(agent, list(docs))
+        AgentTrainingAssignment.objects.filter(id__in=[a.id for a in assignments]).update(status="complete")
+        logger.info(f"[Training] Agent {agent.name} trained on {len(docs)} documents: {result}")
+
+    return assignments
+
+
+# codex-coach:evaluate-training
+def evaluate_agent_training(assistant: Assistant, agent: "Agent") -> dict:
+    """Summarize training progress and return readiness report."""
+    from agents.models import AgentTrainingAssignment, AgentFeedbackLog
+
+    assignments = AgentTrainingAssignment.objects.filter(agent=agent, assistant=assistant)
+    completed = assignments.filter(status="complete").count()
+    pending = assignments.filter(status="pending").count()
+    feedback_scores = list(
+        AgentFeedbackLog.objects.filter(agent=agent, score__isnull=False).values_list("score", flat=True)
+    )
+    avg_score = sum(feedback_scores) / len(feedback_scores) if feedback_scores else None
+
+    tags = set(agent.tags or [])
+    skills = set(agent.verified_skills or [])
+
+    report = {
+        "completed_assignments": completed,
+        "pending_assignments": pending,
+        "avg_feedback": avg_score,
+        "skills": list(skills),
+        "tags": list(tags),
+    }
+
+    if avg_score is not None and avg_score < 0.5:
+        report["next_steps"] = "Increase targeted practice on low-scoring areas"
+    elif pending:
+        report["next_steps"] = "Complete pending training assignments"
+    else:
+        report["next_steps"] = "Agent ready for advanced tasks"
+
+    return report
+
