@@ -214,6 +214,7 @@ class NarrativeThread(models.Model):
         User, null=True, blank=True, on_delete=models.SET_NULL
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    last_refocus_prompt = models.DateTimeField(null=True, blank=True)
     related_memories = models.ManyToManyField(
         "memory.MemoryEntry", related_name="related_threads", blank=True
     )

@@ -37,8 +37,9 @@ class NarrativeThreadSerializer(serializers.ModelSerializer):
             "tags",
             "created_by",
             "created_at",
-            "continuity_score",
-            "last_diagnostic_run",
+
+            "last_refocus_prompt",
+
             "origin_memory",
             "origin_memory_preview",
             "related_memory_previews",

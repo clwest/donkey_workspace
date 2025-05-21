@@ -39,6 +39,7 @@ THOUGHT_TYPES = [
     ("prompt_clarification", "Prompt Clarification"),
     ("delegation_suggestion", "Delegation Suggestion"),
     ("identity_reflection", "Identity Reflection"),
+    ("refocus", "Refocus Suggestion"),
 ]
 
 MEMORY_MODES = [
