@@ -313,6 +313,7 @@ class ThreadDiagnosticLog(models.Model):
     def __str__(self):
         return f"Diagnostic {self.score:.2f} for {self.thread.title}"
 
+
 class ThreadObjectiveReflection(models.Model):
     """Reflection on progress toward a thread's long-term objective."""
 
@@ -333,6 +334,40 @@ class ThreadObjectiveReflection(models.Model):
     def __str__(self):
         return f"Reflection for {self.thread.title} @ {self.created_at.strftime('%Y-%m-%d %H:%M')}"
 
+
+
+class ThreadSplitLog(models.Model):
+    """Record when a memory entry is moved between threads."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    from_thread = models.ForeignKey(
+        NarrativeThread,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="split_from_logs",
+    )
+    to_thread = models.ForeignKey(
+        NarrativeThread,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="split_to_logs",
+    )
+    moved_entry = models.ForeignKey(
+        "memory.MemoryEntry",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="thread_split_logs",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - simple display
+        return f"Moved {self.moved_entry_id} -> {self.to_thread_id}"
 
 class ThreadMergeLog(models.Model):
     """Administrative record of merged narrative threads."""
@@ -361,4 +396,5 @@ class ThreadSplitLog(models.Model):
     moved_entries = models.JSONField()
     summary = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
 
