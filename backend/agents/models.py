@@ -517,7 +517,6 @@ class SwarmJournalEntry(models.Model):
     season_tag = models.CharField(max_length=20, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
 
@@ -530,6 +529,13 @@ class MythDiplomacySession(models.Model):
     )
     topic = models.TextField()
     proposed_adjustments = models.TextField()
+    ritual_type = models.CharField(max_length=100)
+    symbolic_offering = models.TextField()
+    hosting_civilization = models.ForeignKey(
+        "assistants.AssistantCivilization",
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     status = models.CharField(max_length=30, default="pending")
     resolution_summary = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -601,12 +607,14 @@ class TranscendentMyth(models.Model):
         AssistantCivilization, related_name="transcendent_myths", blank=True
     )
     mythic_axis = models.CharField(max_length=100)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return self.title
 
 
@@ -634,4 +642,5 @@ class AssistantCosmogenesisEvent(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
+
 

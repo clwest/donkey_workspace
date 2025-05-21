@@ -8,11 +8,15 @@ from agents.models import (
     AgentFeedbackLog,
     AgentCluster,
     SwarmMemoryEntry,
+    LoreEpoch,
     LoreEntry,
     RetconRequest,
     RealityConsensusVote,
     MythDiplomacySession,
     RitualCollapseLog,
+    AssistantCivilization,
+    LoreInheritanceLine,
+    MythSimulationArena,
 )
 from agents.serializers import (
     AgentSerializer,
@@ -20,10 +24,14 @@ from agents.serializers import (
     AgentClusterSerializer,
     SwarmMemoryEntrySerializer,
     LoreEntrySerializer,
+    LoreEpochSerializer,
     RetconRequestSerializer,
     RealityConsensusVoteSerializer,
     MythDiplomacySessionSerializer,
     RitualCollapseLogSerializer,
+    AssistantCivilizationSerializer,
+    LoreInheritanceLineSerializer,
+    MythSimulationArenaSerializer,
 )
 
 from agents.utils.agent_controller import (
@@ -37,6 +45,9 @@ from agents.utils.swarm_analytics import (
     generate_temporal_swarm_report,
     get_swarm_snapshot,
 )
+
+from agents.utils import harmonize_global_narrative
+
 from datetime import datetime
 
 
@@ -193,6 +204,34 @@ def retcon_requests(request):
     return Response(RetconRequestSerializer(req).data, status=201)
 
 
+@api_view(["GET", "POST"])
+def lore_epochs(request):
+    if request.method == "GET":
+        epochs = LoreEpoch.objects.all().order_by("-created_at")
+        return Response(LoreEpochSerializer(epochs, many=True).data)
+
+    serializer = LoreEpochSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    epoch = serializer.save()
+    return Response(LoreEpochSerializer(epoch).data, status=201)
+
+
+@api_view(["POST"])
+def myth_reset_cycle(request):
+    result = run_myth_reset_cycle()
+    return Response(result)
+
+
+@api_view(["GET"])
+def assistant_civilizations(request):
+    from assistants.models import AssistantCivilization
+    from assistants.serializers import AssistantCivilizationSerializer
+
+    civs = AssistantCivilization.objects.all().order_by("-created_at")
+    serializer = AssistantCivilizationSerializer(civs, many=True)
+    return Response(serializer.data)
+
+
 @api_view(["GET"])
 def consensus_votes(request):
     votes = RealityConsensusVote.objects.all().order_by("-created_at")
@@ -219,4 +258,34 @@ def belief_clusters(request):
     from assistants.utils.belief_clustering import cluster_assistant_beliefs
 
     data = cluster_assistant_beliefs()
+    return Response(data)
+
+
+@api_view(["GET", "POST"])
+def lore_inheritance_lines(request):
+    if request.method == "GET":
+        lines = LoreInheritanceLine.objects.all().order_by("-created_at")
+        return Response(LoreInheritanceLineSerializer(lines, many=True).data)
+
+    serializer = LoreInheritanceLineSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    line = serializer.save()
+    return Response(LoreInheritanceLineSerializer(line).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def myth_simulation_arenas(request):
+    if request.method == "GET":
+        arenas = MythSimulationArena.objects.all().order_by("-created_at")
+        return Response(MythSimulationArenaSerializer(arenas, many=True).data)
+
+    serializer = MythSimulationArenaSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    arena = serializer.save()
+    return Response(MythSimulationArenaSerializer(arena).data, status=201)
+
+
+@api_view(["GET"])
+def harmonize_global(request):
+    data = harmonize_global_narrative()
     return Response(data)

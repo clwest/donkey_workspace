@@ -25,6 +25,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 
+from story.models import LoreEntry
+
 
 # Used for structured memory and assistant sessions
 
@@ -1821,24 +1823,31 @@ class AssistantCouncil(models.Model):
         return self.name
 
 
-class AssistantMythLayer(models.Model):
-    """Mythic backstory and legendary traits for an assistant."""
 
-    assistant = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE, related_name="myth_layers"
-    )
-    origin_story = models.TextField(blank=True)
-    legendary_traits = models.JSONField(default=dict, blank=True)
-    summary = models.TextField(blank=True)
-    archived = models.BooleanField(default=False)
+class AssistantCivilization(models.Model):
+    """Cohesive mythic society of assistants."""
+
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    last_updated = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ["-last_updated"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
-        return f"MythLayer for {self.assistant.name}"
+        return self.name
+
+
+class AssistantGuild(models.Model):
+    """Guild of assistants collaborating on specialized lore."""
+
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    members = models.ManyToManyField(
+        "assistants.Assistant", related_name="guilds", blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
+
 
 class OracleLayer(models.Model):
     """Prophetic advisory memory segment for an assistant."""
@@ -1856,6 +1865,23 @@ class OracleLayer(models.Model):
         return f"OracleLayer for {self.assistant.name}"
 
 
+class ProphecyNode(models.Model):
+    """Predicted event record derived from an oracle layer."""
+
+    source = models.ForeignKey(OracleLayer, on_delete=models.CASCADE)
+    encoded_symbols = models.JSONField()
+    forecast_window = models.CharField(max_length=50)
+    predicted_events = models.TextField()
+    accuracy_rating = models.FloatField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Prophecy {self.id}"
+
+
 class NarrativeDebate(models.Model):
     """Structured debate between assistants from mythic perspectives."""
 
@@ -1869,3 +1895,39 @@ class NarrativeDebate(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display
         return f"Debate on {self.topic[:30]}..."
 
+
+
+class AssistantGuild(models.Model):
+    """Belief-aligned guild of assistants."""
+
+    name = models.CharField(max_length=150)
+    purpose = models.TextField(blank=True)
+    members = models.ManyToManyField("assistants.Assistant", blank=True)
+    founding_myth = models.ForeignKey(
+        LoreEntry, null=True, blank=True, on_delete=models.SET_NULL, related_name="guilds"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
+
+
+class AssistantCivilization(models.Model):
+    """Civilization of assistants evolved from mythic lineage."""
+
+    name = models.CharField(max_length=150)
+    myth_root = models.ForeignKey(LoreEntry, on_delete=models.CASCADE)
+    founding_guilds = models.ManyToManyField(AssistantGuild)
+    belief_alignment = models.JSONField(default=dict)
+    symbolic_domain = models.TextField()
+    legacy_score = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name

@@ -34,6 +34,9 @@ from .models import (
     CouncilThought,
     CouncilOutcome,
     OracleLayer,
+
+    ProphecyNode,
+
 )
 
 from project.models import (
@@ -1132,18 +1135,11 @@ class OracleLayerSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-class AssistantMythLayerSerializer(serializers.ModelSerializer):
+
+class ProphecyNodeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AssistantMythLayer
-        fields = [
-            "id",
-            "assistant",
-            "origin_story",
-            "legendary_traits",
-            "summary",
-            "archived",
-            "created_at",
-            "last_updated",
-        ]
-        read_only_fields = ["id", "created_at", "last_updated"]
+        model = ProphecyNode
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
 
