@@ -200,8 +200,6 @@ class AgentCluster(models.Model):
         return self.name
 
 
-
-
 class AgentReactivationVote(models.Model):
     agent = models.ForeignKey(Agent, on_delete=models.CASCADE)
     voter = models.ForeignKey(
@@ -501,3 +499,41 @@ class SwarmTreaty(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
+
+
+class MythDiplomacySession(models.Model):
+    """Negotiation session between myth-based factions."""
+
+    factions = models.ManyToManyField(
+        "assistants.AssistantCouncil", related_name="myth_diplomacy_sessions"
+    )
+    topic = models.TextField()
+    proposed_adjustments = models.TextField()
+    status = models.CharField(max_length=30, default="pending")
+    resolution_summary = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Diplomacy: {self.topic[:20]}"
+
+
+class RitualCollapseLog(models.Model):
+    """Log entry for ritual collapses of obsolete entities."""
+
+    retired_entity = models.TextField()
+    reason = models.TextField()
+    collapse_type = models.CharField(max_length=30)
+    officiated_by = models.ForeignKey(
+        "assistants.AssistantCouncil", null=True, on_delete=models.SET_NULL
+    )
+    resulting_action = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Collapse: {self.retired_entity}"

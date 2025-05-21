@@ -8,11 +8,11 @@ from agents.models import (
     AgentFeedbackLog,
     AgentCluster,
     SwarmMemoryEntry,
-
     LoreEntry,
     RetconRequest,
     RealityConsensusVote,
-
+    MythDiplomacySession,
+    RitualCollapseLog,
 )
 from agents.serializers import (
     AgentSerializer,
@@ -22,7 +22,8 @@ from agents.serializers import (
     LoreEntrySerializer,
     RetconRequestSerializer,
     RealityConsensusVoteSerializer,
-
+    MythDiplomacySessionSerializer,
+    RitualCollapseLogSerializer,
 )
 
 from agents.utils.agent_controller import (
@@ -168,7 +169,6 @@ def retire_agents(request):
     return Response({"retired": retired})
 
 
-
 @api_view(["GET", "POST"])
 def lore_entries(request):
     if request.method == "GET":
@@ -199,3 +199,24 @@ def consensus_votes(request):
     serializer = RealityConsensusVoteSerializer(votes, many=True)
     return Response(serializer.data)
 
+
+@api_view(["GET"])
+def myth_diplomacy_sessions(request):
+    sessions = MythDiplomacySession.objects.all().order_by("-created_at")
+    serializer = MythDiplomacySessionSerializer(sessions, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+def ritual_collapse_logs(request):
+    logs = RitualCollapseLog.objects.all().order_by("-created_at")
+    serializer = RitualCollapseLogSerializer(logs, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+def belief_clusters(request):
+    from assistants.utils.belief_clustering import cluster_assistant_beliefs
+
+    data = cluster_assistant_beliefs()
+    return Response(data)
