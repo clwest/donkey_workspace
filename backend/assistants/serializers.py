@@ -540,6 +540,8 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             "is_active",
             "is_demo",
             "is_primary",
+            "is_ephemeral",
+            "expiration_event",
             "needs_recovery",
             "live_relay_enabled",
             "memory_summon_enabled",
