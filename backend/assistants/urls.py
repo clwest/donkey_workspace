@@ -46,11 +46,7 @@ urlpatterns = [
         delegations.primary_delegations,
         name="primary-delegations",
     ),
-    # path(
-    #     "suggest/",
-    #     routing.suggest_assistant,
-    #     name="assistant-suggest",
-    # ),
+    path("suggest/", delegation.suggest_delegate, name="assistant-suggest"),
     path(
         "suggest_delegate/",
         delegation.suggest_delegate,
@@ -74,6 +70,11 @@ urlpatterns = [
         projects.assistant_project_detail,
         name="assistant-project-detail",
     ),  # GET, PATCH, DELETE
+    path(
+        "project/<uuid:pk>/",
+        projects.assistant_project_detail,
+        name="assistant-project-detail-alias",
+    ),
     path("projects/<uuid:project_id>/tasks/", tasks.assistant_project_tasks),
     path(
         "projects/<uuid:project_id>/assistant-tasks/",
@@ -111,10 +112,16 @@ urlpatterns = [
         name="assistant-project-role-detail",
     ),
     path("tasks/<uuid:task_id>/", tasks.assistant_project_task_detail),
-    # path(
-    #     "projects/<uuid:project_id>/generate_tasks/",
-    #     projects.generate_tasks_for_project,
-    # ),
+    path(
+        "projects/<uuid:project_id>/generate_tasks/",
+        projects.generate_tasks_for_project,
+        name="generate-project-tasks",
+    ),
+    path(
+        "tasks/<uuid:task_id>/update_status/",
+        tasks.update_task_status,
+        name="update-task-status",
+    ),
     path(
         "projects/tasks/<int:task_id>/",
         tasks.update_or_delete_task,
@@ -227,17 +234,24 @@ urlpatterns = [
         projects.create_project_from_memory,
         name="create-project-from-memory-by-slug",
     ),
+    path(
+        "<slug:slug>/projects/from-memory/",
+        projects.create_project_from_memory,
+        name="create-project-from-memory-alias",
+    ),
     path("assistants/<slug:slug>/assign_project/", projects.assign_project),
     # GET
     # ===== AI UTILITIES =====
-    # path(
-    #     "projects/<uuid:pk>/ai_plan/", projects.ai_plan_project, name="ai-plan-project"
-    # ),  # POST
-    # path(
-    #     "projects/generate-mission/",
-    #     projects.generate_project_mission,
-    #     name="generate-project-mission",
-    # ),  # POST
+    path(
+        "projects/<uuid:pk>/ai_plan/",
+        projects.ai_plan_project,
+        name="ai-plan-project",
+    ),  # POST
+    path(
+        "projects/generate-mission/",
+        projects.generate_project_mission,
+        name="generate-project-mission",
+    ),  # POST
     # ===== MEMORY LINKS & CHAINS =====
     path(
         "projects/link_memory/",

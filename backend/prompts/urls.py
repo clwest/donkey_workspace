@@ -14,9 +14,9 @@ urlpatterns = [
     path("mutate/", views.mutate_prompt_view),
     path("generate-from-idea/", views.generate_prompt_from_idea_view),
     path("create/", views.create_prompt),
-    # path("search/", views.prompt_search, name="prompt-search"),
+    path("search/", views.prompt_search, name="prompt-search"),
     path("reembed/", views.reembed_all_prompts),
     path("<slug:slug>/", views.prompt_detail),
     path("<slug:slug>/assign/", views.assign_prompt_to_assistant),
-    path("<slug:slug>/usage-logs/", views.prompt_usage_logs_view)
+    path("<slug:slug>/usage-logs/", views.prompt_usage_logs_view),
 ]

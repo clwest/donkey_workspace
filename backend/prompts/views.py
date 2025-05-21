@@ -11,7 +11,11 @@ from prompts.utils.embeddings import get_prompt_embedding
 from prompts.utils.token_helpers import smart_chunk_prompt, count_tokens
 from prompts.utils.auto_reduce import auto_reduce_prompt
 from prompts.utils.mutation import mutate_prompt as run_mutation
-from prompts.utils.openai_utils import reduce_tokens, generate_prompt_from_idea, extract_title_from_prompt
+from prompts.utils.openai_utils import (
+    reduce_tokens,
+    generate_prompt_from_idea,
+    extract_title_from_prompt,
+)
 from mcp_core.utils.log_prompt import log_prompt_usage
 from assistants.models import Assistant
 from django.db import connection
@@ -56,6 +60,17 @@ def list_prompts(request):
     return Response(serializer.data)
 
 
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def prompt_search(request):
+    """Simple title search for prompts."""
+    term = request.GET.get("search") or request.GET.get("q")
+    if not term:
+        return Response([])
+    qs = Prompt.objects.filter(title__icontains=term)[:20]
+    return Response(PromptSerializer(qs, many=True).data)
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def create_prompt(request):
@@ -66,6 +81,7 @@ def create_prompt(request):
     # ✅ Fallback token count if not explicitly passed
     if not prompt.token_count:
         from prompts.utils.token_helpers import count_tokens
+
         prompt.token_count = count_tokens(prompt.content)
         prompt.save(update_fields=["token_count"])
 
@@ -118,7 +134,9 @@ def generate_prompt_from_idea_view(request):
     if not goal:
         return Response({"error": "Missing goal input."}, status=400)
 
-    messy_idea = f"Goal: {goal}\nAudience: {audience}\nTone: {tone}\nKey Points: {key_points}"
+    messy_idea = (
+        f"Goal: {goal}\nAudience: {audience}\nTone: {tone}\nKey Points: {key_points}"
+    )
     result = generate_prompt_from_idea(messy_idea)
 
     # 🧠 Generate a basic title from first line or fallback
@@ -126,6 +144,7 @@ def generate_prompt_from_idea_view(request):
 
     # 🧮 Token count helper
     from prompts.utils.token_helpers import count_tokens
+
     token_count = count_tokens(result)
 
     # ✅ Save to DB
@@ -229,7 +248,6 @@ def mutate_prompt_view(request):
 
     result = run_mutation(text, mode)
 
-    
     if prompt_id:
         try:
             prompt_obj = Prompt.objects.get(id=prompt_id)
@@ -275,6 +293,7 @@ def reembed_all_prompts(request):
 
     return Response({"reembedded": updated})
 
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def assign_prompt_to_assistant(request, slug):
@@ -288,7 +307,8 @@ def assign_prompt_to_assistant(request, slug):
         return Response({"status": "assigned"}, status=200)
     except Assistant.DoesNotExist:
         return Response({"error": "Assistant not found"}, status=404)
-    
+
+
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def prompt_usage_logs_view(request, slug):
