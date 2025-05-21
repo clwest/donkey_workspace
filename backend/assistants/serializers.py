@@ -1131,3 +1131,19 @@ class OracleLayerSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "created_at"]
 
+
+class AssistantMythLayerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantMythLayer
+        fields = [
+            "id",
+            "assistant",
+            "origin_story",
+            "legendary_traits",
+            "summary",
+            "archived",
+            "created_at",
+            "last_updated",
+        ]
+        read_only_fields = ["id", "created_at", "last_updated"]
+
