@@ -4,6 +4,7 @@ import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import ProfilePage from "./pages/auth/ProfilePage";
 import LogoutPage from "./pages/auth/LogoutPage";
+import OnboardingWizardPage from "./pages/onboarding/OnboardingWizardPage";
 
 import PromptsPage from "./pages/prompts/PromptsPage";
 import PromptDetailView from "./pages/prompts/PromptDetailView";
@@ -125,6 +126,7 @@ export default function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/logout" element={<LogoutPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/onboarding" element={<OnboardingWizardPage />} />
           {/* Prompts */}
           <Route path="/" element={<HomePage />} />
           <Route path="/prompts" element={<PromptsPage />} />
