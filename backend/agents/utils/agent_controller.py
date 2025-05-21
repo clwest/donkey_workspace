@@ -12,6 +12,8 @@ from agents.models import (
     AgentTrainingAssignment,
     AgentSkill,
     AgentSkillLink,
+    AgentLegacy,
+    SwarmMemoryEntry,
 )
 
 from embeddings.helpers.helpers_io import save_embedding
@@ -488,4 +490,42 @@ def spawn_agent_for_skill(skill: str, base_profile: dict) -> Agent:
         linked_object_id=agent.id,
     )
 
+    # Initialize legacy record
+    AgentLegacy.objects.get_or_create(agent=agent)
+
+    SwarmMemoryEntry.objects.create(
+        title=f"Agent spawned: {agent.name}",
+        content=f"Agent {agent.name} created for skill {skill}",
+        origin="spawn",
+    ).linked_agents.add(agent)
+
     return agent
+
+
+def resurrect_agent(agent: Agent, by_assistant: Optional["Assistant"] = None) -> Agent:
+    """Reactivate an archived agent and update its legacy."""
+    agent.is_active = True
+    agent.reactivated_at = timezone.now()
+    agent.save(update_fields=["is_active", "reactivated_at"])
+
+    legacy, _ = AgentLegacy.objects.get_or_create(agent=agent)
+    legacy.resurrection_count += 1
+    legacy.save(update_fields=["resurrection_count", "updated_at"])
+
+    entry = SwarmMemoryEntry.objects.create(
+        title=f"Agent resurrected: {agent.name}",
+        content=f"{agent.name} was reactivated",
+        origin="resurrection",
+    )
+    entry.linked_agents.add(agent)
+    if by_assistant and getattr(by_assistant, "current_project", None):
+        entry.linked_projects.add(by_assistant.current_project)
+    return agent
+
+
+def record_project_completion(project: "AssistantProject") -> None:
+    """Increment mission counters for all agents in the project."""
+    for agent in project.agents.all():
+        legacy, _ = AgentLegacy.objects.get_or_create(agent=agent)
+        legacy.missions_completed += 1
+        legacy.save(update_fields=["missions_completed", "updated_at"])

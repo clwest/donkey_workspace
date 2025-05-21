@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import apiFetch from "../../utils/apiClient";
 
+
 export default function MissionArchetypeBrowser() {
   const [archetypes, setArchetypes] = useState([]);
 
@@ -18,6 +19,7 @@ export default function MissionArchetypeBrowser() {
           <li key={a.id} className="list-group-item d-flex justify-content-between align-items-center">
             <span>{a.name}</span>
             <button className="btn btn-sm btn-outline-primary">Clone</button>
+
           </li>
         ))}
         {archetypes.length === 0 && (
@@ -27,3 +29,4 @@ export default function MissionArchetypeBrowser() {
     </div>
   );
 }
+

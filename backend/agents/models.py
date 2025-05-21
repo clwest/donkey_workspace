@@ -4,7 +4,9 @@ from django.contrib.auth import get_user_model
 from mcp_core.models import MemoryContext
 from django.contrib.postgres.fields import ArrayField
 from pgvector.django import VectorField
+
 from taggit.managers import TaggableManager
+
 from django.utils import timezone
 
 
@@ -204,12 +206,14 @@ class AgentReactivationVote(models.Model):
 
 
 
+
 class SwarmMemoryEntry(models.Model):
     """Persistent swarm-wide memory record"""
 
     title = models.CharField(max_length=200)
     content = models.TextField()
     tags = TaggableManager()
+
     linked_agents = models.ManyToManyField(Agent, blank=True)
     linked_projects = models.ManyToManyField(
         "assistants.AssistantProject", blank=True
@@ -218,8 +222,20 @@ class SwarmMemoryEntry(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+
 class AgentLegacy(models.Model):
     """Tracks accomplishments and resurrections for an agent"""
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display only
+        return self.title
+
+
+class AgentLegacy(models.Model):
+    """Track agent resurrection history and missions completed."""
+
 
     agent = models.OneToOneField(Agent, on_delete=models.CASCADE)
     resurrection_count = models.IntegerField(default=0)
@@ -229,8 +245,13 @@ class AgentLegacy(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 
+
 class MissionArchetype(models.Model):
     """Reusable mission structures for clusters"""
+
+    def __str__(self):  # pragma: no cover - display only
+        return f"Legacy of {self.agent.name}"
+
 
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField()
@@ -240,6 +261,7 @@ class MissionArchetype(models.Model):
         "assistants.Assistant", on_delete=models.SET_NULL, null=True
     )
     created_at = models.DateTimeField(auto_now_add=True)
+
 
 
 # ==== Signals ====
@@ -295,4 +317,6 @@ def handle_project_completion(sender, instance, created, **kwargs):
         if agents:
             entry.linked_agents.set(agents)
         entry.linked_projects.add(instance)
+
+
 

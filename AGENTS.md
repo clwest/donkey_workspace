@@ -149,18 +149,6 @@ Assistants can now suggest lifecycle actions based on:
 
 Next: Introduce feedback-driven agent resurrection and voting-based reactivation in Phase 4.61
 
-### Phase 4.62 — Swarm Memory & Legacy
 
-This phase adds persistent swarm-wide memory and tracking of agent accomplishments.
-
-Key Models:
-- `SwarmMemoryEntry` for major events and training outcomes
-- `AgentLegacy` counting resurrections and missions
-- `MissionArchetype` blueprints for reusable clusters
-
-Seeder scripts:
-- `python manage.py seed_swarm_memory`
-- `python manage.py seed_agent_legacy`
-- `python manage.py seed_mission_archetypes`
 
 Next: Phase 4.63 — Temporal swarm analysis, reflective forecasting, and agent retirement rituals.

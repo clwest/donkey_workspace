@@ -19,6 +19,7 @@ from agents.models import (
     AgentFeedbackLog,
     AgentSkill,
     AgentSkillLink,
+    SwarmMemoryEntry,
 )
 
 logger = logging.getLogger(__name__)
@@ -166,6 +167,15 @@ class AssistantReflectionEngine:
                 is_conversation=False,
                 context=context,
             )
+
+            entry = SwarmMemoryEntry.objects.create(
+                title=log.title,
+                content=reflection_text,
+                origin="reflection",
+            )
+            entry.linked_agents.set(self.assistant.assigned_agents.all())
+            if self.project:
+                entry.linked_projects.add(self.project)
 
             if scene:
                 AssistantThoughtLog.objects.create(

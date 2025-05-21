@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import apiFetch from "../../utils/apiClient";
 
+
 export default function SwarmMemoryViewer() {
   const [entries, setEntries] = useState([]);
   const [tag, setTag] = useState("");
@@ -33,8 +34,10 @@ export default function SwarmMemoryViewer() {
         ))}
         {entries.length === 0 && (
           <li className="text-muted">No swarm memory found.</li>
+
         )}
       </ul>
     </div>
   );
+
 }
