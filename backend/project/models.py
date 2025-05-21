@@ -1,7 +1,7 @@
 # project/models.py
 
 import uuid
-from django.db import models
+from django.db import models, IntegrityError
 from django.conf import settings
 from django.utils.text import slugify
 from django.core.validators import MaxLengthValidator
@@ -120,13 +120,33 @@ class Project(models.Model):
     class Meta:
         ordering = ["created_at"]
 
+    def _generate_unique_slug(self, base_slug: str) -> str:
+        """Return a slug that is unique for the given base."""
+        slug = base_slug
+        counter = 1
+        while Project.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+            slug = f"{base_slug}-{counter}"
+            counter += 1
+        return slug
+
     def save(self, *args, **kwargs):
         if not self.slug:
             base_slug = slugify(self.title)[:40]
             if not base_slug:
                 base_slug = "project"
-            self.slug = f"{base_slug}-{str(self.id)[:8]}"
-        super().save(*args, **kwargs)
+            self.slug = self._generate_unique_slug(base_slug)
+
+        attempts = 0
+        while True:
+            try:
+                super().save(*args, **kwargs)
+                break
+            except IntegrityError:
+                attempts += 1
+                if attempts > 5:
+                    raise
+                base_slug = slugify(self.title)[:40] or "project"
+                self.slug = self._generate_unique_slug(base_slug)
 
     def __str__(self):
         return f"{self.title} ({self.project_type})"
