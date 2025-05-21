@@ -575,6 +575,9 @@ class AssistantProject(models.Model):
     mood = models.CharField(max_length=20, blank=True, null=True)
     memory_shift_score = models.FloatField(default=0.0)
     documents = models.ManyToManyField("intel_core.Document", blank=True)
+    agents = models.ManyToManyField(
+        "agents.Agent", blank=True, related_name="projects"
+    )
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
