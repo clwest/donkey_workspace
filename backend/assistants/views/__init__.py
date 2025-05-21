@@ -103,6 +103,7 @@ from .recovery import regenerate_plan
 from .intelligence import plan_from_thread
 from .training import assign_training, evaluate_agent
 from .myth import assistant_myth_layer, assistant_journals
+from .reputation import assistant_reputation
 
 from .bootstrap import prompt_to_assistant
 from .signals import (
@@ -234,4 +235,5 @@ __all__ = [
     "evaluate_agent",
     "assistant_myth_layer",
     "assistant_journals",
+    "assistant_reputation",
 ]

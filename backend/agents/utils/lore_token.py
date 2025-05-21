@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import List
 from agents.models import LoreToken, SwarmMemoryEntry, Agent
-from assistants.models import Assistant
+from assistants.models import Assistant, AssistantReputation
 from embeddings.helpers.helpers_io import get_embedding_for_text
 from utils.llm_router import call_llm
 
@@ -31,6 +31,12 @@ def compress_memories_to_token(memories: List[SwarmMemoryEntry], created_by: Ass
     )
     if memories:
         token.source_memories.set(memories)
+    rep, _ = AssistantReputation.objects.get_or_create(assistant=created_by)
+    rep.tokens_created += 1
+    rep.reputation_score = (
+        rep.tokens_created + rep.tokens_endorsed + rep.tokens_received
+    )
+    rep.save()
     return token
 
 

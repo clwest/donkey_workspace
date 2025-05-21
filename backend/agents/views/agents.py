@@ -18,6 +18,8 @@ from agents.models import (
     ReincarnationLog,
     ReturnCycle,
     LoreToken,
+    LoreTokenExchange,
+    TokenMarket,
 )
 from agents.serializers import (
     AgentSerializer,
@@ -35,7 +37,11 @@ from agents.serializers import (
     ReturnCycleSerializer,
     LoreTokenSerializer,
 )
-from assistants.serializers import AssistantCivilizationSerializer
+from assistants.serializers import (
+    AssistantCivilizationSerializer,
+    AssistantReputationSerializer,
+)
+from assistants.models import Assistant, AssistantReputation
 
 from agents.utils.agent_controller import (
     update_agent_profile_from_feedback,
@@ -361,3 +367,45 @@ def lore_tokens(request):
     token = compress_memories_to_token(memories, assistant)
     serializer = LoreTokenSerializer(token)
     return Response(serializer.data, status=201)
+
+
+@api_view(["GET", "POST"])
+def lore_token_exchange(request):
+    if request.method == "GET":
+        exchanges = LoreTokenExchange.objects.all().order_by("-created_at")
+        return Response(LoreTokenExchangeSerializer(exchanges, many=True).data)
+
+    serializer = LoreTokenExchangeSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    exchange = serializer.save()
+
+    sender_rep, _ = AssistantReputation.objects.get_or_create(assistant=exchange.sender)
+    sender_rep.tokens_endorsed += 1
+    sender_rep.reputation_score = (
+        sender_rep.tokens_created + sender_rep.tokens_endorsed + sender_rep.tokens_received
+    )
+    sender_rep.save()
+
+    receiver_rep, _ = AssistantReputation.objects.get_or_create(assistant=exchange.receiver)
+    receiver_rep.tokens_received += 1
+    receiver_rep.reputation_score = (
+        receiver_rep.tokens_created + receiver_rep.tokens_endorsed + receiver_rep.tokens_received
+    )
+    receiver_rep.save()
+
+    return Response(LoreTokenExchangeSerializer(exchange).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def token_market(request):
+    if request.method == "GET":
+        visibility = request.query_params.get("visibility")
+        listings = TokenMarket.objects.all().order_by("-created_at")
+        if visibility:
+            listings = listings.filter(visibility=visibility)
+        return Response(TokenMarketSerializer(listings, many=True).data)
+
+    serializer = TokenMarketSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    listing = serializer.save()
+    return Response(TokenMarketSerializer(listing).data, status=201)
