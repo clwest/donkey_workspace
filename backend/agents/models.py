@@ -1046,3 +1046,63 @@ class RitualComplianceRecord(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"{self.civilization.name} - {self.compliance_status}"
+
+# Phase 4.93 models
+class BeliefForkEvent(models.Model):
+    """Record intentional divergence in assistant beliefs."""
+
+    originating_assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    parent_belief_vector = models.JSONField()
+    forked_belief_vector = models.JSONField()
+    reason = models.TextField()
+    resulting_assistants = models.ManyToManyField(
+        "assistants.Assistant", related_name="belief_fork_descendants", blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Fork by {self.originating_assistant.name}"
+
+
+class MythCollapseLog(models.Model):
+    """Archive myth collapse events and preserved fragments."""
+
+    myth = models.ForeignKey(TranscendentMyth, on_delete=models.CASCADE)
+    trigger_event = models.ForeignKey(
+        SwarmMemoryEntry, on_delete=models.SET_NULL, null=True
+    )
+    collapse_reason = models.TextField()
+    fragments_preserved = models.ManyToManyField(LoreToken, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Collapse of {self.myth.name}"
+
+
+class MemoryReformationRitual(models.Model):
+    """Ceremonial process to rebuild fragmented memories."""
+
+    initiating_assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    fragmented_memories = models.ManyToManyField(SwarmMemoryEntry, blank=True)
+    symbolic_intent = models.TextField()
+    reformed_summary = models.TextField(blank=True)
+    new_memory_thread = models.ForeignKey(
+        "memory.MemoryBranch", null=True, on_delete=models.SET_NULL
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Ritual by {self.initiating_assistant.name}"

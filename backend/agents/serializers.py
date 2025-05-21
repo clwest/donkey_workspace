@@ -23,6 +23,9 @@ from agents.models import (
     MythRegistryEntry,
     TemporalLoreAnchor,
     RitualComplianceRecord,
+    BeliefForkEvent,
+    MythCollapseLog,
+    MemoryReformationRitual,
 )
 from assistants.models import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -330,5 +333,25 @@ class TemporalLoreAnchorSerializer(serializers.ModelSerializer):
 class RitualComplianceRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = RitualComplianceRecord
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+class BeliefForkEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BeliefForkEvent
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MythCollapseLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythCollapseLog
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MemoryReformationRitualSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemoryReformationRitual
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
