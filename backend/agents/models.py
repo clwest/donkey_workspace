@@ -171,18 +171,19 @@ class AgentSkillLink(models.Model):
 
 
 class AgentCluster(models.Model):
-    """Group agents together for a shared mission or purpose."""
 
-    name = models.CharField(max_length=100)
-    purpose = models.TextField()
-    agents = models.ManyToManyField(Agent)
-    origin_project = models.ForeignKey(
-        "assistants.AssistantProject", null=True, on_delete=models.SET_NULL
-    )
+    name = models.CharField(max_length=255)
+    purpose = models.TextField(blank=True)
+    project = models.ForeignKey("assistants.AssistantProject", null=True, blank=True, on_delete=models.SET_NULL, related_name="agent_clusters")
+    agents = models.ManyToManyField(Agent, related_name="clusters", blank=True)
+    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
 
     class Meta:
         ordering = ["-created_at"]
 
-    def __str__(self):  # pragma: no cover - display only
+    def __str__(self):
         return self.name
+

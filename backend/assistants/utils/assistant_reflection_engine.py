@@ -573,8 +573,39 @@ def reflect_on_agent_swarm(assistant: Assistant) -> AssistantReflectionLog:
         temperature=0.4,
     )
 
-    return AssistantReflectionLog.objects.create(
-        assistant=assistant,
-        title="Agent Swarm & Cluster Reflection",
-        summary=summary,
-    )
+
+    try:
+        return call_llm(
+            [{"role": "user", "content": prompt}],
+            model=assistant.preferred_model or "gpt-4o",
+            temperature=0.4,
+        )
+    except Exception:
+        return "- Unable to generate reflection."
+
+
+def reflect_on_agent_clusters(assistant: Assistant) -> str:
+    """Summarize agent clusters and suggest lifecycle actions."""
+    from agents.models import AgentCluster
+    from agents.utils.agent_controller import evaluate_agent_lifecycle
+    clusters = AgentCluster.objects.filter(project__assistant=assistant)
+    if not clusters.exists():
+        return "- No clusters found."
+
+    lines = []
+    suggestions = []
+    for c in clusters:
+        names = ", ".join(c.agents.values_list("name", flat=True))
+        lines.append(f"- **{c.name}**: {c.purpose} ({names})")
+        for agent in c.agents.all():
+            result = evaluate_agent_lifecycle(agent)
+            if result["action"] != "keep":
+                suggestions.append(f"{agent.name} → {result['action']} ({result['reason']})")
+
+    if not suggestions:
+        suggestions.append("All agents active and in good standing.")
+
+    overview = "### Cluster Overview\n" + "\n".join(lines)
+    overview += "\n\n### Lifecycle Suggestions\n" + "\n".join(f"- {s}" for s in suggestions)
+    return overview
+
