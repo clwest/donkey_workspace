@@ -25,6 +25,8 @@ export default function AssistantDetailPage() {
   const [activeTab, setActiveTab] = useState("overview");
   const [assessment, setAssessment] = useState(null);
   const [showAssess, setShowAssess] = useState(false);
+  const [reflecting, setReflecting] = useState(false);
+  const [assessing, setAssessing] = useState(false);
   const threadId = query.get("thread");
   const projectId = query.get("project");
   const memoryId = query.get("memory");
@@ -99,12 +101,31 @@ export default function AssistantDetailPage() {
   };
 
   const handleSelfAssess = async () => {
+    setAssessing(true);
     try {
       const res = await runSelfAssessment(slug);
       setAssessment(res);
       setShowAssess(true);
     } catch (err) {
       toast.error("Self assessment failed");
+    } finally {
+      setAssessing(false);
+    }
+  };
+
+  const handleSelfReflect = async () => {
+    setReflecting(true);
+    try {
+      await apiFetch(`/assistants/${slug}/self_reflect/`, {
+        method: "POST",
+      });
+      const data = await apiFetch(`/assistants/${slug}/`);
+      setAssistant(data);
+      toast.success("Reflection complete");
+    } catch (err) {
+      toast.error("Self reflection failed");
+    } finally {
+      setReflecting(false);
     }
   };
 
@@ -413,11 +434,17 @@ export default function AssistantDetailPage() {
       {assistant.traits && (
         <p>
           <strong>Traits:</strong>
-          {Object.entries(assistant.traits).map(([k, v]) => (
-            <span key={k} className="badge bg-secondary ms-2">
-              {k}:{v ? "✅" : "❌"}
-            </span>
-          ))}
+          {Array.isArray(assistant.traits)
+            ? assistant.traits.map((t, idx) => (
+                <span key={idx} className="badge bg-secondary ms-2">
+                  {t}
+                </span>
+              ))
+            : Object.entries(assistant.traits).map(([k, v]) => (
+                <span key={k} className="badge bg-secondary ms-2">
+                  {k}:{v ? "✅" : "❌"}
+                </span>
+              ))}
         </p>
       )}
       {assistant.values && assistant.values.length > 0 && (
@@ -427,15 +454,20 @@ export default function AssistantDetailPage() {
       )}
       <button
         className="btn btn-outline-info mb-3"
-        onClick={async () => {
-          await apiFetch(`/assistants/${slug}/self_reflect/`, {
-            method: "POST",
-          });
-          const data = await apiFetch(`/assistants/${slug}/`);
-          setAssistant(data);
-        }}
+        onClick={handleSelfReflect}
+        disabled={reflecting}
       >
-        Reflect on Self
+        {reflecting ? (
+          <>
+            <span
+              className="spinner-border spinner-border-sm me-2"
+              role="status"
+            />
+            Reflecting...
+          </>
+        ) : (
+          "Reflect on Self"
+        )}
       </button>
       <button
         className="btn btn-outline-warning mb-3 ms-2"
@@ -455,8 +487,19 @@ export default function AssistantDetailPage() {
       <button
         className="btn btn-outline-info mb-3 ms-2"
         onClick={handleSelfAssess}
+        disabled={assessing}
       >
-        Run Self-Assessment
+        {assessing ? (
+          <>
+            <span
+              className="spinner-border spinner-border-sm me-2"
+              role="status"
+            />
+            Running...
+          </>
+        ) : (
+          "Run Self-Assessment"
+        )}
       </button>
 
       <h4>🧠 Summary at a Glance</h4>
