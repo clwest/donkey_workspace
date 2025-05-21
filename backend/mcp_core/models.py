@@ -225,13 +225,17 @@ class NarrativeThread(models.Model):
         on_delete=models.SET_NULL,
         related_name="origin_threads",
     )
-# <<<<<<< codex/add-thread-continuity-diagnostics
+    # <<<<<<< codex/add-thread-continuity-diagnostics
     continuity_score = models.FloatField(null=True, blank=True)
     last_diagnostic_run = models.DateTimeField(null=True, blank=True)
-# =======
-#     long_term_objective = models.TextField(blank=True, null=True)
-#     milestones = models.JSONField(default=list, blank=True)
-# >>>>>>> main
+    continuity_summary = models.TextField(null=True, blank=True)
+    linked_threads = models.ManyToManyField(
+        "self", symmetrical=False, blank=True, related_name="linked_to"
+    )
+    # =======
+    #     long_term_objective = models.TextField(blank=True, null=True)
+    #     milestones = models.JSONField(default=list, blank=True)
+    # >>>>>>> main
 
     def __str__(self):
         return self.title
@@ -308,6 +312,7 @@ class GroupedDevDocReflection(models.Model):
 #     class Meta:
 #         ordering = ["-created_at"]
 
+
 #     def __str__(self):
 #         return f"Diagnostic {self.score:.2f} for {self.thread.title}"
 # =======
@@ -330,4 +335,6 @@ class ThreadObjectiveReflection(models.Model):
 
     def __str__(self):
         return f"Reflection for {self.thread.title} @ {self.created_at.strftime('%Y-%m-%d %H:%M')}"
+
+
 # >>>>>>> main

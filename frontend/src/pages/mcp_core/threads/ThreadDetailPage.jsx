@@ -8,32 +8,21 @@ import LongTermObjectiveEditor from "../../../components/mcp_core/LongTermObject
 import MilestoneTimeline from "../../../components/mcp_core/MilestoneTimeline";
 import ObjectiveReflectionLog from "../../../components/mcp_core/ObjectiveReflectionLog";
 import LinkedChainList from "../../../components/memory/LinkedChainList";
-// <<<<<<< codex/add-healing-suggestions-for-low-continuity-threads
-// =======
-// // <<<<<<< codex/add-thread-continuity-diagnostics
-// // import ThreadDiagnosticsPanel from "../../../components/mcp_core/ThreadDiagnosticsPanel";
-// // =======
-// // // >>>>>>> main
-// // >>>>>>> main
-// >>>>>>> main
+import ThreadDiagnosticsPanel from "../../../components/mcp_core/ThreadDiagnosticsPanel";
 
 export default function ThreadDetailPage() {
   const { id } = useParams();
   const [thread, setThread] = useState(null);
   const [loading, setLoading] = useState(true);
   const [chains, setChains] = useState(null);
-// <<<<<<< codex/add-healing-suggestions-for-low-continuity-threads
-//   const [diagnostic, setDiagnostic] = useState(null);
-// =======
-//   const [diag, setDiag] = useState(null);
-// >>>>>>> main
+  const [diagnostic, setDiagnostic] = useState(null);
+  const [continuity, setContinuity] = useState(null);
 
   useEffect(() => {
     const fetchThread = async () => {
       try {
         const data = await apiFetch(`/mcp/threads/${id}/`);
         setThread(data);
-        console.log(data)
       } catch (err) {
         console.error("Failed to load thread:", err);
       } finally {
@@ -41,24 +30,36 @@ export default function ThreadDetailPage() {
       }
     };
     fetchThread();
+  }, [id]);
+
+  useEffect(() => {
     apiFetch(`/mcp/threads/${id}/diagnose/`).then(setDiagnostic).catch(() => {});
+    apiFetch(`/memory/threads/${id}/linked_chains/`).then(setChains).catch(() => {});
   }, [id]);
 
   const handleDiagnostic = async () => {
     try {
       const data = await apiFetch(`/mcp/threads/${id}/diagnose/`, { method: "POST" });
-      setDiag(data);
-      setThread({ ...thread, continuity_score: data.score, last_diagnostic_run: new Date().toISOString() });
+      setDiagnostic(data);
+      setThread({
+        ...thread,
+        continuity_score: data.score,
+        last_diagnostic_run: new Date().toISOString(),
+      });
     } catch (err) {
       console.error("Diagnostic failed", err);
     }
   };
 
-  useEffect(() => {
-    apiFetch(`/memory/threads/${id}/linked_chains/`)
-      .then(setChains)
-      .catch(() => {});
-  }, [id]);
+  const handleSuggest = async () => {
+    try {
+      const data = await apiFetch(`/mcp/threads/${id}/suggest-continuity/`, { method: "POST" });
+      setContinuity(data);
+      setThread({ ...thread, continuity_summary: data.continuity_summary });
+    } catch (err) {
+      console.error("Suggestion failed", err);
+    }
+  };
 
   if (loading) return <Spinner className="m-5" animation="border" />;
   if (!thread) return <div className="container my-5">❌ Thread not found.</div>;
@@ -144,9 +145,7 @@ export default function ThreadDetailPage() {
             {thread.related_memory_previews.map((mem) => (
               <li key={mem.id} className="list-group-item">
                 <Link to={`/memories/${mem.id}`} className="fw-bold">
-                  {mem.preview.length > 100
-                    ? mem.preview.slice(0, 100) + "..."
-                    : mem.preview}
+                  {mem.preview.length > 100 ? mem.preview.slice(0, 100) + "..." : mem.preview}
                 </Link>
                 <div className="text-muted small">
                   {new Date(mem.created_at).toLocaleString()}
@@ -165,9 +164,25 @@ export default function ThreadDetailPage() {
       )}
 
       <ThreadDiagnosticsPanel thread={thread} />
-      <button className="btn btn-primary mb-3" onClick={handleDiagnostic}>
+      <button className="btn btn-primary mb-3 me-2" onClick={handleDiagnostic}>
         Run Diagnostic
       </button>
+      <button className="btn btn-secondary mb-3" onClick={handleSuggest}>
+        🧩 Suggest Continuity Fix
+      </button>
+
+      {continuity && (
+        <div className="alert alert-info">
+          <p className="mb-1"><strong>Summary:</strong> {continuity.continuity_summary}</p>
+          {continuity.link_suggestions && continuity.link_suggestions.length > 0 && (
+            <ul className="mb-0">
+              {continuity.link_suggestions.map((s, idx) => (
+                <li key={idx}>{s.action} {s.target_thread_id} - {s.reason}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
 
       <div className="mt-4">
         <Link to="/threads" className="btn btn-outline-secondary">

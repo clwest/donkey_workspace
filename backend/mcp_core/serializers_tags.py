@@ -4,7 +4,6 @@ from mcp_core.models import Tag, NarrativeThread
 from mcp_core.models import ThreadObjectiveReflection
 
 
-
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
@@ -28,6 +27,7 @@ class NarrativeThreadSerializer(serializers.ModelSerializer):
     last_updated = serializers.SerializerMethodField()
     reflection_count = serializers.SerializerMethodField()
     gaps_detected = serializers.SerializerMethodField()
+    potential_link_suggestions = serializers.SerializerMethodField()
 
     class Meta:
         model = NarrativeThread
@@ -40,21 +40,23 @@ class NarrativeThreadSerializer(serializers.ModelSerializer):
             "tags",
             "created_by",
             "created_at",
-# <<<<<<< codex/implement-multi-thread-continuity-dashboard
-#             "continuity_score",
-#             "last_diagnostic_run",
-#             "last_updated",
-#             "reflection_count",
-# =======
-
-#             "last_refocus_prompt",
-
-# >>>>>>> main
+            # <<<<<<< codex/implement-multi-thread-continuity-dashboard
+            #             "continuity_score",
+            #             "last_diagnostic_run",
+            #             "last_updated",
+            #             "reflection_count",
+            # =======
+            #             "last_refocus_prompt",
+            # >>>>>>> main
+            "continuity_summary",
+            "continuity_score",
+            "last_diagnostic_run",
             "origin_memory",
             "origin_memory_preview",
             "related_memory_previews",
             "objective_reflections",
             "gaps_detected",
+            "potential_link_suggestions",
         ]
 
     def get_origin_memory_preview(self, obj):
@@ -98,6 +100,10 @@ class NarrativeThreadSerializer(serializers.ModelSerializer):
         if self.get_reflection_count(obj) == 0:
             gaps.append("missing_reflections")
         return gaps
+
+    def get_potential_link_suggestions(self, obj):
+        return getattr(obj, "_link_suggestions", [])
+
 
 # <<<<<<< codex/add-thread-continuity-diagnostics
 
