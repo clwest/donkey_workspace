@@ -9,6 +9,7 @@ from .models import (
 )
 
 from assistants.models import AssistantThoughtLog
+from agents.serializers import AgentSerializer
 from mcp_core.serializers_tags import NarrativeThreadSerializer
 from mcp_core.serializers_tags import TagSerializer
 
@@ -29,6 +30,7 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
     parent_assistant_name = serializers.SerializerMethodField()
     is_delegated = serializers.SerializerMethodField()
     simulated_forks = SimulatedMemoryForkSerializer(many=True, read_only=True)
+    linked_agents = AgentSerializer(many=True, read_only=True)
 
     class Meta:
         model = MemoryEntry
@@ -58,6 +60,7 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
             "assistant_id",
             "parent_assistant_name",
             "is_delegated",
+            "linked_agents",
             "simulated_forks",
         ]
 

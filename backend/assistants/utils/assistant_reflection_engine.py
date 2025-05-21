@@ -516,3 +516,51 @@ Agents snapshot:\n{context}\n\nReturn a markdown summary in 4-6 bullet points.""
         )
     except Exception:
         return "- Unable to generate reflection."
+
+
+def reflect_on_agent_swarm(assistant: Assistant) -> str:
+    """
+    Reflects on collaboration dynamics, training coverage, and mentoring bottlenecks.
+    Summarizes recent agent interactions and proposes coordination improvements.
+    """
+    agents = list(assistant.assigned_agents.all())
+    if not agents:
+        return "- No agents assigned."
+
+    mentoring_entries = (
+        MemoryEntry.objects.filter(linked_agents__in=agents, tags__name__iexact="mentoring")
+        .order_by("-created_at")[:20]
+    )
+    interaction_lines = []
+    for m in mentoring_entries:
+        interaction_lines.append(f"- {m.event}")
+
+    agent_lines = []
+    for a in agents:
+        taught = sum(1 for m in mentoring_entries if m.event.startswith(a.name))
+        learned = sum(1 for m in mentoring_entries if f"taught {a.name}" in m.event)
+        agent_lines.append(f"{a.name}: taught {taught}, learned {learned}")
+
+    context = "\n".join(agent_lines + interaction_lines)
+
+    prompt = f"""### Agent Swarm Reflection
+
+You are {assistant.name}, overseeing a swarm of agents.
+Review the recent mentoring interactions and suggest ways to coordinate training better.
+
+Points to consider:
+- Which agents are mentoring vs being mentored?
+- Are skills distributed evenly?
+- Are there idle agents with teachable strengths?
+- Propose mentoring pairs or tag gaps.
+
+Data:\n{context}\n\nReturn a brief markdown summary."""
+
+    try:
+        return call_llm(
+            [{"role": "user", "content": prompt}],
+            model=assistant.preferred_model or "gpt-4o",
+            temperature=0.4,
+        )
+    except Exception:
+        return "- Unable to generate reflection."
