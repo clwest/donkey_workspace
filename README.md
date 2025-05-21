@@ -51,7 +51,18 @@ python manage.py migrate
 python manage.py runserver
 ```
 
+### Seeding All Data
+
+Once your backend is running, you can populate every model and DevDoc dataset in one command:
+
+```bash
+bash backend/seed_all.sh
+```
+
+This script runs all individual seeders and dev documentation scripts sequentially.
+
 If you encounter a `ProgrammingError` complaining that `assistants_assistant`
 does not exist, ensure you ran `python manage.py makemigrations` before
 `python manage.py migrate`. This generates all initial migration files so Django
 creates the required tables.
+
