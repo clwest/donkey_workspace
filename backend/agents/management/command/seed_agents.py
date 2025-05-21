@@ -14,7 +14,7 @@ class Command(BaseCommand):
                     "name": "LangChain Agent",
                     "description": "Handles all LangChain-related tasks and reasoning flows.",
                     "preferred_llm": "gpt-4o",
-                    "execution_style": "sequential",
+                    "execution_mode": "sequential",
                 },
                 "assistant_name_prefix": "LangChain Assistant",
             },
@@ -24,7 +24,7 @@ class Command(BaseCommand):
                     "name": "Stability Agent",
                     "description": "Manages AI image/video generation via Stability tools.",
                     "preferred_llm": "gpt-4o",
-                    "execution_style": "parallel",
+                    "execution_mode": "parallel",
                 },
                 "assistant_name_prefix": "Stability AI Assistant",
             },
@@ -34,7 +34,7 @@ class Command(BaseCommand):
                     "name": "Solidity Agent",
                     "description": "Helps parse, document, and reflect on Solidity development guides.",
                     "preferred_llm": "gpt-4o",
-                    "execution_style": "sequential",
+                    "execution_mode": "sequential",
                 },
                 "assistant_name_prefix": "Solidity Smart Contract Assistant",
             },
@@ -57,7 +57,7 @@ class Command(BaseCommand):
                     slug=agent_slug,
                     description=agent_data["description"],
                     preferred_llm=agent_data["preferred_llm"],
-                    execution_style=agent_data["execution_style"],
+                    execution_mode=agent_data["execution_mode"],
                 )
                 self.stdout.write(self.style.SUCCESS(f"✅ Agent '{agent_data['name']}' created."))
 

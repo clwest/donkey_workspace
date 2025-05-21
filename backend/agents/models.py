@@ -86,7 +86,7 @@ class Agent(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self):
-        return f"{self.name} ({self.preferred_llm}, {self.execution_style})"
+        return f"{self.name} ({self.preferred_llm}, {self.execution_mode})"
 
 
 class AgentThought(models.Model):
