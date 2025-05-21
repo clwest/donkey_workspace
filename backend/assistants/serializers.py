@@ -34,6 +34,8 @@ from .models import (
     CouncilThought,
     CouncilOutcome,
     OracleLayer,
+    AssistantGuild,
+    AssistantCivilization,
 )
 
 from project.models import (
@@ -1129,5 +1131,19 @@ class OracleLayerSerializer(serializers.ModelSerializer):
             "summary_insight",
             "created_at",
         ]
+        read_only_fields = ["id", "created_at"]
+
+
+class AssistantGuildSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantGuild
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class AssistantCivilizationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantCivilization
+        fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

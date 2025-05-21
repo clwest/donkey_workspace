@@ -559,3 +559,31 @@ class RitualCollapseLog(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Collapse: {self.retired_entity}"
 
+
+
+class LoreEpoch(models.Model):
+    """Historical narrative arc for swarm lore."""
+
+    title = models.CharField(max_length=150)
+    summary = models.TextField()
+    start_event = models.ForeignKey(
+        SwarmMemoryEntry,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="epoch_start",
+    )
+    end_event = models.ForeignKey(
+        SwarmMemoryEntry,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="epoch_end",
+    )
+    tags = models.ManyToManyField("mcp_core.Tag", blank=True)
+    closed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.title
