@@ -98,6 +98,10 @@
 - Enable assistants to detect when they’re drifting from a narrative thread and self-correct
 - Auto-create thread summaries per project milestone
 
+### 📝 Phase 4.54 Notes
+
+- Enable agents to train new skills or fetch relevant documents based on feedback content
+
 ---
 
 ## ✅ Status

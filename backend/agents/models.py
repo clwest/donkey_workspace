@@ -38,6 +38,10 @@ class Agent(models.Model):
         default="general",
         help_text="Categorize the agent by its role in the assistant system.",
     )
+    metadata = models.JSONField(default=dict, blank=True)
+    tags = ArrayField(models.CharField(max_length=100), blank=True, default=list)
+    skills = ArrayField(models.CharField(max_length=100), blank=True, default=list)
+    strength_score = models.FloatField(default=0.0)
     preferred_llm = models.CharField(max_length=50, choices=LLM_CHOICES, default="gpt-4o")
     execution_mode = models.CharField(max_length=50, choices=EXECUTION_MODE_CHOICES, default="direct")
 
@@ -77,3 +81,20 @@ class AgentThought(models.Model):
 
     def __str__(self):
         return f"Thought from {self.agent.name} at {self.created_at.strftime('%Y-%m-%d %H:%M:%S')}"
+
+
+class AgentFeedbackLog(models.Model):
+    agent = models.ForeignKey("Agent", on_delete=models.CASCADE, related_name="feedback_logs")
+    task = models.ForeignKey(
+        "assistants.AssistantNextAction", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    feedback_text = models.TextField()
+    feedback_type = models.CharField(max_length=50, default="reflection")
+    score = models.FloatField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display only
+        return f"Feedback for {self.agent.name} ({self.feedback_type})"
