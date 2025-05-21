@@ -10,6 +10,7 @@ import SelfAssessmentModal from "../../../components/assistant/SelfAssessmentMod
 import { toast } from "react-toastify";
 import "./styles/AssistantDetail.css";
 import AssistantMemoryAuditPanel from "../../../components/assistant/memory/AssistantMemoryAuditPanel";
+import AgentTrainingManager from "../../../components/assistants/AgentTrainingManager";
 
 export default function AssistantDetailPage() {
   const { slug } = useParams();
@@ -134,6 +135,14 @@ export default function AssistantDetailPage() {
               onClick={() => setActiveTab("memory")}
             >
               🧠 Memory Audit
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === "training" ? "active" : ""}`}
+              onClick={() => setActiveTab("training")}
+            >
+              Agent Training
             </button>
           </li>
         </ul>
@@ -481,6 +490,9 @@ export default function AssistantDetailPage() {
   )}
   {activeTab === "memory" && (
     <AssistantMemoryAuditPanel assistant={assistant} />
+  )}
+  {activeTab === "training" && (
+    <AgentTrainingManager assistantSlug={slug} />
   )}
   <SelfAssessmentModal
     show={showAssess}

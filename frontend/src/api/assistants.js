@@ -269,3 +269,29 @@ export async function planFromThread(slug, body) {
   }
   return res.json();
 }
+
+export async function assignTrainingDocuments(slug, agentId, documentIds) {
+  const res = await fetch(
+    `http://localhost:8000/api/assistants/${slug}/assign-training/`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ agent_id: agentId, document_ids: documentIds }),
+      credentials: "include",
+    },
+  );
+  if (!res.ok) {
+    throw new Error("Failed to assign training");
+  }
+  return res.json();
+}
+
+export async function evaluateAgentTraining(slug, agentId) {
+  const res = await fetch(
+    `http://localhost:8000/api/assistants/${slug}/evaluate-agent/${agentId}/`,
+  );
+  if (!res.ok) {
+    throw new Error("Failed to evaluate agent training");
+  }
+  return res.json();
+}
