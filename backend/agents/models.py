@@ -3,6 +3,7 @@ import uuid
 from django.contrib.auth import get_user_model
 from mcp_core.models import MemoryContext
 from django.contrib.postgres.fields import ArrayField
+from pgvector.django import VectorField
 
 
 User = get_user_model()
@@ -19,6 +20,7 @@ EXECUTION_MODE_CHOICES = [
     ("chain-of-thought", "Chain of Thought"),
     ("reflection", "Reflection Before Action"),
 ]
+
 
 class Agent(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -46,12 +48,23 @@ class Agent(models.Model):
         blank=True,
         related_name="trained_agents",
     )
-    verified_skills = models.JSONField(default=list, blank=True)
+    verified_skills = models.JSONField(
+        default=list,
+        blank=True,
+        help_text=(
+            "List of verified skills with metadata: "
+            '[{"skill":"name", "source":"doc.pdf", "confidence":0.0, "last_verified":"ISO8601"}]'
+        ),
+    )
     strength_score = models.FloatField(default=0.0)
     readiness_score = models.FloatField(default=0.0)
     is_demo = models.BooleanField(default=False)
-    preferred_llm = models.CharField(max_length=50, choices=LLM_CHOICES, default="gpt-4o")
-    execution_mode = models.CharField(max_length=50, choices=EXECUTION_MODE_CHOICES, default="direct")
+    preferred_llm = models.CharField(
+        max_length=50, choices=LLM_CHOICES, default="gpt-4o"
+    )
+    execution_mode = models.CharField(
+        max_length=50, choices=EXECUTION_MODE_CHOICES, default="direct"
+    )
 
     parent_assistant = models.ForeignKey(
         "assistants.Assistant",
@@ -69,7 +82,8 @@ class Agent(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.preferred_llm}, {self.execution_style})"
-    
+
+
 class AgentThought(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     agent = models.ForeignKey(
@@ -92,9 +106,14 @@ class AgentThought(models.Model):
 
 
 class AgentFeedbackLog(models.Model):
-    agent = models.ForeignKey("Agent", on_delete=models.CASCADE, related_name="feedback_logs")
+    agent = models.ForeignKey(
+        "Agent", on_delete=models.CASCADE, related_name="feedback_logs"
+    )
     task = models.ForeignKey(
-        "assistants.AssistantNextAction", on_delete=models.SET_NULL, null=True, blank=True
+        "assistants.AssistantNextAction",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
     feedback_text = models.TextField()
     feedback_type = models.CharField(max_length=50, default="reflection")
@@ -128,30 +147,24 @@ class AgentTrainingAssignment(models.Model):
     completed = models.BooleanField(default=False)
     assigned_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
-# =======
-#     """Track training documents assigned by an assistant to an agent."""
-
-#     assistant = models.ForeignKey(
-#         "assistants.Assistant", on_delete=models.CASCADE, related_name="training_assignments"
-#     )
-#     agent = models.ForeignKey(
-#         "agents.Agent", on_delete=models.CASCADE, related_name="training_assignments"
-#     )
-#     document = models.ForeignKey(
-#         "intel_core.Document", on_delete=models.CASCADE, related_name="agent_training_assignments"
-#     )
-#     status = models.CharField(max_length=20, default="pending")
-#     notes = models.TextField(blank=True)
-#     assigned_at = models.DateTimeField(auto_now_add=True)
-#     reviewed_at = models.DateTimeField(null=True, blank=True)
-# >>>>>>> main
 
     class Meta:
         ordering = ["-assigned_at"]
 
     def __str__(self):  # pragma: no cover - display only
-
         return f"Training for {self.agent.name} -> {self.document.title}"
-# =======
-#         return f"{self.agent.name} -> {self.document.title} ({self.status})"
-# >>>>>>> main
+
+
+class AgentSkill(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True)
+    related_skills = models.ManyToManyField("self", symmetrical=False, blank=True)
+    embedding = VectorField(dimensions=1536)
+
+
+class AgentSkillLink(models.Model):
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE)
+    skill = models.ForeignKey(AgentSkill, on_delete=models.CASCADE)
+    source = models.CharField(max_length=50, default="training")
+    strength = models.FloatField(default=0.5)
+    created_at = models.DateTimeField(auto_now_add=True)

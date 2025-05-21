@@ -13,9 +13,25 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.text import slugify
 from assistants.models import AssistantProject
 from utils.llm_router import call_llm
-from agents.models import Agent, AgentTrainingAssignment, AgentFeedbackLog
+from agents.models import (
+    Agent,
+    AgentTrainingAssignment,
+    AgentFeedbackLog,
+    AgentSkill,
+    AgentSkillLink,
+)
 
 logger = logging.getLogger(__name__)
+
+
+def _skill_names(skills: list) -> list[str]:
+    names = []
+    for s in skills or []:
+        if isinstance(s, dict) and s.get("skill"):
+            names.append(s["skill"])
+        elif isinstance(s, str):
+            names.append(s)
+    return names
 
 
 def reflect_on_agent_training(assistant: Assistant, agent: Agent) -> str:
@@ -34,7 +50,9 @@ def reflect_on_agent_training(assistant: Assistant, agent: Agent) -> str:
         skill_tags.update(a.document.tags.values_list("name", flat=True))
 
     feedback_logs = list(
-        AgentFeedbackLog.objects.filter(agent=agent, score__isnull=False).order_by("-created_at")[:6]
+        AgentFeedbackLog.objects.filter(agent=agent, score__isnull=False).order_by(
+            "-created_at"
+        )[:6]
     )
     recent_scores = [f.score for f in feedback_logs[:3]]
     past_scores = [f.score for f in feedback_logs[3:]]
@@ -55,7 +73,9 @@ def reflect_on_agent_training(assistant: Assistant, agent: Agent) -> str:
     if skill_tags:
         lines.append("- Acquired skills: " + ", ".join(sorted(skill_tags)))
     if agent.verified_skills:
-        lines.append("- Verified skills: " + ", ".join(agent.verified_skills))
+        lines.append(
+            "- Verified skills: " + ", ".join(_skill_names(agent.verified_skills))
+        )
     lines.append(f"- Task performance trajectory appears **{trajectory}**")
     lines.append(f"- Suggested readiness score: {readiness:.2f}")
     lines.append("- Next steps: continue practicing and gather more feedback")
@@ -281,8 +301,9 @@ class AssistantReflectionEngine:
         )
         return log
 
-
     # CODEx MARKER: plan_from_thread_context
+
+
 def plan_from_thread_context(
     self,
     thread: "NarrativeThread",
@@ -340,6 +361,7 @@ def plan_from_thread_context(
         actions.append(action)
     return actions
 
+
 def evaluate_thought_continuity(
     self, *, project: AssistantProject | None = None
 ) -> dict:
@@ -365,7 +387,9 @@ def evaluate_thought_continuity(
 
     total = len(recent)
     aligned = sum(
-        1 for t in recent if t.narrative_thread_id == getattr(expected_thread, "id", None)
+        1
+        for t in recent
+        if t.narrative_thread_id == getattr(expected_thread, "id", None)
     )
     score = aligned / total if total else 1.0
 
@@ -389,7 +413,9 @@ def evaluate_thought_continuity(
 
 
 # codex-coach:assign-training
-def assign_training_documents(assistant: Assistant, agent: "Agent", docs: list["Document"], train: bool = True) -> list["AgentTrainingAssignment"]:
+def assign_training_documents(
+    assistant: Assistant, agent: "Agent", docs: list["Document"], train: bool = True
+) -> list["AgentTrainingAssignment"]:
     """Assign documents to an agent and optionally trigger training."""
     from agents.models import AgentTrainingAssignment
     from agents.utils.agent_controller import train_agent_from_documents
@@ -405,8 +431,12 @@ def assign_training_documents(assistant: Assistant, agent: "Agent", docs: list["
 
     if train and docs:
         result = train_agent_from_documents(agent, list(docs))
-        AgentTrainingAssignment.objects.filter(id__in=[a.id for a in assignments]).update(status="complete")
-        logger.info(f"[Training] Agent {agent.name} trained on {len(docs)} documents: {result}")
+        AgentTrainingAssignment.objects.filter(
+            id__in=[a.id for a in assignments]
+        ).update(status="complete")
+        logger.info(
+            f"[Training] Agent {agent.name} trained on {len(docs)} documents: {result}"
+        )
 
     return assignments
 
@@ -416,16 +446,20 @@ def evaluate_agent_training(assistant: Assistant, agent: "Agent") -> dict:
     """Summarize training progress and return readiness report."""
     from agents.models import AgentTrainingAssignment, AgentFeedbackLog
 
-    assignments = AgentTrainingAssignment.objects.filter(agent=agent, assistant=assistant)
+    assignments = AgentTrainingAssignment.objects.filter(
+        agent=agent, assistant=assistant
+    )
     completed = assignments.filter(status="complete").count()
     pending = assignments.filter(status="pending").count()
     feedback_scores = list(
-        AgentFeedbackLog.objects.filter(agent=agent, score__isnull=False).values_list("score", flat=True)
+        AgentFeedbackLog.objects.filter(agent=agent, score__isnull=False).values_list(
+            "score", flat=True
+        )
     )
     avg_score = sum(feedback_scores) / len(feedback_scores) if feedback_scores else None
 
     tags = set(agent.tags or [])
-    skills = set(agent.verified_skills or [])
+    skills = set(_skill_names(agent.verified_skills))
 
     report = {
         "completed_assignments": completed,
@@ -444,3 +478,41 @@ def evaluate_agent_training(assistant: Assistant, agent: "Agent") -> dict:
 
     return report
 
+
+def reflect_on_agent_network(assistant: Assistant) -> str:
+    """Generate a reflection on the assistant's agent network."""
+    agents = list(assistant.assigned_agents.all())
+    snapshot_lines = []
+    for a in agents:
+        assignments = AgentTrainingAssignment.objects.filter(agent=a).count()
+        feedback = AgentFeedbackLog.objects.filter(
+            agent=a, score__isnull=False
+        ).order_by("-created_at")[:3]
+        avg = sum(f.score for f in feedback) / len(feedback) if feedback else 0.0
+        snapshot_lines.append(
+            f"{a.name}: {assignments} trainings, avg feedback {avg:.2f}"
+        )
+
+    context = "\n".join(snapshot_lines)
+    prompt = f"""### Assistant Agent Reflection
+
+You are {assistant.name}, supervising a network of agents.
+
+Based on the latest training assignments, feedback logs, and the shared skill graph, reflect on the following:
+
+- Which agents have improved the most?
+- Are there skill gaps or overlaps?
+- Which agents are underutilized or overloaded?
+- Suggest any skill clusters or role specializations.
+- Recommend new training paths or delegation strategies.
+
+Agents snapshot:\n{context}\n\nReturn a markdown summary in 4-6 bullet points."""
+
+    try:
+        return call_llm(
+            [{"role": "user", "content": prompt}],
+            model=assistant.preferred_model or "gpt-4o",
+            temperature=0.4,
+        )
+    except Exception:
+        return "- Unable to generate reflection."
