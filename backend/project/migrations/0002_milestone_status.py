@@ -3,9 +3,9 @@ import project.models
 
 class Migration(migrations.Migration):
 
-    initial = True
-
-    dependencies = []
+    dependencies = [
+        ("project", "0001_initial"),
+    ]
 
     operations = [
         migrations.AddField(
