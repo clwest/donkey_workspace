@@ -214,6 +214,10 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(minute="0", hour="2", day_of_week="mon,thu"),
         "kwargs": {"max_age_days": 7, "dry_run": False},
     },
+    "evaluate-narrative-triggers": {
+        "task": "storyboard.tasks.evaluate_narrative_triggers",
+        "schedule": crontab(minute="*/5"),
+    },
 }
 
 # === 🗂️ Static & Media ===
