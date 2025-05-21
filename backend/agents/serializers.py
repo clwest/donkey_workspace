@@ -4,6 +4,7 @@ from agents.models import (
     AgentFeedbackLog,
     AgentCluster,
     SwarmMemoryEntry,
+    LoreEpoch,
     LoreEntry,
     RetconRequest,
     RealityConsensusVote,
@@ -184,5 +185,12 @@ class MythDiplomacySessionSerializer(serializers.ModelSerializer):
 class RitualCollapseLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = RitualCollapseLog
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class LoreEpochSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LoreEpoch
         fields = "__all__"
         read_only_fields = ["id", "created_at"]

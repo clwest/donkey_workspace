@@ -1,2 +1,4 @@
 from .seasonal import get_current_season
-from .myth_optimizer import optimize_myth_architecture
+
+from .myth_reset import run_myth_reset_cycle
+
