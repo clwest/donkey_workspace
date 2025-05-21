@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "test": "node src/pages/storyboard/StoryboardEditorPage.test.js && node src/pages/storyboard/NarrativeEventDetailPage.test.js && node src/components/storyboard/NarrativeEventEditor.test.js && node src/components/memory/MemoryFlowVisualizer.test.js && node src/components/memory/LinkedChainList.test.js && node src/components/memory/CrossThreadRecallPanel.test.js",
+    "test": "node src/pages/storyboard/StoryboardEditorPage.test.js && node src/pages/storyboard/NarrativeEventDetailPage.test.js && node src/components/storyboard/NarrativeEventEditor.test.js && node src/components/memory/MemoryFlowVisualizer.test.js && node src/components/memory/LinkedChainList.test.js && node src/components/memory/CrossThreadRecallPanel.test.js && node src/components/mcp_core/ThreadDiagnosticsPanel.test.js",
     "preview": "vite preview"
   },
   "dependencies": {

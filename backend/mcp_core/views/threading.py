@@ -10,8 +10,14 @@ from mcp_core.models import (
     MemoryContext,
     NarrativeThread,
     Tag,
-    ThreadObjectiveReflection,
+
 )
+from mcp_core.serializers_tags import (
+    NarrativeThreadSerializer,
+)
+from mcp_core.utils.thread_diagnostics import run_thread_diagnostics
+
+
 from mcp_core.serializers_tags import (
     NarrativeThreadSerializer,
     ThreadObjectiveReflectionSerializer,
@@ -111,82 +117,76 @@ def narrative_thread_detail(request, id):
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
-def set_thread_objective(request, thread_id):
-    thread = get_object_or_404(NarrativeThread, id=thread_id)
-    objective = request.data.get("objective", "").strip()
-    thread.long_term_objective = objective
-    thread.save()
-    return Response(
-        {"objective": thread.long_term_objective, "milestones": thread.milestones}
-    )
 
-
-@api_view(["GET"])
-@permission_classes([AllowAny])
-def get_thread_objective(request, thread_id):
-    thread = get_object_or_404(NarrativeThread, id=thread_id)
-    data = {
-        "objective": thread.long_term_objective,
-        "milestones": thread.milestones,
-    }
-    reflections = thread.objective_reflections.all().order_by("-created_at")
-    data["reflections"] = ThreadObjectiveReflectionSerializer(
-        reflections, many=True
-    ).data
-    return Response(data)
-
-
-@api_view(["POST"])
-@permission_classes([AllowAny])
-def reflect_on_thread_objective(request, thread_id):
-    thread = get_object_or_404(NarrativeThread, id=thread_id)
-    reflection_text = generate_thread_reflection(thread)
-    reflection = ThreadObjectiveReflection.objects.create(
-        thread=thread,
-        thought=reflection_text,
-        created_by=None,
-    )
-    serializer = ThreadObjectiveReflectionSerializer(reflection)
-    return Response(serializer.data, status=201)
-
-
-@api_view(["GET"])
-@permission_classes([AllowAny])
 def diagnose_thread(request, thread_id):
-    """Return a simple continuity score for the thread."""
     thread = get_object_or_404(NarrativeThread, id=thread_id)
-    memory_count = thread.related_memories.count()
-    memory_count += MemoryContext.objects.filter(
-        models.Q(narrative_thread=thread) | models.Q(thread=thread)
-    ).count()
-    if thread.origin_memory:
-        memory_count += 1
-    score = min(1.0, memory_count / 5)
-    refocus_prompt = None
-    if score < 0.5:
-        refocus_prompt = generate_thread_refocus_prompt(thread)
-        AssistantThoughtLog.objects.create(
-            thought_type="refocus",
-            thought=refocus_prompt,
-            narrative_thread=thread,
-        )
-        thread.last_refocus_prompt = timezone.now()
-        thread.save(update_fields=["last_refocus_prompt"])
-    return Response(
-        {"continuity_score": round(score, 2), "refocus_prompt": refocus_prompt}
-    )
+    result = run_thread_diagnostics(thread)
+    return Response(result)
 
 
-@api_view(["POST"])
+
+@api_view(["GET"])
 @permission_classes([AllowAny])
-def refocus_thread(request, thread_id):
+def list_thread_diagnostics(request, thread_id):
     thread = get_object_or_404(NarrativeThread, id=thread_id)
-    prompt = generate_thread_refocus_prompt(thread)
-    AssistantThoughtLog.objects.create(
-        thought_type="refocus",
-        thought=prompt,
-        narrative_thread=thread,
-    )
-    thread.last_refocus_prompt = timezone.now()
-    thread.save(update_fields=["last_refocus_prompt"])
-    return Response({"prompt": prompt})
+    logs = ThreadDiagnosticLog.objects.filter(thread=thread).order_by("-created_at")
+    return Response(ThreadDiagnosticLogSerializer(logs, many=True).data)
+
+# <<<<<<< codex/add-healing-suggestions-for-low-continuity-threads
+
+# @api_view(["POST"])
+# @permission_classes([AllowAny])
+# def reflect_on_thread_objective(request, thread_id):
+#     thread = get_object_or_404(NarrativeThread, id=thread_id)
+#     reflection_text = generate_thread_reflection(thread)
+#     reflection = ThreadObjectiveReflection.objects.create(
+#         thread=thread,
+#         thought=reflection_text,
+#         created_by=None,
+#     )
+#     serializer = ThreadObjectiveReflectionSerializer(reflection)
+#     return Response(serializer.data, status=201)
+
+
+# @api_view(["GET"])
+# @permission_classes([AllowAny])
+# def diagnose_thread(request, thread_id):
+#     """Return a simple continuity score for the thread."""
+#     thread = get_object_or_404(NarrativeThread, id=thread_id)
+#     memory_count = thread.related_memories.count()
+#     memory_count += MemoryContext.objects.filter(
+#         models.Q(narrative_thread=thread) | models.Q(thread=thread)
+#     ).count()
+#     if thread.origin_memory:
+#         memory_count += 1
+#     score = min(1.0, memory_count / 5)
+#     refocus_prompt = None
+#     if score < 0.5:
+#         refocus_prompt = generate_thread_refocus_prompt(thread)
+#         AssistantThoughtLog.objects.create(
+#             thought_type="refocus",
+#             thought=refocus_prompt,
+#             narrative_thread=thread,
+#         )
+#         thread.last_refocus_prompt = timezone.now()
+#         thread.save(update_fields=["last_refocus_prompt"])
+#     return Response(
+#         {"continuity_score": round(score, 2), "refocus_prompt": refocus_prompt}
+#     )
+
+
+# @api_view(["POST"])
+# @permission_classes([AllowAny])
+# def refocus_thread(request, thread_id):
+#     thread = get_object_or_404(NarrativeThread, id=thread_id)
+#     prompt = generate_thread_refocus_prompt(thread)
+#     AssistantThoughtLog.objects.create(
+#         thought_type="refocus",
+#         thought=prompt,
+#         narrative_thread=thread,
+#     )
+#     thread.last_refocus_prompt = timezone.now()
+#     thread.save(update_fields=["last_refocus_prompt"])
+#     return Response({"prompt": prompt})
+# =======
+# >>>>>>> main

@@ -8,13 +8,25 @@ import LongTermObjectiveEditor from "../../../components/mcp_core/LongTermObject
 import MilestoneTimeline from "../../../components/mcp_core/MilestoneTimeline";
 import ObjectiveReflectionLog from "../../../components/mcp_core/ObjectiveReflectionLog";
 import LinkedChainList from "../../../components/memory/LinkedChainList";
+// <<<<<<< codex/add-healing-suggestions-for-low-continuity-threads
+// =======
+// // <<<<<<< codex/add-thread-continuity-diagnostics
+// // import ThreadDiagnosticsPanel from "../../../components/mcp_core/ThreadDiagnosticsPanel";
+// // =======
+// // // >>>>>>> main
+// // >>>>>>> main
+// >>>>>>> main
 
 export default function ThreadDetailPage() {
   const { id } = useParams();
   const [thread, setThread] = useState(null);
   const [loading, setLoading] = useState(true);
   const [chains, setChains] = useState(null);
-  const [diagnostic, setDiagnostic] = useState(null);
+// <<<<<<< codex/add-healing-suggestions-for-low-continuity-threads
+//   const [diagnostic, setDiagnostic] = useState(null);
+// =======
+//   const [diag, setDiag] = useState(null);
+// >>>>>>> main
 
   useEffect(() => {
     const fetchThread = async () => {
@@ -31,6 +43,16 @@ export default function ThreadDetailPage() {
     fetchThread();
     apiFetch(`/mcp/threads/${id}/diagnose/`).then(setDiagnostic).catch(() => {});
   }, [id]);
+
+  const handleDiagnostic = async () => {
+    try {
+      const data = await apiFetch(`/mcp/threads/${id}/diagnose/`, { method: "POST" });
+      setDiag(data);
+      setThread({ ...thread, continuity_score: data.score, last_diagnostic_run: new Date().toISOString() });
+    } catch (err) {
+      console.error("Diagnostic failed", err);
+    }
+  };
 
   useEffect(() => {
     apiFetch(`/memory/threads/${id}/linked_chains/`)
@@ -141,6 +163,11 @@ export default function ThreadDetailPage() {
           <LinkedChainList chains={chains} />
         </div>
       )}
+
+      <ThreadDiagnosticsPanel thread={thread} />
+      <button className="btn btn-primary mb-3" onClick={handleDiagnostic}>
+        Run Diagnostic
+      </button>
 
       <div className="mt-4">
         <Link to="/threads" className="btn btn-outline-secondary">
