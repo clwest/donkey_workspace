@@ -20,6 +20,8 @@ from agents.models import (
     LoreToken,
     LoreTokenExchange,
     TokenMarket,
+    LoreTokenCraftingRitual,
+    TokenGuildVote,
 )
 from agents.serializers import (
     AgentSerializer,
@@ -36,6 +38,8 @@ from agents.serializers import (
     ReincarnationLogSerializer,
     ReturnCycleSerializer,
     LoreTokenSerializer,
+    LoreTokenCraftingRitualSerializer,
+    TokenGuildVoteSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -49,7 +53,7 @@ from agents.utils.agent_controller import (
     recommend_training_documents,
     retire_agent,
 )
-from agents.utils.lore_token import compress_memories_to_token
+from agents.utils.lore_token import compress_memories_to_token, perform_token_ritual
 
 from agents.utils.swarm_analytics import (
     generate_temporal_swarm_report,
@@ -352,10 +356,14 @@ def return_cycles(request):
     cycle = serializer.save()
     return Response(ReturnCycleSerializer(cycle).data, status=201)
 
+
 @api_view(["GET", "POST"])
 def lore_tokens(request):
     if request.method == "GET":
         tokens = LoreToken.objects.all().order_by("-created_at")
+        token_type = request.query_params.get("token_type")
+        if token_type:
+            tokens = tokens.filter(token_type=token_type)
         return Response(LoreTokenSerializer(tokens, many=True).data)
 
     memory_ids = request.data.get("memory_ids", [])
@@ -364,7 +372,8 @@ def lore_tokens(request):
         return Response({"error": "assistant required"}, status=400)
     assistant = get_object_or_404(Assistant, id=assistant_id)
     memories = list(SwarmMemoryEntry.objects.filter(id__in=memory_ids))
-    token = compress_memories_to_token(memories, assistant)
+    token_type = request.data.get("token_type", "insight")
+    token = compress_memories_to_token(memories, assistant, token_type=token_type)
     serializer = LoreTokenSerializer(token)
     return Response(serializer.data, status=201)
 
@@ -382,14 +391,20 @@ def lore_token_exchange(request):
     sender_rep, _ = AssistantReputation.objects.get_or_create(assistant=exchange.sender)
     sender_rep.tokens_endorsed += 1
     sender_rep.reputation_score = (
-        sender_rep.tokens_created + sender_rep.tokens_endorsed + sender_rep.tokens_received
+        sender_rep.tokens_created
+        + sender_rep.tokens_endorsed
+        + sender_rep.tokens_received
     )
     sender_rep.save()
 
-    receiver_rep, _ = AssistantReputation.objects.get_or_create(assistant=exchange.receiver)
+    receiver_rep, _ = AssistantReputation.objects.get_or_create(
+        assistant=exchange.receiver
+    )
     receiver_rep.tokens_received += 1
     receiver_rep.reputation_score = (
-        receiver_rep.tokens_created + receiver_rep.tokens_endorsed + receiver_rep.tokens_received
+        receiver_rep.tokens_created
+        + receiver_rep.tokens_endorsed
+        + receiver_rep.tokens_received
     )
     receiver_rep.save()
 
@@ -409,3 +424,33 @@ def token_market(request):
     serializer.is_valid(raise_exception=True)
     listing = serializer.save()
     return Response(TokenMarketSerializer(listing).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def token_rituals(request):
+    if request.method == "GET":
+        rituals = LoreTokenCraftingRitual.objects.all().order_by("-created_at")
+        return Response(LoreTokenCraftingRitualSerializer(rituals, many=True).data)
+
+    if request.data.get("complete"):
+        ritual_id = request.data.get("ritual")
+        ritual = get_object_or_404(LoreTokenCraftingRitual, id=ritual_id)
+        token = perform_token_ritual(ritual)
+        return Response(LoreTokenSerializer(token).data, status=201)
+
+    serializer = LoreTokenCraftingRitualSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    ritual = serializer.save()
+    return Response(LoreTokenCraftingRitualSerializer(ritual).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def token_votes(request):
+    if request.method == "GET":
+        votes = TokenGuildVote.objects.all().order_by("-created_at")
+        return Response(TokenGuildVoteSerializer(votes, many=True).data)
+
+    serializer = TokenGuildVoteSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    vote = serializer.save()
+    return Response(TokenGuildVoteSerializer(vote).data, status=201)

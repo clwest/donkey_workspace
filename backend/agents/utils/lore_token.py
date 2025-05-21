@@ -1,12 +1,19 @@
 from __future__ import annotations
 from typing import List
-from agents.models import LoreToken, SwarmMemoryEntry, Agent
+from agents.models import (
+    LoreToken,
+    SwarmMemoryEntry,
+    Agent,
+    LoreTokenCraftingRitual,
+)
 from assistants.models import Assistant, AssistantReputation
 from embeddings.helpers.helpers_io import get_embedding_for_text
 from utils.llm_router import call_llm
 
 
-def compress_memories_to_token(memories: List[SwarmMemoryEntry], created_by: Assistant) -> LoreToken:
+def compress_memories_to_token(
+    memories: List[SwarmMemoryEntry], created_by: Assistant, token_type: str = "insight"
+) -> LoreToken:
     """Summarize memories and package into a LoreToken."""
     text = "\n".join(m.content for m in memories)
     prompt = (
@@ -14,7 +21,12 @@ def compress_memories_to_token(memories: List[SwarmMemoryEntry], created_by: Ass
         + text
     )
     try:
-        summary = call_llm([{"role": "user", "content": prompt}], model="gpt-4o", max_tokens=200, temperature=0.3)
+        summary = call_llm(
+            [{"role": "user", "content": prompt}],
+            model="gpt-4o",
+            max_tokens=200,
+            temperature=0.3,
+        )
     except Exception:
         summary = text[:200]
     try:
@@ -26,6 +38,7 @@ def compress_memories_to_token(memories: List[SwarmMemoryEntry], created_by: Ass
         name=summary[:150],
         summary=summary,
         symbolic_tags={"tags": tags},
+        token_type=token_type,
         embedding=embedding,
         created_by=created_by,
     )
@@ -37,6 +50,20 @@ def compress_memories_to_token(memories: List[SwarmMemoryEntry], created_by: Ass
         rep.tokens_created + rep.tokens_endorsed + rep.tokens_received
     )
     rep.save()
+    return token
+
+
+def perform_token_ritual(ritual: LoreTokenCraftingRitual) -> LoreToken:
+    """Finalize a crafting ritual and generate the lore token."""
+
+    token = compress_memories_to_token(
+        list(ritual.base_memories.all()),
+        ritual.initiating_assistant,
+        token_type=ritual.token_type,
+    )
+    ritual.resulting_token = token
+    ritual.completed = True
+    ritual.save()
     return token
 
 

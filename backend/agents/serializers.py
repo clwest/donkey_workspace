@@ -17,6 +17,8 @@ from agents.models import (
     LoreToken,
     LoreTokenExchange,
     TokenMarket,
+    LoreTokenCraftingRitual,
+    TokenGuildVote,
 )
 from assistants.models import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -235,13 +237,31 @@ class ReturnCycleSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
 class LoreTokenSerializer(serializers.ModelSerializer):
-    source_memory_ids = serializers.PrimaryKeyRelatedField(queryset=SwarmMemoryEntry.objects.all(), many=True, write_only=True, required=False, source="source_memories")
+    source_memory_ids = serializers.PrimaryKeyRelatedField(
+        queryset=SwarmMemoryEntry.objects.all(),
+        many=True,
+        write_only=True,
+        required=False,
+        source="source_memories",
+    )
     source_memories = SwarmMemoryEntrySerializer(many=True, read_only=True)
 
     class Meta:
         model = LoreToken
-        fields = ["id", "name", "summary", "source_memory_ids", "source_memories", "symbolic_tags", "embedding", "created_by", "created_at"]
+        fields = [
+            "id",
+            "name",
+            "summary",
+            "source_memory_ids",
+            "source_memories",
+            "symbolic_tags",
+            "token_type",
+            "embedding",
+            "created_by",
+            "created_at",
+        ]
         read_only_fields = ["id", "embedding", "created_at", "source_memories"]
 
 
@@ -255,5 +275,28 @@ class LoreTokenExchangeSerializer(serializers.ModelSerializer):
 class TokenMarketSerializer(serializers.ModelSerializer):
     class Meta:
         model = TokenMarket
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class LoreTokenCraftingRitualSerializer(serializers.ModelSerializer):
+    base_memory_ids = serializers.PrimaryKeyRelatedField(
+        queryset=SwarmMemoryEntry.objects.all(),
+        many=True,
+        write_only=True,
+        required=False,
+        source="base_memories",
+    )
+    base_memories = SwarmMemoryEntrySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = LoreTokenCraftingRitual
+        fields = "__all__"
+        read_only_fields = ["id", "resulting_token", "completed", "created_at"]
+
+
+class TokenGuildVoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TokenGuildVote
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
