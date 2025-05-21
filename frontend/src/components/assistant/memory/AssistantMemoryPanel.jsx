@@ -39,27 +39,38 @@ export default function AssistantMemoryPanel({ slug }) {
         <div className="text-muted">No recent memories 📭</div>
       ) : (
         <ul className="list-group">
-          {memories.map((m) => (
-            <li
-              key={m.id}
-              className="list-group-item d-flex justify-content-between align-items-start shadow-sm p-3"
-            >
-              <div className="me-2">
-                <div><strong>{m.summary || m.event || "(no summary)"}</strong></div>
-                <div className="small text-muted">
-                  {new Date(m.created_at).toLocaleString()} • {m.token_count} tokens
-                </div>
-                {m.tags && m.tags.length > 0 && (
-                  <div className="mt-1">
-                    {m.tags.map((t) => (
-                      <TagBadge key={t.id} tag={t} className="me-1" />
-                    ))}
+          {memories.map((m) => {
+            const preview = m.summary
+              ? m.summary
+              : m.event
+              ? m.event.length > 120
+                ? m.event.slice(0, 120) + "..."
+                : m.event
+              : "(no summary)";
+            return (
+              <li
+                key={m.id}
+                className="list-group-item d-flex justify-content-between align-items-start shadow-sm p-3"
+              >
+                <div className="me-2">
+                  <div>
+                    <strong>{preview}</strong>
                   </div>
-                )}
-              </div>
-              <ReflectNowButton slug={slug} memoryId={m.id} />
-            </li>
-          ))}
+                  <div className="small text-muted">
+                    {new Date(m.created_at).toLocaleString()} • {m.token_count} tokens
+                  </div>
+                  {m.tags && m.tags.length > 0 && (
+                    <div className="mt-1">
+                      {m.tags.map((t) => (
+                        <TagBadge key={t.id} tag={t} className="me-1" />
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <ReflectNowButton slug={slug} memoryId={m.id} />
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
