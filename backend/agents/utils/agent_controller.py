@@ -4,6 +4,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from utils.llm_router import call_llm
 
+FAREWELL_TEMPLATE = (
+    "Agent {agent_name} has completed their mission as part of the {cluster_name} cluster.\n\n"
+    "Skills contributed: {skills}\n"
+    "Last active: {last_active}\n\n"
+    "Legacy Note:\n{legacy_notes}\n\n"
+    "Farewell, and thank you for your service."
+)
+
 
 from mcp_core.models import MemoryContext, Plan, Task, ActionLog, Tag
 from agents.models import (
@@ -30,6 +38,22 @@ def _skill_names(skills: list) -> List[str]:
         elif isinstance(s, str):
             names.append(s)
     return names
+
+
+def render_farewell(agent: Agent, reason: str = "") -> str:
+    cluster = agent.clusters.first()
+    cluster_name = cluster.name if cluster else "swarm"
+    skills = ", ".join(_skill_names(agent.verified_skills)) or "None"
+    legacy = getattr(agent, "agentlegacy", None)
+    legacy_notes = legacy.legacy_notes if legacy else ""
+    last_active = agent.updated_at.strftime("%Y-%m-%d") if agent.updated_at else "n/a"
+    return FAREWELL_TEMPLATE.format(
+        agent_name=agent.name,
+        cluster_name=cluster_name,
+        skills=skills,
+        last_active=last_active,
+        legacy_notes=legacy_notes,
+    )
 
 
 class AgentController:
@@ -389,9 +413,13 @@ def evaluate_agent_lifecycle(agent: Agent) -> dict:
     from datetime import timedelta
 
     now = timezone.now()
-    last_action = ActionLog.objects.filter(related_agent=agent).order_by("-created_at").first()
+    last_action = (
+        ActionLog.objects.filter(related_agent=agent).order_by("-created_at").first()
+    )
     days_since_action = (now - last_action.created_at).days if last_action else 999
-    recent_feedback = AgentFeedbackLog.objects.filter(agent=agent, created_at__gte=now - timedelta(days=7)).exists()
+    recent_feedback = AgentFeedbackLog.objects.filter(
+        agent=agent, created_at__gte=now - timedelta(days=7)
+    ).exists()
     active_cluster = AgentCluster.objects.filter(agents=agent, is_active=True).exists()
 
     if not active_cluster or days_since_action > 30:
@@ -399,7 +427,6 @@ def evaluate_agent_lifecycle(agent: Agent) -> dict:
     if agent.readiness_score < 0.5 or not recent_feedback:
         return {"action": "retrain", "reason": "low readiness or stale feedback"}
     return {"action": "keep", "reason": "agent active"}
-
 
 
 def find_complementary_agents(
@@ -534,6 +561,7 @@ def retire_agent(agent: Agent, reason: str, farewell_text: Optional[str] = None)
 
     legacy, _ = AgentLegacy.objects.get_or_create(agent=agent)
 
+
     if not farewell_text:
         template = FarewellTemplate.objects.order_by("-created_at").first()
         if template:
@@ -560,6 +588,7 @@ def retire_agent(agent: Agent, reason: str, farewell_text: Optional[str] = None)
     for key, val in context.items():
         placeholder = "{{ " + key + " }}"
         farewell = farewell.replace(placeholder, str(val))
+
 
     entry = SwarmMemoryEntry.objects.create(
         title=f"Agent retired: {agent.name}",

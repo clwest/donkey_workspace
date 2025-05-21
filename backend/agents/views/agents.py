@@ -2,23 +2,28 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+
 from agents.models import Agent, AgentFeedbackLog, AgentCluster, SwarmMemoryEntry
 from agents.serializers import AgentSerializer, AgentFeedbackLogSerializer, AgentClusterSerializer
 from agents.serializers import SwarmMemoryEntrySerializer
+
 from agents.utils.agent_controller import (
     update_agent_profile_from_feedback,
     train_agent_from_documents,
     recommend_training_documents,
     retire_agent,
 )
+
 from agents.utils.swarm_analytics import generate_temporal_swarm_report, get_swarm_snapshot
 from datetime import datetime
+
 
 @api_view(["GET"])
 def list_agents(request):
     agents = Agent.objects.all().order_by("created_at")
     serializer = AgentSerializer(agents, many=True)
     return Response(serializer.data)
+
 
 @api_view(["GET"])
 def agent_detail_view(request, slug):
@@ -83,11 +88,13 @@ def recommend_training_docs(request, id):
     data = DocumentSerializer(docs, many=True).data
     return Response(data)
 
+
 @api_view(["GET"])
 def list_clusters(request):
     clusters = AgentCluster.objects.all().order_by("-created_at")
     serializer = AgentClusterSerializer(clusters, many=True)
     return Response(serializer.data)
+
 
 @api_view(["GET"])
 def cluster_detail_view(request, id):
@@ -97,6 +104,7 @@ def cluster_detail_view(request, id):
 
 
 @api_view(["GET"])
+
 def swarm_temporal_report(request):
     data = generate_temporal_swarm_report()
     return Response(data)
@@ -134,3 +142,4 @@ def retire_agents(request):
         entry = retire_agent(agent, reason)
         retired.append(entry.id)
     return Response({"retired": retired})
+
