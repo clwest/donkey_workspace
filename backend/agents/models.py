@@ -251,11 +251,11 @@ class SwarmMemoryEntry(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
-        if not self.season_tag:
+        if not self.season:
             from .utils.swarm_temporal import get_season_marker
 
             date = self.created_at or timezone.now()
-            self.season_tag = get_season_marker(date)
+            self.season = get_season_marker(date)
         super().save(*args, **kwargs)
 
 
