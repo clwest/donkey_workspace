@@ -374,6 +374,64 @@ class GlobalMissionNode(models.Model):
         return self.title
 
 
+class LoreEntry(models.Model):
+    """Narrative lore record derived from swarm memories."""
+
+    title = models.CharField(max_length=200)
+    summary = models.TextField()
+    associated_events = models.ManyToManyField(SwarmMemoryEntry, blank=True)
+    authors = models.ManyToManyField("assistants.Assistant", blank=True)
+    is_canon = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display
+        return self.title
+
+
+class RetconRequest(models.Model):
+    """Proposed rewrite or redaction of a memory entry."""
+
+    target_entry = models.ForeignKey(
+        SwarmMemoryEntry, on_delete=models.CASCADE, related_name="retcon_requests"
+    )
+    proposed_rewrite = models.TextField()
+    justification = models.TextField()
+    submitted_by = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    approved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display
+        return f"Retcon for {self.target_entry.title}"
+
+
+class RealityConsensusVote(models.Model):
+    """Council vote on promoting lore into canon."""
+
+    topic = models.TextField()
+    proposed_lore = models.ForeignKey(
+        LoreEntry, on_delete=models.CASCADE, related_name="consensus_votes"
+    )
+    council = models.ForeignKey(
+        "assistants.AssistantCouncil", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    vote_result = models.CharField(max_length=20, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display
+        return f"Vote on {self.topic}"
+
+
 # ==== Signals ====
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver

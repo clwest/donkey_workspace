@@ -4,7 +4,10 @@ from agents.models import (
     AgentFeedbackLog,
     AgentCluster,
     SwarmMemoryEntry,
-    SwarmTreaty,
+    LoreEntry,
+    RetconRequest,
+    RealityConsensusVote,
+
 )
 from intel_core.serializers import DocumentSerializer
 
@@ -82,19 +85,25 @@ class SwarmMemoryEntrySerializer(serializers.ModelSerializer):
         return list(obj.tags.values_list("name", flat=True))
 
 
-class SwarmTreatySerializer(serializers.ModelSerializer):
-    participants = serializers.SlugRelatedField(
-        many=True, read_only=True, slug_field="name"
-    )
 
+class LoreEntrySerializer(serializers.ModelSerializer):
     class Meta:
-        model = SwarmTreaty
-        fields = [
-            "id",
-            "name",
-            "participants",
-            "objectives",
-            "terms",
-            "status",
-            "created_at",
-        ]
+        model = LoreEntry
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RetconRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RetconRequest
+        fields = "__all__"
+        read_only_fields = ["id", "approved", "created_at"]
+
+
+class RealityConsensusVoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RealityConsensusVote
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+

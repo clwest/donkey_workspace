@@ -8,14 +8,21 @@ from agents.models import (
     AgentFeedbackLog,
     AgentCluster,
     SwarmMemoryEntry,
-    SwarmTreaty,
+
+    LoreEntry,
+    RetconRequest,
+    RealityConsensusVote,
+
 )
 from agents.serializers import (
     AgentSerializer,
     AgentFeedbackLogSerializer,
     AgentClusterSerializer,
     SwarmMemoryEntrySerializer,
-    SwarmTreatySerializer,
+    LoreEntrySerializer,
+    RetconRequestSerializer,
+    RealityConsensusVoteSerializer,
+
 )
 
 from agents.utils.agent_controller import (
@@ -161,8 +168,34 @@ def retire_agents(request):
     return Response({"retired": retired})
 
 
+
+@api_view(["GET", "POST"])
+def lore_entries(request):
+    if request.method == "GET":
+        entries = LoreEntry.objects.all().order_by("-created_at")
+        return Response(LoreEntrySerializer(entries, many=True).data)
+
+    serializer = LoreEntrySerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    entry = serializer.save()
+    return Response(LoreEntrySerializer(entry).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def retcon_requests(request):
+    if request.method == "GET":
+        requests = RetconRequest.objects.all().order_by("-created_at")
+        return Response(RetconRequestSerializer(requests, many=True).data)
+
+    serializer = RetconRequestSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    req = serializer.save()
+    return Response(RetconRequestSerializer(req).data, status=201)
+
+
 @api_view(["GET"])
-def list_treaties(request):
-    treaties = SwarmTreaty.objects.all().order_by("-created_at")
-    serializer = SwarmTreatySerializer(treaties, many=True)
+def consensus_votes(request):
+    votes = RealityConsensusVote.objects.all().order_by("-created_at")
+    serializer = RealityConsensusVoteSerializer(votes, many=True)
     return Response(serializer.data)
+
