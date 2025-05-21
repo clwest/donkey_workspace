@@ -8,10 +8,11 @@ from agents.models import (
     LoreEntry,
     RetconRequest,
     RealityConsensusVote,
-
     MythDiplomacySession,
     RitualCollapseLog,
-
+    AssistantCivilization,
+    LoreInheritanceLine,
+    MythSimulationArena,
 )
 from assistants.models import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -90,7 +91,6 @@ class SwarmMemoryEntrySerializer(serializers.ModelSerializer):
         return list(obj.tags.values_list("name", flat=True))
 
 
-
 class SwarmJournalEntrySerializer(serializers.ModelSerializer):
     author_name = serializers.CharField(source="author.name", read_only=True)
     tags = serializers.SerializerMethodField()
@@ -111,6 +111,7 @@ class SwarmJournalEntrySerializer(serializers.ModelSerializer):
 
     def get_tags(self, obj):
         return list(obj.tags.values_list("name", flat=True))
+
 
 class LoreEntrySerializer(serializers.ModelSerializer):
     """Serialize LoreEntry records."""
@@ -189,8 +190,36 @@ class RitualCollapseLogSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-class LoreEpochSerializer(serializers.ModelSerializer):
+
+class AssistantCivilizationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = LoreEpoch
+        model = AssistantCivilization
+        fields = ["id", "name", "description", "belief_system", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+
+class LoreInheritanceLineSerializer(serializers.ModelSerializer):
+    source_title = serializers.CharField(source="source.title", read_only=True)
+    descendant_title = serializers.CharField(source="descendant.title", read_only=True)
+
+    class Meta:
+        model = LoreInheritanceLine
+        fields = [
+            "id",
+            "source",
+            "descendant",
+            "source_title",
+            "descendant_title",
+            "traits_passed",
+            "mutation_summary",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
+class MythSimulationArenaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythSimulationArena
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]

@@ -1,4 +1,4 @@
 from .seasonal import get_current_season
 
-from .myth_reset import run_myth_reset_cycle
+from .narrative_harmonizer import harmonize_global_narrative
 

@@ -517,7 +517,6 @@ class SwarmJournalEntry(models.Model):
     season_tag = models.CharField(max_length=20, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
 
@@ -561,26 +560,32 @@ class RitualCollapseLog(models.Model):
 
 
 
+class AssistantCivilization(models.Model):
+    """Cohesive society or faction formed by assistants."""
 
-class LoreEpoch(models.Model):
-    """Historical narrative arc for swarm lore."""
+    name = models.CharField(max_length=150)
+    description = models.TextField(blank=True)
+    belief_system = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
-    title = models.CharField(max_length=150)
-    summary = models.TextField()
-    start_event = models.ForeignKey(
-        SwarmMemoryEntry,
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name="epoch_start",
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
+
+
+class LoreInheritanceLine(models.Model):
+    """Track lore traits passed between entries across epochs."""
+
+    source = models.ForeignKey(
+        LoreEntry, on_delete=models.CASCADE, related_name="inherited_from"
     )
-    end_event = models.ForeignKey(
-        SwarmMemoryEntry,
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name="epoch_end",
+    descendant = models.ForeignKey(
+        LoreEntry, on_delete=models.CASCADE, related_name="inherited_to"
     )
-    tags = models.ManyToManyField("mcp_core.Tag", blank=True)
-    closed = models.BooleanField(default=False)
+    traits_passed = models.JSONField()
+    mutation_summary = models.TextField(blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -589,5 +594,22 @@ class LoreEpoch(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
 
-        return self.title
+        return f"{self.source} -> {self.descendant}"
+
+
+class MythSimulationArena(models.Model):
+    """Environment for myth-based civilization simulations."""
+
+    name = models.CharField(max_length=150)
+    participating_civilizations = models.ManyToManyField(AssistantCivilization)
+    simulated_scenario = models.TextField()
+    outcome_summary = models.TextField(blank=True)
+    victory_vector = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
 
