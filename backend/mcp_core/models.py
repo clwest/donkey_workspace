@@ -292,22 +292,6 @@ class GroupedDevDocReflection(models.Model):
         return f"Grouped Reflection @ {self.created_at.strftime('%Y-%m-%d %H:%M')}"
 
 
-# <<<<<<< codex/add-thread-continuity-diagnostics
-# class ThreadDiagnosticLog(models.Model):
-#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-#     thread = models.ForeignKey(
-#         NarrativeThread, on_delete=models.CASCADE, related_name="diagnostics"
-#     )
-#     score = models.FloatField()
-#     summary = models.TextField()
-#     created_at = models.DateTimeField(auto_now_add=True)
-
-#     class Meta:
-#         ordering = ["-created_at"]
-
-#     def __str__(self):
-#         return f"Diagnostic {self.score:.2f} for {self.thread.title}"
-# =======
 class ThreadObjectiveReflection(models.Model):
     """Reflection on progress toward a thread's long-term objective."""
 
@@ -327,4 +311,38 @@ class ThreadObjectiveReflection(models.Model):
 
     def __str__(self):
         return f"Reflection for {self.thread.title} @ {self.created_at.strftime('%Y-%m-%d %H:%M')}"
-# >>>>>>> main
+
+
+class ThreadSplitLog(models.Model):
+    """Record when a memory entry is moved between threads."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    from_thread = models.ForeignKey(
+        NarrativeThread,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="split_from_logs",
+    )
+    to_thread = models.ForeignKey(
+        NarrativeThread,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="split_to_logs",
+    )
+    moved_entry = models.ForeignKey(
+        "memory.MemoryEntry",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="thread_split_logs",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - simple display
+        return f"Moved {self.moved_entry_id} -> {self.to_thread_id}"
+

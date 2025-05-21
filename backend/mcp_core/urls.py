@@ -36,6 +36,11 @@ urlpatterns = [
     ),
     path("memories/", memories.list_memories, name="list-memories"),
     path(
+        "memory/<uuid:id>/relink/",
+        memories.relink_memory,
+        name="relink-memory",
+    ),
+    path(
         "agent/<uuid:agent_id>/reflect/",
         reflection.reflect_on_agent_project,
         name="reflect-on-agent",
@@ -51,6 +56,11 @@ urlpatterns = [
         "threads/<uuid:id>/",
         threading.narrative_thread_detail,
         name="narrative_thread_detail",
+    ),
+    path(
+        "threads/<uuid:id>/summary/",
+        threading.thread_summary,
+        name="thread-summary",
     ),
     path(
 

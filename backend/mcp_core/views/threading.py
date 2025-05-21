@@ -18,6 +18,8 @@ from mcp_core.serializers_tags import (
 )
 from memory.serializers import NarrativeThreadOverviewSerializer
 from mcp_core.utils.thread_diagnostics import run_thread_diagnostics
+from memory.models import MemoryEntry
+from assistants.models import AssistantThoughtLog, AssistantReflectionLog
 from mcp_core.utils.thread_helpers import (
     get_or_create_thread,
     attach_memory_to_thread,
@@ -132,6 +134,56 @@ def narrative_thread_detail(request, id):
     return Response(
         {"error": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED
     )
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def thread_summary(request, id):
+    """Return ordered summary of a thread's memories, thoughts, reflections."""
+
+    thread = get_object_or_404(NarrativeThread, id=id)
+
+    memories = MemoryEntry.objects.filter(thread=thread).order_by("created_at")
+    thoughts = AssistantThoughtLog.objects.filter(
+        narrative_thread=thread
+    ).order_by("created_at")
+    reflections = AssistantReflectionLog.objects.filter(
+        linked_memory__thread=thread
+    ).order_by("created_at")
+
+    data = {
+        "id": str(thread.id),
+        "title": thread.title,
+        "memories": [
+            {
+                "id": str(m.id),
+                "preview": m.event[:100],
+                "created_at": m.created_at,
+                "tags": m.context_tags,
+                "token_count": len((m.event or "").split()),
+            }
+            for m in memories
+        ],
+        "thoughts": [
+            {
+                "id": str(t.id),
+                "content": t.thought[:100],
+                "created_at": t.created_at,
+                "type": t.thought_type,
+                "model": t.mode,
+            }
+            for t in thoughts
+        ],
+        "reflections": [
+            {
+                "id": str(r.id),
+                "summary": r.summary[:100],
+                "created_at": r.created_at,
+            }
+            for r in reflections
+        ],
+    }
+    return Response(data)
 
 
 @api_view(["POST"])

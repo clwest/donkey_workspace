@@ -18,6 +18,7 @@ import CustomReflectionPage from "./pages/mcp_core/reflections/CustomReflectionP
 import PlanningPage from "./pages/dev/PlanningPage";
 import ThreadDetailPage from "./pages/mcp_core/threads/ThreadDetailPage";
 import ThreadsOverviewPage from "./pages/mcp_core/threads/ThreadsOverviewPage";
+import ThreadEditorPage from "./pages/mcp_core/threads/ThreadEditorPage";
 import AssistantSessionsPage from "./pages/assistant/sessions/AssistantSessionsPage";
 import AssistantSessionDetailPage from "./pages/assistant/sessions/AssistantSessionDetailPage";
 
@@ -333,6 +334,7 @@ export default function App() {
           />
           <Route path="/threads/overview" element={<ThreadsOverviewPage />} />
           <Route path="/threads" element={<ThreadsOverviewPage />} />
+          <Route path="/threads/editor" element={<ThreadEditorPage />} />
           <Route path="/threads/:id" element={<ThreadDetailPage />} />
           <Route path="/dev-dashboard" element={<DevDashboard />} />
           <Route path="/planning" element={<PlanningPage />} />
