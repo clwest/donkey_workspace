@@ -215,3 +215,8 @@ class ProjectMemoryLink(models.Model):
                 name="unique_project_memory",
             )
         ]
+        ordering = ["-linked_at"]
+
+    def __str__(self):
+        return f"{self.project} -> {self.memory}"
+
