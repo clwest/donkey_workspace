@@ -60,3 +60,28 @@ class NarrativeTriggerTaskTest(APITestCase):
         self.assertIsNotNone(log)
         self.assertEqual(log.thought_type, "timeline_trigger")
         self.assertEqual(log.origin, "automatic")
+
+    @patch("storyboard.tasks.spawn_delegated_assistant")
+    def test_scene_match_triggers(self, mock_spawn):
+        self.assistant.preferred_scene_tags = ["castle", "night"]
+        self.assistant.save()
+
+        NarrativeEvent.objects.create(
+            title="Castle Raid",
+            start_time=timezone.now() + timedelta(minutes=1),
+            end_time=timezone.now() + timedelta(hours=1),
+            linked_assistant=self.assistant,
+            scene="castle",
+        )
+        NarrativeEvent.objects.create(
+            title="Forest Walk",
+            start_time=timezone.now() + timedelta(minutes=1),
+            end_time=timezone.now() + timedelta(hours=1),
+            scene="forest",
+        )
+
+        evaluate_narrative_triggers()
+        mock_spawn.assert_called_once()
+        thought = AssistantThoughtLog.objects.filter(thought_type="scene_match").first()
+        self.assertIsNotNone(thought)
+        self.assertIn("castle", thought.thought)

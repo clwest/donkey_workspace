@@ -11,6 +11,7 @@ import ThoughtCloudPanel from "../../components/assistant/memory/ThoughtCloudPan
 import MemoryMoodChart from "../../components/assistant/memory/MemoryMoodChart";
 import AssistantDashboardHeader from "./AssistantDashboardHeader";
 import SelfAssessmentModal from "../../components/assistant/SelfAssessmentModal";
+import SceneMatchesPanel from "../../components/assistant/SceneMatchesPanel";
 
 export default function PrimaryAssistantDashboard() {
   const [assistant, setAssistant] = useState(null);
@@ -221,6 +222,7 @@ export default function PrimaryAssistantDashboard() {
                   </div>
                 </div>
               )}
+              <SceneMatchesPanel assistantSlug={assistant.slug} />
             </div>
           </div>
 

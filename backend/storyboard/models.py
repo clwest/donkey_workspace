@@ -3,6 +3,8 @@ from django.db import models
 class NarrativeEvent(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
+    scene = models.CharField(max_length=100, blank=True, null=True)
+    location_context = models.TextField(blank=True, null=True)
     order = models.PositiveIntegerField(default=0)
     linked_story = models.ForeignKey(
         'story.Story', on_delete=models.SET_NULL, null=True, blank=True, related_name='narrative_events'

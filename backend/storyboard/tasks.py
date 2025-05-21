@@ -42,6 +42,30 @@ def evaluate_narrative_triggers():
             event.save(update_fields=["last_triggered"])
             continue
 
+        # Scene match triggers
+        if (
+            event.scene
+            and assistant.preferred_scene_tags
+            and event.scene in assistant.preferred_scene_tags
+        ):
+            spawn_delegated_assistant(
+                assistant,
+                narrative_thread=event.narrative_thread,
+                reason="scene_match",
+                summary=f"Scene match: {event.scene} for {event.title}",
+                description=event.location_context or "",
+            )
+            AssistantThoughtLog.objects.create(
+                assistant=assistant,
+                thought=f"Scene '{event.scene}' matched preferences",
+                thought_type="scene_match",
+                origin="automatic",
+                linked_event=event,
+            )
+            event.last_triggered = now
+            event.save(update_fields=["last_triggered"])
+            continue
+
         # Ongoing
         within_event = (
             event.start_time and event.end_time and event.start_time <= now <= event.end_time
@@ -53,7 +77,11 @@ def evaluate_narrative_triggers():
                 target_object_id=event.id,
             )
             engine = AssistantReflectionEngine(assistant)
-            engine.reflect_now(context)
+            engine.reflect_now(
+                context,
+                scene=event.scene,
+                location_context=event.location_context,
+            )
             event.last_triggered = now
             event.save(update_fields=["last_triggered"])
 

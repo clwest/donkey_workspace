@@ -4,6 +4,7 @@ from assistants.models import (
     Assistant,
     AssistantProject,
     AssistantReflectionInsight,
+    AssistantThoughtLog,
 )
 from mcp_core.models import MemoryContext, DevDoc
 from intel_core.models import Document
@@ -46,7 +47,13 @@ class AssistantReflectionEngine:
             max_tokens=400,
         )
 
-    def reflect_now(self, context: MemoryContext) -> AssistantReflectionLog:
+    def reflect_now(
+        self,
+        context: MemoryContext,
+        *,
+        scene: str | None = None,
+        location_context: str | None = None,
+    ) -> AssistantReflectionLog:
         """Run a quick reflection over recent memories for the given context."""
 
         from assistants.helpers.memory_helpers import get_relevant_memories_for_task
@@ -59,6 +66,13 @@ class AssistantReflectionEngine:
             limit=30,
         )
         texts = [e.event.strip() for e in entries if e.event.strip()]
+        if scene or location_context:
+            loc_parts = []
+            if scene:
+                loc_parts.append(f"Scene: {scene}")
+            if location_context:
+                loc_parts.append(location_context)
+            texts.insert(0, " | ".join(loc_parts))
 
         prompt = None
         if texts:
@@ -86,6 +100,14 @@ class AssistantReflectionEngine:
                 is_conversation=False,
                 context=context,
             )
+
+            if scene:
+                AssistantThoughtLog.objects.create(
+                    assistant=self.assistant,
+                    thought=f"Location {scene} considered during reflection",
+                    thought_type="scene_match",
+                    origin="automatic",
+                )
 
             logger.info(f"[🧠] Reflection saved for context {context.id}.")
             return log
