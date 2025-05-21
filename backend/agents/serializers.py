@@ -29,6 +29,9 @@ from agents.models import (
     EpistemologyNode,
     BeliefEntanglementLink,
     CognitiveConstraintProfile,
+    BeliefNegotiationSession,
+    ParadoxResolutionAttempt,
+    OntologicalAuditLog,
 )
 from assistants.models import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -377,5 +380,26 @@ class BeliefEntanglementLinkSerializer(serializers.ModelSerializer):
 class CognitiveConstraintProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = CognitiveConstraintProfile
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class BeliefNegotiationSessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BeliefNegotiationSession
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class ParadoxResolutionAttemptSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ParadoxResolutionAttempt
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class OntologicalAuditLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OntologicalAuditLog
         fields = "__all__"
         read_only_fields = ["id", "created_at"]

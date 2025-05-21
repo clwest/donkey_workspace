@@ -1169,3 +1169,56 @@ class CognitiveConstraintProfile(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Constraints for {self.assistant.name}"
+
+
+class BeliefNegotiationSession(models.Model):
+    """Ritualized debate to align conflicting beliefs between assistants."""
+
+    participants = models.ManyToManyField("assistants.Assistant")
+    contested_symbols = models.JSONField()
+    constraint_conflicts = models.ManyToManyField(CognitiveConstraintProfile)
+    proposed_resolution = models.TextField(blank=True)
+    outcome = models.CharField(max_length=50, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Negotiation {self.id}"
+
+
+class ParadoxResolutionAttempt(models.Model):
+    """Attempt to reconcile symbolic paradoxes within a negotiation session."""
+
+    related_session = models.ForeignKey(
+        BeliefNegotiationSession, on_delete=models.CASCADE
+    )
+    attempted_by = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    logic_strategy = models.TextField()
+    symbolic_result = models.TextField()
+    was_successful = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Attempt by {self.attempted_by.name}"
+
+
+class OntologicalAuditLog(models.Model):
+    """Record of belief integrity checks across the swarm."""
+
+    scope = models.CharField(max_length=50)
+    conflicting_constraints = models.ManyToManyField(CognitiveConstraintProfile)
+    belief_alignment_summary = models.TextField()
+    paradox_rate = models.FloatField()
+    recommended_actions = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Audit {self.id}"

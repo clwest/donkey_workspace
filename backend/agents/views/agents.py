@@ -32,6 +32,9 @@ from agents.models import (
     EpistemologyNode,
     BeliefEntanglementLink,
     CognitiveConstraintProfile,
+    BeliefNegotiationSession,
+    ParadoxResolutionAttempt,
+    OntologicalAuditLog,
 )
 from agents.serializers import (
     AgentSerializer,
@@ -60,6 +63,9 @@ from agents.serializers import (
     EpistemologyNodeSerializer,
     BeliefEntanglementLinkSerializer,
     CognitiveConstraintProfileSerializer,
+    BeliefNegotiationSessionSerializer,
+    ParadoxResolutionAttemptSerializer,
+    OntologicalAuditLogSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -612,3 +618,39 @@ def cognitive_constraints(request):
     serializer.is_valid(raise_exception=True)
     profile = serializer.save()
     return Response(CognitiveConstraintProfileSerializer(profile).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def belief_negotiations(request):
+    if request.method == "GET":
+        sessions = BeliefNegotiationSession.objects.all().order_by("-created_at")
+        return Response(BeliefNegotiationSessionSerializer(sessions, many=True).data)
+
+    serializer = BeliefNegotiationSessionSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    session = serializer.save()
+    return Response(BeliefNegotiationSessionSerializer(session).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def paradox_resolution_attempts(request):
+    if request.method == "GET":
+        attempts = ParadoxResolutionAttempt.objects.all().order_by("-created_at")
+        return Response(ParadoxResolutionAttemptSerializer(attempts, many=True).data)
+
+    serializer = ParadoxResolutionAttemptSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    attempt = serializer.save()
+    return Response(ParadoxResolutionAttemptSerializer(attempt).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def ontology_audits(request):
+    if request.method == "GET":
+        audits = OntologicalAuditLog.objects.all().order_by("-created_at")
+        return Response(OntologicalAuditLogSerializer(audits, many=True).data)
+
+    serializer = OntologicalAuditLogSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    audit = serializer.save()
+    return Response(OntologicalAuditLogSerializer(audit).data, status=201)

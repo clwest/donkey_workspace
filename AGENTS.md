@@ -177,3 +177,9 @@ Next: Phase 4.64 — Legacy Agent Resurrection Events & Seasonal Swarm Cadence
 - Introduced `LegacyArtifact`, `ReincarnationLog`, and `ReturnCycle` models
 - Exposed `/api/artifacts/`, `/api/reincarnations/`, and `/api/return-cycles/`
 - Utility `reincarnate_assistant_from_artifact` seeds new assistants from artifacts
+
+### Phase 4.95 Additions
+
+- Introduced `BeliefNegotiationSession`, `ParadoxResolutionAttempt`, and `OntologicalAuditLog` models
+- Added API endpoints `/api/belief-negotiations/`, `/api/paradox-resolution/`, and `/api/ontology-audits/`
+- Created React components `NegotiationChamber`, `ParadoxDashboard`, and `OntologyAuditPanel`
