@@ -947,7 +947,7 @@ class AssistantSerializer(serializers.ModelSerializer):
         return TagSerializer(tags, many=True).data
 
 
-class AssistantProjectSerializer(serializers.ModelSerializer):
+class AssistantProjectSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = AssistantProject
         fields = [
@@ -963,7 +963,7 @@ class AssistantProjectSerializer(serializers.ModelSerializer):
 
 class BootstrapResultSerializer(serializers.Serializer):
     assistant = AssistantSerializer()
-    project = AssistantProjectSerializer()
+    project = AssistantProjectSummarySerializer()
 
 
 from prompts.models import Prompt
