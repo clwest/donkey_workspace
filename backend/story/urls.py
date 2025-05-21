@@ -1,5 +1,5 @@
 from rest_framework.routers import DefaultRouter
-from .views import StoryViewSet
+from .views import StoryViewSet, storyboard_list
 
 router = DefaultRouter()
 router.register(r"", StoryViewSet, basename="stories")
@@ -22,4 +22,5 @@ urlpatterns += [
     ),
     # Aggregate top tags from story chunks
     path("<int:pk>/tags/", StoryViewSet.as_view({"get": "tags"}), name="story-tags"),
+    path("events/", storyboard_list, name="storyboard-list"),
 ]

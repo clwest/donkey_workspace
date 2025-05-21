@@ -27,7 +27,10 @@ def assistant_objectives(request, project_id):
         serializer = AssistantObjectiveSerializer(objectives, many=True)
         return Response(serializer.data)
     if request.method == "POST":
-        serializer = AssistantObjectiveSerializer(data=request.data)
+        data = request.data.copy()
+        if "narrative_event_id" in data and "linked_event" not in data:
+            data["linked_event"] = data.get("narrative_event_id")
+        serializer = AssistantObjectiveSerializer(data=data)
         if serializer.is_valid():
             serializer.save(project_id=project_id)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -128,5 +131,11 @@ def objective_from_reflection(request, slug):
         return Response({"error": "Reflection not found"}, status=404)
 
     obj = generate_objective_from_reflection(reflection)
+    event_id = request.data.get("narrative_event_id")
+    if event_id:
+        from story.models import NarrativeEvent
+
+        obj.linked_event = NarrativeEvent.objects.filter(id=event_id).first()
+        obj.save(update_fields=["linked_event"])
     serializer = AssistantObjectiveSerializer(obj)
     return Response(serializer.data, status=201)

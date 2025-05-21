@@ -1,9 +1,13 @@
 from rest_framework import viewsets, permissions, status, filters
 from rest_framework.response import Response
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from django.utils.timezone import now
-from .models import Story
-from .serializers import StorySerializer, StoryDetailSerializer
+from .models import Story, NarrativeEvent
+from .serializers import (
+    StorySerializer,
+    StoryDetailSerializer,
+    NarrativeEventSerializer,
+)
 from story.tasks import generate_story_task, embed_story_chunks
 from story.utils.story_generation import create_full_story_with_media
 from rest_framework.permissions import AllowAny
@@ -271,3 +275,11 @@ class StoryCreateView(APIView):
             },
             status=status.HTTP_201_CREATED,
         )
+
+
+@api_view(["GET"])
+def storyboard_list(request):
+    """Return all narrative events for selection."""
+    events = NarrativeEvent.objects.all().order_by("-timestamp")
+    serializer = NarrativeEventSerializer(events, many=True)
+    return Response(serializer.data)

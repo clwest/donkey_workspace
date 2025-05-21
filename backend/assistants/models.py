@@ -399,6 +399,13 @@ class AssistantThoughtLog(models.Model):
         on_delete=models.SET_NULL,
         related_name="thoughts",
     )
+    linked_event = models.ForeignKey(
+        "story.NarrativeEvent",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="thought_logs",
+    )
     parent_thought = models.ForeignKey(
         "self",
         null=True,
@@ -722,6 +729,13 @@ class AssistantReflectionLog(models.Model):
         blank=True,
         related_name="reflections",
     )
+    linked_event = models.ForeignKey(
+        "story.NarrativeEvent",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="reflection_logs",
+    )
     category = models.CharField(
         max_length=50,
         choices=[
@@ -783,6 +797,13 @@ class AssistantObjective(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="generated_objectives",
+    )
+    linked_event = models.ForeignKey(
+        "story.NarrativeEvent",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="objectives",
     )
     created_at = models.DateTimeField(auto_now_add=True)
 

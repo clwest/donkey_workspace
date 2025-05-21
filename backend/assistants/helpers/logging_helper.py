@@ -9,6 +9,7 @@ def log_assistant_thought(
     linked_memory=None,
     linked_memories=None,
     linked_reflection=None,
+    linked_event=None,
     project=None,
     thought_type: str = "generated",
 ):
@@ -22,6 +23,7 @@ def log_assistant_thought(
         thought_trace=trace or "",
         linked_memory=linked_memory,
         linked_reflection=linked_reflection,
+        linked_event=linked_event,
         project=project,
         thought_type=thought_type,
         mood=mood,

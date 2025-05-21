@@ -10,6 +10,7 @@ export default function ObjectivesPage() {
   const [showModal, setShowModal] = useState(false);
   const [selected, setSelected] = useState(null);
   const [customPrompt, setCustomPrompt] = useState("");
+  const [events, setEvents] = useState([]);
 
 
   useEffect(() => {
@@ -28,6 +29,15 @@ export default function ObjectivesPage() {
       }
     }
     fetchObjectives();
+    async function fetchEvents() {
+      try {
+        const res = await fetch("http://localhost:8000/api/storyboard/");
+        setEvents(await res.json());
+      } catch (err) {
+        console.error("Failed to load events", err);
+      }
+    }
+    fetchEvents();
   }, [slug]);
 
   async function handlePlanTasks(objId) {
@@ -73,6 +83,11 @@ export default function ObjectivesPage() {
                 </h5>
                 {obj.description && (
                   <p className="small text-muted mb-1">{obj.description}</p>
+                )}
+                {obj.linked_event_title && (
+                  <p className="small text-muted mb-1">
+                    📌 {obj.linked_event_title}
+                  </p>
                 )}
               </div>
               <div className="d-flex gap-2">
