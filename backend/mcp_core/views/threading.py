@@ -5,11 +5,20 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
-from mcp_core.models import MemoryContext, NarrativeThread, Tag
-from mcp_core.serializers_tags import NarrativeThreadSerializer
+from mcp_core.models import (
+    MemoryContext,
+    NarrativeThread,
+    Tag,
+    ThreadObjectiveReflection,
+)
+from mcp_core.serializers_tags import (
+    NarrativeThreadSerializer,
+    ThreadObjectiveReflectionSerializer,
+)
 from mcp_core.utils.thread_helpers import (
     get_or_create_thread,
     attach_memory_to_thread,
+    generate_thread_reflection,
 )
 
 
@@ -94,3 +103,44 @@ def narrative_thread_detail(request, id):
     return Response(
         {"error": "Method not allowed"}, status=status.HTTP_405_METHOD_NOT_ALLOWED
     )
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def set_thread_objective(request, thread_id):
+    thread = get_object_or_404(NarrativeThread, id=thread_id)
+    objective = request.data.get("objective", "").strip()
+    thread.long_term_objective = objective
+    thread.save()
+    return Response(
+        {"objective": thread.long_term_objective, "milestones": thread.milestones}
+    )
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def get_thread_objective(request, thread_id):
+    thread = get_object_or_404(NarrativeThread, id=thread_id)
+    data = {
+        "objective": thread.long_term_objective,
+        "milestones": thread.milestones,
+    }
+    reflections = thread.objective_reflections.all().order_by("-created_at")
+    data["reflections"] = ThreadObjectiveReflectionSerializer(
+        reflections, many=True
+    ).data
+    return Response(data)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def reflect_on_thread_objective(request, thread_id):
+    thread = get_object_or_404(NarrativeThread, id=thread_id)
+    reflection_text = generate_thread_reflection(thread)
+    reflection = ThreadObjectiveReflection.objects.create(
+        thread=thread,
+        thought=reflection_text,
+        created_by=None,
+    )
+    serializer = ThreadObjectiveReflectionSerializer(reflection)
+    return Response(serializer.data, status=201)

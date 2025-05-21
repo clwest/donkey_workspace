@@ -3,6 +3,9 @@ import { useParams, Link } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
 import TagBadge from "../../../components/TagBadge";
 import { Spinner } from "react-bootstrap";
+import LongTermObjectiveEditor from "../../../components/mcp_core/LongTermObjectiveEditor";
+import MilestoneTimeline from "../../../components/mcp_core/MilestoneTimeline";
+import ObjectiveReflectionLog from "../../../components/mcp_core/ObjectiveReflectionLog";
 
 export default function ThreadDetailPage() {
   const { id } = useParams();
@@ -39,6 +42,30 @@ export default function ThreadDetailPage() {
           {thread.summary}
         </p>
       )}
+
+      <h5 className="mt-4">🎯 Long Term Objective</h5>
+      <LongTermObjectiveEditor thread={thread} onUpdated={setThread} />
+
+      {thread.milestones && thread.milestones.length > 0 && (
+        <div className="mt-3">
+          <h6>Milestones</h6>
+          <MilestoneTimeline milestones={thread.milestones} />
+        </div>
+      )}
+
+      <div className="mt-3">
+        <button
+          className="btn btn-outline-primary mb-2"
+          onClick={async () => {
+            await apiFetch(`/mcp/threads/${id}/reflect/`, { method: "POST" });
+            const data = await apiFetch(`/mcp/threads/${id}/objective/`);
+            setThread({ ...thread, milestones: data.milestones });
+          }}
+        >
+          Reflect on Objective Progress
+        </button>
+        <ObjectiveReflectionLog threadId={id} />
+      </div>
 
       {thread.tags && thread.tags.length > 0 && (
         <div className="mb-3">
