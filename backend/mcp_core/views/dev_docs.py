@@ -90,9 +90,12 @@ def devdoc_detail(request, slug):
 
 @api_view(["POST"])
 def summarize_and_group_devdocs_view(request):
+    if not DevDoc.objects.exists():
+        return Response({"error": "No DevDocs found."}, status=400)
     try:
         grouped = summarize_and_group_devdocs()
     except Exception as e:
+        logger.exception("Failed to summarize DevDocs")
         return Response({"error": str(e)}, status=500)
 
     return Response(
