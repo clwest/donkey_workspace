@@ -207,3 +207,15 @@ def propose_task(request, slug):
 
     serializer = AssistantTaskSerializer(task)
     return Response(serializer.data, status=201)
+
+
+@api_view(["PATCH"])
+def update_task_status(request, task_id):
+    """Update the status of a project task."""
+    task = get_object_or_404(ProjectTask, id=task_id)
+    new_status = request.data.get("status")
+    if not new_status:
+        return Response({"error": "status required"}, status=400)
+    task.status = new_status
+    task.save(update_fields=["status"])
+    return Response({"id": str(task.id), "status": task.status})

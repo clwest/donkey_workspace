@@ -9,7 +9,7 @@ export default function AssistantThinkButton({ slug, onThought }) {
     setError(null);
 
     try {
-      const res = await fetch(`/api/mcp/agent/${slug}/think/`, {
+      const res = await fetch(`/api/assistants/${slug}/dream/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });

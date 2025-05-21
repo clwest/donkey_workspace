@@ -204,7 +204,7 @@ export async function evaluateCollaboration(slug, body) {
 
 export async function fetchCollaborationLogs(projectId) {
   const res = await fetch(
-    `http://localhost:8000/api/projects/${projectId}/collaboration_logs/`,
+    `http://localhost:8000/api/assistants/projects/${projectId}/collaboration_logs/`,
   );
   if (!res.ok) {
     throw new Error("Failed to load collaboration logs");

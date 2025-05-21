@@ -324,3 +324,33 @@ def project_memory_changes(request, pk):
         for m in memories
     ]
     return Response(data)
+
+
+@api_view(["POST"])
+def generate_project_mission(request):
+    """Generate a mission statement for a project."""
+    project_id = request.data.get("project_id")
+    if not project_id:
+        return Response({"error": "project_id required"}, status=400)
+    project = get_object_or_404(AssistantProject, id=project_id)
+    engine = AssistantThoughtEngine(assistant=project.assistant, project=project)
+    result = engine.generate_project_mission()
+    return Response(result)
+
+
+@api_view(["POST"])
+def generate_tasks_for_project(request, project_id):
+    """Generate tasks for the given project."""
+    project = get_object_or_404(AssistantProject, id=project_id)
+    engine = AssistantThoughtEngine(assistant=project.assistant, project=project)
+    result = engine.plan_project_tasks()
+    return Response(result)
+
+
+@api_view(["POST"])
+def ai_plan_project(request, pk):
+    """Return an AI generated plan for the project."""
+    project = get_object_or_404(AssistantProject, id=pk)
+    engine = AssistantThoughtEngine(assistant=project.assistant, project=project)
+    result = engine.plan_project_tasks()
+    return Response(result)

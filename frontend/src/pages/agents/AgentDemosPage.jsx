@@ -5,7 +5,7 @@ export default function AgentDemosPage() {
   const [agents, setAgents] = useState([]);
 
   useEffect(() => {
-    fetch("/api/agent/demos/")
+    fetch("/api/assistants/demos/")
       .then((res) => res.json())
       .then((data) => setAgents(data))
       .catch((err) => console.error("Failed to fetch demo agents:", err));
