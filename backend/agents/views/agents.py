@@ -17,6 +17,7 @@ from agents.models import (
     LegacyArtifact,
     ReincarnationLog,
     ReturnCycle,
+    LoreToken,
 )
 from agents.serializers import (
     AgentSerializer,
@@ -32,6 +33,7 @@ from agents.serializers import (
     LegacyArtifactSerializer,
     ReincarnationLogSerializer,
     ReturnCycleSerializer,
+    LoreTokenSerializer,
 )
 from assistants.serializers import AssistantCivilizationSerializer
 
@@ -41,6 +43,7 @@ from agents.utils.agent_controller import (
     recommend_training_documents,
     retire_agent,
 )
+from agents.utils.lore_token import compress_memories_to_token
 
 from agents.utils.swarm_analytics import (
     generate_temporal_swarm_report,
@@ -342,3 +345,19 @@ def return_cycles(request):
     serializer.is_valid(raise_exception=True)
     cycle = serializer.save()
     return Response(ReturnCycleSerializer(cycle).data, status=201)
+
+@api_view(["GET", "POST"])
+def lore_tokens(request):
+    if request.method == "GET":
+        tokens = LoreToken.objects.all().order_by("-created_at")
+        return Response(LoreTokenSerializer(tokens, many=True).data)
+
+    memory_ids = request.data.get("memory_ids", [])
+    assistant_id = request.data.get("assistant")
+    if not assistant_id:
+        return Response({"error": "assistant required"}, status=400)
+    assistant = get_object_or_404(Assistant, id=assistant_id)
+    memories = list(SwarmMemoryEntry.objects.filter(id__in=memory_ids))
+    token = compress_memories_to_token(memories, assistant)
+    serializer = LoreTokenSerializer(token)
+    return Response(serializer.data, status=201)

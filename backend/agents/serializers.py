@@ -14,6 +14,7 @@ from agents.models import (
     LegacyArtifact,
     ReincarnationLog,
     ReturnCycle,
+    LoreToken,
 )
 from assistants.models import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -231,3 +232,12 @@ class ReturnCycleSerializer(serializers.ModelSerializer):
         model = ReturnCycle
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
+class LoreTokenSerializer(serializers.ModelSerializer):
+    source_memory_ids = serializers.PrimaryKeyRelatedField(queryset=SwarmMemoryEntry.objects.all(), many=True, write_only=True, required=False, source="source_memories")
+    source_memories = SwarmMemoryEntrySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = LoreToken
+        fields = ["id", "name", "summary", "source_memory_ids", "source_memories", "symbolic_tags", "embedding", "created_by", "created_at"]
+        read_only_fields = ["id", "embedding", "created_at", "source_memories"]
