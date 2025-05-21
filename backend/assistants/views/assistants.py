@@ -7,6 +7,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from openai import OpenAI
 from utils.llm_router import call_llm
+import utils.llm_router as llm_router
 from datetime import datetime
 import logging
 import json
@@ -410,13 +411,15 @@ def chat_with_assistant_view(request, slug):
         delegate = spawn_delegated_assistant(chat_session, memory_entry=recent_memory)
         return Response({"delegate_slug": delegate.slug})
 
-    # Run OpenAI completion
-    completion = client.chat.completions.create(
-        model=assistant.preferred_model or "gpt-4o",
-        messages=messages,
+    # Run LLM chat with optional memory summon
+    reply, summoned_ids = llm_router.chat(
+        messages,
+        assistant,
         temperature=0.7,
     )
-    reply = completion.choices[0].message.content.strip()
+    usage = type(
+        "U", (), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+    )()
     _maybe_log_self_doubt(assistant, reply)
     tool_result = None
     tool_obj = None
@@ -449,7 +452,6 @@ def chat_with_assistant_view(request, slug):
                 )
                 reply = f"Tool {tool_slug} failed: {e}"
 
-    usage = completion.usage
     token_usage.prompt_tokens += getattr(usage, "prompt_tokens", 0)
     token_usage.completion_tokens += getattr(usage, "completion_tokens", 0)
     token_usage.total_tokens += getattr(usage, "total_tokens", 0)
@@ -472,7 +474,13 @@ def chat_with_assistant_view(request, slug):
 
     # Save both messages to thought log
     engine.log_thought(message, role="user")
-    engine.log_thought(reply, role="assistant", tool=tool_obj, tool_result=tool_result)
+    assist_log = engine.log_thought(
+        reply, role="assistant", tool=tool_obj, tool_result=tool_result
+    )
+    log_obj = assist_log.get("log") if isinstance(assist_log, dict) else None
+    if log_obj and summoned_ids:
+        log_obj.summoned_memory_ids = summoned_ids
+        log_obj.save(update_fields=["summoned_memory_ids"])
 
     # Save memory entry
     chat_messages = [m for m in messages if m["role"] in ("user", "assistant")]
@@ -650,17 +658,19 @@ def self_assess(request, slug):
     system_prompt = assistant.system_prompt.content if assistant.system_prompt else ""
     personality = assistant.personality or ""
     tone = assistant.tone or ""
-    recent = (
-        AssistantThoughtLog.objects.filter(assistant=assistant)
-        .order_by("-created_at")[:20]
-    )
+    recent = AssistantThoughtLog.objects.filter(assistant=assistant).order_by(
+        "-created_at"
+    )[:20]
     thought_lines = "\n".join(f"- {t.thought}" for t in recent)
     documents = ", ".join(d.title for d in assistant.documents.all()[:5])
 
     prompt = f"""You are an introspection engine assessing an AI assistant.\n\nSystem Prompt:\n{system_prompt}\n\nPersonality: {personality}\nTone: {tone}\nLinked Documents: {documents}\n\nRecent Thoughts:\n{thought_lines}\n\nAnswer the following questions:\n1. How well does this assistant's recent behavior align with its stated identity?\n2. Are there any signs of drift in tone, personality, or focus?\n3. What refinements to role, tone, or specialties would improve alignment?\n\nRespond in JSON with keys: score, role, prompt_tweaks, summary."""
 
     try:
-        raw = call_llm([{"role": "user", "content": prompt}], model=assistant.preferred_model or "gpt-4o")
+        raw = call_llm(
+            [{"role": "user", "content": prompt}],
+            model=assistant.preferred_model or "gpt-4o",
+        )
     except Exception as e:
         logger.error("Self assessment failed", exc_info=True)
         return Response({"error": str(e)}, status=500)

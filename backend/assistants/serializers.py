@@ -123,9 +123,7 @@ class AssistantSwitchEventSerializer(serializers.ModelSerializer):
 class RoutingSuggestionLogSerializer(serializers.ModelSerializer):
     """Serialize routing suggestion logs for API responses."""
 
-    assistant = serializers.CharField(
-        source="suggested_assistant.name", read_only=True
-    )
+    assistant = serializers.CharField(source="suggested_assistant.name", read_only=True)
     assistant_slug = serializers.CharField(
         source="suggested_assistant.slug", read_only=True
     )
@@ -170,6 +168,7 @@ class AssistantSkillSerializer(serializers.ModelSerializer):
 
 class AssistantReflectionLogSerializer(serializers.ModelSerializer):
     linked_event = serializers.SerializerMethodField()
+
     class Meta:
         model = AssistantReflectionLog
         fields = [
@@ -307,9 +306,6 @@ class EmotionalResonanceLogSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-
-
-
 class AssistantNextActionSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssistantNextAction
@@ -336,7 +332,9 @@ class AssistantObjectiveSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True,
     )
-    linked_event_title = serializers.CharField(source="linked_event.title", read_only=True)
+    linked_event_title = serializers.CharField(
+        source="linked_event.title", read_only=True
+    )
 
     class Meta:
         model = AssistantObjective
@@ -498,6 +496,7 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             "is_primary",
             "needs_recovery",
             "live_relay_enabled",
+            "memory_summon_enabled",
             "collaboration_style",
             "preferred_conflict_resolution",
             "system_prompt",
@@ -602,6 +601,7 @@ class AssistantThoughtLogSerializer(serializers.ModelSerializer):
             "linked_memory_preview",  # 🆕 Text preview
             "narrative_thread",
             "linked_event",
+            "summoned_memory_ids",
             "empathy_response",
             "resonated_with_user",
             "created_at",
@@ -819,7 +819,9 @@ class AssistantSerializer(serializers.ModelSerializer):
     average_delegation_score = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
     empathy_tags = serializers.ListField(child=serializers.CharField(), read_only=True)
-    preferred_scene_tags = serializers.ListField(child=serializers.CharField(), read_only=True)
+    preferred_scene_tags = serializers.ListField(
+        child=serializers.CharField(), read_only=True
+    )
 
     class Meta:
         model = Assistant
@@ -1041,6 +1043,7 @@ class CouncilOutcomeSerializer(serializers.ModelSerializer):
         model = CouncilOutcome
         fields = ["council_session", "summary", "created_at"]
         read_only_fields = ["created_at"]
+
 
 class CollaborationLogSerializer(serializers.ModelSerializer):
     participants = AssistantSerializer(many=True, read_only=True)

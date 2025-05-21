@@ -59,3 +59,22 @@ def call_llm(messages: list[dict], model: str = DEFAULT_MODEL, **kwargs) -> str:
         raise ValueError(f"Unsupported model: {model}")
     else:
         return _call_openai(messages, model, **kwargs)
+
+
+def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str]]:
+    """High-level chat call that can summon memories."""
+    from assistants.utils.memory_summoner import summon_relevant_memories
+
+    msgs = list(messages)
+    summoned: list[str] = []
+    if getattr(assistant, "memory_summon_enabled", False):
+        user_parts = [m.get("content", "") for m in msgs if m.get("role") == "user"]
+        prompt_text = "\n".join(user_parts[-1:])
+        injection, summoned = summon_relevant_memories(prompt_text, assistant)
+        if injection:
+            msgs.append({"role": "system", "content": injection})
+
+    reply = call_llm(
+        msgs, model=getattr(assistant, "preferred_model", DEFAULT_MODEL), **kwargs
+    )
+    return reply, summoned
