@@ -255,6 +255,23 @@ class SwarmMemoryEntry(models.Model):
         super().save(*args, **kwargs)
 
 
+class SwarmMemoryArchive(models.Model):
+    """Collection of swarm memories preserved for historical reference."""
+
+    title = models.CharField(max_length=200)
+    summary = models.TextField()
+    memory_entries = models.ManyToManyField("SwarmMemoryEntry", blank=True)
+    tags = models.ManyToManyField("mcp_core.Tag", blank=True)
+    sealed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display only
+        return self.title
+
+
 class AgentLegacy(models.Model):
     """Track agent resurrection history and missions completed."""
 
@@ -264,6 +281,32 @@ class AgentLegacy(models.Model):
     legacy_notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class AssistantMythosLog(models.Model):
+    """Record mythic achievements or stories about assistants."""
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="mythos_logs",
+    )
+    myth_title = models.CharField(max_length=150)
+    myth_summary = models.TextField()
+    origin_event = models.ForeignKey(
+        SwarmMemoryEntry,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="mythos_entries",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return self.myth_title
 
 
 class MissionArchetype(models.Model):
