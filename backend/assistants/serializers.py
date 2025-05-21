@@ -24,6 +24,7 @@ from .models import (
     RoutingSuggestionLog,
     DelegationEvent,
     SessionHandoff,
+    AssistantHandoffLog,
     AssistantSwitchEvent,
     AssistantSkill,
     SignalSource,
@@ -102,6 +103,23 @@ class SessionHandoffSerializer(serializers.ModelSerializer):
             "handoff_summary",
             "created_at",
         ]
+
+
+class AssistantHandoffLogSerializer(serializers.ModelSerializer):
+    from_assistant = serializers.CharField(source="from_assistant.name", read_only=True)
+    to_assistant = serializers.CharField(source="to_assistant.name", read_only=True)
+
+    class Meta:
+        model = AssistantHandoffLog
+        fields = [
+            "id",
+            "from_assistant",
+            "to_assistant",
+            "project",
+            "summary",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
 
 
 class AssistantSwitchEventSerializer(serializers.ModelSerializer):
@@ -446,7 +464,6 @@ class AssistantProjectSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = ["id", "slug", "created_at"]
-
 
     def get_core_project_id(self, obj):
         project = obj.linked_projects.first()

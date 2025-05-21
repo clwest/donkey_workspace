@@ -10,6 +10,7 @@ from .models import (
     DelegationEvent,
     DelegationStrategy,
     SessionHandoff,
+    AssistantHandoffLog,
     AssistantMemoryChain,
     SpecializationDriftLog,
     CollaborationLog,
@@ -163,6 +164,12 @@ class DelegationEventAdmin(admin.ModelAdmin):
 @admin.register(SessionHandoff)
 class SessionHandoffAdmin(admin.ModelAdmin):
     list_display = ("from_assistant", "to_assistant", "session", "created_at")
+    list_filter = ("created_at",)
+
+
+@admin.register(AssistantHandoffLog)
+class AssistantHandoffLogAdmin(admin.ModelAdmin):
+    list_display = ("from_assistant", "to_assistant", "project", "created_at")
     list_filter = ("created_at",)
 
 

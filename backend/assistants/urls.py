@@ -310,6 +310,12 @@ urlpatterns = [
         handoffs.list_handoffs,
         name="list-handoffs",
     ),
+    path("handoff-log/", handoffs.create_handoff_log, name="create-handoff-log"),
+    path(
+        "handoff-log/<slug:slug>/",
+        handoffs.list_handoff_logs,
+        name="list-handoff-logs",
+    ),
     path(
         "messages/inbox/<slug:slug>/",
         messages.inbox,
