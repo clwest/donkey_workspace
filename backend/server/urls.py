@@ -44,7 +44,7 @@ urlpatterns = [
     path("api/agents/", include("agents.urls")),
     path("api/intel/", include("intel_core.urls")),
     path("api/tools/", include("tools.urls")),
-    path("api/swarm/snapshot/<str:date>/", agent_views.swarm_snapshot),
+    # path("api/swarm/snapshot/<str:date>/", agent_views.swarm_snapshot),
     path(
         "api/threads/<uuid:thread_id>/replay/",
         thread_views.thread_replay,
