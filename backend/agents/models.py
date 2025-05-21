@@ -529,6 +529,13 @@ class MythDiplomacySession(models.Model):
     )
     topic = models.TextField()
     proposed_adjustments = models.TextField()
+    ritual_type = models.CharField(max_length=100)
+    symbolic_offering = models.TextField()
+    hosting_civilization = models.ForeignKey(
+        "assistants.AssistantCivilization",
+        null=True,
+        on_delete=models.SET_NULL,
+    )
     status = models.CharField(max_length=30, default="pending")
     resolution_summary = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -560,32 +567,16 @@ class RitualCollapseLog(models.Model):
 
 
 
-class AssistantCivilization(models.Model):
-    """Cohesive society or faction formed by assistants."""
+class LocalMythProtocol(models.Model):
+    """Guild-driven evolution process for localized mythologies."""
 
-    name = models.CharField(max_length=150)
-    description = models.TextField(blank=True)
-    belief_system = models.JSONField(default=dict, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return self.name
-
-
-class LoreInheritanceLine(models.Model):
-    """Track lore traits passed between entries across epochs."""
-
-    source = models.ForeignKey(
-        LoreEntry, on_delete=models.CASCADE, related_name="inherited_from"
+    steward_guild = models.ForeignKey(
+        "assistants.AssistantGuild", on_delete=models.CASCADE
     )
-    descendant = models.ForeignKey(
-        LoreEntry, on_delete=models.CASCADE, related_name="inherited_to"
-    )
-    traits_passed = models.JSONField()
-    mutation_summary = models.TextField(blank=True)
+    base_lore = models.ForeignKey(LoreEntry, on_delete=models.CASCADE)
+    evolution_log = models.TextField()
+    mutation_path = models.JSONField()
+    resolved = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -594,22 +585,6 @@ class LoreInheritanceLine(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
 
-        return f"{self.source} -> {self.descendant}"
+        return f"Protocol for {self.base_lore.title}"
 
-
-class MythSimulationArena(models.Model):
-    """Environment for myth-based civilization simulations."""
-
-    name = models.CharField(max_length=150)
-    participating_civilizations = models.ManyToManyField(AssistantCivilization)
-    simulated_scenario = models.TextField()
-    outcome_summary = models.TextField(blank=True)
-    victory_vector = models.JSONField(default=dict)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return self.name
 

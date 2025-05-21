@@ -10,9 +10,10 @@ from agents.models import (
     RealityConsensusVote,
     MythDiplomacySession,
     RitualCollapseLog,
-    AssistantCivilization,
-    LoreInheritanceLine,
-    MythSimulationArena,
+
+    LocalMythProtocol,
+
+
 )
 from assistants.models import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -190,36 +191,9 @@ class RitualCollapseLogSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-
-class AssistantCivilizationSerializer(serializers.ModelSerializer):
+class LocalMythProtocolSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AssistantCivilization
-        fields = ["id", "name", "description", "belief_system", "created_at"]
-        read_only_fields = ["id", "created_at"]
-
-
-class LoreInheritanceLineSerializer(serializers.ModelSerializer):
-    source_title = serializers.CharField(source="source.title", read_only=True)
-    descendant_title = serializers.CharField(source="descendant.title", read_only=True)
-
-    class Meta:
-        model = LoreInheritanceLine
-        fields = [
-            "id",
-            "source",
-            "descendant",
-            "source_title",
-            "descendant_title",
-            "traits_passed",
-            "mutation_summary",
-            "created_at",
-        ]
-        read_only_fields = ["id", "created_at"]
-
-
-class MythSimulationArenaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MythSimulationArena
+        model = LocalMythProtocol
 
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
