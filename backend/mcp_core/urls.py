@@ -29,10 +29,12 @@ urlpatterns = [
         reflection.reflect_on_custom_memories,
         name="reflect-on-custom-memories",
     ),
-
-    path("reflections/grouped/", reflection.grouped_reflections_view, name="grouped-reflections-view"),
+    path(
+        "reflections/grouped/",
+        reflection.grouped_reflections_view,
+        name="grouped-reflections-view",
+    ),
     path("memories/", memories.list_memories, name="list-memories"),
-
     path(
         "agent/<uuid:agent_id>/reflect/",
         reflection.reflect_on_agent_project,
@@ -63,6 +65,16 @@ urlpatterns = [
         "threads/<uuid:thread_id>/reflect/",
         threading.reflect_on_thread_objective,
         name="reflect-thread-objective",
+    ),
+    path(
+        "threads/<uuid:thread_id>/diagnose/",
+        threading.diagnose_thread,
+        name="diagnose-thread",
+    ),
+    path(
+        "threads/<uuid:thread_id>/refocus/",
+        threading.refocus_thread,
+        name="refocus-thread",
     ),
     path(
         "threads/from-memory/", threading.thread_from_memory, name="thread_from_memory"

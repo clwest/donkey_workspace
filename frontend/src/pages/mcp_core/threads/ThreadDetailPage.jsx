@@ -3,19 +3,18 @@ import { useParams, Link } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
 import TagBadge from "../../../components/TagBadge";
 import { Spinner } from "react-bootstrap";
-// <<<<<<< codex/implement-long-term-objective-tracking-for-threads
-// import LongTermObjectiveEditor from "../../../components/mcp_core/LongTermObjectiveEditor";
-// import MilestoneTimeline from "../../../components/mcp_core/MilestoneTimeline";
-// import ObjectiveReflectionLog from "../../../components/mcp_core/ObjectiveReflectionLog";
-// =======
+import RefocusPromptCard from "../../../components/mcp_core/RefocusPromptCard";
+import LongTermObjectiveEditor from "../../../components/mcp_core/LongTermObjectiveEditor";
+import MilestoneTimeline from "../../../components/mcp_core/MilestoneTimeline";
+import ObjectiveReflectionLog from "../../../components/mcp_core/ObjectiveReflectionLog";
 import LinkedChainList from "../../../components/memory/LinkedChainList";
-// >>>>>>> main
 
 export default function ThreadDetailPage() {
   const { id } = useParams();
   const [thread, setThread] = useState(null);
   const [loading, setLoading] = useState(true);
   const [chains, setChains] = useState(null);
+  const [diagnostic, setDiagnostic] = useState(null);
 
   useEffect(() => {
     const fetchThread = async () => {
@@ -30,6 +29,7 @@ export default function ThreadDetailPage() {
       }
     };
     fetchThread();
+    apiFetch(`/mcp/threads/${id}/diagnose/`).then(setDiagnostic).catch(() => {});
   }, [id]);
 
   useEffect(() => {
@@ -52,6 +52,22 @@ export default function ThreadDetailPage() {
         <p className="lead" style={{ whiteSpace: "pre-line" }}>
           {thread.summary}
         </p>
+      )}
+
+      {diagnostic && diagnostic.refocus_prompt && (
+        <RefocusPromptCard prompt={diagnostic.refocus_prompt} />
+      )}
+
+      {diagnostic && diagnostic.continuity_score < 0.5 && (
+        <button
+          className="btn btn-warning mb-3"
+          onClick={async () => {
+            const data = await apiFetch(`/mcp/threads/${id}/refocus/`, { method: "POST" });
+            setDiagnostic({ ...diagnostic, refocus_prompt: data.prompt });
+          }}
+        >
+          🩹 Suggest Refocus
+        </button>
       )}
 
       <h5 className="mt-4">🎯 Long Term Objective</h5>

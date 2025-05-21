@@ -38,3 +38,11 @@ def generate_thread_reflection(thread: NarrativeThread) -> str:
     milestone_count = len(thread.milestones or [])
     objective = thread.long_term_objective or "No objective set"
     return f"Objective: {objective}\nMilestones tracked: {milestone_count}."
+
+
+def generate_thread_refocus_prompt(thread: NarrativeThread) -> str:
+    """Create a short prompt to help restore continuity for the thread."""
+    objective = thread.long_term_objective or "(no objective)"
+    summary = thread.summary or ""
+    base = f"Let's refocus on the thread '{thread.title}'."
+    return f"{base} Objective: {objective}. {summary}".strip()
