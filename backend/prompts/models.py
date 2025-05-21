@@ -2,11 +2,8 @@ import uuid
 from django.db import models
 from django.utils.text import slugify
 from pgvector.django import VectorField
-from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
-
-
-User = get_user_model()
 
 
 class Prompt(models.Model):
@@ -77,7 +74,9 @@ class Prompt(models.Model):
 
 class PromptPreferences(models.Model):
     user = models.OneToOneField(
-        User, on_delete=models.CASCADE, related_name="prompt_preferences"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="prompt_preferences",
     )
     auto_mode_enabled = models.BooleanField(default=False)
     default_trim_threshold = models.IntegerField(null=True, blank=True)
