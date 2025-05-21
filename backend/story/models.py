@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from images.models import PromptHelper
 from characters.models import CharacterProfile
+import uuid
 
 
 class Story(models.Model):
