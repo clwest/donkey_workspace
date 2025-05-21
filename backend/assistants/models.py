@@ -254,9 +254,9 @@ class Assistant(models.Model):
         default="pause_and_reflect",
     )
 
-    belief_vector = models.JSONField(default=dict)
+    belief_vector = models.JSONField(default=dict, blank=True)
 
-    ideology = models.JSONField(default=dict)
+    ideology = models.JSONField(default=dict, blank=True)
     is_alignment_flexible = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
