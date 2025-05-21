@@ -33,6 +33,7 @@ from .models import (
     CouncilSession,
     CouncilThought,
     CouncilOutcome,
+    OracleLayer,
 )
 
 from project.models import (
@@ -1116,19 +1117,17 @@ class CollaborationLogSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "created_at"]
 
-
-class AssistantMythLayerSerializer(serializers.ModelSerializer):
-    assistant_name = serializers.CharField(source="assistant.name", read_only=True)
-
+class OracleLayerSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AssistantMythLayer
+        model = OracleLayer
         fields = [
             "id",
             "assistant",
-            "assistant_name",
-            "origin_story",
-            "legendary_traits",
-            "last_updated",
+            "memory_focus",
+            "tone",
+            "tag_scope",
+            "summary_insight",
+            "created_at",
         ]
-        read_only_fields = ["id", "last_updated"]
+        read_only_fields = ["id", "created_at"]
 

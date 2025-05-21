@@ -112,3 +112,19 @@ class NarrativeEvent(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class LoreEntry(models.Model):
+    """Mythic lore record used for assistant generation."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=255)
+    content = models.TextField()
+    tone = models.CharField(max_length=50, default="mystic")
+    epithets = models.JSONField(default=list, blank=True)
+    traits = models.JSONField(default=list, blank=True)
+    lineage = models.CharField(max_length=100, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title

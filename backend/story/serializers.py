@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from story.models import Story, NarrativeEvent
+from story.models import Story, NarrativeEvent, LoreEntry
 from images.serializers import ImageSerializer
 from tts.serializers import StoryAudioSerializer
 from images.models import PromptHelper
@@ -138,12 +138,18 @@ class StoryDetailSerializer(serializers.ModelSerializer):
             )
         return None
 
-    def get_image_url(self, obj):
-        request = self.context.get("request")
-        if obj.image and obj.image.output_url:
-            return (
-                request.build_absolute_uri(obj.image.output_url)
-                if request
-                else obj.image.output_url
-            )
-        return None
+
+class LoreEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LoreEntry
+        fields = [
+            "id",
+            "title",
+            "content",
+            "tone",
+            "epithets",
+            "traits",
+            "lineage",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]

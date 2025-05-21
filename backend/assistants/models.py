@@ -1789,7 +1789,6 @@ class CouncilOutcome(models.Model):
         return f"Outcome for {self.council_session}"
 
 
-
 class AssistantCouncil(models.Model):
     """Persistent group of assistants co-owning a mission node."""
 
@@ -1800,7 +1799,6 @@ class AssistantCouncil(models.Model):
     members = models.ManyToManyField("assistants.Assistant")
     charter = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"{self.predecessor} -> {self.successor}"
@@ -1820,41 +1818,18 @@ class AssistantCouncil(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
 
-
-class AssistantMythLayer(models.Model):
-    """Symbolic mythos associated with an assistant."""
+class OracleLayer(models.Model):
+    """Prophetic advisory memory segment for an assistant."""
 
     assistant = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE, related_name="myth_layers"
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="oracle_layers"
     )
-    summary = models.TextField()
-    content = models.TextField(blank=True)
-    archived = models.BooleanField(default=False)
+    memory_focus = models.TextField()
+    tone = models.CharField(max_length=50, default="mystic")
+    tag_scope = models.JSONField()
+    summary_insight = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
-
-    def __str__(self) -> str:  # pragma: no cover - display
-        return f"MythLayer for {self.assistant.name}"
-
-
-class MythMergeProposal(models.Model):
-    """Proposal to merge myth layers between assistants."""
-
-    initiator = models.ForeignKey(
-        "assistants.Assistant",
-        on_delete=models.CASCADE,
-        related_name="myth_merge_initiated",
-    )
-    target_assistant = models.ForeignKey(
-        "assistants.Assistant",
-        on_delete=models.CASCADE,
-        related_name="merge_target",
-    )
-    proposed_summary = models.TextField()
-    vote_required = models.BooleanField(default=True)
-    approved = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self) -> str:  # pragma: no cover - display
-        return f"Merge {self.initiator.name} → {self.target_assistant.name}"
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"OracleLayer for {self.assistant.name}"
 
