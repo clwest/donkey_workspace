@@ -1,6 +1,8 @@
 from django.utils.text import slugify
+from django.contrib.auth import get_user_model
 from prompts.models import Prompt
 from assistants.models import Assistant, AssistantProject, AssistantMemoryChain
+from project.models import Project, ProjectType, ProjectStatus
 
 PRIMARY_PROMPT = (
     "You are the Primary Assistant in a multi-agent intelligence system. "
@@ -44,12 +46,27 @@ def prompt_to_assistant(name: str, tone: str, personality: str) -> Assistant:
             goal="Coordinate all assistants and maintain memory continuity.",
             status="active",
         )
+
+        User = get_user_model()
+        user, _ = User.objects.get_or_create(
+            username="seed_user",
+            defaults={"email": "seed@example.com", "password": "notsecure"},
+        )
+
+        core_project = Project.objects.create(
+            user=user,
+            title="Primary Orchestration",
+            assistant=assistant,
+            assistant_project=project,
+            project_type=ProjectType.ASSISTANT,
+            status=ProjectStatus.ACTIVE,
+        )
+
         chain = AssistantMemoryChain.objects.create(
-            project=project,
+            project=core_project,
             title="Global Memory Chain",
             description="Auto mode chain for system-level memory.",
-            mode="auto",
-            filters={"session_id": None, "document_tags": ["system", "seeded"]},
+            mode="automatic",
         )
         assistant.default_memory_chain = chain
         assistant.save(update_fields=["default_memory_chain"])
