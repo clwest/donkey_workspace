@@ -50,31 +50,21 @@ urlpatterns = [
         name="narrative_thread_detail",
     ),
     path(
-# <<<<<<< codex/add-thread-continuity-diagnostics
-#         "threads/<uuid:thread_id>/diagnose/",
-#         threading.diagnose_thread,
-#         name="diagnose-thread",
-#     ),
-#     path(
-#         "threads/<uuid:thread_id>/diagnostics/",
-#         threading.list_thread_diagnostics,
-#         name="list-thread-diagnostics",
-# =======
-#         "threads/<uuid:thread_id>/set_objective/",
-#         threading.set_thread_objective,
-#         name="set-thread-objective",
-#     ),
-#     path(
-#         "threads/<uuid:thread_id>/objective/",
-#         threading.get_thread_objective,
-#         name="get-thread-objective",
-#     ),
-#     path(
-#         "threads/<uuid:thread_id>/reflect/",
-#         threading.reflect_on_thread_objective,
-#         name="reflect-thread-objective",
-# >>>>>>> main
+
+        "threads/<uuid:thread_id>/diagnose/",
+        threading.diagnose_thread,
+        name="diagnose-thread",
     ),
+    # path(
+    #     "threads/<uuid:thread_id>/diagnostics/",
+    #     threading.list_thread_diagnostics,
+    #     name="list-thread-diagnostics",
+
+    #     "threads/<uuid:thread_id>/set_objective/",
+    #     threading.set_thread_objective,
+    #     name="set-thread-objective",
+    # ),
+
     path(
         "threads/from-memory/", threading.thread_from_memory, name="thread_from_memory"
     ),

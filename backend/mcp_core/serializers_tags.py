@@ -1,10 +1,8 @@
 from rest_framework import serializers
-# <<<<<<< codex/add-thread-continuity-diagnostics
-# from mcp_core.models import Tag, NarrativeThread, ThreadDiagnosticLog
-# =======
-# from mcp_core.models import Tag, NarrativeThread
-# from mcp_core.models import ThreadObjectiveReflection
-# >>>>>>> main
+
+from mcp_core.models import Tag, NarrativeThread
+from mcp_core.models import ThreadObjectiveReflection
+
 
 
 class TagSerializer(serializers.ModelSerializer):

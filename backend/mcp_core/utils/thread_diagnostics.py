@@ -2,7 +2,7 @@ from datetime import timedelta
 from django.utils import timezone
 from assistants.models import AssistantThoughtLog
 from memory.models import MemoryEntry
-from mcp_core.models import NarrativeThread, ThreadDiagnosticLog
+from mcp_core.models import NarrativeThread
 
 
 def run_thread_diagnostics(thread: NarrativeThread) -> dict:
