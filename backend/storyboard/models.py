@@ -28,6 +28,8 @@ class NarrativeEvent(models.Model):
     narrative_thread = models.ForeignKey(
         'mcp_core.NarrativeThread', on_delete=models.SET_NULL, null=True, blank=True, related_name='events'
     )
+    scene = models.CharField(max_length=100, null=True, blank=True)
+    location_context = models.TextField(null=True, blank=True)
     start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
     auto_delegate = models.BooleanField(default=False)

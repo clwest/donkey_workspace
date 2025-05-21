@@ -170,6 +170,9 @@ class Assistant(models.Model):
     # Empathy metrics
     avg_empathy_score = models.FloatField(default=0.0)
     empathy_tags = ArrayField(models.CharField(max_length=50), default=list, blank=True)
+    preferred_scene_tags = ArrayField(
+        models.CharField(max_length=50), default=list, blank=True
+    )
     preferred_model = models.CharField(max_length=100, default="gpt-4o")
     memory_mode = models.CharField(
         max_length=200, choices=MEMORY_MODES, default="long_term"
