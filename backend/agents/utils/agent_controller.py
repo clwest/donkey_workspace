@@ -523,6 +523,52 @@ def resurrect_agent(agent: Agent, by_assistant: Optional["Assistant"] = None) ->
     return agent
 
 
+def resurrect_legacy_agent(legacy: AgentLegacy, reason: str) -> Agent:
+    """Spawn a new agent from legacy data and log the resurrection."""
+    source = legacy.agent
+    new_agent = Agent.objects.create(
+        name=source.name,
+        description=source.description,
+        specialty=source.specialty,
+        metadata=source.metadata,
+        preferred_llm=source.preferred_llm,
+        execution_mode=source.execution_mode,
+        agent_type=source.agent_type,
+        parent_assistant=source.parent_assistant,
+    )
+
+    new_agent.tags = list(source.tags)
+    new_agent.skills = list(source.skills)
+    new_agent.save()
+
+    for link in AgentSkillLink.objects.filter(agent=source):
+        AgentSkillLink.objects.create(
+            agent=new_agent, skill=link.skill, source="legacy-resurrection"
+        )
+
+    for cluster in source.clusters.all():
+        cluster.agents.add(new_agent)
+
+    legacy.resurrection_count += 1
+    legacy.save(update_fields=["resurrection_count", "updated_at"])
+
+    entry = SwarmMemoryEntry.objects.create(
+        title=f"Legacy Agent Resurrected: {source.name}",
+        content=reason,
+        origin="resurrection",
+    )
+    entry.linked_agents.add(new_agent)
+    entry.linked_agents.add(source)
+
+    from mcp_core.models import Tag
+
+    for name in ["resurrected", "seasonal", "legacy-return"]:
+        tag, _ = Tag.objects.get_or_create(name=name, defaults={"slug": name})
+        entry.tags.add(tag)
+
+    return new_agent
+
+
 def record_project_completion(project: "AssistantProject") -> None:
     """Increment mission counters for all agents in the project."""
     for agent in project.agents.all():
