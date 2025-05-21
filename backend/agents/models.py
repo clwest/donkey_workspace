@@ -314,6 +314,25 @@ class AssistantMythosLog(models.Model):
         return self.myth_title
 
 
+class MythLink(models.Model):
+    """Link between assistants showing mythic resonance."""
+
+    source_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        related_name="myth_links_from",
+        on_delete=models.CASCADE,
+    )
+    target_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        related_name="myth_links_to",
+        on_delete=models.CASCADE,
+    )
+    shared_symbols = models.JSONField()
+    shared_events = models.ManyToManyField(SwarmMemoryEntry)
+    strength = models.FloatField(default=0.0)
+    last_updated = models.DateTimeField(auto_now=True)
+
+
 class MissionArchetype(models.Model):
     """Reusable mission structures for clusters"""
 
