@@ -1,4 +1,5 @@
 import React from "react";
+import ThreadMoodSparkline from "./ThreadMoodSparkline";
 
 export default function ThreadDiagnosticsPanel({ thread }) {
   if (!thread || thread.continuity_score == null) return null;
@@ -13,14 +14,20 @@ export default function ThreadDiagnosticsPanel({ thread }) {
       <span style={{ fontSize: "1.5rem" }} className="me-2">
         {emoji}
       </span>
-      <div>
+      <div className="me-2">
         <div className="fw-bold">Health Score: {Math.round(score * 100)}%</div>
         {thread.last_diagnostic_run && (
           <div className="text-muted small">
             Last checked {new Date(thread.last_diagnostic_run).toLocaleString()}
           </div>
         )}
+        {thread.mood_influence && (
+          <div className="text-muted small">{thread.mood_influence}</div>
+        )}
       </div>
+      {thread.recent_moods && (
+        <ThreadMoodSparkline moods={thread.recent_moods} />
+      )}
     </div>
   );
 }

@@ -182,7 +182,9 @@ class NarrativeThreadOverviewSerializer(NarrativeThreadSerializer):
             "summary",
             "tags",
             "created_at",
+            "avg_mood",
             "last_updated",
             "reflection_count",
+            "continuity_score",
             "gaps_detected",
         ]
