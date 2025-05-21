@@ -69,9 +69,9 @@ export default function MemoryBrowserPage() {
       {conversations.length === 0 ? (
         <p className="text-muted">No memory conversations found. Start chatting with an assistant!</p>
       ) : (
-        <div className="row g-4">
+        <div className="memory-grid">
           {conversations.map((conv) => (
-            <div className="col-md-6 col-lg-4" key={conv.session_id}>
+            <div key={conv.session_id}>
               <Link to={`/memories/${conv.memory_ids[0]}`} className="text-decoration-none">
                 <div className="card h-100 shadow-sm">
                   <div className="card-body">
@@ -93,8 +93,11 @@ export default function MemoryBrowserPage() {
         </div>
       )}
 
-      <div className="mt-5">
-        <Link to="/memories/reflect" className="btn btn-outline-info btn-lg">
+      <div className="memory-footer">
+        {conversations.length > 0 && (
+          <MemoryForkButton memoryId={conversations[0].memory_ids[0]} />
+        )}
+        <Link to="/memories/reflect" className="btn btn-primary">
           ✨ Reflect on Memories
         </Link>
       </div>

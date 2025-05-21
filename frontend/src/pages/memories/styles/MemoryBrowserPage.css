@@ -14,6 +14,9 @@ h1 {
   border-radius: 12px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
 }
 
 .card:hover {
@@ -28,21 +31,23 @@ h1 {
 .card-text {
   font-size: 0.95rem;
   margin-bottom: 0.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
 }
 
 .card-subtitle {
   font-size: 0.85rem;
 }
 
-.row.g-4 {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-}
 
-.col-md-6.col-lg-4 {
-  flex: 1 1 calc(33.333% - 1rem);
-  min-width: 280px;
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  padding-bottom: 6rem; /* space for footer */
 }
 
 .btn-outline-info.btn-lg {
@@ -50,4 +55,19 @@ h1 {
   margin: 2rem auto 0 auto;
   padding: 0.75rem 1.5rem;
   font-size: 1.1rem;
+}
+
+.memory-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1040;
+  background-color: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
