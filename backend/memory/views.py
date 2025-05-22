@@ -34,9 +34,7 @@ from dotenv import load_dotenv
 from embeddings.helpers.helpers_io import save_embedding
 from prompts.utils.mutation import mutate_prompt as run_mutation
 from embeddings.helpers.helpers_io import get_embedding_for_text
-from mcp_core.utils.auto_tag_from_embedding import auto_tag_from_embedding
-from assistants.helpers.logging_helper import log_assistant_thought
-from assistants.models import Assistant, AssistantThoughtLog, AssistantReflectionLog
+from memory.memory_service import get_memory_service
 from mcp_core.models import NarrativeThread
 from memory.utils.thread_helpers import get_linked_chains, recall_from_thread
 
@@ -225,7 +223,36 @@ def reflect_on_memory(request):
     except ValueError as exc:
         return Response({"error": str(exc)}, status=400)
 
-    return Response({"summary": reflection.summary, "reflection_id": reflection.id})
+    memories = MemoryEntry.objects.filter(id__in=memory_ids)
+    if not memories.exists():
+        return Response({"error": "No valid memories found."}, status=400)
+
+    combined_text = "\n\n".join([m.event for m in memories])
+
+    prompt = f"""
+    Summarize the following experiences into a coherent reflection that captures lessons learned, emotional tone, and overall patterns:
+
+    {combined_text}
+    """
+
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {
+                "role": "system",
+                "content": "You are an expert in emotional intelligence and personal growth.",
+            },
+            {"role": "user", "content": prompt},
+        ],
+        temperature=0.7,
+        max_tokens=1024,
+    )
+
+    summary = response.choices[0].message.content.strip()
+
+    reflection = get_memory_service().log_reflection(summary, memories)
+
+    return Response({"summary": summary, "reflection_id": reflection.id})
 
 
 @api_view(["POST"])
@@ -264,14 +291,10 @@ def reflect_on_memories(request):
 
     reflection_text = response.choices[0].message.content.strip()
 
-    # Save reflection
-    reflection = AssistantReflectionLog.objects.create(
-        summary=reflection_text,
-        time_period_start=memories.first().timestamp,
-        time_period_end=memories.last().timestamp,
+    reflection = get_memory_service().log_reflection(
+        reflection_text,
+        memories,
     )
-    reflection.linked_memories.set(memories)
-    save_embedding(reflection, embedding=[])
 
     return Response({"reflection": reflection.summary})
 
@@ -289,14 +312,12 @@ def save_reflection(request):
     if not (title and summary and memory_ids):
         return Response({"error": "Missing required fields"}, status=400)
 
-    reflection = AssistantReflectionLog.objects.create(
-        summary=summary,
-        time_period_start=timezone.now(),  # You can make smarter if needed
-        time_period_end=timezone.now(),
-    )
-    reflection.linked_memories.set(MemoryEntry.objects.filter(id__in=memory_ids))
-    reflection.save()
-    save_embedding(reflection, embedding=[])
+
+    memories = MemoryEntry.objects.filter(id__in=memory_ids)
+    reflection = get_memory_service().log_reflection(summary, memories)
+
+    reflection.title = title
+    reflection.save(update_fields=["title"])
 
     return Response({"message": "Reflection saved successfully!"})
 
@@ -520,23 +541,14 @@ def mutate_memory(request, id):
         vector = get_embedding_for_text(mutated)
         if vector:
             save_embedding(new_mem, vector)
-            tag_slugs = auto_tag_from_embedding(mutated) or []
-            from mcp_core.models import Tag
-
-            tag_objs = []
-            for slug in tag_slugs:
-                tag, _ = Tag.objects.get_or_create(slug=slug, defaults={"name": slug})
-                tag_objs.append(tag)
-            if tag_objs:
-                new_mem.tags.add(*tag_objs)
+            get_memory_service().auto_tag_memory_from_text(new_mem, mutated)
     except Exception:
         pass
 
     if memory.assistant:
-        log_assistant_thought(
+        get_memory_service().log_assistant_meta(
             memory.assistant,
             f"Refined memory {memory.id} using style '{style}' based on feedback.",
-            thought_type="meta",
             linked_memory=new_mem,
         )
 
@@ -706,18 +718,10 @@ def replace_memory(request, id):
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def assistant_memories(request, slug):
-    try:
-        assistant = Assistant.objects.get(slug=slug)
-    except Assistant.DoesNotExist:
+    assistant, memories = get_memory_service().get_assistant_memories(slug)
+    if assistant is None:
         return Response({"error": "Assistant not found"}, status=404)
 
-    linked_thought_ids = AssistantThoughtLog.objects.filter(
-        assistant=assistant
-    ).values_list("linked_memory_id", flat=True)
-
-    memories = MemoryEntry.objects.filter(id__in=linked_thought_ids).order_by(
-        "-created_at"
-    )
     serializer = MemoryEntrySerializer(memories, many=True)
     return Response(serializer.data)
 
