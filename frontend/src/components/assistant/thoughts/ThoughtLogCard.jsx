@@ -1,7 +1,7 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import SymbolicIntegrityTag from '../../dev/SymbolicIntegrityTag';
-import { analyzeThoughtIntegrity } from '../../utils/diagnostics/thoughtIntegrity';
+import { analyzeThoughtIntegrity } from "../../../utils/diagnostics/thoughtIntegrity"
 
 export default function ThoughtLogCard({ thought }) {
   if (!thought) return null;
