@@ -24,7 +24,7 @@ class MemoryThreadLinkingTest(APITestCase):
         self.chain2.memories.add(self.m2)
 
     def test_link_chain_endpoint(self):
-        url = "/api/memory/threads/link_chain/"
+        url = "/api/v1/memory/threads/link_chain/"
         resp = self.client.post(url, {"chain_id": str(self.chain1.id), "thread_id": str(self.thread.id)}, format="json")
         assert resp.status_code == 200
         self.chain1.refresh_from_db()
@@ -36,11 +36,11 @@ class MemoryThreadLinkingTest(APITestCase):
         self.chain1.save()
         self.chain2.save()
 
-        resp = self.client.get(f"/api/memory/threads/{self.thread.id}/linked_chains/")
+        resp = self.client.get(f"/api/v1/memory/threads/{self.thread.id}/linked_chains/")
         assert resp.status_code == 200
         assert len(resp.json()) == 2
 
-        recall = self.client.get(f"/api/memory/chains/{self.chain1.id}/cross_project_recall/")
+        recall = self.client.get(f"/api/v1/memory/chains/{self.chain1.id}/cross_project_recall/")
         ids = [m["id"] for m in recall.json()]
         assert str(self.m1.id) in ids
         assert str(self.m2.id) in ids

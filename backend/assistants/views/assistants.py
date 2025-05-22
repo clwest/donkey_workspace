@@ -26,9 +26,9 @@ from assistants.models import (
     ChatSession,
 )
 from prompts.models import PromptMutationLog
-from assistants.helpers.redis_helpers import get_cached_thoughts
+from assistants.utils.session_utils import get_cached_thoughts
 from assistants.serializers import AssistantSerializer
-from assistants.helpers.redis_helpers import (
+from assistants.utils.session_utils import (
     save_message_to_session,
     flush_session_to_db,
     load_session_messages,

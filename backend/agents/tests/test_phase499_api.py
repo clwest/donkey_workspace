@@ -26,7 +26,7 @@ class Phase499APITest(APITestCase):
 
     def test_create_codex(self):
         resp = self.client.post(
-            "/api/codexes/",
+            "/api/v1/codexes/",
             {
                 "title": "C",
                 "created_by": self.assistant.id,
@@ -36,12 +36,12 @@ class Phase499APITest(APITestCase):
             format="json",
         )
         self.assertEqual(resp.status_code, 201)
-        list_resp = self.client.get("/api/codexes/")
+        list_resp = self.client.get("/api/v1/codexes/")
         self.assertEqual(len(list_resp.json()), 1)
 
     def test_create_symbolic_law(self):
         codex_resp = self.client.post(
-            "/api/codexes/",
+            "/api/v1/codexes/",
             {
                 "title": "C2",
                 "created_by": self.assistant.id,
@@ -52,7 +52,7 @@ class Phase499APITest(APITestCase):
         )
         codex_id = codex_resp.json()["id"]
         resp = self.client.post(
-            "/api/symbolic-laws/",
+            "/api/v1/symbolic-laws/",
             {
                 "codex": codex_id,
                 "description": "d",
@@ -63,12 +63,12 @@ class Phase499APITest(APITestCase):
             format="json",
         )
         self.assertEqual(resp.status_code, 201)
-        list_resp = self.client.get("/api/symbolic-laws/")
+        list_resp = self.client.get("/api/v1/symbolic-laws/")
         self.assertEqual(len(list_resp.json()), 1)
 
     def test_create_ritual_archive(self):
         codex_resp = self.client.post(
-            "/api/codexes/",
+            "/api/v1/codexes/",
             {
                 "title": "C3",
                 "created_by": self.assistant.id,
@@ -79,7 +79,7 @@ class Phase499APITest(APITestCase):
         )
         codex_id = codex_resp.json()["id"]
         resp = self.client.post(
-            "/api/ritual-archives/",
+            "/api/v1/ritual-archives/",
             {
                 "name": "R",
                 "related_memory": self.memory.id,
@@ -91,5 +91,5 @@ class Phase499APITest(APITestCase):
             format="json",
         )
         self.assertEqual(resp.status_code, 201)
-        list_resp = self.client.get("/api/ritual-archives/")
+        list_resp = self.client.get("/api/v1/ritual-archives/")
         self.assertEqual(len(list_resp.json()), 1)

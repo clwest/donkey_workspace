@@ -1,6 +1,9 @@
+
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+
 from . import views
+from assistants.viewsets.assistant_viewset import AssistantViewSet
 
 from .views import (
     assistants,
@@ -44,7 +47,9 @@ from scheduler.views import standup
 router = DefaultRouter()
 router.register(r"", views.AssistantViewSet, basename="assistant")
 
+
 urlpatterns = [
+    path("", include(router.urls)),
     # Basics
     path("reflection/", assistants.reflect_on_assistant),
     path("create_from_thought/", assistants.create_assistant_from_thought),
@@ -52,7 +57,7 @@ urlpatterns = [
     path("conscience/", conscience.conscience_profiles),
     path("reflexive-epistemology/", conscience.reflexive_epistemology),
     path("decision-frameworks/", conscience.decision_frameworks),
-    # Primary assistant actions are now handled by AssistantViewSet
+
     path(
         "primary/delegations/",
         delegations.primary_delegations,
@@ -68,7 +73,6 @@ urlpatterns = [
     path("routing-history/", routing.routing_history, name="routing-history"),
     path("purpose-routing/", autonomy.purpose_routes),
     path("autonomy-models/", autonomy.autonomy_models),
-    # CRUD operations handled by AssistantViewSet via router
     # ===== PROJECTS =====
     path(
         "projects/", projects.assistant_projects, name="assistant-projects"
@@ -468,7 +472,7 @@ urlpatterns = [
     # path("<slug:slug>/memories/", memory.assistant_memories, name="assistant-memories"),
     path(
         "<slug:slug>/thoughts/",
-        thoughts.assistant_thoughts_by_slug,
+        thoughts.AssistantThoughtViewSet.as_view({"get": "list"}),
         name="assistant_thoughts_by_slug",
     ),
     path(

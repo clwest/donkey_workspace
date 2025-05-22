@@ -11,7 +11,7 @@ class TaskDelegateAPITest(BaseAPITestCase):
         self.client.force_authenticate(self.user)
         self.sender = Assistant.objects.create(name="Sender", specialty="x")
         self.target = Assistant.objects.create(name="Target", specialty="y")
-        self.url = f"/api/assistants/{self.sender.id}/delegate-task/"
+        self.url = f"/api/v1/assistants/{self.sender.id}/delegate-task/"
 
     def test_delegate_creates_assignment(self):
         resp = self.client.post(

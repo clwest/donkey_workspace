@@ -31,13 +31,13 @@ class CollaborationAPITest(BaseAPITestCase):
         )
 
     def test_evaluate_collaboration_creates_log(self):
-        url = f"/api/assistants/{self.a1.slug}/evaluate-collaboration/"
+        url = f"/api/v1/assistants/{self.a1.slug}/evaluate-collaboration/"
         resp = self.client.post(
             url, {"project_id": str(self.project.id)}, format="json"
         )
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.data["style_conflict_detected"])
-        logs_url = f"/api/projects/{self.project.id}/collaboration_logs/"
+        logs_url = f"/api/v1/projects/{self.project.id}/collaboration_logs/"
         logs = self.client.get(logs_url).json()
         self.assertEqual(len(logs), 1)
         self.assertEqual(CollaborationLog.objects.count(), 1)

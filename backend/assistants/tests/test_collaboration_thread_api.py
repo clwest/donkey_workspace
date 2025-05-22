@@ -11,7 +11,7 @@ class CollaborationThreadAPITest(BaseAPITestCase):
         self.client.force_authenticate(self.user)
         self.lead = Assistant.objects.create(name="Lead", specialty="x")
         self.other = Assistant.objects.create(name="Other", specialty="y")
-        self.url = f"/api/assistants/{self.lead.id}/collaborate/"
+        self.url = f"/api/v1/assistants/{self.lead.id}/collaborate/"
 
     def test_create_thread(self):
         resp = self.client.post(

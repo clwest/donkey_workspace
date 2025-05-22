@@ -1,18 +1,17 @@
 from .assistants import (
+
     AssistantViewSet,
     assistants_view,
+
     assistant_detail_view,
     create_assistant_from_thought,
     chat_with_assistant_view,
-    primary_assistant_view,
     flush_chat_session,
     demo_assistant,
     add_document_to_assistant,
     self_reflect,
     self_assess,
     reflect_on_assistant,
-    primary_reflect_now,
-    primary_spawn_agent,
     clarify_prompt,
     failure_log,
 )
@@ -133,10 +132,8 @@ from .objectives import reflect_to_objectives
 __all__ = [
     "AssistantViewSet",
     "assistants_view",
+
     "assistant_detail_view",
-    "primary_assistant_view",
-    "primary_reflect_now",
-    "primary_spawn_agent",
     "create_assistant_from_thought",
     "chat_with_assistant_view",
     "flush_chat_session",

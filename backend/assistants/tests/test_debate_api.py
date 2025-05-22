@@ -13,7 +13,7 @@ class DebateAPITest(BaseAPITestCase):
         self.a2 = Assistant.objects.create(name="A2", specialty="s2")
 
     def test_start_debate_flow(self):
-        url = "/api/assistants/debate/start/"
+        url = "/api/v1/assistants/debate/start/"
         data = {
             "topic": "Test Topic",
             "arguments": [
@@ -26,7 +26,7 @@ class DebateAPITest(BaseAPITestCase):
         debate_id = resp.json()["id"]
 
         resp2 = self.client.post(
-            f"/api/assistants/debate/{debate_id}/respond/",
+            f"/api/v1/assistants/debate/{debate_id}/respond/",
             {
                 "assistant": self.a1.slug,
                 "position": "expand",
@@ -38,7 +38,7 @@ class DebateAPITest(BaseAPITestCase):
         self.assertEqual(resp2.json()["round"], 2)
 
         resp3 = self.client.post(
-            f"/api/assistants/debate/{debate_id}/consensus/",
+            f"/api/v1/assistants/debate/{debate_id}/consensus/",
             {"assistant": self.a1.slug},
             format="json",
         )

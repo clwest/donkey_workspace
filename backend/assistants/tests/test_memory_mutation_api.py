@@ -18,7 +18,7 @@ class MemoryMutationAPITest(BaseAPITestCase):
         )
 
     def test_mutate_memory_endpoint(self):
-        url = f"/api/memory/{self.memory.id}/mutate/"
+        url = f"/api/v1/memory/{self.memory.id}/mutate/"
         resp = self.client.post(url, {"style": "clarify"}, format="json")
         self.assertEqual(resp.status_code, 201)
         data = resp.json()

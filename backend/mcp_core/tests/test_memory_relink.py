@@ -27,7 +27,7 @@ class MemoryRelinkAPITest(APITestCase):
         )
 
     def test_relink_endpoint(self):
-        url = f"/api/mcp/memory/{self.memory.id}/relink/"
+        url = f"/api/v1/mcp/memory/{self.memory.id}/relink/"
         resp = self.client.patch(url, {"new_thread_id": str(self.thread_b.id)}, format="json")
         self.assertEqual(resp.status_code, 200)
         self.memory.refresh_from_db()

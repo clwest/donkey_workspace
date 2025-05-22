@@ -28,7 +28,7 @@ class TokenRitualAPITest(APITestCase):
         mock_call.return_value = "s"
         mock_embed.return_value = [0.1] * EMBEDDING_LENGTH
         resp = self.client.post(
-            "/api/agents/token-rituals/",
+            "/api/v1/agents/token-rituals/",
             {
                 "initiating_assistant": self.assistant.id,
                 "base_memory_ids": [self.memory.id],
@@ -40,7 +40,7 @@ class TokenRitualAPITest(APITestCase):
         self.assertEqual(resp.status_code, 201)
         ritual_id = resp.json()["id"]
         resp = self.client.post(
-            "/api/agents/token-rituals/",
+            "/api/v1/agents/token-rituals/",
             {"ritual": ritual_id, "complete": True},
             format="json",
         )
@@ -68,7 +68,7 @@ class TokenRitualAPITest(APITestCase):
             embedding=[0.0] * EMBEDDING_LENGTH,
             created_by=self.assistant,
         )
-        resp = self.client.get("/api/agents/lore-tokens/?token_type=echo")
+        resp = self.client.get("/api/v1/agents/lore-tokens/?token_type=echo")
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         self.assertEqual(len(data), 1)

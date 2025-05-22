@@ -37,7 +37,7 @@ class ReflectOnMemoryChainAPITest(BaseAPITestCase):
     )
     def test_reflection_endpoint(self, mock_gen):
         mock_gen.return_value = "sum"
-        url = f"/api/assistants/{self.assistant.slug}/reflect/chain/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/reflect/chain/"
         resp = self.client.post(url, {"chain_id": str(self.chain.id)}, format="json")
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()["summary"], "sum")

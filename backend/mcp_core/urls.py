@@ -1,14 +1,16 @@
+import warnings
+warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
 from django.urls import path
 
 from uuid import UUID
-from .views import threading, reflection, tags, memories, prompts, narrative_events
+from .views import threading, reflection, tags, memories, prompts, narrative_events, task_status
 from mcp_core.capabilities.dev_docs import views as dev_docs
 
 urlpatterns = [
     path("prompt-usage/", prompts.log_prompt_usage_view, name="log-prompt-usage"),
     path("reflect/", reflection.reflect_on_memories, name="reflect-on-memories"),
     path("reflections/<int:reflection_id>/save/", reflection.save_reflection),
-    path("reflections/", reflection.list_reflections),
+    path("reflections/", reflection.ReflectionListView.as_view()),
     path("reflections/<uuid:reflection_id>/", reflection.reflection_detail),
     path(
         "reflections/<int:pk>/expand/",
@@ -34,7 +36,7 @@ urlpatterns = [
         reflection.grouped_reflections_view,
         name="grouped-reflections-view",
     ),
-    path("memories/", memories.list_memories, name="list-memories"),
+    path("memories/", memories.MemoryListView.as_view(), name="list-memories"),
     path(
         "memory/<uuid:id>/relink/",
         memories.relink_memory,
@@ -50,8 +52,8 @@ urlpatterns = [
         reflection.project_reflections,
         name="agent-project-reflection",
     ),
-    path("threads/overview/", threading.list_overview_threads, name="threads_overview"),
-    path("threads/", threading.narrative_thread_list, name="narrative_thread_list"),
+    path("threads/overview/", threading.OverviewThreadListView.as_view(), name="threads_overview"),
+    path("threads/", threading.NarrativeThreadListView.as_view(), name="narrative_thread_list"),
     path(
         "threads/<uuid:id>/",
         threading.narrative_thread_detail,
@@ -121,7 +123,7 @@ urlpatterns = [
     path(
         "threads/auto-thread/", threading.auto_thread_by_tag, name="auto_thread_by_tag"
     ),
-    path("dev_docs/", dev_docs.list_dev_docs, name="list-dev-docs"),
+    path("dev_docs/", dev_docs.DevDocListView.as_view(), name="list-dev-docs"),
     path("dev_docs/summarize/", dev_docs.summarize_and_group_devdocs_view),
     path("dev_docs/grouped_history/", dev_docs.grouped_reflection_history),
     path("dev_docs/grouped/<int:pk>/", dev_docs.grouped_reflection_detail),
@@ -134,4 +136,7 @@ urlpatterns = [
         narrative_events.summarize_event,
         name="summarize-narrative-event",
     ),
+
+    path("tasks/<task_id>/status/", task_status.TaskStatusView.as_view()),
+
 ]

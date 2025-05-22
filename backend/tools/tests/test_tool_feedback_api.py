@@ -18,7 +18,7 @@ class ToolFeedbackAPITest(APITestCase):
         self.log = ToolUsageLog.objects.create(tool=self.tool, assistant=self.assistant, input_payload={})
 
     def test_submit_feedback_triggers_mutation(self):
-        url = f"/api/tools/feedback/{self.log.id}/"
+        url = f"/api/v1/tools/feedback/{self.log.id}/"
         resp = self.client.post(url, {"feedback": "not_helpful", "message": "bad"}, format="json")
         self.assertEqual(resp.status_code, 200)
         self.log.refresh_from_db()
