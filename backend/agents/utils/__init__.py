@@ -7,3 +7,4 @@ from .lore_token import compress_memories_to_token, apply_lore_token_to_agent
 from .reincarnation import reincarnate_assistant_from_artifact
 from .narrative_harmonizer import harmonize_global_narrative
 from .myth_verification import verify_lore_token_signature, sync_chronomyth_state
+from .law_evolution import evolve_symbolic_law
