@@ -59,10 +59,12 @@ from agents.models.lore import (
     BeliefContinuityRitual,
     CosmologicalRole,
     LegacyTokenVault,
+
     ArchetypeEvolutionEvent,
     CodexSymbolReconciliation,
     MythologyMeshNode,
     ArchetypalDriftForecast,
+
 )
 from agents.serializers import (
     AgentSerializer,
@@ -119,6 +121,7 @@ from agents.serializers import (
     CodexSymbolReconciliationSerializer,
     MythologyMeshNodeSerializer,
     ArchetypalDriftForecastSerializer,
+
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -979,33 +982,40 @@ def legacy_vaults(request):
 
 
 @api_view(["GET", "POST"])
-def archetype_evolution(request):
+def archetype_sync_pulses(request):
     if request.method == "GET":
-        events = ArchetypeEvolutionEvent.objects.all().order_by("-created_at")
-        return Response(ArchetypeEvolutionEventSerializer(events, many=True).data)
+        pulses = ArchetypeSynchronizationPulse.objects.all().order_by("-created_at")
+        return Response(ArchetypeSynchronizationPulseSerializer(pulses, many=True).data)
 
-    serializer = ArchetypeEvolutionEventSerializer(data=request.data)
+    serializer = ArchetypeSynchronizationPulseSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    event = serializer.save()
-    return Response(ArchetypeEvolutionEventSerializer(event).data, status=201)
+    pulse = serializer.save()
+    return Response(ArchetypeSynchronizationPulseSerializer(pulse).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def codex_symbol_reconciliation(request):
+def creation_myths(request):
     if request.method == "GET":
-        recs = CodexSymbolReconciliation.objects.all().order_by("-created_at")
-        return Response(CodexSymbolReconciliationSerializer(recs, many=True).data)
+        myths = CreationMythEntry.objects.all().order_by("-created_at")
+        return Response(CreationMythEntrySerializer(myths, many=True).data)
 
-    serializer = CodexSymbolReconciliationSerializer(data=request.data)
+    serializer = CreationMythEntrySerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    rec = serializer.save()
-    return Response(CodexSymbolReconciliationSerializer(rec).data, status=201)
+    myth = serializer.save()
+    return Response(CreationMythEntrySerializer(myth).data, status=201)
 
 
-@api_view(["GET"])
-def myth_api_lookup_view(request):
-    query = request.query_params.get("q", "")
-    from agents.utils.myth_api import myth_api_lookup
+@api_view(["GET", "POST"])
+def cosmogenesis_simulations(request):
+    if request.method == "GET":
+        sims = CosmogenesisSimulation.objects.all().order_by("-created_at")
+        return Response(CosmogenesisSimulationSerializer(sims, many=True).data)
+
+    serializer = CosmogenesisSimulationSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    sim = serializer.save()
+    return Response(CosmogenesisSimulationSerializer(sim).data, status=201)
+
 
     data = myth_api_lookup(query)
     return Response(data)
@@ -1041,3 +1051,4 @@ def archetype_drift(request):
     serializer.is_valid(raise_exception=True)
     forecast = serializer.save()
     return Response(ArchetypalDriftForecastSerializer(forecast).data, status=201)
+

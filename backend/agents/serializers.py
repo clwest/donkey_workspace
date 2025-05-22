@@ -55,6 +55,7 @@ from agents.models.lore import (
     BeliefContinuityRitual,
     CosmologicalRole,
     LegacyTokenVault,
+
     ArchetypeEvolutionEvent,
     CodexSymbolReconciliation,
     MythologyMeshNode,
@@ -597,16 +598,21 @@ class LegacyTokenVaultSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-class ArchetypeEvolutionEventSerializer(serializers.ModelSerializer):
+class ArchetypeSynchronizationPulseSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ArchetypeEvolutionEvent
+        model = ArchetypeSynchronizationPulse
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
-
-class CodexSymbolReconciliationSerializer(serializers.ModelSerializer):
+class CreationMythEntrySerializer(serializers.ModelSerializer):
     class Meta:
-        model = CodexSymbolReconciliation
+        model = CreationMythEntry
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+class CosmogenesisSimulationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CosmogenesisSimulation
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
@@ -623,3 +629,4 @@ class ArchetypalDriftForecastSerializer(serializers.ModelSerializer):
         model = ArchetypalDriftForecast
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
