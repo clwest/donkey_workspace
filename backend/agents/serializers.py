@@ -58,6 +58,7 @@ from agents.models.lore import (
     ArchetypeSynchronizationPulse,
     CreationMythEntry,
     CosmogenesisSimulation,
+
 )
 from assistants.models.assistant import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -595,6 +596,7 @@ class LegacyTokenVaultSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
 class ArchetypeSynchronizationPulseSerializer(serializers.ModelSerializer):
     class Meta:
         model = ArchetypeSynchronizationPulse
@@ -612,4 +614,5 @@ class CosmogenesisSimulationSerializer(serializers.ModelSerializer):
         model = CosmogenesisSimulation
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 

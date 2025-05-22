@@ -1461,6 +1461,7 @@ class LegacyTokenVault(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
 
+
 class ArchetypeSynchronizationPulse(models.Model):
     """Periodic broadcast aligning assistant archetypes."""
 
@@ -1468,10 +1469,12 @@ class ArchetypeSynchronizationPulse(models.Model):
     synchronized_archetypes = models.JSONField()
     justification_memory = models.ForeignKey(SwarmMemoryEntry, on_delete=models.SET_NULL, null=True)
     synchronization_scope = models.CharField(max_length=100)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
+
 
     def __str__(self):  # pragma: no cover - display helper
         return f"Pulse by {self.initiating_entity.name}"
@@ -1499,6 +1502,7 @@ class CosmogenesisSimulation(models.Model):
     seed_memories = models.ManyToManyField(SwarmMemoryEntry)
     symbolic_structure = models.JSONField()
     resulting_cosmos_map = models.TextField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -1506,4 +1510,5 @@ class CosmogenesisSimulation(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return self.title
+
 

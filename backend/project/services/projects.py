@@ -7,7 +7,7 @@ from django.contrib.auth.models import AbstractBaseUser
 from assistants.models.assistant import Assistant
 from assistants.models.reflection import AssistantReflectionLog
 from assistants.helpers.team_memory import assign_project_role, get_visible_memories
-from .models import Project
+from project.models.core import Project
 
 
 def user_can_access_project(user: Optional[AbstractBaseUser], project: Project) -> bool:
