@@ -1022,7 +1022,9 @@ class TemporalLoreAnchor(models.Model):
     anchor_type = models.CharField(max_length=50)
     timestamp = models.DateTimeField()
     attached_tokens = models.ManyToManyField(LoreToken)
-    coordinating_civilizations = models.ManyToManyField("assistants.AssistantCivilization")
+    coordinating_civilizations = models.ManyToManyField(
+        "assistants.AssistantCivilization"
+    )
     narrative_impact_summary = models.TextField()
 
     class Meta:
@@ -1035,7 +1037,9 @@ class TemporalLoreAnchor(models.Model):
 class RitualComplianceRecord(models.Model):
     """Track cross-civilization ritual participation status."""
 
-    civilization = models.ForeignKey("assistants.AssistantCivilization", on_delete=models.CASCADE)
+    civilization = models.ForeignKey(
+        "assistants.AssistantCivilization", on_delete=models.CASCADE
+    )
     anchor = models.ForeignKey(TemporalLoreAnchor, on_delete=models.CASCADE)
     compliance_status = models.CharField(max_length=20)
     reflection_summary = models.TextField(blank=True)
@@ -1046,6 +1050,7 @@ class RitualComplianceRecord(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"{self.civilization.name} - {self.compliance_status}"
+
 
 # Phase 4.93 models
 class BeliefForkEvent(models.Model):
@@ -1223,6 +1228,7 @@ class OntologicalAuditLog(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Audit {self.id}"
 
+
 class BeliefBiome(models.Model):
     """Symbolic ecosystem shaping assistant evolution."""
 
@@ -1239,8 +1245,10 @@ class BeliefBiome(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
 
+
 class SymbolicAlliance(models.Model):
     """Purpose-aligned coalition across the swarm."""
+
     name = models.CharField(max_length=150)
     founding_assistants = models.ManyToManyField("assistants.Assistant")
     aligned_beliefs = models.JSONField()
@@ -1254,8 +1262,10 @@ class SymbolicAlliance(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
 
+
 class DreamPurposeNegotiation(models.Model):
     """Dream-mode purpose alignment discussion."""
+
     participants = models.ManyToManyField("assistants.Assistant")
     proposed_purpose_update = models.TextField()
     symbolic_context = models.JSONField()
@@ -1269,8 +1279,10 @@ class DreamPurposeNegotiation(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"DreamNegotiation {self.id}"
 
+
 class BiomeMutationEvent(models.Model):
     """Record of belief biome transformations."""
+
     biome = models.ForeignKey(BeliefBiome, on_delete=models.CASCADE)
     trigger_type = models.CharField(max_length=100)
     mutation_summary = models.TextField()
@@ -1288,9 +1300,7 @@ class SwarmCodex(models.Model):
     """Belief-based constitution governing parts of the swarm."""
 
     title = models.CharField(max_length=150)
-    created_by = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE
-    )
+    created_by = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
     governing_alliances = models.ManyToManyField(SymbolicAlliance)
     symbolic_domain = models.CharField(max_length=100)
     active_laws = models.ManyToManyField("SymbolicLawEntry", blank=True)
@@ -1343,3 +1353,71 @@ class RitualArchiveEntry(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
 
+
+class AssistantPolity(models.Model):
+    """Swarm-recognized political or mythic authority."""
+
+    name = models.CharField(max_length=150)
+    founding_codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    member_guilds = models.ManyToManyField("assistants.AssistantGuild")
+    leadership_assistants = models.ManyToManyField(
+        "assistants.Assistant", related_name="polity_leaders"
+    )
+    core_purpose_statement = models.TextField()
+    symbolic_legitimacy_score = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
+
+
+class RitualElection(models.Model):
+    """Ritual election for mythic leadership or role assignment."""
+
+    polity = models.ForeignKey(AssistantPolity, on_delete=models.CASCADE)
+    candidates = models.ManyToManyField("assistants.Assistant")
+    election_type = models.CharField(max_length=50)
+    ballot_memory = models.ForeignKey(
+        SwarmMemoryEntry, null=True, on_delete=models.SET_NULL
+    )
+    winner = models.ForeignKey(
+        "assistants.Assistant",
+        null=True,
+        blank=True,
+        related_name="election_winner",
+        on_delete=models.SET_NULL,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Election {self.id}"
+
+
+class LegacyRoleBinding(models.Model):
+    """Persistent myth-bound role for an assistant."""
+
+    role_name = models.CharField(max_length=100)
+    assigned_to = models.ForeignKey(
+        "assistants.Assistant", null=True, on_delete=models.SET_NULL
+    )
+    bonded_memory = models.ForeignKey(
+        SwarmMemoryEntry, on_delete=models.SET_NULL, null=True
+    )
+    origin_polity = models.ForeignKey(
+        AssistantPolity, on_delete=models.SET_NULL, null=True
+    )
+    renewal_conditions = models.TextField()
+    status = models.CharField(max_length=30, default="active")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.role_name

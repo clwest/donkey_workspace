@@ -39,6 +39,9 @@ from agents.models import (
     SwarmCodex,
     SymbolicLawEntry,
     RitualArchiveEntry,
+    AssistantPolity,
+    RitualElection,
+    LegacyRoleBinding,
 )
 from assistants.models import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -349,6 +352,7 @@ class RitualComplianceRecordSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
 class BeliefForkEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = BeliefForkEvent
@@ -418,17 +422,20 @@ class BeliefBiomeSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
 class SymbolicAllianceSerializer(serializers.ModelSerializer):
     class Meta:
         model = SymbolicAlliance
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
 class DreamPurposeNegotiationSerializer(serializers.ModelSerializer):
     class Meta:
         model = DreamPurposeNegotiation
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 
 class BiomeMutationEventSerializer(serializers.ModelSerializer):
     class Meta:
@@ -457,3 +464,23 @@ class RitualArchiveEntrySerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
+class AssistantPolitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantPolity
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RitualElectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RitualElection
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class LegacyRoleBindingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LegacyRoleBinding
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]

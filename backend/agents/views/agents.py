@@ -42,6 +42,9 @@ from agents.models import (
     SwarmCodex,
     SymbolicLawEntry,
     RitualArchiveEntry,
+    AssistantPolity,
+    RitualElection,
+    LegacyRoleBinding,
 )
 from agents.serializers import (
     AgentSerializer,
@@ -80,6 +83,9 @@ from agents.serializers import (
     SwarmCodexSerializer,
     SymbolicLawEntrySerializer,
     RitualArchiveEntrySerializer,
+    AssistantPolitySerializer,
+    RitualElectionSerializer,
+    LegacyRoleBindingSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -562,6 +568,7 @@ def chronomyth_sync(request):
     sync_chronomyth_state()
     return Response({"status": "ok"})
 
+
 @api_view(["GET", "POST"])
 def belief_forks(request):
     if request.method == "GET":
@@ -681,6 +688,7 @@ def belief_biomes(request):
     biome = serializer.save()
     return Response(BeliefBiomeSerializer(biome).data, status=201)
 
+
 @api_view(["GET", "POST"])
 def symbolic_alliances(request):
     if request.method == "GET":
@@ -752,3 +760,38 @@ def ritual_archives(request):
     archive = serializer.save()
     return Response(RitualArchiveEntrySerializer(archive).data, status=201)
 
+
+@api_view(["GET", "POST"])
+def polities(request):
+    if request.method == "GET":
+        polities = AssistantPolity.objects.all().order_by("-created_at")
+        return Response(AssistantPolitySerializer(polities, many=True).data)
+
+    serializer = AssistantPolitySerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    polity = serializer.save()
+    return Response(AssistantPolitySerializer(polity).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def elections(request):
+    if request.method == "GET":
+        elections = RitualElection.objects.all().order_by("-created_at")
+        return Response(RitualElectionSerializer(elections, many=True).data)
+
+    serializer = RitualElectionSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    election = serializer.save()
+    return Response(RitualElectionSerializer(election).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def legacy_roles(request):
+    if request.method == "GET":
+        roles = LegacyRoleBinding.objects.all().order_by("-created_at")
+        return Response(LegacyRoleBindingSerializer(roles, many=True).data)
+
+    serializer = LegacyRoleBindingSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    role = serializer.save()
+    return Response(LegacyRoleBindingSerializer(role).data, status=201)
