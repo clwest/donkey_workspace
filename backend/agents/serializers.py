@@ -57,6 +57,8 @@ from agents.models.lore import (
     LegacyTokenVault,
     ArchetypeEvolutionEvent,
     CodexSymbolReconciliation,
+    MythologyMeshNode,
+    ArchetypalDriftForecast,
 )
 from assistants.models.assistant import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -605,5 +607,19 @@ class ArchetypeEvolutionEventSerializer(serializers.ModelSerializer):
 class CodexSymbolReconciliationSerializer(serializers.ModelSerializer):
     class Meta:
         model = CodexSymbolReconciliation
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MythologyMeshNodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythologyMeshNode
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class ArchetypalDriftForecastSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ArchetypalDriftForecast
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
