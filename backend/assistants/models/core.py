@@ -1073,7 +1073,7 @@ def log_milestone_event(sender, instance, created, **kwargs):
         )
 
 
-@receiver(post_save, sender=AssistantReflectionLog)
+@receiver(post_save, sender="assistants.AssistantReflectionLog")
 def log_reflection_event(sender, instance, created, **kwargs):
     if created and instance.project:
         ProjectPlanningLog.objects.create(
@@ -1084,7 +1084,7 @@ def log_reflection_event(sender, instance, created, **kwargs):
         )
 
 
-@receiver(post_save, sender=AssistantReflectionLog)
+@receiver(post_save, sender="assistants.AssistantReflectionLog")
 def record_swarm_memory(sender, instance, created, **kwargs):
     if not created:
         return
