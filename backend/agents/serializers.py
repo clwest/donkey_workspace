@@ -55,10 +55,11 @@ from agents.models.lore import (
     BeliefContinuityRitual,
     CosmologicalRole,
     LegacyTokenVault,
-    ArchetypeSynchronizationPulse,
-    CreationMythEntry,
-    CosmogenesisSimulation,
 
+    ArchetypeEvolutionEvent,
+    CodexSymbolReconciliation,
+    MythologyMeshNode,
+    ArchetypalDriftForecast,
 )
 from assistants.models.assistant import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -615,4 +616,17 @@ class CosmogenesisSimulationSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
+class MythologyMeshNodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythologyMeshNode
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class ArchetypalDriftForecastSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ArchetypalDriftForecast
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
 

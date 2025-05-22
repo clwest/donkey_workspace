@@ -59,9 +59,11 @@ from agents.models.lore import (
     BeliefContinuityRitual,
     CosmologicalRole,
     LegacyTokenVault,
-    ArchetypeSynchronizationPulse,
-    CreationMythEntry,
-    CosmogenesisSimulation,
+
+    ArchetypeEvolutionEvent,
+    CodexSymbolReconciliation,
+    MythologyMeshNode,
+    ArchetypalDriftForecast,
 
 )
 from agents.serializers import (
@@ -115,9 +117,11 @@ from agents.serializers import (
     BeliefContinuityRitualSerializer,
     CosmologicalRoleSerializer,
     LegacyTokenVaultSerializer,
-    ArchetypeSynchronizationPulseSerializer,
-    CreationMythEntrySerializer,
-    CosmogenesisSimulationSerializer,
+    ArchetypeEvolutionEventSerializer,
+    CodexSymbolReconciliationSerializer,
+    MythologyMeshNodeSerializer,
+    ArchetypalDriftForecastSerializer,
+
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -1011,4 +1015,40 @@ def cosmogenesis_simulations(request):
     serializer.is_valid(raise_exception=True)
     sim = serializer.save()
     return Response(CosmogenesisSimulationSerializer(sim).data, status=201)
+
+
+    data = myth_api_lookup(query)
+    return Response(data)
+
+
+@api_view(["GET", "POST"])
+def mythology_mesh(request):
+    if request.method == "GET":
+        nodes = MythologyMeshNode.objects.all().order_by("-created_at")
+        return Response(MythologyMeshNodeSerializer(nodes, many=True).data)
+
+    serializer = MythologyMeshNodeSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    node = serializer.save()
+    return Response(MythologyMeshNodeSerializer(node).data, status=201)
+
+
+@api_view(["GET"])
+def constellation_map(request):
+    from agents.utils.constellation_map import build_constellation_map
+
+    data = build_constellation_map()
+    return Response(data)
+
+
+@api_view(["GET", "POST"])
+def archetype_drift(request):
+    if request.method == "GET":
+        forecasts = ArchetypalDriftForecast.objects.all().order_by("-created_at")
+        return Response(ArchetypalDriftForecastSerializer(forecasts, many=True).data)
+
+    serializer = ArchetypalDriftForecastSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    forecast = serializer.save()
+    return Response(ArchetypalDriftForecastSerializer(forecast).data, status=201)
 
