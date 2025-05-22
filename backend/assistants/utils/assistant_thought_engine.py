@@ -279,18 +279,19 @@ Memories:
 
         return created
 
-    def reflect_on_thoughts(self) -> dict:
+    def reflect_on_thoughts(self, *, force: bool = False) -> dict:
         if not self.assistant:
             raise ValueError("Assistant is required for reflection.")
 
-        # 🔍 Check Redis cache first
-        cached = get_cached_reflection(self.assistant.slug)
-        if cached:
-            return {
-                "summary": cached,
-                "trace": "[cache]",
-                "source_count": 0,
-            }
+        # 🔍 Check Redis cache first unless forcing refresh
+        if not force:
+            cached = get_cached_reflection(self.assistant.slug)
+            if cached:
+                return {
+                    "summary": cached,
+                    "trace": "[cache]",
+                    "source_count": 0,
+                }
 
         # 🧠 Pull latest assistant memory entries
         memories = MemoryEntry.objects.filter(
