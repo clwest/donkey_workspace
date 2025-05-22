@@ -1,11 +1,13 @@
 from django.contrib import admin
-from .models import (
-    Assistant,
-    AssistantThoughtLog,
+from .models.assistant import Assistant
+from .models.thoughts import AssistantThoughtLog
+from .models.project import (
     AssistantProject,
     AssistantObjective,
     AssistantNextAction,
-    AssistantReflectionLog,
+)
+from .models.reflection import AssistantReflectionLog
+from .models.core import (
     ChatSession,
     DelegationEvent,
     DelegationStrategy,
