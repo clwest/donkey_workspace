@@ -2,7 +2,8 @@ from django.utils.text import slugify
 from django.contrib.auth import get_user_model
 from prompts.models import Prompt
 from assistants.models import Assistant, AssistantProject, AssistantMemoryChain
-from project.models import Project, ProjectType, ProjectStatus
+from assistants.services import AssistantService
+from project.models import ProjectType, ProjectStatus
 
 PRIMARY_PROMPT = (
     "You are the Primary Assistant in a multi-agent intelligence system. "
@@ -53,7 +54,7 @@ def prompt_to_assistant(name: str, tone: str, personality: str) -> Assistant:
             defaults={"email": "seed@example.com", "password": "notsecure"},
         )
 
-        core_project = Project.objects.create(
+        core_project = AssistantService.create_project(
             user=user,
             title="Primary Orchestration",
             assistant=assistant,

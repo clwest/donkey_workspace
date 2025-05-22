@@ -18,7 +18,7 @@ from assistants.models import (
     AssistantThoughtLog,
 )
 from assistants.utils.delegation_helpers import get_trust_score
-from memory.models import MemoryEntry
+from memory.services import MemoryService
 from memory.serializers import MemoryEntrySerializer
 from assistants.utils.delegation_trace import build_delegation_trace
 from django.utils import timezone
@@ -198,7 +198,7 @@ def evaluate_delegation(request, slug):
         recent_memory = None
         if chat_session:
             recent_memory = (
-                MemoryEntry.objects.filter(chat_session=chat_session)
+                MemoryService.filter_entries(chat_session=chat_session)
                 .order_by("-created_at")
                 .first()
             )
@@ -224,7 +224,7 @@ def suggest_delegation(request, slug):
     ctx_id = request.data.get("context_id")
     context = None
     if ctx_type == "memory":
-        context = MemoryEntry.objects.filter(id=ctx_id).first()
+        context = MemoryService.get_entry(ctx_id)
     elif ctx_type == "objective":
         from assistants.models import AssistantObjective
 
@@ -276,7 +276,7 @@ def handoff_session(request, slug):
         return Response({"error": "Session not found"}, status=404)
 
     memory_id = request.data.get("memory_context_id")
-    memory = MemoryEntry.objects.filter(id=memory_id).first() if memory_id else None
+    memory = MemoryService.get_entry(memory_id) if memory_id else None
     reason = request.data.get("reason", "handoff")
     end_session = bool(request.data.get("end_session"))
 

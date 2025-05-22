@@ -6,7 +6,7 @@ import json
 from openai import OpenAI
 
 from assistants.models import Assistant, AssistantThoughtLog
-from memory.models import MemoryEntry
+from memory.services import MemoryService
 from intel_core.models import Document
 
 client = OpenAI()
@@ -38,7 +38,7 @@ def diff_knowledge(request, slug):
     prompt_content = assistant.system_prompt.content if assistant.system_prompt else ""
     thoughts = AssistantThoughtLog.objects.filter(assistant=assistant).order_by("-created_at")[:5]
     thought_text = "\n".join(t.thought for t in thoughts if t.thought)
-    memories = MemoryEntry.objects.filter(assistant=assistant).order_by("-timestamp")[:5]
+    memories = MemoryService.filter_entries(assistant=assistant).order_by("-timestamp")[:5]
     memory_text = "\n".join(m.summary or m.event for m in memories if m.summary or m.event)
 
     context = (
