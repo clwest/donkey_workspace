@@ -1,8 +1,8 @@
 import logging
 from typing import List, Dict
 
-from assistants.models import Assistant
-from agents.models import SwarmMemoryEntry
+from assistants.models.assistant import Assistant
+from agents.models.lore import SwarmMemoryEntry
 
 logger = logging.getLogger(__name__)
 

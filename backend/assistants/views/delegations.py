@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from assistants.models import DelegationEvent
+from assistants.models.thoughts import AssistantThoughtLog
 from assistants.serializers import (
     DelegationEventSerializer,
     RecentDelegationEventSerializer,
@@ -10,12 +10,12 @@ from assistants.utils.delegation import (
     spawn_delegated_assistant,
     should_delegate,
 )
-from assistants.models import (
+from assistants.models.assistant import (
     Assistant,
     TokenUsage,
     ChatSession,
     AssistantChatMessage,
-    AssistantThoughtLog,
+    DelegationEvent
 )
 from assistants.utils.delegation_helpers import get_trust_score
 from memory.services import MemoryService

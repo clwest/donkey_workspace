@@ -1,4 +1,4 @@
-from assistants.models import ChatSession, AssistantChatMessage
+from assistants.models.assistant import ChatSession, AssistantChatMessage
 from prompts.utils.openai_utils import complete_chat
 
 

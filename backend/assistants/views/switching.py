@@ -4,12 +4,12 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 import uuid
 
-from assistants.models import (
+from assistants.models.assistant import (
     Assistant,
     ChatSession,
-    AssistantThoughtLog,
     AssistantSwitchEvent,
 )
+from assistants.models.thoughts import AssistantThoughtLog
 from assistants.serializers import AssistantSwitchEventSerializer
 from assistants.utils.assistant_switching import suggest_assistant_switch
 

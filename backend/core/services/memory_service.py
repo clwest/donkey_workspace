@@ -4,7 +4,7 @@ from typing import List
 from openai import OpenAI
 
 from memory.models import MemoryEntry
-from assistants.models import AssistantReflectionLog
+from assistants.models.reflection import AssistantReflectionLog
 from embeddings.helpers.helpers_io import save_embedding
 
 

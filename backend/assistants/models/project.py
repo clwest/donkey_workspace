@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.text import slugify
 from django.conf import settings
 from .core import PLANNING_EVENT_TYPES
-from .core import Assistant
+from assistants.models.reflection import AssistantReflectionLog
 from memory.models import MemoryEntry
 from prompts.models import Prompt
 from mcp_core.models import Tag
@@ -359,11 +359,17 @@ class ProjectPlanningLog(models.Model):
         "assistants.AssistantProject",
         on_delete=models.CASCADE,
     )
-    object_id = models.UUIDField(null=True, blank=True),
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.CASCADE,
+        related_name="planning_logs",
+    )
+    object_id = models.PositiveIntegerField()
     related_object = GenericForeignKey("content_type", "object_id")
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ["-timestamp"]
+        ordering = ["-created_at"]
 
     def __str__(self):
         return (

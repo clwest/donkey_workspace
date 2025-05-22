@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from typing import List
 
-from assistants.models import Assistant, AssistantProject, AssistantObjective
-from agents.models import Agent
+from assistants.models.assistant import Assistant
+from assistants.models.project import AssistantProject, AssistantObjective
+from agents.models.core import Agent
 from agents.utils.agent_controller import AgentController
 from core.services.agent_service import spawn_agent_for_skill
 

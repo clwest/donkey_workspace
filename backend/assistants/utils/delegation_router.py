@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List, Union
 
-from assistants.models import Assistant
+from assistants.models.assistant import Assistant
 from memory.models import MemoryEntry
 from embeddings.helpers.helpers_io import get_embedding_for_text
 from embeddings.vector_utils import compute_similarity

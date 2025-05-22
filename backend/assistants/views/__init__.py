@@ -15,7 +15,7 @@ from .knowledge import diff_knowledge
 from .dashboard import assistant_dashboard
 from .thoughts import (
     submit_assistant_thought,
-    assistant_thoughts_by_slug,
+
     submit_chat_feedback,
     update_message_feedback,
     reflect_on_assistant_thoughts,
@@ -136,7 +136,7 @@ __all__ = [
     "self_assess",
     "reflect_on_assistant",
     "submit_assistant_thought",
-    "assistant_thoughts_by_slug",
+    
     "submit_chat_feedback",
     "update_message_feedback",
     "reflect_on_assistant_thoughts",

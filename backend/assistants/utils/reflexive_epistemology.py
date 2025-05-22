@@ -1,7 +1,7 @@
 import logging
 from typing import Dict
 
-from assistants.models import Assistant, ConscienceModule
+from assistants.models.assistant import Assistant, ConscienceModule
 
 logger = logging.getLogger(__name__)
 

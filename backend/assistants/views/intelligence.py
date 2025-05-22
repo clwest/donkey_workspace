@@ -3,7 +3,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
-from assistants.models import Assistant, AssistantProject
+from assistants.models.assistant import Assistant
+from assistants.models.project import AssistantProject
 from mcp_core.models import NarrativeThread
 from assistants.serializers import AssistantNextActionSerializer
 from assistants.utils.assistant_reflection_engine import plan_from_thread_context

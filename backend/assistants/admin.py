@@ -8,7 +8,7 @@ from .models.project import (
     AssistantNextAction,
 )
 from .models.reflection import AssistantReflectionLog
-from .models.core import (
+from .models.assistant import (
 
     ChatSession,
     StructuredMemory,
@@ -16,6 +16,7 @@ from .models.core import (
     AssistantChatMessage,
     AudioResponse,
     DelegationEvent,
+    DelegationStrategy,
     AssistantMessage,
     RoutingSuggestionLog,
     SessionHandoff,
@@ -27,6 +28,9 @@ from .models.core import (
     DebateSummary,
 
 )
+from .models.core import AssistantMythLayer
+from .models.thoughts import CollaborationLog, CollaborationThread
+from .models.project import AssistantMemoryChain
 from memory.models import MemoryEntry
 from mcp_core.models import Tag
 

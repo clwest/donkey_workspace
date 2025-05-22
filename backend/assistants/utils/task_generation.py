@@ -1,4 +1,4 @@
-from assistants.models import AssistantThoughtLog
+from assistants.models.thoughts import AssistantThoughtLog
 from memory.models import MemoryEntry
 
 def generate_task_from_memory(memory: MemoryEntry) -> dict:

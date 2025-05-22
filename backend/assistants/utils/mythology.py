@@ -5,8 +5,8 @@ from __future__ import annotations
 import re
 from django.utils.text import slugify
 
-from assistants.models import Assistant
-from agents.models import LoreEntry, SwarmMemoryEntry
+from assistants.models.assistant import Assistant
+from agents.models.lore import LoreEntry, SwarmMemoryEntry
 from mcp_core.models import Tag
 
 

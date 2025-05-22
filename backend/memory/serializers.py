@@ -8,7 +8,7 @@ from .models import (
     SharedMemoryEntry,
 )
 
-from assistants.models import AssistantThoughtLog
+from assistants.models.thoughts import AssistantThoughtLog
 from agents.serializers import AgentSerializer
 from mcp_core.serializers_tags import NarrativeThreadSerializer
 from mcp_core.serializers_tags import TagSerializer

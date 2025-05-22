@@ -4,7 +4,8 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 
-from assistants.models import Assistant, AssistantThoughtLog, DelegationEvent
+from assistants.models.assistant import Assistant,  DelegationEvent
+from assistants.models.thoughts import AssistantThoughtLog
 from assistants.serializers import (
     AssistantSerializer,
     AssistantThoughtLogSerializer,

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Dict, Any, Optional
 
-from assistants.models import ChatSession, Assistant
+from assistants.models.assistant import ChatSession, Assistant
 from assistants.utils.routing_suggestion import suggest_assistant_for_context
 
 

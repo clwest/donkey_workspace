@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from assistants.models import Assistant
+from assistants.models.assistant import Assistant
 
 
 def cluster_assistant_beliefs() -> list[dict]:

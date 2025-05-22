@@ -6,17 +6,17 @@ from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 from project.models import ProjectTask
 from assistants.services import AssistantService
 from project.serializers import ProjectTaskSerializer
-from assistants.serializers import AssistantTaskSerializer
+from assistants.serializers import AssistantTaskSerializer, AssistantNextActionSerializer
 from django.shortcuts import get_object_or_404
-from assistants.models import (
+from assistants.models.assistant import (
     Assistant,
-    AssistantObjective,
-    AssistantProject,
-    AssistantTask,
-    AssistantThoughtLog,
+    ChatSession,
+    
 )
+from assistants.models.thoughts import AssistantThoughtLog
+from assistants.models.project import AssistantProject, AssistantObjective, AssistantTask, AssistantNextAction
+
 from memory.services import MemoryService
-from assistants.models import ChatSession
 from assistants.utils.task_generation import (
     generate_task_from_memory,
     generate_task_from_thought,

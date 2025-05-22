@@ -1,8 +1,8 @@
 
 import warnings
 warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
-from django.urls import path
-
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
 from assistants.viewsets.assistant_viewset import AssistantViewSet
 

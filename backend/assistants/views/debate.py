@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.db.models import Max
 
-from assistants.models import (
+from assistants.models.assistant import (
     Assistant,
     DebateSession,
     DebateThoughtLog,

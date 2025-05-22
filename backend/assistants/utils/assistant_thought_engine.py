@@ -8,17 +8,18 @@ from assistants.utils.session_utils import (
     get_cached_reflection,
     set_cached_reflection,
 )
-from assistants.models import (
+from assistants.models.assistant import (
     Assistant,
-    AssistantTask,
-    AssistantObjective,
-    AssistantThoughtLog,
+    ChatSession
 )
+from assistants.models.project import AssistantTask, AssistantObjective
+from assistants.models.thoughts import AssistantThoughtLog
+
 from tools.models import Tool
 from assistants.utils.tag_thought import tag_thought_content
 from memory.models import MemoryEntry, ReflectionFlag
 from mcp_core.models import MemoryContext
-from assistants.models import ChatSession
+
 from assistants.helpers.logging_helper import log_assistant_thought
 from assistants.helpers.mood import detect_mood, update_mood_stability
 from assistants.helpers.delegation import spawn_delegated_assistant

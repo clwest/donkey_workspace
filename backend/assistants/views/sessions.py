@@ -1,19 +1,19 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from assistants.models import (
+from assistants.models.assistant import (
+    Assistant,
     ChatSession,
-    AssistantThoughtLog,
     DelegationEvent,
     TokenUsage,
 )
+from assistants.models.thoughts import AssistantThoughtLog
 from assistants.serializers import AssistantChatMessageSerializer
 from assistants.utils.session_utils import (
     r,
     load_session_messages,
     flush_session_to_db,
 )
-from assistants.models import Assistant
 from django.shortcuts import get_object_or_404
 
 

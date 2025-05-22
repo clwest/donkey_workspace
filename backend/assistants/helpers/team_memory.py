@@ -1,5 +1,7 @@
 from typing import Optional
-from assistants.models import Assistant, AssistantMemoryChain, AssistantReflectionLog
+from assistants.models.assistant import Assistant
+from assistants.models.reflection import AssistantReflectionLog
+from assistants.models.project import AssistantMemoryChain
 from memory.models import MemoryEntry
 from project.models import Project, ProjectParticipant
 

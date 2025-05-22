@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from typing import Optional
 
-from assistants.models import (
+from assistants.models.assistant import (
     DelegationEvent,
-    AssistantThoughtLog,
+
     Assistant,
 )
+from assistants.models.thoughts import AssistantThoughtLog
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from mcp_core.models import Tag
 from memory.models import MemoryEntry, SimulatedMemoryFork

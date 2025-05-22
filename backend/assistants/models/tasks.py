@@ -1,7 +1,7 @@
 import uuid
 from django.db import models
 
-from .core import Assistant
+from assistants.models.assistant import Assistant
 
 
 class TaskAssignment(models.Model):

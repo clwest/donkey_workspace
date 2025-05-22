@@ -1,4 +1,4 @@
-from assistants.models import ChatSession, AssistantChatMessage
+from assistants.models.assistant import ChatSession, AssistantChatMessage
 from project.models import Project
 from memory.models import MemoryEntry
 

@@ -2,15 +2,19 @@ from datetime import datetime, timedelta
 from django.db.models import Count
 from django.utils import timezone
 
-from agents.models import (
+from agents.models.core import (
     Agent,
-    AgentLegacy,
     AgentCluster,
     AgentSkillLink,
     AgentFeedbackLog,
-    SwarmMemoryEntry,
 )
-from assistants.models import AssistantProject, AssistantReflectionLog, AssistantCouncil
+from agents.models.lore import (
+    AgentLegacy,
+    SwarmMemoryEntry
+)
+from assistants.models.assistant import AssistantCouncil
+from assistants.models.reflection import AssistantReflectionLog
+from assistants.models.project import AssistantProject
 from django.db.models import Avg
 from django.db.models.functions import Length
 from mcp_core.models import Tag

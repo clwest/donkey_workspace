@@ -3,8 +3,8 @@ from __future__ import annotations
 import random
 from typing import Dict
 
-from assistants.models import Assistant, AssistantMythLayer
-from assistants.models import AssistantThoughtLog
+from assistants.models.assistant import Assistant
+from assistants.models.thoughts import AssistantThoughtLog
 
 
 def dream_training_scenario(assistant: Assistant) -> Dict[str, str]:

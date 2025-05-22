@@ -3,7 +3,7 @@ import logging
 from typing import List, Tuple
 from django.contrib.contenttypes.models import ContentType
 
-from assistants.models import Assistant
+from assistants.models.assistant import Assistant
 from memory.models import MemoryEntry
 from embeddings.helpers.helpers_io import get_embedding_for_text
 from embeddings.models import Embedding

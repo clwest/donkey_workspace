@@ -5,8 +5,8 @@ from __future__ import annotations
 import uuid
 from typing import Optional
 
-from assistants.models import Assistant, ChatSession
-from assistants.models import AssistantThoughtLog
+from assistants.models.assistant import Assistant, ChatSession
+from assistants.models.thoughts import AssistantThoughtLog
 from project.models import Project
 from prompts.models import Prompt
 from mcp_core.models import NarrativeThread

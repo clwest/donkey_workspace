@@ -4,13 +4,13 @@ from rest_framework.response import Response
 from rest_framework import status, viewsets
 from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
-
-from assistants.models import (
+from rest_framework import filters
+from assistants.models.assistant import (
     Assistant,
-    AssistantThoughtLog,
     AssistantChatMessage,
     Topic,
 )
+from assistants.models.thoughts import AssistantThoughtLog
 from assistants.serializers import AssistantThoughtLogSerializer
 from mcp_core.serializers_tags import TagSerializer
 from django.shortcuts import get_object_or_404

@@ -18,14 +18,13 @@ from assistants.utils.assistant_reflection_engine import AssistantReflectionEngi
 from embeddings.helpers.helpers_io import save_embedding
 from memory.models import MemoryEntry
 from mcp_core.models import MemoryContext, NarrativeThread
-from assistants.models import (
+from assistants.models.assistant import (
     Assistant,
-    AssistantProject,
-    AssistantThoughtLog,
-    AssistantReflectionInsight,
-    AssistantReflectionLog,
     DelegationEvent,
 )
+from assistants.models.project import AssistantProject
+from assistants.models.thoughts import AssistantThoughtLog
+from assistants.models.reflection import AssistantReflectionInsight, AssistantReflectionLog
 
 client = OpenAI()
 
@@ -293,7 +292,7 @@ from assistants.utils.drift_detection import (
     analyze_drift_for_assistant,
     analyze_specialization_drift,
 )
-from assistants.models import SpecializationDriftLog
+from assistants.models.assistant import SpecializationDriftLog
 
 
 def run_specialization_drift_checks():

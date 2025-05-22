@@ -4,12 +4,12 @@ import logging
 from typing import Optional, Dict, Any, Iterable
 
 from django.utils import timezone
-from assistants.models import (
+from assistants.models.assistant import (
     Assistant,
-    AssistantObjective,
     DelegationEvent,
     DelegationStrategy,
 )
+from assistants.models.project import AssistantObjective
 from memory.models import MemoryEntry
 from assistants.utils.delegation_helpers import get_trust_score
 

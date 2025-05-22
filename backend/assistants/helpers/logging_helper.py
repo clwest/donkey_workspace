@@ -1,4 +1,4 @@
-from assistants.models import AssistantThoughtLog
+from assistants.models.thoughts import AssistantThoughtLog
 from .mood import detect_mood, update_mood_stability
 
 

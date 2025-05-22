@@ -1,5 +1,5 @@
-from assistants.models import AssistantNextAction
-from agents.models import AgentFeedbackLog
+from assistants.models.project import AssistantNextAction
+from agents.models.core import AgentFeedbackLog
 from agents.utils.agent_controller import update_agent_profile_from_feedback
 
 

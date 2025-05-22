@@ -3,14 +3,15 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.db import models
 
-from assistants.models import (
+from assistants.models.assistant import (
     Assistant,
     ChatSession,
     SessionHandoff,
     AssistantChatMessage,
-    AssistantProject,
+
     AssistantHandoffLog,
 )
+from assistants.models.project import AssistantProject
 from assistants.serializers import (
     SessionHandoffSerializer,
     AssistantHandoffLogSerializer,

@@ -11,7 +11,8 @@ from .models import (
     GroupedDevDocReflection,
 )
 from mcp_core.serializers_tags import TagSerializer
-from assistants.models import Assistant, AssistantReflectionLog
+from assistants.models.assistant import Assistant
+from assistants.models.reflection import AssistantReflectionLog
 from assistants.serializers import AssistantSerializer
 from prompts.models import PromptUsageTemplate
 

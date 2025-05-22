@@ -6,7 +6,7 @@ from typing import List, Optional
 from django.conf import settings
 from django.core.files.storage import default_storage
 
-from assistants.models import Assistant, ChatSession
+from assistants.models.assistant import Assistant, ChatSession
 from project.models import Project
 from intel_core.models import Document
 from mcp_core.models import Tag

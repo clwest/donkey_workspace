@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from typing import List, Dict
-from assistants.models import Assistant
-from agents.models import SwarmMemoryEntry
+from assistants.models.assistant import Assistant
+from agents.models.lore import SwarmMemoryEntry
 
 
 def weave_recursive_myth(assistant: Assistant, depth: int = 3) -> Dict[str, List[Dict[str, str]]]:

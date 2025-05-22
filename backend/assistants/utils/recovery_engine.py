@@ -1,10 +1,12 @@
-from assistants.models import (
+from assistants.models.assistant import (
     Assistant,
-    AssistantObjective,
-    AssistantTask,
+
+)
+from assistants.models.thoughts import (
+
     AssistantThoughtLog,
 )
-
+from assistants.models.project import AssistantObjective, AssistantTask
 
 def regenerate_assistant_plan(
     assistant: Assistant, recovery_reason: str | None = None

@@ -3,10 +3,13 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 
-from agents.models import (
+from agents.models.core import (
     Agent,
     AgentFeedbackLog,
     AgentCluster,
+
+)
+from agents.models.lore import (
     SwarmMemoryEntry,
     LoreEpoch,
     LoreEntry,
@@ -113,7 +116,7 @@ from assistants.serializers import (
     AssistantCivilizationSerializer,
     AssistantReputationSerializer,
 )
-from assistants.models import Assistant, AssistantReputation
+from assistants.models.assistant import Assistant, AssistantReputation
 
 from agents.utils.agent_controller import (
     update_agent_profile_from_feedback,

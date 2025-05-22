@@ -4,11 +4,10 @@ from __future__ import annotations
 
 from typing import Optional, Union
 
-from assistants.models import (
+from assistants.models.assistant import (
     Assistant,
     ChatSession,
     DelegationEvent,
-    AssistantObjective,
     TokenUsage,
 )
 from assistants.helpers.reflection_helpers import reflect_on_delegation

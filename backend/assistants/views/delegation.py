@@ -2,13 +2,14 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
-from assistants.models import DelegationEvent, Assistant, AssistantThoughtLog
+from assistants.models.assistant import DelegationEvent, Assistant
+from assistants.models.thoughts import AssistantThoughtLog
 from assistants.serializers import DelegationEventSerializer
 from assistants.utils.delegation import spawn_delegated_assistant
 from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 from memory.services import MemoryService
 from intel_core.models import Document
-from assistants.models import AssistantObjective
+from assistants.models.project import AssistantObjective
 
 
 @api_view(["GET"])

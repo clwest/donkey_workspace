@@ -1,7 +1,8 @@
 from django.utils.text import slugify
 from django.contrib.auth import get_user_model
 from prompts.models import Prompt
-from assistants.models import Assistant, AssistantProject, AssistantMemoryChain
+from assistants.models.assistant import Assistant
+from assistants.models.project import AssistantProject, AssistantMemoryChain
 from assistants.services import AssistantService
 from project.models import ProjectType, ProjectStatus
 

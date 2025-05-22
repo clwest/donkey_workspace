@@ -1,14 +1,12 @@
 from rest_framework import serializers
 from .models.assistant import (
     Assistant,
-    AssistantMythLayer,
+   
     AssistantChatMessage,
     AssistantMessage,
     ChatSession,
-    AssistantNextAction,
-    ProjectPlanningLog,
     SpecializationDriftLog,
-    CollaborationLog,
+    
     DebateSession,
     DebateThoughtLog,
     DebateSummary,
@@ -45,8 +43,9 @@ from .models.reflection import (
     AssistantReflectionLog,
     AssistantReflectionInsight,
 )
-from .models.thoughts import AssistantThoughtLog, EmotionalResonanceLog
-
+from .models.thoughts import AssistantThoughtLog, EmotionalResonanceLog, CollaborationLog
+from .models.project import AssistantNextAction, ProjectPlanningLog
+from .models.core import  AssistantMythLayer
 
 from project.models import (
     Project,

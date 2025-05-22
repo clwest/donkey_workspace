@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from .models import Tool, ToolUsageLog
 from tools.utils.tool_registry import execute_tool
 from tools.utils import mutate_prompt_based_on_tool_feedback
-from assistants.models import AssistantReflectionLog
+from assistants.models.reflection import AssistantReflectionLog
 
 
 @api_view(["GET"])

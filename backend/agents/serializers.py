@@ -56,8 +56,8 @@ from agents.models.lore import (
     CosmologicalRole,
     LegacyTokenVault,
 )
-from assistants.models import Assistant, AssistantCouncil
-
+from assistants.models.assistant import Assistant, AssistantCouncil
+from intel_core.serializers import DocumentSerializer
 
 class AgentSerializer(serializers.ModelSerializer):
     trained_documents = DocumentSerializer(many=True, read_only=True)

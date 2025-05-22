@@ -2,10 +2,12 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
-from assistants.models import (
+from assistants.models.project import (
     AssistantProject,
     AssistantProjectRole,
     ProjectPlanningLog,
+    AssistantObjective,
+    AssistantTask
 )
 from assistants.serializers import (
     AssistantProjectSerializer,
@@ -15,7 +17,7 @@ from assistants.serializers import (
     ProjectPlanningLogSerializer,
 )
 from django.utils.text import slugify
-from assistants.models import Assistant, AssistantProject
+from assistants.models.assistant import Assistant, ChatSession
 from prompts.models import Prompt
 from prompts.utils.embeddings import get_prompt_embedding
 from embeddings.helpers.helpers_io import save_embedding
@@ -24,7 +26,6 @@ from django.shortcuts import get_object_or_404
 from memory.services import MemoryService
 from assistants.services import AssistantService
 from project.models import ProjectMemoryLink, ProjectMilestone
-from assistants.models import AssistantObjective, AssistantTask, ChatSession
 from assistants.helpers.mood import get_session_mood, map_mood_to_tone
 from assistants.utils.memory_project_planner import build_project_plan_from_memories
 import uuid

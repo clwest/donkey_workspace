@@ -5,7 +5,8 @@ from django.shortcuts import get_object_or_404
 import json
 from openai import OpenAI
 
-from assistants.models import Assistant, AssistantThoughtLog
+from assistants.models.assistant import Assistant
+from assistants.models.thoughts import AssistantThoughtLog
 from memory.services import MemoryService
 from intel_core.models import Document
 

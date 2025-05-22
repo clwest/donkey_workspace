@@ -4,8 +4,8 @@ from typing import Any, Callable, Dict, Optional, List
 
 from django.apps import apps
 
-from assistants.models import Assistant
-from agents.models import Agent
+from assistants.models.assistant import Assistant
+from agents.models.core import Agent
 
 from tools.models import Tool, ToolUsageLog, ToolScore, ToolDiscoveryLog
 

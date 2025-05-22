@@ -17,13 +17,15 @@ from django.conf import settings
 from assistants.services import AssistantService
 from memory.services import MemoryService
 from assistants.helpers.logging_helper import log_assistant_thought
-from assistants.models import (
+from assistants.models.assistant import (
     Assistant,
-    AssistantReflectionLog,
-    AssistantThoughtLog,
     TokenUsage,
     ChatSession,
+    AssistantMessage,
+    AssistantSkill
 )
+from assistants.models.reflection import AssistantReflectionLog
+from assistants.models.thoughts import AssistantThoughtLog
 from prompts.models import PromptMutationLog
 from assistants.utils.session_utils import get_cached_thoughts
 from assistants.serializers import AssistantSerializer
@@ -37,7 +39,6 @@ from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 from assistants.helpers.chat_helper import get_or_create_chat_session, save_chat_message
 from assistants.utils.delegation import spawn_delegated_assistant, should_delegate
 from assistants.helpers.memory_helpers import create_memory_from_chat
-from assistants.models import AssistantMessage
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from memory.utils.context_helpers import get_or_create_context_from_memory
 from embeddings.helpers.helpers_io import save_embedding
@@ -47,7 +48,7 @@ from tools.utils.tool_registry import execute_tool
 from tools.models import Tool, ToolUsageLog
 from prompts.models import Prompt
 from django.db import models
-from assistants.models import AssistantSkill
+
 from intel_core.models import Document
 
 

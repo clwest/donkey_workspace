@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import List
 
-from agents.models import (
+from agents.models.core import (
     Agent,
     AgentTrainingAssignment,
     AgentSkill,
 )
-from assistants.models import Assistant
-from agents.models import AgentFeedbackLog
+from assistants.models.assistant import Assistant
+from agents.models.core import AgentFeedbackLog
 from agents.utils.agent_controller import recommend_training_documents
 from intel_core.models import Document
 
