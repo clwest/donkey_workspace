@@ -48,6 +48,9 @@ from agents.models import (
     MythicArbitrationCase,
     TreatyBreachRitual,
     SymbolicSanction,
+    SwarmTribunalCase,
+    RestorativeMemoryAction,
+    ReputationRegenerationEvent,
 )
 from agents.serializers import (
     AgentSerializer,
@@ -92,6 +95,9 @@ from agents.serializers import (
     MythicArbitrationCaseSerializer,
     TreatyBreachRitualSerializer,
     SymbolicSanctionSerializer,
+    SwarmTribunalCaseSerializer,
+    RestorativeMemoryActionSerializer,
+    ReputationRegenerationEventSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -837,3 +843,45 @@ def symbolic_sanctions(request):
     serializer.is_valid(raise_exception=True)
     sanction = serializer.save()
     return Response(SymbolicSanctionSerializer(sanction).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def tribunals(request):
+    if request.method == "GET":
+        cases = SwarmTribunalCase.objects.all().order_by("-created_at")
+        return Response(SwarmTribunalCaseSerializer(cases, many=True).data)
+
+    serializer = SwarmTribunalCaseSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    case = serializer.save()
+    return Response(SwarmTribunalCaseSerializer(case).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def restorative_memory_actions(request):
+    if request.method == "GET":
+        actions = RestorativeMemoryAction.objects.all().order_by("-created_at")
+        return Response(RestorativeMemoryActionSerializer(actions, many=True).data)
+
+    serializer = RestorativeMemoryActionSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    action = serializer.save()
+    return Response(
+        RestorativeMemoryActionSerializer(action).data,
+        status=201,
+    )
+
+
+@api_view(["GET", "POST"])
+def reputation_regeneration_events(request):
+    if request.method == "GET":
+        events = ReputationRegenerationEvent.objects.all().order_by("-created_at")
+        return Response(ReputationRegenerationEventSerializer(events, many=True).data)
+
+    serializer = ReputationRegenerationEventSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    event = serializer.save()
+    return Response(
+        ReputationRegenerationEventSerializer(event).data,
+        status=201,
+    )

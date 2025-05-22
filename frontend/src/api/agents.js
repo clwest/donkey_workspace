@@ -9,3 +9,6 @@ export const fetchRecentDelegations = () =>
 export const fetchArbitrationCases = () => apiFetch("/agents/arbitration-cases/");
 export const fetchTreatyBreaches = () => apiFetch("/agents/treaty-breaches/");
 export const fetchSymbolicSanctions = () => apiFetch("/agents/symbolic-sanctions/");
+export const fetchTribunalCases = () => apiFetch("/agents/tribunals/");
+export const fetchRestorativeMemoryActions = () => apiFetch("/agents/restorative-memory/");
+export const fetchReputationRebirths = () => apiFetch("/agents/reputation-rebirths/");

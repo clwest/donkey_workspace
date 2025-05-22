@@ -1446,9 +1446,7 @@ class MemoryTreaty(models.Model):
 class BeliefEnforcementScore(models.Model):
     """Measure assistant alignment with codified myth-based laws."""
 
-    assistant = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE
-    )
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
     codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
     alignment_score = models.FloatField()
     symbolic_compliance_log = models.TextField()
@@ -1516,3 +1514,58 @@ class SymbolicSanction(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Sanction {self.id}"
+
+
+class SwarmTribunalCase(models.Model):
+    """Assistant-initiated reflective justice case."""
+
+    issue_type = models.CharField(max_length=100)
+    involved_assistants = models.ManyToManyField("assistants.Assistant")
+    memory_evidence = models.ManyToManyField(SwarmMemoryEntry)
+    reflective_summary = models.TextField()
+    verdict = models.CharField(max_length=50, default="undecided")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"{self.issue_type} – {self.verdict}"
+
+
+class RestorativeMemoryAction(models.Model):
+    """Healing action for corrupted or misaligned memories."""
+
+    initiating_assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    damaged_memory = models.ForeignKey(SwarmMemoryEntry, on_delete=models.CASCADE)
+    reformation_notes = models.TextField()
+    replacement_memory = models.TextField(blank=True)
+    resolved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Restoration {self.damaged_memory_id}"
+
+
+class ReputationRegenerationEvent(models.Model):
+    """Symbolic rebirth event for assistant reputation."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    reflection_cycle_reference = models.ForeignKey(
+        SwarmMemoryEntry, on_delete=models.SET_NULL, null=True
+    )
+    change_summary = models.TextField()
+    symbolic_rebirth_tags = models.JSONField()
+    regenerated_score = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Rebirth for {self.assistant.name}"
