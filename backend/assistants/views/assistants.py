@@ -26,7 +26,7 @@ from assistants.models import (
 from prompts.models import PromptMutationLog
 from assistants.helpers.redis_helpers import get_cached_thoughts
 from assistants.serializers import AssistantSerializer
-from assistants.utils.assistant_session import (
+from assistants.helpers.redis_helpers import (
     save_message_to_session,
     flush_session_to_db,
     load_session_messages,
@@ -206,7 +206,7 @@ def primary_spawn_agent(request):
     reason = request.data.get("reason") or request.data.get("goal") or "delegation"
 
     memory = get_object_or_404(MemoryEntry, id=memory_id)
-    
+
     child = spawn_delegated_assistant(parent, memory_entry=memory, reason=reason)
 
     project = Project.objects.filter(assistant=child).first()

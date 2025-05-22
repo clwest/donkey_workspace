@@ -8,11 +8,13 @@ from assistants.models import (
     TokenUsage,
 )
 from assistants.serializers import AssistantChatMessageSerializer
-from assistants.utils.assistant_session import load_session_messages
+from assistants.helpers.redis_helpers import (
+    r,
+    load_session_messages,
+    flush_session_to_db,
+)
 from assistants.models import Assistant
 from django.shortcuts import get_object_or_404
-from assistants.helpers.redis_helpers import r
-from assistants.utils.assistant_session import flush_session_to_db
 
 
 @api_view(["GET"])
