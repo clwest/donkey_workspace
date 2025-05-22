@@ -1,15 +1,9 @@
-import os
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
-import django
-
-django.setup()
-
-from rest_framework.test import APITestCase
+from assistants.tests import BaseAPITestCase
 from assistants.models import Assistant
 
 
-class StandupScheduleAPITest(APITestCase):
+class StandupScheduleAPITest(BaseAPITestCase):
     def setUp(self):
         self.assistant = Assistant.objects.create(name="Parent", specialty="p")
         self.url = f"/api/assistants/{self.assistant.id}/schedule-standup/"

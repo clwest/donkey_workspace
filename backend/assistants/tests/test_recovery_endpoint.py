@@ -1,14 +1,9 @@
-import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
-import django
 
-django.setup()
-
-from rest_framework.test import APITestCase
+from assistants.tests import BaseAPITestCase
 from assistants.models import Assistant, SpecializationDriftLog
 
 
-class RecoveryEndpointTest(APITestCase):
+class RecoveryEndpointTest(BaseAPITestCase):
     def setUp(self):
         self.assistant = Assistant.objects.create(name="RecBot", specialty="x")
         SpecializationDriftLog.objects.create(

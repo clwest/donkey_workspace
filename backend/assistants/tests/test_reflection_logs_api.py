@@ -1,17 +1,12 @@
-import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
-import django
-
-django.setup()
 
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
-from rest_framework.test import APITestCase
+from assistants.tests import BaseAPITestCase
 
 from assistants.models import Assistant, AssistantProject, AssistantReflectionLog
 
-class AssistantReflectionLogAPITest(APITestCase):
+class AssistantReflectionLogAPITest(BaseAPITestCase):
     def setUp(self):
         User = get_user_model()
         self.user = User.objects.create_user(username="viewer", password="pw")

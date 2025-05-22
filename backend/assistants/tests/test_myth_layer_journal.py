@@ -1,17 +1,13 @@
-import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
-import django
-django.setup()
 
 from django.contrib.auth import get_user_model
-from rest_framework.test import APITestCase
+from assistants.tests import BaseAPITestCase
 
 from assistants.models import Assistant, AssistantMythLayer
 from agents.models import GlobalMissionNode
 from assistants.utils.cross_canon_prediction import predict_cross_canon_outcomes
 
 
-class MythLayerJournalTest(APITestCase):
+class MythLayerJournalTest(BaseAPITestCase):
     def setUp(self):
         User = get_user_model()
         self.user = User.objects.create_user(username="tester", password="pw")

@@ -1,17 +1,11 @@
-import os
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
-import django
-
-django.setup()
 
 from django.contrib.auth import get_user_model
-from rest_framework.test import APITestCase
+from assistants.tests import BaseAPITestCase
 from unittest.mock import patch
 from assistants.models import Assistant, AssistantThoughtLog
 
 
-class DreamModeAPITest(APITestCase):
+class DreamModeAPITest(BaseAPITestCase):
     def setUp(self):
         User = get_user_model()
         self.user = User.objects.create_user(username="dreamer", password="pw")

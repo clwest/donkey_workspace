@@ -1,16 +1,10 @@
-import os
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
-import django
-
-django.setup()
-
-from rest_framework.test import APITestCase
+from assistants.tests import BaseAPITestCase
 from assistants.models import Assistant
 from intel_core.models import Document
 
 
-class SubAssistantCreateAPITest(APITestCase):
+class SubAssistantCreateAPITest(BaseAPITestCase):
     def setUp(self):
         self.parent = Assistant.objects.create(name="Parent", specialty="p")
         self.doc = Document.objects.create(title="Doc", content="c")

@@ -1,16 +1,11 @@
-import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
-import django
 
-django.setup()
-
-from rest_framework.test import APITestCase
+from assistants.tests import BaseAPITestCase
 from unittest.mock import patch
 from assistants.models import Assistant, AssistantThoughtLog
 import json
 
 
-class SelfAssessAPITest(APITestCase):
+class SelfAssessAPITest(BaseAPITestCase):
     def setUp(self):
         self.assistant = Assistant.objects.create(name="Assess", specialty="x")
         self.url = f"/api/assistants/{self.assistant.slug}/self-assess/"
