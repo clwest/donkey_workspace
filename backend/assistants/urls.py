@@ -368,6 +368,11 @@ urlpatterns = [
         name="recent-delegation-events",
     ),
     path(
+        "delegations/recent/",
+        delegations.recent_delegations,
+        name="recent-delegations",
+    ),
+    path(
         "delegation/<uuid:id>/feedback/",
         delegation.delegation_event_feedback,
         name="delegation-event-feedback",

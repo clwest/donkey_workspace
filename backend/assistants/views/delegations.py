@@ -2,7 +2,10 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from assistants.models import DelegationEvent
-from assistants.serializers import DelegationEventSerializer
+from assistants.serializers import (
+    DelegationEventSerializer,
+    RecentDelegationEventSerializer,
+)
 from assistants.utils.delegation import (
     spawn_delegated_assistant,
     should_delegate,
@@ -30,6 +33,17 @@ def recent_delegation_events(request):
         "triggering_memory",
     ).recent_delegation_events()
     serializer = DelegationEventSerializer(events, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+def recent_delegations(request):
+    """Return a brief list of the 10 most recent delegations."""
+    events = DelegationEvent.objects.select_related(
+        "parent_assistant",
+        "child_assistant",
+    ).recent_delegation_events()
+    serializer = RecentDelegationEventSerializer(events, many=True)
     return Response(serializer.data)
 
 

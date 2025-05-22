@@ -84,6 +84,7 @@ from .delegations import (
     delegation_trace,
     hierarchical_memory,
     suggest_delegation,
+    recent_delegations,
 )
 from .collaboration import (
     evaluate_collaboration,
@@ -197,6 +198,7 @@ __all__ = [
     "assistant_project_task_detail",
     "project_history",
     "recent_delegation_events",
+    "recent_delegations",
     "delegation_events_for_assistant",
     "primary_delegations",
     "delegation_trace",
