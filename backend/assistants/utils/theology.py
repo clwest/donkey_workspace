@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Dict
 
-from agents.models import (
+from agents.models.lore import (
     AssistantCivilization,
     SwarmMemoryEntry,
     TranscendentMyth,

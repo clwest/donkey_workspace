@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.text import slugify
 from django.conf import settings
 from .core import PLANNING_EVENT_TYPES
-from .core import Assistant
+from assistants.models.reflection import AssistantReflectionLog
 from memory.models import MemoryEntry
 from prompts.models import Prompt
 from mcp_core.models import Tag
@@ -358,15 +358,24 @@ class ProjectPlanningLog(models.Model):
     project = models.ForeignKey(
         "assistants.AssistantProject",
         on_delete=models.CASCADE,
+        related_name="planning_logs",
     )
-    object_id = models.UUIDField(null=True, blank=True),
+    timestamp = models.DateTimeField(auto_now_add=True)
+    event_type = models.CharField(max_length=50, choices=PLANNING_EVENT_TYPES)
+    summary = models.CharField(max_length=255)
+
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    object_id = models.UUIDField(null=True, blank=True)
     related_object = GenericForeignKey("content_type", "object_id")
 
     class Meta:
         ordering = ["-timestamp"]
 
     def __str__(self):
-        return (
-            f"{self.project.title}: {self.event_type} - {self.summary}"
-        )  # pragma: no cover - display helper
+        return f"{self.event_type} @ {self.timestamp.strftime('%Y-%m-%d %H:%M')}"
     

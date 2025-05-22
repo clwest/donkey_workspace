@@ -9,12 +9,11 @@ from rest_framework import status
 from openai import OpenAI
 from intel_core.models import Document
 from prompts.models import Prompt
-from assistants.models import (
+from assistants.models.assistant import (
     Assistant,
-    AssistantProject,
-    AssistantObjective,
-    AssistantThoughtLog,
 )
+from assistants.models.project import AssistantProject, AssistantObjective
+from assistants.models.thoughts import AssistantThoughtLog
 from prompts.utils.token_helpers import count_tokens, smart_chunk_prompt
 from memory.models import MemoryEntry
 from mcp_core.models import NarrativeThread, Tag

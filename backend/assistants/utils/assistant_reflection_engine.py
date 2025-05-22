@@ -1,26 +1,24 @@
 import logging
-from assistants.models import (
-    AssistantReflectionLog,
-    Assistant,
-    AssistantProject,
-    AssistantReflectionInsight,
-    AssistantThoughtLog,
-)
+from assistants.models.assistant import Assistant
+from assistants.models.project import AssistantProject
+from assistants.models.thoughts import AssistantThoughtLog
+from assistants.models.reflection import AssistantReflectionLog, AssistantReflectionInsight
 from mcp_core.models import MemoryContext, DevDoc, NarrativeThread
 from intel_core.models import Document
 from memory.models import MemoryEntry
 from django.contrib.contenttypes.models import ContentType
 from django.utils.text import slugify
-from assistants.models import AssistantProject
+from assistants.models.project import AssistantProject
 from utils.llm_router import call_llm
-from agents.models import (
+from agents.models.core import (
     Agent,
     AgentTrainingAssignment,
     AgentFeedbackLog,
     AgentSkill,
     AgentSkillLink,
-    SwarmMemoryEntry,
 )
+
+from agents.models.lore import SwarmMemoryEntry
 from agents.utils.swarm_analytics import generate_temporal_swarm_report
 import json
 

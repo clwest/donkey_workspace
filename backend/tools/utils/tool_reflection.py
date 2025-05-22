@@ -1,7 +1,8 @@
 import json
 from typing import Any, Dict, Optional
 from utils.llm_router import call_llm
-from assistants.models import Assistant, AssistantThoughtLog
+from assistants.models.assistant import Assistant
+from assistants.models.thoughts import AssistantThoughtLog
 
 
 

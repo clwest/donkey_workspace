@@ -4,7 +4,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from openai import OpenAI
 
-from assistants.models import Assistant
+from assistants.models.assistant import Assistant
 
 client = OpenAI()
 

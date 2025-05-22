@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from assistants.models import SignalSource, SignalCatch
+from assistants.models.assistant import SignalSource, SignalCatch
 from assistants.serializers import SignalSourceSerializer, SignalCatchSerializer
 
 

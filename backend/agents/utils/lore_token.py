@@ -1,12 +1,12 @@
 from __future__ import annotations
 from typing import List
-from agents.models import (
+from agents.models.lore import (
     LoreToken,
     SwarmMemoryEntry,
     Agent,
     LoreTokenCraftingRitual,
 )
-from assistants.models import Assistant, AssistantReputation
+from assistants.models.assistant import Assistant, AssistantReputation
 from embeddings.helpers.helpers_io import get_embedding_for_text
 from utils.llm_router import call_llm
 

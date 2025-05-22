@@ -1,10 +1,16 @@
-from rest_framework.decorators import api_view, permission_classes, parser_classes
+from rest_framework.decorators import (
+    api_view,
+    permission_classes,
+    parser_classes,
+    action,
+)
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets
+import warnings
 from .models import (
     MemoryEntry,
     MemoryChain,
@@ -23,13 +29,12 @@ from prompts.serializers import PromptSerializer
 from prompts.models import Prompt
 from django.utils import timezone
 from openai import OpenAI
+from core.services.memory_service import reflect_on_memory as service_reflect_on_memory
 from dotenv import load_dotenv
 from embeddings.helpers.helpers_io import save_embedding
 from prompts.utils.mutation import mutate_prompt as run_mutation
 from embeddings.helpers.helpers_io import get_embedding_for_text
-from mcp_core.utils.auto_tag_from_embedding import auto_tag_from_embedding
-from assistants.helpers.logging_helper import log_assistant_thought
-from assistants.models import Assistant, AssistantThoughtLog, AssistantReflectionLog
+from memory.memory_service import get_memory_service
 from mcp_core.models import NarrativeThread
 from memory.utils.thread_helpers import get_linked_chains, recall_from_thread
 
@@ -38,9 +43,57 @@ load_dotenv()
 client = OpenAI()
 
 
+class MemoryEntryViewSet(viewsets.ModelViewSet):
+    """ViewSet for CRUD operations on MemoryEntry."""
+
+    queryset = MemoryEntry.objects.all().order_by("-created_at")
+    serializer_class = MemoryEntrySerializer
+    permission_classes = [AllowAny]
+
+    @action(detail=True, methods=["post"])
+    def bookmark(self, request, pk=None):
+        return bookmark_memory(request, memory_id=pk)
+
+    @action(detail=True, methods=["post"])
+    def unbookmark(self, request, pk=None):
+        return unbookmark_memory(request, memory_id=pk)
+
+    @action(detail=False, methods=["get"])  # /entries/bookmarked/
+    def bookmarked(self, request):
+        return bookmarked_memories(request)
+
+    @action(detail=True, methods=["post"])
+    def mutate(self, request, pk=None):
+        return mutate_memory(request, id=pk)
+
+
+class MemoryChainViewSet(viewsets.ModelViewSet):
+    """ViewSet for MemoryChain resources."""
+
+    queryset = MemoryChain.objects.all().order_by("-created_at")
+    serializer_class = MemoryChainSerializer
+    permission_classes = [AllowAny]
+
+    @action(detail=True, methods=["get"])
+    def summarize(self, request, pk=None):
+        return summarize_chain_view(request, chain_id=pk)
+
+    @action(detail=True, methods=["get"])
+    def flowmap(self, request, pk=None):
+        return chain_flowmap_view(request, chain_id=pk)
+
+    @action(detail=True, methods=["get"], url_path="cross_project_recall")
+    def cross_project_recall(self, request, pk=None):
+        return cross_project_recall_view(request, chain_id=pk)
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def create_memory_chain(request):
+    warnings.warn(
+        "Deprecated: use /api/v1/memory/chains/",
+        DeprecationWarning,
+    )
     title = request.data.get("title")
     memory_ids = request.data.get("memory_ids", [])
 
@@ -134,6 +187,10 @@ def linked_chains_view(request, thread_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def link_chain_to_thread(request):
+    warnings.warn(
+        "Deprecated: use /api/v1/memory/chains/link_thread/",
+        DeprecationWarning,
+    )
     chain_id = request.data.get("chain_id")
     thread_id = request.data.get("thread_id")
     if not chain_id or not thread_id:
@@ -161,6 +218,10 @@ def reflect_on_memory(request):
     memory_ids = request.data.get("memory_ids", [])
     if not memory_ids:
         return Response({"error": "No memory IDs provided."}, status=400)
+    try:
+        reflection = service_reflect_on_memory(memory_ids)
+    except ValueError as exc:
+        return Response({"error": str(exc)}, status=400)
 
     memories = MemoryEntry.objects.filter(id__in=memory_ids)
     if not memories.exists():
@@ -189,14 +250,7 @@ def reflect_on_memory(request):
 
     summary = response.choices[0].message.content.strip()
 
-    # Save the reflection
-    reflection = AssistantReflectionLog.objects.create(
-        summary=summary,
-        time_period_start=min(m.timestamp for m in memories),
-        time_period_end=max(m.timestamp for m in memories),
-    )
-    reflection.linked_memories.set(memories)
-    save_embedding(reflection, embedding=[])
+    reflection = get_memory_service().log_reflection(summary, memories)
 
     return Response({"summary": summary, "reflection_id": reflection.id})
 
@@ -237,14 +291,10 @@ def reflect_on_memories(request):
 
     reflection_text = response.choices[0].message.content.strip()
 
-    # Save reflection
-    reflection = AssistantReflectionLog.objects.create(
-        summary=reflection_text,
-        time_period_start=memories.first().timestamp,
-        time_period_end=memories.last().timestamp,
+    reflection = get_memory_service().log_reflection(
+        reflection_text,
+        memories,
     )
-    reflection.linked_memories.set(memories)
-    save_embedding(reflection, embedding=[])
 
     return Response({"reflection": reflection.summary})
 
@@ -262,14 +312,12 @@ def save_reflection(request):
     if not (title and summary and memory_ids):
         return Response({"error": "Missing required fields"}, status=400)
 
-    reflection = AssistantReflectionLog.objects.create(
-        summary=summary,
-        time_period_start=timezone.now(),  # You can make smarter if needed
-        time_period_end=timezone.now(),
-    )
-    reflection.linked_memories.set(MemoryEntry.objects.filter(id__in=memory_ids))
-    reflection.save()
-    save_embedding(reflection, embedding=[])
+
+    memories = MemoryEntry.objects.filter(id__in=memory_ids)
+    reflection = get_memory_service().log_reflection(summary, memories)
+
+    reflection.title = title
+    reflection.save(update_fields=["title"])
 
     return Response({"message": "Reflection saved successfully!"})
 
@@ -302,6 +350,10 @@ def memory_detail(request, id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def bookmark_memory(request, memory_id):
+    warnings.warn(
+        "Deprecated: use /api/v1/memory/entries/<id>/bookmark/",
+        DeprecationWarning,
+    )
     memory = get_object_or_404(MemoryEntry, id=memory_id)
     label = request.data.get("label")
     memory.is_bookmarked = True
@@ -313,6 +365,10 @@ def bookmark_memory(request, memory_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def unbookmark_memory(request, memory_id):
+    warnings.warn(
+        "Deprecated: use /api/v1/memory/entries/<id>/unbookmark/",
+        DeprecationWarning,
+    )
     memory = get_object_or_404(MemoryEntry, id=memory_id)
     memory.is_bookmarked = False
     memory.bookmark_label = None
@@ -451,6 +507,10 @@ def list_memory_feedback(request, memory_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def mutate_memory(request, id):
+    warnings.warn(
+        "Deprecated: use /api/v1/memory/entries/<id>/mutate/",
+        DeprecationWarning,
+    )
     """Mutate a memory entry using the specified style."""
     try:
         memory = MemoryEntry.objects.get(id=id)
@@ -481,23 +541,14 @@ def mutate_memory(request, id):
         vector = get_embedding_for_text(mutated)
         if vector:
             save_embedding(new_mem, vector)
-            tag_slugs = auto_tag_from_embedding(mutated) or []
-            from mcp_core.models import Tag
-
-            tag_objs = []
-            for slug in tag_slugs:
-                tag, _ = Tag.objects.get_or_create(slug=slug, defaults={"name": slug})
-                tag_objs.append(tag)
-            if tag_objs:
-                new_mem.tags.add(*tag_objs)
+            get_memory_service().auto_tag_memory_from_text(new_mem, mutated)
     except Exception:
         pass
 
     if memory.assistant:
-        log_assistant_thought(
+        get_memory_service().log_assistant_meta(
             memory.assistant,
             f"Refined memory {memory.id} using style '{style}' based on feedback.",
-            thought_type="meta",
             linked_memory=new_mem,
         )
 
@@ -667,18 +718,10 @@ def replace_memory(request, id):
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def assistant_memories(request, slug):
-    try:
-        assistant = Assistant.objects.get(slug=slug)
-    except Assistant.DoesNotExist:
+    assistant, memories = get_memory_service().get_assistant_memories(slug)
+    if assistant is None:
         return Response({"error": "Assistant not found"}, status=404)
 
-    linked_thought_ids = AssistantThoughtLog.objects.filter(
-        assistant=assistant
-    ).values_list("linked_memory_id", flat=True)
-
-    memories = MemoryEntry.objects.filter(id__in=linked_thought_ids).order_by(
-        "-created_at"
-    )
     serializer = MemoryEntrySerializer(memories, many=True)
     return Response(serializer.data)
 

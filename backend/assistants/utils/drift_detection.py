@@ -6,7 +6,8 @@ from typing import Optional
 from django.db.models import QuerySet
 from django.utils import timezone
 
-from assistants.models import Assistant, AssistantThoughtLog, SpecializationDriftLog
+from assistants.models.assistant import Assistant, SpecializationDriftLog
+from assistants.models.thoughts import AssistantThoughtLog
 from embeddings.helpers.helpers_io import get_embedding_for_text
 from embeddings.vector_utils import compute_similarity
 

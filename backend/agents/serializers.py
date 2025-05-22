@@ -56,8 +56,14 @@ from agents.models.lore import (
     CosmologicalRole,
     LegacyTokenVault,
 )
-from assistants.models import Assistant, AssistantCouncil
 
+from agents.models.coordination import (
+    CollaborationThread,
+    DelegationStream,
+    MythflowInsight,
+)
+from assistants.models.assistant import Assistant, AssistantCouncil
+from intel_core.serializers import DocumentSerializer
 
 class AgentSerializer(serializers.ModelSerializer):
     trained_documents = DocumentSerializer(many=True, read_only=True)
@@ -589,5 +595,59 @@ class CosmologicalRoleSerializer(serializers.ModelSerializer):
 class LegacyTokenVaultSerializer(serializers.ModelSerializer):
     class Meta:
         model = LegacyTokenVault
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class ArchetypeSynchronizationPulseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ArchetypeSynchronizationPulse
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+class CreationMythEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CreationMythEntry
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+class CosmogenesisSimulationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CosmogenesisSimulation
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MythologyMeshNodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythologyMeshNode
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class ArchetypalDriftForecastSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ArchetypalDriftForecast
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CollaborationThreadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CollaborationThread
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class DelegationStreamSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DelegationStream
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MythflowInsightSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythflowInsight
         fields = "__all__"
         read_only_fields = ["id", "created_at"]

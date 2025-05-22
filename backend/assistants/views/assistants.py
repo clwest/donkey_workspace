@@ -15,16 +15,18 @@ import logging
 import json
 import re
 from django.conf import settings
-from project.models import Project
-from mcp_core.models import NarrativeThread
+from assistants.services import AssistantService
+from memory.services import MemoryService
 from assistants.helpers.logging_helper import log_assistant_thought
-from assistants.models import (
+from assistants.models.assistant import (
     Assistant,
-    AssistantReflectionLog,
-    AssistantThoughtLog,
     TokenUsage,
     ChatSession,
+    AssistantMessage,
+    AssistantSkill
 )
+from assistants.models.reflection import AssistantReflectionLog
+from assistants.models.thoughts import AssistantThoughtLog
 from prompts.models import PromptMutationLog
 from assistants.utils.session_utils import get_cached_thoughts
 from assistants.serializers import AssistantSerializer
@@ -38,8 +40,6 @@ from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 from assistants.helpers.chat_helper import get_or_create_chat_session, save_chat_message
 from assistants.utils.delegation import spawn_delegated_assistant, should_delegate
 from assistants.helpers.memory_helpers import create_memory_from_chat
-from memory.models import MemoryEntry
-from assistants.models import AssistantMessage
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from memory.utils.context_helpers import get_or_create_context_from_memory
 from embeddings.helpers.helpers_io import save_embedding
@@ -49,7 +49,7 @@ from tools.utils.tool_registry import execute_tool
 from tools.models import Tool, ToolUsageLog
 from prompts.models import Prompt
 from django.db import models
-from assistants.models import AssistantSkill
+
 from intel_core.models import Document
 import warnings
 
@@ -275,6 +275,7 @@ def primary_reflect_now(request):
     warnings.warn(
         "primary_reflect_now is deprecated; use AssistantViewSet.primary_reflect_now",
         DeprecationWarning,
+
     )
     view = AssistantViewSet.as_view({"post": "primary_reflect_now"})
     return view(request)
@@ -287,6 +288,7 @@ def primary_spawn_agent(request):
     warnings.warn(
         "primary_spawn_agent is deprecated; use AssistantViewSet.primary_spawn_agent",
         DeprecationWarning,
+
     )
     view = AssistantViewSet.as_view({"post": "primary_spawn_agent"})
     return view(request)
@@ -331,7 +333,7 @@ def create_assistant_from_thought(request):
     )
 
     # Bootstrap project & chat session inheriting the thread
-    child_project = Project.objects.create(
+    child_project = AssistantService.create_project(
         user=creator,
         title=f"Auto Project for {new_assistant.name}",
         assistant=new_assistant,
@@ -399,7 +401,7 @@ def chat_with_assistant_view(request, slug):
     if assistant.is_primary and assistant.live_relay_enabled:
         delegate = assistant.sub_assistants.filter(is_active=True).first()
         if delegate:
-            mem = MemoryEntry.objects.create(
+            mem = MemoryService.create_entry(
                 event=f"Relayed message to {delegate.name}: {message}",
                 assistant=delegate,
                 related_project=chat_session.project,
@@ -455,7 +457,7 @@ def chat_with_assistant_view(request, slug):
 
     if should_delegate(assistant, token_usage, request.data.get("feedback_flag")):
         recent_memory = (
-            MemoryEntry.objects.filter(chat_session=chat_session)
+            MemoryService.filter_entries(chat_session=chat_session)
             .order_by("-created_at")
             .first()
         )
@@ -815,12 +817,14 @@ def reflect_on_assistant(request):
 
     try:
         assistant = Assistant.objects.get(id=assistant_id)
-        project = Project.objects.get(id=project_id)
-        creator = assistant.created_by
     except Assistant.DoesNotExist:
         return Response({"error": "Assistant not found."}, status=404)
-    except Project.DoesNotExist:
+
+    project = AssistantService.get_project(project_id)
+    if not project:
         return Response({"error": "Project not found."}, status=404)
+
+    creator = assistant.created_by
 
     # === Compose Reflection Prompt ===
     context = f"""

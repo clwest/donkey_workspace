@@ -6,7 +6,7 @@ from agents.models import (
     MemoryDialect,
     TranscendentMyth,
 )
-from assistants.models import AssistantCivilization
+from assistants.models.assistant import AssistantCivilization
 
 
 def evaluate_deification_potential() -> dict:

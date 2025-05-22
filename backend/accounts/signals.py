@@ -3,7 +3,8 @@ from django.dispatch import receiver
 from django.conf import settings
 
 from .models import CustomUser
-from assistants.models import Assistant, AssistantProject, ChatSession, AssistantChatMessage
+from assistants.models.assistant import Assistant, ChatSession, AssistantChatMessage
+from assistants.models.project import AssistantProject
 from project.models import Project, ProjectType, ProjectStatus
 
 @receiver(post_save, sender=CustomUser)

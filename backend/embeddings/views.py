@@ -20,7 +20,7 @@ from embeddings.document_services.document_caching import (
 # Models we want to support in similarity search
 from prompts.models import Prompt
 from mcp_core.models import MemoryContext
-from assistants.models import AssistantThoughtLog
+from assistants.models.thoughts import AssistantThoughtLog
 from embeddings.helpers.helpers_processing import generate_embedding
 from embeddings.vector_utils import compute_similarity
 from embeddings.helpers.helpers_similarity import get_similar_documents

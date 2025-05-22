@@ -9,7 +9,7 @@ from pgvector.django import VectorField
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from assistants.constants import THOUGHT_CATEGORY_CHOICES
-from .core import Assistant
+from assistants.models.assistant import Assistant
 from memory.models import MemoryEntry
 from mcp_core.models import Tag
 from story.models import NarrativeEvent

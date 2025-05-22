@@ -3,7 +3,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
-from assistants.models import Assistant, AssistantProject
+from assistants.models.assistant import Assistant
+from assistants.models.project import AssistantProject
 from assistants.utils.assistant_reflection_engine import (
     AssistantReflectionEngine,
     evaluate_thought_continuity,

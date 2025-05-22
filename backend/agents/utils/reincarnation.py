@@ -1,5 +1,5 @@
-from assistants.models import Assistant
-from agents.models import LegacyArtifact, ReincarnationLog
+from assistants.models.assistant import Assistant
+from agents.models.lore import LegacyArtifact, ReincarnationLog
 
 
 def reincarnate_assistant_from_artifact(artifact: LegacyArtifact) -> Assistant:

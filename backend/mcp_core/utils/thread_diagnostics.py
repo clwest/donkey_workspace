@@ -1,7 +1,7 @@
 from datetime import timedelta
 from collections import Counter
 from django.utils import timezone
-from assistants.models import AssistantThoughtLog
+from assistants.models.thoughts import AssistantThoughtLog
 from memory.models import MemoryEntry
 from mcp_core.models import NarrativeThread, ThreadDiagnosticLog
 

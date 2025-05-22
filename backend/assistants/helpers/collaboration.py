@@ -1,8 +1,8 @@
-from assistants.models import (
+from assistants.models.project import (
     AssistantProjectRole,
-    CollaborationLog,
-    AssistantThoughtLog,
+
 )
+from assistants.models.thoughts import CollaborationLog, AssistantThoughtLog
 from project.models import Project
 
 

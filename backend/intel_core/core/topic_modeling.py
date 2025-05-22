@@ -1,5 +1,5 @@
 import re
-from assistants.models import Topic
+from assistants.models.assistant import Topic
 from sklearn.decomposition import NMF, LatentDirichletAllocation
 from sklearn.feature_extraction.text import TfidfVectorizer
 import logging

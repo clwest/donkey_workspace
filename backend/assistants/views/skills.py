@@ -4,7 +4,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 
-from assistants.models import Assistant, AssistantSkill
+from assistants.models.assistant import Assistant, AssistantSkill
 from assistants.serializers import AssistantSkillSerializer
 from tools.models import Tool
 

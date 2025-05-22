@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from typing import Optional
 import random
 
-from agents.models import SwarmMemoryEntry
-from assistants.models import AssistantMythLayer
+from agents.models.lore import SwarmMemoryEntry
+from assistants.models.core import AssistantMythLayer
 
 
 @dataclass

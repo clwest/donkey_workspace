@@ -1,7 +1,7 @@
 import uuid
 from typing import Optional
 
-from assistants.models import Assistant, DelegationEvent, ChatSession
+from assistants.models.assistant import Assistant, DelegationEvent, ChatSession
 from assistants.helpers.reflection_helpers import reflect_on_delegation
 from assistants.serializers import AssistantFromPromptSerializer
 from prompts.models import Prompt

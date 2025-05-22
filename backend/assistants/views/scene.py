@@ -4,7 +4,8 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 import uuid
 
-from assistants.models import Assistant, AssistantThoughtLog
+from assistants.models.assistant import Assistant
+from assistants.models.thoughts import AssistantThoughtLog
 from assistants.helpers.chat_helper import get_or_create_chat_session, save_chat_message
 from assistants.utils.session_utils import (
     load_session_messages,

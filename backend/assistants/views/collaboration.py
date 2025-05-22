@@ -4,7 +4,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 
-from assistants.models import Assistant, CollaborationLog, CollaborationThread
+from assistants.models.assistant import Assistant
+from assistants.models.thoughts import CollaborationLog, CollaborationThread
 from assistants.serializers import (
     CollaborationLogSerializer,
     AssistantCollaborationProfileSerializer,

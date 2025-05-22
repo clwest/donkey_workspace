@@ -12,7 +12,7 @@ class DelegationEventManager(models.Manager):
 from memory.models import MemoryEntry
 from prompts.models import Prompt
 from project.models import ProjectTask, ProjectMilestone
-from agents.models import SwarmMemoryEntry, GlobalMissionNode
+from agents.models.lore import SwarmMemoryEntry, GlobalMissionNode
 from django.utils.text import slugify
 from django.core.exceptions import ValidationError
 from django.conf import settings

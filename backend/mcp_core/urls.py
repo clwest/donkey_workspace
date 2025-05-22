@@ -1,12 +1,18 @@
 import warnings
 warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
 from django.urls import path
+from rest_framework.routers import DefaultRouter
 
 from uuid import UUID
-from .views import threading, reflection, tags, memories, prompts, narrative_events, task_status
+from .views import threading, reflection, tags, memories, prompts, narrative_events
+
+router = DefaultRouter()
+router.register("threads", threading.ThreadViewSet, basename="thread")
+router.register("reflections", reflection.ReflectionViewSet, basename="reflection")
+
 from mcp_core.capabilities.dev_docs import views as dev_docs
 
-urlpatterns = [
+urlpatterns = router.urls + [
     path("prompt-usage/", prompts.log_prompt_usage_view, name="log-prompt-usage"),
     path("reflect/", reflection.reflect_on_memories, name="reflect-on-memories"),
     path("reflections/<int:reflection_id>/save/", reflection.save_reflection),
@@ -123,7 +129,7 @@ urlpatterns = [
     path(
         "threads/auto-thread/", threading.auto_thread_by_tag, name="auto_thread_by_tag"
     ),
-    path("dev_docs/", dev_docs.DevDocListView.as_view(), name="list-dev-docs"),
+    # path("dev_docs/", dev_docs.DevDocListView.as_view(), name="list-dev-docs"),
     path("dev_docs/summarize/", dev_docs.summarize_and_group_devdocs_view),
     path("dev_docs/grouped_history/", dev_docs.grouped_reflection_history),
     path("dev_docs/grouped/<int:pk>/", dev_docs.grouped_reflection_detail),
@@ -137,6 +143,6 @@ urlpatterns = [
         name="summarize-narrative-event",
     ),
 
-    path("tasks/<task_id>/status/", task_status.TaskStatusView.as_view()),
+    # path("tasks/<task_id>/status/", task_status.TaskStatusView.as_view()),
 
 ]

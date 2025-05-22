@@ -1,5 +1,6 @@
 from datetime import timedelta
-from assistants.models import AssistantThoughtLog, DelegationEvent
+from assistants.models.thoughts import AssistantThoughtLog
+from assistants.models.assistant import DelegationEvent
 from memory.models import MemoryEntry
 from story.models import NarrativeEvent
 from utils.llm_router import call_llm

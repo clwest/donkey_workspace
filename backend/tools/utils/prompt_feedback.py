@@ -1,5 +1,7 @@
 from typing import Optional
-from assistants.models import AssistantPromptLink, AssistantReflectionLog, Assistant
+from assistants.models.assistant import  Assistant
+from assistants.models.reflection import AssistantReflectionLog
+from assistants.models.project import AssistantPromptLink
 from prompts.models import Prompt, PromptMutationLog
 from prompts.utils.mutation import mutate_prompt
 from tools.models import ToolUsageLog

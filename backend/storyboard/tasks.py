@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from .models import NarrativeEvent
 from assistants.utils.delegation import spawn_delegated_assistant
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
-from assistants.models import AssistantThoughtLog
+from assistants.models.thoughts import AssistantThoughtLog
 from mcp_core.models import MemoryContext
 
 

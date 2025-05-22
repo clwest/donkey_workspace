@@ -1,5 +1,6 @@
-from assistants.models import AssistantObjective, AssistantThoughtLog
-from assistants.models import AssistantReflectionLog
+from assistants.models.thoughts import AssistantThoughtLog
+from assistants.models. reflection import AssistantReflectionLog
+from assistants.models.project import AssistantObjective
 from memory.models import MemoryEntry
 from prompts.utils.openai_utils import complete_chat
 

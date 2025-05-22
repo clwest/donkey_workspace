@@ -23,16 +23,7 @@ class ProjectStatus(models.TextChoices):
     CANCELLED = "cancelled", "Cancelled"
 
 
-class TaskStatus(models.TextChoices):
-    TODO = "todo", "To Do"
-    IN_PROGRESS = "in_progress", "In Progress"
-    DONE = "done", "Done"
 
-
-class MilestoneStatus(models.TextChoices):
-    PLANNED = "Planned", "Planned"
-    IN_PROGRESS = "In Progress", "In Progress"
-    COMPLETED = "Completed", "Completed"
 
 
 class Project(models.Model):
@@ -200,52 +191,6 @@ class ProjectParticipant(models.Model):
         return f"{self.user} -> {self.project} ({self.role})"
 
 
-class ProjectTask(models.Model):
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    project = models.ForeignKey(
-        "project.Project", related_name="core_tasks", on_delete=models.CASCADE
-    )
-    title = models.CharField(max_length=255)
-    notes = models.TextField(blank=True)
-    content = models.TextField()
-    status = models.CharField(
-        max_length=50, choices=TaskStatus.choices, default=TaskStatus.TODO
-    )
-    priority = models.IntegerField(default=5)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"[{self.status.upper()}] {self.title}"
-
-
-class ProjectMilestone(models.Model):
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    project = models.ForeignKey(
-        "project.Project", on_delete=models.CASCADE, related_name="milestones"
-    )
-    title = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
-    due_date = models.DateField(blank=True, null=True)
-    status = models.CharField(
-        max_length=50,
-        choices=MilestoneStatus.choices,
-        default=MilestoneStatus.PLANNED,
-    )
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["due_date", "created_at"]
-
-    @property
-    def is_completed(self) -> bool:
-        """Return True if the milestone status denotes completion."""
-        return self.status == MilestoneStatus.COMPLETED
-
-    def __str__(self):
-        return f"{self.title} ({'Done' if self.is_completed else 'Pending'})"
 
 
 class ProjectMemoryLink(models.Model):

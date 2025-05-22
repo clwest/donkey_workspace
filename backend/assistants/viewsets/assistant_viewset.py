@@ -4,7 +4,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
 
-from assistants.models import Assistant, AssistantReflectionLog, AssistantThoughtLog
+from assistants.models.assistant import Assistant
+from assistants.models.thoughts import AssistantThoughtLog
 from assistants.serializers import AssistantSerializer
 from assistants.utils.session_utils import (
     get_cached_thoughts,

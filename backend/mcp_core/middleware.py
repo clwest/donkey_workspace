@@ -9,3 +9,8 @@ class APIVersionDeprecationMiddleware(MiddlewareMixin):
             response["X-API-Warning"] = "Deprecated API version; use /api/v1/"
 
         return response
+
+
+# Backwards compatibility alias
+class ApiVersionWarningMiddleware(APIVersionDeprecationMiddleware):
+    pass

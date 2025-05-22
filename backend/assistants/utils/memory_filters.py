@@ -1,4 +1,4 @@
-from assistants.models import AssistantMemoryChain
+from assistants.models.project import AssistantMemoryChain
 from memory.models import MemoryEntry
 
 

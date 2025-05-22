@@ -4,14 +4,15 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 
-from assistants.models import Assistant, AssistantThoughtLog, DelegationEvent
+from assistants.models.assistant import Assistant,  DelegationEvent
+from assistants.models.thoughts import AssistantThoughtLog
 from assistants.serializers import (
     AssistantSerializer,
     AssistantThoughtLogSerializer,
     DelegationEventSerializer,
     ProjectOverviewSerializer,
 )
-from memory.models import MemoryEntry
+from memory.services import MemoryService
 from memory.serializers import MemoryEntrySlimSerializer
 
 
@@ -32,8 +33,8 @@ def assistant_dashboard(request, slug):
         .order_by("-created_at")[:5]
     )
     memories = (
-        MemoryEntry.objects.filter(assistant=assistant)
-        .select_related("document")
+        MemoryService.filter_entries(assistant=assistant)
+
         .order_by("-created_at")[:5]
     )
     delegations = (

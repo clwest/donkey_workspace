@@ -349,42 +349,11 @@ def update_agent_profile_from_feedback(
 
 # codex-optimize:training
 def train_agent_from_documents(agent: Agent, documents: List["Document"]) -> dict:
-    """Generates summary skills from docs, embeds them, and updates agent profile."""
-    from intel_core.models import Document
+    """Wrapper calling ``AgentService.train_agent_from_documents``."""
+    from agents.services import AgentService
 
-    combined_text = "\n".join((doc.summary or doc.content[:200]) for doc in documents)
-    prompt = "Summarize key skills an AI agent would learn from these documents as a comma separated list."
-    prompt += "\n" + combined_text
-
-    try:
-        parsed = call_llm(
-            [{"role": "user", "content": prompt}],
-            model="gpt-4o",
-            temperature=0.2,
-            max_tokens=150,
-        )
-        new_skills = [s.strip() for s in parsed.split(",") if s.strip()]
-    except Exception:
-        new_skills = []
-
-    existing = {
-        s.get("skill") if isinstance(s, dict) else str(s): s
-        for s in (agent.verified_skills or [])
-    }
-    for name in new_skills:
-        existing[name] = {
-            "skill": name,
-            "source": "training",
-            "confidence": 0.6,
-            "last_verified": timezone.now().isoformat(),
-        }
-    agent.verified_skills = list(existing.values())
-    agent.skills = list({*agent.skills, *existing.keys()})
-    for doc in documents:
-        agent.trained_documents.add(doc)
-    agent.save()
-
-    return {"skills": agent.verified_skills, "trained": [str(d.id) for d in documents]}
+    service = AgentService()
+    return service.train_agent_from_documents(agent, documents)
 
 
 def recommend_training_documents(agent: Agent) -> List["Document"]:
@@ -482,51 +451,14 @@ def recommend_agent_resurrection(skill: str) -> Optional[Agent]:
     return candidates.first()
 
 
+
 def spawn_agent_for_skill(skill: str, base_profile: dict) -> Agent:
-    """Create a new specialized agent for the given skill gap."""
-    from agents.models import Agent, AgentSkill, AgentSkillLink
-    from intel_core.models import Document
-    from memory.models import MemoryEntry
-    from django.contrib.contenttypes.models import ContentType
+    """Wrapper calling ``AgentService.spawn_agent_for_skill``."""
+    from agents.services import AgentService
 
-    name = base_profile.get("name") or f"{skill.title()} Specialist"
-    agent = Agent.objects.create(
-        name=name,
-        description=base_profile.get("description", ""),
-        specialty=skill,
-        metadata=base_profile.get("metadata", {}),
-        preferred_llm=base_profile.get("preferred_llm", "gpt-4o"),
-        execution_mode=base_profile.get("execution_mode", "direct"),
-        parent_assistant=base_profile.get("parent_assistant"),
-    )
-
-    skill_obj, _ = AgentSkill.objects.get_or_create(name=skill)
-    AgentSkillLink.objects.create(agent=agent, skill=skill_obj, source="spawn")
-
-    docs = Document.objects.filter(tags__name__iexact=skill)[:3]
-    if docs:
-        train_agent_from_documents(agent, list(docs))
-
-    MemoryEntry.objects.create(
-        event=f"Agent {agent.name} spawned with focus on {skill}",
-        assistant=agent.parent_assistant,
-        source_role="system",
-        linked_content_type=ContentType.objects.get_for_model(Agent),
-        linked_object_id=agent.id,
-    )
-
-    # Initialize legacy record
-    AgentLegacy.objects.get_or_create(agent=agent)
-
-    SwarmMemoryEntry.objects.create(
-        title=f"Agent spawned: {agent.name}",
-        content=f"Agent {agent.name} created for skill {skill}",
-        origin="spawn",
-    ).linked_agents.add(agent)
-
-    return agent
-
-
+    service = AgentService()
+    return service.spawn_agent_for_skill(skill, base_profile)
+  
 def resurrect_agent(agent: Agent, by_assistant: Optional["Assistant"] = None) -> Agent:
     """Reactivate an archived agent and update its legacy."""
     agent.is_active = True

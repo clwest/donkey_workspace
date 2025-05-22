@@ -1,12 +1,13 @@
 import logging
 from typing import Optional
 
-from assistants.models import (
+from assistants.models.assistant import (
     Assistant,
-    AssistantThoughtLog,
-    AssistantReflectionLog,
-    AssistantProject,
+
 )
+from assistants.models.thoughts import Assistant
+from assistants.models.reflection import AssistantReflectionLog
+from assistants.models.project import AssistantProject
 from assistants.utils.delegation import spawn_delegated_assistant
 from intel_core.models import Document
 from project.models import Project

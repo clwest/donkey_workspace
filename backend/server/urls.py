@@ -22,7 +22,6 @@ from tts.urls import router as tts_router
 from story.urls import router as story_router
 from videos.urls import router as videos_router
 from images.urls import router as images_router
-from project.urls import router as project_router
 from characters.urls import router as characters_router
 from storyboard.urls import router as storyboard_router
 from simulation.urls import router as simulation_router
@@ -40,7 +39,6 @@ extend_router("tts", tts_router)
 extend_router("stories", story_router)
 extend_router("videos", videos_router)
 extend_router("images", images_router)
-extend_router("projects", project_router)
 extend_router("characters", characters_router)
 extend_router("storyboard", storyboard_router)
 extend_router("simulation", simulation_router)
@@ -58,7 +56,7 @@ urlpatterns = [
     path("api/stories/", include("story.urls")),
     path("api/videos/", include("videos.urls")),
     path("api/images/", include("images.urls")),
-    path("api/projects/", include("project.urls")),
+    path("", include("project.urls")),
     path("api/characters/", include("characters.urls")),
     path("api/users/", include("accounts.urls")),
     path("api/storyboard/", include("storyboard.urls")),
@@ -67,7 +65,9 @@ urlpatterns = [
     # Trainers app endpoints
     # path("api/trainers/", include("trainers.urls")),
     path("api/prompts/", include("prompts.urls")),
-    path("api/v1/", include("mcp_core.urls")),
+    path("api/v1/mcp/", include("mcp_core.urls")),
+    path("api/v1/memory/", include("memory.urls")),
+
     path("api/mcp/", include("mcp_core.urls")),
     path("api/memory/", include("memory.urls")),
     path("api/shared-memory-pools/", include("memory.shared_urls")),
@@ -83,6 +83,9 @@ urlpatterns = [
     path("api/cosmological-roles/", agent_views.cosmological_roles),
     path("api/myth-weaver/", agent_views.myth_weaver),
     path("api/legacy-vaults/", agent_views.legacy_vaults),
+    path("api/mythology-mesh/", agent_views.mythology_mesh),
+    path("api/constellation-map/", agent_views.constellation_map),
+    path("api/archetype-drift/", agent_views.archetype_drift),
     path("api/intel/", include("intel_core.urls")),
     path("api/documents/", include("documents.urls")),
     path("api/tools/", include("tools.urls")),

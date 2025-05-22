@@ -2,8 +2,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
-from assistants.models import Assistant
-from agents.models import Agent
+from assistants.models.assistant import Assistant
+from agents.models.core import Agent
 from intel_core.models import Document
 from assistants.utils.assistant_reflection_engine import (
     assign_training_documents,

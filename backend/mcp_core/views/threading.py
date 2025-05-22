@@ -1,11 +1,12 @@
 # mcp_core/views/threading.py
 
-from rest_framework.decorators import api_view, permission_classes, throttle_classes
+from rest_framework.decorators import api_view, permission_classes, action, throttle_classes
 from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from rest_framework import status, generics
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.throttling import UserRateThrottle
+from rest_framework.response import Response
+from rest_framework import status, viewsets, generics
+import warnings
+from rest_framework.pagination import PageNumberPagination
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
 from django.db import models
@@ -31,7 +32,8 @@ from mcp_core.serializers_replay import ThreadReplayItemSerializer
 from memory.serializers import NarrativeThreadOverviewSerializer
 from mcp_core.utils.thread_diagnostics import run_thread_diagnostics
 from memory.models import MemoryEntry
-from assistants.models import AssistantThoughtLog, AssistantReflectionLog
+from assistants.models.thoughts import AssistantThoughtLog
+from assistants.models.reflection import AssistantReflectionLog
 from assistants.utils.planning_alignment import suggest_planning_realignment
 from mcp_core.utils.thread_helpers import (
     get_or_create_thread,
@@ -43,6 +45,63 @@ from mcp_core.utils.thread_helpers import (
 from memory.models import MemoryEntry
 from django.utils import timezone
 
+
+class ThreadViewSet(viewsets.ModelViewSet):
+    queryset = NarrativeThread.objects.all().order_by("-created_at")
+    serializer_class = NarrativeThreadSerializer
+    permission_classes = [AllowAny]
+
+    @action(detail=True, methods=["post"])
+    def merge(self, request, pk=None):
+        return merge_thread(request, id=pk)
+
+    @action(detail=True, methods=["post"])
+    def split(self, request, pk=None):
+        return split_thread(request, id=pk)
+
+    @action(detail=True, methods=["get"])
+    def summary(self, request, pk=None):
+        return thread_summary(request, id=pk)
+
+    @action(detail=True, methods=["get"])
+    def replay(self, request, pk=None):
+        return thread_replay(request, thread_id=pk)
+
+    @action(detail=True, methods=["post"])
+    def diagnose(self, request, pk=None):
+        return diagnose_thread(request, thread_id=pk)
+
+    @action(detail=True, methods=["post"], url_path="suggest-continuity")
+    def suggest_continuity(self, request, pk=None):
+        return suggest_continuity_view(request, thread_id=pk)
+
+    @action(detail=True, methods=["post"])
+    def realign(self, request, pk=None):
+        return realign_thread(request, thread_id=pk)
+
+    @action(detail=True, methods=["get"])
+    def progress(self, request, pk=None):
+        return thread_progress(request, id=pk)
+
+    @action(detail=True, methods=["post"])  # /threads/<id>/refocus/
+    def refocus(self, request, pk=None):
+        return refocus_thread(request, thread_id=pk)
+
+    @action(detail=True, methods=["post"])  # /threads/<id>/reflect/
+    def reflect(self, request, pk=None):
+        return reflect_on_thread_objective(request, thread_id=pk)
+
+    @action(detail=True, methods=["post"], url_path="set_objective")
+    def set_objective(self, request, pk=None):
+        thread = self.get_object()
+        thread.long_term_objective = request.data.get("objective", "")
+        thread.save(update_fields=["long_term_objective"])
+        return Response({"objective": thread.long_term_objective})
+
+    @action(detail=True, methods=["get"], url_path="objective")
+    def objective(self, request, pk=None):
+        thread = self.get_object()
+        return Response({"objective": thread.long_term_objective})
 
 @api_view(["POST"])
 def thread_from_memory(request):
@@ -237,6 +296,10 @@ def thread_replay(request, thread_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def diagnose_thread(request, thread_id):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/diagnose/",
+        DeprecationWarning,
+    )
     thread = get_object_or_404(NarrativeThread, id=thread_id)
     result = run_thread_diagnostics(thread)
     return Response(result)
@@ -245,9 +308,17 @@ def diagnose_thread(request, thread_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def suggest_continuity_view(request, thread_id):
-    from mcp_core.tasks.async_tasks import suggest_continuity_task
-    task = suggest_continuity_task.delay(thread_id)
-    return Response({"task_id": task.id}, status=202)
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/suggest-continuity/",
+        DeprecationWarning,
+    )
+    thread = get_object_or_404(NarrativeThread, id=thread_id)
+    result = suggest_continuity(thread_id)
+    thread._link_suggestions = result.get("link_suggestions", [])
+    serializer = NarrativeThreadSerializer(thread)
+    data = serializer.data
+    data.update(result)
+    return Response(data)
 
 
 
@@ -262,6 +333,10 @@ def suggest_continuity_view(request, thread_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def reflect_on_thread_objective(request, thread_id):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/reflect/",
+        DeprecationWarning,
+    )
     thread = get_object_or_404(NarrativeThread, id=thread_id)
     reflection_text = generate_thread_reflection(thread)
     reflection = ThreadObjectiveReflection.objects.create(
@@ -303,6 +378,10 @@ def diagnose_thread(request, thread_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def refocus_thread(request, thread_id):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/refocus/",
+        DeprecationWarning,
+    )
     thread = get_object_or_404(NarrativeThread, id=thread_id)
     prompt = generate_thread_refocus_prompt(thread)
     AssistantThoughtLog.objects.create(
@@ -318,6 +397,10 @@ def refocus_thread(request, thread_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def realign_thread(request, thread_id):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/realign/",
+        DeprecationWarning,
+    )
     """Run planning realignment based on diagnostics and mood."""
     from mcp_core.tasks.async_tasks import realign_thread_task
     task = realign_thread_task.delay(thread_id)
@@ -328,6 +411,10 @@ def realign_thread(request, thread_id):
 @permission_classes([AllowAny])
 @throttle_classes([UserRateThrottle])
 def merge_thread(request, id):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/merge/",
+        DeprecationWarning,
+    )
     """Merge another thread into this one."""
     thread = get_object_or_404(NarrativeThread, id=id)
     target_id = request.data.get("target_thread_id")
@@ -357,6 +444,10 @@ def merge_thread(request, id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def split_thread(request, id):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/split/",
+        DeprecationWarning,
+    )
     """Split a thread, moving selected entries to a new thread."""
     thread = get_object_or_404(NarrativeThread, id=id)
     from_index = request.data.get("from_index")
@@ -396,6 +487,10 @@ def split_thread(request, id):
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def thread_progress(request, id):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/progress/",
+        DeprecationWarning,
+    )
     """Return completion progress for a thread and trigger sync."""
     thread = get_object_or_404(NarrativeThread, id=id)
 

@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from assistants.models import RoutingSuggestionLog
+from assistants.models.assistant import RoutingSuggestionLog
 from assistants.serializers import RoutingSuggestionLogSerializer
 
 

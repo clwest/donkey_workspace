@@ -1,7 +1,7 @@
 import logging
 from typing import Dict
 
-from agents.models import GlobalMissionNode, SwarmMemoryEntry
+from agents.models.lore import GlobalMissionNode, SwarmMemoryEntry
 
 logger = logging.getLogger(__name__)
 

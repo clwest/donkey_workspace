@@ -5,18 +5,28 @@ from prompts.utils.openai_utils import complete_chat
 from rest_framework.response import Response
 from rest_framework import status
 
-from assistants.models import (
+from assistants.models.project import (
     AssistantObjective,
+    AssistantProject
+
+)
+from assistants.models.thoughts import (
+    
     AssistantThoughtLog,
+ 
+)
+from assistants.models.reflection import (
+
     AssistantReflectionLog,
 )
+
 from assistants.utils.objective_from_reflection import generate_objective_from_reflection
 
 from assistants.serializers import (
     AssistantObjectiveSerializer,
     AssistantObjectiveWithTasksSerializer,
 )
-from assistants.models import Assistant, AssistantProject
+from assistants.models.assistant import Assistant
 
 
 # Assistant Objectives

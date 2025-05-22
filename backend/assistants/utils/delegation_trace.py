@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List
 
-from assistants.models import Assistant, DelegationEvent
+from assistants.models.assistant import Assistant, DelegationEvent
 from memory.models import MemoryEntry
 
 

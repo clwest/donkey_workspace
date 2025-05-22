@@ -1,7 +1,7 @@
 
 from rest_framework import serializers
 from prompts.models import Prompt, PromptPreferences, PromptUsageTemplate
-from assistants.models import Assistant
+from assistants.models.assistant import Assistant
 from mcp_core.models import Tag
 from mcp_core.serializers_tags import TagSerializer
 

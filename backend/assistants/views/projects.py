@@ -2,10 +2,12 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
-from assistants.models import (
+from assistants.models.project import (
     AssistantProject,
     AssistantProjectRole,
     ProjectPlanningLog,
+    AssistantObjective,
+    AssistantTask
 )
 from assistants.serializers import (
     AssistantProjectSerializer,
@@ -15,15 +17,15 @@ from assistants.serializers import (
     ProjectPlanningLogSerializer,
 )
 from django.utils.text import slugify
-from assistants.models import Assistant, AssistantProject
+from assistants.models.assistant import Assistant, ChatSession
 from prompts.models import Prompt
 from prompts.utils.embeddings import get_prompt_embedding
 from embeddings.helpers.helpers_io import save_embedding
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from memory.models import MemoryEntry
-from project.models import Project, ProjectMemoryLink, ProjectMilestone
-from assistants.models import AssistantObjective, AssistantTask, ChatSession
+from memory.services import MemoryService
+from assistants.services import AssistantService
+from project.models import ProjectMemoryLink, ProjectMilestone
 from assistants.helpers.mood import get_session_mood, map_mood_to_tone
 from assistants.utils.memory_project_planner import build_project_plan_from_memories
 import uuid
@@ -197,7 +199,7 @@ def create_project_from_memory(request, slug=None):
     else:
         assistant = get_object_or_404(Assistant, id=data.get("assistant_id"))
     memory_id = data.get("memory_id")
-    memory = get_object_or_404(MemoryEntry, id=memory_id)
+    memory = MemoryService.get_entry_or_404(memory_id)
 
     title = data.get(
         "title", f"Project from memory: {memory.summary or memory.event[:50]}"
@@ -215,7 +217,7 @@ def create_project_from_memory(request, slug=None):
         if not user:
             user = User.objects.first()
 
-        core_project = Project.objects.create(
+        core_project = AssistantService.create_project(
             user=user,
             title=title,
             assistant=assistant,
@@ -249,7 +251,7 @@ def memory_to_project(request, slug):
     if not isinstance(memory_ids, list) or not memory_ids:
         return Response({"error": "memory_ids required"}, status=400)
 
-    memories = list(MemoryEntry.objects.filter(id__in=memory_ids))
+    memories = list(MemoryService.filter_entries(id__in=memory_ids))
     if not memories:
         return Response({"error": "No memories found"}, status=400)
 
@@ -267,7 +269,7 @@ def memory_to_project(request, slug):
 
     User = get_user_model()
     user = request.user if request.user.is_authenticated else User.objects.first()
-    core_project = Project.objects.create(
+    core_project = AssistantService.create_project(
         user=user,
         title=plan["title"],
         assistant=assistant,
@@ -334,9 +336,10 @@ def project_memory_changes(request, pk):
     except AssistantProject.DoesNotExist:
         return Response({"error": "Project not found"}, status=404)
 
-    memories = MemoryEntry.objects.filter(assistant=project.assistant).order_by(
-        "-created_at"
-    )[:5]
+    memories = (
+        MemoryService.filter_entries(assistant=project.assistant)
+        .order_by("-created_at")[:5]
+    )
     data = [
         {"id": str(m.id), "event": m.event, "importance": m.importance}
         for m in memories

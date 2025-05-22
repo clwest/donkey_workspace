@@ -4,8 +4,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 
-from assistants.models import Assistant, AssistantMythLayer
-from agents.models import SwarmJournalEntry
+from assistants.models.assistant import Assistant
+from assistants.models.core import AssistantMythLayer
+from agents.models.lore import SwarmJournalEntry
 from assistants.serializers import AssistantMythLayerSerializer
 from agents.serializers import SwarmJournalEntrySerializer
 from mcp_core.models import Tag

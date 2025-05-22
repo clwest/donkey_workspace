@@ -4,13 +4,13 @@ from rest_framework.response import Response
 from rest_framework import status, viewsets
 from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
-
-from assistants.models import (
+from rest_framework import filters
+from assistants.models.assistant import (
     Assistant,
-    AssistantThoughtLog,
     AssistantChatMessage,
     Topic,
 )
+from assistants.models.thoughts import AssistantThoughtLog
 from assistants.serializers import AssistantThoughtLogSerializer
 from mcp_core.serializers_tags import TagSerializer
 from django.shortcuts import get_object_or_404
@@ -26,7 +26,8 @@ from prompts.utils.mutation import mutate_prompt as run_mutation
 from embeddings.helpers.helpers_io import get_embedding_for_text, save_embedding
 from assistants.helpers.logging_helper import log_assistant_thought
 from mcp_core.models import DevDoc
-from project.models import Project
+from assistants.services import AssistantService
+from django.http import Http404
 
 
 class AssistantThoughtViewSet(viewsets.ReadOnlyModelViewSet):
@@ -186,9 +187,8 @@ def assistant_project_thoughts(request, project_id):
         return Response(serialized.data)
 
     elif request.method == "POST":
-        try:
-            project = Project.objects.get(id=project_id)
-        except Project.DoesNotExist:
+        project = AssistantService.get_project(project_id)
+        if not project:
             return Response({"error": "Project not found."}, status=404)
 
         thought_text = request.data.get("thought", "")
@@ -219,9 +219,8 @@ def assistant_project_thoughts(request, project_id):
 
 @api_view(["POST"])
 def assistant_reflect_on_thoughts(request, project_id):
-    try:
-        project = Project.objects.get(id=project_id)
-    except Project.DoesNotExist:
+    project = AssistantService.get_project(project_id)
+    if not project:
         return Response({"error": "Project not found."}, status=404)
 
     engine = AssistantThoughtEngine(assistant=project.assistant, project=project)
@@ -438,8 +437,8 @@ def reflect_on_doc(request):
     try:
         doc = DevDoc.objects.get(id=doc_id)
         assistant = Assistant.objects.get(id=assistant_id)
-        project = Project.objects.get(id=project_id)
-    except (DevDoc.DoesNotExist, Assistant.DoesNotExist, Project.DoesNotExist) as e:
+        project = AssistantService.get_project_or_404(project_id)
+    except (DevDoc.DoesNotExist, Assistant.DoesNotExist, Http404) as e:
         return Response({"error": str(e)}, status=404)
 
     # Simulated AI reflection (you can call GPT later)

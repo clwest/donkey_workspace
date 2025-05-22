@@ -1,7 +1,8 @@
+from .assistant import *
 from .core import *
-from .project import *
 from .reflection import *
 from .thoughts import *
+from .project import *
 from .tasks import *
 
-__all__ = []  # populated by imports above
+__all__ = []

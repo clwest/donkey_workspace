@@ -1,7 +1,8 @@
 # embeddings/helpers/search_registry.py
 
 from embeddings.vector_utils import compute_similarity
-from assistants.models import AssistantThoughtLog, AssistantReflectionLog
+from assistants.models.thoughts import AssistantThoughtLog
+from assistants.models.reflection import AssistantReflectionLog
 from memory.models import MemoryEntry
 from mcp_core.models import MemoryContext, Plan, Task, DevDoc
 from prompts.models import Prompt
@@ -82,7 +83,7 @@ search_registry = {
 
 
 # Added assistantthoughtlog registry
-from assistants.models import AssistantThoughtLog
+
 
 search_registry["assistantthoughtlog"] = {
     "label": "Assistant Thought",

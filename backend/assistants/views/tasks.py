@@ -3,19 +3,20 @@ from rest_framework.response import Response
 from rest_framework import status
 from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 
-from project.models import Project, ProjectTask
+from project.models import ProjectTask
+from assistants.services import AssistantService
 from project.serializers import ProjectTaskSerializer
-from assistants.serializers import AssistantTaskSerializer
+from assistants.serializers import AssistantTaskSerializer, AssistantNextActionSerializer
 from django.shortcuts import get_object_or_404
-from assistants.models import (
+from assistants.models.assistant import (
     Assistant,
-    AssistantObjective,
-    AssistantProject,
-    AssistantTask,
-    AssistantThoughtLog,
+    ChatSession,
+    
 )
-from memory.models import MemoryEntry
-from assistants.models import ChatSession
+from assistants.models.thoughts import AssistantThoughtLog
+from assistants.models.project import AssistantProject, AssistantObjective, AssistantTask, AssistantNextAction
+
+from memory.services import MemoryService
 from assistants.utils.task_generation import (
     generate_task_from_memory,
     generate_task_from_thought,
@@ -44,7 +45,7 @@ def assistant_project_tasks(request, project_id):
     except AssistantProject.DoesNotExist:
         return Response({"error": "Project not found"}, status=404)
 
-    project = Project.objects.filter(assistant_project=assistant_project).first()
+    project = AssistantService.get_project(assistant_project.id)
     if project is None:
         return Response({"error": "Linked project not found"}, status=404)
 
@@ -63,9 +64,8 @@ def assistant_project_tasks(request, project_id):
 
 @api_view(["POST"])
 def generate_assistant_project_thought(request, project_id):
-    try:
-        project = Project.objects.get(id=project_id)
-    except Project.DoesNotExist:
+    project = AssistantService.get_project(project_id)
+    if not project:
         return Response({"error": "Project not found."}, status=404)
 
     engine = AssistantThoughtEngine(assistant=project.assistant, project=project)
@@ -163,7 +163,7 @@ def propose_task(request, slug):
         )
 
     if memory_id:
-        memory = get_object_or_404(MemoryEntry, id=memory_id)
+        memory = MemoryService.get_entry_or_404(memory_id)
         project = project or memory.related_project or assistant.current_project
         suggestion = generate_task_from_memory(memory)
         source_type = "memory"

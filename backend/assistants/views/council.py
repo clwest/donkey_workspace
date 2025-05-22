@@ -3,13 +3,13 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 
-from assistants.models import CouncilSession, CouncilThought
+from assistants.models.assistant import CouncilSession, CouncilThought, Assistant
 from assistants.serializers import (
     CouncilSessionSerializer,
     CouncilThoughtSerializer,
 )
 from assistants.tasks import run_council_deliberation, reflect_on_council
-from assistants.models import Assistant
+
 
 
 @api_view(["POST"])

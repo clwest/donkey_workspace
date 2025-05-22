@@ -1,4 +1,5 @@
-from assistants.models import Assistant, AssistantThoughtLog
+from assistants.models.assistant import Assistant
+from assistants.models.thoughts import AssistantThoughtLog
 from prompts.models import Prompt
 
 

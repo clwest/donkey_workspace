@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from memory.models import MemoryEntry
-from assistants.models import AssistantThoughtLog, AssistantReflectionLog
+from assistants.models.thoughts import AssistantThoughtLog
+from assistants.models.reflection import AssistantReflectionLog
 
 
 class ThreadReplayItemSerializer(serializers.Serializer):

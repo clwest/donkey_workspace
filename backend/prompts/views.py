@@ -17,7 +17,7 @@ from prompts.utils.openai_utils import (
     extract_title_from_prompt,
 )
 from mcp_core.utils.log_prompt import log_prompt_usage
-from assistants.models import Assistant
+from assistants.models.assistant import Assistant
 from django.db import connection
 import textstat
 

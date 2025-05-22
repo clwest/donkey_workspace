@@ -1,8 +1,8 @@
 from __future__ import annotations
 from hashlib import sha256
 
-from agents.models import LoreToken, LoreTokenSignature, TemporalLoreAnchor, RitualComplianceRecord
-from assistants.models import AssistantCivilization
+from agents.models.lore import LoreToken, LoreTokenSignature, TemporalLoreAnchor, RitualComplianceRecord
+from assistants.models.assistant import AssistantCivilization
 
 
 def verify_lore_token_signature(token: LoreToken) -> bool:

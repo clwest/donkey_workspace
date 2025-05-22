@@ -10,7 +10,8 @@ from mcp_core.models import MemoryContext, NarrativeThread, ThreadSplitLog
 from mcp_core.serializers import MemoryContextSerializer
 from django.shortcuts import get_object_or_404
 from memory.models import MemoryEntry
-from assistants.models import AssistantThoughtLog, AssistantReflectionLog
+from assistants.models.thoughts import AssistantThoughtLog
+from assistants.models.reflection import AssistantReflectionLog
 
 from mcp_core.serializers import MemoryContextSerializer
 

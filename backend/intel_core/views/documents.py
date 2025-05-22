@@ -6,7 +6,7 @@ from rest_framework.permissions import AllowAny
 from intel_core.models import Document, DocumentFavorite, DocumentProgress
 from intel_core.serializers import DocumentSerializer
 from prompts.utils.token_helpers import count_tokens, smart_chunk_prompt
-from assistants.models import Assistant
+from assistants.models.assistant import Assistant
 
 
 @api_view(["GET"])

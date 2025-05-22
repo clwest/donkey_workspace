@@ -1,4 +1,4 @@
-from assistants.models import AssistantObjective
+from assistants.models.project import AssistantObjective
 from prompts.utils.openai_utils import complete_chat  
 
 def generate_objectives_from_prompt(assistant, project, prompt_text):
