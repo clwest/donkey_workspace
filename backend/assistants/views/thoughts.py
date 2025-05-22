@@ -126,7 +126,9 @@ def reflect_on_assistant_thoughts(request, slug):
         return Response({"error": "Assistant not found."}, status=404)
 
     engine = AssistantThoughtEngine(assistant=assistant)
-    result = engine.reflect_on_thoughts()
+    force_flag = request.data.get("force") or request.query_params.get("force")
+    force = str(force_flag).lower() in ["1", "true", "yes"]
+    result = engine.reflect_on_thoughts(force=force)
 
     return Response(result)
 
@@ -183,7 +185,9 @@ def assistant_reflect_on_thoughts(request, project_id):
         return Response({"error": "Project not found."}, status=404)
 
     engine = AssistantThoughtEngine(assistant=project.assistant, project=project)
-    result = engine.reflect_on_thoughts()
+    force_flag = request.data.get("force") or request.query_params.get("force")
+    force = str(force_flag).lower() in ["1", "true", "yes"]
+    result = engine.reflect_on_thoughts(force=force)
 
     return Response(
         {
@@ -234,7 +238,9 @@ def assistant_reflect_now(request, slug):
     assistant = get_object_or_404(Assistant, slug=slug)
 
     engine = AssistantThoughtEngine(assistant=assistant)
-    result = engine.reflect_on_thoughts()
+    force_flag = request.data.get("force") or request.query_params.get("force")
+    force = str(force_flag).lower() in ["1", "true", "yes"]
+    result = engine.reflect_on_thoughts(force=force)
 
     return Response(
         {
