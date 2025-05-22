@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from .models.assistant import Assistant
 from .models.thoughts import AssistantThoughtLog
 from .models.project import (
@@ -8,16 +9,23 @@ from .models.project import (
 )
 from .models.reflection import AssistantReflectionLog
 from .models.core import (
+
     ChatSession,
+    StructuredMemory,
+    TokenUsage,
+    AssistantChatMessage,
+    AudioResponse,
     DelegationEvent,
-    DelegationStrategy,
+    AssistantMessage,
+    RoutingSuggestionLog,
     SessionHandoff,
+    AssistantSwitchEvent,
     AssistantHandoffLog,
-    AssistantMemoryChain,
     SpecializationDriftLog,
-    CollaborationLog,
-    CollaborationThread,
-    AssistantMythLayer,
+    DebateSession,
+    DebateThoughtLog,
+    DebateSummary,
+
 )
 from memory.models import MemoryEntry
 from mcp_core.models import Tag
