@@ -67,7 +67,9 @@ urlpatterns = [
     # Trainers app endpoints
     # path("api/trainers/", include("trainers.urls")),
     path("api/prompts/", include("prompts.urls")),
-    path("api/v1/", include("mcp_core.urls")),
+    path("api/v1/mcp/", include("mcp_core.urls")),
+    path("api/v1/memory/", include("memory.urls")),
+
     path("api/mcp/", include("mcp_core.urls")),
     path("api/memory/", include("memory.urls")),
     path("api/shared-memory-pools/", include("memory.shared_urls")),
