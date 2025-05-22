@@ -58,9 +58,10 @@ urlpatterns = [
     path("arbitration-cases/", agents.arbitration_cases),
     path("myth-weaver/", agents.myth_weaver),
     path("legacy-vaults/", agents.legacy_vaults),
-    path("archetype-evolution/", agents.archetype_evolution),
-    path("codex-symbol-reconciliation/", agents.codex_symbol_reconciliation),
-    path("myth-api/lookup/", agents.myth_api_lookup_view),
+    path("archetype-sync/", agents.archetype_sync_pulses),
+    path("creation-myths/", agents.creation_myths),
+    path("cosmogenesis/", agents.cosmogenesis_simulations),
+
     path("treaty-breaches/", agents.treaty_breaches),
     path("symbolic-sanctions/", agents.symbolic_sanctions),
     path("tribunals/", agents.tribunals),
