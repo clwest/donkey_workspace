@@ -1,34 +1,10 @@
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from rest_framework.response import Response
-from django.core.files.storage import default_storage
-from django.conf import settings
-import os
-import json
-import uuid
-from openai import OpenAI
-from django.contrib.auth import get_user_model
-from django.conf import settings
-from intel_core.models import Document
-from assistants.models import (
-    Assistant,
-    AssistantProject,
-    AssistantObjective,
-    ChatSession,
-)
-from project.models import Project
-from assistants.helpers.chat_helper import get_or_create_chat_session
-from memory.models import MemoryEntry
-from mcp_core.models import NarrativeThread, Tag
-from prompts.models import Prompt
-from prompts.utils.token_helpers import count_tokens
-from intel_core.serializers import DocumentSerializer
-from intel_core.processors.url_loader import load_urls
-from intel_core.processors.video_loader import load_videos
-from intel_core.processors.pdf_loader import load_pdfs
 
-client = OpenAI()
-User = settings.AUTH_USER_MODEL
+from intel_core.serializers import DocumentSerializer
+from intel_core.services import DocumentService
+import json
 
 
 @api_view(["POST"])
@@ -41,104 +17,41 @@ def unified_ingestion_view(request):
     project_name = request.data.get("project_name", "General")
     session_id = request.data.get("session_id")
     user_provided_title = request.data.get("title")
-
-    null_uuid = "00000000-0000-0000-0000-000000000000"
     assistant_id = request.data.get("assistant_id")
     project_id = request.data.get("project_id")
 
-    if not session_id or session_id == null_uuid:
-        session_id = str(uuid.uuid4())
+    urls = request.data.get("urls")
+    if isinstance(urls, str):
+        urls = [urls]
 
-    assistant = (
-        Assistant.objects.filter(id=assistant_id).first() if assistant_id else None
-    )
-    project = Project.objects.filter(id=project_id).first() if project_id else None
-    if assistant or project:
-        ChatSession.objects.create(
-            session_id=session_id,
-            assistant=assistant,
-            project=project,
-        )
+    tag_names = request.data.get("tags", [])
+    if isinstance(tag_names, str):
+        try:
+            tag_names = json.loads(tag_names)
+        except Exception:
+            tag_names = [t.strip() for t in tag_names.split(",") if t.strip()]
+
+    uploaded_files = request.FILES.getlist("files")
 
     try:
-        if source_type == "youtube":
-            video_urls = request.data.get("urls")
-            documents = load_videos(
-                video_urls, user_provided_title, project_name, session_id
-            )
-            if assistant:
-                for doc in documents:
-                    if isinstance(doc, Document):
-                        doc.linked_assistants.add(assistant)
-            serialized = [
-                DocumentSerializer(doc).data
-                for doc in documents
-                if isinstance(doc, Document)
-            ]
-            return Response({"documents": serialized})
+        docs = DocumentService.ingest(
+            source_type=source_type,
+            urls=urls,
+            files=uploaded_files,
+            title=user_provided_title,
+            project_name=project_name,
+            session_id=session_id,
+            assistant_id=assistant_id,
+            project_id=project_id,
+            tags=tag_names,
+        )
 
-        elif source_type == "url":
-            urls = request.data.get("urls", [])
-            if isinstance(urls, str):
-                urls = [urls]
-            tag_names = request.data.get("tags", [])
-            if isinstance(tag_names, str):
-                try:
-                    tag_names = json.loads(tag_names)
-                except Exception:
-                    tag_names = [t.strip() for t in tag_names.split(",") if t.strip()]
+        serialized = [DocumentSerializer(doc).data for doc in docs]
 
-            tags = []
-            for tag_name in tag_names:
-                if tag_name and str(tag_name).strip():
-                    cleaned = str(tag_name).strip().lower()
-                    tag, _ = Tag.objects.get_or_create(name=cleaned)
-                    tags.append(tag)
-
-            docs = load_urls(urls, user_provided_title, project_name, session_id)
-            for doc in docs:
-                if isinstance(doc, Document):
-                    doc.tags.set(tags)
-                    if assistant:
-                        doc.linked_assistants.add(assistant)
-
-            serialized = [
-                DocumentSerializer(doc).data
-                for doc in docs
-                if isinstance(doc, Document)
-            ]
-            return Response(
-                {
-                    "documents": serialized,
-                    "message": f"Loaded {len(serialized)} URL document(s).",
-                }
-            )
-
-        elif source_type == "pdf":
-            uploaded_files = request.FILES.getlist("files")
-            if not uploaded_files:
-                return Response({"error": "No PDF files provided."}, status=400)
-
-            file_paths = []
-            for f in uploaded_files:
-                path = default_storage.save(f"temp/{f.name}", f)
-                file_paths.append(os.path.join(settings.MEDIA_ROOT, path))
-
-            documents = load_pdfs(
-                file_paths, user_provided_title, project_name, session_id
-            )
-            if assistant:
-                for doc in documents:
-                    if isinstance(doc, Document):
-                        doc.linked_assistants.add(assistant)
-            serialized = [
-                DocumentSerializer(doc).data
-                for doc in documents
-                if isinstance(doc, Document)
-            ]
-            return Response({"documents": serialized})
-
-        return Response({"error": "Invalid or missing source_type"}, status=400)
+        response = {"documents": serialized}
+        if source_type == "url":
+            response["message"] = f"Loaded {len(serialized)} URL document(s)."
+        return Response(response)
 
     except Exception as e:
         return Response({"error": str(e)}, status=500)
