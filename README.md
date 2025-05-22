@@ -66,3 +66,11 @@ does not exist, ensure you ran `python manage.py makemigrations` before
 `python manage.py migrate`. This generates all initial migration files so Django
 creates the required tables.
 
+### Reflection Caching
+
+Reflection summaries are cached in Redis for faster retrieval. When a cached
+summary is served the API response includes `"trace": "[cache]"`. Use the
+**Force Refresh** button (or pass `force=true` to the endpoint) to bypass the
+cache and generate a new reflection. This explains why results may not change
+immediately after repeated requests.
+

@@ -10,11 +10,12 @@ export default function AssistantReflectPage() {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const reflect = async () => {
+  const reflect = async (force = false) => {
     setLoading(true);
     try {
       const res = await apiFetch(`/assistants/${slug}/reflect-now/`, {
         method: "POST",
+        params: force ? { force: "true" } : undefined,
       });
       
       setReflection(res);
@@ -62,17 +63,30 @@ export default function AssistantReflectPage() {
     <div className="container my-5">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mb-0">🪞 Assistant Reflection: {slug}</h2>
-        <button
-          className="btn btn-primary"
-          onClick={reflect}
-          disabled={loading}
-        >
-          {loading ? "Reflecting..." : "🔁 Run Reflection"}
-        </button>
+        <div className="btn-group" role="group">
+          <button
+            className="btn btn-primary"
+            onClick={() => reflect(false)}
+            disabled={loading}
+          >
+            {loading ? "Reflecting..." : "🔁 Run Reflection"}
+          </button>
+          <button
+            className="btn btn-outline-warning"
+            onClick={() => reflect(true)}
+            disabled={loading}
+          >
+            Force Refresh
+          </button>
+        </div>
         <Link to={`/assistants/${slug}`} className="btn btn-outline-secondary">
           🔙 Back to Assistant
         </Link>
       </div>
+
+      {reflection && reflection.trace === "[cache]" && (
+        <div className="alert alert-warning">Cached reflection shown. Click Force Refresh to regenerate.</div>
+      )}
 
       {reflection && (
         <div className="card mb-5 shadow-sm border-info">
