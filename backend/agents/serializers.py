@@ -51,6 +51,8 @@ from agents.models import (
     MythCycleBinding,
     ResurrectionTemplate,
     BeliefContinuityRitual,
+    CosmologicalRole,
+    LegacyTokenVault,
 )
 from assistants.models import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -574,3 +576,17 @@ class BeliefContinuityRitualSerializer(serializers.ModelSerializer):
         model = BeliefContinuityRitual
         fields = "__all__"
         read_only_fields = ["id", "created_at", "memory_reference"]
+
+
+class CosmologicalRoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CosmologicalRole
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class LegacyTokenVaultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LegacyTokenVault
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
