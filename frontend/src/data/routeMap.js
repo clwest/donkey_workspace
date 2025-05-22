@@ -37,8 +37,8 @@ export const routeMap = [
   },
   {
     frontend: "/assistants/:slug/reflect",
-    backend: "/api/assistants/<slug>/reflect/",
-    view: "reflect_on_assistant",
+    backend: "/api/assistants/<slug>/reflect-now/",
+    view: "assistant_reflect_now",
     serializer: "n/a (triggers task)",
     notes: "Trigger assistant reflection",
   },
