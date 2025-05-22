@@ -366,6 +366,15 @@ class Assistant(models.Model):
                 self.is_active = False
                 self.save(update_fields=["is_active"])
 
+    def generate_insight_plan(self, context_filter: str = "") -> list[str]:
+        """Return a basic plan derived from stored insights."""
+        base = (
+            f"Review context: {context_filter}"
+            if context_filter
+            else "Review recent insights"
+        )
+        return [base, "Outline key tasks", "Share plan with team"]
+
 
 class DelegationStrategy(models.Model):
     """Preferences for how an assistant delegates work to agents."""
@@ -1973,6 +1982,7 @@ class DecisionFramework(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Decision {self.id} for {self.assistant.name}"
 
+
 class PurposeRouteMap(models.Model):
     """Rules for routing memory by purpose or tone."""
 
@@ -2004,3 +2014,41 @@ class AutonomyNarrativeModel(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Narrative for {self.assistant.name}"
+
+
+class CollaborationThread(models.Model):
+    """Simple thread for multi-assistant collaboration."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    lead = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="lead_threads"
+    )
+    participants = models.ManyToManyField(
+        "assistants.Assistant", related_name="collaboration_threads"
+    )
+    messages = models.JSONField(default=list, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class TaskAssignment(models.Model):
+    """Delegated task from one assistant to another."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    from_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="outgoing_assignments",
+    )
+    to_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="incoming_assignments",
+    )
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]

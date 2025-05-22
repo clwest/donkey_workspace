@@ -36,6 +36,8 @@ from .views import (
     subassistant,
     standup,
 )
+from tasks.views.delegate import TaskDelegateView
+from insights.views.plan import InsightPlanView
 
 urlpatterns = [
     # Basics
@@ -640,6 +642,21 @@ urlpatterns = [
         "<uuid:assistant_id>/schedule-standup/",
         standup.StandupScheduleView.as_view(),
         name="schedule-standup",
+    ),
+    path(
+        "<uuid:assistant_id>/collaborate/",
+        collaboration.AssistantCollaborationView.as_view(),
+        name="assistant-collaborate",
+    ),
+    path(
+        "<uuid:assistant_id>/delegate-task/",
+        TaskDelegateView.as_view(),
+        name="delegate-task",
+    ),
+    path(
+        "<uuid:assistant_id>/generate-plan/",
+        InsightPlanView.as_view(),
+        name="generate-plan",
     ),
     # ===== DEBATE ENDPOINTS =====
     # path("debate/start/", debate.start_debate, name="start-debate"),
