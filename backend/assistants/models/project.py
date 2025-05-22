@@ -358,21 +358,24 @@ class ProjectPlanningLog(models.Model):
     project = models.ForeignKey(
         "assistants.AssistantProject",
         on_delete=models.CASCADE,
-    )
-    content_type = models.ForeignKey(
-        ContentType,
-        on_delete=models.CASCADE,
         related_name="planning_logs",
     )
-    object_id = models.PositiveIntegerField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    event_type = models.CharField(max_length=50, choices=PLANNING_EVENT_TYPES)
+    summary = models.CharField(max_length=255)
+
+    content_type = models.ForeignKey(
+        ContentType,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    object_id = models.UUIDField(null=True, blank=True)
     related_object = GenericForeignKey("content_type", "object_id")
-    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ["-created_at"]
+        ordering = ["-timestamp"]
 
     def __str__(self):
-        return (
-            f"{self.project.title}: {self.event_type} - {self.summary}"
-        )  # pragma: no cover - display helper
+        return f"{self.event_type} @ {self.timestamp.strftime('%Y-%m-%d %H:%M')}"
     
