@@ -45,6 +45,9 @@ from agents.models import (
     MythicArbitrationCase,
     TreatyBreachRitual,
     SymbolicSanction,
+    SwarmTribunalCase,
+    RestorativeMemoryAction,
+    ReputationRegenerationEvent,
 )
 from assistants.models import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -506,5 +509,26 @@ class TreatyBreachRitualSerializer(serializers.ModelSerializer):
 class SymbolicSanctionSerializer(serializers.ModelSerializer):
     class Meta:
         model = SymbolicSanction
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SwarmTribunalCaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SwarmTribunalCase
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RestorativeMemoryActionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RestorativeMemoryAction
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class ReputationRegenerationEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReputationRegenerationEvent
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
