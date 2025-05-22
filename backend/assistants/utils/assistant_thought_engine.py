@@ -2,7 +2,7 @@ import logging
 from django.utils import timezone
 from django.contrib.contenttypes.models import ContentType
 
-from assistants.helpers.redis_helpers import (
+from assistants.utils.session_utils import (
     set_cached_thoughts,
     get_cached_thoughts,
     get_cached_reflection,

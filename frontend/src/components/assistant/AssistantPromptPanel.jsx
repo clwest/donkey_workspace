@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 
 export default function AssistantPromptPanel({ projectId }) {
   const [linkedPrompts, setLinkedPrompts] = useState([]);
@@ -89,3 +90,7 @@ export default function AssistantPromptPanel({ projectId }) {
     </div>
   );
 }
+
+AssistantPromptPanel.propTypes = {
+  projectId: PropTypes.string.isRequired,
+};
