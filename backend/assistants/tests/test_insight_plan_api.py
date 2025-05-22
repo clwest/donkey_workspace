@@ -1,15 +1,9 @@
-import os
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
-import django
-
-django.setup()
-
-from rest_framework.test import APITestCase
+from assistants.tests import BaseAPITestCase
 from assistants.models import Assistant
 
 
-class InsightPlanAPITest(APITestCase):
+class InsightPlanAPITest(BaseAPITestCase):
     def setUp(self):
         self.assistant = Assistant.objects.create(name="Planner", specialty="p")
         self.url = f"/api/assistants/{self.assistant.id}/generate-plan/"

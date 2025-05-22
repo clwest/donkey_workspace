@@ -1,16 +1,11 @@
-import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
-import django
 
-django.setup()
-
-from rest_framework.test import APITestCase
+from assistants.tests import BaseAPITestCase
 from unittest.mock import patch
 import uuid
 from assistants.models import Assistant
 
 
-class PersonaTraitsPromptTest(APITestCase):
+class PersonaTraitsPromptTest(BaseAPITestCase):
     def setUp(self):
         self.assistant = Assistant.objects.create(
             name="TraitBot",

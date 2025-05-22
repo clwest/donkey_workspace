@@ -1,11 +1,5 @@
-import os
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
-import django
-
-django.setup()
-
-from rest_framework.test import APITestCase
+from assistants.tests import BaseAPITestCase
 from django.test import TestCase
 from unittest.mock import patch
 from assistants.models import Assistant, AssistantThoughtLog
@@ -39,7 +33,7 @@ class ReplaySceneUtilTest(TestCase):
         self.assertEqual(len(mems), 2)
 
 
-class ChatWithSceneAPITest(APITestCase):
+class ChatWithSceneAPITest(BaseAPITestCase):
     def setUp(self):
         self.assistant = Assistant.objects.create(name="B", specialty="y")
         self.thread = NarrativeThread.objects.create(title="Scene")
