@@ -111,16 +111,20 @@ import RealityShaperDashboard from "./pages/lore/RealityShaperDashboard";
 
 import { ToastContainer } from "react-toastify";
 import Navbar from "./components/Navbar";
+import Sidebar from "./components/Sidebar";
+import ActivityPage from "./pages/ActivityPage";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function App() {
   return (
     <Router>
-      <div>
-        <ToastContainer position="bottom-right" autoClose={3000} />
-        <Navbar />
+      <div className="d-flex">
+        <Sidebar />
+        <div className="flex-grow-1">
+          <ToastContainer position="bottom-right" autoClose={3000} />
+          <Navbar />
 
-        <Routes>
+          <Routes>
           {/* Auth */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -347,6 +351,7 @@ export default function App() {
             path="/recent-reflections"
             element={<RecentReflectionsPage />}
           />
+          <Route path="/activity" element={<ActivityPage />} />
           <Route
             path="/reflections/custom"
             element={<CustomReflectionPage />}
@@ -383,6 +388,7 @@ export default function App() {
           <Route path="/assistants/routing-history" element={<RoutingHistoryPage />} />
           <Route path="/assistants/council/:id" element={<CouncilDashboardPage />} />
         </Routes>
+        </div>
       </div>
     </Router>
   );

@@ -84,4 +84,11 @@ export const routeMap = [
     serializer: "GroupedDevDocReflectionSerializer",
     notes: "Detail of grouped dev doc reflection",
   },
+  {
+    frontend: "/activity",
+    backend: "n/a",
+    view: "ActivityPage",
+    serializer: "-",
+    notes: "Activity timeline",
+  },
 ];
