@@ -1421,3 +1421,41 @@ class LegacyRoleBinding(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.role_name
+
+
+class MemoryTreaty(models.Model):
+    """Bilateral or multilateral symbolic agreement anchored in memory."""
+
+    name = models.CharField(max_length=150)
+    participants = models.ManyToManyField(AssistantPolity)
+    origin_memory = models.ForeignKey(
+        SwarmMemoryEntry, on_delete=models.SET_NULL, null=True
+    )
+    terms = models.TextField()
+    symbolic_tags = models.JSONField()
+    active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
+
+
+class BeliefEnforcementScore(models.Model):
+    """Measure assistant alignment with codified myth-based laws."""
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    alignment_score = models.FloatField()
+    symbolic_compliance_log = models.TextField()
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-last_updated"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"{self.assistant.name} → {self.codex.title}"
