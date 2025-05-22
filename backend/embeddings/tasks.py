@@ -9,6 +9,7 @@ from celery import shared_task
 
 from embeddings.helpers.helpers_processing import generate_embedding
 from embeddings.helpers.helpers_io import save_embedding
+from prompts.utils.token_helpers import EMBEDDING_MODEL
 
 EMBEDDING_LENGTH = 1536
 
@@ -21,7 +22,7 @@ def embed_and_store(
     text: str,
     content_type: str,
     content_id: str,
-    model: str = "text-embedding-3-small",
+    model: str = EMBEDDING_MODEL,
 ) -> str:
     """
     Generate an embedding for the given text and store it in the database.

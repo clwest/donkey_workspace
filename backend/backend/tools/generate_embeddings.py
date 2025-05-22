@@ -15,10 +15,11 @@ import tiktoken
 from openai import OpenAI
 from prompts.models import Prompt
 from prompts.utils.embeddings import get_embedding
+from prompts.utils.token_helpers import EMBEDDING_MODEL
 
 
 client = OpenAI()
-encoding = tiktoken.encoding_for_model("text-embedding-3-small")
+encoding = tiktoken.encoding_for_model(EMBEDDING_MODEL)
 MAX_TOKENS = 8192
 
 

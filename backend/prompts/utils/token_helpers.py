@@ -1,7 +1,8 @@
 import tiktoken
 
+EMBEDDING_MODEL = "text-embedding-3-small"
 MAX_TOKENS = 8000
-encoding = tiktoken.encoding_for_model("text-embedding-3-small")
+encoding = tiktoken.encoding_for_model(EMBEDDING_MODEL)
 
 
 def count_tokens(text: str) -> int:
@@ -48,3 +49,11 @@ def smart_chunk_prompt(text: str, max_tokens: int = MAX_TOKENS) -> list[dict]:
         )
 
     return chunks
+
+
+__all__ = [
+    "EMBEDDING_MODEL",
+    "MAX_TOKENS",
+    "count_tokens",
+    "smart_chunk_prompt",
+]

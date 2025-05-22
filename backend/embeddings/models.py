@@ -5,8 +5,8 @@ from embeddings.mixins import EmbeddingMixin
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from story.models import Story
+from prompts.utils.token_helpers import EMBEDDING_MODEL
 
-EMBEDDING_MODEL = "text-embedding-3-small"
 EMBEDDING_LENGTH = 1536
 
 

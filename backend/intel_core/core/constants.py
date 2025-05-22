@@ -17,6 +17,7 @@ from .topic_modeling import get_topics
 from .text_processing import clean_text, lemmatize_text
 import os
 from intel_core.helpers.nltk_data_loader import ensure_nltk_data
+from prompts.utils.token_helpers import EMBEDDING_MODEL
 
 
 logger = logging.getLogger("django")
@@ -49,7 +50,6 @@ RESPONSE_TEMPLATES = {
     ],
 }
 
-EMBEDDING_MODEL = "text-embedding-3-small"
 EMBEDDING_LENGTH = 1536
 CHAT_MODEL = "gpt-4o-mini"
 

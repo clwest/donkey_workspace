@@ -7,6 +7,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from openai import OpenAI
 from utils.llm_router import call_llm
+from prompts.utils.token_helpers import EMBEDDING_MODEL
 import utils.llm_router as llm_router
 from datetime import datetime
 import logging
@@ -530,7 +531,7 @@ def chat_with_assistant_view(request, slug):
         memory.save()
 
         embed_resp = client.embeddings.create(
-            model="text-embedding-3-small",
+            model=EMBEDDING_MODEL,
             input=full_transcript,
         )
         embedding_vector = embed_resp.data[0].embedding

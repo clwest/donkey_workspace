@@ -18,6 +18,7 @@ Public helper functions:
 
 from embeddings.models import Embedding
 from django.contrib.contenttypes.models import ContentType
+from prompts.utils.token_helpers import EMBEDDING_MODEL
 from openai import OpenAI
 from django.db.models import Q
 from embeddings.vector_utils import compute_similarity
@@ -201,5 +202,5 @@ def search_similar_embeddings_for_model(
 
 def get_embedding_for_text(text: str) -> list[float]:
 
-    response = client.embeddings.create(model="text-embedding-3-small", input=[text])
+    response = client.embeddings.create(model=EMBEDDING_MODEL, input=[text])
     return response.data[0].embedding

@@ -18,8 +18,8 @@ import tiktoken
 
 # OpenAI client for v1.x SDK
 from openai import OpenAI
+from prompts.utils.token_helpers import EMBEDDING_MODEL
 
-EMBEDDING_MODEL = "text-embedding-3-small"
 MAX_TOKENS = 8192
 tokenizer = tiktoken.encoding_for_model(EMBEDDING_MODEL)
 
@@ -79,7 +79,7 @@ def retry_with_backoff(
 
 
 def generate_embedding(
-    text: str, model: str = "text-embedding-3-small"
+    text: str, model: str = EMBEDDING_MODEL
 ) -> Optional[List[float]]:
     """
     Generate embeddings for the given text using OpenAI's API.
