@@ -4,7 +4,8 @@ from typing import List
 
 from assistants.models import Assistant, AssistantProject, AssistantObjective
 from agents.models import Agent
-from agents.utils.agent_controller import AgentController, spawn_agent_for_skill
+from agents.utils.agent_controller import AgentController
+from core.services.agent_service import spawn_agent_for_skill
 
 
 def assign_agents_to_project_from_objective(
@@ -20,7 +21,9 @@ def assign_agents_to_project_from_objective(
 
     controller = AgentController()
     recommended: List[Agent] = []
-    agent = controller.recommend_agent_for_task(objective, project.thread if hasattr(project, "thread") else None)
+    agent = controller.recommend_agent_for_task(
+        objective, project.thread if hasattr(project, "thread") else None
+    )
     if agent:
         recommended.append(agent)
     else:
