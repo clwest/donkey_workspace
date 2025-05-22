@@ -1,7 +1,9 @@
 import redis
 import json
+from datetime import datetime
 from django.conf import settings
 from django.utils import timezone
+from assistants.models import Assistant, AssistantThoughtLog
 
 # Central Redis connection
 REDIS_URL = getattr(settings, "REDIS_URL", "redis://127.0.0.1:6379/1")
@@ -60,3 +62,37 @@ def get_cached_reflection(slug: str) -> dict | None:
 def set_cached_reflection(slug: str, summary: str, ttl: int = 3600):
     key = f"reflection:{slug}"
     r.setex(key, ttl, json.dumps(summary))
+
+
+def flush_chat_session(session_id: str) -> None:
+    """Delete all messages for the given session from Redis."""
+    r.delete(f"chat:{session_id}")
+
+
+def flush_session_to_db(session_id: str, assistant: Assistant) -> int:
+    """Archive messages from Redis into AssistantThoughtLog records."""
+    key = f"chat:{session_id}"
+    messages = r.lrange(key, 0, -1)
+
+    if not messages:
+        return 0
+
+    saved = 0
+    for raw in messages:
+        try:
+            entry = json.loads(raw)
+            AssistantThoughtLog.objects.create(
+                assistant=assistant,
+                thought=entry.get("content", ""),
+                thought_trace="• Archived from chat session\n• Role: "
+                + entry.get("role", "unknown"),
+                created_at=datetime.fromisoformat(
+                    entry.get("timestamp", timezone.now().isoformat())
+                ),
+                role=entry.get("role", "assistant"),
+            )
+            saved += 1
+        except Exception:
+            continue
+
+    return saved

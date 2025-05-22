@@ -9,7 +9,7 @@ from mcp_core.models import Tag
 from django.utils.text import slugify
 from openai import OpenAI
 from assistants.helpers.memory_utils import tag_text
-from assistants.utils.assistant_session import load_session_messages, flush_chat_session
+from assistants.helpers.redis_helpers import load_session_messages, flush_chat_session
 from memory.utils.context_helpers import get_or_create_context_from_memory
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from embeddings.helpers.helpers_io import save_embedding

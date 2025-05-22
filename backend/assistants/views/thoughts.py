@@ -16,7 +16,7 @@ from assistants.helpers.redis_helpers import (
     get_cached_thoughts,
 )
 from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
-from assistants.utils.assistant_session import flush_session_to_db
+from assistants.helpers.redis_helpers import flush_session_to_db
 from prompts.utils.mutation import mutate_prompt as run_mutation
 from embeddings.helpers.helpers_io import get_embedding_for_text, save_embedding
 from assistants.helpers.logging_helper import log_assistant_thought
@@ -295,7 +295,7 @@ def get_recent_reflections(request, slug):
 
 @api_view(["POST"])
 def flush_chat_session_to_log(request, slug):
-    from assistants.utils.assistant_session import flush_session_to_db
+    from assistants.helpers.redis_helpers import flush_session_to_db
 
     session_id = request.data.get("session_id")
     if not session_id:
