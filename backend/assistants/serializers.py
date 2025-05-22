@@ -608,15 +608,7 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
 
 # serializers.py
 
-THOUGHT_CATEGORY_CHOICES = [
-    ("observation", "Observation"),
-    ("insight", "Insight"),
-    ("idea", "Idea"),
-    ("question", "Question"),
-    ("goal", "Goal"),
-    ("warning", "Warning"),
-    ("other", "Other"),
-]
+from .constants import THOUGHT_CATEGORY_CHOICES
 
 
 class AssistantThoughtLogSerializer(serializers.ModelSerializer):
