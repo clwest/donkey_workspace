@@ -18,7 +18,7 @@ class ObjectiveTaskPlanningAPITest(BaseAPITestCase):
         )
 
     def test_plan_tasks_for_objective(self):
-        url = f"/api/assistants/{self.assistant.slug}/plan-tasks/{self.objective.id}/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/plan-tasks/{self.objective.id}/"
         resp = self.client.post(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
@@ -26,7 +26,7 @@ class ObjectiveTaskPlanningAPITest(BaseAPITestCase):
         self.assertEqual(AssistantTask.objects.filter(objective=self.objective).count(), 3)
 
     def test_objectives_for_assistant(self):
-        url = f"/api/assistants/{self.assistant.slug}/objectives/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/objectives/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         objs = resp.json()

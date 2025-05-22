@@ -82,3 +82,32 @@ cache and generate a new reflection. This explains why results may not change
 immediately after repeated requests.
 
 
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+---
+
+## Architecture Overview
+
+The project is split into a Django REST backend and a Vite/React frontend. Core apps like `assistants`, `memory`, `intel_core`, and `projects` interact through REST endpoints documented under `docs/`. The high-level relationships are shown in [`docs/architecture_diagram.md`](docs/architecture_diagram.md).
+
+---
+
+## AGENTS Workflow
+
+Development is guided by [`AGENTS.md`](AGENTS.md). This file tracks phase objectives and outlines how Codex agents collaborate on new features. Read it regularly to stay aligned with the current phase plan.
+
+Additional planning and deep-dive instructions live in `backend/AGENTS.md` and `frontend/AGENTS.md`.
+
+---
+
+## Further Reading
+
+- [API & Model Overview](docs/api_overview.md)
+- Other domain docs are under `backend/docs/` and `frontend/docs/`.

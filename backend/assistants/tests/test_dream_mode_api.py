@@ -26,7 +26,7 @@ class DreamModeAPITest(BaseAPITestCase):
 
         mock_create.return_value = Completion()
 
-        url = f"/api/assistants/{self.assistant.slug}/dream/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/dream/"
         resp = self.client.post(url, {}, format="json")
         self.assertEqual(resp.status_code, 200)
         log = AssistantThoughtLog.objects.filter(assistant=self.assistant).first()

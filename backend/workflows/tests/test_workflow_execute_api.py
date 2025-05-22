@@ -18,7 +18,7 @@ class WorkflowExecuteAPITest(APITestCase):
 
     def test_execute_endpoint(self):
         resp = self.client.post(
-            "/api/workflows/execute/",
+            "/api/v1/workflows/execute/",
             {"workflow_definition_id": self.defn.id},
             format="json",
         )

@@ -15,7 +15,7 @@ class ThreadRefocusAPITest(APITestCase):
         self.thread = NarrativeThread.objects.create(title="T1")
 
     def test_diagnose_creates_refocus(self):
-        url = f"/api/mcp/threads/{self.thread.id}/diagnose/"
+        url = f"/api/v1/mcp/threads/{self.thread.id}/diagnose/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.thread.refresh_from_db()
@@ -31,7 +31,7 @@ class ThreadRefocusAPITest(APITestCase):
         self.assertIn("refocus_prompt", data)
 
     def test_manual_refocus_endpoint(self):
-        url = f"/api/mcp/threads/{self.thread.id}/refocus/"
+        url = f"/api/v1/mcp/threads/{self.thread.id}/refocus/"
         resp = self.client.post(url)
         self.assertEqual(resp.status_code, 200)
         self.assertGreaterEqual(

@@ -25,7 +25,7 @@ class ToolInvocationAPITest(APITestCase):
         )
 
     def test_invoke_tool(self):
-        url = f"/api/tools/{self.tool.slug}/invoke/"
+        url = f"/api/v1/tools/{self.tool.slug}/invoke/"
         resp = self.client.post(url, {"text": "hi"}, format="json")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.json()["result"], {"echo": "hi"})

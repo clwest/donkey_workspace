@@ -13,7 +13,7 @@ class DelegationTokenTest(BaseAPITestCase):
         self.user = User.objects.create_user(username="delegate", password="pw")
         self.client.force_authenticate(self.user)
         self.assistant = Assistant.objects.create(name="Helper", specialty="test")
-        self.url = f"/api/assistants/{self.assistant.slug}/chat/"
+        self.url = f"/api/v1/assistants/{self.assistant.slug}/chat/"
 
     def _make_completion(self, prompt, completion):
         class Usage:

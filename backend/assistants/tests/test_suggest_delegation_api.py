@@ -22,7 +22,7 @@ class SuggestDelegationAPITest(BaseAPITestCase):
             score=5,
             trust_label="trusted",
         )
-        self.url = f"/api/assistants/{self.parent.slug}/suggest-delegation/"
+        self.url = f"/api/v1/assistants/{self.parent.slug}/suggest-delegation/"
 
     def test_tag_match(self):
         resp = self.client.post(

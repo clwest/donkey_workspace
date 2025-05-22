@@ -25,7 +25,7 @@ class DelegationEventsAPITest(BaseAPITestCase):
             )
 
     def test_recent_delegation_events_endpoint(self):
-        url = "/api/assistants/delegation_events/recent/"
+        url = "/api/v1/assistants/delegation_events/recent/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()

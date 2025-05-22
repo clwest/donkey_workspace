@@ -13,7 +13,7 @@ class AssistantMessagesAPITest(BaseAPITestCase):
         self.a2 = Assistant.objects.create(name="A2", specialty="s2")
 
     def test_send_and_list_messages(self):
-        url = "/api/assistants/messages/send/"
+        url = "/api/v1/assistants/messages/send/"
         resp = self.client.post(url, {
             "sender": self.a1.slug,
             "recipient": self.a2.slug,
@@ -21,8 +21,8 @@ class AssistantMessagesAPITest(BaseAPITestCase):
         }, format="json")
         self.assertEqual(resp.status_code, 201)
         msg_id = resp.json()["id"]
-        inbox = self.client.get(f"/api/assistants/messages/inbox/{self.a2.slug}")
-        outbox = self.client.get(f"/api/assistants/messages/outbox/{self.a1.slug}")
+        inbox = self.client.get(f"/api/v1/assistants/messages/inbox/{self.a2.slug}")
+        outbox = self.client.get(f"/api/v1/assistants/messages/outbox/{self.a1.slug}")
         self.assertEqual(inbox.status_code, 200)
         self.assertEqual(outbox.status_code, 200)
         self.assertEqual(len(inbox.json()), 1)

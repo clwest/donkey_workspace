@@ -19,7 +19,7 @@ class RegeneratePlanAPITest(BaseAPITestCase):
         )
 
     def test_regenerate_endpoint(self):
-        url = f"/api/assistants/projects/{self.project.id}/regenerate-plan/"
+        url = f"/api/v1/assistants/projects/{self.project.id}/regenerate-plan/"
         resp = self.client.post(url, {"reason": "feedback"}, format="json")
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(
@@ -29,7 +29,7 @@ class RegeneratePlanAPITest(BaseAPITestCase):
         )
 
     def test_memory_changes_endpoint(self):
-        url = f"/api/assistants/projects/{self.project.id}/memory-changes/"
+        url = f"/api/v1/assistants/projects/{self.project.id}/memory-changes/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()

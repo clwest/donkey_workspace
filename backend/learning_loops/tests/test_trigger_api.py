@@ -17,7 +17,7 @@ class AdaptiveLoopTriggerAPITest(APITestCase):
         self.assistant = Assistant.objects.create(name="A", specialty="s")
 
     def test_trigger_endpoint(self):
-        url = f"/api/learning-loops/trigger/{self.assistant.id}/"
+        url = f"/api/v1/learning-loops/trigger/{self.assistant.id}/"
         resp = self.client.post(url)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()["status"], "adjustments_applied")

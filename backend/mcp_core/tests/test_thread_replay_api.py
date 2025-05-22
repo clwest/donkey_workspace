@@ -27,7 +27,7 @@ class ThreadReplayAPITest(APITestCase):
         )
 
     def test_thread_replay_endpoint(self):
-        url = f"/api/threads/{self.thread.id}/replay/"
+        url = f"/api/v1/threads/{self.thread.id}/replay/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()

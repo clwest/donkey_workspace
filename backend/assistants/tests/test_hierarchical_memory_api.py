@@ -20,7 +20,7 @@ class HierarchicalMemoryAPITest(BaseAPITestCase):
         MemoryEntry.objects.create(event="grand mem", assistant=self.grand)
 
     def test_hierarchical_memory_endpoint(self):
-        url = f"/api/assistants/{self.parent.slug}/hierarchical-memory/"
+        url = f"/api/v1/assistants/{self.parent.slug}/hierarchical-memory/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
