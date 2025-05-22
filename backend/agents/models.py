@@ -1222,3 +1222,19 @@ class OntologicalAuditLog(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Audit {self.id}"
+
+class BeliefBiome(models.Model):
+    """Symbolic ecosystem shaping assistant evolution."""
+
+    name = models.CharField(max_length=150)
+    core_traits = models.JSONField()
+    dominant_myths = models.ManyToManyField(TranscendentMyth)
+    member_assistants = models.ManyToManyField("assistants.Assistant")
+    environmental_factors = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name

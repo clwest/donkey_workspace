@@ -35,6 +35,7 @@ from agents.models import (
     BeliefNegotiationSession,
     ParadoxResolutionAttempt,
     OntologicalAuditLog,
+    BeliefBiome,
 )
 from agents.serializers import (
     AgentSerializer,
@@ -66,6 +67,7 @@ from agents.serializers import (
     BeliefNegotiationSessionSerializer,
     ParadoxResolutionAttemptSerializer,
     OntologicalAuditLogSerializer,
+    BeliefBiomeSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -654,3 +656,15 @@ def ontology_audits(request):
     serializer.is_valid(raise_exception=True)
     audit = serializer.save()
     return Response(OntologicalAuditLogSerializer(audit).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def belief_biomes(request):
+    if request.method == "GET":
+        biomes = BeliefBiome.objects.all().order_by("-created_at")
+        return Response(BeliefBiomeSerializer(biomes, many=True).data)
+
+    serializer = BeliefBiomeSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    biome = serializer.save()
+    return Response(BeliefBiomeSerializer(biome).data, status=201)
