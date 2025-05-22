@@ -4,6 +4,7 @@ import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import apiFetch from "../../../utils/apiClient";
+import ThoughtLogCard from "../../../components/assistant/thoughts/ThoughtLogCard";
 
 export default function AssistantReflectPage() {
   const { slug } = useParams();
@@ -111,36 +112,26 @@ export default function AssistantReflectPage() {
         <p className="text-muted">No recent reflections saved yet.</p>
       ) : (
         logs.map((log) => (
-            <div className="card mb-3" key={log.id}>
-              <div className="card-body">
-                <div className="d-flex justify-content-between">
-                  <span className="badge bg-secondary">
-                    {log.role === "user" ? "User 🧑‍💻" : "Assistant 🤖"}
-                  </span>
-                  <small className="text-muted">{new Date(log.timestamp).toLocaleString()}</small>
-                </div>
-          
-                <p className="card-text mt-2">{log.content}</p>
-          
-                <div className="d-flex align-items-center gap-3 mt-3">
-                  <select
-                    className="form-select form-select-sm w-auto ms-auto"
-                    value={log.feedback || ""}
-                    onChange={(e) => updateFeedback(log.id, e.target.value)}
-                  >
-                    <option value="">💬 Feedback</option>
-                    <option value="perfect">✅ Perfect</option>
-                    <option value="helpful">👍 Helpful</option>
-                    <option value="not_helpful">👎 Not Helpful</option>
-                    <option value="too_long">💤 Too Long</option>
-                    <option value="too_short">⚡ Too Short</option>
-                    <option value="irrelevant">❌ Irrelevant</option>
-                    <option value="unclear">❓ Unclear</option>
-                  </select>
-                </div>
-              </div>
+          <div key={log.id}>
+            <ThoughtLogCard thought={log} />
+            <div className="d-flex align-items-center gap-3 mb-4">
+              <select
+                className="form-select form-select-sm w-auto ms-auto"
+                value={log.feedback || ""}
+                onChange={(e) => updateFeedback(log.id, e.target.value)}
+              >
+                <option value="">💬 Feedback</option>
+                <option value="perfect">✅ Perfect</option>
+                <option value="helpful">👍 Helpful</option>
+                <option value="not_helpful">👎 Not Helpful</option>
+                <option value="too_long">💤 Too Long</option>
+                <option value="too_short">⚡ Too Short</option>
+                <option value="irrelevant">❌ Irrelevant</option>
+                <option value="unclear">❓ Unclear</option>
+              </select>
             </div>
-          ))
+          </div>
+        ))
       )}
     </div>
   );

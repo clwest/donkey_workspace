@@ -116,6 +116,8 @@ class AssistantThoughtLog(models.Model):
     )
     tool_result_summary = models.CharField(max_length=255, null=True, blank=True)
 
+    integrity_status = models.CharField(max_length=20, null=True, blank=True)
+
     # Empathy tracing
     empathy_response = models.CharField(max_length=255, null=True, blank=True)
     resonated_with_user = models.BooleanField(default=False)
@@ -157,6 +159,13 @@ class AssistantThoughtLog(models.Model):
             raise ValidationError(
                 "Thought must be linked to either an assistant or a project."
             )
+
+    def save(self, *args, **kwargs):
+        from assistants.utils.thought_integrity import analyze_thought_integrity
+
+        if self.thought and not self.integrity_status:
+            self.integrity_status = analyze_thought_integrity(self.thought)
+        super().save(*args, **kwargs)
 
 
 class EmotionalResonanceLog(models.Model):
