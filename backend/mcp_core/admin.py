@@ -1,6 +1,6 @@
 # Register your models here.
 from django.contrib import admin
-from .models import MemoryContext, DevDoc
+from .models import MemoryContext, DevDoc, PublicEventLog
 
 
 # from mcp_core.utils.agent_reflection import AgentReflectionEngine
@@ -25,3 +25,11 @@ class MemoryContextAdmin(admin.ModelAdmin):
 class DevDocAdmin(admin.ModelAdmin):
     list_display = ("title", "slug", "created_at")
     search_fields = ("title", "content")
+
+
+@admin.register(PublicEventLog)
+class PublicEventLogAdmin(admin.ModelAdmin):
+    list_display = ("timestamp", "actor_name", "success")
+    list_filter = ("success",)
+    search_fields = ("actor_name", "event_details")
+    ordering = ("-timestamp",)
