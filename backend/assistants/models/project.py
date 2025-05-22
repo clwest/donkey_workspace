@@ -372,7 +372,8 @@ class ProjectPlanningLog(models.Model):
     project = models.ForeignKey(
         "assistants.AssistantProject",
         on_delete=models.CASCADE,
-    object_id = models.UUIDField(null=True, blank=True)
+    )
+    object_id = models.UUIDField(null=True, blank=True),
     related_object = GenericForeignKey("content_type", "object_id")
 
     class Meta:
@@ -382,3 +383,4 @@ class ProjectPlanningLog(models.Model):
         return (
             f"{self.project.title}: {self.event_type} - {self.summary}"
         )  # pragma: no cover - display helper
+    

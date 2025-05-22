@@ -3,6 +3,7 @@ import uuid
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from mcp_core.models import MemoryContext, Tag
+from agents.models.core import Agent
 from django.contrib.postgres.fields import ArrayField
 from pgvector.django import VectorField
 from django.utils import timezone
@@ -23,7 +24,7 @@ EXECUTION_MODE_CHOICES = [
 ]
 
 def _current_season():
-    from .utils.swarm_analytics import get_season_marker
+    from agents.utils.swarm_analytics import get_season_marker
 
     return get_season_marker(timezone.now())
 
@@ -46,7 +47,7 @@ class SwarmMemoryEntry(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.season:
-            from .utils.swarm_temporal import get_season_marker
+            from agents.utils.swarm_temporal import get_season_marker
 
             date = self.created_at or timezone.now()
             self.season = get_season_marker(date)
