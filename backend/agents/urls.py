@@ -61,6 +61,9 @@ urlpatterns = [
     path("archetype-sync/", agents.archetype_sync_pulses),
     path("creation-myths/", agents.creation_myths),
     path("cosmogenesis/", agents.cosmogenesis_simulations),
+    path("mythic-forecast/", agents.mythic_forecast),
+    path("belief-atlases/", agents.belief_atlases),
+    path("symbolic-weather/", agents.symbolic_weather),
 
     path("treaty-breaches/", agents.treaty_breaches),
     path("symbolic-sanctions/", agents.symbolic_sanctions),

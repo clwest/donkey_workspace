@@ -62,6 +62,9 @@ from agents.models.lore import (
     ArchetypeSynchronizationPulse,
     CreationMythEntry,
     CosmogenesisSimulation,
+    MythicForecastPulse,
+    BeliefAtlasSnapshot,
+    SymbolicWeatherFront,
 
 )
 from agents.serializers import (
@@ -118,6 +121,9 @@ from agents.serializers import (
     ArchetypeSynchronizationPulseSerializer,
     CreationMythEntrySerializer,
     CosmogenesisSimulationSerializer,
+    MythicForecastPulseSerializer,
+    BeliefAtlasSnapshotSerializer,
+    SymbolicWeatherFrontSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -1011,4 +1017,40 @@ def cosmogenesis_simulations(request):
     serializer.is_valid(raise_exception=True)
     sim = serializer.save()
     return Response(CosmogenesisSimulationSerializer(sim).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def mythic_forecast(request):
+    if request.method == "GET":
+        pulses = MythicForecastPulse.objects.all().order_by("-created_at")
+        return Response(MythicForecastPulseSerializer(pulses, many=True).data)
+
+    serializer = MythicForecastPulseSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    pulse = serializer.save()
+    return Response(MythicForecastPulseSerializer(pulse).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def belief_atlases(request):
+    if request.method == "GET":
+        atlases = BeliefAtlasSnapshot.objects.all().order_by("-created_at")
+        return Response(BeliefAtlasSnapshotSerializer(atlases, many=True).data)
+
+    serializer = BeliefAtlasSnapshotSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    atlas = serializer.save()
+    return Response(BeliefAtlasSnapshotSerializer(atlas).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def symbolic_weather(request):
+    if request.method == "GET":
+        fronts = SymbolicWeatherFront.objects.all().order_by("-created_at")
+        return Response(SymbolicWeatherFrontSerializer(fronts, many=True).data)
+
+    serializer = SymbolicWeatherFrontSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    front = serializer.save()
+    return Response(SymbolicWeatherFrontSerializer(front).data, status=201)
 

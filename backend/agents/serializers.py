@@ -58,6 +58,9 @@ from agents.models.lore import (
     ArchetypeSynchronizationPulse,
     CreationMythEntry,
     CosmogenesisSimulation,
+    MythicForecastPulse,
+    BeliefAtlasSnapshot,
+    SymbolicWeatherFront,
 
 )
 from assistants.models.assistant import Assistant, AssistantCouncil
@@ -612,6 +615,27 @@ class CreationMythEntrySerializer(serializers.ModelSerializer):
 class CosmogenesisSimulationSerializer(serializers.ModelSerializer):
     class Meta:
         model = CosmogenesisSimulation
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MythicForecastPulseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythicForecastPulse
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class BeliefAtlasSnapshotSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BeliefAtlasSnapshot
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicWeatherFrontSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicWeatherFront
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

@@ -1512,3 +1512,52 @@ class CosmogenesisSimulation(models.Model):
         return self.title
 
 
+class MythicForecastPulse(models.Model):
+    """Scheduled swarm-wide reflective forecast generation."""
+
+    initiated_by = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    narrative_conditions = models.TextField()
+    forecast_tags = models.JSONField()
+    pulse_range = models.CharField(max_length=100)  # local, guild, global
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Forecast by {self.initiated_by.name}"
+
+
+class BeliefAtlasSnapshot(models.Model):
+    """Time-stamped map of symbolic alignment across the swarm."""
+
+    epoch = models.CharField(max_length=100)
+    scope = models.CharField(max_length=100)  # guild, civilization, swarm
+    symbolic_coordinates = models.JSONField()  # assistant → vector
+    alignment_map = models.JSONField()  # mythic poles, entropy regions, symbolic anchors
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Atlas {self.epoch}"
+
+
+class SymbolicWeatherFront(models.Model):
+    """Simulated memory pressure systems affecting assistant cognition."""
+
+    name = models.CharField(max_length=100)
+    pressure_triggers = models.JSONField()  # e.g., memory overload, prophecy failure
+    forecast_duration = models.IntegerField()
+    projected_effects = models.TextField()
+    affecting_biomes = models.ManyToManyField(BeliefBiome)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
+
+
