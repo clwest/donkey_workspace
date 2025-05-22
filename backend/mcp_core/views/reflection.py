@@ -10,6 +10,7 @@ from mcp_core.serializers import ReflectionLogSerializer
 from agents.utils.agent_reflection_engine import AgentReflectionEngine
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from mcp_core.models import MemoryContext, DevDoc, Tag
+from mcp_core.serializers_tags import TagSerializer
 from embeddings.helpers.helpers_io import save_embedding
 import json
 
@@ -147,16 +148,18 @@ def recent_reflections(request):
     """
     reflections = AssistantReflectionLog.objects.order_by("-created_at")[:5]
 
-    data = [
-        {
-            "id": r.id,
-            "title": r.title,
-            "tags": r.tags,
-            "summary": r.summary[:200] + "..." if r.summary else "",
-            "created_at": r.created_at.strftime("%Y-%m-%d %H:%M"),
-        }
-        for r in reflections
-    ]
+    data = []
+    for r in reflections:
+        serialized_tags = TagSerializer(r.tags.all(), many=True).data
+        data.append(
+            {
+                "id": r.id,
+                "title": r.title,
+                "tags": serialized_tags,
+                "summary": r.summary[:200] + "..." if r.summary else "",
+                "created_at": r.created_at.strftime("%Y-%m-%d %H:%M"),
+            }
+        )
 
     return Response(data)
 
@@ -184,7 +187,6 @@ def save_reflection(request, reflection_id):
         return Response({"message": "Reflection saved!"})
     except AssistantReflectionLog.DoesNotExist:
         return Response({"error": "Reflection not found"}, status=404)
-
 
 
 @api_view(["GET"])
@@ -222,10 +224,12 @@ def grouped_reflections_view(request):
     response_data = []
     for group_title, items in grouped.items():
         serialized_items = AssistantReflectionLogSerializer(items, many=True).data
-        response_data.append({
-            "group": group_title,
-            "count": len(items),
-            "reflections": serialized_items,
-        })
+        response_data.append(
+            {
+                "group": group_title,
+                "count": len(items),
+                "reflections": serialized_items,
+            }
+        )
 
     return Response({"groups": response_data})
