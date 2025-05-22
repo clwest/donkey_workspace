@@ -1037,7 +1037,7 @@ def queue_delegation_reflection(sender, instance, created, **kwargs):
         reflect_on_delegation.delay(str(instance.id))
 
 
-@receiver(post_save, sender=AssistantObjective)
+@receiver(post_save, sender="assistants.AssistantObjective")
 def log_objective_added(sender, instance, created, **kwargs):
     if created:
         ProjectPlanningLog.objects.create(
