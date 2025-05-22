@@ -1,9 +1,10 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 
-from assistants.models import Assistant, CollaborationLog
+from assistants.models import Assistant, CollaborationLog, CollaborationThread
 from assistants.serializers import (
     CollaborationLogSerializer,
     AssistantCollaborationProfileSerializer,
@@ -40,3 +41,17 @@ def collaboration_logs_for_project(request, id):
 def collaboration_profile(request, slug):
     assistant = get_object_or_404(Assistant, slug=slug)
     return Response(AssistantCollaborationProfileSerializer(assistant).data)
+
+
+class AssistantCollaborationView(APIView):
+    def post(self, request, assistant_id):
+        assistant = get_object_or_404(Assistant, pk=assistant_id)
+        collaborator_ids = request.data.get("assistant_ids", [])
+        initial_messages = request.data.get("messages", [])
+        thread = CollaborationThread.objects.create(lead=assistant)
+        participants = list(Assistant.objects.filter(id__in=collaborator_ids))
+        thread.participants.add(*participants, assistant)
+        if initial_messages:
+            thread.messages = initial_messages
+            thread.save(update_fields=["messages"])
+        return Response({"thread_id": str(thread.id)})

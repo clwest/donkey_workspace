@@ -35,6 +35,8 @@ from .views import (
     check_in,
     subassistant,
 )
+from tasks.views.delegate import TaskDelegateView
+from insights.views.plan import InsightPlanView
 
 from scheduler.views import standup
 
@@ -641,6 +643,21 @@ urlpatterns = [
         "<uuid:assistant_id>/schedule-standup/",
         standup.StandupScheduleView.as_view(),
         name="schedule-standup",
+    ),
+    path(
+        "<uuid:assistant_id>/collaborate/",
+        collaboration.AssistantCollaborationView.as_view(),
+        name="assistant-collaborate",
+    ),
+    path(
+        "<uuid:assistant_id>/delegate-task/",
+        TaskDelegateView.as_view(),
+        name="delegate-task",
+    ),
+    path(
+        "<uuid:assistant_id>/generate-plan/",
+        InsightPlanView.as_view(),
+        name="generate-plan",
     ),
     # ===== DEBATE ENDPOINTS =====
     # path("debate/start/", debate.start_debate, name="start-debate"),
