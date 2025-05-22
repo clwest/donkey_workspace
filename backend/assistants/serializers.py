@@ -659,6 +659,7 @@ class AssistantThoughtLogSerializer(serializers.ModelSerializer):
             "project",
             "thought",
             "thought_trace",
+            "integrity_status",
             "thought_type",
             "role",
             "mode",
