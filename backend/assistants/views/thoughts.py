@@ -1,6 +1,8 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets
+from rest_framework.pagination import PageNumberPagination
+from django_filters.rest_framework import DjangoFilterBackend
 from assistants.models import (
     Assistant,
     AssistantThoughtLog,
@@ -14,6 +16,7 @@ from assistants.helpers.redis_helpers import (
     get_cached_reflection,
     set_cached_reflection,
     get_cached_thoughts,
+    set_cached_thoughts,
 )
 from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 from assistants.helpers.redis_helpers import flush_session_to_db
@@ -22,6 +25,29 @@ from embeddings.helpers.helpers_io import get_embedding_for_text, save_embedding
 from assistants.helpers.logging_helper import log_assistant_thought
 from mcp_core.models import DevDoc
 from project.models import Project
+
+
+class AssistantThoughtViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = AssistantThoughtLogSerializer
+    pagination_class = PageNumberPagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["project", "tags", "created_at"]
+
+    def get_queryset(self):
+        assistant = get_object_or_404(Assistant, slug=self.kwargs.get("slug"))
+        return AssistantThoughtLog.objects.filter(assistant=assistant).order_by("-created_at")
+
+    def list(self, request, *args, **kwargs):
+        page_num = request.query_params.get("page", "1")
+        if page_num == "1":
+            cache_key = f"{self.kwargs.get('slug')}"
+            cached = get_cached_thoughts(cache_key)
+            if cached:
+                return Response(cached)
+            response = super().list(request, *args, **kwargs)
+            set_cached_thoughts(cache_key, response.data)
+            return response
+        return super().list(request, *args, **kwargs)
 
 
 @api_view(["POST"])

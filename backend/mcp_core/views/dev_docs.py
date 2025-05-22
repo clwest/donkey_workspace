@@ -2,6 +2,8 @@
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import generics
+from rest_framework.pagination import PageNumberPagination
 from mcp_core.models import DevDoc, GroupedDevDocReflection
 from mcp_core.serializers import DevDocSerializer, GroupedDevDocReflectionSerializer
 from mcp_core.utils.devdoc_reflection import (
@@ -16,11 +18,10 @@ import logging
 logger = logging.getLogger("embeddings")
 
 
-@api_view(["GET"])
-def list_dev_docs(request):
-    docs = DevDoc.objects.all().order_by("-created_at")
-    serializer = DevDocSerializer(docs, many=True)
-    return Response(serializer.data)
+class DevDocListView(generics.ListAPIView):
+    queryset = DevDoc.objects.all().order_by("-created_at")
+    serializer_class = DevDocSerializer
+    pagination_class = PageNumberPagination
 
 
 @api_view(["GET"])
