@@ -59,9 +59,15 @@ from agents.models.lore import (
     BeliefContinuityRitual,
     CosmologicalRole,
     LegacyTokenVault,
-    ArchetypeSynchronizationPulse,
-    CreationMythEntry,
-    CosmogenesisSimulation
+
+    ArchetypeEvolutionEvent,
+    CodexSymbolReconciliation,
+    MythologyMeshNode,
+    ArchetypalDriftForecast,
+    CollaborationThread,
+    DelegationStream,
+    MythflowInsight,
+
 )
 from agents.models.mythology_mesh import MythologyMeshNode, ArchetypalDriftForecast
 from agents.serializers import (
@@ -119,9 +125,10 @@ from agents.serializers import (
     ArchetypeSynchronizationPulseSerializer,
     MythologyMeshNodeSerializer,
     ArchetypalDriftForecastSerializer,
-    TokenMarketSerializer,
-    CreationMythEntrySerializer,
-    CosmogenesisSimulationSerializer,
+    CollaborationThreadSerializer,
+    DelegationStreamSerializer,
+    MythflowInsightSerializer,
+
 
 )
 from assistants.serializers import (
@@ -1053,4 +1060,40 @@ def archetype_drift(request):
     serializer.is_valid(raise_exception=True)
     forecast = serializer.save()
     return Response(ArchetypalDriftForecastSerializer(forecast).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def collaboration_threads(request):
+    if request.method == "GET":
+        threads = CollaborationThread.objects.all().order_by("-created_at")
+        return Response(CollaborationThreadSerializer(threads, many=True).data)
+
+    serializer = CollaborationThreadSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    thread = serializer.save()
+    return Response(CollaborationThreadSerializer(thread).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def delegation_streams(request):
+    if request.method == "GET":
+        streams = DelegationStream.objects.all().order_by("-created_at")
+        return Response(DelegationStreamSerializer(streams, many=True).data)
+
+    serializer = DelegationStreamSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    stream = serializer.save()
+    return Response(DelegationStreamSerializer(stream).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def mythflow_insights(request):
+    if request.method == "GET":
+        insights = MythflowInsight.objects.all().order_by("-created_at")
+        return Response(MythflowInsightSerializer(insights, many=True).data)
+
+    serializer = MythflowInsightSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    insight = serializer.save()
+    return Response(MythflowInsightSerializer(insight).data, status=201)
 
