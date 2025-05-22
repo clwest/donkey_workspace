@@ -16,3 +16,9 @@ export const fetchCosmologicalRoles = () => apiFetch("/agents/cosmological-roles
 export const createMythWeave = (assistant, depth = 3) =>
   apiFetch("/agents/myth-weaver/", { method: "POST", body: { assistant, depth } });
 export const fetchLegacyVaults = () => apiFetch("/agents/legacy-vaults/");
+export const fetchCollaborationThreads = () =>
+  apiFetch("/agents/collaboration-threads/");
+export const fetchDelegationStreams = () =>
+  apiFetch("/agents/delegation-streams/");
+export const fetchMythflowInsights = () =>
+  apiFetch("/agents/mythflow-insights/");
