@@ -470,7 +470,7 @@ urlpatterns = [
     # path("<slug:slug>/memories/", memory.assistant_memories, name="assistant-memories"),
     path(
         "<slug:slug>/thoughts/",
-        thoughts.assistant_thoughts_by_slug,
+        thoughts.AssistantThoughtViewSet.as_view({"get": "list"}),
         name="assistant_thoughts_by_slug",
     ),
     path(

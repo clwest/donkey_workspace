@@ -1,27 +1,23 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework import generics
+from rest_framework.pagination import PageNumberPagination
 from mcp_core.models import MemoryContext, NarrativeThread, ThreadSplitLog
 from django.shortcuts import get_object_or_404
 from memory.models import MemoryEntry
 from assistants.models import AssistantThoughtLog, AssistantReflectionLog
 
 
-@api_view(["GET"])
-@permission_classes([AllowAny])
-def list_memories(request):
-    memories = MemoryContext.objects.order_by("-created_at")[
-        :100
-    ]  # limit to latest 100
-    data = [
-        {
-            "id": memory.id,
-            "content": memory.content,
-            "created_at": memory.created_at.strftime("%Y-%m-%d %H:%M"),
-        }
-        for memory in memories
-    ]
-    return Response(data)
+
+from mcp_core.serializers import MemoryContextSerializer
+
+
+class MemoryListView(generics.ListAPIView):
+    queryset = MemoryContext.objects.order_by("-created_at")
+    serializer_class = MemoryContextSerializer
+    permission_classes = [AllowAny]
+    pagination_class = PageNumberPagination
 
 
 @api_view(["PATCH"])
