@@ -1,4 +1,8 @@
 from .assistants import (
+
+    AssistantViewSet,
+    assistants_view,
+
     assistant_detail_view,
     create_assistant_from_thought,
     chat_with_assistant_view,
@@ -126,6 +130,9 @@ from .tasks import (
 from .objectives import reflect_to_objectives
 
 __all__ = [
+    "AssistantViewSet",
+    "assistants_view",
+
     "assistant_detail_view",
     "create_assistant_from_thought",
     "chat_with_assistant_view",

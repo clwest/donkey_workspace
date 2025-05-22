@@ -1,8 +1,8 @@
 
-import warnings
-warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
+
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+
 from . import views
 from assistants.viewsets.assistant_viewset import AssistantViewSet
 
@@ -46,7 +46,8 @@ from insights.views.plan import InsightPlanView
 from scheduler.views import standup
 
 router = DefaultRouter()
-router.register(r"", AssistantViewSet, basename="assistant")
+router.register(r"", views.AssistantViewSet, basename="assistant")
+
 
 urlpatterns = [
     path("", include(router.urls)),
@@ -57,7 +58,7 @@ urlpatterns = [
     path("conscience/", conscience.conscience_profiles),
     path("reflexive-epistemology/", conscience.reflexive_epistemology),
     path("decision-frameworks/", conscience.decision_frameworks),
-    # primary assistant actions now handled via AssistantViewSet
+
     path(
         "primary/delegations/",
         delegations.primary_delegations,
@@ -73,7 +74,6 @@ urlpatterns = [
     path("routing-history/", routing.routing_history, name="routing-history"),
     path("purpose-routing/", autonomy.purpose_routes),
     path("autonomy-models/", autonomy.autonomy_models),
-    # list and create handled via AssistantViewSet router
     # ===== PROJECTS =====
     path(
         "projects/", projects.assistant_projects, name="assistant-projects"
@@ -675,5 +675,5 @@ urlpatterns = [
     #     debate.debate_consensus,
     #     name="debate-consensus",
     # ),
-    path("<slug:slug>/", assistants.assistant_detail_view, name="assistant-detail"),
+    path("", include(router.urls)),
 ]
