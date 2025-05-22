@@ -6,7 +6,7 @@ import uuid
 
 from assistants.models import Assistant, AssistantThoughtLog
 from assistants.helpers.chat_helper import get_or_create_chat_session, save_chat_message
-from assistants.utils.assistant_session import (
+from assistants.helpers.redis_helpers import (
     load_session_messages,
     save_message_to_session,
 )

@@ -11,20 +11,17 @@ import django
 django.setup()
 
 
-import tiktoken
 from openai import OpenAI
 from prompts.models import Prompt
 from prompts.utils.embeddings import get_embedding
+
 from prompts.utils.token_helpers import EMBEDDING_MODEL
 
 
 client = OpenAI()
 encoding = tiktoken.encoding_for_model(EMBEDDING_MODEL)
+
 MAX_TOKENS = 8192
-
-
-def count_tokens(text):
-    return len(encoding.encode(text))
 
 
 def chunk_text(text, max_tokens=8000):

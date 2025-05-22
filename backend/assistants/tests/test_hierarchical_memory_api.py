@@ -1,15 +1,11 @@
-import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
-import django
-django.setup()
 
 from django.contrib.auth import get_user_model
-from rest_framework.test import APITestCase
+from assistants.tests import BaseAPITestCase
 from assistants.models import Assistant, DelegationEvent
 from memory.models import MemoryEntry
 
 
-class HierarchicalMemoryAPITest(APITestCase):
+class HierarchicalMemoryAPITest(BaseAPITestCase):
     def setUp(self):
         User = get_user_model()
         self.user = User.objects.create_user(username="hier", password="pw")

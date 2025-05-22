@@ -1,14 +1,9 @@
-import os
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
-import django
-
-django.setup()
 
 from django.test import TestCase
 from django.core.management import call_command
 from unittest.mock import patch
 import uuid
-from rest_framework.test import APITestCase
+from assistants.tests import BaseAPITestCase
 
 from assistants.models import Assistant, AssistantReflectionLog
 
@@ -36,7 +31,7 @@ class SelfReflectionCommandTest(TestCase):
         self.assertIsNotNone(log)
 
 
-class IdentityPromptTest(APITestCase):
+class IdentityPromptTest(BaseAPITestCase):
     def setUp(self):
         self.assistant = Assistant.objects.create(
             name="Id",
