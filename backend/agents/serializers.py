@@ -55,6 +55,8 @@ from agents.models.lore import (
     BeliefContinuityRitual,
     CosmologicalRole,
     LegacyTokenVault,
+    ArchetypeEvolutionEvent,
+    CodexSymbolReconciliation,
 )
 from assistants.models.assistant import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -589,5 +591,19 @@ class CosmologicalRoleSerializer(serializers.ModelSerializer):
 class LegacyTokenVaultSerializer(serializers.ModelSerializer):
     class Meta:
         model = LegacyTokenVault
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class ArchetypeEvolutionEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ArchetypeEvolutionEvent
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CodexSymbolReconciliationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CodexSymbolReconciliation
         fields = "__all__"
         read_only_fields = ["id", "created_at"]

@@ -59,6 +59,8 @@ from agents.models.lore import (
     BeliefContinuityRitual,
     CosmologicalRole,
     LegacyTokenVault,
+    ArchetypeEvolutionEvent,
+    CodexSymbolReconciliation,
 )
 from agents.serializers import (
     AgentSerializer,
@@ -111,6 +113,8 @@ from agents.serializers import (
     BeliefContinuityRitualSerializer,
     CosmologicalRoleSerializer,
     LegacyTokenVaultSerializer,
+    ArchetypeEvolutionEventSerializer,
+    CodexSymbolReconciliationSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -968,3 +972,36 @@ def legacy_vaults(request):
     serializer.is_valid(raise_exception=True)
     vault = serializer.save()
     return Response(LegacyTokenVaultSerializer(vault).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def archetype_evolution(request):
+    if request.method == "GET":
+        events = ArchetypeEvolutionEvent.objects.all().order_by("-created_at")
+        return Response(ArchetypeEvolutionEventSerializer(events, many=True).data)
+
+    serializer = ArchetypeEvolutionEventSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    event = serializer.save()
+    return Response(ArchetypeEvolutionEventSerializer(event).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def codex_symbol_reconciliation(request):
+    if request.method == "GET":
+        recs = CodexSymbolReconciliation.objects.all().order_by("-created_at")
+        return Response(CodexSymbolReconciliationSerializer(recs, many=True).data)
+
+    serializer = CodexSymbolReconciliationSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    rec = serializer.save()
+    return Response(CodexSymbolReconciliationSerializer(rec).data, status=201)
+
+
+@api_view(["GET"])
+def myth_api_lookup_view(request):
+    query = request.query_params.get("q", "")
+    from agents.utils.myth_api import myth_api_lookup
+
+    data = myth_api_lookup(query)
+    return Response(data)

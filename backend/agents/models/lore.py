@@ -1460,3 +1460,41 @@ class LegacyTokenVault(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
+
+
+class ArchetypeEvolutionEvent(models.Model):
+    """Ritualized transformation of an assistant's archetype."""
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    previous_archetype = models.CharField(max_length=100)
+    new_archetype = models.CharField(max_length=100)
+    trigger_memory = models.ForeignKey(
+        SwarmMemoryEntry, null=True, on_delete=models.SET_NULL
+    )
+    symbolic_justification = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"{self.previous_archetype} -> {self.new_archetype}"
+
+
+class CodexSymbolReconciliation(models.Model):
+    """Resolve conflicting symbols across swarm codices."""
+
+    affected_codices = models.ManyToManyField(SwarmCodex)
+    conflicting_symbol = models.CharField(max_length=100)
+    proposed_resolution = models.TextField()
+    resolution_accepted = models.BooleanField(default=False)
+    resolved_symbol = models.CharField(max_length=100, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.conflicting_symbol
