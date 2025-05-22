@@ -87,13 +87,11 @@ def auto_thread_by_tag(request):
     return Response(NarrativeThreadSerializer(thread).data)
 
 
-
 class NarrativeThreadListView(generics.ListCreateAPIView):
     queryset = NarrativeThread.objects.all().order_by("-created_at")
     serializer_class = NarrativeThreadSerializer
     permission_classes = [AllowAny]
     pagination_class = PageNumberPagination
-
 
 
 class OverviewThreadListView(generics.ListAPIView):
@@ -102,23 +100,25 @@ class OverviewThreadListView(generics.ListAPIView):
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
-        qs = NarrativeThread.objects.all()
-        assistant = self.request.query_params.get("assistant")
-        project = self.request.query_params.get("project")
+        threads = NarrativeThread.objects.all()
+        assistant = self.request.GET.get("assistant")
+        project = self.request.GET.get("project")
         if assistant:
-            qs = qs.filter(memories__assistant_id=assistant).distinct()
+            threads = threads.filter(memories__assistant_id=assistant).distinct()
         if project:
-            qs = qs.filter(memories__related_project_id=project).distinct()
-        return qs.order_by("-created_at")
+            threads = threads.filter(memories__related_project_id=project).distinct()
+        return threads
 
     def list(self, request, *args, **kwargs):
-        cache_key = f"overview_threads_{request.get_full_path()}"
-        data = cache.get(cache_key)
-        if data:
-            return Response(data)
-        response = super().list(request, *args, **kwargs)
-        cache.set(cache_key, response.data, 300)
-        return response
+        cache_key = "overview_threads"
+        if request.query_params.get("page", "1") == "1":
+            cached = cache.get(cache_key)
+            if cached:
+                return Response(cached)
+            response = super().list(request, *args, **kwargs)
+            cache.set(cache_key, response.data, 300)
+            return response
+        return super().list(request, *args, **kwargs)
 
 
 @api_view(["GET", "PATCH", "DELETE"])
@@ -149,6 +149,11 @@ def narrative_thread_detail(request, id):
 @permission_classes([AllowAny])
 def thread_summary(request, id):
     """Return ordered summary of a thread's memories, thoughts, reflections."""
+    cache_key = f"thread_summary_{id}"
+    cached = cache.get(cache_key)
+    if cached:
+        return Response(cached)
+
     cache_key = f"thread_summary_{id}"
     cached = cache.get(cache_key)
     if cached:
@@ -204,7 +209,8 @@ def thread_summary(request, id):
 @permission_classes([AllowAny])
 def thread_replay(request, thread_id):
     """Return merged timeline of memories, thoughts, and reflections."""
-    cache_key = f"thread_replay_{thread_id}_{request.GET.get('with_context')}"
+    cache_key = f"thread_replay_{thread_id}_{request.GET.get('with_context','0')}"
+
     cached = cache.get(cache_key)
     if cached:
         return Response(cached)
@@ -239,10 +245,10 @@ def diagnose_thread(request, thread_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def suggest_continuity_view(request, thread_id):
-    from mcp_core.tasks import suggest_continuity_task
+    from mcp_core.tasks.async_tasks import suggest_continuity_task
+    task = suggest_continuity_task.delay(thread_id)
+    return Response({"task_id": task.id}, status=202)
 
-    task = suggest_continuity_task.delay(str(thread_id))
-    return Response({"task_id": task.id}, status=status.HTTP_202_ACCEPTED)
 
 
 # @api_view(["GET"])
@@ -313,10 +319,9 @@ def refocus_thread(request, thread_id):
 @permission_classes([AllowAny])
 def realign_thread(request, thread_id):
     """Run planning realignment based on diagnostics and mood."""
-    from mcp_core.tasks import realign_thread_task
-
-    task = realign_thread_task.delay(str(thread_id))
-    return Response({"task_id": task.id}, status=status.HTTP_202_ACCEPTED)
+    from mcp_core.tasks.async_tasks import realign_thread_task
+    task = realign_thread_task.delay(thread_id)
+    return Response({"task_id": task.id}, status=202)
 
 
 @api_view(["POST"])

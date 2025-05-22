@@ -97,6 +97,11 @@ urlpatterns = [
         thread_views.thread_replay,
         name="thread-replay",
     ),
+    path(
+        "api/v1/threads/<uuid:thread_id>/replay/",
+        thread_views.thread_replay,
+        name="thread-replay-v1",
+    ),
     # Schema and Docs
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(

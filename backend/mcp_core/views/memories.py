@@ -1,17 +1,18 @@
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework.pagination import PageNumberPagination
+
+from rest_framework.throttling import UserRateThrottle
+
 from mcp_core.models import MemoryContext, NarrativeThread, ThreadSplitLog
+from mcp_core.serializers import MemoryContextSerializer
 from django.shortcuts import get_object_or_404
 from memory.models import MemoryEntry
 from assistants.models import AssistantThoughtLog, AssistantReflectionLog
 
-
-
 from mcp_core.serializers import MemoryContextSerializer
-
 
 class MemoryListView(generics.ListAPIView):
     queryset = MemoryContext.objects.order_by("-created_at")

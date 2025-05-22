@@ -24,10 +24,14 @@ from collections import defaultdict
 @permission_classes([AllowAny])
 @throttle_classes([UserRateThrottle])
 def reflect_on_memories(request):
-    from mcp_core.tasks import reflect_on_memories_task
+    target_type = request.data.get("target_type")
+    since = request.data.get("since")
+    limit = int(request.data.get("limit", 10))
+    from mcp_core.tasks.async_tasks import reflect_on_memories_task
 
-    task = reflect_on_memories_task.delay(request.data)
-    return Response({"task_id": task.id}, status=status.HTTP_202_ACCEPTED)
+    task = reflect_on_memories_task.delay(request.user.id if request.user else None, target_type, since, limit)
+    return Response({"task_id": task.id}, status=202)
+
 
 
 @api_view(["POST"])
@@ -50,8 +54,6 @@ def reflect_on_custom_memories(request):
         reflection.related_memories.set(memories)
     save_embedding(reflection, embedding=[])
     return Response(ReflectionLogSerializer(reflection).data, status=200)
-
-
 
 class ReflectionListView(generics.ListAPIView):
     queryset = AssistantReflectionLog.objects.order_by("-created_at")

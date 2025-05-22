@@ -3,7 +3,7 @@ warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
 from django.urls import path
 
 from uuid import UUID
-from .views import threading, reflection, tags, memories, prompts, narrative_events
+from .views import threading, reflection, tags, memories, prompts, narrative_events, task_status
 from mcp_core.capabilities.dev_docs import views as dev_docs
 
 urlpatterns = [
@@ -136,5 +136,7 @@ urlpatterns = [
         narrative_events.summarize_event,
         name="summarize-narrative-event",
     ),
-    path("tasks/<uuid:task_id>/status/", reflection.task_status, name="task-status"),
+
+    path("tasks/<task_id>/status/", task_status.TaskStatusView.as_view()),
+
 ]
