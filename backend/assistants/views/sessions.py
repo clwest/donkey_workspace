@@ -122,11 +122,11 @@ def sessions_for_assistant(request, slug):
         for s in sessions
     ]
 
-    from memory.models import MemoryEntry
+    from memory.services import MemoryService
     from mcp_core.models import NarrativeThread
     from mcp_core.serializers_tags import NarrativeThreadSerializer
 
-    memories = MemoryEntry.objects.filter(chat_session__in=sessions).exclude(
+    memories = MemoryService.filter_entries(chat_session__in=sessions).exclude(
         summary__isnull=True
     )
     memory_data = [

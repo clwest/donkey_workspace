@@ -11,7 +11,7 @@ from assistants.serializers import (
     DelegationEventSerializer,
     ProjectOverviewSerializer,
 )
-from memory.models import MemoryEntry
+from memory.services import MemoryService
 from memory.serializers import MemoryEntrySlimSerializer
 
 
@@ -32,8 +32,8 @@ def assistant_dashboard(request, slug):
         .order_by("-created_at")[:5]
     )
     memories = (
-        MemoryEntry.objects.filter(assistant=assistant)
-        .select_related("document")
+        MemoryService.filter_entries(assistant=assistant)
+
         .order_by("-created_at")[:5]
     )
     delegations = (

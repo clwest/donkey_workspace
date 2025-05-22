@@ -14,8 +14,8 @@ import logging
 import json
 import re
 from django.conf import settings
-from project.models import Project
-from mcp_core.models import NarrativeThread
+from assistants.services import AssistantService
+from memory.services import MemoryService
 from assistants.helpers.logging_helper import log_assistant_thought
 from assistants.models import (
     Assistant,
@@ -37,7 +37,6 @@ from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 from assistants.helpers.chat_helper import get_or_create_chat_session, save_chat_message
 from assistants.utils.delegation import spawn_delegated_assistant, should_delegate
 from assistants.helpers.memory_helpers import create_memory_from_chat
-from memory.models import MemoryEntry
 from assistants.models import AssistantMessage
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from memory.utils.context_helpers import get_or_create_context_from_memory
@@ -175,7 +174,7 @@ def primary_reflect_now(request):
     if not memory_id:
         return Response({"error": "memory_id required"}, status=400)
 
-    memory = get_object_or_404(MemoryEntry, id=memory_id)
+    memory = MemoryService.get_entry_or_404(memory_id)
     context = get_or_create_context_from_memory(memory)
     engine = AssistantReflectionEngine(assistant)
     ref_log = engine.reflect_now(context)
@@ -206,11 +205,11 @@ def primary_spawn_agent(request):
 
     reason = request.data.get("reason") or request.data.get("goal") or "delegation"
 
-    memory = get_object_or_404(MemoryEntry, id=memory_id)
+    memory = MemoryService.get_entry_or_404(memory_id)
 
     child = spawn_delegated_assistant(parent, memory_entry=memory, reason=reason)
 
-    project = Project.objects.filter(assistant=child).first()
+    project = AssistantService.project_for_assistant(child)
 
     log_assistant_thought(
         parent,
@@ -281,7 +280,7 @@ def create_assistant_from_thought(request):
     )
 
     # Bootstrap project & chat session inheriting the thread
-    child_project = Project.objects.create(
+    child_project = AssistantService.create_project(
         user=creator,
         title=f"Auto Project for {new_assistant.name}",
         assistant=new_assistant,
@@ -349,7 +348,7 @@ def chat_with_assistant_view(request, slug):
     if assistant.is_primary and assistant.live_relay_enabled:
         delegate = assistant.sub_assistants.filter(is_active=True).first()
         if delegate:
-            mem = MemoryEntry.objects.create(
+            mem = MemoryService.create_entry(
                 event=f"Relayed message to {delegate.name}: {message}",
                 assistant=delegate,
                 related_project=chat_session.project,
@@ -405,7 +404,7 @@ def chat_with_assistant_view(request, slug):
 
     if should_delegate(assistant, token_usage, request.data.get("feedback_flag")):
         recent_memory = (
-            MemoryEntry.objects.filter(chat_session=chat_session)
+            MemoryService.filter_entries(chat_session=chat_session)
             .order_by("-created_at")
             .first()
         )
@@ -765,12 +764,14 @@ def reflect_on_assistant(request):
 
     try:
         assistant = Assistant.objects.get(id=assistant_id)
-        project = Project.objects.get(id=project_id)
-        creator = assistant.created_by
     except Assistant.DoesNotExist:
         return Response({"error": "Assistant not found."}, status=404)
-    except Project.DoesNotExist:
+
+    project = AssistantService.get_project(project_id)
+    if not project:
         return Response({"error": "Project not found."}, status=404)
+
+    creator = assistant.created_by
 
     # === Compose Reflection Prompt ===
     context = f"""

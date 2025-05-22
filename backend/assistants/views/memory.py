@@ -20,7 +20,7 @@ from assistants.serializers import (
 from project.models import ProjectMemoryLink
 from project.serializers import ProjectMemoryLinkSerializer
 
-from memory.models import MemoryEntry
+from memory.services import MemoryService
 from memory.serializers import (
     MemoryEntrySerializer,
     MemoryEntrySlimSerializer,
@@ -34,7 +34,7 @@ from assistants.helpers.reflection_helpers import simulate_memory_fork
 from mcp_core.models import MemoryContext
 from django.contrib.contenttypes.models import ContentType
 from intel_core.models import Document
-from project.models import Project
+from assistants.services import AssistantService
 
 
 # Assistant Memory Chains
@@ -104,7 +104,7 @@ def assistant_project_reflections(request, project_id):
 def assistant_memories(request, slug):
     """List memory entries for a specific assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
-    entries = MemoryEntry.objects.filter(assistant=assistant)
+    entries = MemoryService.filter_entries(assistant=assistant)
     if assistant.current_project_id:
         entries = entries.filter(related_project_id=assistant.current_project_id)
     entries = entries.order_by("-created_at")
@@ -141,10 +141,10 @@ def reflect_now(request, slug):
 
     context = None
     if memory_id:
-        memory = get_object_or_404(MemoryEntry, id=memory_id)
+        memory = MemoryService.get_entry_or_404(memory_id)
         context = get_or_create_context_from_memory(memory)
     elif project_id:
-        project = get_object_or_404(Project, id=project_id)
+        project = AssistantService.get_project_or_404(project_id)
         context = MemoryContext.objects.create(
             target_content_type=ContentType.objects.get_for_model(Project),
             target_object_id=project.id,
@@ -225,7 +225,7 @@ def assistant_memory_summary(request, slug):
     """Return a summary of recent memories for the assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
 
-    qs = MemoryEntry.objects.filter(assistant=assistant)
+    qs = MemoryService.filter_entries(assistant=assistant)
     if assistant.current_project_id:
         qs = qs.filter(related_project_id=assistant.current_project_id)
 
@@ -272,7 +272,7 @@ def simulate_memory(request, slug):
     if not memory_id:
         return Response({"error": "memory_id required"}, status=400)
 
-    memory = get_object_or_404(MemoryEntry, id=memory_id)
+    memory = MemoryService.get_entry_or_404(memory_id)
     action = request.data.get("alternative_action")
     notes = request.data.get("notes")
 
@@ -291,8 +291,9 @@ def assistant_memory_documents(request, slug):
     )
 
     doc_ids.update(
-        MemoryEntry.objects.filter(assistant=assistant, document_id__isnull=False)
-        .values_list("document_id", flat=True)
+        MemoryService.filter_entries(
+            assistant=assistant, document_id__isnull=False
+        ).values_list("document_id", flat=True)
     )
 
     doc_ids.update(
@@ -309,7 +310,7 @@ def assistant_memory_documents(request, slug):
     )
 
     doc_ids.update(
-        MemoryEntry.objects.filter(
+        MemoryService.filter_entries(
             assistantmemorychain__project__assistant=assistant,
             document_id__isnull=False,
         ).values_list("document_id", flat=True)
