@@ -13,7 +13,7 @@ class HandoffSessionAPITest(BaseAPITestCase):
         self.session = ChatSession.objects.create(assistant=self.parent)
 
     def test_handoff_endpoint(self):
-        url = f"/api/assistants/{self.parent.slug}/handoff/"
+        url = f"/api/v1/assistants/{self.parent.slug}/handoff/"
         resp = self.client.post(
             url,
             {

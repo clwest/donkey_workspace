@@ -16,7 +16,7 @@ class MemoryBookmarkingTest(BaseAPITestCase):
 
     def test_bookmark_toggle_idempotent(self):
         mem = MemoryEntry.objects.create(event="x", assistant=self.assistant)
-        url = f"/api/memory/{mem.id}/bookmark/"
+        url = f"/api/v1/memory/{mem.id}/bookmark/"
 
         resp = self.client.post(url, {"label": "Important"}, format="json")
         self.assertEqual(resp.status_code, 200)
@@ -30,7 +30,7 @@ class MemoryBookmarkingTest(BaseAPITestCase):
         self.assertTrue(mem.is_bookmarked)
         self.assertEqual(mem.bookmark_label, "Important")
 
-        resp = self.client.post(f"/api/memory/{mem.id}/unbookmark/", format="json")
+        resp = self.client.post(f"/api/v1/memory/{mem.id}/unbookmark/", format="json")
         self.assertEqual(resp.status_code, 200)
         mem.refresh_from_db()
         self.assertFalse(mem.is_bookmarked)
@@ -42,23 +42,23 @@ class MemoryBookmarkingTest(BaseAPITestCase):
         m3 = MemoryEntry.objects.create(event="three", assistant=self.assistant)
 
         self.client.post(
-            f"/api/memory/{m1.id}/bookmark/",
+            f"/api/v1/memory/{m1.id}/bookmark/",
             {"label": "Goal change"},
             format="json",
         )
         self.client.post(
-            f"/api/memory/{m2.id}/bookmark/",
+            f"/api/v1/memory/{m2.id}/bookmark/",
             {"label": "trigger memory"},
             format="json",
         )
 
         resp = self.client.get(
-            f"/api/memory/bookmarked/?assistant={self.assistant.slug}"
+            f"/api/v1/memory/bookmarked/?assistant={self.assistant.slug}"
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.json()), 2)
 
-        resp = self.client.get("/api/memory/bookmarked/?label=goal")
+        resp = self.client.get("/api/v1/memory/bookmarked/?label=goal")
         labels = [d["bookmark_label"] for d in resp.json()]
         self.assertIn("Goal change", labels)
         self.assertNotIn("trigger memory", labels)

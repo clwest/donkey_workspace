@@ -38,7 +38,7 @@ class AssistantReflectionLogAPITest(BaseAPITestCase):
         self.ref2 = AssistantReflectionLog.objects.get(id=r2.id)
 
     def test_list_reflections_for_assistant(self):
-        url = f"/api/assistants/{self.assistant.slug}/reflections/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/reflections/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
@@ -48,7 +48,7 @@ class AssistantReflectionLogAPITest(BaseAPITestCase):
         self.assertTrue(expected.issubset(set(data[0].keys())))
 
     def test_reflection_detail(self):
-        url = f"/api/assistants/reflections/{self.ref1.id}/"
+        url = f"/api/v1/assistants/reflections/{self.ref1.id}/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()

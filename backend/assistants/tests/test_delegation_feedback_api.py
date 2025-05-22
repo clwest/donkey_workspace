@@ -18,7 +18,7 @@ class DelegationFeedbackAPITest(BaseAPITestCase):
         )
 
     def test_submit_feedback(self):
-        url = f"/api/assistants/delegation/{self.event.id}/feedback/"
+        url = f"/api/v1/assistants/delegation/{self.event.id}/feedback/"
         payload = {"score": 4, "trust_label": "trusted", "notes": "good"}
         resp = self.client.post(url, payload, format="json")
         self.assertEqual(resp.status_code, 200)

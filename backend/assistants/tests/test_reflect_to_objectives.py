@@ -25,7 +25,7 @@ class ReflectToObjectivesAPITest(BaseAPITestCase):
     @patch("assistants.views.objectives.complete_chat")
     def test_reflect_to_objectives(self, mock_chat):
         mock_chat.return_value = "- Goal One: Desc\n- Goal Two"
-        url = f"/api/assistants/{self.assistant.slug}/reflect-to-objectives/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/reflect-to-objectives/"
         resp = self.client.post(url, {"project_id": str(self.project.id)}, format="json")
         self.assertEqual(resp.status_code, 201)
         data = resp.json()

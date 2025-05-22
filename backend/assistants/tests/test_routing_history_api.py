@@ -22,7 +22,7 @@ class RoutingHistoryAPITest(BaseAPITestCase):
             RoutingSuggestionLog.objects.filter(id=log.id).update(
                 timestamp=timezone.now() + timezone.timedelta(minutes=i)
             )
-        self.url = "/api/assistants/routing-history/"
+        self.url = "/api/v1/assistants/routing-history/"
 
     def test_list_history(self):
         resp = self.client.get(self.url)

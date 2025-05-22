@@ -19,12 +19,12 @@ class ProjectPermissionsTest(APITestCase):
 
     def test_other_user_cannot_view_project(self):
         self.client.force_authenticate(user=self.other)
-        url = f"/api/projects/{self.project.id}/"
+        url = f"/api/v1/projects/{self.project.id}/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 403)
 
     def test_other_user_cannot_update_project(self):
         self.client.force_authenticate(user=self.other)
-        url = f"/api/projects/{self.project.id}/"
+        url = f"/api/v1/projects/{self.project.id}/"
         resp = self.client.patch(url, {"title": "New"}, format="json")
         self.assertEqual(resp.status_code, 403)

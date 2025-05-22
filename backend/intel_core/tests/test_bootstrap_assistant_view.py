@@ -19,7 +19,7 @@ class BootstrapAssistantViewTest(APITestCase):
             content="Some content",
             source_url="http://example.com",
         )
-        self.url = f"/api/intel/intelligence/bootstrap-assistant/{self.doc.id}/"
+        self.url = f"/api/v1/intel/intelligence/bootstrap-assistant/{self.doc.id}/"
 
     def _fake_completion(self):
         class Msg:
@@ -59,7 +59,7 @@ class BootstrapAssistantViewTest(APITestCase):
         resp = self.client.post(self.url)
         slug = resp.data["slug"]
 
-        detail = self.client.get(f"/api/assistants/{slug}/")
+        detail = self.client.get(f"/api/v1/assistants/{slug}/")
         self.assertEqual(detail.status_code, 200)
         self.assertEqual(detail.data["source_document_title"], self.doc.title)
         self.assertEqual(detail.data["source_document_url"], self.doc.source_url)

@@ -1,3 +1,5 @@
+import warnings
+warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
 from rest_framework.routers import DefaultRouter
 from .views import StoryViewSet, storyboard_list
 

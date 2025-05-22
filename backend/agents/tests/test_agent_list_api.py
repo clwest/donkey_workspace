@@ -24,7 +24,7 @@ class AgentListAPITest(APITestCase):
         )
 
     def test_list_agents(self):
-        resp = self.client.get("/api/agents/")
+        resp = self.client.get("/api/v1/agents/")
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         self.assertEqual(len(data), 1)

@@ -64,7 +64,7 @@ class ChatMemorySummonTest(TestCase):
 
         client = APIClient()
         payload = {"message": "hi", "session_id": "s1"}
-        resp = client.post(f"/api/assistants/{assistant.slug}/chat/", payload)
+        resp = client.post(f"/api/v1/assistants/{assistant.slug}/chat/", payload)
         self.assertEqual(resp.status_code, 200)
         log = AssistantThoughtLog.objects.filter(
             assistant=assistant, role="assistant"

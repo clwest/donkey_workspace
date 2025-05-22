@@ -20,7 +20,7 @@ class CreateProjectFromMemoryAPITest(BaseAPITestCase):
         )
 
     def test_create_project_from_memory(self):
-        url = "/api/assistants/projects/from-memory/"
+        url = "/api/v1/assistants/projects/from-memory/"
         resp = self.client.post(
             url,
             {
@@ -47,7 +47,7 @@ class CreateProjectFromMemoryAPITest(BaseAPITestCase):
         self.assertEqual(obj.source_memory, self.memory)
 
     def test_create_project_from_memory_by_slug(self):
-        url = f"/api/assistants/{self.assistant.slug}/projects/from-memory/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/projects/from-memory/"
         resp = self.client.post(
             url,
             {"memory_id": str(self.memory.id)},
@@ -68,7 +68,7 @@ class CreateProjectFromMemoryAPITest(BaseAPITestCase):
         self.assertEqual(obj.source_memory, self.memory)
 
     def test_create_project_from_memory_idempotent(self):
-        url = "/api/assistants/projects/from-memory/"
+        url = "/api/v1/assistants/projects/from-memory/"
         data = {
             "assistant_id": str(self.assistant.id),
             "memory_id": str(self.memory.id),

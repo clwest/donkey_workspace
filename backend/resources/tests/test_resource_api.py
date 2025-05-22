@@ -22,13 +22,13 @@ class ResourceAPITest(APITestCase):
         )
 
     def test_get_prediction(self):
-        url = f"/api/resources/predict/{self.assistant.id}/"
+        url = f"/api/v1/resources/predict/{self.assistant.id}/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()["predicted_tokens"], 100)
 
     def test_create_budget(self):
-        url = f"/api/resources/allocate/{self.assistant.id}/"
+        url = f"/api/v1/resources/allocate/{self.assistant.id}/"
         resp = self.client.post(url, {"tokens": 50, "compute_ms": 300.0})
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(ResourceBudget.objects.filter(assistant=self.assistant).exists())
