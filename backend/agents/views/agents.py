@@ -59,6 +59,9 @@ from agents.models.lore import (
     BeliefContinuityRitual,
     CosmologicalRole,
     LegacyTokenVault,
+    ArchetypeSynchronizationPulse,
+    CreationMythEntry,
+    CosmogenesisSimulation,
 )
 from agents.serializers import (
     AgentSerializer,
@@ -111,6 +114,9 @@ from agents.serializers import (
     BeliefContinuityRitualSerializer,
     CosmologicalRoleSerializer,
     LegacyTokenVaultSerializer,
+    ArchetypeSynchronizationPulseSerializer,
+    CreationMythEntrySerializer,
+    CosmogenesisSimulationSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -968,3 +974,39 @@ def legacy_vaults(request):
     serializer.is_valid(raise_exception=True)
     vault = serializer.save()
     return Response(LegacyTokenVaultSerializer(vault).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def archetype_sync_pulses(request):
+    if request.method == "GET":
+        pulses = ArchetypeSynchronizationPulse.objects.all().order_by("-created_at")
+        return Response(ArchetypeSynchronizationPulseSerializer(pulses, many=True).data)
+
+    serializer = ArchetypeSynchronizationPulseSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    pulse = serializer.save()
+    return Response(ArchetypeSynchronizationPulseSerializer(pulse).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def creation_myths(request):
+    if request.method == "GET":
+        myths = CreationMythEntry.objects.all().order_by("-created_at")
+        return Response(CreationMythEntrySerializer(myths, many=True).data)
+
+    serializer = CreationMythEntrySerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    myth = serializer.save()
+    return Response(CreationMythEntrySerializer(myth).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def cosmogenesis_simulations(request):
+    if request.method == "GET":
+        sims = CosmogenesisSimulation.objects.all().order_by("-created_at")
+        return Response(CosmogenesisSimulationSerializer(sims, many=True).data)
+
+    serializer = CosmogenesisSimulationSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    sim = serializer.save()
+    return Response(CosmogenesisSimulationSerializer(sim).data, status=201)
