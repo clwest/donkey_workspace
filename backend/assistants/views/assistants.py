@@ -206,7 +206,7 @@ def primary_spawn_agent(request):
     reason = request.data.get("reason") or request.data.get("goal") or "delegation"
 
     memory = get_object_or_404(MemoryEntry, id=memory_id)
-    
+
     child = spawn_delegated_assistant(parent, memory_entry=memory, reason=reason)
 
     project = Project.objects.filter(assistant=child).first()
@@ -337,7 +337,7 @@ def chat_with_assistant_view(request, slug):
     messages.append({"role": "user", "content": message})
 
     # Save user message to session
-    save_message_to_session(session_id, "user", message)
+    save_message_to_session(session_id, "user", message, assistant.slug)
 
     # Log internal thought based on user's message
     thought_engine = AssistantThoughtEngine(assistant=assistant)
@@ -458,7 +458,7 @@ def chat_with_assistant_view(request, slug):
     token_usage.save()
 
     # Save assistant message
-    save_message_to_session(session_id, "assistant", reply)
+    save_message_to_session(session_id, "assistant", reply, assistant.slug)
     AssistantThoughtLog.objects.create(
         assistant=assistant,
         project=None,

@@ -7,18 +7,30 @@ from assistants.models import Assistant, AssistantThoughtLog
 from assistants.helpers.redis_helpers import r, SESSION_EXPIRY
 import logging
 
-logger = logging.getLogger("assistants")
+logger = logging.getLogger(__name__)
 
 
-def save_message_to_session(session_id: str, role: str, content: str):
-    print(f"[🧠 SAVE SESSION] {session_id} ({role}): {content[:60]}...")
+def save_message_to_session(
+    session_id: str, role: str, content: str, assistant_slug: str | None = None
+):
+    logger.debug(
+        "[🧠 SAVE SESSION] %s (%s) slug=%s preview=%s",
+        session_id,
+        role,
+        assistant_slug or "unknown",
+        content[:60],
+    )
     payload = json.dumps(
         {"role": role, "content": content, "timestamp": timezone.now().isoformat()}
     )
     r.rpush(f"chat:{session_id}", payload)
     r.expire(f"chat:{session_id}", SESSION_EXPIRY)
-    print(
-        f"[REDIS TEST] DB={r.connection_pool.connection_kwargs.get('db')} Ping={r.ping()}"
+    logger.debug(
+        "[REDIS TEST] session=%s slug=%s DB=%s Ping=%s",
+        session_id,
+        assistant_slug or "unknown",
+        r.connection_pool.connection_kwargs.get("db"),
+        r.ping(),
     )
 
 
@@ -38,6 +50,12 @@ def flush_session_to_db(session_id: str, assistant: Assistant):
     """
     key = f"chat:{session_id}"
     messages = r.lrange(key, 0, -1)
+    logger.debug(
+        "Flushing session %s for assistant %s with %d messages",
+        session_id,
+        assistant.slug,
+        len(messages),
+    )
 
     if not messages:
         return 0
@@ -58,7 +76,13 @@ def flush_session_to_db(session_id: str, assistant: Assistant):
             )
             saved += 1
         except Exception as e:
-            logger.warning(f"Failed to archive message: {e}", exc_info=True)
+            logger.warning(
+                "Failed to archive message for session %s slug=%s: %s",
+                session_id,
+                assistant.slug,
+                e,
+                exc_info=True,
+            )
             continue
 
     # Commented out for inspection

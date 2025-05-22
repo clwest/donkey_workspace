@@ -54,7 +54,7 @@ def chat_with_scene(request, slug):
     messages += load_session_messages(session_id)
     messages.append({"role": "user", "content": message})
 
-    save_message_to_session(session_id, "user", message)
+    save_message_to_session(session_id, "user", message, assistant.slug)
     chat_session = get_or_create_chat_session(
         session_id, assistant=assistant, thread=thread
     )
@@ -64,7 +64,7 @@ def chat_with_scene(request, slug):
     except Exception as e:
         return Response({"error": str(e)}, status=500)
 
-    save_message_to_session(session_id, "assistant", reply)
+    save_message_to_session(session_id, "assistant", reply, assistant.slug)
     save_chat_message(chat_session, "user", message)
     save_chat_message(chat_session, "assistant", reply)
 
