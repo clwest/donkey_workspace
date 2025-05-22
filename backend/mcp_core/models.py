@@ -427,3 +427,19 @@ class ThreadMergeLog(models.Model):
 #     moved_entries = models.JSONField()
 #     summary = models.TextField(blank=True)
 #     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class PublicEventLog(models.Model):
+    """Record a public-facing event in the system."""
+
+    timestamp = models.DateTimeField(auto_now_add=True)
+    actor_name = models.CharField(max_length=150)
+    event_details = models.TextField()
+    success = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["-timestamp"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        status = "success" if self.success else "failed"
+        return f"{self.actor_name} {status} @ {self.timestamp:%Y-%m-%d %H:%M}"
