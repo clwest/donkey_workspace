@@ -1,9 +1,10 @@
 # mcp_core/views/threading.py
 
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets
+import warnings
 from django.shortcuts import get_object_or_404
 from django.db import models
 from itertools import chain
@@ -40,6 +41,63 @@ from mcp_core.utils.thread_helpers import (
 from memory.models import MemoryEntry
 from django.utils import timezone
 
+
+class ThreadViewSet(viewsets.ModelViewSet):
+    queryset = NarrativeThread.objects.all().order_by("-created_at")
+    serializer_class = NarrativeThreadSerializer
+    permission_classes = [AllowAny]
+
+    @action(detail=True, methods=["post"])
+    def merge(self, request, pk=None):
+        return merge_thread(request, id=pk)
+
+    @action(detail=True, methods=["post"])
+    def split(self, request, pk=None):
+        return split_thread(request, id=pk)
+
+    @action(detail=True, methods=["get"])
+    def summary(self, request, pk=None):
+        return thread_summary(request, id=pk)
+
+    @action(detail=True, methods=["get"])
+    def replay(self, request, pk=None):
+        return thread_replay(request, thread_id=pk)
+
+    @action(detail=True, methods=["post"])
+    def diagnose(self, request, pk=None):
+        return diagnose_thread(request, thread_id=pk)
+
+    @action(detail=True, methods=["post"], url_path="suggest-continuity")
+    def suggest_continuity(self, request, pk=None):
+        return suggest_continuity_view(request, thread_id=pk)
+
+    @action(detail=True, methods=["post"])
+    def realign(self, request, pk=None):
+        return realign_thread(request, thread_id=pk)
+
+    @action(detail=True, methods=["get"])
+    def progress(self, request, pk=None):
+        return thread_progress(request, id=pk)
+
+    @action(detail=True, methods=["post"])  # /threads/<id>/refocus/
+    def refocus(self, request, pk=None):
+        return refocus_thread(request, thread_id=pk)
+
+    @action(detail=True, methods=["post"])  # /threads/<id>/reflect/
+    def reflect(self, request, pk=None):
+        return reflect_on_thread_objective(request, thread_id=pk)
+
+    @action(detail=True, methods=["post"], url_path="set_objective")
+    def set_objective(self, request, pk=None):
+        thread = self.get_object()
+        thread.long_term_objective = request.data.get("objective", "")
+        thread.save(update_fields=["long_term_objective"])
+        return Response({"objective": thread.long_term_objective})
+
+    @action(detail=True, methods=["get"], url_path="objective")
+    def objective(self, request, pk=None):
+        thread = self.get_object()
+        return Response({"objective": thread.long_term_objective})
 
 @api_view(["POST"])
 def thread_from_memory(request):
@@ -221,6 +279,10 @@ def thread_replay(request, thread_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def diagnose_thread(request, thread_id):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/diagnose/",
+        DeprecationWarning,
+    )
     thread = get_object_or_404(NarrativeThread, id=thread_id)
     result = run_thread_diagnostics(thread)
     return Response(result)
@@ -229,6 +291,10 @@ def diagnose_thread(request, thread_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def suggest_continuity_view(request, thread_id):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/suggest-continuity/",
+        DeprecationWarning,
+    )
     thread = get_object_or_404(NarrativeThread, id=thread_id)
     result = suggest_continuity(thread_id)
     thread._link_suggestions = result.get("link_suggestions", [])
@@ -249,6 +315,10 @@ def suggest_continuity_view(request, thread_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def reflect_on_thread_objective(request, thread_id):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/reflect/",
+        DeprecationWarning,
+    )
     thread = get_object_or_404(NarrativeThread, id=thread_id)
     reflection_text = generate_thread_reflection(thread)
     reflection = ThreadObjectiveReflection.objects.create(
@@ -290,6 +360,10 @@ def diagnose_thread(request, thread_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def refocus_thread(request, thread_id):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/refocus/",
+        DeprecationWarning,
+    )
     thread = get_object_or_404(NarrativeThread, id=thread_id)
     prompt = generate_thread_refocus_prompt(thread)
     AssistantThoughtLog.objects.create(
@@ -305,6 +379,10 @@ def refocus_thread(request, thread_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def realign_thread(request, thread_id):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/realign/",
+        DeprecationWarning,
+    )
     """Run planning realignment based on diagnostics and mood."""
     thread = get_object_or_404(NarrativeThread, id=thread_id)
     thoughts = (
@@ -327,6 +405,10 @@ def realign_thread(request, thread_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def merge_thread(request, id):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/merge/",
+        DeprecationWarning,
+    )
     """Merge another thread into this one."""
     thread = get_object_or_404(NarrativeThread, id=id)
     target_id = request.data.get("target_thread_id")
@@ -356,6 +438,10 @@ def merge_thread(request, id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def split_thread(request, id):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/split/",
+        DeprecationWarning,
+    )
     """Split a thread, moving selected entries to a new thread."""
     thread = get_object_or_404(NarrativeThread, id=id)
     from_index = request.data.get("from_index")
@@ -395,6 +481,10 @@ def split_thread(request, id):
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def thread_progress(request, id):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/progress/",
+        DeprecationWarning,
+    )
     """Return completion progress for a thread and trigger sync."""
     thread = get_object_or_404(NarrativeThread, id=id)
 

@@ -1,8 +1,9 @@
 # mcp_core/views/reflection.py
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets
+import warnings
 from assistants.models import AssistantReflectionLog, Assistant
 from assistants.serializers import AssistantReflectionLogSerializer
 from project.models import Project
@@ -18,9 +19,39 @@ from django.utils.timezone import now, timedelta
 from collections import defaultdict
 
 
+class ReflectionViewSet(viewsets.ModelViewSet):
+    queryset = AssistantReflectionLog.objects.all().order_by("-created_at")
+    serializer_class = ReflectionLogSerializer
+    permission_classes = [AllowAny]
+
+    @action(detail=False, methods=["post"])  # /reflections/reflect/
+    def reflect(self, request):
+        warnings.warn(
+            "Deprecated function endpoints; use this action instead",
+            DeprecationWarning,
+        )
+        return reflect_on_memories(request)
+
+    @action(detail=True, methods=["post"])  # /reflections/<pk>/expand/
+    def expand(self, request, pk=None):
+        return expand_reflection(request, pk)
+
+    @action(detail=False, methods=["get"], url_path="recent")
+    def recent(self, request):
+        return recent_reflections(request)
+
+    @action(detail=False, methods=["get"], url_path="grouped")
+    def grouped(self, request):
+        return grouped_reflections_view(request)
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def reflect_on_memories(request):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/reflections/reflect/",
+        DeprecationWarning,
+    )
     target_type = request.data.get("target_type")
     since = request.data.get("since")
     limit = int(request.data.get("limit", 10))
@@ -91,6 +122,10 @@ def reflection_detail(request, reflection_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def expand_reflection(request, pk):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/reflections/<id>/expand/",
+        DeprecationWarning,
+    )
     try:
         reflection = AssistantReflectionLog.objects.get(id=pk)
     except AssistantReflectionLog.DoesNotExist:

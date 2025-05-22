@@ -17,8 +17,8 @@ This system ties together `MemoryEntry`, `AssistantThoughtLog`, and important th
   - `views/reflections.py`
   - etc.
 - **API Routes:**
-  - `GET /api/mcp_core/threads/` → list all threads
-  - `GET /api/mcp_core/threads/<uuid:id>/` → thread detail
+  - `GET /api/v1/mcp/threads/` → list all threads
+  - `GET /api/v1/mcp/threads/<uuid:id>/` → thread detail
 - **Helpers:** Thread auto-tagging and linking utilities under construction
 
 ---

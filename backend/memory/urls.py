@@ -1,8 +1,13 @@
 from django.urls import path
+from rest_framework.routers import DefaultRouter
 from . import views
+
+router = DefaultRouter()
+router.register("entries", views.MemoryEntryViewSet, basename="memory-entry")
+router.register("chains", views.MemoryChainViewSet, basename="memory-chain")
 from assistants.views import empathy
 
-urlpatterns = [
+urlpatterns = router.urls + [
     path("save/", views.save_memory, name="save_memory"),
     path("recent/", views.recent_memories, name="recent_memories"),
     path("list/", views.list_memories, name="list_memories"),

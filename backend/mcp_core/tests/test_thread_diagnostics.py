@@ -35,13 +35,13 @@ class ThreadDiagnosticAPITest(APITestCase):
         self.thread = NarrativeThread.objects.create(title="T")
 
     def test_diagnose_endpoint(self):
-        resp = self.client.post(f"/api/mcp/threads/{self.thread.id}/diagnose/", {})
+        resp = self.client.post(f"/api/v1/mcp/threads/{self.thread.id}/diagnose/", {})
         assert resp.status_code == 200
         self.thread.refresh_from_db()
         assert self.thread.continuity_score is not None
 
     def test_list_diagnostics(self):
         run_thread_diagnostics(self.thread)
-        resp = self.client.get(f"/api/mcp/threads/{self.thread.id}/diagnostics/")
+        resp = self.client.get(f"/api/v1/mcp/threads/{self.thread.id}/diagnostics/")
         assert resp.status_code == 200
         assert len(resp.json()) >= 1

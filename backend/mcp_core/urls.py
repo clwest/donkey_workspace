@@ -1,10 +1,15 @@
 from django.urls import path
+from rest_framework.routers import DefaultRouter
 
 from uuid import UUID
 from .views import threading, reflection, tags, memories, prompts, narrative_events
+
+router = DefaultRouter()
+router.register("threads", threading.ThreadViewSet, basename="thread")
+router.register("reflections", reflection.ReflectionViewSet, basename="reflection")
 from mcp_core.capabilities.dev_docs import views as dev_docs
 
-urlpatterns = [
+urlpatterns = router.urls + [
     path("prompt-usage/", prompts.log_prompt_usage_view, name="log-prompt-usage"),
     path("reflect/", reflection.reflect_on_memories, name="reflect-on-memories"),
     path("reflections/<int:reflection_id>/save/", reflection.save_reflection),

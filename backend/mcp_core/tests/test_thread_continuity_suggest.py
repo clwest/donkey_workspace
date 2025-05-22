@@ -15,7 +15,7 @@ class ThreadContinuitySuggestionTest(APITestCase):
         self.other = NarrativeThread.objects.create(title="T2")
 
     def test_suggest_continuity_api(self):
-        url = f"/api/mcp/threads/{self.thread.id}/suggest-continuity/"
+        url = f"/api/v1/mcp/threads/{self.thread.id}/suggest-continuity/"
         resp = self.client.post(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
