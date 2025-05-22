@@ -1,6 +1,9 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets, filters
+from rest_framework.pagination import PageNumberPagination
+from django_filters.rest_framework import DjangoFilterBackend
+from django.core.cache import cache
 from assistants.models import (
     Assistant,
     AssistantThoughtLog,
@@ -58,18 +61,30 @@ def submit_assistant_thought(request, slug):
     )
 
 
-@api_view(["GET"])
-def assistant_thoughts_by_slug(request, slug):
-    try:
-        assistant = Assistant.objects.get(slug=slug)
-    except Assistant.DoesNotExist:
-        return Response({"error": "Assistant not found."}, status=404)
 
-    thoughts = AssistantThoughtLog.objects.filter(assistant=assistant).order_by(
-        "-created_at"
-    )
-    serializer = AssistantThoughtLogSerializer(thoughts, many=True)
-    return Response(serializer.data)
+class AssistantThoughtViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = AssistantThoughtLogSerializer
+    pagination_class = PageNumberPagination
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ["created_at", "tags", "project"]
+    ordering = ["-created_at"]
+
+    def get_queryset(self):
+        slug = self.kwargs.get("slug")
+        qs = AssistantThoughtLog.objects.filter(assistant__slug=slug)
+        return qs.order_by("-created_at")
+
+    def list(self, request, *args, **kwargs):
+        page = request.query_params.get("page", "1")
+        if page == "1" and len(request.query_params) <= 2:
+            key = f"assistant_thoughts_{kwargs['slug']}_p1"
+            cached = cache.get(key)
+            if cached:
+                return Response(cached)
+            response = super().list(request, *args, **kwargs)
+            cache.set(key, response.data, 300)
+            return response
+        return super().list(request, *args, **kwargs)
 
 
 @api_view(["POST"])
