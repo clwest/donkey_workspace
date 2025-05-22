@@ -45,6 +45,7 @@ urlpatterns = [
     path("api/agents/", include("agents.urls")),
     path("api/lore-tokens/", agent_views.lore_tokens),
     path("api/intel/", include("intel_core.urls")),
+    path("api/documents/", include("documents.urls")),
     path("api/tools/", include("tools.urls")),
     # path("api/swarm/snapshot/<str:date>/", agent_views.swarm_snapshot),
     path(

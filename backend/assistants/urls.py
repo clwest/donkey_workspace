@@ -32,6 +32,9 @@ from .views import (
     reputation,
     conscience,
     autonomy,
+    check_in,
+    subassistant,
+    standup,
 )
 
 urlpatterns = [
@@ -622,6 +625,21 @@ urlpatterns = [
         "<slug:slug>/reputation/",
         reputation.assistant_reputation,
         name="assistant-reputation",
+    ),
+    path(
+        "<uuid:assistant_id>/check-in/",
+        check_in.AssistantCheckInView.as_view(),
+        name="assistant-check-in",
+    ),
+    path(
+        "<uuid:assistant_id>/sub-assistants/",
+        subassistant.SubAssistantCreateView.as_view(),
+        name="create-sub-assistant",
+    ),
+    path(
+        "<uuid:assistant_id>/schedule-standup/",
+        standup.StandupScheduleView.as_view(),
+        name="schedule-standup",
     ),
     # ===== DEBATE ENDPOINTS =====
     # path("debate/start/", debate.start_debate, name="start-debate"),
