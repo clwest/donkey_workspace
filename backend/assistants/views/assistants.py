@@ -1,4 +1,5 @@
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
+from rest_framework import viewsets
 import uuid
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -50,6 +51,7 @@ from prompts.models import Prompt
 from django.db import models
 from assistants.models import AssistantSkill
 from intel_core.models import Document
+import warnings
 
 
 logger = logging.getLogger("django")
@@ -72,174 +74,222 @@ def _maybe_log_self_doubt(assistant: Assistant, reply: str) -> None:
         )
 
 
-@api_view(["GET", "POST"])
-@permission_classes([AllowAny])
-def assistants_view(request):
-    """
-    Handles listing and creating Assistants.
-    GET: Returns all assistants.
-    POST: Creates a new assistant with validated data.
-    """
-    if request.method == "GET":
-        assistants = Assistant.objects.all()
+class AssistantViewSet(viewsets.ModelViewSet):
+    """CRUD operations for :class:`Assistant` objects."""
+
+    queryset = Assistant.objects.all()
+    serializer_class = AssistantSerializer
+    permission_classes = [AllowAny]
+    lookup_field = "slug"
+
+    def list(self, request, *args, **kwargs):
+        assistants = self.queryset
         order = request.GET.get("order")
         if order == "msi":
             assistants = assistants.order_by("-mood_stability_index")
         min_msi = request.GET.get("min_msi")
         if min_msi is not None:
             try:
-                assistants = assistants.filter(mood_stability_index__gte=float(min_msi))
+                assistants = assistants.filter(
+                    mood_stability_index__gte=float(min_msi)
+                )
             except ValueError:
                 pass
-        serializer = AssistantSerializer(assistants, many=True)
+        serializer = self.get_serializer(assistants, many=True)
         return Response(serializer.data)
 
-    if request.method == "POST":
-        print("🔍 Incoming assistant data:", request.data)
-        serializer = AssistantSerializer(data=request.data)
-        if serializer.is_valid():
-            assistant = serializer.save()
-            prompt_text = ""
-            if assistant.system_prompt:
-                prompt_text += assistant.system_prompt.content or ""
-            prompt_text += " " + (assistant.specialty or "")
-            from assistants.utils.skill_helpers import infer_skills_from_prompt
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        assistant = serializer.save()
 
-            skill_data = infer_skills_from_prompt(prompt_text)
-            for item in skill_data:
-                skill = AssistantSkill.objects.create(
-                    assistant=assistant,
-                    name=item["name"],
-                    confidence=item.get("confidence", 0.5),
-                    related_tags=item.get("tags", []),
-                )
-                tools = Tool.objects.filter(
-                    models.Q(name__icontains=item["name"])
-                    | models.Q(description__icontains=item["name"])
-                )
-                if tools.exists():
-                    skill.related_tools.set(tools)
-            return Response(
-                AssistantSerializer(assistant).data, status=status.HTTP_201_CREATED
+        prompt_text = ""
+        if assistant.system_prompt:
+            prompt_text += assistant.system_prompt.content or ""
+        prompt_text += " " + (assistant.specialty or "")
+        from assistants.utils.skill_helpers import infer_skills_from_prompt
+
+        skill_data = infer_skills_from_prompt(prompt_text)
+        for item in skill_data:
+            skill = AssistantSkill.objects.create(
+                assistant=assistant,
+                name=item["name"],
+                confidence=item.get("confidence", 0.5),
+                related_tags=item.get("tags", []),
             )
-        print("❌ Assistant creation failed:", serializer.errors)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            tools = Tool.objects.filter(
+                models.Q(name__icontains=item["name"]) |
+                models.Q(description__icontains=item["name"])
+            )
+            if tools.exists():
+                skill.related_tools.set(tools)
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(
+            self.get_serializer(assistant).data,
+            status=status.HTTP_201_CREATED,
+            headers=headers,
+        )
+
+    def retrieve(self, request, slug=None, *args, **kwargs):
+        assistant = get_object_or_404(Assistant, slug=slug)
+        from assistants.serializers import AssistantDetailSerializer, ProjectOverviewSerializer
+
+        serializer = AssistantDetailSerializer(assistant)
+        data = serializer.data
+        if assistant.current_project:
+            data["current_project"] = ProjectOverviewSerializer(
+                assistant.current_project
+            ).data
+        return Response(data)
+
+    @action(detail=False, methods=["get"], url_path="primary")
+    def primary(self, request):
+        assistant = Assistant.objects.filter(is_primary=True).first()
+        if not assistant:
+            return Response({"error": "No primary assistant."}, status=404)
+
+        serializer = AssistantSerializer(assistant)
+        recent = get_cached_thoughts(assistant.slug) or []
+        data = serializer.data
+        data["recent_thoughts"] = recent
+        return Response(data)
+
+    @action(detail=False, methods=["post"], url_path="primary/reflect-now")
+    def primary_reflect_now(self, request):
+        assistant = Assistant.objects.filter(is_primary=True).first()
+        if not assistant:
+            return Response({"error": "No primary assistant."}, status=404)
+
+        memory_id = request.data.get("memory_id")
+        if not memory_id:
+            return Response({"error": "memory_id required"}, status=400)
+
+        memory = get_object_or_404(MemoryEntry, id=memory_id)
+        context = get_or_create_context_from_memory(memory)
+        engine = AssistantReflectionEngine(assistant)
+        ref_log = engine.reflect_now(context)
+
+        log_assistant_thought(
+            assistant,
+            ref_log.summary,
+            thought_type="reflection",
+            linked_memory=memory,
+            linked_memories=[memory],
+            linked_reflection=ref_log,
+        )
+
+        return Response({"summary": ref_log.summary})
+
+    @action(detail=False, methods=["post"], url_path="primary/spawn-agent")
+    def primary_spawn_agent(self, request):
+        parent = Assistant.objects.filter(is_primary=True).first()
+        if not parent:
+            return Response({"error": "No primary assistant."}, status=404)
+
+        memory_id = request.data.get("memory_id")
+        if not memory_id:
+            return Response({"error": "memory_id required"}, status=400)
+
+        reason = request.data.get("reason") or request.data.get("goal") or "delegation"
+
+        memory = get_object_or_404(MemoryEntry, id=memory_id)
+
+        child = spawn_delegated_assistant(parent, memory_entry=memory, reason=reason)
+
+        project = Project.objects.filter(assistant=child).first()
+
+        log_assistant_thought(
+            parent,
+            f"Spawned {child.name} for {reason}",
+            thought_type="planning",
+            linked_memory=memory,
+            project=project,
+        )
+        log_assistant_thought(
+            child,
+            f"Spawned by {parent.name} for {reason}",
+            thought_type="meta",
+            linked_memory=memory,
+            project=project,
+        )
+
+        return Response(
+            {
+                "assistant": {
+                    "id": str(child.id),
+                    "slug": child.slug,
+                    "name": child.name,
+                    "tone": child.inherited_tone,
+                    "created_from_mood": child.created_from_mood,
+                },
+                "project_id": str(project.id) if project else None,
+            },
+            status=201,
+        )
+
+@api_view(["GET", "POST"])
+@permission_classes([AllowAny])
+def assistants_view(request):
+    warnings.warn(
+        "assistants_view is deprecated; use AssistantViewSet instead",
+        DeprecationWarning,
+    )
+    view = AssistantViewSet.as_view({"get": "list", "post": "create"})
+    return view(request)
 
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def assistant_detail_view(request, slug):
-    try:
-        assistant = Assistant.objects.get(slug=slug)
-    except Assistant.DoesNotExist:
-        return Response(
-            {"error": "Assistant not found."}, status=status.HTTP_404_NOT_FOUND
-        )
-
-    from assistants.serializers import AssistantDetailSerializer
-
-    serializer = AssistantDetailSerializer(assistant)
-    data = serializer.data
-    if assistant.current_project:
-        from assistants.serializers import ProjectOverviewSerializer
-
-        data["current_project"] = ProjectOverviewSerializer(
-            assistant.current_project
-        ).data
-    return Response(data)
+    warnings.warn(
+        "assistant_detail_view is deprecated; use AssistantViewSet instead",
+        DeprecationWarning,
+    )
+    view = AssistantViewSet.as_view(
+        {
+            "get": "retrieve",
+            "put": "update",
+            "patch": "partial_update",
+            "delete": "destroy",
+        }
+    )
+    return view(request, slug=slug)
 
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def primary_assistant_view(request):
-    assistant = Assistant.objects.filter(is_primary=True).first()
-    if not assistant:
-        return Response({"error": "No primary assistant."}, status=404)
-
-    serializer = AssistantSerializer(assistant)
-    recent = get_cached_thoughts(assistant.slug) or []
-    data = serializer.data
-    data["recent_thoughts"] = recent
-    return Response(data)
+    warnings.warn(
+        "primary_assistant_view is deprecated; use AssistantViewSet.primary",
+        DeprecationWarning,
+    )
+    view = AssistantViewSet.as_view({"get": "primary"})
+    return view(request)
 
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def primary_reflect_now(request):
     """Trigger immediate reflection for the primary assistant."""
-    assistant = Assistant.objects.filter(is_primary=True).first()
-    if not assistant:
-        return Response({"error": "No primary assistant."}, status=404)
-
-    memory_id = request.data.get("memory_id")
-    if not memory_id:
-        return Response({"error": "memory_id required"}, status=400)
-
-    memory = get_object_or_404(MemoryEntry, id=memory_id)
-    context = get_or_create_context_from_memory(memory)
-    engine = AssistantReflectionEngine(assistant)
-    ref_log = engine.reflect_now(context)
-
-    log_assistant_thought(
-        assistant,
-        ref_log.summary,
-        thought_type="reflection",
-        linked_memory=memory,
-        linked_memories=[memory],
-        linked_reflection=ref_log,
+    warnings.warn(
+        "primary_reflect_now is deprecated; use AssistantViewSet.primary_reflect_now",
+        DeprecationWarning,
     )
-
-    return Response({"summary": ref_log.summary})
+    view = AssistantViewSet.as_view({"post": "primary_reflect_now"})
+    return view(request)
 
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def primary_spawn_agent(request):
     """Spawn a delegated assistant from memory using the primary assistant."""
-    parent = Assistant.objects.filter(is_primary=True).first()
-    if not parent:
-        return Response({"error": "No primary assistant."}, status=404)
-
-    memory_id = request.data.get("memory_id")
-    if not memory_id:
-        return Response({"error": "memory_id required"}, status=400)
-
-    reason = request.data.get("reason") or request.data.get("goal") or "delegation"
-
-    memory = get_object_or_404(MemoryEntry, id=memory_id)
-
-    child = spawn_delegated_assistant(parent, memory_entry=memory, reason=reason)
-
-    project = Project.objects.filter(assistant=child).first()
-
-    log_assistant_thought(
-        parent,
-        f"Spawned {child.name} for {reason}",
-        thought_type="planning",
-        linked_memory=memory,
-        project=project,
+    warnings.warn(
+        "primary_spawn_agent is deprecated; use AssistantViewSet.primary_spawn_agent",
+        DeprecationWarning,
     )
-    log_assistant_thought(
-        child,
-        f"Spawned by {parent.name} for {reason}",
-        thought_type="meta",
-        linked_memory=memory,
-        project=project,
-    )
-
-    return Response(
-        {
-            "assistant": {
-                "id": str(child.id),
-                "slug": child.slug,
-                "name": child.name,
-                "tone": child.inherited_tone,
-                "created_from_mood": child.created_from_mood,
-            },
-            "project_id": str(project.id) if project else None,
-        },
-        status=201,
-    )
+    view = AssistantViewSet.as_view({"post": "primary_spawn_agent"})
+    return view(request)
 
 
 @api_view(["POST"])

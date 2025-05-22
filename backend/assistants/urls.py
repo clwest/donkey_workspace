@@ -1,4 +1,5 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from . import views
 
 from .views import (
@@ -40,6 +41,9 @@ from insights.views.plan import InsightPlanView
 
 from scheduler.views import standup
 
+router = DefaultRouter()
+router.register(r"", views.AssistantViewSet, basename="assistant")
+
 urlpatterns = [
     # Basics
     path("reflection/", assistants.reflect_on_assistant),
@@ -48,17 +52,7 @@ urlpatterns = [
     path("conscience/", conscience.conscience_profiles),
     path("reflexive-epistemology/", conscience.reflexive_epistemology),
     path("decision-frameworks/", conscience.decision_frameworks),
-    path("primary/", assistants.primary_assistant_view, name="primary-assistant"),
-    path(
-        "primary/reflect-now/",
-        assistants.primary_reflect_now,
-        name="primary-reflect-now",
-    ),
-    path(
-        "primary/spawn-agent/",
-        assistants.primary_spawn_agent,
-        name="primary-spawn-agent",
-    ),
+    # Primary assistant actions are now handled by AssistantViewSet
     path(
         "primary/delegations/",
         delegations.primary_delegations,
@@ -74,8 +68,7 @@ urlpatterns = [
     path("routing-history/", routing.routing_history, name="routing-history"),
     path("purpose-routing/", autonomy.purpose_routes),
     path("autonomy-models/", autonomy.autonomy_models),
-    path("", assistants.assistants_view, name="assistants_view"),
-    path("create/", assistants.assistants_view, name="assistants-list-create"),
+    # CRUD operations handled by AssistantViewSet via router
     # ===== PROJECTS =====
     path(
         "projects/", projects.assistant_projects, name="assistant-projects"
@@ -677,5 +670,5 @@ urlpatterns = [
     #     debate.debate_consensus,
     #     name="debate-consensus",
     # ),
-    path("<slug:slug>/", assistants.assistant_detail_view, name="assistant-detail"),
+    path("", include(router.urls)),
 ]
