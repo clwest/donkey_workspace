@@ -5,6 +5,7 @@ This module configures Celery for background task processing,
 including task scheduling and worker configuration.
 """
 
+
 from __future__ import absolute_import, unicode_literals
 import os
 from dotenv import load_dotenv
@@ -13,10 +14,12 @@ load_dotenv()
 from celery import Celery
 from celery.schedules import crontab
 from django.conf import settings
+import django
 
 
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
+django.setup()
 
 app = Celery("backend")
 
@@ -26,7 +29,6 @@ app = Celery("backend")
 app.config_from_object("django.conf:settings", namespace="CELERY")
 app.conf.broker_url = settings.CELERY_BROKER_URL
 app.conf.result_backend = settings.CELERY_RESULT_BACKEND
-app.autodiscover_tasks()
 print("🐍 Broker from settings:", settings.CELERY_BROKER_URL)
 # Set timezone
 app.conf.timezone = "UTC"
