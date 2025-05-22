@@ -1,6 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import WorkflowDefinition, WorkflowExecutionLog
+# Import models from the parent workflows package rather than the views package
+# to avoid incorrect module paths like ``workflows.views.models`` which can
+# cause ``ModuleNotFoundError`` when Django imports the URL configuration.
+from ..models import WorkflowDefinition, WorkflowExecutionLog
 
 
 class WorkflowOrchestrateView(APIView):
