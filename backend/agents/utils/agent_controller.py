@@ -349,42 +349,11 @@ def update_agent_profile_from_feedback(
 
 # codex-optimize:training
 def train_agent_from_documents(agent: Agent, documents: List["Document"]) -> dict:
-    """Generates summary skills from docs, embeds them, and updates agent profile."""
-    from intel_core.models import Document
+    """Wrapper calling ``AgentService.train_agent_from_documents``."""
+    from agents.services import AgentService
 
-    combined_text = "\n".join((doc.summary or doc.content[:200]) for doc in documents)
-    prompt = "Summarize key skills an AI agent would learn from these documents as a comma separated list."
-    prompt += "\n" + combined_text
-
-    try:
-        parsed = call_llm(
-            [{"role": "user", "content": prompt}],
-            model="gpt-4o",
-            temperature=0.2,
-            max_tokens=150,
-        )
-        new_skills = [s.strip() for s in parsed.split(",") if s.strip()]
-    except Exception:
-        new_skills = []
-
-    existing = {
-        s.get("skill") if isinstance(s, dict) else str(s): s
-        for s in (agent.verified_skills or [])
-    }
-    for name in new_skills:
-        existing[name] = {
-            "skill": name,
-            "source": "training",
-            "confidence": 0.6,
-            "last_verified": timezone.now().isoformat(),
-        }
-    agent.verified_skills = list(existing.values())
-    agent.skills = list({*agent.skills, *existing.keys()})
-    for doc in documents:
-        agent.trained_documents.add(doc)
-    agent.save()
-
-    return {"skills": agent.verified_skills, "trained": [str(d.id) for d in documents]}
+    service = AgentService()
+    return service.train_agent_from_documents(agent, documents)
 
 
 def recommend_training_documents(agent: Agent) -> List["Document"]:
@@ -482,6 +451,14 @@ def recommend_agent_resurrection(skill: str) -> Optional[Agent]:
     return candidates.first()
 
 
+
+def spawn_agent_for_skill(skill: str, base_profile: dict) -> Agent:
+    """Wrapper calling ``AgentService.spawn_agent_for_skill``."""
+    from agents.services import AgentService
+
+    service = AgentService()
+    return service.spawn_agent_for_skill(skill, base_profile)
+  
 def resurrect_agent(agent: Agent, by_assistant: Optional["Assistant"] = None) -> Agent:
     """Reactivate an archived agent and update its legacy."""
     agent.is_active = True
