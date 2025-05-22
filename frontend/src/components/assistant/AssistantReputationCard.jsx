@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import apiFetch from "../../utils/apiClient";
+import PropTypes from "prop-types";
 
 export default function AssistantReputationCard({ slug }) {
   const [rep, setRep] = useState(null);
@@ -26,3 +27,7 @@ export default function AssistantReputationCard({ slug }) {
     </div>
   );
 }
+
+AssistantReputationCard.propTypes = {
+  slug: PropTypes.string,
+};

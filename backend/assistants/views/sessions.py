@@ -8,7 +8,7 @@ from assistants.models import (
     TokenUsage,
 )
 from assistants.serializers import AssistantChatMessageSerializer
-from assistants.helpers.redis_helpers import (
+from assistants.utils.session_utils import (
     r,
     load_session_messages,
     flush_session_to_db,

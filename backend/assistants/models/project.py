@@ -304,20 +304,6 @@ class AssistantMemoryChain(models.Model):
     )
 
 
-class AssistantReflectionInsight(models.Model):
-    """Insight gathered from a reflection linked to a document."""
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
-    linked_document = models.ForeignKey("intel_core.Document", on_delete=models.CASCADE)
-    text = models.TextField()
-    tags = models.ManyToManyField("mcp_core.Tag", blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Insight on {self.linked_document.title} by {self.assistant.name}"
-
-
 class AssistantNextAction(models.Model):
     """Next step derived from an AssistantObjective."""
 
