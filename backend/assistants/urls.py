@@ -34,8 +34,9 @@ from .views import (
     autonomy,
     check_in,
     subassistant,
-    standup,
 )
+
+from scheduler.views import standup
 
 urlpatterns = [
     # Basics
