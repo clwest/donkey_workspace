@@ -202,4 +202,26 @@ class CollaborationLog(models.Model):
         ordering = ["-created_at"]
 
 
+class CollaborationThread(models.Model):
+    """Ongoing conversation thread between multiple assistants."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    lead = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="led_collaboration_threads",
+    )
+    participants = models.ManyToManyField(
+        "assistants.Assistant",
+        related_name="collaboration_threads",
+        blank=True,
+    )
+    messages = models.JSONField(default=list, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
 

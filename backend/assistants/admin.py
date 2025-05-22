@@ -14,6 +14,7 @@ from .models import (
     AssistantMemoryChain,
     SpecializationDriftLog,
     CollaborationLog,
+    CollaborationThread,
     AssistantMythLayer,
 )
 from memory.models import MemoryEntry
@@ -194,6 +195,12 @@ class DelegationStrategyAdmin(admin.ModelAdmin):
 @admin.register(CollaborationLog)
 class CollaborationLogAdmin(admin.ModelAdmin):
     list_display = ("project", "style_conflict_detected", "created_at")
+    filter_horizontal = ("participants",)
+
+
+@admin.register(CollaborationThread)
+class CollaborationThreadAdmin(admin.ModelAdmin):
+    list_display = ("lead", "created_at")
     filter_horizontal = ("participants",)
 
 
