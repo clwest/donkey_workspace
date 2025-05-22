@@ -270,11 +270,16 @@ class Assistant(models.Model):
             )
 
         if self.is_primary:
+            from django.apps import apps
+
+            AssistantThoughtLog = apps.get_model("assistants", "AssistantThoughtLog")
             AssistantThoughtLog.objects.get_or_create(
                 assistant=self,
                 thought_type="meta",
                 category="meta",
-                thought="I have been assigned as the system’s primary orchestrator. My role is to monitor and coordinate all assistant activity.",
+                thought=(
+                    "I have been assigned as the system’s primary orchestrator. My role is to monitor and coordinate all assistant activity."
+                ),
             )
 
     def __str__(self):
