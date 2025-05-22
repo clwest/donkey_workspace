@@ -1,17 +1,16 @@
 from django.db import models
-from assistants.models.assistant import Assistant
 
 
 class MythologyMeshNode(models.Model):
     """Graph node linking assistants by mythic relationships."""
 
     assistant = models.ForeignKey(
-        Assistant,
+        "assistants.Assistant",
         on_delete=models.CASCADE,
         related_name="mesh_nodes",
     )
     connected_to = models.ManyToManyField(
-        Assistant,
+        "assistants.Assistant",
         related_name="mesh_links",
         blank=True,
     )
@@ -24,7 +23,7 @@ class ArchetypalDriftForecast(models.Model):
     """Prediction of an assistant's future archetype."""
 
     assistant = models.ForeignKey(
-        Assistant,
+        "assistants.Assistant",
         on_delete=models.CASCADE,
         related_name="drift_forecasts",
     )
