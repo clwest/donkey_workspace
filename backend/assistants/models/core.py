@@ -97,7 +97,7 @@ ROLE_CHOICES = [
     ("assistant", "Assistant"),
 ]
 
-from .constants import THOUGHT_CATEGORY_CHOICES
+from assistants.constants import THOUGHT_CATEGORY_CHOICES
 
 # Thought log modes
 THOUGHT_MODES = [
