@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from django.utils import timezone
 
-from assistants.models import Assistant
+from assistants.models.assistant import Assistant
 
 
 class CustomUser(AbstractUser):

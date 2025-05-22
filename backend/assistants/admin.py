@@ -1,21 +1,27 @@
 from django.contrib import admin
-from .models import (
+
+from assistants.models.assistant import (
     Assistant,
-    AssistantThoughtLog,
-    AssistantProject,
-    AssistantObjective,
-    AssistantNextAction,
-    AssistantReflectionLog,
+    DelegationEventManager,
+    AssistantSkill,
+    SignalSource,
+    SignalCatch,
     ChatSession,
+    StructuredMemory,
+    TokenUsage,
+    AssistantChatMessage,
+    AudioResponse,
     DelegationEvent,
-    DelegationStrategy,
+    AssistantMessage,
+    RoutingSuggestionLog,
     SessionHandoff,
+    AssistantSwitchEvent,
     AssistantHandoffLog,
-    AssistantMemoryChain,
     SpecializationDriftLog,
-    CollaborationLog,
-    CollaborationThread,
-    AssistantMythLayer,
+    DebateSession,
+    DebateThoughtLog,
+    DebateSummary,
+
 )
 from memory.models import MemoryEntry
 from mcp_core.models import Tag
