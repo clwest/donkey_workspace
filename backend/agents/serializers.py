@@ -61,6 +61,11 @@ from agents.models.lore import (
     MythologyMeshNode,
     ArchetypalDriftForecast,
 )
+from agents.models.coordination import (
+    CollaborationThread,
+    DelegationStream,
+    MythflowInsight,
+)
 from assistants.models.assistant import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
 
@@ -630,3 +635,23 @@ class ArchetypalDriftForecastSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
+class CollaborationThreadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CollaborationThread
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class DelegationStreamSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DelegationStream
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MythflowInsightSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythflowInsight
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
