@@ -48,6 +48,9 @@ from agents.models import (
     SwarmTribunalCase,
     RestorativeMemoryAction,
     ReputationRegenerationEvent,
+    MythCycleBinding,
+    ResurrectionTemplate,
+    BeliefContinuityRitual,
 )
 from assistants.models import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -532,3 +535,42 @@ class ReputationRegenerationEventSerializer(serializers.ModelSerializer):
         model = ReputationRegenerationEvent
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
+
+class MythCycleBindingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythCycleBinding
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class ResurrectionTemplateSerializer(serializers.ModelSerializer):
+    seed_memory_ids = serializers.PrimaryKeyRelatedField(
+        queryset=SwarmMemoryEntry.objects.all(),
+        many=True,
+        write_only=True,
+        required=False,
+        source="seed_memories",
+    )
+    seed_memories = SwarmMemoryEntrySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ResurrectionTemplate
+        fields = "__all__"
+        read_only_fields = ["id", "created_at", "seed_memories"]
+
+
+class BeliefContinuityRitualSerializer(serializers.ModelSerializer):
+    memory_reference_ids = serializers.PrimaryKeyRelatedField(
+        queryset=SwarmMemoryEntry.objects.all(),
+        many=True,
+        write_only=True,
+        required=False,
+        source="memory_reference",
+    )
+    memory_reference = SwarmMemoryEntrySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = BeliefContinuityRitual
+        fields = "__all__"
+        read_only_fields = ["id", "created_at", "memory_reference"]
