@@ -42,6 +42,9 @@ from agents.models import (
     AssistantPolity,
     RitualElection,
     LegacyRoleBinding,
+    MythicArbitrationCase,
+    TreatyBreachRitual,
+    SymbolicSanction,
 )
 from assistants.models import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -482,5 +485,26 @@ class RitualElectionSerializer(serializers.ModelSerializer):
 class LegacyRoleBindingSerializer(serializers.ModelSerializer):
     class Meta:
         model = LegacyRoleBinding
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MythicArbitrationCaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythicArbitrationCase
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class TreatyBreachRitualSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TreatyBreachRitual
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicSanctionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicSanction
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
