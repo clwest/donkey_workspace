@@ -6,7 +6,7 @@ from assistants.models import DelegationEvent, Assistant, AssistantThoughtLog
 from assistants.serializers import DelegationEventSerializer
 from assistants.utils.delegation import spawn_delegated_assistant
 from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
-from memory.models import MemoryEntry
+from memory.services import MemoryService
 from intel_core.models import Document
 from assistants.models import AssistantObjective
 
@@ -35,10 +35,10 @@ def spawn_from_context(request, slug):
 
     memory_entry = None
     if ctx_type == "memory" and ctx_id:
-        memory_entry = get_object_or_404(MemoryEntry, id=ctx_id)
+        memory_entry = MemoryService.get_entry_or_404(ctx_id)
     elif ctx_type == "document" and ctx_id:
         document = get_object_or_404(Document, id=ctx_id)
-        memory_entry = MemoryEntry.objects.create(
+        memory_entry = MemoryService.create_entry(
             event=f"Spawn from document {document.title}",
             summary=document.summary or document.title,
             document=document,
@@ -101,7 +101,7 @@ def suggest_delegate(request):
 
     memory = None
     if memory_id:
-        memory = MemoryEntry.objects.filter(id=memory_id).first()
+        memory = MemoryService.get_entry(memory_id)
         if not memory:
             return Response({"error": "Memory not found"}, status=404)
 

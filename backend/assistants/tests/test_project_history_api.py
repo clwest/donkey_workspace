@@ -24,7 +24,7 @@ class ProjectHistoryAPITest(BaseAPITestCase):
         ProjectTask.objects.create(project=self.project, title="Task", notes="", content="c")
 
     def test_history_endpoint(self):
-        url = f"/api/assistants/projects/{self.assistant_project.id}/history/"
+        url = f"/api/v1/assistants/projects/{self.assistant_project.id}/history/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()

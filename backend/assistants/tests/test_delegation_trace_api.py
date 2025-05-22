@@ -20,7 +20,7 @@ class DelegationTraceAPITest(BaseAPITestCase):
         )
 
     def test_delegation_trace_endpoint(self):
-        url = f"/api/assistants/{self.parent.slug}/delegation-trace/"
+        url = f"/api/v1/assistants/{self.parent.slug}/delegation-trace/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()

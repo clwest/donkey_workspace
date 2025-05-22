@@ -24,7 +24,7 @@ class DocumentProgressAPITest(APITestCase):
         )
 
     def test_progress_endpoint(self):
-        url = f"/api/intel/documents/{self.progress.progress_id}/progress/"
+        url = f"/api/v1/intel/documents/{self.progress.progress_id}/progress/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()

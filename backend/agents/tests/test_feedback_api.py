@@ -16,7 +16,7 @@ class AgentFeedbackAPITest(APITestCase):
         self.agent = Agent.objects.create(name="Agent", slug="agent")
 
     def test_update_from_feedback(self):
-        url = f"/api/agents/{self.agent.id}/update-from-feedback/"
+        url = f"/api/v1/agents/{self.agent.id}/update-from-feedback/"
         resp = self.client.post(
             url,
             {"feedback": [{"feedback_text": "great", "score": 0.9}]},

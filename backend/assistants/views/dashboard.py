@@ -11,7 +11,7 @@ from assistants.serializers import (
     DelegationEventSerializer,
     ProjectOverviewSerializer,
 )
-from memory.models import MemoryEntry
+from memory.services import MemoryService
 from memory.serializers import MemoryEntrySlimSerializer
 
 
@@ -24,12 +24,16 @@ def assistant_dashboard(request, slug):
     project = assistant.current_project
     project_data = ProjectOverviewSerializer(project).data if project else None
 
+    # use select_related/prefetch to avoid N+1 queries
     thoughts = (
         AssistantThoughtLog.objects.filter(assistant=assistant)
+        .select_related("project")
+        .prefetch_related("tags")
         .order_by("-created_at")[:5]
     )
     memories = (
-        MemoryEntry.objects.filter(assistant=assistant)
+        MemoryService.filter_entries(assistant=assistant)
+
         .order_by("-created_at")[:5]
     )
     delegations = (

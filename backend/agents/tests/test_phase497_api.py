@@ -21,7 +21,7 @@ class Phase497APITest(APITestCase):
 
     def test_create_biome(self):
         resp = self.client.post(
-            "/api/agents/biomes/",
+            "/api/v1/agents/biomes/",
             {
                 "name": "B",
                 "core_traits": {"x": 1},
@@ -32,12 +32,12 @@ class Phase497APITest(APITestCase):
             format="json",
         )
         self.assertEqual(resp.status_code, 201)
-        list_resp = self.client.get("/api/agents/biomes/")
+        list_resp = self.client.get("/api/v1/agents/biomes/")
         self.assertEqual(len(list_resp.json()), 1)
 
     def test_create_purpose_route_and_autonomy_model(self):
         route_resp = self.client.post(
-            "/api/assistants/purpose-routing/",
+            "/api/v1/assistants/purpose-routing/",
             {
                 "assistant": self.assistant.id,
                 "input_tags": {"tone": "stern"},
@@ -49,7 +49,7 @@ class Phase497APITest(APITestCase):
         self.assertEqual(route_resp.status_code, 201)
 
         model_resp = self.client.post(
-            "/api/assistants/autonomy-models/",
+            "/api/v1/assistants/autonomy-models/",
             {
                 "assistant": self.assistant.id,
                 "current_arc": "init",

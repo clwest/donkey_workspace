@@ -18,13 +18,13 @@ class AssignProjectAPITest(BaseAPITestCase):
         )
 
     def test_assign_project(self):
-        url = f"/api/assistants/{self.assistant.slug}/assign_project/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/assign_project/"
         resp = self.client.post(url, {"project_id": str(self.project.id)}, format="json")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assistant.refresh_from_db()
         self.assertEqual(self.assistant.current_project, self.project)
 
-        detail = self.client.get(f"/api/assistants/{self.assistant.slug}/")
+        detail = self.client.get(f"/api/v1/assistants/{self.assistant.slug}/")
         self.assertEqual(detail.status_code, 200)
         data = detail.json()
         self.assertIn("current_project", data)

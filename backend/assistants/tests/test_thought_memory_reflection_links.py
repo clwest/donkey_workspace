@@ -36,7 +36,7 @@ class ThoughtMemoryReflectionTest(TestCase):
             thought_type="reflection",
             linked_reflection=self.reflection,
         )
-        resp = self.client.get(f"/api/assistants/reflections/{self.reflection.id}/thoughts/")
+        resp = self.client.get(f"/api/v1/assistants/reflections/{self.reflection.id}/thoughts/")
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         self.assertEqual(len(data), 1)

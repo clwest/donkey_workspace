@@ -17,7 +17,7 @@ class ThoughtMutationAPITest(BaseAPITestCase):
         )
 
     def test_mutate_thought_endpoint(self):
-        url = f"/api/assistants/thoughts/{self.thought.id}/mutate/"
+        url = f"/api/v1/assistants/thoughts/{self.thought.id}/mutate/"
         resp = self.client.post(url, {"style": "clarify"}, format="json")
         self.assertEqual(resp.status_code, 201)
         data = resp.json()

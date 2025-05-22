@@ -13,7 +13,7 @@ class SharedMemoryPoolsAPITest(BaseAPITestCase):
         self.assistant = Assistant.objects.create(name="Tester", specialty="core")
 
     def test_pool_create_and_list(self):
-        url = "/api/shared-memory-pools/"
+        url = "/api/v1/shared-memory-pools/"
         resp = self.client.post(
             url,
             {"name": "Pool", "description": "d", "assistants": [self.assistant.id]},
@@ -26,14 +26,14 @@ class SharedMemoryPoolsAPITest(BaseAPITestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.json()), 1)
 
-        detail_url = f"/api/shared-memory-pools/{pool_id}/"
+        detail_url = f"/api/v1/shared-memory-pools/{pool_id}/"
         resp = self.client.get(detail_url)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()["name"], "Pool")
 
     def test_pool_entries(self):
         pool = SharedMemoryPool.objects.create(name="Pool")
-        url = f"/api/shared-memory-pools/{pool.id}/entries/"
+        url = f"/api/v1/shared-memory-pools/{pool.id}/entries/"
         data = {"key": "foo", "value": {"bar": 1}, "created_by": self.assistant.id}
         resp = self.client.post(url, data, format="json")
         self.assertEqual(resp.status_code, 201)

@@ -1,6 +1,10 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import status
+
+from rest_framework import status, viewsets
+from rest_framework.pagination import PageNumberPagination
+from django_filters.rest_framework import DjangoFilterBackend
+
 from assistants.models import (
     Assistant,
     AssistantThoughtLog,
@@ -10,18 +14,43 @@ from assistants.models import (
 from assistants.serializers import AssistantThoughtLogSerializer
 from mcp_core.serializers_tags import TagSerializer
 from django.shortcuts import get_object_or_404
-from assistants.helpers.redis_helpers import (
+from assistants.utils.session_utils import (
     get_cached_reflection,
     set_cached_reflection,
     get_cached_thoughts,
+    set_cached_thoughts,
 )
 from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
-from assistants.helpers.redis_helpers import flush_session_to_db
+from assistants.utils.session_utils import flush_session_to_db
 from prompts.utils.mutation import mutate_prompt as run_mutation
 from embeddings.helpers.helpers_io import get_embedding_for_text, save_embedding
 from assistants.helpers.logging_helper import log_assistant_thought
 from mcp_core.models import DevDoc
-from project.models import Project
+from assistants.services import AssistantService
+from django.http import Http404
+
+
+class AssistantThoughtViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = AssistantThoughtLogSerializer
+    pagination_class = PageNumberPagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["project", "tags", "created_at"]
+
+    def get_queryset(self):
+        assistant = get_object_or_404(Assistant, slug=self.kwargs.get("slug"))
+        return AssistantThoughtLog.objects.filter(assistant=assistant).order_by("-created_at")
+
+    def list(self, request, *args, **kwargs):
+        page_num = request.query_params.get("page", "1")
+        if page_num == "1":
+            cache_key = f"{self.kwargs.get('slug')}"
+            cached = get_cached_thoughts(cache_key)
+            if cached:
+                return Response(cached)
+            response = super().list(request, *args, **kwargs)
+            set_cached_thoughts(cache_key, response.data)
+            return response
+        return super().list(request, *args, **kwargs)
 
 
 @api_view(["POST"])
@@ -58,18 +87,30 @@ def submit_assistant_thought(request, slug):
     )
 
 
-@api_view(["GET"])
-def assistant_thoughts_by_slug(request, slug):
-    try:
-        assistant = Assistant.objects.get(slug=slug)
-    except Assistant.DoesNotExist:
-        return Response({"error": "Assistant not found."}, status=404)
 
-    thoughts = AssistantThoughtLog.objects.filter(assistant=assistant).order_by(
-        "-created_at"
-    )
-    serializer = AssistantThoughtLogSerializer(thoughts, many=True)
-    return Response(serializer.data)
+class AssistantThoughtViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = AssistantThoughtLogSerializer
+    pagination_class = PageNumberPagination
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ["created_at", "tags", "project"]
+    ordering = ["-created_at"]
+
+    def get_queryset(self):
+        slug = self.kwargs.get("slug")
+        qs = AssistantThoughtLog.objects.filter(assistant__slug=slug)
+        return qs.order_by("-created_at")
+
+    def list(self, request, *args, **kwargs):
+        page = request.query_params.get("page", "1")
+        if page == "1" and len(request.query_params) <= 2:
+            key = f"assistant_thoughts_{kwargs['slug']}_p1"
+            cached = cache.get(key)
+            if cached:
+                return Response(cached)
+            response = super().list(request, *args, **kwargs)
+            cache.set(key, response.data, 300)
+            return response
+        return super().list(request, *args, **kwargs)
 
 
 @api_view(["POST"])
@@ -146,9 +187,8 @@ def assistant_project_thoughts(request, project_id):
         return Response(serialized.data)
 
     elif request.method == "POST":
-        try:
-            project = Project.objects.get(id=project_id)
-        except Project.DoesNotExist:
+        project = AssistantService.get_project(project_id)
+        if not project:
             return Response({"error": "Project not found."}, status=404)
 
         thought_text = request.data.get("thought", "")
@@ -179,9 +219,8 @@ def assistant_project_thoughts(request, project_id):
 
 @api_view(["POST"])
 def assistant_reflect_on_thoughts(request, project_id):
-    try:
-        project = Project.objects.get(id=project_id)
-    except Project.DoesNotExist:
+    project = AssistantService.get_project(project_id)
+    if not project:
         return Response({"error": "Project not found."}, status=404)
 
     engine = AssistantThoughtEngine(assistant=project.assistant, project=project)
@@ -301,7 +340,7 @@ def get_recent_reflections(request, slug):
 
 @api_view(["POST"])
 def flush_chat_session_to_log(request, slug):
-    from assistants.helpers.redis_helpers import flush_session_to_db
+    from assistants.utils.session_utils import flush_session_to_db
 
     session_id = request.data.get("session_id")
     if not session_id:
@@ -398,8 +437,8 @@ def reflect_on_doc(request):
     try:
         doc = DevDoc.objects.get(id=doc_id)
         assistant = Assistant.objects.get(id=assistant_id)
-        project = Project.objects.get(id=project_id)
-    except (DevDoc.DoesNotExist, Assistant.DoesNotExist, Project.DoesNotExist) as e:
+        project = AssistantService.get_project_or_404(project_id)
+    except (DevDoc.DoesNotExist, Assistant.DoesNotExist, Http404) as e:
         return Response({"error": str(e)}, status=404)
 
     # Simulated AI reflection (you can call GPT later)

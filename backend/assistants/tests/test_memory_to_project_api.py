@@ -17,7 +17,7 @@ class MemoryToProjectAPITest(BaseAPITestCase):
         self.mem2 = MemoryEntry.objects.create(event="Second memory", assistant=self.assistant, summary="Two")
 
     def test_plan_project_from_memory(self):
-        url = f"/api/assistants/{self.assistant.slug}/memory-to-project/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/memory-to-project/"
         resp = self.client.post(
             url,
             {

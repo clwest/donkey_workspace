@@ -18,7 +18,7 @@ class ProjectRolesAPITest(BaseAPITestCase):
         )
 
     def test_create_role_without_project_field(self):
-        url = f"/api/assistants/projects/{self.project.id}/roles/"
+        url = f"/api/v1/assistants/projects/{self.project.id}/roles/"
         payload = {"assistant": self.a2.id, "role_name": "support"}
         resp = self.client.post(url, payload, format="json")
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)

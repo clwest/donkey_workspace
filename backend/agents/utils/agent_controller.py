@@ -451,14 +451,14 @@ def recommend_agent_resurrection(skill: str) -> Optional[Agent]:
     return candidates.first()
 
 
+
 def spawn_agent_for_skill(skill: str, base_profile: dict) -> Agent:
     """Wrapper calling ``AgentService.spawn_agent_for_skill``."""
     from agents.services import AgentService
 
     service = AgentService()
     return service.spawn_agent_for_skill(skill, base_profile)
-
-
+  
 def resurrect_agent(agent: Agent, by_assistant: Optional["Assistant"] = None) -> Agent:
     """Reactivate an archived agent and update its legacy."""
     agent.is_active = True

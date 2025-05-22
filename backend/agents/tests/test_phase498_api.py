@@ -20,7 +20,7 @@ class Phase498APITest(APITestCase):
 
     def test_create_alliance(self):
         resp = self.client.post(
-            "/api/agents/alliances/",
+            "/api/v1/agents/alliances/",
             {
                 "name": "Al",
                 "aligned_beliefs": {},
@@ -31,12 +31,12 @@ class Phase498APITest(APITestCase):
             format="json",
         )
         self.assertEqual(resp.status_code, 201)
-        list_resp = self.client.get("/api/agents/alliances/")
+        list_resp = self.client.get("/api/v1/agents/alliances/")
         self.assertEqual(len(list_resp.json()), 1)
 
     def test_create_dream_negotiation(self):
         resp = self.client.post(
-            "/api/agents/dream-negotiation/",
+            "/api/v1/agents/dream-negotiation/",
             {
                 "proposed_purpose_update": "p",
                 "symbolic_context": {},
@@ -45,12 +45,12 @@ class Phase498APITest(APITestCase):
             format="json",
         )
         self.assertEqual(resp.status_code, 201)
-        list_resp = self.client.get("/api/agents/dream-negotiation/")
+        list_resp = self.client.get("/api/v1/agents/dream-negotiation/")
         self.assertEqual(len(list_resp.json()), 1)
 
     def test_create_biome_mutation(self):
         resp = self.client.post(
-            "/api/agents/biome-mutations/",
+            "/api/v1/agents/biome-mutations/",
             {
                 "biome": self.biome.id,
                 "trigger_type": "belief shift",
@@ -60,5 +60,5 @@ class Phase498APITest(APITestCase):
             format="json",
         )
         self.assertEqual(resp.status_code, 201)
-        list_resp = self.client.get("/api/agents/biome-mutations/")
+        list_resp = self.client.get("/api/v1/agents/biome-mutations/")
         self.assertEqual(len(list_resp.json()), 1)

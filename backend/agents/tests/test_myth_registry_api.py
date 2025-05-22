@@ -36,7 +36,7 @@ class MythRegistryAPITest(APITestCase):
 
     def test_create_registry_and_compliance(self):
         reg_resp = self.client.post(
-            "/api/agents/myth-registry/",
+            "/api/v1/agents/myth-registry/",
             {
                 "memory": self.memory.id,
                 "registered_by": self.assistant.id,
@@ -47,7 +47,7 @@ class MythRegistryAPITest(APITestCase):
         self.assertEqual(reg_resp.status_code, 201)
 
         anchor_resp = self.client.post(
-            "/api/agents/lore-anchors/",
+            "/api/v1/agents/lore-anchors/",
             {
                 "anchor_type": "equinox",
                 "timestamp": timezone.now().isoformat(),
@@ -60,7 +60,7 @@ class MythRegistryAPITest(APITestCase):
         anchor_id = anchor_resp.json()["id"]
 
         comp_resp = self.client.post(
-            "/api/agents/ritual-compliance/",
+            "/api/v1/agents/ritual-compliance/",
             {
                 "civilization": self.civ.id,
                 "anchor": anchor_id,
@@ -69,6 +69,6 @@ class MythRegistryAPITest(APITestCase):
         )
         self.assertEqual(comp_resp.status_code, 201)
 
-        list_resp = self.client.get("/api/agents/myth-registry/")
+        list_resp = self.client.get("/api/v1/agents/myth-registry/")
         self.assertEqual(list_resp.status_code, 200)
         self.assertEqual(len(list_resp.json()), 1)

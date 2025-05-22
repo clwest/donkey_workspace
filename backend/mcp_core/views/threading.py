@@ -1,9 +1,11 @@
 # mcp_core/views/threading.py
 
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets
+import warnings
+
 from django.shortcuts import get_object_or_404
 from django.db import models
 from itertools import chain
@@ -40,6 +42,63 @@ from mcp_core.utils.thread_helpers import (
 from memory.models import MemoryEntry
 from django.utils import timezone
 
+
+class ThreadViewSet(viewsets.ModelViewSet):
+    queryset = NarrativeThread.objects.all().order_by("-created_at")
+    serializer_class = NarrativeThreadSerializer
+    permission_classes = [AllowAny]
+
+    @action(detail=True, methods=["post"])
+    def merge(self, request, pk=None):
+        return merge_thread(request, id=pk)
+
+    @action(detail=True, methods=["post"])
+    def split(self, request, pk=None):
+        return split_thread(request, id=pk)
+
+    @action(detail=True, methods=["get"])
+    def summary(self, request, pk=None):
+        return thread_summary(request, id=pk)
+
+    @action(detail=True, methods=["get"])
+    def replay(self, request, pk=None):
+        return thread_replay(request, thread_id=pk)
+
+    @action(detail=True, methods=["post"])
+    def diagnose(self, request, pk=None):
+        return diagnose_thread(request, thread_id=pk)
+
+    @action(detail=True, methods=["post"], url_path="suggest-continuity")
+    def suggest_continuity(self, request, pk=None):
+        return suggest_continuity_view(request, thread_id=pk)
+
+    @action(detail=True, methods=["post"])
+    def realign(self, request, pk=None):
+        return realign_thread(request, thread_id=pk)
+
+    @action(detail=True, methods=["get"])
+    def progress(self, request, pk=None):
+        return thread_progress(request, id=pk)
+
+    @action(detail=True, methods=["post"])  # /threads/<id>/refocus/
+    def refocus(self, request, pk=None):
+        return refocus_thread(request, thread_id=pk)
+
+    @action(detail=True, methods=["post"])  # /threads/<id>/reflect/
+    def reflect(self, request, pk=None):
+        return reflect_on_thread_objective(request, thread_id=pk)
+
+    @action(detail=True, methods=["post"], url_path="set_objective")
+    def set_objective(self, request, pk=None):
+        thread = self.get_object()
+        thread.long_term_objective = request.data.get("objective", "")
+        thread.save(update_fields=["long_term_objective"])
+        return Response({"objective": thread.long_term_objective})
+
+    @action(detail=True, methods=["get"], url_path="objective")
+    def objective(self, request, pk=None):
+        thread = self.get_object()
+        return Response({"objective": thread.long_term_objective})
 
 @api_view(["POST"])
 def thread_from_memory(request):
@@ -84,42 +143,38 @@ def auto_thread_by_tag(request):
     return Response(NarrativeThreadSerializer(thread).data)
 
 
-@api_view(["GET", "POST"])
-@permission_classes([AllowAny])
-def narrative_thread_list(request):
-    if request.method == "GET":
-        threads = NarrativeThread.objects.all().order_by("-created_at")
-        serializer = NarrativeThreadSerializer(threads, many=True)
-        return Response(serializer.data)
-
-    elif request.method == "POST":
-        serializer = NarrativeThreadSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class NarrativeThreadListView(generics.ListCreateAPIView):
+    queryset = NarrativeThread.objects.all().order_by("-created_at")
+    serializer_class = NarrativeThreadSerializer
+    permission_classes = [AllowAny]
+    pagination_class = PageNumberPagination
 
 
-@api_view(["GET"])
-@permission_classes([AllowAny])
-def list_overview_threads(request):
-    """Return threads with activity metrics for dashboard overview."""
-    threads = NarrativeThread.objects.all()
-
-    assistant = request.GET.get("assistant")
-    project = request.GET.get("project")
-    if assistant:
-        threads = threads.filter(memories__assistant_id=assistant).distinct()
-    if project:
-        threads = threads.filter(memories__related_project_id=project).distinct()
-
+class OverviewThreadListView(generics.ListAPIView):
     serializer_class = NarrativeThreadOverviewSerializer
-    serialized = [serializer_class(t).data for t in threads]
-    serialized.sort(
-        key=lambda x: x.get("last_updated") or "",
-        reverse=True,
-    )
-    return Response(serialized)
+    permission_classes = [AllowAny]
+    pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        threads = NarrativeThread.objects.all()
+        assistant = self.request.GET.get("assistant")
+        project = self.request.GET.get("project")
+        if assistant:
+            threads = threads.filter(memories__assistant_id=assistant).distinct()
+        if project:
+            threads = threads.filter(memories__related_project_id=project).distinct()
+        return threads
+
+    def list(self, request, *args, **kwargs):
+        cache_key = "overview_threads"
+        if request.query_params.get("page", "1") == "1":
+            cached = cache.get(cache_key)
+            if cached:
+                return Response(cached)
+            response = super().list(request, *args, **kwargs)
+            cache.set(cache_key, response.data, 300)
+            return response
+        return super().list(request, *args, **kwargs)
 
 
 @api_view(["GET", "PATCH", "DELETE"])
@@ -150,6 +205,15 @@ def narrative_thread_detail(request, id):
 @permission_classes([AllowAny])
 def thread_summary(request, id):
     """Return ordered summary of a thread's memories, thoughts, reflections."""
+    cache_key = f"thread_summary_{id}"
+    cached = cache.get(cache_key)
+    if cached:
+        return Response(cached)
+
+    cache_key = f"thread_summary_{id}"
+    cached = cache.get(cache_key)
+    if cached:
+        return Response(cached)
 
     thread = get_object_or_404(NarrativeThread, id=id)
 
@@ -193,6 +257,7 @@ def thread_summary(request, id):
             for r in reflections
         ],
     }
+    cache.set(cache_key, data, 300)
     return Response(data)
 
 
@@ -200,6 +265,12 @@ def thread_summary(request, id):
 @permission_classes([AllowAny])
 def thread_replay(request, thread_id):
     """Return merged timeline of memories, thoughts, and reflections."""
+    cache_key = f"thread_replay_{thread_id}_{request.GET.get('with_context','0')}"
+
+    cached = cache.get(cache_key)
+    if cached:
+        return Response(cached)
+
     thread = get_object_or_404(NarrativeThread, id=thread_id)
     with_context = request.GET.get("with_context") == "true"
 
@@ -215,12 +286,17 @@ def thread_replay(request, thread_id):
     serializer = ThreadReplayItemSerializer(
         items, many=True, context={"with_context": with_context}
     )
+    cache.set(cache_key, serializer.data, 300)
     return Response(serializer.data)
 
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def diagnose_thread(request, thread_id):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/diagnose/",
+        DeprecationWarning,
+    )
     thread = get_object_or_404(NarrativeThread, id=thread_id)
     result = run_thread_diagnostics(thread)
     return Response(result)
@@ -229,6 +305,10 @@ def diagnose_thread(request, thread_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def suggest_continuity_view(request, thread_id):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/suggest-continuity/",
+        DeprecationWarning,
+    )
     thread = get_object_or_404(NarrativeThread, id=thread_id)
     result = suggest_continuity(thread_id)
     thread._link_suggestions = result.get("link_suggestions", [])
@@ -236,6 +316,7 @@ def suggest_continuity_view(request, thread_id):
     data = serializer.data
     data.update(result)
     return Response(data)
+
 
 
 # @api_view(["GET"])
@@ -249,6 +330,10 @@ def suggest_continuity_view(request, thread_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def reflect_on_thread_objective(request, thread_id):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/reflect/",
+        DeprecationWarning,
+    )
     thread = get_object_or_404(NarrativeThread, id=thread_id)
     reflection_text = generate_thread_reflection(thread)
     reflection = ThreadObjectiveReflection.objects.create(
@@ -290,6 +375,10 @@ def diagnose_thread(request, thread_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def refocus_thread(request, thread_id):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/refocus/",
+        DeprecationWarning,
+    )
     thread = get_object_or_404(NarrativeThread, id=thread_id)
     prompt = generate_thread_refocus_prompt(thread)
     AssistantThoughtLog.objects.create(
@@ -305,28 +394,24 @@ def refocus_thread(request, thread_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def realign_thread(request, thread_id):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/realign/",
+        DeprecationWarning,
+    )
     """Run planning realignment based on diagnostics and mood."""
-    thread = get_object_or_404(NarrativeThread, id=thread_id)
-    thoughts = (
-        AssistantThoughtLog.objects.filter(narrative_thread=thread)
-        .order_by("-created_at")[:20]
-    )
-    suggestion = suggest_planning_realignment(thread, thoughts)
-
-    log = ThreadDiagnosticLog.objects.create(
-        thread=thread,
-        score=thread.continuity_score or 0.0,
-        summary=suggestion["summary"],
-        type="realignment_suggestion",
-        proposed_changes=suggestion,
-    )
-    serializer = ThreadDiagnosticLogSerializer(log)
-    return Response(serializer.data)
+    from mcp_core.tasks.async_tasks import realign_thread_task
+    task = realign_thread_task.delay(thread_id)
+    return Response({"task_id": task.id}, status=202)
 
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([UserRateThrottle])
 def merge_thread(request, id):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/merge/",
+        DeprecationWarning,
+    )
     """Merge another thread into this one."""
     thread = get_object_or_404(NarrativeThread, id=id)
     target_id = request.data.get("target_thread_id")
@@ -356,6 +441,10 @@ def merge_thread(request, id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def split_thread(request, id):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/split/",
+        DeprecationWarning,
+    )
     """Split a thread, moving selected entries to a new thread."""
     thread = get_object_or_404(NarrativeThread, id=id)
     from_index = request.data.get("from_index")
@@ -395,6 +484,10 @@ def split_thread(request, id):
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def thread_progress(request, id):
+    warnings.warn(
+        "Deprecated: use /api/v1/mcp/threads/<id>/progress/",
+        DeprecationWarning,
+    )
     """Return completion progress for a thread and trigger sync."""
     thread = get_object_or_404(NarrativeThread, id=id)
 

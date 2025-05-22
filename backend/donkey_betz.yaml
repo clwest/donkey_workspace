@@ -3637,7 +3637,7 @@ paths:
       responses:
         '204':
           description: No response body
-  /api/mcp/agent/:
+  /api/v1/mcp/agent/:
     get:
       operationId: mcp_agent_retrieve
       tags:
@@ -3652,7 +3652,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/mcp/agent/{agent_id}/reflect/:
+  /api/v1/mcp/agent/{agent_id}/reflect/:
     post:
       operationId: mcp_agent_reflect_create
       parameters:
@@ -3674,7 +3674,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/mcp/agent/{slug}/:
+  /api/v1/mcp/agent/{slug}/:
     get:
       operationId: mcp_agent_retrieve_2
       parameters:
@@ -3695,7 +3695,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/mcp/agent/projects/{project_id}/reflections/:
+  /api/v1/mcp/agent/projects/{project_id}/reflections/:
     get:
       operationId: mcp_agent_projects_reflections_retrieve
       parameters:
@@ -3717,7 +3717,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/mcp/memories/:
+  /api/v1/mcp/memories/:
     get:
       operationId: mcp_memories_retrieve
       tags:
@@ -3732,7 +3732,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/mcp/prompt-usage/:
+  /api/v1/mcp/prompt-usage/:
     post:
       operationId: mcp_prompt_usage_create
       tags:
@@ -3747,7 +3747,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/mcp/reflect/:
+  /api/v1/mcp/reflect/:
     post:
       operationId: mcp_reflect_create
       description: |-
@@ -3765,7 +3765,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/mcp/reflect/custom/:
+  /api/v1/mcp/reflect/custom/:
     post:
       operationId: mcp_reflect_custom_create
       description: Reflect only on selected memories + optional goal
@@ -3781,7 +3781,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/mcp/reflection-tags/{tag_name}/:
+  /api/v1/mcp/reflection-tags/{tag_name}/:
     get:
       operationId: mcp_reflection_tags_retrieve
       description: GET reflections that contain a specific tag.
@@ -3803,7 +3803,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/mcp/reflections/:
+  /api/v1/mcp/reflections/:
     get:
       operationId: mcp_reflections_retrieve
       description: GET endpoint to list all saved reflections.
@@ -3819,7 +3819,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/mcp/reflections/{id}/expand/:
+  /api/v1/mcp/reflections/{id}/expand/:
     post:
       operationId: mcp_reflections_expand_create
       description: 'POST: Expand an existing reflection intelligently.'
@@ -3841,7 +3841,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/mcp/reflections/{reflection_id}/:
+  /api/v1/mcp/reflections/{reflection_id}/:
     get:
       operationId: mcp_reflections_retrieve_2
       parameters:
@@ -3862,7 +3862,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/mcp/reflections/{reflection_id}/save/:
+  /api/v1/mcp/reflections/{reflection_id}/save/:
     post:
       operationId: mcp_reflections_save_create
       parameters:
@@ -3883,7 +3883,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/mcp/reflections/recent/:
+  /api/v1/mcp/reflections/recent/:
     get:
       operationId: mcp_reflections_recent_retrieve
       description: |-
@@ -3901,7 +3901,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/mcp/top-tags/:
+  /api/v1/mcp/top-tags/:
     get:
       operationId: mcp_top_tags_retrieve
       description: Return the most common tags across all reflections.
@@ -3917,7 +3917,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/memory/{id}/:
+  /api/v1/memory/{id}/:
     get:
       operationId: memory_retrieve
       parameters:
@@ -4002,7 +4002,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/memory/by-tag/{slug}/:
+  /api/v1/memory/by-tag/{slug}/:
     get:
       operationId: memory_by_tag_retrieve
       parameters:
@@ -4023,7 +4023,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/memory/chains/{id}/:
+  /api/v1/memory/chains/{id}/:
     get:
       operationId: memory_chains_retrieve
       parameters:
@@ -4045,7 +4045,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/memory/chains/create/:
+  /api/v1/memory/chains/create/:
     post:
       operationId: memory_chains_create_create
       tags:
@@ -4060,7 +4060,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/memory/chains/list/:
+  /api/v1/memory/chains/list/:
     get:
       operationId: memory_chains_list_retrieve
       tags:
@@ -4075,7 +4075,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/memory/list/:
+  /api/v1/memory/list/:
     get:
       operationId: memory_list_retrieve
       tags:
@@ -4090,7 +4090,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/memory/memory/{memory_id}/feedback/:
+  /api/v1/memory/memory/{memory_id}/feedback/:
     get:
       operationId: memory_memory_feedback_retrieve
       parameters:
@@ -4112,7 +4112,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/memory/memory/feedback/submit/:
+  /api/v1/memory/memory/feedback/submit/:
     post:
       operationId: memory_memory_feedback_submit_create
       tags:
@@ -4127,7 +4127,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/memory/recent/:
+  /api/v1/memory/recent/:
     get:
       operationId: memory_recent_retrieve
       description: Fetch the 10 most recent memories.
@@ -4143,7 +4143,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/memory/reflect/:
+  /api/v1/memory/reflect/:
     post:
       operationId: memory_reflect_create
       tags:
@@ -4158,7 +4158,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/memory/reflect-on-memories/:
+  /api/v1/memory/reflect-on-memories/:
     post:
       operationId: memory_reflect_on_memories_create
       description: Generate a reflection across multiple memories.
@@ -4174,7 +4174,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/memory/reflection/:
+  /api/v1/memory/reflection/:
     post:
       operationId: memory_reflection_create
       description: Save a new ReflectionLog from a title, summary, and selected memories.
@@ -4190,7 +4190,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/memory/replace/{id}/:
+  /api/v1/memory/replace/{id}/:
     put:
       operationId: memory_replace_update
       parameters:
@@ -4212,7 +4212,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/memory/save/:
+  /api/v1/memory/save/:
     post:
       operationId: memory_save_create
       tags:
@@ -4227,7 +4227,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/memory/update-tags/{id}/:
+  /api/v1/memory/update-tags/{id}/:
     patch:
       operationId: memory_update_tags_partial_update
       parameters:
@@ -4249,7 +4249,7 @@ paths:
       responses:
         '200':
           description: No response body
-  /api/memory/upload-voice/:
+  /api/v1/memory/upload-voice/:
     post:
       operationId: memory_upload_voice_create
       tags:

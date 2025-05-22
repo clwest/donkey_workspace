@@ -40,7 +40,7 @@ class ChatWithSceneAPITest(BaseAPITestCase):
         MemoryEntry.objects.create(
             event="e", summary="sum", assistant=self.assistant, thread=self.thread
         )
-        self.url = f"/api/assistants/{self.assistant.slug}/chat_with_scene/"
+        self.url = f"/api/v1/assistants/{self.assistant.slug}/chat_with_scene/"
 
     @patch("assistants.views.scene.call_llm")
     def test_chat_with_scene(self, mock_call):

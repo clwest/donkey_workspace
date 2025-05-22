@@ -15,7 +15,7 @@ class MythLayerJournalTest(BaseAPITestCase):
         self.assistant = Assistant.objects.create(name="Mythic", specialty="magic")
 
     def test_create_and_get_myth_layer(self):
-        url = f"/api/assistants/{self.assistant.slug}/myth-layer/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/myth-layer/"
         resp = self.client.post(
             url,
             {"origin_story": "Born", "legendary_traits": {"epithet": "Hero"}},

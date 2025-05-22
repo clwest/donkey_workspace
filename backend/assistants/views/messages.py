@@ -2,7 +2,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
-from assistants.models import Assistant, AssistantMessage, ChatSession, MemoryEntry
+from assistants.models import Assistant, AssistantMessage, ChatSession
+from memory.services import MemoryService
 from assistants.serializers import AssistantMessageSerializer
 
 @api_view(["POST"])
@@ -22,7 +23,7 @@ def send_message(request):
         session = ChatSession.objects.filter(session_id=session_id).first()
     related_memory = None
     if related_memory_id:
-        related_memory = MemoryEntry.objects.filter(id=related_memory_id).first()
+        related_memory = MemoryService.get_entry(related_memory_id)
     msg = AssistantMessage.objects.create(
         sender=sender,
         recipient=recipient,
