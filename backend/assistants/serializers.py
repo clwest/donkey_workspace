@@ -101,6 +101,26 @@ class DelegationEventSerializer(serializers.ModelSerializer):
         ]
 
 
+class RecentDelegationEventSerializer(serializers.ModelSerializer):
+    """Lightweight serializer used for the recent delegations feed."""
+
+    parent = serializers.CharField(source="parent_assistant.name", read_only=True)
+    child = serializers.CharField(source="child_assistant.name", read_only=True)
+    child_slug = serializers.CharField(source="child_assistant.slug", read_only=True)
+
+    class Meta:
+        model = DelegationEvent
+        fields = [
+            "id",
+            "parent",
+            "child",
+            "child_slug",
+            "reason",
+            "summary",
+            "created_at",
+        ]
+
+
 class SessionHandoffSerializer(serializers.ModelSerializer):
     from_assistant = serializers.CharField(source="from_assistant.name", read_only=True)
     to_assistant = serializers.CharField(source="to_assistant.name", read_only=True)
