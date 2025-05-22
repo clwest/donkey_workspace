@@ -22,7 +22,6 @@ from tts.urls import router as tts_router
 from story.urls import router as story_router
 from videos.urls import router as videos_router
 from images.urls import router as images_router
-from project.urls import router as project_router
 from characters.urls import router as characters_router
 from storyboard.urls import router as storyboard_router
 from simulation.urls import router as simulation_router
@@ -40,7 +39,6 @@ extend_router("tts", tts_router)
 extend_router("stories", story_router)
 extend_router("videos", videos_router)
 extend_router("images", images_router)
-extend_router("projects", project_router)
 extend_router("characters", characters_router)
 extend_router("storyboard", storyboard_router)
 extend_router("simulation", simulation_router)
@@ -58,7 +56,7 @@ urlpatterns = [
     path("api/stories/", include("story.urls")),
     path("api/videos/", include("videos.urls")),
     path("api/images/", include("images.urls")),
-    path("api/projects/", include("project.urls")),
+    path("", include("project.urls")),
     path("api/characters/", include("characters.urls")),
     path("api/users/", include("accounts.urls")),
     path("api/storyboard/", include("storyboard.urls")),
