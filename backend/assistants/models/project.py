@@ -459,3 +459,6 @@ class ProjectPlanningLog(models.Model):
         ordering = ["-timestamp"]
 
     def __str__(self):
+        return (
+            f"{self.project.title}: {self.event_type} - {self.summary}"
+        )  # pragma: no cover - display helper
