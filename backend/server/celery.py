@@ -14,12 +14,10 @@ load_dotenv()
 from celery import Celery
 from celery.schedules import crontab
 from django.conf import settings
-import django
 
 
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
-django.setup()
 
 app = Celery("backend")
 
