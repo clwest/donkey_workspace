@@ -46,10 +46,10 @@
 
 ### Reflect on Assistant
 
-- **URL**: `/api/assistants/thoughts/reflect_on_assistant/`
+- **URL**: `/api/assistants/<slug>/reflect-now/`
 - **Method**: `POST`
-- **View**: `reflect_on_assistant`
-- **Frontend**: potentially `/assistants/:slug/reflect` or system tools
+- **View**: `assistant_reflect_now`
+- **Frontend**: page `/assistants/:slug/reflect`
 
 ---
 

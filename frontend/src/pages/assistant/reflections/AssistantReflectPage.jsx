@@ -13,7 +13,7 @@ export default function AssistantReflectPage() {
   const reflect = async () => {
     setLoading(true);
     try {
-      const res = await apiFetch(`/assistants/${slug}/reflect/`, {
+      const res = await apiFetch(`/assistants/${slug}/reflect-now/`, {
         method: "POST",
       });
       
