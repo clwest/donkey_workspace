@@ -2,6 +2,7 @@
 
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import apiFetch from "../../../utils/apiClient";
 
 export default function AssistantReflectPage() {
@@ -21,6 +22,11 @@ export default function AssistantReflectPage() {
       setReflection(res);
     } catch (err) {
       console.error("Reflection failed", err);
+      const detail = err?.statusText || err?.message;
+      const msg = detail
+        ? `Reflection request failed: ${detail}`
+        : "Reflection request failed";
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
