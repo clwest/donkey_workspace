@@ -45,6 +45,9 @@ from agents.models import (
     AssistantPolity,
     RitualElection,
     LegacyRoleBinding,
+    MythicArbitrationCase,
+    TreatyBreachRitual,
+    SymbolicSanction,
 )
 from agents.serializers import (
     AgentSerializer,
@@ -86,6 +89,9 @@ from agents.serializers import (
     AssistantPolitySerializer,
     RitualElectionSerializer,
     LegacyRoleBindingSerializer,
+    MythicArbitrationCaseSerializer,
+    TreatyBreachRitualSerializer,
+    SymbolicSanctionSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -795,3 +801,39 @@ def legacy_roles(request):
     serializer.is_valid(raise_exception=True)
     role = serializer.save()
     return Response(LegacyRoleBindingSerializer(role).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def arbitration_cases(request):
+    if request.method == "GET":
+        cases = MythicArbitrationCase.objects.all().order_by("-created_at")
+        return Response(MythicArbitrationCaseSerializer(cases, many=True).data)
+
+    serializer = MythicArbitrationCaseSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    case = serializer.save()
+    return Response(MythicArbitrationCaseSerializer(case).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def treaty_breaches(request):
+    if request.method == "GET":
+        breaches = TreatyBreachRitual.objects.all().order_by("-created_at")
+        return Response(TreatyBreachRitualSerializer(breaches, many=True).data)
+
+    serializer = TreatyBreachRitualSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    breach = serializer.save()
+    return Response(TreatyBreachRitualSerializer(breach).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def symbolic_sanctions(request):
+    if request.method == "GET":
+        sanctions = SymbolicSanction.objects.all().order_by("-created_at")
+        return Response(SymbolicSanctionSerializer(sanctions, many=True).data)
+
+    serializer = SymbolicSanctionSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    sanction = serializer.save()
+    return Response(SymbolicSanctionSerializer(sanction).data, status=201)

@@ -1459,3 +1459,60 @@ class BeliefEnforcementScore(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"{self.assistant.name} → {self.codex.title}"
+
+
+class MythicArbitrationCase(models.Model):
+    """Formal proceedings for resolving symbolic disputes."""
+
+    conflict_treaty = models.ForeignKey(MemoryTreaty, on_delete=models.CASCADE)
+    involved_polities = models.ManyToManyField(AssistantPolity)
+    initiating_polity = models.ForeignKey(
+        AssistantPolity,
+        related_name="arbitration_initiator",
+        on_delete=models.CASCADE,
+    )
+    memory_evidence = models.ManyToManyField(SwarmMemoryEntry)
+    resolution_summary = models.TextField(blank=True)
+    verdict = models.CharField(max_length=50, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Arbitration {self.id}"
+
+
+class TreatyBreachRitual(models.Model):
+    """Ceremonial log triggered by treaty violations."""
+
+    broken_treaty = models.ForeignKey(MemoryTreaty, on_delete=models.CASCADE)
+    violating_polity = models.ForeignKey(AssistantPolity, on_delete=models.CASCADE)
+    breach_reason = models.TextField()
+    triggered_ritual = models.CharField(max_length=100)
+    reflective_outcome = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Breach {self.id}"
+
+
+class SymbolicSanction(models.Model):
+    """Punishment or restriction applied after arbitration."""
+
+    applied_to = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    symbolic_penalty = models.TextField()
+    duration_days = models.IntegerField()
+    lifted = models.BooleanField(default=False)
+    reason = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Sanction {self.id}"
