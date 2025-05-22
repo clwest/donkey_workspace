@@ -1,8 +1,10 @@
 from rest_framework import serializers
-from agents.models import (
+from agents.models.core import (
     Agent,
     AgentFeedbackLog,
     AgentCluster,
+)
+from agents.models.lore import (
     SwarmMemoryEntry,
     SwarmJournalEntry,
     LoreEpoch,
@@ -55,7 +57,6 @@ from agents.models import (
     LegacyTokenVault,
 )
 from assistants.models import Assistant, AssistantCouncil
-from intel_core.serializers import DocumentSerializer
 
 
 class AgentSerializer(serializers.ModelSerializer):

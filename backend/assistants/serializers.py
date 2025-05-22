@@ -1,23 +1,13 @@
 from rest_framework import serializers
-from .models import (
+from .models.assistant import (
     Assistant,
     AssistantMythLayer,
-    AssistantThoughtLog,
-    AssistantProject,
-    AssistantObjective,
-    AssistantTask,
-    AssistantProjectRole,
-    AssistantReflectionLog,
-    AssistantPromptLink,
-    AssistantMemoryChain,
-    AssistantReflectionInsight,
     AssistantChatMessage,
     AssistantMessage,
     ChatSession,
     AssistantNextAction,
     ProjectPlanningLog,
     SpecializationDriftLog,
-    EmotionalResonanceLog,
     CollaborationLog,
     DebateSession,
     DebateThoughtLog,
@@ -34,7 +24,6 @@ from .models import (
     CouncilThought,
     CouncilOutcome,
     OracleLayer,
-
     ProphecyNode,
     AssistantGuild,
     AssistantCivilization,
@@ -43,8 +32,21 @@ from .models import (
     DecisionFramework,
     PurposeRouteMap,
     AutonomyNarrativeModel,
-
 )
+from .models.project import (
+    AssistantProject,
+    AssistantObjective,
+    AssistantTask,
+    AssistantProjectRole,
+    AssistantPromptLink,
+    AssistantMemoryChain,
+)
+from .models.reflection import (
+    AssistantReflectionLog,
+    AssistantReflectionInsight,
+)
+from .models.thoughts import AssistantThoughtLog, EmotionalResonanceLog
+
 
 from project.models import (
     Project,
