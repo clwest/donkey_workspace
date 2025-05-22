@@ -51,6 +51,9 @@ from agents.models import (
     SwarmTribunalCase,
     RestorativeMemoryAction,
     ReputationRegenerationEvent,
+    MythCycleBinding,
+    ResurrectionTemplate,
+    BeliefContinuityRitual,
 )
 from agents.serializers import (
     AgentSerializer,
@@ -98,6 +101,9 @@ from agents.serializers import (
     SwarmTribunalCaseSerializer,
     RestorativeMemoryActionSerializer,
     ReputationRegenerationEventSerializer,
+    MythCycleBindingSerializer,
+    ResurrectionTemplateSerializer,
+    BeliefContinuityRitualSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -885,3 +891,39 @@ def reputation_regeneration_events(request):
         ReputationRegenerationEventSerializer(event).data,
         status=201,
     )
+
+
+@api_view(["GET", "POST"])
+def myth_cycles(request):
+    if request.method == "GET":
+        cycles = MythCycleBinding.objects.all().order_by("-created_at")
+        return Response(MythCycleBindingSerializer(cycles, many=True).data)
+
+    serializer = MythCycleBindingSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    cycle = serializer.save()
+    return Response(MythCycleBindingSerializer(cycle).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def resurrection_templates(request):
+    if request.method == "GET":
+        templates = ResurrectionTemplate.objects.all().order_by("-created_at")
+        return Response(ResurrectionTemplateSerializer(templates, many=True).data)
+
+    serializer = ResurrectionTemplateSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    template = serializer.save()
+    return Response(ResurrectionTemplateSerializer(template).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def belief_continuity(request):
+    if request.method == "GET":
+        rituals = BeliefContinuityRitual.objects.all().order_by("-created_at")
+        return Response(BeliefContinuityRitualSerializer(rituals, many=True).data)
+
+    serializer = BeliefContinuityRitualSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    ritual = serializer.save()
+    return Response(BeliefContinuityRitualSerializer(ritual).data, status=201)

@@ -1569,3 +1569,65 @@ class ReputationRegenerationEvent(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Rebirth for {self.assistant.name}"
+
+
+class MythCycleBinding(models.Model):
+    """Track assistant roles across recurring mythic cycles."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    cycle_name = models.CharField(max_length=150)
+    related_myth = models.ForeignKey(TranscendentMyth, on_delete=models.CASCADE)
+    narrative_role = models.CharField(max_length=100)
+    cycle_phase = models.CharField(max_length=50)  # origin, death, rebirth, awakening
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"{self.assistant.name} - {self.cycle_name}"
+
+
+class ResurrectionTemplate(models.Model):
+    """Reusable blueprint for assistant rebirth."""
+
+    title = models.CharField(max_length=150)
+    base_traits = models.JSONField()
+    symbolic_tags = models.JSONField()
+    seed_memories = models.ManyToManyField(SwarmMemoryEntry)
+    recommended_archetype = models.CharField(max_length=100)
+    created_by = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.SET_NULL, null=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.title
+
+
+class BeliefContinuityRitual(models.Model):
+    """Symbolic lineage transfer between assistants."""
+
+    outgoing_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        related_name="legacy_transmitter",
+        on_delete=models.CASCADE,
+    )
+    incoming_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        related_name="legacy_receiver",
+        on_delete=models.CASCADE,
+    )
+    values_transferred = models.JSONField()
+    memory_reference = models.ManyToManyField(SwarmMemoryEntry)
+    ritual_type = models.CharField(max_length=50)  # invocation, echo, fusion
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"{self.outgoing_assistant.name} -> {self.incoming_assistant.name}"
