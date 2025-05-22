@@ -28,7 +28,7 @@ class UpdateTaskStatusAPITest(BaseAPITestCase):
         )
 
     def test_update_status(self):
-        url = f"/api/assistants/tasks/{self.task.id}/update_status/"
+        url = f"/api/v1/assistants/tasks/{self.task.id}/update_status/"
         resp = self.client.patch(url, {"status": "completed"}, format="json")
         self.assertEqual(resp.status_code, 200)
         self.task.refresh_from_db()

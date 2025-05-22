@@ -14,13 +14,13 @@ class PrimaryAssistantActionsAPITest(BaseAPITestCase):
         self.memory = MemoryEntry.objects.create(event="hello", assistant=self.primary)
 
     def test_primary_reflect_now(self):
-        url = "/api/assistants/primary/reflect-now/"
+        url = "/api/v1/assistants/primary/reflect-now/"
         resp = self.client.post(url, {"memory_id": str(self.memory.id)}, format="json")
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(AssistantThoughtLog.objects.filter(assistant=self.primary).count(), 1)
 
     def test_primary_spawn_agent(self):
-        url = "/api/assistants/primary/spawn-agent/"
+        url = "/api/v1/assistants/primary/spawn-agent/"
         resp = self.client.post(url, {"memory_id": str(self.memory.id), "reason": "test"}, format="json")
         self.assertEqual(resp.status_code, 201)
         self.assertEqual(DelegationEvent.objects.count(), 1)

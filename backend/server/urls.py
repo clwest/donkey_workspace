@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.routers import DefaultRouter
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import (
@@ -17,9 +18,37 @@ from story.views import storyboard_list
 from mcp_core.views import threading as thread_views
 from agents.views import agents as agent_views
 
+from tts.urls import router as tts_router
+from story.urls import router as story_router
+from videos.urls import router as videos_router
+from images.urls import router as images_router
+from project.urls import router as project_router
+from characters.urls import router as characters_router
+from storyboard.urls import router as storyboard_router
+from simulation.urls import router as simulation_router
+
+api_router = DefaultRouter()
+
+
+def extend_router(prefix: str, router: DefaultRouter) -> None:
+    for url_prefix, viewset, basename in router.registry:
+        full_prefix = f"{prefix}/{url_prefix}" if url_prefix else prefix
+        api_router.register(full_prefix, viewset, basename)
+
+
+extend_router("tts", tts_router)
+extend_router("stories", story_router)
+extend_router("videos", videos_router)
+extend_router("images", images_router)
+extend_router("projects", project_router)
+extend_router("characters", characters_router)
+extend_router("storyboard", storyboard_router)
+extend_router("simulation", simulation_router)
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/v1/", include(api_router.urls)),
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
@@ -40,6 +69,7 @@ urlpatterns = [
     path("api/prompts/", include("prompts.urls")),
     path("api/v1/mcp/", include("mcp_core.urls")),
     path("api/v1/memory/", include("memory.urls")),
+
     path("api/mcp/", include("mcp_core.urls")),
     path("api/memory/", include("memory.urls")),
     path("api/shared-memory-pools/", include("memory.shared_urls")),
@@ -68,6 +98,11 @@ urlpatterns = [
         "api/threads/<uuid:thread_id>/replay/",
         thread_views.thread_replay,
         name="thread-replay",
+    ),
+    path(
+        "api/v1/threads/<uuid:thread_id>/replay/",
+        thread_views.thread_replay,
+        name="thread-replay-v1",
     ),
     # Schema and Docs
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),

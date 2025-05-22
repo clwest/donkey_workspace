@@ -4,6 +4,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status, viewsets
 import warnings
+
 from assistants.models import AssistantReflectionLog, Assistant
 from assistants.serializers import AssistantReflectionLogSerializer
 from project.models import Project
@@ -47,6 +48,7 @@ class ReflectionViewSet(viewsets.ModelViewSet):
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([UserRateThrottle])
 def reflect_on_memories(request):
     warnings.warn(
         "Deprecated: use /api/v1/mcp/reflections/reflect/",
@@ -55,29 +57,11 @@ def reflect_on_memories(request):
     target_type = request.data.get("target_type")
     since = request.data.get("since")
     limit = int(request.data.get("limit", 10))
-    agent = AgentReflectionEngine(user=request.user)
-    memories = agent.reflect_on(target_type=target_type, since=since, limit=limit)
-    if not memories:
-        return Response({"error": "No important memories found."}, status=400)
-    reflection_out = agent.get_structured_reflection(memories)
-    llm_summary = agent.get_llm_summary(memories)
-    mood = agent.analyze_mood(llm_summary)
-    reflection_data = json.loads(reflection_out)
-    reflection = AssistantReflectionLog.objects.create(
-        title=reflection_data.get("title", "Untitled Reflection"),
-        summary=reflection_data.get("summary", ""),
-        llm_summary=llm_summary,
-        raw_prompt=agent.summarize_reflection(memories),
-        mood=mood,
-    )
-    if hasattr(reflection, "related_memories"):
-        reflection.related_memories.set(memories)
-    tag_names = reflection_data.get("tags", [])
-    if tag_names:
-        tags = Tag.objects.filter(name__in=tag_names)
-        reflection.tags.set(tags)
-    save_embedding(reflection, embedding=[])
-    return Response(ReflectionLogSerializer(reflection).data, status=200)
+    from mcp_core.tasks.async_tasks import reflect_on_memories_task
+
+    task = reflect_on_memories_task.delay(request.user.id if request.user else None, target_type, since, limit)
+    return Response({"task_id": task.id}, status=202)
+
 
 
 @api_view(["POST"])
@@ -101,12 +85,11 @@ def reflect_on_custom_memories(request):
     save_embedding(reflection, embedding=[])
     return Response(ReflectionLogSerializer(reflection).data, status=200)
 
-
-@api_view(["GET"])
-@permission_classes([AllowAny])
-def list_reflections(request):
-    reflections = AssistantReflectionLog.objects.order_by("-created_at")
-    return Response(ReflectionLogSerializer(reflections, many=True).data)
+class ReflectionListView(generics.ListAPIView):
+    queryset = AssistantReflectionLog.objects.order_by("-created_at")
+    serializer_class = ReflectionLogSerializer
+    permission_classes = [AllowAny]
+    pagination_class = PageNumberPagination
 
 
 @api_view(["GET"])
@@ -268,3 +251,15 @@ def grouped_reflections_view(request):
         )
 
     return Response({"groups": response_data})
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def task_status(request, task_id):
+    from celery.result import AsyncResult
+
+    res = AsyncResult(task_id)
+    data = {"task_id": task_id, "status": res.status}
+    if res.status == "SUCCESS":
+        data["result"] = res.result
+    return Response(data)

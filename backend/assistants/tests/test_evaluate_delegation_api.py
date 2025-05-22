@@ -14,7 +14,7 @@ class EvaluateDelegationAPITest(BaseAPITestCase):
             name="Parent", specialty="summarization", delegation_threshold_tokens=30
         )
         self.other = Assistant.objects.create(name="Owl", specialty="summarization")
-        self.url = f"/api/assistants/{self.parent.slug}/evaluate-delegation/"
+        self.url = f"/api/v1/assistants/{self.parent.slug}/evaluate-delegation/"
 
     def test_token_count_recommends_existing(self):
         resp = self.client.post(self.url, {"token_count": 40})

@@ -14,7 +14,7 @@ class PromptClarificationFlowTest(BaseAPITestCase):
         self.assistant = Assistant.objects.create(name="A", specialty="s", system_prompt=self.prompt)
 
     def test_clarify_prompt_endpoint(self):
-        url = f"/api/assistants/{self.assistant.slug}/clarify_prompt/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/clarify_prompt/"
         resp = self.client.post(url, {"text": "unhelpful"}, format="json")
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(PromptMutationLog.objects.filter(original_prompt=self.prompt).exists())

@@ -14,7 +14,7 @@ class ToolFallbackDelegationTest(BaseAPITestCase):
         self.client.force_authenticate(self.user)
         self.assistant = Assistant.objects.create(name="Helper", specialty="test")
         Tool.objects.create(name="Echo", slug="echo")
-        self.url = f"/api/assistants/{self.assistant.slug}/chat/"
+        self.url = f"/api/v1/assistants/{self.assistant.slug}/chat/"
 
     @patch("assistants.views.assistants.spawn_delegated_assistant")
     @patch("assistants.views.assistants.reflect_on_tool_output")

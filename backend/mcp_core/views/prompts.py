@@ -1,7 +1,8 @@
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.throttling import UserRateThrottle
 from prompts.models import PromptUsageTemplate
 from prompts.serializers import PromptUsageTemplateSerializer
 from mcp_core.serializers import PromptUsageLogSerializer
@@ -39,6 +40,7 @@ def prompt_template_detail(request, pk):
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
+@throttle_classes([UserRateThrottle])
 def log_prompt_usage_view(request):
     print("Incoming Prompt Usage Payload:", request.data)
     serializer = PromptUsageLogSerializer(data=request.data)

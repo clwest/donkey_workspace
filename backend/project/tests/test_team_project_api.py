@@ -34,7 +34,7 @@ class ProjectTeamAPITest(APITestCase):
         self.project.save()
 
     def test_assign_role_endpoint(self):
-        url = f"/api/projects/{self.project.id}/assign_role/"
+        url = f"/api/v1/projects/{self.project.id}/assign_role/"
         resp = self.client.post(
             url,
             {"assistant_id": str(self.assistant.id), "role": "researcher"},

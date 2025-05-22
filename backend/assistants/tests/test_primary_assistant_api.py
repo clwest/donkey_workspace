@@ -14,7 +14,7 @@ class PrimaryAssistantAPITest(BaseAPITestCase):
     def test_primary_endpoint_returns_assistant(self):
         a = Assistant.objects.create(name="Boss", specialty="manage", is_primary=True)
         AssistantThoughtLog.objects.create(assistant=a, thought="hi")
-        resp = self.client.get("/api/assistants/primary/")
+        resp = self.client.get("/api/v1/assistants/primary/")
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         self.assertEqual(data["id"], str(a.id))
@@ -22,7 +22,7 @@ class PrimaryAssistantAPITest(BaseAPITestCase):
 
     def test_no_primary_returns_404(self):
         Assistant.objects.create(name="A1", specialty="s")
-        resp = self.client.get("/api/assistants/primary/")
+        resp = self.client.get("/api/v1/assistants/primary/")
         self.assertEqual(resp.status_code, 404)
 
     def test_unique_primary_validation(self):

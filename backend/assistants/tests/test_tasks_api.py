@@ -25,7 +25,7 @@ class ProjectTaskAPITest(BaseAPITestCase):
         )
 
     def test_create_task(self):
-        url = f"/api/assistants/projects/{self.assistant_project.id}/tasks/"
+        url = f"/api/v1/assistants/projects/{self.assistant_project.id}/tasks/"
         payload = {
             "title": "Task 1",
             "notes": "Some notes",

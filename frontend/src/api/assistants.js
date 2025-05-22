@@ -1,8 +1,9 @@
 // frontend/api/assistants.js
+import { ASSISTANTS_API } from "../config/api";
 
 export async function generateAssistantThought(slug) {
   const res = await fetch(
-    `http://localhost:8000/api/assistants/${slug}/log_thought/`,
+    `${ASSISTANTS_API}/${slug}/log_thought/`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -18,7 +19,7 @@ export async function generateAssistantThought(slug) {
 
 export async function mutateThought(id, style = "clarify") {
   const res = await fetch(
-    `http://localhost:8000/api/assistants/thoughts/${id}/mutate/`,
+    `${ASSISTANTS_API}/thoughts/${id}/mutate/`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -34,7 +35,7 @@ export async function mutateThought(id, style = "clarify") {
 }
 export async function planProjectFromMemory(slug, body) {
   const res = await fetch(
-    `http://localhost:8000/api/assistants/${slug}/memory-to-project/`,
+    `${ASSISTANTS_API}/${slug}/memory-to-project/`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -50,7 +51,7 @@ export async function planProjectFromMemory(slug, body) {
 
 export async function suggestDelegation(slug, body) {
   const res = await fetch(
-    `http://localhost:8000/api/assistants/${slug}/suggest-delegation/`,
+    `${ASSISTANTS_API}/${slug}/suggest-delegation/`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -65,7 +66,7 @@ export async function suggestDelegation(slug, body) {
 }
 
 export async function suggestAssistant(body) {
-  const res = await fetch("http://localhost:8000/api/assistants/suggest/", {
+  const res = await fetch(`${ASSISTANTS_API}/suggest/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -79,7 +80,7 @@ export async function suggestAssistant(body) {
 
 export async function clarifyPrompt(slug, text) {
   const res = await fetch(
-    `http://localhost:8000/api/assistants/${slug}/clarify_prompt/`,
+    `${ASSISTANTS_API}/${slug}/clarify_prompt/`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -95,7 +96,7 @@ export async function clarifyPrompt(slug, text) {
 
 export async function fetchFailureLog(slug) {
   const res = await fetch(
-    `http://localhost:8000/api/assistants/${slug}/failure_log/`,
+    `${ASSISTANTS_API}/${slug}/failure_log/`,
   );
   if (!res.ok) {
     throw new Error("Failed to load failure log");
@@ -105,7 +106,7 @@ export async function fetchFailureLog(slug) {
 
 export async function runDriftCheck(slug) {
   const res = await fetch(
-    `http://localhost:8000/api/assistants/${slug}/drift-check/`,
+    `${ASSISTANTS_API}/${slug}/drift-check/`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -121,7 +122,7 @@ export async function runDriftCheck(slug) {
 
 export async function runSelfAssessment(slug) {
   const res = await fetch(
-    `http://localhost:8000/api/assistants/${slug}/self-assess/`,
+    `${ASSISTANTS_API}/${slug}/self-assess/`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -136,7 +137,7 @@ export async function runSelfAssessment(slug) {
 
 export async function recoverAssistant(slug) {
   const res = await fetch(
-    `http://localhost:8000/api/assistants/${slug}/recover/`,
+    `${ASSISTANTS_API}/${slug}/recover/`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -151,7 +152,7 @@ export async function recoverAssistant(slug) {
 
 export async function regeneratePlan(slug, body = {}) {
   const res = await fetch(
-    `http://localhost:8000/api/assistants/${slug}/regenerate_plan/`,
+    `${ASSISTANTS_API}/${slug}/regenerate_plan/`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -167,7 +168,7 @@ export async function regeneratePlan(slug, body = {}) {
 
 export async function suggestSwitch(sessionId) {
   const res = await fetch(
-    "http://localhost:8000/api/assistants/suggest_switch/",
+    `${ASSISTANTS_API}/suggest_switch/`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -186,7 +187,7 @@ export async function switchAssistant(
   assistantSlug,
   reason = "switch",
 ) {
-  const res = await fetch("http://localhost:8000/api/assistants/switch/", {
+  const res = await fetch(`${ASSISTANTS_API}/switch/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -204,7 +205,7 @@ export async function switchAssistant(
 
 export async function evaluateCollaboration(slug, body) {
   const res = await fetch(
-    `http://localhost:8000/api/assistants/${slug}/evaluate-collaboration/`,
+    `${ASSISTANTS_API}/${slug}/evaluate-collaboration/`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -220,7 +221,7 @@ export async function evaluateCollaboration(slug, body) {
 
 export async function evaluateContinuity(slug, body = {}) {
   const res = await fetch(
-    `http://localhost:8000/api/assistants/${slug}/evaluate-continuity/`,
+    `${ASSISTANTS_API}/${slug}/evaluate-continuity/`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -236,7 +237,7 @@ export async function evaluateContinuity(slug, body = {}) {
 
 export async function fetchCollaborationLogs(projectId) {
   const res = await fetch(
-    `http://localhost:8000/api/assistants/projects/${projectId}/collaboration_logs/`,
+    `${ASSISTANTS_API}/projects/${projectId}/collaboration_logs/`,
   );
   if (!res.ok) {
     throw new Error("Failed to load collaboration logs");
@@ -246,7 +247,7 @@ export async function fetchCollaborationLogs(projectId) {
 
 export async function fetchCollaborationProfile(slug) {
   const res = await fetch(
-    `http://localhost:8000/api/assistants/${slug}/collaboration_profile/`,
+    `${ASSISTANTS_API}/${slug}/collaboration_profile/`,
   );
   if (!res.ok) {
     throw new Error("Failed to load collaboration profile");
@@ -256,7 +257,7 @@ export async function fetchCollaborationProfile(slug) {
 
 export async function planFromThread(slug, body) {
   const res = await fetch(
-    `http://localhost:8000/api/assistants/${slug}/plan-from-thread/`,
+    `${ASSISTANTS_API}/${slug}/plan-from-thread/`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -272,7 +273,7 @@ export async function planFromThread(slug, body) {
 
 export async function assignTrainingDocuments(slug, agentId, documentIds) {
   const res = await fetch(
-    `http://localhost:8000/api/assistants/${slug}/assign-training/`,
+    `${ASSISTANTS_API}/${slug}/assign-training/`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -288,7 +289,7 @@ export async function assignTrainingDocuments(slug, agentId, documentIds) {
 
 export async function evaluateAgentTraining(slug, agentId) {
   const res = await fetch(
-    `http://localhost:8000/api/assistants/${slug}/evaluate-agent/${agentId}/`,
+    `${ASSISTANTS_API}/${slug}/evaluate-agent/${agentId}/`,
   );
   if (!res.ok) {
     throw new Error("Failed to evaluate agent training");
