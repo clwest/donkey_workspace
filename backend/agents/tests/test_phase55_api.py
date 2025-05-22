@@ -23,7 +23,7 @@ class Phase55APITest(APITestCase):
 
     def test_create_myth_cycle_binding(self):
         resp = self.client.post(
-            "/api/agents/myth-cycles/",
+            "/api/v1/agents/myth-cycles/",
             {
                 "assistant": self.assistant.id,
                 "cycle_name": "Legend",
@@ -34,12 +34,12 @@ class Phase55APITest(APITestCase):
             format="json",
         )
         self.assertEqual(resp.status_code, 201)
-        list_resp = self.client.get("/api/agents/myth-cycles/")
+        list_resp = self.client.get("/api/v1/agents/myth-cycles/")
         self.assertEqual(len(list_resp.json()), 1)
 
     def test_create_resurrection_template(self):
         resp = self.client.post(
-            "/api/agents/resurrection-templates/",
+            "/api/v1/agents/resurrection-templates/",
             {
                 "title": "Return",
                 "base_traits": {"courage": 1},
@@ -51,12 +51,12 @@ class Phase55APITest(APITestCase):
             format="json",
         )
         self.assertEqual(resp.status_code, 201)
-        list_resp = self.client.get("/api/agents/resurrection-templates/")
+        list_resp = self.client.get("/api/v1/agents/resurrection-templates/")
         self.assertEqual(len(list_resp.json()), 1)
 
     def test_create_belief_continuity(self):
         resp = self.client.post(
-            "/api/agents/belief-continuity/",
+            "/api/v1/agents/belief-continuity/",
             {
                 "outgoing_assistant": self.assistant.id,
                 "incoming_assistant": self.assistant2.id,
@@ -67,5 +67,5 @@ class Phase55APITest(APITestCase):
             format="json",
         )
         self.assertEqual(resp.status_code, 201)
-        list_resp = self.client.get("/api/agents/belief-continuity/")
+        list_resp = self.client.get("/api/v1/agents/belief-continuity/")
         self.assertEqual(len(list_resp.json()), 1)

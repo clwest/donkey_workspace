@@ -33,6 +33,7 @@ def reflect_on_memories(request):
     return Response({"task_id": task.id}, status=202)
 
 
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def reflect_on_custom_memories(request):
@@ -53,7 +54,6 @@ def reflect_on_custom_memories(request):
         reflection.related_memories.set(memories)
     save_embedding(reflection, embedding=[])
     return Response(ReflectionLogSerializer(reflection).data, status=200)
-
 
 class ReflectionListView(generics.ListAPIView):
     queryset = AssistantReflectionLog.objects.order_by("-created_at")
@@ -217,3 +217,15 @@ def grouped_reflections_view(request):
         )
 
     return Response({"groups": response_data})
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def task_status(request, task_id):
+    from celery.result import AsyncResult
+
+    res = AsyncResult(task_id)
+    data = {"task_id": task_id, "status": res.status}
+    if res.status == "SUCCESS":
+        data["result"] = res.result
+    return Response(data)

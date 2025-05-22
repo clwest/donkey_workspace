@@ -21,7 +21,7 @@ class SuggestDelegateRouterAPITest(BaseAPITestCase):
         self.c2.capability_embedding = [0.5] * EMBEDDING_LENGTH
         self.c2.save()
         self.mem = MemoryEntry.objects.create(event="github issue triage", assistant=self.parent)
-        self.url = "/api/assistants/suggest_delegate/"
+        self.url = "/api/v1/assistants/suggest_delegate/"
 
     @patch("assistants.utils.delegation_router.get_embedding_for_text")
     def test_returns_ranked(self, mock_emb):

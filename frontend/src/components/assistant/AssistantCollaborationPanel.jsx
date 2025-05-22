@@ -4,6 +4,7 @@ import {
   fetchCollaborationLogs,
   fetchCollaborationProfile,
 } from "../../api/assistants";
+import PropTypes from "prop-types";
 
 export default function AssistantCollaborationPanel({
   assistantSlug,
@@ -57,3 +58,8 @@ export default function AssistantCollaborationPanel({
     </div>
   );
 }
+
+AssistantCollaborationPanel.propTypes = {
+  assistantSlug: PropTypes.string.isRequired,
+  projectId: PropTypes.string,
+};

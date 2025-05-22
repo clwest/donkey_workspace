@@ -26,7 +26,7 @@ class DelegateObjectiveAPITest(BaseAPITestCase):
         )
 
     def test_delegate_from_objective(self):
-        url = f"/api/assistants/{self.assistant.slug}/delegate/{self.objective.id}/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/delegate/{self.objective.id}/"
         resp = self.client.post(url, {}, format="json")
         self.assertEqual(resp.status_code, 201)
         self.assertEqual(DelegationEvent.objects.count(), 1)

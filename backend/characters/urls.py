@@ -1,3 +1,5 @@
+import warnings
+warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
 # characters/urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter

@@ -6,4 +6,6 @@ class McpCoreConfig(AppConfig):
     name = "mcp_core"
 
     def ready(self):
+
         from . import signals  # noqa
+

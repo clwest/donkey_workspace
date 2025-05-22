@@ -9,3 +9,4 @@ def clear_thread_cache(sender, instance, **kwargs):
     cache.delete(f"thread_replay_{instance.id}_0")
     cache.delete(f"thread_replay_{instance.id}_1")
     cache.delete("overview_threads")
+

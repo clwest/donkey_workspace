@@ -1,3 +1,5 @@
+import warnings
+warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
 from django.urls import path
 
 from uuid import UUID
@@ -134,5 +136,7 @@ urlpatterns = [
         narrative_events.summarize_event,
         name="summarize-narrative-event",
     ),
+
     path("tasks/<task_id>/status/", task_status.TaskStatusView.as_view()),
+
 ]

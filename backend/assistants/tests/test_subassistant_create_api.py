@@ -8,7 +8,7 @@ class SubAssistantCreateAPITest(BaseAPITestCase):
     def setUp(self):
         self.parent = Assistant.objects.create(name="Parent", specialty="p")
         self.doc = Document.objects.create(title="Doc", content="c")
-        self.url = f"/api/assistants/{self.parent.id}/sub-assistants/"
+        self.url = f"/api/v1/assistants/{self.parent.id}/sub-assistants/"
 
     def test_create_subassistant(self):
         resp = self.client.post(

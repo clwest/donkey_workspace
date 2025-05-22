@@ -13,9 +13,12 @@ from mcp_core.utils.devdoc_reflection import (
 from django.shortcuts import get_object_or_404
 from memory.models import MemoryEntry
 import logging
+from rest_framework import generics
+from rest_framework.pagination import PageNumberPagination
 
 
 logger = logging.getLogger("embeddings")
+
 
 
 class DevDocListView(generics.ListAPIView):

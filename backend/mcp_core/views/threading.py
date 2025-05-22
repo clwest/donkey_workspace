@@ -149,6 +149,10 @@ def narrative_thread_detail(request, id):
 @permission_classes([AllowAny])
 def thread_summary(request, id):
     """Return ordered summary of a thread's memories, thoughts, reflections."""
+    cache_key = f"thread_summary_{id}"
+    cached = cache.get(cache_key)
+    if cached:
+        return Response(cached)
 
     cache_key = f"thread_summary_{id}"
     cached = cache.get(cache_key)
@@ -206,6 +210,7 @@ def thread_summary(request, id):
 def thread_replay(request, thread_id):
     """Return merged timeline of memories, thoughts, and reflections."""
     cache_key = f"thread_replay_{thread_id}_{request.GET.get('with_context','0')}"
+
     cached = cache.get(cache_key)
     if cached:
         return Response(cached)
@@ -243,6 +248,7 @@ def suggest_continuity_view(request, thread_id):
     from mcp_core.tasks.async_tasks import suggest_continuity_task
     task = suggest_continuity_task.delay(thread_id)
     return Response({"task_id": task.id}, status=202)
+
 
 
 # @api_view(["GET"])

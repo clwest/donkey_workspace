@@ -21,7 +21,7 @@ class PerformanceDashboardAPITest(APITestCase):
         )
 
     def test_dashboard_endpoint(self):
-        url = f"/api/metrics/performance/{self.assistant.id}/"
+        url = f"/api/v1/metrics/performance/{self.assistant.id}/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()

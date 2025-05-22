@@ -11,7 +11,7 @@ from openai import OpenAI
 from assistants.helpers.memory_utils import tag_text
 
 from prompts.utils.token_helpers import EMBEDDING_MODEL
-from assistants.utils.assistant_session import load_session_messages, flush_chat_session
+from assistants.utils.session_utils import load_session_messages, flush_chat_session
 
 from memory.utils.context_helpers import get_or_create_context_from_memory
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine

@@ -33,7 +33,7 @@ class AssistantMemoryAPITest(BaseAPITestCase):
         m2.tags.add(tag)
 
     def test_list_memories(self):
-        url = f"/api/assistants/{self.assistant.slug}/memories/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/memories/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
@@ -45,7 +45,7 @@ class AssistantMemoryAPITest(BaseAPITestCase):
         mem = MemoryEntry.objects.create(
             event="three", assistant=self.assistant, summary="third"
         )
-        url = f"/api/assistants/{self.assistant.slug}/reflect_now/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/reflect_now/"
         resp = self.client.post(url, {"memory_id": str(mem.id)}, format="json")
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(
@@ -53,7 +53,7 @@ class AssistantMemoryAPITest(BaseAPITestCase):
         )
 
     def test_memory_summary_endpoint(self):
-        url = f"/api/assistants/{self.assistant.slug}/memory/summary/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/memory/summary/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()

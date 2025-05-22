@@ -1,4 +1,5 @@
 import PrimaryStar from "../../components/assistant/PrimaryStar";
+import PropTypes from "prop-types";
 
 export default function AssistantDashboardHeader({
   assistant,
@@ -56,3 +57,11 @@ export default function AssistantDashboardHeader({
     </div>
   );
 }
+
+AssistantDashboardHeader.propTypes = {
+  assistant: PropTypes.object,
+  memoryCoverage: PropTypes.number,
+  onReflect: PropTypes.func,
+  onSelfAssess: PropTypes.func,
+  onRegeneratePlan: PropTypes.func,
+};

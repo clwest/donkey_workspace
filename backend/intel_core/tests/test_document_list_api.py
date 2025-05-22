@@ -27,12 +27,12 @@ class DocumentListAPITest(APITestCase):
     def test_limit_param(self):
         for i in range(60):
             Document.objects.create(title=f"X{i}", content="t", source_type="url")
-        resp = self.client.get("/api/intel/documents/?limit=25")
+        resp = self.client.get("/api/v1/intel/documents/?limit=25")
         self.assertEqual(resp.status_code, 200)
         self.assertLessEqual(len(resp.json()), 25)
 
     def test_unique_documents_returned(self):
-        resp = self.client.get("/api/intel/documents/")
+        resp = self.client.get("/api/v1/intel/documents/")
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         combos = {(d["title"], d["source_type"], d.get("source_url")) for d in data}
@@ -40,7 +40,7 @@ class DocumentListAPITest(APITestCase):
 
     def test_exclude_for_param(self):
         resp = self.client.get(
-            f"/api/intel/documents/?exclude_for={self.assistant.slug}"
+            f"/api/v1/intel/documents/?exclude_for={self.assistant.slug}"
         )
         self.assertEqual(resp.status_code, 200)
         ids = [d["id"] for d in resp.json()]
@@ -50,7 +50,7 @@ class DocumentListAPITest(APITestCase):
         """Unlinked duplicate documents should still appear."""
         self.assistant.documents.add(self.doc1)
         resp = self.client.get(
-            f"/api/intel/documents/?exclude_for={self.assistant.slug}"
+            f"/api/v1/intel/documents/?exclude_for={self.assistant.slug}"
         )
         self.assertEqual(resp.status_code, 200)
         ids = [d["id"] for d in resp.json()]

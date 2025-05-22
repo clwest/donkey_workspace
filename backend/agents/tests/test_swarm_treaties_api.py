@@ -18,7 +18,7 @@ class SwarmTreatiesAPITest(APITestCase):
         self.client.force_authenticate(user=self.user)
 
     def test_empty_list(self):
-        resp = self.client.get("/api/agents/swarm-treaties/")
+        resp = self.client.get("/api/v1/agents/swarm-treaties/")
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json(), [])
 
@@ -26,7 +26,7 @@ class SwarmTreatiesAPITest(APITestCase):
         council = AssistantCouncil.objects.create(name="C1")
         session = MythDiplomacySession.objects.create(topic="Pact", status="open")
         session.factions.add(council)
-        resp = self.client.get("/api/agents/swarm-treaties/")
+        resp = self.client.get("/api/v1/agents/swarm-treaties/")
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         self.assertEqual(len(data), 1)

@@ -1,3 +1,5 @@
+import warnings
+warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
 # project/urls.py
 
 from rest_framework.routers import DefaultRouter

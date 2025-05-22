@@ -25,7 +25,7 @@ class Phase500APITest(APITestCase):
 
     def test_create_polity(self):
         resp = self.client.post(
-            "/api/polities/",
+            "/api/v1/polities/",
             {
                 "name": "P",
                 "founding_codex": self.codex.id,
@@ -36,12 +36,12 @@ class Phase500APITest(APITestCase):
             format="json",
         )
         self.assertEqual(resp.status_code, 201)
-        list_resp = self.client.get("/api/polities/")
+        list_resp = self.client.get("/api/v1/polities/")
         self.assertEqual(len(list_resp.json()), 1)
 
     def test_create_election(self):
         polity_resp = self.client.post(
-            "/api/polities/",
+            "/api/v1/polities/",
             {
                 "name": "P2",
                 "founding_codex": self.codex.id,
@@ -51,7 +51,7 @@ class Phase500APITest(APITestCase):
         )
         polity_id = polity_resp.json()["id"]
         resp = self.client.post(
-            "/api/elections/",
+            "/api/v1/elections/",
             {
                 "polity": polity_id,
                 "election_type": "rotation",
@@ -61,12 +61,12 @@ class Phase500APITest(APITestCase):
             format="json",
         )
         self.assertEqual(resp.status_code, 201)
-        list_resp = self.client.get("/api/elections/")
+        list_resp = self.client.get("/api/v1/elections/")
         self.assertEqual(len(list_resp.json()), 1)
 
     def test_create_legacy_role(self):
         resp = self.client.post(
-            "/api/legacy-roles/",
+            "/api/v1/legacy-roles/",
             {
                 "role_name": "Herald",
                 "assigned_to": self.assistant.id,
@@ -76,5 +76,5 @@ class Phase500APITest(APITestCase):
             format="json",
         )
         self.assertEqual(resp.status_code, 201)
-        list_resp = self.client.get("/api/legacy-roles/")
+        list_resp = self.client.get("/api/v1/legacy-roles/")
         self.assertEqual(len(list_resp.json()), 1)

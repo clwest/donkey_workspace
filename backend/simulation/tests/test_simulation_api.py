@@ -18,7 +18,7 @@ class SimulationAPITest(APITestCase):
         )
 
     def test_run_endpoint(self):
-        resp = self.client.post("/api/simulation/run/", {"config_id": self.config.id})
+        resp = self.client.post("/api/v1/simulation/run/", {"config_id": self.config.id})
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         self.assertIn("run_id", data)

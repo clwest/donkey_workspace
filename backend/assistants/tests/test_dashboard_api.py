@@ -35,7 +35,7 @@ class AssistantDashboardAPITest(BaseAPITestCase):
             MemoryEntry.objects.create(event=f"m{i}", assistant=self.assistant)
 
     def test_dashboard_endpoint(self):
-        url = f"/api/assistants/{self.assistant.slug}/dashboard/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/dashboard/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
