@@ -33,6 +33,9 @@ from agents.models import (
     ParadoxResolutionAttempt,
     OntologicalAuditLog,
     BeliefBiome,
+    SymbolicAlliance,
+    DreamPurposeNegotiation,
+    BiomeMutationEvent,
 )
 from assistants.models import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -411,3 +414,22 @@ class BeliefBiomeSerializer(serializers.ModelSerializer):
         model = BeliefBiome
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
+class SymbolicAllianceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicAlliance
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+class DreamPurposeNegotiationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DreamPurposeNegotiation
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+class BiomeMutationEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BiomeMutationEvent
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+

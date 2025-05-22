@@ -1238,3 +1238,48 @@ class BeliefBiome(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
+
+class SymbolicAlliance(models.Model):
+    """Purpose-aligned coalition across the swarm."""
+    name = models.CharField(max_length=150)
+    founding_assistants = models.ManyToManyField("assistants.Assistant")
+    aligned_beliefs = models.JSONField()
+    shared_purpose_vector = models.JSONField()
+    member_biomes = models.ManyToManyField(BeliefBiome)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
+
+class DreamPurposeNegotiation(models.Model):
+    """Dream-mode purpose alignment discussion."""
+    participants = models.ManyToManyField("assistants.Assistant")
+    proposed_purpose_update = models.TextField()
+    symbolic_context = models.JSONField()
+    consensus_reached = models.BooleanField(default=False)
+    resulting_updates = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"DreamNegotiation {self.id}"
+
+class BiomeMutationEvent(models.Model):
+    """Record of belief biome transformations."""
+    biome = models.ForeignKey(BeliefBiome, on_delete=models.CASCADE)
+    trigger_type = models.CharField(max_length=100)
+    mutation_summary = models.TextField()
+    new_traits = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Mutation {self.id}"
+

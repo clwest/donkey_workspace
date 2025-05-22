@@ -36,6 +36,9 @@ from agents.models import (
     ParadoxResolutionAttempt,
     OntologicalAuditLog,
     BeliefBiome,
+    SymbolicAlliance,
+    DreamPurposeNegotiation,
+    BiomeMutationEvent,
 )
 from agents.serializers import (
     AgentSerializer,
@@ -68,6 +71,9 @@ from agents.serializers import (
     ParadoxResolutionAttemptSerializer,
     OntologicalAuditLogSerializer,
     BeliefBiomeSerializer,
+    SymbolicAllianceSerializer,
+    DreamPurposeNegotiationSerializer,
+    BiomeMutationEventSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -668,3 +674,39 @@ def belief_biomes(request):
     serializer.is_valid(raise_exception=True)
     biome = serializer.save()
     return Response(BeliefBiomeSerializer(biome).data, status=201)
+
+@api_view(["GET", "POST"])
+def symbolic_alliances(request):
+    if request.method == "GET":
+        alliances = SymbolicAlliance.objects.all().order_by("-created_at")
+        return Response(SymbolicAllianceSerializer(alliances, many=True).data)
+
+    serializer = SymbolicAllianceSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    alliance = serializer.save()
+    return Response(SymbolicAllianceSerializer(alliance).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def dream_purpose_negotiations(request):
+    if request.method == "GET":
+        sessions = DreamPurposeNegotiation.objects.all().order_by("-created_at")
+        return Response(DreamPurposeNegotiationSerializer(sessions, many=True).data)
+
+    serializer = DreamPurposeNegotiationSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    session = serializer.save()
+    return Response(DreamPurposeNegotiationSerializer(session).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def biome_mutations(request):
+    if request.method == "GET":
+        events = BiomeMutationEvent.objects.all().order_by("-created_at")
+        return Response(BiomeMutationEventSerializer(events, many=True).data)
+
+    serializer = BiomeMutationEventSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    event = serializer.save()
+    return Response(BiomeMutationEventSerializer(event).data, status=201)
+
