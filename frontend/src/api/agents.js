@@ -12,3 +12,7 @@ export const fetchSymbolicSanctions = () => apiFetch("/agents/symbolic-sanctions
 export const fetchTribunalCases = () => apiFetch("/agents/tribunals/");
 export const fetchRestorativeMemoryActions = () => apiFetch("/agents/restorative-memory/");
 export const fetchReputationRebirths = () => apiFetch("/agents/reputation-rebirths/");
+export const fetchCosmologicalRoles = () => apiFetch("/agents/cosmological-roles/");
+export const createMythWeave = (assistant, depth = 3) =>
+  apiFetch("/agents/myth-weaver/", { method: "POST", body: { assistant, depth } });
+export const fetchLegacyVaults = () => apiFetch("/agents/legacy-vaults/");

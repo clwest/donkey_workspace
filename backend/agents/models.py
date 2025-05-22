@@ -1631,3 +1631,38 @@ class BeliefContinuityRitual(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"{self.outgoing_assistant.name} -> {self.incoming_assistant.name}"
+
+
+class CosmologicalRole(models.Model):
+    """Structured mythic identity bound to assistants across epochs."""
+
+    name = models.CharField(max_length=100)
+    symbolic_traits = models.JSONField()
+    myth_origin = models.ForeignKey(TranscendentMyth, on_delete=models.CASCADE)
+    phase_map = models.JSONField()
+    bound_assistants = models.ManyToManyField("assistants.Assistant", blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
+
+
+class LegacyTokenVault(models.Model):
+    """Long-term storage for mythic LoreTokens."""
+
+    name = models.CharField(max_length=150)
+    preserved_tokens = models.ManyToManyField(LoreToken, blank=True)
+    stewarded_by = models.ForeignKey(
+        AssistantPolity, on_delete=models.CASCADE, related_name="vaults"
+    )
+    vault_access_policy = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name

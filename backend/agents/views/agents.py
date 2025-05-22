@@ -54,6 +54,8 @@ from agents.models import (
     MythCycleBinding,
     ResurrectionTemplate,
     BeliefContinuityRitual,
+    CosmologicalRole,
+    LegacyTokenVault,
 )
 from agents.serializers import (
     AgentSerializer,
@@ -104,6 +106,8 @@ from agents.serializers import (
     MythCycleBindingSerializer,
     ResurrectionTemplateSerializer,
     BeliefContinuityRitualSerializer,
+    CosmologicalRoleSerializer,
+    LegacyTokenVaultSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -130,6 +134,7 @@ from agents.utils.myth_verification import (
 )
 
 from agents.utils import harmonize_global_narrative
+from agents.utils.myth_weaver import weave_recursive_myth
 
 from datetime import datetime
 
@@ -927,3 +932,36 @@ def belief_continuity(request):
     serializer.is_valid(raise_exception=True)
     ritual = serializer.save()
     return Response(BeliefContinuityRitualSerializer(ritual).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def cosmological_roles(request):
+    if request.method == "GET":
+        roles = CosmologicalRole.objects.all().order_by("-created_at")
+        return Response(CosmologicalRoleSerializer(roles, many=True).data)
+
+    serializer = CosmologicalRoleSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    role = serializer.save()
+    return Response(CosmologicalRoleSerializer(role).data, status=201)
+
+
+@api_view(["POST"])
+def myth_weaver(request):
+    assistant_id = request.data.get("assistant")
+    depth = int(request.data.get("depth", 3))
+    assistant = get_object_or_404(Assistant, id=assistant_id)
+    result = weave_recursive_myth(assistant, depth=depth)
+    return Response(result, status=201)
+
+
+@api_view(["GET", "POST"])
+def legacy_vaults(request):
+    if request.method == "GET":
+        vaults = LegacyTokenVault.objects.all().order_by("-created_at")
+        return Response(LegacyTokenVaultSerializer(vaults, many=True).data)
+
+    serializer = LegacyTokenVaultSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    vault = serializer.save()
+    return Response(LegacyTokenVaultSerializer(vault).data, status=201)
