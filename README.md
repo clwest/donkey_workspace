@@ -66,3 +66,9 @@ does not exist, ensure you ran `python manage.py makemigrations` before
 `python manage.py migrate`. This generates all initial migration files so Django
 creates the required tables.
 
+### Debugging & Logs
+
+When running the frontend with `npm run dev`, open your browser's developer
+console to view network requests and any toast messages. Backend debug logs
+appear in the terminal where you started `manage.py runserver`.
+
