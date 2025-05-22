@@ -8,7 +8,7 @@ import json
 class SelfAssessAPITest(BaseAPITestCase):
     def setUp(self):
         self.assistant = Assistant.objects.create(name="Assess", specialty="x")
-        self.url = f"/api/assistants/{self.assistant.slug}/self-assess/"
+        self.url = f"/api/v1/assistants/{self.assistant.slug}/self-assess/"
 
     @patch("assistants.views.assistants.call_llm")
     def test_self_assess_endpoint(self, mock_call):

@@ -18,7 +18,7 @@ class ThreadMergeSplitAPITest(APITestCase):
         self.mem2 = MemoryEntry.objects.create(event="b", thread=self.thread2)
 
     def test_merge_threads(self):
-        url = f"/api/mcp/threads/{self.thread1.id}/merge/"
+        url = f"/api/v1/mcp/threads/{self.thread1.id}/merge/"
         resp = self.client.post(url, {"target_thread_id": str(self.thread2.id)}, format="json")
         self.assertEqual(resp.status_code, 200)
         self.assertFalse(NarrativeThread.objects.filter(id=self.thread2.id).exists())
@@ -30,7 +30,7 @@ class ThreadMergeSplitAPITest(APITestCase):
         # add extra memories to thread1
         mem3 = MemoryEntry.objects.create(event="c", thread=self.thread1)
         mem4 = MemoryEntry.objects.create(event="d", thread=self.thread1)
-        url = f"/api/mcp/threads/{self.thread1.id}/split/"
+        url = f"/api/v1/mcp/threads/{self.thread1.id}/split/"
         resp = self.client.post(url, {"from_index": 2}, format="json")
         self.assertEqual(resp.status_code, 201)
         new_id = resp.json()["id"]

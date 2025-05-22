@@ -12,7 +12,7 @@ class AssistantSkillsAPITest(BaseAPITestCase):
         self.assistant = Assistant.objects.create(name="Skiller", specialty="plan")
 
     def test_get_and_create_skills(self):
-        url = f"/api/assistants/{self.assistant.slug}/skills/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/skills/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json(), [])

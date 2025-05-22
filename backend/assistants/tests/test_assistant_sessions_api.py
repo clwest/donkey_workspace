@@ -20,7 +20,7 @@ class AssistantSessionsAPITest(BaseAPITestCase):
         MemoryEntry.objects.create(event="m2", assistant=self.assistant, chat_session=self.s2, summary="s2")
 
     def test_sessions_for_assistant(self):
-        url = f"/api/assistants/{self.assistant.slug}/sessions/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/sessions/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()

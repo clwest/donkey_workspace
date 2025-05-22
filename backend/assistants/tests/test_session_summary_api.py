@@ -30,7 +30,7 @@ class SessionSummaryAPITest(BaseAPITestCase):
         )
 
     def test_session_summary_endpoint(self):
-        url = f"/api/assistants/{self.assistant.slug}/session-summary/{self.session.session_id}/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/session-summary/{self.session.session_id}/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()

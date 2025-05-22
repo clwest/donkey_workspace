@@ -14,7 +14,7 @@ class PersonaTraitsPromptTest(BaseAPITestCase):
             tone="sassy",
             persona_mode="improviser",
         )
-        self.url = f"/api/assistants/{self.assistant.slug}/chat/"
+        self.url = f"/api/v1/assistants/{self.assistant.slug}/chat/"
 
     def _make_completion(self):
         class Msg:

@@ -18,7 +18,7 @@ class RecoveryEndpointTest(BaseAPITestCase):
         self.assistant.save()
 
     def test_recover_endpoint(self):
-        url = f"/api/assistants/{self.assistant.slug}/recover/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/recover/"
         resp = self.client.post(url, {}, format="json")
         self.assertEqual(resp.status_code, 200)
         self.assistant.refresh_from_db()

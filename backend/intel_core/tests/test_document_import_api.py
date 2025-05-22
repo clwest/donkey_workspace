@@ -11,7 +11,7 @@ from intel_core.models import JobStatus
 
 
 class DocumentImportAPITest(APITestCase):
-    url = "/api/documents/import/"
+    url = "/api/v1/documents/import/"
 
     @patch("documents.views.import_view.process_pdf_upload.delay")
     def test_import_returns_job_id(self, mock_task):

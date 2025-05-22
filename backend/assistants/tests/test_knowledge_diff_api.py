@@ -28,7 +28,7 @@ class KnowledgeDiffAPITest(BaseAPITestCase):
                 self.choices = [Choice()]
         mock_create.return_value = Completion()
 
-        url = f"/api/assistants/{self.assistant.slug}/diff-knowledge/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/diff-knowledge/"
         resp = self.client.post(url, {"document_id": str(self.doc.id)}, format="json")
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
@@ -36,7 +36,7 @@ class KnowledgeDiffAPITest(BaseAPITestCase):
         self.assertIn("prompt_updates", data)
 
     def test_diff_knowledge_requires_input(self):
-        url = f"/api/assistants/{self.assistant.slug}/diff-knowledge/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/diff-knowledge/"
         resp = self.client.post(url, {}, format="json")
         self.assertEqual(resp.status_code, 400)
 

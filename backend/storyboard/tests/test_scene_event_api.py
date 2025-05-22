@@ -18,7 +18,7 @@ class SceneEventAPITest(APITestCase):
             specialty="scouting",
             preferred_scene_tags=["temple", "lab"],
         )
-        self.url = f"/api/storyboard/relevant/{self.assistant.slug}/"
+        self.url = f"/api/v1/storyboard/relevant/{self.assistant.slug}/"
 
     def test_relevant_endpoint(self):
         now = timezone.now()

@@ -45,7 +45,7 @@ class RealignmentAPITest(APITestCase):
         )
 
     def test_realign_endpoint(self):
-        url = f"/api/mcp/threads/{self.thread.id}/realign/"
+        url = f"/api/v1/mcp/threads/{self.thread.id}/realign/"
         resp = self.client.post(url)
         assert resp.status_code == 200
         assert ThreadDiagnosticLog.objects.filter(

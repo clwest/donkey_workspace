@@ -21,7 +21,7 @@ class Phase501APITest(APITestCase):
 
     def test_create_tribunal_case(self):
         resp = self.client.post(
-            "/api/tribunals/",
+            "/api/v1/tribunals/",
             {
                 "issue_type": "breach",
                 "reflective_summary": "s",
@@ -31,12 +31,12 @@ class Phase501APITest(APITestCase):
             format="json",
         )
         self.assertEqual(resp.status_code, 201)
-        list_resp = self.client.get("/api/tribunals/")
+        list_resp = self.client.get("/api/v1/tribunals/")
         self.assertEqual(len(list_resp.json()), 1)
 
     def test_create_restorative_memory_action(self):
         resp = self.client.post(
-            "/api/restorative-memory/",
+            "/api/v1/restorative-memory/",
             {
                 "initiating_assistant": self.assistant.id,
                 "damaged_memory": self.memory.id,
@@ -45,12 +45,12 @@ class Phase501APITest(APITestCase):
             format="json",
         )
         self.assertEqual(resp.status_code, 201)
-        list_resp = self.client.get("/api/restorative-memory/")
+        list_resp = self.client.get("/api/v1/restorative-memory/")
         self.assertEqual(len(list_resp.json()), 1)
 
     def test_create_reputation_regeneration_event(self):
         resp = self.client.post(
-            "/api/reputation-rebirths/",
+            "/api/v1/reputation-rebirths/",
             {
                 "assistant": self.assistant.id,
                 "reflection_cycle_reference": self.memory.id,
@@ -61,5 +61,5 @@ class Phase501APITest(APITestCase):
             format="json",
         )
         self.assertEqual(resp.status_code, 201)
-        list_resp = self.client.get("/api/reputation-rebirths/")
+        list_resp = self.client.get("/api/v1/reputation-rebirths/")
         self.assertEqual(len(list_resp.json()), 1)
