@@ -16,7 +16,7 @@ class AssistantDelegationsAPITest(BaseAPITestCase):
         DelegationEvent.objects.create(parent_assistant=self.other, child_assistant=self.parent, reason="r2")
 
     def test_delegations_for_assistant(self):
-        url = f"/api/assistants/{self.parent.slug}/delegations/"
+        url = f"/api/v1/assistants/{self.parent.slug}/delegations/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()

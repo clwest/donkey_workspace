@@ -16,7 +16,7 @@ class AssistantAddDocumentAPITest(BaseAPITestCase):
         )
 
     def test_add_document_and_reflect(self):
-        url = f"/api/assistants/{self.assistant.slug}/add_document/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/add_document/"
         resp = self.client.post(
             url,
             {"document_id": str(self.document.id), "reflect": True},
@@ -35,7 +35,7 @@ class AssistantAddDocumentAPITest(BaseAPITestCase):
 
     def test_duplicate_link(self):
         self.assistant.documents.add(self.document)
-        url = f"/api/assistants/{self.assistant.slug}/add_document/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/add_document/"
         resp = self.client.post(
             url, {"document_id": str(self.document.id)}, format="json"
         )

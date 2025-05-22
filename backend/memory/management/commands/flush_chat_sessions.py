@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from assistants.models import Assistant
-from assistants.helpers.redis_helpers import load_session_messages, flush_chat_session
+from assistants.utils.session_utils import load_session_messages, flush_chat_session
 from memory.models import MemoryEntry
 from django.utils.timezone import now
 

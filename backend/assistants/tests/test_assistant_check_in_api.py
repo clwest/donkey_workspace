@@ -7,7 +7,7 @@ from assistants.models import Assistant
 class AssistantCheckInAPITest(BaseAPITestCase):
     def setUp(self):
         self.assistant = Assistant.objects.create(name="Helper", specialty="h")
-        self.url = f"/api/assistants/{self.assistant.id}/check-in/"
+        self.url = f"/api/v1/assistants/{self.assistant.id}/check-in/"
 
     @patch("assistants.views.check_in.client")
     def test_check_in_returns_suggestions(self, mock_client):

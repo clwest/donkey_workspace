@@ -33,12 +33,12 @@ class RegenerateRecoveryPlanAPITest(BaseAPITestCase):
     def test_requires_recovery(self):
         self.assistant.needs_recovery = False
         self.assistant.save()
-        url = f"/api/assistants/{self.assistant.slug}/regenerate_plan/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/regenerate_plan/"
         resp = self.client.post(url, {}, format="json")
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_log_created(self):
-        url = f"/api/assistants/{self.assistant.slug}/regenerate_plan/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/regenerate_plan/"
         resp = self.client.post(url, {}, format="json")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertTrue(
@@ -48,7 +48,7 @@ class RegenerateRecoveryPlanAPITest(BaseAPITestCase):
         )
 
     def test_approve_clears_flag(self):
-        url = f"/api/assistants/{self.assistant.slug}/regenerate_plan/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/regenerate_plan/"
         resp = self.client.post(url, {"approve": True}, format="json")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assistant.refresh_from_db()

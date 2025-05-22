@@ -1,10 +1,16 @@
-from rest_framework.decorators import api_view, permission_classes, parser_classes
+from rest_framework.decorators import (
+    api_view,
+    permission_classes,
+    parser_classes,
+    action,
+)
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets
+import warnings
 from .models import (
     MemoryEntry,
     MemoryChain,
@@ -23,6 +29,7 @@ from prompts.serializers import PromptSerializer
 from prompts.models import Prompt
 from django.utils import timezone
 from openai import OpenAI
+from core.services.memory_service import reflect_on_memory as service_reflect_on_memory
 from dotenv import load_dotenv
 from embeddings.helpers.helpers_io import save_embedding
 from prompts.utils.mutation import mutate_prompt as run_mutation
@@ -38,9 +45,57 @@ load_dotenv()
 client = OpenAI()
 
 
+class MemoryEntryViewSet(viewsets.ModelViewSet):
+    """ViewSet for CRUD operations on MemoryEntry."""
+
+    queryset = MemoryEntry.objects.all().order_by("-created_at")
+    serializer_class = MemoryEntrySerializer
+    permission_classes = [AllowAny]
+
+    @action(detail=True, methods=["post"])
+    def bookmark(self, request, pk=None):
+        return bookmark_memory(request, memory_id=pk)
+
+    @action(detail=True, methods=["post"])
+    def unbookmark(self, request, pk=None):
+        return unbookmark_memory(request, memory_id=pk)
+
+    @action(detail=False, methods=["get"])  # /entries/bookmarked/
+    def bookmarked(self, request):
+        return bookmarked_memories(request)
+
+    @action(detail=True, methods=["post"])
+    def mutate(self, request, pk=None):
+        return mutate_memory(request, id=pk)
+
+
+class MemoryChainViewSet(viewsets.ModelViewSet):
+    """ViewSet for MemoryChain resources."""
+
+    queryset = MemoryChain.objects.all().order_by("-created_at")
+    serializer_class = MemoryChainSerializer
+    permission_classes = [AllowAny]
+
+    @action(detail=True, methods=["get"])
+    def summarize(self, request, pk=None):
+        return summarize_chain_view(request, chain_id=pk)
+
+    @action(detail=True, methods=["get"])
+    def flowmap(self, request, pk=None):
+        return chain_flowmap_view(request, chain_id=pk)
+
+    @action(detail=True, methods=["get"], url_path="cross_project_recall")
+    def cross_project_recall(self, request, pk=None):
+        return cross_project_recall_view(request, chain_id=pk)
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def create_memory_chain(request):
+    warnings.warn(
+        "Deprecated: use /api/v1/memory/chains/",
+        DeprecationWarning,
+    )
     title = request.data.get("title")
     memory_ids = request.data.get("memory_ids", [])
 
@@ -134,6 +189,10 @@ def linked_chains_view(request, thread_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def link_chain_to_thread(request):
+    warnings.warn(
+        "Deprecated: use /api/v1/memory/chains/link_thread/",
+        DeprecationWarning,
+    )
     chain_id = request.data.get("chain_id")
     thread_id = request.data.get("thread_id")
     if not chain_id or not thread_id:
@@ -161,44 +220,12 @@ def reflect_on_memory(request):
     memory_ids = request.data.get("memory_ids", [])
     if not memory_ids:
         return Response({"error": "No memory IDs provided."}, status=400)
+    try:
+        reflection = service_reflect_on_memory(memory_ids)
+    except ValueError as exc:
+        return Response({"error": str(exc)}, status=400)
 
-    memories = MemoryEntry.objects.filter(id__in=memory_ids)
-    if not memories.exists():
-        return Response({"error": "No valid memories found."}, status=400)
-
-    combined_text = "\n\n".join([m.event for m in memories])
-
-    prompt = f"""
-    Summarize the following experiences into a coherent reflection that captures lessons learned, emotional tone, and overall patterns:
-
-    {combined_text}
-    """
-
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {
-                "role": "system",
-                "content": "You are an expert in emotional intelligence and personal growth.",
-            },
-            {"role": "user", "content": prompt},
-        ],
-        temperature=0.7,
-        max_tokens=1024,
-    )
-
-    summary = response.choices[0].message.content.strip()
-
-    # Save the reflection
-    reflection = AssistantReflectionLog.objects.create(
-        summary=summary,
-        time_period_start=min(m.timestamp for m in memories),
-        time_period_end=max(m.timestamp for m in memories),
-    )
-    reflection.linked_memories.set(memories)
-    save_embedding(reflection, embedding=[])
-
-    return Response({"summary": summary, "reflection_id": reflection.id})
+    return Response({"summary": reflection.summary, "reflection_id": reflection.id})
 
 
 @api_view(["POST"])
@@ -302,6 +329,10 @@ def memory_detail(request, id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def bookmark_memory(request, memory_id):
+    warnings.warn(
+        "Deprecated: use /api/v1/memory/entries/<id>/bookmark/",
+        DeprecationWarning,
+    )
     memory = get_object_or_404(MemoryEntry, id=memory_id)
     label = request.data.get("label")
     memory.is_bookmarked = True
@@ -313,6 +344,10 @@ def bookmark_memory(request, memory_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def unbookmark_memory(request, memory_id):
+    warnings.warn(
+        "Deprecated: use /api/v1/memory/entries/<id>/unbookmark/",
+        DeprecationWarning,
+    )
     memory = get_object_or_404(MemoryEntry, id=memory_id)
     memory.is_bookmarked = False
     memory.bookmark_label = None
@@ -451,6 +486,10 @@ def list_memory_feedback(request, memory_id):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def mutate_memory(request, id):
+    warnings.warn(
+        "Deprecated: use /api/v1/memory/entries/<id>/mutate/",
+        DeprecationWarning,
+    )
     """Mutate a memory entry using the specified style."""
     try:
         memory = MemoryEntry.objects.get(id=id)

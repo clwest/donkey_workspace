@@ -24,12 +24,16 @@ def assistant_dashboard(request, slug):
     project = assistant.current_project
     project_data = ProjectOverviewSerializer(project).data if project else None
 
+    # use select_related/prefetch to avoid N+1 queries
     thoughts = (
         AssistantThoughtLog.objects.filter(assistant=assistant)
+        .select_related("project")
+        .prefetch_related("tags")
         .order_by("-created_at")[:5]
     )
     memories = (
         MemoryService.filter_entries(assistant=assistant)
+
         .order_by("-created_at")[:5]
     )
     delegations = (

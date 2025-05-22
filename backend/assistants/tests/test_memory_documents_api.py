@@ -62,13 +62,13 @@ class MemoryDocumentsAPITest(BaseAPITestCase):
         chain.memories.add(mem3)
 
     def test_no_documents(self):
-        url = f"/api/assistants/{self.empty.slug}/memory-documents/"
+        url = f"/api/v1/assistants/{self.empty.slug}/memory-documents/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json(), [])
 
     def test_document_stats(self):
-        url = f"/api/assistants/{self.assistant.slug}/memory-documents/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/memory-documents/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = {d["slug"]: d for d in resp.json()}

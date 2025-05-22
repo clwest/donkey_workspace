@@ -19,7 +19,7 @@ class ProjectTaskViewSetTest(APITestCase):
         self.project = Project.objects.create(user=self.user, title="Proj")
 
     def test_task_crud(self):
-        url = f"/api/projects/{self.project.id}/tasks/"
+        url = f"/api/v1/projects/{self.project.id}/tasks/"
         resp = self.client.post(
             url,
             {"title": "Task", "notes": "n", "status": "todo", "priority": 1},
@@ -30,7 +30,7 @@ class ProjectTaskViewSetTest(APITestCase):
         self.assertEqual(ProjectTask.objects.filter(project=self.project).count(), 1)
 
         resp = self.client.patch(
-            f"/api/projects/{self.project.id}/tasks/{task_id}/",
+            f"/api/v1/projects/{self.project.id}/tasks/{task_id}/",
             {"title": "Updated"},
             format="json",
         )
@@ -42,7 +42,7 @@ class ProjectTaskViewSetTest(APITestCase):
         self.assertEqual(len(resp.json()), 1)
 
         resp = self.client.delete(
-            f"/api/projects/{self.project.id}/tasks/{task_id}/"
+            f"/api/v1/projects/{self.project.id}/tasks/{task_id}/"
         )
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(ProjectTask.objects.count(), 0)
@@ -56,7 +56,7 @@ class ProjectMilestoneViewSetTest(APITestCase):
         self.project = Project.objects.create(user=self.user, title="ProjM")
 
     def test_milestone_crud(self):
-        url = f"/api/projects/{self.project.id}/milestones/"
+        url = f"/api/v1/projects/{self.project.id}/milestones/"
         resp = self.client.post(
             url,
             {"title": "M1", "description": "d", "due_date": "2025-01-01"},
@@ -69,7 +69,7 @@ class ProjectMilestoneViewSetTest(APITestCase):
         )
 
         resp = self.client.patch(
-            f"/api/projects/{self.project.id}/milestones/{milestone_id}/",
+            f"/api/v1/projects/{self.project.id}/milestones/{milestone_id}/",
             {"title": "M2"},
             format="json",
         )
@@ -83,7 +83,7 @@ class ProjectMilestoneViewSetTest(APITestCase):
         self.assertEqual(len(resp.json()), 1)
 
         resp = self.client.delete(
-            f"/api/projects/{self.project.id}/milestones/{milestone_id}/"
+            f"/api/v1/projects/{self.project.id}/milestones/{milestone_id}/"
         )
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(ProjectMilestone.objects.count(), 0)

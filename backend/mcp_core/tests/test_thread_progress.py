@@ -18,7 +18,7 @@ class ThreadProgressAPITest(APITestCase):
         Project.objects.create(user=self.user, title="P", thread=self.thread)
 
     def test_progress_endpoint(self):
-        url = f"/api/mcp/threads/{self.thread.id}/progress/"
+        url = f"/api/v1/mcp/threads/{self.thread.id}/progress/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()

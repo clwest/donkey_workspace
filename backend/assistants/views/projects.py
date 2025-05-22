@@ -34,7 +34,12 @@ import uuid
 @permission_classes([AllowAny])
 def assistant_projects(request):
     if request.method == "GET":
-        projects = AssistantProject.objects.all().order_by("-created_at")
+        projects = (
+            AssistantProject.objects.all()
+            .select_related("assistant")
+            .prefetch_related("objectives")
+            .order_by("-created_at")
+        )
         serializer = AssistantProjectSerializer(projects, many=True)
         return Response(serializer.data)
 

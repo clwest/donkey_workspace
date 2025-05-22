@@ -14,7 +14,7 @@ class AssistantHandoffLogAPITest(BaseAPITestCase):
         self.project = AssistantProject.objects.create(assistant=self.a1, title="P1")
 
     def test_create_and_list_handoff_log(self):
-        url = "/api/assistants/handoff-log/"
+        url = "/api/v1/assistants/handoff-log/"
         resp = self.client.post(
             url,
             {
@@ -28,7 +28,7 @@ class AssistantHandoffLogAPITest(BaseAPITestCase):
         self.assertEqual(resp.status_code, 201)
         self.assertEqual(AssistantHandoffLog.objects.count(), 1)
 
-        list_url = f"/api/assistants/handoff-log/{self.a1.slug}/"
+        list_url = f"/api/v1/assistants/handoff-log/{self.a1.slug}/"
         resp2 = self.client.get(list_url)
         self.assertEqual(resp2.status_code, 200)
         self.assertEqual(len(resp2.json()), 1)
