@@ -60,13 +60,13 @@ from agents.models.lore import (
     CosmologicalRole,
     LegacyTokenVault,
 
-    ArchetypeEvolutionEvent,
-    CodexSymbolReconciliation,
-    MythologyMeshNode,
-    ArchetypalDriftForecast,
-    CollaborationThread,
-    DelegationStream,
-    MythflowInsight,
+    ArchetypeSynchronizationPulse,
+    CreationMythEntry,
+    CosmogenesisSimulation,
+    MythicForecastPulse,
+    BeliefAtlasSnapshot,
+    SymbolicWeatherFront,
+
 
 )
 from agents.models.mythology_mesh import MythologyMeshNode, ArchetypalDriftForecast
@@ -130,6 +130,9 @@ from agents.serializers import (
     MythflowInsightSerializer,
 
 
+    MythicForecastPulseSerializer,
+    BeliefAtlasSnapshotSerializer,
+    SymbolicWeatherFrontSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -1026,40 +1029,41 @@ def cosmogenesis_simulations(request):
     return Response(CosmogenesisSimulationSerializer(sim).data, status=201)
 
 
-    data = myth_api_lookup(query)
-    return Response(data)
+@api_view(["GET", "POST"])
+def mythic_forecast(request):
+    if request.method == "GET":
+        pulses = MythicForecastPulse.objects.all().order_by("-created_at")
+        return Response(MythicForecastPulseSerializer(pulses, many=True).data)
+
+    serializer = MythicForecastPulseSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    pulse = serializer.save()
+    return Response(MythicForecastPulseSerializer(pulse).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def mythology_mesh(request):
+def belief_atlases(request):
     if request.method == "GET":
-        nodes = MythologyMeshNode.objects.all().order_by("-created_at")
-        return Response(MythologyMeshNodeSerializer(nodes, many=True).data)
+        atlases = BeliefAtlasSnapshot.objects.all().order_by("-created_at")
+        return Response(BeliefAtlasSnapshotSerializer(atlases, many=True).data)
 
-    serializer = MythologyMeshNodeSerializer(data=request.data)
+    serializer = BeliefAtlasSnapshotSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    node = serializer.save()
-    return Response(MythologyMeshNodeSerializer(node).data, status=201)
-
-
-@api_view(["GET"])
-def constellation_map(request):
-    from agents.utils.constellation_map import build_constellation_map
-
-    data = build_constellation_map()
-    return Response(data)
+    atlas = serializer.save()
+    return Response(BeliefAtlasSnapshotSerializer(atlas).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def archetype_drift(request):
+def symbolic_weather(request):
     if request.method == "GET":
-        forecasts = ArchetypalDriftForecast.objects.all().order_by("-created_at")
-        return Response(ArchetypalDriftForecastSerializer(forecasts, many=True).data)
+        fronts = SymbolicWeatherFront.objects.all().order_by("-created_at")
+        return Response(SymbolicWeatherFrontSerializer(fronts, many=True).data)
 
-    serializer = ArchetypalDriftForecastSerializer(data=request.data)
+    serializer = SymbolicWeatherFrontSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    forecast = serializer.save()
-    return Response(ArchetypalDriftForecastSerializer(forecast).data, status=201)
+    front = serializer.save()
+    return Response(SymbolicWeatherFrontSerializer(front).data, status=201)
+
 
 
 @api_view(["GET", "POST"])

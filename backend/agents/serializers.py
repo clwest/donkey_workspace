@@ -55,6 +55,14 @@ from agents.models.lore import (
     BeliefContinuityRitual,
     CosmologicalRole,
     LegacyTokenVault,
+    ArchetypeSynchronizationPulse,
+    CreationMythEntry,
+    CosmogenesisSimulation,
+    MythicForecastPulse,
+    BeliefAtlasSnapshot,
+    SymbolicWeatherFront,
+
+
 )
 
 from agents.models.coordination import (
@@ -618,16 +626,22 @@ class CosmogenesisSimulationSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-class MythologyMeshNodeSerializer(serializers.ModelSerializer):
+class MythicForecastPulseSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MythologyMeshNode
+        model = MythicForecastPulse
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+class BeliefAtlasSnapshotSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BeliefAtlasSnapshot
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class ArchetypalDriftForecastSerializer(serializers.ModelSerializer):
+class SymbolicWeatherFrontSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ArchetypalDriftForecast
+        model = SymbolicWeatherFront
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
@@ -651,3 +665,4 @@ class MythflowInsightSerializer(serializers.ModelSerializer):
         model = MythflowInsight
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
