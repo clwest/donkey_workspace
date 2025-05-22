@@ -23,6 +23,7 @@ from prompts.serializers import PromptSerializer
 from prompts.models import Prompt
 from django.utils import timezone
 from openai import OpenAI
+from core.services.memory_service import reflect_on_memory as service_reflect_on_memory
 from dotenv import load_dotenv
 from embeddings.helpers.helpers_io import save_embedding
 from prompts.utils.mutation import mutate_prompt as run_mutation
@@ -161,44 +162,12 @@ def reflect_on_memory(request):
     memory_ids = request.data.get("memory_ids", [])
     if not memory_ids:
         return Response({"error": "No memory IDs provided."}, status=400)
+    try:
+        reflection = service_reflect_on_memory(memory_ids)
+    except ValueError as exc:
+        return Response({"error": str(exc)}, status=400)
 
-    memories = MemoryEntry.objects.filter(id__in=memory_ids)
-    if not memories.exists():
-        return Response({"error": "No valid memories found."}, status=400)
-
-    combined_text = "\n\n".join([m.event for m in memories])
-
-    prompt = f"""
-    Summarize the following experiences into a coherent reflection that captures lessons learned, emotional tone, and overall patterns:
-
-    {combined_text}
-    """
-
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {
-                "role": "system",
-                "content": "You are an expert in emotional intelligence and personal growth.",
-            },
-            {"role": "user", "content": prompt},
-        ],
-        temperature=0.7,
-        max_tokens=1024,
-    )
-
-    summary = response.choices[0].message.content.strip()
-
-    # Save the reflection
-    reflection = AssistantReflectionLog.objects.create(
-        summary=summary,
-        time_period_start=min(m.timestamp for m in memories),
-        time_period_end=max(m.timestamp for m in memories),
-    )
-    reflection.linked_memories.set(memories)
-    save_embedding(reflection, embedding=[])
-
-    return Response({"summary": summary, "reflection_id": reflection.id})
+    return Response({"summary": reflection.summary, "reflection_id": reflection.id})
 
 
 @api_view(["POST"])
