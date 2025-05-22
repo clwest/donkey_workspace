@@ -39,6 +39,7 @@ urlpatterns = [
     path("belief-negotiations/", agents.belief_negotiations),
     path("paradox-resolution/", agents.paradox_resolution_attempts),
     path("ontology-audits/", agents.ontology_audits),
+    path("biomes/", agents.belief_biomes),
     path("myth-registry/", agents.myth_registry),
     path("lore-anchors/", agents.lore_anchors),
     path("ritual-compliance/", agents.ritual_compliance),

@@ -31,6 +31,7 @@ from .views import (
     myth,
     reputation,
     conscience,
+    autonomy,
 )
 
 urlpatterns = [
@@ -65,6 +66,8 @@ urlpatterns = [
     ),
     # path("suggest/", routing.suggest_assistant, name="assistant-suggest"),
     path("routing-history/", routing.routing_history, name="routing-history"),
+    path("purpose-routing/", autonomy.purpose_routes),
+    path("autonomy-models/", autonomy.autonomy_models),
     path("", assistants.assistants_view, name="assistants_view"),
     path("create/", assistants.assistants_view, name="assistants-list-create"),
     # ===== PROJECTS =====

@@ -1972,3 +1972,35 @@ class DecisionFramework(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Decision {self.id} for {self.assistant.name}"
+
+class PurposeRouteMap(models.Model):
+    """Rules for routing memory by purpose or tone."""
+
+    assistant = models.ForeignKey(Assistant, on_delete=models.CASCADE)
+    input_tags = models.JSONField()
+    output_path = models.CharField(max_length=200)
+    reason = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Route for {self.assistant.name}"
+
+
+class AutonomyNarrativeModel(models.Model):
+    """Narrative arc state for an assistant."""
+
+    assistant = models.OneToOneField(Assistant, on_delete=models.CASCADE)
+    current_arc = models.CharField(max_length=100)
+    known_story_events = models.ManyToManyField(SwarmMemoryEntry)
+    active_purpose_statement = models.TextField()
+    transformation_triggers = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Narrative for {self.assistant.name}"

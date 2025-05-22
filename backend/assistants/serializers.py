@@ -41,6 +41,8 @@ from .models import (
     AssistantReputation,
     ConscienceModule,
     DecisionFramework,
+    PurposeRouteMap,
+    AutonomyNarrativeModel,
 
 )
 
@@ -1212,6 +1214,20 @@ class ConscienceModuleSerializer(serializers.ModelSerializer):
 class DecisionFrameworkSerializer(serializers.ModelSerializer):
     class Meta:
         model = DecisionFramework
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class PurposeRouteMapSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PurposeRouteMap
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class AutonomyNarrativeModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AutonomyNarrativeModel
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

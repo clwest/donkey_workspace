@@ -32,6 +32,7 @@ from agents.models import (
     BeliefNegotiationSession,
     ParadoxResolutionAttempt,
     OntologicalAuditLog,
+    BeliefBiome,
 )
 from assistants.models import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -401,5 +402,12 @@ class ParadoxResolutionAttemptSerializer(serializers.ModelSerializer):
 class OntologicalAuditLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = OntologicalAuditLog
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class BeliefBiomeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BeliefBiome
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
