@@ -62,6 +62,9 @@ INSTALLED_APPS = [
     "intel_core",
     "capabilities.dev_docs",
     "tools",
+    "workflows",
+    "metrics",
+    "learning_loops",
 ]
 
 # === 🧵 Middleware ===
