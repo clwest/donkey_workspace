@@ -3,8 +3,8 @@ from django.contrib.postgres.fields import ArrayField
 from django.conf import settings
 import uuid
 from django.utils.text import slugify
+from prompts.utils.token_helpers import EMBEDDING_MODEL
 
-EMBEDDING_MODEL = "text-embedding-3-small"
 EMBEDDING_LENGTH = 1536
 
 

@@ -10,8 +10,8 @@ from intel_core.models import Document
 import uuid
 from pgvector.django import VectorField
 from django.utils.text import slugify
+from prompts.utils.token_helpers import EMBEDDING_MODEL
 
-EMBEDDING_MODEL = "text-embedding-3-small"
 EMBEDDING_LENGTH = 1536
 
 User = settings.AUTH_USER_MODEL
