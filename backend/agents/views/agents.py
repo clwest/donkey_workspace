@@ -39,6 +39,9 @@ from agents.models import (
     SymbolicAlliance,
     DreamPurposeNegotiation,
     BiomeMutationEvent,
+    SwarmCodex,
+    SymbolicLawEntry,
+    RitualArchiveEntry,
 )
 from agents.serializers import (
     AgentSerializer,
@@ -74,6 +77,9 @@ from agents.serializers import (
     SymbolicAllianceSerializer,
     DreamPurposeNegotiationSerializer,
     BiomeMutationEventSerializer,
+    SwarmCodexSerializer,
+    SymbolicLawEntrySerializer,
+    RitualArchiveEntrySerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -709,4 +715,40 @@ def biome_mutations(request):
     serializer.is_valid(raise_exception=True)
     event = serializer.save()
     return Response(BiomeMutationEventSerializer(event).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def codexes(request):
+    if request.method == "GET":
+        codices = SwarmCodex.objects.all().order_by("-created_at")
+        return Response(SwarmCodexSerializer(codices, many=True).data)
+
+    serializer = SwarmCodexSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    codex = serializer.save()
+    return Response(SwarmCodexSerializer(codex).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def symbolic_laws(request):
+    if request.method == "GET":
+        laws = SymbolicLawEntry.objects.all().order_by("-created_at")
+        return Response(SymbolicLawEntrySerializer(laws, many=True).data)
+
+    serializer = SymbolicLawEntrySerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    law = serializer.save()
+    return Response(SymbolicLawEntrySerializer(law).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def ritual_archives(request):
+    if request.method == "GET":
+        archives = RitualArchiveEntry.objects.all().order_by("-created_at")
+        return Response(RitualArchiveEntrySerializer(archives, many=True).data)
+
+    serializer = RitualArchiveEntrySerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    archive = serializer.save()
+    return Response(RitualArchiveEntrySerializer(archive).data, status=201)
 

@@ -36,6 +36,9 @@ from agents.models import (
     SymbolicAlliance,
     DreamPurposeNegotiation,
     BiomeMutationEvent,
+    SwarmCodex,
+    SymbolicLawEntry,
+    RitualArchiveEntry,
 )
 from assistants.models import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -430,6 +433,27 @@ class DreamPurposeNegotiationSerializer(serializers.ModelSerializer):
 class BiomeMutationEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = BiomeMutationEvent
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SwarmCodexSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SwarmCodex
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicLawEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicLawEntry
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RitualArchiveEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RitualArchiveEntry
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

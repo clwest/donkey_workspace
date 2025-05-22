@@ -1283,3 +1283,63 @@ class BiomeMutationEvent(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Mutation {self.id}"
 
+
+class SwarmCodex(models.Model):
+    """Belief-based constitution governing parts of the swarm."""
+
+    title = models.CharField(max_length=150)
+    created_by = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    governing_alliances = models.ManyToManyField(SymbolicAlliance)
+    symbolic_domain = models.CharField(max_length=100)
+    active_laws = models.ManyToManyField("SymbolicLawEntry", blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.title
+
+
+class SymbolicLawEntry(models.Model):
+    """Encoded rule linked to a codex and memory origin."""
+
+    codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    description = models.TextField()
+    symbolic_tags = models.JSONField()
+    derived_from_memory = models.ForeignKey(
+        SwarmMemoryEntry, on_delete=models.SET_NULL, null=True
+    )
+    enforcement_scope = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Law {self.id}"
+
+
+class RitualArchiveEntry(models.Model):
+    """Immutable log of a myth-bound ritual."""
+
+    name = models.CharField(max_length=150)
+    related_memory = models.ForeignKey(
+        SwarmMemoryEntry, on_delete=models.SET_NULL, null=True
+    )
+    ceremony_type = models.CharField(max_length=100)
+    participant_assistants = models.ManyToManyField("assistants.Assistant")
+    symbolic_impact_summary = models.TextField()
+    locked_by_codex = models.ForeignKey(
+        SwarmCodex, on_delete=models.SET_NULL, null=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
+
