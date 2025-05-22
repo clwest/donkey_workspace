@@ -471,7 +471,7 @@ class AssistantProjectSerializer(serializers.ModelSerializer):
     objectives = AssistantObjectiveSerializer(many=True, read_only=True)
     milestones = ProjectMilestoneSerializer(many=True, read_only=True)
     next_actions = AssistantNextActionSerializer(many=True, read_only=True)
-    reflections = AssistantReflectionLogSerializer(many=True, read_only=True)
+    reflections = serializers.SerializerMethodField()
     delegations = DelegationEventSerializer(
         many=True, read_only=True, source="delegation_events"
     )
@@ -500,6 +500,12 @@ class AssistantProjectSerializer(serializers.ModelSerializer):
     def get_core_project_id(self, obj):
         project = obj.linked_projects.first()
         return project.id if project else None
+
+    def get_reflections(self, obj):
+        return [
+            {"id": r.id, "summary": r.summary}
+            for r in obj.reflections.all()[:5]
+        ]
 
 
 class ProjectOverviewSerializer(serializers.ModelSerializer):

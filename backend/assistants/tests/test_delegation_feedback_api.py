@@ -26,3 +26,10 @@ class DelegationFeedbackAPITest(BaseAPITestCase):
         self.assertEqual(self.event.score, 4)
         self.assertEqual(self.event.trust_label, "trusted")
         self.assertEqual(self.event.notes, "good")
+
+    def test_invalid_trust_label_ignored(self):
+        url = f"/api/assistants/delegation/{self.event.id}/feedback/"
+        resp = self.client.post(url, {"trust_label": "bad"}, format="json")
+        self.assertEqual(resp.status_code, 200)
+        self.event.refresh_from_db()
+        self.assertEqual(self.event.trust_label, "neutral")
