@@ -68,12 +68,20 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
+    ArchetypeGenesisLog,
+    MythBloomNode,
+    BeliefSeedReplication,
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
     RecursiveRitualContract,
     SwarmMythEngineInstance,
     BeliefFeedbackSignal,
+
+    PurposeGraftRecord,
+    SuccessionRitualEvent,
+    ReincarnationTreeNode,
+
 )
 
 from agents.models.coordination import (
@@ -94,7 +102,6 @@ from agents.models.markets import (
     ForecastingMarketLedger,
     SymbolicFutureContract,
     CosmoEconomicAlignmentMap,
-
 )
 
 from agents.models.storyfield import (
@@ -617,6 +624,20 @@ class ResurrectionTemplateSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at", "seed_memories"]
 
 
+class SymbolicIdentityCardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicIdentityCard
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class PersonaTemplateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PersonaTemplate
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
 class BeliefContinuityRitualSerializer(serializers.ModelSerializer):
     memory_reference_ids = serializers.PrimaryKeyRelatedField(
         queryset=SwarmMemoryEntry.objects.all(),
@@ -847,7 +868,6 @@ class RecursiveRitualContractSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-
 class SwarmMythEngineInstanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = SwarmMythEngineInstance
@@ -863,6 +883,7 @@ class BeliefFeedbackSignalSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+
 class LegacyRingSliceSerializer(serializers.ModelSerializer):
     class Meta:
         model = LegacyRingSlice
@@ -873,8 +894,10 @@ class LegacyRingSliceSerializer(serializers.ModelSerializer):
 class MemoryDendroMarkSerializer(serializers.ModelSerializer):
     class Meta:
         model = MemoryDendroMark
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 
 
 class SymbolicLifespanModelSerializer(serializers.ModelSerializer):
@@ -882,4 +905,3 @@ class SymbolicLifespanModelSerializer(serializers.ModelSerializer):
         model = SymbolicLifespanModel
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
-

@@ -47,6 +47,11 @@ export const fetchPurposeArchives = () => apiFetch("/purpose-archives/");
 export const fetchIdentityCards = () => apiFetch("/identity-cards/");
 export const createIdentityCard = (body) =>
   apiFetch("/identity-cards/", { method: "POST", body });
+export const fetchPersonaTemplates = () => apiFetch("/persona-templates/");
+export const createPersonaTemplate = (body) =>
+  apiFetch("/persona-templates/", { method: "POST", body });
+export const onboardAssistant = (body) =>
+  apiFetch("/onboarding/", { method: "POST", body });
 export const fetchTimelineReflections = () => apiFetch("/timeline-reflection/");
 export const createTimelineReflection = (body) =>
   apiFetch("/timeline-reflection/", { method: "POST", body });
@@ -65,3 +70,13 @@ export const fetchLifespanModels = () => apiFetch("/agents/lifespan-models/");
 export const fetchStoryfields = () => apiFetch("/agents/storyfields/");
 export const fetchMythPatterns = () => apiFetch("/agents/myth-patterns/");
 export const fetchIntentHarmony = () => apiFetch("/agents/intent-harmony/");
+export const fetchTrainingGrounds = () => apiFetch("/training-grounds/");
+export const createTrainingGround = (body) =>
+  apiFetch("/training-grounds/", { method: "POST", body });
+export const fetchMythEditLogs = () => apiFetch("/myth-edit-log/");
+export const createMythEditLog = (body) =>
+  apiFetch("/myth-edit-log/", { method: "POST", body });
+export const fetchLegacyContinuityVaults = () =>
+  apiFetch("/legacy-continuity-vaults/");
+export const createLegacyContinuityVault = (body) =>
+  apiFetch("/legacy-continuity-vaults/", { method: "POST", body });

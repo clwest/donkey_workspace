@@ -1811,7 +1811,6 @@ class ReflectiveFluxIndex(models.Model):
         return self.swarm_scope
 
 
-
 class RecursiveRitualContract(models.Model):
     """Repeatable symbolic logic bound to ritual reflection."""
 
@@ -1894,12 +1893,14 @@ class MemoryDendroMark(models.Model):
     symbolic_trigger_event = models.TextField()
     growth_direction = models.CharField(max_length=50)
     belief_delta = models.FloatField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return f"Mark {self.dendro_layer} for {self.memory.id}"[:50]
 
 
@@ -1911,11 +1912,14 @@ class SymbolicLifespanModel(models.Model):
     archetype_pathway = models.JSONField()
     codex_participation = models.ManyToManyField(SwarmCodex)
     reflective_summary = models.TextField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return f"Lifespan for {self.assistant.name}"[:50]
+
 

@@ -83,9 +83,18 @@ urlpatterns = [
     path("api/cosmological-roles/", agent_views.cosmological_roles),
     path("api/myth-weaver/", agent_views.myth_weaver),
     path("api/legacy-vaults/", agent_views.legacy_vaults),
+    path("api/training-grounds/", agent_views.training_grounds),
+    path("api/myth-edit-log/", agent_views.myth_edit_log),
+    path(
+        "api/legacy-continuity-vaults/",
+        agent_views.legacy_continuity_vaults,
+    ),
     path("api/resonance-graphs/", agent_views.resonance_graphs),
     path("api/cognitive-balance/", agent_views.cognitive_balance_reports),
     path("api/purpose-migrations/", agent_views.purpose_migrations),
+    path("api/purpose-grafts/", agent_views.purpose_grafts),
+    path("api/succession-rituals/", agent_views.succession_rituals),
+    path("api/reincarnation-forest/", agent_views.reincarnation_forest),
 
     path("api/storyfields/", agent_views.storyfields),
     path("api/myth-patterns/", agent_views.myth_patterns),
@@ -96,9 +105,11 @@ urlpatterns = [
     path("api/signal-artifacts/", agent_views.signal_artifacts),
     path("api/navigation-vectors/", agent_views.navigation_vectors),
     path("api/flux-index/", agent_views.flux_index),
+
     path("api/legacy-rings/", agent_views.legacy_rings),
     path("api/memory-dendro/", agent_views.memory_dendro),
     path("api/lifespan-models/", agent_views.lifespan_models),
+
  
     path("api/documents/", include("documents.urls")),
     path("api/tools/", include("tools.urls")),
