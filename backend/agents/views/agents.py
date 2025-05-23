@@ -92,7 +92,7 @@ from agents.models.lore import (
     MythicResolutionSequence,
 
     LegacyArtifactExporter,
-    SymbolicPatternBroadcastEngine,
+
 
 
 )
@@ -120,7 +120,7 @@ from agents.models.storyfield import (
 
 )
 
-from agents.models.mythchain import MythchainOutputGenerator, NarrativeArtifactExporter
+from agents.models.mythchain import MythchainOutputGenerator, NarrativeArtifactExporter, SymbolicPatternBroadcastEngine
 
 # from simulation.models import SceneDirectorFrame
 from agents.serializers import (
