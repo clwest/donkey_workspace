@@ -42,6 +42,7 @@ urlpatterns = [
     path("memory/compress/", agents.memory_compress),
     path("codex/reshape/", agents.codex_reshape),
 
+
     path("onboarding/ritual/", agents.onboarding_ritual),
     path("codex/briefing/", agents.codex_briefing),
 
