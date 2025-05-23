@@ -92,3 +92,11 @@ export const fetchLegacyContinuityVaults = () =>
   apiFetch("/legacy-continuity-vaults/");
 export const createLegacyContinuityVault = (body) =>
   apiFetch("/legacy-continuity-vaults/", { method: "POST", body });
+
+export const fetchVisualArchetypeCard = (assistantId) =>
+  apiFetch(`/mythos/assistants/${assistantId}/archetype-card/`);
+
+export const fetchAvailableRituals = (params) =>
+  apiFetch(`/mythos/ritual-launchpads/`, { params });
+
+export const fetchCodexInteraction = () => apiFetch(`/mythos/codex/`);
