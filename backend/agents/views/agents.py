@@ -113,6 +113,9 @@ from agents.models.deployment import (
     SymbolicResilienceMonitor,
     MythOSDeploymentPacket,
     BeliefDeploymentStrategyEngine,
+    GuildDeploymentKit,
+    AssistantNetworkTransferProtocol,
+    RitualFunctionContainer,
 )
 from agents.models.forecast import SymbolicForecastIndex,AssistantSentimentModelEngine
 from agents.models.governance import SymbolicConsensusChamber, RitualNegotiationEngine, NarrativeGovernanceModel
@@ -1323,6 +1326,9 @@ from agents.serializers import (
     SymbolicResilienceMonitorSerializer,
     MythOSDeploymentPacketSerializer,
     BeliefDeploymentStrategyEngineSerializer,
+    GuildDeploymentKitSerializer,
+    AssistantNetworkTransferProtocolSerializer,
+    RitualFunctionContainerSerializer,
 )
 
 
@@ -1507,6 +1513,45 @@ def deployment_strategies(request):
     serializer.is_valid(raise_exception=True)
     strategy = serializer.save()
     return Response(BeliefDeploymentStrategyEngineSerializer(strategy).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def deployment_kits(request):
+    if request.method == "GET":
+        kits = GuildDeploymentKit.objects.all().order_by("-created_at")
+        return Response(GuildDeploymentKitSerializer(kits, many=True).data)
+
+    serializer = GuildDeploymentKitSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    kit = serializer.save()
+    return Response(GuildDeploymentKitSerializer(kit).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def assistant_transfers(request, assistant_id=None):
+    if request.method == "GET":
+        if assistant_id:
+            transfers = AssistantNetworkTransferProtocol.objects.filter(assistant_id=assistant_id).order_by("-created_at")
+        else:
+            transfers = AssistantNetworkTransferProtocol.objects.all().order_by("-created_at")
+        return Response(AssistantNetworkTransferProtocolSerializer(transfers, many=True).data)
+
+    serializer = AssistantNetworkTransferProtocolSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    transfer = serializer.save()
+    return Response(AssistantNetworkTransferProtocolSerializer(transfer).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def ritual_containers(request):
+    if request.method == "GET":
+        containers = RitualFunctionContainer.objects.all().order_by("-created_at")
+        return Response(RitualFunctionContainerSerializer(containers, many=True).data)
+
+    serializer = RitualFunctionContainerSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    container = serializer.save()
+    return Response(RitualFunctionContainerSerializer(container).data, status=201)
 
 
 @api_view(["GET", "POST"])

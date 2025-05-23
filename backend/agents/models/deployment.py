@@ -52,3 +52,57 @@ class BeliefDeploymentStrategyEngine(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return self.target_environment
+
+class GuildDeploymentKit(models.Model):
+    """Portable belief package configured for a guild."""
+
+    guild = models.ForeignKey(
+        'assistants.CodexLinkedGuild', on_delete=models.CASCADE
+    )
+    included_codices = models.ManyToManyField(SwarmCodex)
+    assistant_manifest = models.ManyToManyField('assistants.Assistant')
+    symbolic_parameters = models.JSONField()
+    deployment_notes = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Deployment kit for {self.guild.guild_name}"
+
+
+class AssistantNetworkTransferProtocol(models.Model):
+    """Transfer assistant state between symbolic networks."""
+
+    assistant = models.ForeignKey('assistants.Assistant', on_delete=models.CASCADE)
+    source_network = models.CharField(max_length=150)
+    target_network = models.CharField(max_length=150)
+    symbolic_transfer_packet = models.JSONField()
+    codex_compatibility_log = models.TextField()
+    successful_transfer_flag = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Transfer {self.assistant.name} to {self.target_network}"
+
+
+class RitualFunctionContainer(models.Model):
+    """Containerized ritual execution with state persistence."""
+
+    ritual = models.ForeignKey(EncodedRitualBlueprint, on_delete=models.CASCADE)
+    assistant = models.ForeignKey('assistants.Assistant', on_delete=models.CASCADE)
+    execution_context = models.JSONField()
+    symbolic_input_log = models.JSONField()
+    result_trace = models.TextField()
+    container_status = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Container for {self.ritual.name}"

@@ -145,6 +145,9 @@ from agents.models.deployment import (
     SymbolicResilienceMonitor,
     MythOSDeploymentPacket,
     BeliefDeploymentStrategyEngine,
+    GuildDeploymentKit,
+    AssistantNetworkTransferProtocol,
+    RitualFunctionContainer,
 )
 from agents.models.cosmology import SwarmCosmology
 from agents.models.swarm_balance import (
@@ -895,6 +898,27 @@ class MythOSDeploymentPacketSerializer(serializers.ModelSerializer):
 class BeliefDeploymentStrategyEngineSerializer(serializers.ModelSerializer):
     class Meta:
         model = BeliefDeploymentStrategyEngine
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class GuildDeploymentKitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GuildDeploymentKit
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class AssistantNetworkTransferProtocolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantNetworkTransferProtocol
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RitualFunctionContainerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RitualFunctionContainer
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

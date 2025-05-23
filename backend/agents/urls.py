@@ -130,6 +130,9 @@ urlpatterns = [
     path("system/resilience/", agents.resilience_monitors),
     path("deploy/packet/", agents.deployment_packets),
     path("deploy/strategy/", agents.deployment_strategies),
+    path("deploy/kits/", agents.deployment_kits),
+    path("assistants/<uuid:assistant_id>/transfer/", agents.assistant_transfers),
+    path("ritual/containers/", agents.ritual_containers),
     path("assistants/<uuid:assistant_id>/sentiment/", agents.assistant_sentiments),
 
     path("clusters/", agents.list_clusters),
