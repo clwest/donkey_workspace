@@ -1,4 +1,6 @@
 from assistants.models.thoughts import AssistantThoughtLog
+from assistants.models.project import AssistantProject
+from project.models import Project
 from .mood import detect_mood, update_mood_stability
 
 
@@ -18,6 +20,11 @@ def log_assistant_thought(
     Save a thought from or about the assistant to the AssistantThoughtLog.
     """
     mood = detect_mood(thought)
+    core_project = project
+    if isinstance(project, AssistantProject):
+        core_project = project.linked_projects.first() or Project.objects.filter(
+            assistant_project=project
+        ).first()
     log = AssistantThoughtLog.objects.create(
         assistant=assistant,
         thought=thought,
@@ -25,7 +32,7 @@ def log_assistant_thought(
         linked_memory=linked_memory,
         linked_reflection=linked_reflection,
         linked_event=linked_event,
-        project=project,
+        project=core_project,
         thought_type=thought_type,
         mood=mood,
         mood_snapshot={"mood": mood, "stability": assistant.mood_stability_index},
