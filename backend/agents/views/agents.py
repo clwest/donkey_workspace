@@ -64,6 +64,9 @@ from agents.models.lore import (
     CosmogenesisSimulation,
     MythicForecastPulse,
     BeliefAtlasSnapshot,
+    MythicContract,
+    DreamLiquidityPool,
+    RoleSymbolExchange,
     SymbolicWeatherFront,
     PurposeIndexEntry,
     BeliefSignalNode,
@@ -157,6 +160,9 @@ from agents.serializers import (
     CosmogenesisSimulationSerializer,
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
+    MythicContractSerializer,
+    DreamLiquidityPoolSerializer,
+    RoleSymbolExchangeSerializer,
     SymbolicWeatherFrontSerializer,
 
     MythflowOrchestrationPlanSerializer,
@@ -1303,36 +1309,38 @@ def intent_harmony(request):
 
 
 @api_view(["GET", "POST"])
-def strategy_chambers(request):
-    if request.method == "GET":
-        chambers = SymbolicStrategyChamber.objects.all().order_by("-created_at")
-        return Response(SymbolicStrategyChamberSerializer(chambers, many=True).data)
 
-    serializer = SymbolicStrategyChamberSerializer(data=request.data)
+def mythic_contracts(request):
+    if request.method == "GET":
+        contracts = MythicContract.objects.all().order_by("-created_at")
+        return Response(MythicContractSerializer(contracts, many=True).data)
+
+    serializer = MythicContractSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    chamber = serializer.save()
-    return Response(SymbolicStrategyChamberSerializer(chamber).data, status=201)
+    contract = serializer.save()
+    return Response(MythicContractSerializer(contract).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def conflict_resolution(request):
+def dream_pools(request):
     if request.method == "GET":
-        logs = PurposeConflictResolutionLog.objects.all().order_by("-created_at")
-        return Response(PurposeConflictResolutionLogSerializer(logs, many=True).data)
+        pools = DreamLiquidityPool.objects.all().order_by("-created_at")
+        return Response(DreamLiquidityPoolSerializer(pools, many=True).data)
 
-    serializer = PurposeConflictResolutionLogSerializer(data=request.data)
+    serializer = DreamLiquidityPoolSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    log = serializer.save()
-    return Response(PurposeConflictResolutionLogSerializer(log).data, status=201)
+    pool = serializer.save()
+    return Response(DreamLiquidityPoolSerializer(pool).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def ritual_votes(request):
+def symbol_exchange(request):
     if request.method == "GET":
-        events = RitualVotingEvent.objects.all().order_by("-created_at")
-        return Response(RitualVotingEventSerializer(events, many=True).data)
+        exchanges = RoleSymbolExchange.objects.all().order_by("-last_updated")
+        return Response(RoleSymbolExchangeSerializer(exchanges, many=True).data)
 
-    serializer = RitualVotingEventSerializer(data=request.data)
+    serializer = RoleSymbolExchangeSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    event = serializer.save()
-    return Response(RitualVotingEventSerializer(event).data, status=201)
+    exchange = serializer.save()
+    return Response(RoleSymbolExchangeSerializer(exchange).data, status=201)
+
