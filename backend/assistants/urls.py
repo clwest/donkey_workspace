@@ -1,5 +1,3 @@
-
-
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
@@ -66,7 +64,6 @@ urlpatterns = [
         views.assistant_sensory_profile,
         name="assistant-sensory-profile",
     ),
-
     path(
         "primary/delegations/",
         delegations.primary_delegations,
@@ -679,6 +676,11 @@ urlpatterns = [
         "<uuid:assistant_id>/interface/",
         interface_views.assistant_interface,
         name="assistant-interface",
+    ),
+    path(
+        "new/interface/",
+        interface_views.new_assistant_interface,
+        name="assistant-new-interface",
     ),
     path("ux/playbooks/", interface_views.ux_playbooks, name="ux-playbooks"),
     path(
