@@ -67,9 +67,9 @@ from agents.models.lore import (
     DreamIntelligenceNode,
     MissionConsensusRound,
     NarrativeRealignmentProposal,
-    EpistemicCurrent,
-    FeedbackAnchorNode,
-    KnowledgeEcologyMap,
+    EncodedRitualBlueprint,
+    RitualSimulationLog,
+    MemoryReprogrammingScript,
 
 )
 from agents.models.coordination import (
@@ -149,9 +149,9 @@ from agents.serializers import (
     DreamIntelligenceNodeSerializer,
     MissionConsensusRoundSerializer,
     NarrativeRealignmentProposalSerializer,
-    EpistemicCurrentSerializer,
-    FeedbackAnchorNodeSerializer,
-    KnowledgeEcologyMapSerializer,
+    EncodedRitualBlueprintSerializer,
+    RitualSimulationLogSerializer,
+    MemoryReprogrammingScriptSerializer,
 
 )
 from assistants.serializers import (
@@ -1194,4 +1194,40 @@ def knowledge_ecology_maps(request):
     serializer.is_valid(raise_exception=True)
     km = serializer.save()
     return Response(KnowledgeEcologyMapSerializer(km).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def ritual_blueprints(request):
+    if request.method == "GET":
+        blueprints = EncodedRitualBlueprint.objects.all().order_by("-created_at")
+        return Response(EncodedRitualBlueprintSerializer(blueprints, many=True).data)
+
+    serializer = EncodedRitualBlueprintSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    blueprint = serializer.save()
+    return Response(EncodedRitualBlueprintSerializer(blueprint).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def ritual_simulations(request):
+    if request.method == "GET":
+        logs = RitualSimulationLog.objects.all().order_by("-created_at")
+        return Response(RitualSimulationLogSerializer(logs, many=True).data)
+
+    serializer = RitualSimulationLogSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    log = serializer.save()
+    return Response(RitualSimulationLogSerializer(log).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def memory_reprogramming(request):
+    if request.method == "GET":
+        scripts = MemoryReprogrammingScript.objects.all().order_by("-created_at")
+        return Response(MemoryReprogrammingScriptSerializer(scripts, many=True).data)
+
+    serializer = MemoryReprogrammingScriptSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    script = serializer.save()
+    return Response(MemoryReprogrammingScriptSerializer(script).data, status=201)
 

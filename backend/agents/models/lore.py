@@ -1622,3 +1622,53 @@ class LearningReservoir(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Realignment by {self.initiated_by.name}"[:50]
 
+
+class EncodedRitualBlueprint(models.Model):
+    """Defines the symbolic procedure and outcome of a formalized ritual."""
+
+    name = models.CharField(max_length=150)
+    creator = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    symbolic_steps = models.JSONField()
+    transformation_goal = models.TextField()
+    applicable_roles = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
+
+
+class RitualSimulationLog(models.Model):
+    """Logs assistant performance during ritual simulations."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    blueprint = models.ForeignKey(EncodedRitualBlueprint, on_delete=models.CASCADE)
+    outcome_description = models.TextField()
+    symbolic_success_rate = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"{self.assistant.name} -> {self.blueprint.name}"[:50]
+
+
+class MemoryReprogrammingScript(models.Model):
+    """Alters or reframes memory narratives through ritual triggers."""
+
+    target_memory = models.ForeignKey(SwarmMemoryEntry, on_delete=models.CASCADE)
+    initiated_by = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    trigger_condition = models.TextField()
+    rewrite_directive = models.TextField()
+    validation_result = models.CharField(max_length=100, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Rewrite for {self.target_memory.id}"[:50]
+

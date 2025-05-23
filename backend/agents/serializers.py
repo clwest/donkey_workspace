@@ -64,9 +64,9 @@ from agents.models.lore import (
     DreamIntelligenceNode,
     MissionConsensusRound,
     NarrativeRealignmentProposal,
-    EpistemicCurrent,
-    FeedbackAnchorNode,
-    KnowledgeEcologyMap,
+    EncodedRitualBlueprint,
+    RitualSimulationLog,
+    MemoryReprogrammingScript,
 )
 
 from agents.models.coordination import (
@@ -721,6 +721,27 @@ class FeedbackAnchorNodeSerializer(serializers.ModelSerializer):
 class KnowledgeEcologyMapSerializer(serializers.ModelSerializer):
     class Meta:
         model = KnowledgeEcologyMap
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class EncodedRitualBlueprintSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EncodedRitualBlueprint
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RitualSimulationLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RitualSimulationLog
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MemoryReprogrammingScriptSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemoryReprogrammingScript
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
