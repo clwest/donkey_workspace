@@ -2159,6 +2159,7 @@ class RitualOnboardingFlow(models.Model):
         return self.entry_name
 
 
+
 class BeliefInheritanceTree(models.Model):
     """Lineage-style belief mapping between a user and an assistant."""
 
@@ -2173,6 +2174,7 @@ class BeliefInheritanceTree(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return f"BeliefTree {self.user_id}"[:50]
 
 
@@ -2185,11 +2187,14 @@ class RitualResponseArchive(models.Model):
     ritual_inputs = models.JSONField()
     output_summary = models.TextField()
     belief_state_shift = models.JSONField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return f"RitualArchive {self.id}"
+
 
