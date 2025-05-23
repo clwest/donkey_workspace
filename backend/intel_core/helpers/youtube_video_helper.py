@@ -49,7 +49,13 @@ def process_youtube_video(youtube_url):
         return []
 
     try:
-        transcript = YouTubeTranscriptApi.get_transcript(video_id)
+        transcript = (
+            YouTubeTranscriptApi.get_transcript(
+                video_id, youtube_api_key=api_key
+            )
+            if api_key
+            else YouTubeTranscriptApi.get_transcript(video_id)
+        )
     except NoTranscriptFound:
         logger.warning(f"No subtitles found for video {youtube_url}.")
         return []
@@ -57,8 +63,18 @@ def process_youtube_video(youtube_url):
         logger.error(f"Transcript unavailable for {youtube_url}: {exc}")
         return []
     except Exception as exc:
-        logger.error(f"Error fetching transcript for {youtube_url}: {exc}")
-        return []
+        # Retry without API key if first attempt failed and a key was used
+        if api_key:
+            try:
+                transcript = YouTubeTranscriptApi.get_transcript(video_id)
+            except Exception as inner_exc:
+                logger.error(
+                    f"Error fetching transcript for {youtube_url}: {inner_exc}"
+                )
+                return []
+        else:
+            logger.error(f"Error fetching transcript for {youtube_url}: {exc}")
+            return []
 
     try:
         transcript_text = " ".join(item.get("text", "") for item in transcript)
