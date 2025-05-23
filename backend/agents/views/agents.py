@@ -139,6 +139,7 @@ from agents.models.swarm_balance import SymbolicResonanceGraph, CognitiveBalance
 from agents.models.identity import PersonaFusionEvent
 # from simulation.models import SceneDirectorFrame
 from agents.serializers import (
+    NarrativeGovernanceModelSerializer,
     SymbolicPatternBroadcastEngineSerializer,
     MythchainOutputGeneratorSerializer,
     NarrativeArtifactExporterSerializer,
