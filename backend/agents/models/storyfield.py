@@ -2,6 +2,9 @@ from django.db import models
 
 from .lore import SwarmMemoryEntry, SwarmCodex, EncodedRitualBlueprint
 
+# used in multiple storyfield models
+from assistants.models import Assistant
+
 
 class StoryfieldZone(models.Model):
     """Interactive narrative layer tuned to assistant archetypes."""
@@ -146,3 +149,45 @@ class RitualPreservationLibrary(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.library_name
+
+
+class SymbolicFeedbackChamber(models.Model):
+    """Guided multi-perspective belief review space."""
+
+    chamber_title = models.CharField(max_length=150)
+    participant_ids = models.JSONField()
+    codex_review = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    memory_archive = models.ManyToManyField(SwarmMemoryEntry)
+    ritual_scorecards = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class MultiAgentDialogueAmplifier(models.Model):
+    """Blend assistant responses into unified mythic conclusions."""
+
+    amplifier_title = models.CharField(max_length=150)
+    agents_involved = models.ManyToManyField(Assistant)
+    active_codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    layered_response = models.TextField()
+    symbolic_resonance_score = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class MythicResolutionSequence(models.Model):
+    """Finalize narrative arcs and preserve legacy artifacts."""
+
+    assistant = models.ForeignKey(Assistant, on_delete=models.CASCADE)
+    resolution_steps = models.JSONField()
+    codex_closure_state = models.TextField()
+    legacy_artifacts = models.JSONField()
+    symbolic_final_score = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
