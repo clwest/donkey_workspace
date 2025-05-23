@@ -30,3 +30,4 @@ export const fetchRitualMastery = () => apiFetch("/agents/ritual-mastery/");
 export const fetchPilgrimages = () => apiFetch("/agents/pilgrimages/");
 export const initiateReincarnation = (assistant_id) =>
   apiFetch("/agents/reincarnation/", { method: "POST", body: { assistant_id } });
+

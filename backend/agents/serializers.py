@@ -67,6 +67,7 @@ from agents.models.lore import (
     EncodedRitualBlueprint,
     RitualMasteryRecord,
     PilgrimageLog,
+
 )
 
 from agents.models.coordination import (
@@ -679,27 +680,69 @@ class MythflowInsightSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
-
-
-class DreamIntelligenceNodeSerializer(serializers.ModelSerializer):
+class KnowledgeReplicationEventSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DreamIntelligenceNode
+        model = KnowledgeReplicationEvent
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
 
-class MissionConsensusRoundSerializer(serializers.ModelSerializer):
+class MemoryBroadcastPacketSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MissionConsensusRound
+        model = MemoryBroadcastPacket
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-
-class NarrativeRealignmentProposalSerializer(serializers.ModelSerializer):
+class LearningReservoirSerializer(serializers.ModelSerializer):
     class Meta:
-        model = NarrativeRealignmentProposal
+        model = LearningReservoir
+
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class EpistemicCurrentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EpistemicCurrent
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class FeedbackAnchorNodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FeedbackAnchorNode
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class KnowledgeEcologyMapSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = KnowledgeEcologyMap
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class EncodedRitualBlueprintSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EncodedRitualBlueprint
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RitualSimulationLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RitualSimulationLog
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MemoryReprogrammingScriptSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemoryReprogrammingScript
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
