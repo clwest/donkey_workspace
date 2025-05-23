@@ -7,7 +7,12 @@ from .models import (
     SimulationStateTracker,
     MythflowSession,
     SymbolicDialogueExchange,
+    SymbolicDialogueScript,
+    MemoryDecisionTreeNode,
+    MythflowReflectionLoop,
     CinemythStoryline,
+    SceneControlEngine,
+    SceneDirectorFrame,
     PurposeLoopCinematicEngine,
     ReflectiveTheaterSession,
     MythflowPlaybackSession,
@@ -106,6 +111,41 @@ class SymbolicMilestoneLogSerializer(serializers.ModelSerializer):
 class PersonalRitualGuideSerializer(serializers.ModelSerializer):
     class Meta:
         model = PersonalRitualGuide
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicDialogueScriptSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicDialogueScript
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MemoryDecisionTreeNodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemoryDecisionTreeNode
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MythflowReflectionLoopSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythflowReflectionLoop
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SceneControlEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SceneControlEngine
+        fields = "__all__"
+        read_only_fields = ["id", "last_updated"]
+
+
+class SceneDirectorFrameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SceneDirectorFrame
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

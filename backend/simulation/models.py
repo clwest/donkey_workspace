@@ -147,3 +147,63 @@ class PersonalRitualGuide(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+class SymbolicDialogueScript(models.Model):
+    """Dialogue scaffold referencing codex rules."""
+
+    title = models.CharField(max_length=150)
+    narrative_context = models.TextField()
+    dialogue_sequence = models.JSONField()
+    archetype_tags = models.JSONField()
+    author = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    codex_link = models.ForeignKey("agents.SwarmCodex", on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class MemoryDecisionTreeNode(models.Model):
+    """Branching logic driven by memory conditions."""
+
+    script = models.ForeignKey(SymbolicDialogueScript, on_delete=models.CASCADE)
+    memory_reference = models.ForeignKey(
+        "agents.SwarmMemoryEntry", on_delete=models.CASCADE
+    )
+    symbolic_condition = models.TextField()
+    decision_options = models.JSONField()
+    resulting_path = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class MythflowReflectionLoop(models.Model):
+    """Record of narrative reflection cycles."""
+
+    session = models.ForeignKey(MythflowSession, on_delete=models.CASCADE)
+    triggered_by = models.CharField(max_length=100)
+    loop_reflections = models.TextField()
+    belief_realignment_score = models.FloatField()
+    involved_assistants = models.ManyToManyField("assistants.Assistant")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class SceneControlEngine(models.Model):
+    """Maintain symbolic scene state."""
+
+    session = models.ForeignKey(MythflowSession, on_delete=models.CASCADE)
+    scene_title = models.CharField(max_length=150)
+    active_roles = models.JSONField()
+    symbolic_scene_state = models.JSONField()
+    codex_constraints = models.ManyToManyField("agents.SwarmCodex")
+    last_updated = models.DateTimeField(auto_now=True)
+
+
+class SceneDirectorFrame(models.Model):
+    """Snapshots of director adjustments during a scene."""
+
+    session = models.ForeignKey(MythflowSession, on_delete=models.CASCADE)
+    director_assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    symbolic_adjustments = models.JSONField()
+    role_reassignments = models.JSONField()
+    final_scene_notes = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
