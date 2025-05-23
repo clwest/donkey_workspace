@@ -26,3 +26,7 @@ export const fetchMythflowInsights = () =>
 export const fetchInsightHubs = () => apiFetch("/insight-hubs/");
 export const fetchPerspectiveMerges = () => apiFetch("/perspective-merges/");
 export const fetchTimelineStitchLogs = () => apiFetch("/timeline-stitching/");
+export const fetchRitualMastery = () => apiFetch("/agents/ritual-mastery/");
+export const fetchPilgrimages = () => apiFetch("/agents/pilgrimages/");
+export const initiateReincarnation = (assistant_id) =>
+  apiFetch("/agents/reincarnation/", { method: "POST", body: { assistant_id } });

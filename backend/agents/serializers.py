@@ -64,6 +64,9 @@ from agents.models.lore import (
     DreamIntelligenceNode,
     MissionConsensusRound,
     NarrativeRealignmentProposal,
+    EncodedRitualBlueprint,
+    RitualMasteryRecord,
+    PilgrimageLog,
 )
 
 from agents.models.coordination import (
@@ -697,6 +700,27 @@ class MissionConsensusRoundSerializer(serializers.ModelSerializer):
 class NarrativeRealignmentProposalSerializer(serializers.ModelSerializer):
     class Meta:
         model = NarrativeRealignmentProposal
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class EncodedRitualBlueprintSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EncodedRitualBlueprint
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RitualMasteryRecordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RitualMasteryRecord
+        fields = "__all__"
+        read_only_fields = ["id", "last_updated"]
+
+
+class PilgrimageLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PilgrimageLog
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

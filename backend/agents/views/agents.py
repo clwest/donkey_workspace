@@ -67,6 +67,9 @@ from agents.models.lore import (
     DreamIntelligenceNode,
     MissionConsensusRound,
     NarrativeRealignmentProposal,
+    EncodedRitualBlueprint,
+    RitualMasteryRecord,
+    PilgrimageLog,
 )
 from agents.models.coordination import (
     CollaborationThread,
@@ -145,6 +148,9 @@ from agents.serializers import (
     DreamIntelligenceNodeSerializer,
     MissionConsensusRoundSerializer,
     NarrativeRealignmentProposalSerializer,
+    EncodedRitualBlueprintSerializer,
+    RitualMasteryRecordSerializer,
+    PilgrimageLogSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -172,6 +178,7 @@ from agents.utils.myth_verification import (
 
 from agents.utils import harmonize_global_narrative
 from agents.utils.myth_weaver import weave_recursive_myth
+from agents.utils.reincarnation import initiate_reincarnation_flow
 
 from datetime import datetime
 
@@ -1152,4 +1159,38 @@ def narrative_realignment_proposals(request):
     serializer.is_valid(raise_exception=True)
     proposal = serializer.save()
     return Response(NarrativeRealignmentProposalSerializer(proposal).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def ritual_mastery_records(request):
+    if request.method == "GET":
+        records = RitualMasteryRecord.objects.all().order_by("-last_updated")
+        return Response(RitualMasteryRecordSerializer(records, many=True).data)
+
+    serializer = RitualMasteryRecordSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    record = serializer.save()
+    return Response(RitualMasteryRecordSerializer(record).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def pilgrimages(request):
+    if request.method == "GET":
+        logs = PilgrimageLog.objects.all().order_by("-created_at")
+        return Response(PilgrimageLogSerializer(logs, many=True).data)
+
+    serializer = PilgrimageLogSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    log = serializer.save()
+    return Response(PilgrimageLogSerializer(log).data, status=201)
+
+
+@api_view(["POST"])
+def reincarnation_interface(request):
+    assistant_id = request.data.get("assistant_id")
+    if not assistant_id:
+        return Response({"error": "assistant_id required"}, status=400)
+
+    data = initiate_reincarnation_flow(int(assistant_id))
+    return Response(data)
 

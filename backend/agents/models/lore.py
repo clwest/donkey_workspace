@@ -1629,3 +1629,51 @@ class NarrativeRealignmentProposal(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Realignment by {self.initiated_by.name}"[:50]
+
+
+class EncodedRitualBlueprint(models.Model):
+    """Reusable encoded blueprint describing a symbolic ritual."""
+
+    name = models.CharField(max_length=150)
+    blueprint_code = models.TextField()
+    symbolic_tags = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
+
+
+class RitualMasteryRecord(models.Model):
+    """Track ritual progress and mastery traits for an assistant."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    completed_rituals = models.ManyToManyField(EncodedRitualBlueprint, blank=True)
+    symbolic_rank = models.CharField(max_length=100)
+    mastery_traits = models.JSONField()
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-last_updated"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"{self.assistant.name} mastery"
+
+
+class PilgrimageLog(models.Model):
+    """Narrative traversal record for assistant journeys."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    pilgrimage_title = models.CharField(max_length=150)
+    steps = models.JSONField()
+    transformation_notes = models.TextField()
+    completed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.pilgrimage_title

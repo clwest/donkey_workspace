@@ -18,3 +18,15 @@ def reincarnate_assistant_from_artifact(artifact: LegacyArtifact) -> Assistant:
     )
     log.inherited_artifacts.add(artifact)
     return assistant
+
+
+def initiate_reincarnation_flow(assistant_id: int) -> dict:
+    """Propose a rebirth blueprint using the assistant's current context."""
+
+    assistant = Assistant.objects.get(id=assistant_id)
+    blueprint = {
+        "name": f"{assistant.name}-rebirth",
+        "legacy_traits": assistant.traits,
+        "preferred_model": assistant.preferred_model,
+    }
+    return {"assistant": assistant_id, "blueprint": blueprint}
