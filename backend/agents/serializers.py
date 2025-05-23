@@ -83,7 +83,11 @@ from agents.models.lore import (
     PublicRitualLogEntry,
     BeliefContinuityThread,
     CodexContributionCeremony,
+    MemoryEchoEffectMap,
     DialogueCodexMutationLog,
+    NarrativeLightingEngine,
+    CodexVisualElementLayer,
+    AssistantAestheticCloneProfile,
 )
 
 from agents.models.coordination import (
@@ -98,7 +102,11 @@ from agents.models.insight import (
     PerspectiveMergeEvent,
     TimelineStitchLog,
 )
-from agents.models.identity import SymbolicIdentityCard, PersonaTemplate, PersonaFusionEvent
+from agents.models.identity import (
+    SymbolicIdentityCard,
+    PersonaTemplate,
+    PersonaFusionEvent,
+)
 from agents.models.cosmology import SwarmCosmology
 from agents.models.swarm_balance import PurposeMigrationEvent, CognitiveBalanceReport
 from agents.models.markets import (
@@ -971,3 +979,12 @@ class CodexContributionCeremonySerializer(serializers.ModelSerializer):
         model = CodexContributionCeremony
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
+
+class MemoryEchoEffectMapSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemoryEchoEffectMap
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+

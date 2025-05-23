@@ -45,7 +45,15 @@ from .models.reflection import (
     AssistantReflectionLog,
     AssistantReflectionInsight,
 )
-from .models.thoughts import AssistantThoughtLog, EmotionalResonanceLog, CollaborationLog
+from .models.thoughts import (
+    AssistantThoughtLog,
+    EmotionalResonanceLog,
+    CollaborationLog,
+)
+from .models.extensions import (
+    HapticFeedbackChannel,
+    AssistantSensoryExtensionProfile,
+)
 from .models.project import AssistantNextAction, ProjectPlanningLog
 from .models.core import  AssistantMythLayer
 
@@ -1254,6 +1262,7 @@ class AutonomyNarrativeModelSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+
 class SymbolicUXPlaybookSerializer(serializers.ModelSerializer):
     class Meta:
         model = SymbolicUXPlaybook
@@ -1264,6 +1273,7 @@ class SymbolicUXPlaybookSerializer(serializers.ModelSerializer):
 class RoleDrivenUITemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = RoleDrivenUITemplate
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
