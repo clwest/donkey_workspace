@@ -7,7 +7,9 @@ from .models import (
     SimulationStateTracker,
     MythflowSession,
     SymbolicDialogueExchange,
-    SceneDirectorFrame,
+    BeliefNarrativeEngineInstance,
+    SymbolicAuthorityTransferLog,
+    MemoryCinematicFragment,
 
 )
 
@@ -57,9 +59,24 @@ class SymbolicDialogueExchangeSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
-class SceneDirectorFrameSerializer(serializers.ModelSerializer):
+
+class BeliefNarrativeEngineInstanceSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SceneDirectorFrame
+        model = BeliefNarrativeEngineInstance
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicAuthorityTransferLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicAuthorityTransferLog
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MemoryCinematicFragmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemoryCinematicFragment
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

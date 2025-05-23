@@ -13,9 +13,9 @@ from .views.session import (
     RoleplayPersonaModuleView,
 )
 
-from .views.dialogue import SymbolicDialogueScriptViewSet
-from .views.decision import MemoryDecisionTreeNodeViewSet
-from .views.scene import SceneControlEngineViewSet
+from .views.engine import BeliefNarrativeEngineInstanceViewSet
+from .views.authority import SymbolicAuthorityTransferLogViewSet
+from .views.cinematic import MemoryCinematicFragmentViewSet
 
 from .views.sandbox import SimulationRunView
 
@@ -30,6 +30,21 @@ router.register(
 router.register(r"config", SimulationConfigViewSet, basename="simulation-config")
 router.register(r"mythflow-sessions", MythflowSessionViewSet, basename="mythflow-session")
 router.register(r"dialogue-exchange", SymbolicDialogueExchangeViewSet, basename="dialogue-exchange")
+router.register(
+    r"narrative-engines",
+    BeliefNarrativeEngineInstanceViewSet,
+    basename="narrative-engine",
+)
+router.register(
+    r"authority-transfers",
+    SymbolicAuthorityTransferLogViewSet,
+    basename="authority-transfer",
+)
+router.register(
+    r"memory-cinematics",
+    MemoryCinematicFragmentViewSet,
+    basename="memory-cinematic",
+)
 
 router.register(r"dialogue-scripts", SymbolicDialogueScriptViewSet, basename="dialogue-script")
 router.register(r"decision-trees", MemoryDecisionTreeNodeViewSet, basename="decision-tree")
