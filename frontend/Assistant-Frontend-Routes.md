@@ -48,6 +48,9 @@ This file documents all frontend route paths under `/assistants/`, their associa
 | `/dream` | `DreamframePage` | Playback symbolic dream footage |
 | `/ritual` | `MythOSRitualsPage` | Launch available rituals |
 | `/reflection` | `ReflectionPage` | Personal reflection console |
+| `/ritual/rewards` | `RitualRewardsPage` | View symbolic earnings and claim incentives |
+| `/assistants/:id/economy` | `AssistantEconomyPage` | Assistant codex alignment and belief productivity |
+| `/guilds/:id/funding` | `GuildFundingPage` | Manage guild symbolic reserves and proposals |
 
 ✅ **Note:** All routes now follow the `/assistants/` prefix for clarity and consistency.
 

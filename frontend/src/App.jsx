@@ -134,6 +134,9 @@ import AssistantAuraPage from "./pages/assistant/common/AssistantAuraPage";
 import ProphecyEnginePage from "./pages/prophecy/ProphecyEnginePage";
 import MemoryPredictionPage from "./pages/memory/MemoryPredictionPage";
 import RitualForecastPage from "./pages/ritual/RitualForecastPage";
+import RitualRewardsPage from "./pages/ritual/RitualRewardsPage";
+import AssistantEconomyPage from "./pages/assistants/AssistantEconomyPage";
+import GuildFundingPage from "./pages/guilds/GuildFundingPage";
 import MythOSCodexPage from "./pages/mythos/MythOSCodexPage";
 import DreamframePage from "./pages/agents/DreamframePage";
 import MythOSRitualsPage from "./pages/mythos/MythOSRitualsPage";
@@ -455,6 +458,9 @@ export default function App() {
           <Route path="/prophecy/engine" element={<ProphecyEnginePage />} />
           <Route path="/memory/predict" element={<MemoryPredictionPage />} />
           <Route path="/ritual/forecast" element={<RitualForecastPage />} />
+          <Route path="/ritual/rewards" element={<RitualRewardsPage />} />
+          <Route path="/assistants/:id/economy" element={<AssistantEconomyPage />} />
+          <Route path="/guilds/:id/funding" element={<GuildFundingPage />} />
 
           <Route path="/ui/motion" element={<MotionTestPage />} />
           <Route path="/assistants/:id/aura" element={<AssistantAuraPage />} />

@@ -104,3 +104,41 @@ class BeliefContributionMarketplace(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return self.proposal_title
+
+
+class RitualIncentiveSystem(models.Model):
+    """Reward engine issuing symbolic value for completed rituals."""
+
+    ritual = models.ForeignKey(
+        'agents.EncodedRitualBlueprint', on_delete=models.CASCADE
+    )
+    assistant = models.ForeignKey('assistants.Assistant', on_delete=models.CASCADE)
+    user_id = models.CharField(max_length=150)
+    symbolic_reward = models.FloatField()
+    codex_tags = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Reward {self.symbolic_reward}"
+
+
+class SymbolicFundingProtocol(models.Model):
+    """Manage symbolic value distribution across guild initiatives."""
+
+    guild = models.ForeignKey(
+        'assistants.CodexLinkedGuild', on_delete=models.CASCADE
+    )
+    symbolic_reserve = models.FloatField()
+    proposed_allocations = models.JSONField()
+    contributor_votes = models.JSONField()
+    approved_projects = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):  # pragma: no cover - display helper
+        return str(self.guild)
