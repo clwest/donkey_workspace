@@ -61,8 +61,9 @@ from agents.models.lore import (
     MythicForecastPulse,
     BeliefAtlasSnapshot,
     SymbolicWeatherFront,
-
-
+    DreamIntelligenceNode,
+    MissionConsensusRound,
+    NarrativeRealignmentProposal,
 )
 
 from agents.models.coordination import (
@@ -77,6 +78,7 @@ from agents.models.insight import (
 )
 from assistants.models.assistant import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
+
 
 class AgentSerializer(serializers.ModelSerializer):
     trained_documents = DocumentSerializer(many=True, read_only=True)
@@ -618,11 +620,13 @@ class ArchetypeSynchronizationPulseSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
 class CreationMythEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = CreationMythEntry
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 
 class CosmogenesisSimulationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -636,6 +640,7 @@ class MythicForecastPulseSerializer(serializers.ModelSerializer):
         model = MythicForecastPulse
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 
 class BeliefAtlasSnapshotSerializer(serializers.ModelSerializer):
     class Meta:
@@ -672,23 +677,26 @@ class MythflowInsightSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-class InsightHubSerializer(serializers.ModelSerializer):
+
+class DreamIntelligenceNodeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = InsightHub
+        model = DreamIntelligenceNode
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class PerspectiveMergeEventSerializer(serializers.ModelSerializer):
+
+class MissionConsensusRoundSerializer(serializers.ModelSerializer):
     class Meta:
-        model = PerspectiveMergeEvent
+        model = MissionConsensusRound
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class TimelineStitchLogSerializer(serializers.ModelSerializer):
+
+class NarrativeRealignmentProposalSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TimelineStitchLog
+        model = NarrativeRealignmentProposal
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

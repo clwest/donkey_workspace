@@ -7,7 +7,6 @@ from agents.models.core import (
     Agent,
     AgentFeedbackLog,
     AgentCluster,
-
 )
 from agents.models.lore import (
     SwarmMemoryEntry,
@@ -59,18 +58,25 @@ from agents.models.lore import (
     BeliefContinuityRitual,
     CosmologicalRole,
     LegacyTokenVault,
-
     ArchetypeSynchronizationPulse,
     CreationMythEntry,
     CosmogenesisSimulation,
     MythicForecastPulse,
     BeliefAtlasSnapshot,
     SymbolicWeatherFront,
-
-
+    DreamIntelligenceNode,
+    MissionConsensusRound,
+    NarrativeRealignmentProposal,
 )
+from agents.models.coordination import (
+    CollaborationThread,
+    DelegationStream,
+    MythflowInsight,
+)
+
 from agents.models.coordination import CollaborationThread, DelegationStream, MythflowInsight
 from agents.models.insight import InsightHub, PerspectiveMergeEvent, TimelineStitchLog
+
 from agents.serializers import (
     AgentSerializer,
     AgentFeedbackLogSerializer,
@@ -133,10 +139,12 @@ from agents.serializers import (
     PerspectiveMergeEventSerializer,
     TimelineStitchLogSerializer,
     CosmogenesisSimulationSerializer,
-
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
     SymbolicWeatherFrontSerializer,
+    DreamIntelligenceNodeSerializer,
+    MissionConsensusRoundSerializer,
+    NarrativeRealignmentProposalSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -361,7 +369,9 @@ def lore_epochs(request):
     epoch = serializer.save()
     return Response(LoreEpochSerializer(epoch).data, status=201)
 
+
 from agents.utils.myth_reset import run_myth_reset_cycle
+
 
 @api_view(["POST"])
 def myth_reset_cycle(request):
@@ -1069,7 +1079,6 @@ def symbolic_weather(request):
     return Response(SymbolicWeatherFrontSerializer(front).data, status=201)
 
 
-
 @api_view(["GET", "POST"])
 def collaboration_threads(request):
     if request.method == "GET":
@@ -1107,37 +1116,40 @@ def mythflow_insights(request):
 
 
 @api_view(["GET", "POST"])
-def insight_hubs(request):
-    if request.method == "GET":
-        hubs = InsightHub.objects.all().order_by("-created_at")
-        return Response(InsightHubSerializer(hubs, many=True).data)
 
-    serializer = InsightHubSerializer(data=request.data)
+def dream_intel_nodes(request):
+    if request.method == "GET":
+        nodes = DreamIntelligenceNode.objects.all().order_by("-created_at")
+        return Response(DreamIntelligenceNodeSerializer(nodes, many=True).data)
+
+    serializer = DreamIntelligenceNodeSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    hub = serializer.save()
-    return Response(InsightHubSerializer(hub).data, status=201)
+    node = serializer.save()
+    return Response(DreamIntelligenceNodeSerializer(node).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def perspective_merges(request):
+def mission_consensus_rounds(request):
     if request.method == "GET":
-        events = PerspectiveMergeEvent.objects.all().order_by("-created_at")
-        return Response(PerspectiveMergeEventSerializer(events, many=True).data)
+        rounds = MissionConsensusRound.objects.all().order_by("-created_at")
+        return Response(MissionConsensusRoundSerializer(rounds, many=True).data)
 
-    serializer = PerspectiveMergeEventSerializer(data=request.data)
+    serializer = MissionConsensusRoundSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    event = serializer.save()
-    return Response(PerspectiveMergeEventSerializer(event).data, status=201)
+    round_obj = serializer.save()
+    return Response(MissionConsensusRoundSerializer(round_obj).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def timeline_stitching(request):
+def narrative_realignment_proposals(request):
     if request.method == "GET":
-        logs = TimelineStitchLog.objects.all().order_by("-created_at")
-        return Response(TimelineStitchLogSerializer(logs, many=True).data)
+        proposals = NarrativeRealignmentProposal.objects.all().order_by("-created_at")
+        return Response(
+            NarrativeRealignmentProposalSerializer(proposals, many=True).data
+        )
 
-    serializer = TimelineStitchLogSerializer(data=request.data)
+    serializer = NarrativeRealignmentProposalSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    log = serializer.save()
-    return Response(TimelineStitchLogSerializer(log).data, status=201)
+    proposal = serializer.save()
+    return Response(NarrativeRealignmentProposalSerializer(proposal).data, status=201)
 
