@@ -129,7 +129,7 @@ urlpatterns = router.urls + [
     path(
         "threads/auto-thread/", threading.auto_thread_by_tag, name="auto_thread_by_tag"
     ),
-    path("dev_docs/", dev_docs.DevDocListView.as_view(), name="list-dev-docs"),
+    # path("dev_docs/", dev_docs.DevDocListView.as_view(), name="list-dev-docs"),
     path("dev_docs/summarize/", dev_docs.summarize_and_group_devdocs_view),
     path("dev_docs/grouped_history/", dev_docs.grouped_reflection_history),
     path("dev_docs/grouped/<int:pk>/", dev_docs.grouped_reflection_detail),
