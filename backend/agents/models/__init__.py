@@ -6,6 +6,7 @@ from .insight import *
 from .cosmology import *
 from .swarm_balance import *
 from .storyfield import *
+from .markets import *
 
 
 __all__ = []

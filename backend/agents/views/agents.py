@@ -71,8 +71,9 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
-
-
+    ForecastingMarketLedger,
+    SymbolicFutureContract,
+    CosmoEconomicAlignmentMap,
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
@@ -173,9 +174,11 @@ from agents.serializers import (
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
     IntentHarmonizationSessionSerializer,
-    SymbolicStrategyChamberSerializer,
-    PurposeConflictResolutionLogSerializer,
-    RitualVotingEventSerializer,
+
+    ForecastingMarketLedgerSerializer,
+    SymbolicFutureContractSerializer,
+    CosmoEconomicAlignmentMapSerializer,
+
 
 )
 from assistants.serializers import (
@@ -1310,37 +1313,37 @@ def intent_harmony(request):
 
 @api_view(["GET", "POST"])
 
-def mythic_contracts(request):
+def forecasting_ledgers(request):
     if request.method == "GET":
-        contracts = MythicContract.objects.all().order_by("-created_at")
-        return Response(MythicContractSerializer(contracts, many=True).data)
+        ledgers = ForecastingMarketLedger.objects.all().order_by("-created_at")
+        return Response(ForecastingMarketLedgerSerializer(ledgers, many=True).data)
 
-    serializer = MythicContractSerializer(data=request.data)
+    serializer = ForecastingMarketLedgerSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    ledger = serializer.save()
+    return Response(ForecastingMarketLedgerSerializer(ledger).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def future_contracts(request):
+    if request.method == "GET":
+        contracts = SymbolicFutureContract.objects.all().order_by("-created_at")
+        return Response(SymbolicFutureContractSerializer(contracts, many=True).data)
+
+    serializer = SymbolicFutureContractSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     contract = serializer.save()
-    return Response(MythicContractSerializer(contract).data, status=201)
+    return Response(SymbolicFutureContractSerializer(contract).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def dream_pools(request):
+def cosmo_alignment(request):
     if request.method == "GET":
-        pools = DreamLiquidityPool.objects.all().order_by("-created_at")
-        return Response(DreamLiquidityPoolSerializer(pools, many=True).data)
+        maps = CosmoEconomicAlignmentMap.objects.all().order_by("-last_updated")
+        return Response(CosmoEconomicAlignmentMapSerializer(maps, many=True).data)
 
-    serializer = DreamLiquidityPoolSerializer(data=request.data)
+    serializer = CosmoEconomicAlignmentMapSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    pool = serializer.save()
-    return Response(DreamLiquidityPoolSerializer(pool).data, status=201)
-
-
-@api_view(["GET", "POST"])
-def symbol_exchange(request):
-    if request.method == "GET":
-        exchanges = RoleSymbolExchange.objects.all().order_by("-last_updated")
-        return Response(RoleSymbolExchangeSerializer(exchanges, many=True).data)
-
-    serializer = RoleSymbolExchangeSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    exchange = serializer.save()
-    return Response(RoleSymbolExchangeSerializer(exchange).data, status=201)
+    mapping = serializer.save()
+    return Response(CosmoEconomicAlignmentMapSerializer(mapping).data, status=201)
 

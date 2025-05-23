@@ -85,6 +85,9 @@ urlpatterns = [
     path("signal-artifacts/", agents.signal_artifacts),
     path("navigation-vectors/", agents.navigation_vectors),
     path("flux-index/", agents.flux_index),
+    path("forecasting-ledgers/", agents.forecasting_ledgers),
+    path("future-contracts/", agents.future_contracts),
+    path("cosmo-alignment/", agents.cosmo_alignment),
 
     path("mythic-contracts/", agents.mythic_contracts),
     path("dream-pools/", agents.dream_pools),

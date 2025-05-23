@@ -92,12 +92,12 @@ from agents.models.insight import (
     TimelineStitchLog,
 )
 from agents.models.cosmology import SwarmCosmology
-from agents.models.swarm_balance import (
-    PurposeMigrationEvent,
-    CognitiveBalanceReport,
-    SymbolicStrategyChamber,
-    PurposeConflictResolutionLog,
-    RitualVotingEvent,
+from agents.models.swarm_balance import PurposeMigrationEvent, CognitiveBalanceReport
+from agents.models.markets import (
+    ForecastingMarketLedger,
+    SymbolicFutureContract,
+    CosmoEconomicAlignmentMap,
+
 )
 
 from agents.models.storyfield import (
@@ -847,26 +847,26 @@ class IntentHarmonizationSessionSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-class MythicContractSerializer(serializers.ModelSerializer):
+class ForecastingMarketLedgerSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MythicContract
+        model = ForecastingMarketLedger
 
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
 
-class DreamLiquidityPoolSerializer(serializers.ModelSerializer):
+class SymbolicFutureContractSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DreamLiquidityPool
+        model = SymbolicFutureContract
 
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class RoleSymbolExchangeSerializer(serializers.ModelSerializer):
+class CosmoEconomicAlignmentMapSerializer(serializers.ModelSerializer):
     class Meta:
-        model = RoleSymbolExchange
+        model = CosmoEconomicAlignmentMap
         fields = "__all__"
         read_only_fields = ["id", "last_updated"]
 
