@@ -87,6 +87,9 @@ from agents.models.lore import (
     StoryConvergencePath,
     RitualFusionEvent,
     NarrativeCurationTimeline,
+    SymbolicFeedbackChamber,
+    MultiAgentDialogueAmplifier,
+    MythicResolutionSequence,
 
 )
 from agents.models.coordination import (
@@ -203,6 +206,9 @@ from agents.serializers import (
     StoryConvergencePathSerializer,
     RitualFusionEventSerializer,
     NarrativeCurationTimelineSerializer,
+    SymbolicFeedbackChamberSerializer,
+    MultiAgentDialogueAmplifierSerializer,
+    MythicResolutionSequenceSerializer,
 
     SymbolicRoadmapPlanSerializer,
     CommunityMythPlanningArenaSerializer,
@@ -1599,39 +1605,40 @@ def timeline_curate(request):
     return Response(NarrativeCurationTimelineSerializer(timeline).data, status=201)
 
 
-@api_view(["GET", "POST"])
-
-def symbolic_roadmaps(request):
-    if request.method == "GET":
-        plans = SymbolicRoadmapPlan.objects.all().order_by("-created_at")
-        return Response(SymbolicRoadmapPlanSerializer(plans, many=True).data)
-
-    serializer = SymbolicRoadmapPlanSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    plan = serializer.save()
-    return Response(SymbolicRoadmapPlanSerializer(plan).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def myth_planning_arenas(request):
+def reflection_chamber(request):
     if request.method == "GET":
-        arenas = CommunityMythPlanningArena.objects.all().order_by("-created_at")
-        return Response(CommunityMythPlanningArenaSerializer(arenas, many=True).data)
+        chambers = SymbolicFeedbackChamber.objects.all().order_by("-created_at")
+        return Response(SymbolicFeedbackChamberSerializer(chambers, many=True).data)
 
-    serializer = CommunityMythPlanningArenaSerializer(data=request.data)
+    serializer = SymbolicFeedbackChamberSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    arena = serializer.save()
-    return Response(CommunityMythPlanningArenaSerializer(arena).data, status=201)
+    chamber = serializer.save()
+    return Response(SymbolicFeedbackChamberSerializer(chamber).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def codex_forecasts(request):
+def dialogue_amplify(request):
     if request.method == "GET":
-        forecasts = FederatedCodexForecastTool.objects.all().order_by("-created_at")
-        return Response(FederatedCodexForecastToolSerializer(forecasts, many=True).data)
+        amplifiers = MultiAgentDialogueAmplifier.objects.all().order_by("-created_at")
+        return Response(MultiAgentDialogueAmplifierSerializer(amplifiers, many=True).data)
 
-    serializer = FederatedCodexForecastToolSerializer(data=request.data)
+    serializer = MultiAgentDialogueAmplifierSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    forecast = serializer.save()
-    return Response(FederatedCodexForecastToolSerializer(forecast).data, status=201)
+    amplifier = serializer.save()
+    return Response(MultiAgentDialogueAmplifierSerializer(amplifier).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def sequence_resolve(request):
+    if request.method == "GET":
+        sequences = MythicResolutionSequence.objects.all().order_by("-created_at")
+        return Response(MythicResolutionSequenceSerializer(sequences, many=True).data)
+
+    serializer = MythicResolutionSequenceSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    sequence = serializer.save()
+    return Response(MythicResolutionSequenceSerializer(sequence).data, status=201)
 

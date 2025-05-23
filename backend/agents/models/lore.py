@@ -2219,66 +2219,59 @@ class NarrativeCurationTimeline(models.Model):
 
 
 
-class RitualGoalPlanner(models.Model):
-    """Structured planner converting intentions into ritual paths."""
 
-    assistant = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE
-    )
-    goal_title = models.CharField(max_length=150)
-    input_intention = models.TextField()
-    linked_codices = models.ManyToManyField(SwarmCodex)
-    ritual_path = models.JSONField()
-    milestone_memory = models.ManyToManyField(SwarmMemoryEntry)
+class SymbolicFeedbackChamber(models.Model):
+    """Guided belief review and codex reflection."""
+
+    chamber_title = models.CharField(max_length=150)
+    participant_ids = models.JSONField()
+    codex_review = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    memory_archive = models.ManyToManyField(SwarmMemoryEntry)
+    ritual_scorecards = models.JSONField()
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
-    def __str__(self) -> str:  # pragma: no cover - display helper
+    def __str__(self):  # pragma: no cover - display helper
+        return self.chamber_title
 
-        return self.goal_title
 
+class MultiAgentDialogueAmplifier(models.Model):
+    """Blend assistant voices into harmonized responses."""
 
-class MythTimelineDirector(models.Model):
-    """Assistant-driven myth timeline controller."""
-
-    title = models.CharField(max_length=150)
-    assistant = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE
-    )
-    timeline_segments = models.JSONField()
-    memory_nodes = models.ManyToManyField(SwarmMemoryEntry)
-    codex_weights = models.JSONField()
+    amplifier_title = models.CharField(max_length=150)
+    agents_involved = models.ManyToManyField("assistants.Assistant")
+    active_codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    layered_response = models.TextField()
+    symbolic_resonance_score = models.FloatField()
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
-    def __str__(self) -> str:  # pragma: no cover - display helper
 
-        return self.title
+    def __str__(self):  # pragma: no cover - display helper
+        return self.amplifier_title
 
 
-class CodexDecisionFramework(models.Model):
-    """Decision logic guided by codex rules and memory."""
+class MythicResolutionSequence(models.Model):
+    """Finalize story arcs and preserve legacy artifacts."""
 
-    assistant = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE
-    )
-    decision_context = models.TextField()
-    codex_applied = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
-    outcome_paths = models.JSONField()
-    symbolic_alignment_score = models.FloatField()
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    resolution_steps = models.JSONField()
+    codex_closure_state = models.TextField()
+    legacy_artifacts = models.JSONField()
+    symbolic_final_score = models.FloatField()
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
-    def __str__(self) -> str:  # pragma: no cover - display helper
 
-        return f"Codex decision {self.id}"
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Resolution {self.id}"
 
