@@ -4,8 +4,7 @@ import os
 from typing import List
 
 from agents.models.lore import (
-    BeliefInheritanceTree,
-    RitualResponseArchive,
+
     SwarmMemoryEntry,
 )
 
@@ -22,9 +21,6 @@ def create_myth_journey_package(
 
     os.makedirs(export_dir, exist_ok=True)
     format_list = format_list or ["json", "md"]
-
-    belief_trees = BeliefInheritanceTree.objects.filter(user_id=user_id, assistant=assistant)
-    rituals = RitualResponseArchive.objects.filter(user_id=user_id, assistant=assistant)
 
     data = {
         "user": user_id,
