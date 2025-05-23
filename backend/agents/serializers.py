@@ -80,6 +80,8 @@ from agents.models.lore import (
     ArchetypeGenesisLog,
     MythBloomNode,
     BeliefSeedReplication,
+    PersonaFusionEvent,
+    DialogueCodexMutationLog,
 )
 
 from agents.models.coordination import (
@@ -634,6 +636,20 @@ class SymbolicIdentityCardSerializer(serializers.ModelSerializer):
 class PersonaTemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PersonaTemplate
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class PersonaFusionEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PersonaFusionEvent
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class DialogueCodexMutationLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DialogueCodexMutationLog
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
