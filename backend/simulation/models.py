@@ -79,3 +79,40 @@ class SymbolicDialogueExchange(models.Model):
     symbolic_intent = models.JSONField()
     codex_alignment_score = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class BeliefNarrativeEngineInstance(models.Model):
+    """Belief-calibrated narrative generator."""
+
+    engine_name = models.CharField(max_length=150)
+    driving_codex = models.ForeignKey("agents.SwarmCodex", on_delete=models.CASCADE)
+    assistants_involved = models.ManyToManyField("assistants.Assistant")
+    symbolic_goals = models.JSONField()
+    narrative_trace_log = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class SymbolicAuthorityTransferLog(models.Model):
+    """Record of scene control handoffs between assistants."""
+
+    from_assistant = models.ForeignKey(
+        "assistants.Assistant", related_name="authority_from", on_delete=models.CASCADE
+    )
+    to_assistant = models.ForeignKey(
+        "assistants.Assistant", related_name="authority_to", on_delete=models.CASCADE
+    )
+    scene_context = models.ForeignKey(MythflowSession, on_delete=models.CASCADE)
+    symbolic_trigger = models.TextField()
+    justification = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class MemoryCinematicFragment(models.Model):
+    """Stylized reflective snapshot from a memory sequence."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    memory_sequence = models.ManyToManyField("agents.SwarmMemoryEntry")
+    symbolic_filter_tags = models.JSONField()
+    cinematic_summary = models.TextField()
+    visual_style = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)

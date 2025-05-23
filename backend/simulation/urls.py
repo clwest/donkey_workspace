@@ -12,6 +12,9 @@ from .views.session import (
     SymbolicDialogueExchangeViewSet,
     RoleplayPersonaModuleView,
 )
+from .views.engine import BeliefNarrativeEngineInstanceViewSet
+from .views.authority import SymbolicAuthorityTransferLogViewSet
+from .views.cinematic import MemoryCinematicFragmentViewSet
 from .views.sandbox import SimulationRunView
 
 router = DefaultRouter()
@@ -25,6 +28,21 @@ router.register(
 router.register(r"config", SimulationConfigViewSet, basename="simulation-config")
 router.register(r"mythflow-sessions", MythflowSessionViewSet, basename="mythflow-session")
 router.register(r"dialogue-exchange", SymbolicDialogueExchangeViewSet, basename="dialogue-exchange")
+router.register(
+    r"narrative-engines",
+    BeliefNarrativeEngineInstanceViewSet,
+    basename="narrative-engine",
+)
+router.register(
+    r"authority-transfers",
+    SymbolicAuthorityTransferLogViewSet,
+    basename="authority-transfer",
+)
+router.register(
+    r"memory-cinematics",
+    MemoryCinematicFragmentViewSet,
+    basename="memory-cinematic",
+)
 
 urlpatterns = router.urls + [
     path("run/", SimulationRunView.as_view(), name="simulation-run"),
