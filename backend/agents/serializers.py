@@ -93,8 +93,8 @@ from agents.models.lore import (
     SymbolicFeedbackChamber,
     MultiAgentDialogueAmplifier,
     MythicResolutionSequence,
-    
-    NarrativeArtifactExporter,
+
+    LegacyArtifactExporter,
     SymbolicPatternBroadcastEngine,
 
 
@@ -129,6 +129,7 @@ from agents.models.swarm_balance import (
 )
 from agents.models.mythchain import (
     MythchainOutputGenerator,
+    NarrativeArtifactExporter,
 )
 
 from agents.models.storyfield import (
