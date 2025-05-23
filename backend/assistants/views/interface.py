@@ -21,10 +21,30 @@ def assistant_interface(request, assistant_id):
     """Return active interface configuration for an assistant."""
     assistant = get_object_or_404(Assistant, id=assistant_id)
     playbook = SymbolicUXPlaybook.objects.filter(archetype=assistant.specialty).first()
-    template = RoleDrivenUITemplate.objects.filter(assigned_role=assistant.specialty).first()
+    template = RoleDrivenUITemplate.objects.filter(
+        assigned_role=assistant.specialty
+    ).first()
     data = {
         "assistant": AssistantSerializer(assistant).data,
-        "active_playbook": SymbolicUXPlaybookSerializer(playbook).data if playbook else None,
+        "active_playbook": (
+            SymbolicUXPlaybookSerializer(playbook).data if playbook else None
+        ),
+        "template": RoleDrivenUITemplateSerializer(template).data if template else None,
+    }
+    return Response(data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def new_assistant_interface(request):
+    """Return default interface data for creating a new assistant."""
+    playbook = SymbolicUXPlaybook.objects.first()
+    template = RoleDrivenUITemplate.objects.first()
+    data = {
+        "assistant": {"name": "New Assistant"},
+        "active_playbook": (
+            SymbolicUXPlaybookSerializer(playbook).data if playbook else None
+        ),
         "template": RoleDrivenUITemplateSerializer(template).data if template else None,
     }
     return Response(data)
