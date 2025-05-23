@@ -13,6 +13,11 @@ from .views.session import (
     RoleplayPersonaModuleView,
 )
 from .views.sandbox import SimulationRunView
+from .views.projection import (
+    memory_projection_frames,
+    belief_walkthroughs,
+    dreamframes,
+)
 
 router = DefaultRouter()
 router.register(r"simulators", MythScenarioSimulatorViewSet, basename="myth-simulator")
@@ -29,4 +34,7 @@ router.register(r"dialogue-exchange", SymbolicDialogueExchangeViewSet, basename=
 urlpatterns = router.urls + [
     path("run/", SimulationRunView.as_view(), name="simulation-run"),
     path("roleplay-module/", RoleplayPersonaModuleView.as_view(), name="roleplay-module"),
+    path("memory-projection/", memory_projection_frames, name="memory-projection"),
+    path("belief-walkthroughs/", belief_walkthroughs, name="belief-walkthroughs"),
+    path("dreamframes/", dreamframes, name="dreamframes"),
 ]
