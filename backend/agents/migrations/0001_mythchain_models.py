@@ -46,7 +46,7 @@ class Migration(migrations.Migration):
             name="SymbolicPatternBroadcastEngine",
             fields=[
                 ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
-                ("broadcast_title", models.CharField(max_length=150)),
+                ("broadcast_channel", models.CharField(max_length=150)),
                 ("symbolic_payload", models.JSONField()),
                 ("belief_waveform_data", models.JSONField()),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
