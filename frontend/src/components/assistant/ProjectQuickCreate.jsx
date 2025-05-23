@@ -1,4 +1,5 @@
 import { useState } from "react";
+import apiFetch from "../../utils/apiClient";
 
 export default function ProjectQuickCreate({ onCreated }) {
   const [title, setTitle] = useState("");
@@ -10,18 +11,12 @@ export default function ProjectQuickCreate({ onCreated }) {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8000/api/assistants/projects/", {
+      const data = await apiFetch("/assistants/projects/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title }),
+        body: { title },
       });
-      const data = await res.json();
-      if (res.ok) {
-        setTitle("");
-        if (onCreated) onCreated(data); // 🔥 Callback if you want to refresh or auto-select
-      } else {
-        alert("Failed to create project.");
-      }
+      setTitle("");
+      if (onCreated) onCreated(data);
     } catch (err) {
       console.error(err);
       alert("Error creating project.");
