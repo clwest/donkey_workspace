@@ -22,10 +22,12 @@ export const fetchDelegationStreams = () =>
   apiFetch("/agents/delegation-streams/");
 export const fetchMythflowInsights = () =>
   apiFetch("/agents/mythflow-insights/");
+
 export const fetchKnowledgeReplications = () =>
   apiFetch("/agents/knowledge-replication/");
 export const fetchMemoryBroadcasts = () =>
   apiFetch("/agents/memory-broadcasts/");
 export const fetchLearningReservoirs = () =>
   apiFetch("/agents/learning-reservoirs/");
+
 

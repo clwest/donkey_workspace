@@ -62,9 +62,11 @@ from agents.models.lore import (
     BeliefAtlasSnapshot,
     SymbolicWeatherFront,
 
+
     KnowledgeReplicationEvent,
     MemoryBroadcastPacket,
     LearningReservoir,
+
 
 )
 
@@ -73,8 +75,14 @@ from agents.models.coordination import (
     DelegationStream,
     MythflowInsight,
 )
+from agents.models.insight import (
+    InsightHub,
+    PerspectiveMergeEvent,
+    TimelineStitchLog,
+)
 from assistants.models.assistant import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
+
 
 class AgentSerializer(serializers.ModelSerializer):
     trained_documents = DocumentSerializer(many=True, read_only=True)
@@ -616,11 +624,13 @@ class ArchetypeSynchronizationPulseSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
 class CreationMythEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = CreationMythEntry
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 
 class CosmogenesisSimulationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -634,6 +644,7 @@ class MythicForecastPulseSerializer(serializers.ModelSerializer):
         model = MythicForecastPulse
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 
 class BeliefAtlasSnapshotSerializer(serializers.ModelSerializer):
     class Meta:
@@ -669,17 +680,19 @@ class MythflowInsightSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
-
 class KnowledgeReplicationEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = KnowledgeReplicationEvent
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 
 
 class MemoryBroadcastPacketSerializer(serializers.ModelSerializer):
     class Meta:
         model = MemoryBroadcastPacket
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
@@ -687,6 +700,7 @@ class MemoryBroadcastPacketSerializer(serializers.ModelSerializer):
 class LearningReservoirSerializer(serializers.ModelSerializer):
     class Meta:
         model = LearningReservoir
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

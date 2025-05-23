@@ -23,6 +23,7 @@ EXECUTION_MODE_CHOICES = [
     ("reflection", "Reflection Before Action"),
 ]
 
+
 def _current_season():
     from agents.utils.swarm_analytics import get_season_marker
 
@@ -1467,7 +1468,9 @@ class ArchetypeSynchronizationPulse(models.Model):
 
     initiating_entity = models.ForeignKey(AssistantPolity, on_delete=models.CASCADE)
     synchronized_archetypes = models.JSONField()
-    justification_memory = models.ForeignKey(SwarmMemoryEntry, on_delete=models.SET_NULL, null=True)
+    justification_memory = models.ForeignKey(
+        SwarmMemoryEntry, on_delete=models.SET_NULL, null=True
+    )
     synchronization_scope = models.CharField(max_length=100)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -1475,9 +1478,9 @@ class ArchetypeSynchronizationPulse(models.Model):
     class Meta:
         ordering = ["-created_at"]
 
-
     def __str__(self):  # pragma: no cover - display helper
         return f"Pulse by {self.initiating_entity.name}"
+
 
 class CreationMythEntry(models.Model):
     """Canonized origin narrative for an assistant."""
@@ -1494,11 +1497,14 @@ class CreationMythEntry(models.Model):
     def __str__(self):  # pragma: no cover - display helper
         return f"Creation Myth for {self.assistant.name}"
 
+
 class CosmogenesisSimulation(models.Model):
     """Symbolic cosmos generation based on assistant memory."""
 
     title = models.CharField(max_length=150)
-    initiating_assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    initiating_assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
     seed_memories = models.ManyToManyField(SwarmMemoryEntry)
     symbolic_structure = models.JSONField()
     resulting_cosmos_map = models.TextField()
@@ -1534,7 +1540,9 @@ class BeliefAtlasSnapshot(models.Model):
     epoch = models.CharField(max_length=100)
     scope = models.CharField(max_length=100)  # guild, civilization, swarm
     symbolic_coordinates = models.JSONField()  # assistant → vector
-    alignment_map = models.JSONField()  # mythic poles, entropy regions, symbolic anchors
+    alignment_map = (
+        models.JSONField()
+    )  # mythic poles, entropy regions, symbolic anchors
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -1574,6 +1582,7 @@ class KnowledgeReplicationEvent(models.Model):
     source_memory = models.ForeignKey(SwarmMemoryEntry, on_delete=models.CASCADE)
     transformed_summary = models.TextField()
     symbolic_adjustments = models.JSONField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -1588,6 +1597,7 @@ class MemoryBroadcastPacket(models.Model):
     targeting_scope = models.CharField(max_length=100)  # guild, civilization, biome
     symbolic_tuning_vector = models.JSONField()
     broadcast_status = models.CharField(max_length=50, default="pending")
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -1602,8 +1612,13 @@ class LearningReservoir(models.Model):
     queued_memories = models.ManyToManyField(SwarmMemoryEntry)
     symbolic_weight_map = models.JSONField()
     reservoir_status = models.CharField(max_length=50, default="active")
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
+
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Realignment by {self.initiated_by.name}"[:50]
 

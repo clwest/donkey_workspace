@@ -110,4 +110,5 @@ Additional planning and deep-dive instructions live in `backend/AGENTS.md` and `
 ## Further Reading
 
 - [API & Model Overview](docs/api_overview.md)
+- [Phase 6.5 Features](docs/phase_6_5.md)
 - Other domain docs are under `backend/docs/` and `frontend/docs/`.
