@@ -56,3 +56,57 @@ class SwarmFederationEngine(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"FederationEngine {self.id}"
+
+
+class CodexFederationArchitecture(models.Model):
+    """Formal alliance of codices with shared governance rules."""
+
+    federation_name = models.CharField(max_length=150)
+    founding_codices = models.ManyToManyField(SwarmCodex)
+    governance_rules = models.JSONField()
+    assistant_moderators = models.ManyToManyField("assistants.Assistant")
+    federation_mandates = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.federation_name
+
+
+class NarrativeLawSystem(models.Model):
+    """Law-like constraints for rituals and codex drift."""
+
+    federation = models.ForeignKey(
+        CodexFederationArchitecture, on_delete=models.CASCADE
+    )
+    ritual_law_map = models.JSONField()
+    symbolic_penalties = models.JSONField()
+    codex_enforcement_routes = models.TextField()
+    assistant_role_enactors = models.ManyToManyField("assistants.Assistant")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"LawSystem {self.id}"
+
+
+class SymbolicTreatyProtocol(models.Model):
+    """Agreement binding guilds through codex clauses and rituals."""
+
+    treaty_title = models.CharField(max_length=150)
+    participating_guilds = models.ManyToManyField(CodexLinkedGuild)
+    codex_shared_clauses = models.JSONField()
+    ritual_bond_requirements = models.JSONField()
+    symbolic_enforcement_terms = models.TextField()
+    treaty_status = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.treaty_title

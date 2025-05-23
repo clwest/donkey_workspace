@@ -118,6 +118,11 @@ from agents.models.recovery import (
 )
 from agents.models.forecast import SymbolicForecastIndex,AssistantSentimentModelEngine
 from agents.models.governance import SymbolicConsensusChamber, RitualNegotiationEngine, NarrativeGovernanceModel
+from agents.models.federation import (
+    CodexFederationArchitecture,
+    NarrativeLawSystem,
+    SymbolicTreatyProtocol,
+)
 from agents.models.coordination import (
     CollaborationThread,
     DelegationStream,
@@ -258,6 +263,9 @@ from agents.serializers import (
     SymbolicConsensusChamberSerializer,
     RitualNegotiationEngineSerializer,
     NarrativeGovernanceModelSerializer,
+    CodexFederationArchitectureSerializer,
+    NarrativeLawSystemSerializer,
+    SymbolicTreatyProtocolSerializer,
 
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -2021,5 +2029,47 @@ def network_governance(request):
     serializer.is_valid(raise_exception=True)
     model = serializer.save()
     return Response(NarrativeGovernanceModelSerializer(model).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def federation_codices(request):
+    if request.method == "GET":
+        federations = CodexFederationArchitecture.objects.all().order_by(
+            "-created_at"
+        )
+        return Response(
+            CodexFederationArchitectureSerializer(federations, many=True).data
+        )
+
+    serializer = CodexFederationArchitectureSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    federation = serializer.save()
+    return Response(
+        CodexFederationArchitectureSerializer(federation).data, status=201
+    )
+
+
+@api_view(["GET", "POST"])
+def ritual_law(request):
+    if request.method == "GET":
+        laws = NarrativeLawSystem.objects.all().order_by("-created_at")
+        return Response(NarrativeLawSystemSerializer(laws, many=True).data)
+
+    serializer = NarrativeLawSystemSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    law = serializer.save()
+    return Response(NarrativeLawSystemSerializer(law).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def treaty_forge(request):
+    if request.method == "GET":
+        treaties = SymbolicTreatyProtocol.objects.all().order_by("-created_at")
+        return Response(SymbolicTreatyProtocolSerializer(treaties, many=True).data)
+
+    serializer = SymbolicTreatyProtocolSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    treaty = serializer.save()
+    return Response(SymbolicTreatyProtocolSerializer(treaty).data, status=201)
 
 

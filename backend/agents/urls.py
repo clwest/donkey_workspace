@@ -55,6 +55,10 @@ urlpatterns = [
     path("ritual/negotiate/", agents.ritual_negotiate),
     path("network/governance/", agents.network_governance),
 
+    path("federation/codices/", agents.federation_codices),
+    path("law/ritual/", agents.ritual_law),
+    path("treaty/forge/", agents.treaty_forge),
+
     path("onboarding/ritual/", agents.onboarding_ritual),
     path("codex/briefing/", agents.codex_briefing),
 

@@ -112,6 +112,11 @@ from agents.models.governance import (
     RitualNegotiationEngine,
     NarrativeGovernanceModel,
 )
+from agents.models.federation import (
+    CodexFederationArchitecture,
+    NarrativeLawSystem,
+    SymbolicTreatyProtocol,
+)
 from agents.models.coordination import (
     CollaborationThread,
     DelegationStream,
@@ -1383,6 +1388,27 @@ class BeliefContributionMarketplaceSerializer(serializers.ModelSerializer):
     class Meta:
         model = BeliefContributionMarketplace
 
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CodexFederationArchitectureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CodexFederationArchitecture
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class NarrativeLawSystemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NarrativeLawSystem
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicTreatyProtocolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicTreatyProtocol
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
