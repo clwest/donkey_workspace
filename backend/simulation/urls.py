@@ -18,11 +18,6 @@ from .views.purpose_loop import PurposeLoopCinematicEngineViewSet
 from .views.theater import ReflectiveTheaterSessionViewSet
 
 from .views.sandbox import SimulationRunView
-from .views.projection import (
-    memory_projection_frames,
-    belief_walkthroughs,
-    dreamframes,
-)
 
 router = DefaultRouter()
 router.register(r"simulators", MythScenarioSimulatorViewSet, basename="myth-simulator")
