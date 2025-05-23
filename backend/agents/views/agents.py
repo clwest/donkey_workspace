@@ -65,9 +65,11 @@ from agents.models.lore import (
     MythicForecastPulse,
     BeliefAtlasSnapshot,
     SymbolicWeatherFront,
-    SwarmCosmology,
-    LivingBeliefEngine,
-    TemporalPurposeArchive,
+
+    SymbolicAnomalyEvent,
+    BeliefCollapseRecoveryRitual,
+    MultiverseLoopLink,
+
 
 
 )
@@ -135,9 +137,11 @@ from agents.serializers import (
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
     SymbolicWeatherFrontSerializer,
-    SwarmCosmologySerializer,
-    LivingBeliefEngineSerializer,
-    TemporalPurposeArchiveSerializer,
+
+    SymbolicAnomalyEventSerializer,
+    BeliefCollapseRecoveryRitualSerializer,
+    MultiverseLoopLinkSerializer,
+
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -1109,33 +1113,39 @@ def mythflow_insights(request):
 
 
 @api_view(["GET", "POST"])
-def cosmologies(request):
+
+def anomalies(request):
     if request.method == "GET":
-        cosmologies = SwarmCosmology.objects.all().order_by("name")
-        return Response(SwarmCosmologySerializer(cosmologies, many=True).data)
+        events = SymbolicAnomalyEvent.objects.all().order_by("-created_at")
+        return Response(SymbolicAnomalyEventSerializer(events, many=True).data)
 
-    serializer = SwarmCosmologySerializer(data=request.data)
+    serializer = SymbolicAnomalyEventSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    cosmo = serializer.save()
-    return Response(SwarmCosmologySerializer(cosmo).data, status=201)
-
-
-@api_view(["POST"])
-def update_belief_engine(request, assistant_id):
-    alignment = update_belief_state(assistant_id)
-    if alignment is None:
-        return Response({"error": "engine not found"}, status=404)
-    return Response({"updated_alignment": alignment})
+    event = serializer.save()
+    return Response(SymbolicAnomalyEventSerializer(event).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def purpose_archives(request):
+def belief_recovery(request):
     if request.method == "GET":
-        archives = TemporalPurposeArchive.objects.all().order_by("-created_at")
-        return Response(TemporalPurposeArchiveSerializer(archives, many=True).data)
+        rituals = BeliefCollapseRecoveryRitual.objects.all().order_by("-created_at")
+        return Response(BeliefCollapseRecoveryRitualSerializer(rituals, many=True).data)
 
-    serializer = TemporalPurposeArchiveSerializer(data=request.data)
+    serializer = BeliefCollapseRecoveryRitualSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    archive = serializer.save()
-    return Response(TemporalPurposeArchiveSerializer(archive).data, status=201)
+    ritual = serializer.save()
+    return Response(BeliefCollapseRecoveryRitualSerializer(ritual).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def multiverse_loops(request):
+    if request.method == "GET":
+        loops = MultiverseLoopLink.objects.all().order_by("-created_at")
+        return Response(MultiverseLoopLinkSerializer(loops, many=True).data)
+
+    serializer = MultiverseLoopLinkSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    loop = serializer.save()
+    return Response(MultiverseLoopLinkSerializer(loop).data, status=201)
+
 

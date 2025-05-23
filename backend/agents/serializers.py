@@ -66,9 +66,10 @@ from agents.models.lore import (
     KnowledgeReplicationEvent,
     MemoryBroadcastPacket,
     LearningReservoir,
-    SwarmCosmology,
-    LivingBeliefEngine,
-    TemporalPurposeArchive,
+    SymbolicAnomalyEvent,
+    BeliefCollapseRecoveryRitual,
+    MultiverseLoopLink,
+
 
 
 )
@@ -708,23 +709,26 @@ class LearningReservoirSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-class SwarmCosmologySerializer(serializers.ModelSerializer):
+
+class SymbolicAnomalyEventSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SwarmCosmology
+        model = SymbolicAnomalyEvent
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class LivingBeliefEngineSerializer(serializers.ModelSerializer):
+
+class BeliefCollapseRecoveryRitualSerializer(serializers.ModelSerializer):
     class Meta:
-        model = LivingBeliefEngine
+        model = BeliefCollapseRecoveryRitual
         fields = "__all__"
-        read_only_fields = ["id", "last_updated"]
+        read_only_fields = ["id", "created_at"]
 
 
-class TemporalPurposeArchiveSerializer(serializers.ModelSerializer):
+class MultiverseLoopLinkSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TemporalPurposeArchive
+        model = MultiverseLoopLink
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

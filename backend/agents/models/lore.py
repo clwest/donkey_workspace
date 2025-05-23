@@ -1622,3 +1622,53 @@ class LearningReservoir(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Realignment by {self.initiated_by.name}"[:50]
 
+
+class SymbolicAnomalyEvent(models.Model):
+    """Log symbolic inconsistencies or paradoxes detected in memory."""
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    anomaly_type = models.CharField(max_length=100)
+    memory_reference = models.ManyToManyField(SwarmMemoryEntry)
+    detected_by = models.CharField(max_length=100)
+    symbolic_trace = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class BeliefCollapseRecoveryRitual(models.Model):
+    """Restore assistant beliefs after symbolic collapse."""
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    initiating_memory = models.ForeignKey(
+        SwarmMemoryEntry, on_delete=models.CASCADE
+    )
+    collapse_type = models.CharField(max_length=100)
+    ritual_steps = models.JSONField()
+    restored_alignment = models.JSONField()
+    successful = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class MultiverseLoopLink(models.Model):
+    """Connect mythic timelines for recursive loops."""
+
+    linked_timelines = models.JSONField()
+    anchor_assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    loop_reason = models.TextField()
+    echo_transfer_summary = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
