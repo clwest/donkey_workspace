@@ -146,6 +146,11 @@ from agents.models.deployment import (
     MythOSDeploymentPacket,
     BeliefDeploymentStrategyEngine,
 )
+from agents.models.recovery import (
+    RitualCompressionCache,
+    AssistantDeploymentAutoRestarter,
+    CodexProofOfSymbolEngine,
+)
 from agents.models.cosmology import SwarmCosmology
 from agents.models.swarm_balance import (
     PurposeMigrationEvent,
@@ -895,6 +900,27 @@ class MythOSDeploymentPacketSerializer(serializers.ModelSerializer):
 class BeliefDeploymentStrategyEngineSerializer(serializers.ModelSerializer):
     class Meta:
         model = BeliefDeploymentStrategyEngine
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RitualCompressionCacheSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RitualCompressionCache
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class AssistantDeploymentAutoRestarterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantDeploymentAutoRestarter
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CodexProofOfSymbolEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CodexProofOfSymbolEngine
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
