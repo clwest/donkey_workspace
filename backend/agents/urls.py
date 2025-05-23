@@ -105,6 +105,10 @@ urlpatterns = [
     path("navigation-vectors/", agents.navigation_vectors),
     path("flux-index/", agents.flux_index),
 
+    path("summon/<uuid:scroll>/", agents.summon_scroll),
+    path("guilds/<int:id>/memory-relay/", agents.guild_memory_relay),
+    path("memory/interlink/", agents.memory_interlink),
+
     path("clusters/", agents.list_clusters),
     path("clusters/<uuid:id>/", agents.cluster_detail_view),
     path("", agents.list_agents),

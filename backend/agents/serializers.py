@@ -1053,3 +1053,24 @@ class NarrativeCurationTimelineSerializer(serializers.ModelSerializer):
         model = NarrativeCurationTimeline
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
+
+class AssistantSummoningScrollSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantSummoningScroll
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class GuildMemoryRelayNodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GuildMemoryRelayNode
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicInterlinkMapSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicInterlinkMap
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]

@@ -87,6 +87,9 @@ from agents.models.lore import (
     StoryConvergencePath,
     RitualFusionEvent,
     NarrativeCurationTimeline,
+    AssistantSummoningScroll,
+    GuildMemoryRelayNode,
+    SymbolicInterlinkMap,
 
 )
 from agents.models.identity import PersonaFusionEvent
@@ -193,6 +196,9 @@ from agents.serializers import (
     StoryConvergencePathSerializer,
     RitualFusionEventSerializer,
     NarrativeCurationTimelineSerializer,
+    AssistantSummoningScrollSerializer,
+    GuildMemoryRelayNodeSerializer,
+    SymbolicInterlinkMapSerializer,
 
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -201,10 +207,15 @@ from agents.serializers import (
     AgentPlotlineCurationSerializer,
 )
 from assistants.serializers import (
+    AssistantSerializer,
     AssistantCivilizationSerializer,
     AssistantReputationSerializer,
 )
-from assistants.models.assistant import Assistant, AssistantReputation
+from assistants.models.assistant import (
+    Assistant,
+    AssistantReputation,
+    CodexLinkedGuild,
+)
 
 from agents.utils.agent_controller import (
     update_agent_profile_from_feedback,
@@ -1577,4 +1588,23 @@ def timeline_curate(request):
     serializer.is_valid(raise_exception=True)
     timeline = serializer.save()
     return Response(NarrativeCurationTimelineSerializer(timeline).data, status=201)
+
+
+@api_view(["GET"])
+def summon_scroll(request, scroll):
+    scroll_obj = get_object_or_404(AssistantSummoningScroll, id=scroll)
+    return Response(AssistantSerializer(scroll_obj.assistant).data)
+
+
+@api_view(["GET"])
+def guild_memory_relay(request, id):
+    guild = get_object_or_404(CodexLinkedGuild, id=id)
+    nodes = GuildMemoryRelayNode.objects.filter(linked_guild=guild).order_by("-created_at")
+    return Response(GuildMemoryRelayNodeSerializer(nodes, many=True).data)
+
+
+@api_view(["GET"])
+def memory_interlink(request):
+    maps = SymbolicInterlinkMap.objects.all().order_by("-created_at")
+    return Response(SymbolicInterlinkMapSerializer(maps, many=True).data)
 

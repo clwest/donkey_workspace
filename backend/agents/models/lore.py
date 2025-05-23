@@ -2218,3 +2218,57 @@ class NarrativeCurationTimeline(models.Model):
     def __str__(self):  # pragma: no cover - display helper
         return self.title
 
+
+class AssistantSummoningScroll(models.Model):
+    """Portable artifact that invokes an assistant via symbolic cues."""
+
+    scroll_title = models.CharField(max_length=150)
+    invocation_phrase = models.CharField(max_length=150)
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    scroll_url = models.TextField()
+    symbolic_rune_tags = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.scroll_title
+
+
+class GuildMemoryRelayNode(models.Model):
+    """Broadcast memory packets across guild networks."""
+
+    linked_guild = models.ForeignKey(
+        "assistants.CodexLinkedGuild", on_delete=models.CASCADE
+    )
+    transmission_window = models.CharField(max_length=100)
+    shared_memories = models.ManyToManyField(SwarmMemoryEntry)
+    symbolic_payload_tags = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Relay {self.id} for {self.linked_guild.guild_name}"[:50]
+
+
+class SymbolicInterlinkMap(models.Model):
+    """Map connecting memory, codices and assistants via archetype tags."""
+
+    interlink_title = models.CharField(max_length=150)
+    source_memory = models.ForeignKey(SwarmMemoryEntry, on_delete=models.CASCADE)
+    linked_codices = models.ManyToManyField(SwarmCodex)
+    connected_assistants = models.ManyToManyField("assistants.Assistant")
+    archetype_tags = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.interlink_title
+
