@@ -1995,9 +1995,9 @@ class RitualBlueprint(models.Model):
         return self.name
 
 
-
 class EncodedRitualBlueprint(models.Model):
     """Machine-readable ritual instructions."""
+
     name = models.CharField(max_length=150)
     encoded_steps = models.JSONField()
 
@@ -2016,10 +2016,10 @@ class PublicRitualLogEntry(models.Model):
 
     ritual_title = models.CharField(max_length=150)
     participant_identity = models.CharField(max_length=100)
-    assistant = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    ritual_blueprint = models.ForeignKey(
+        EncodedRitualBlueprint, on_delete=models.CASCADE
     )
-    ritual_blueprint = models.ForeignKey(EncodedRitualBlueprint, on_delete=models.CASCADE)
     memory_links = models.ManyToManyField(SwarmMemoryEntry)
     reflection_summary = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -2029,6 +2029,25 @@ class PublicRitualLogEntry(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.ritual_title
+
+
+class DialogueCodexMutationLog(models.Model):
+    """Track proposed dialogue-driven codex mutations."""
+
+    codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    triggering_dialogue = models.TextField()
+    mutation_reason = models.CharField(max_length=200)
+    symbolic_impact = models.JSONField()
+    approved_by = models.ManyToManyField(
+        "assistants.Assistant", related_name="approved_dialogue_mutations", blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Mutation for {self.codex.title}"[:50]
 
 
 class BeliefContinuityThread(models.Model):
@@ -2063,5 +2082,3 @@ class CodexContributionCeremony(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.ceremony_title
-
-
