@@ -97,6 +97,9 @@ urlpatterns = [
     path("signal-artifacts/", agents.signal_artifacts),
     path("navigation-vectors/", agents.navigation_vectors),
     path("flux-index/", agents.flux_index),
+    path("legacy-rings/", agents.legacy_rings),
+    path("memory-dendro/", agents.memory_dendro),
+    path("lifespan-models/", agents.lifespan_models),
 
     path("hyperstructures/", agents.hyperstructures),
     path("dream-worlds/", agents.dream_worlds),

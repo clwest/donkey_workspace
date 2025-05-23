@@ -78,9 +78,10 @@ from agents.models.lore import (
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
-    PurposeGraftRecord,
-    SuccessionRitualEvent,
-    ReincarnationTreeNode,
+
+    LegacyRingSlice,
+    MemoryDendroMark,
+    SymbolicLifespanModel,
 
 
 )
@@ -170,9 +171,9 @@ from agents.serializers import (
     BeliefNavigationVectorSerializer,
     ReflectiveFluxIndexSerializer,
 
-    PurposeGraftRecordSerializer,
-    SuccessionRitualEventSerializer,
-    ReincarnationTreeNodeSerializer,
+    LegacyRingSliceSerializer,
+    MemoryDendroMarkSerializer,
+    SymbolicLifespanModelSerializer,
 
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -1385,40 +1386,38 @@ def belief_feedback(request):
 
 @api_view(["GET", "POST"])
 
-
-def training_grounds(request):
+def legacy_rings(request):
     if request.method == "GET":
-        grounds = NarrativeTrainingGround.objects.all().order_by("-created_at")
-        return Response(NarrativeTrainingGroundSerializer(grounds, many=True).data)
+        rings = LegacyRingSlice.objects.all().order_by("-timestamp")
+        return Response(LegacyRingSliceSerializer(rings, many=True).data)
 
-    serializer = NarrativeTrainingGroundSerializer(data=request.data)
+    serializer = LegacyRingSliceSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    ground = serializer.save()
-    return Response(NarrativeTrainingGroundSerializer(ground).data, status=201)
+    ring = serializer.save()
+    return Response(LegacyRingSliceSerializer(ring).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def myth_edit_log(request):
+def memory_dendro(request):
     if request.method == "GET":
-        logs = SwarmMythEditLog.objects.all().order_by("-created_at")
-        return Response(SwarmMythEditLogSerializer(logs, many=True).data)
+        marks = MemoryDendroMark.objects.all().order_by("-created_at")
+        return Response(MemoryDendroMarkSerializer(marks, many=True).data)
 
-    serializer = SwarmMythEditLogSerializer(data=request.data)
+    serializer = MemoryDendroMarkSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    log = serializer.save()
-    return Response(SwarmMythEditLogSerializer(log).data, status=201)
+    mark = serializer.save()
+    return Response(MemoryDendroMarkSerializer(mark).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def legacy_continuity_vaults(request):
+def lifespan_models(request):
     if request.method == "GET":
-        vaults = LegacyContinuityVault.objects.all().order_by("-created_at")
-        return Response(LegacyContinuityVaultSerializer(vaults, many=True).data)
+        models_qs = SymbolicLifespanModel.objects.all().order_by("-created_at")
+        return Response(SymbolicLifespanModelSerializer(models_qs, many=True).data)
 
-    serializer = LegacyContinuityVaultSerializer(data=request.data)
+    serializer = SymbolicLifespanModelSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    vault = serializer.save()
-    return Response(LegacyContinuityVaultSerializer(vault).data, status=201)
-
+    model = serializer.save()
+    return Response(SymbolicLifespanModelSerializer(model).data, status=201)
 
 

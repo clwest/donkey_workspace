@@ -1867,66 +1867,32 @@ class BeliefFeedbackSignal(models.Model):
         return f"Signal to {self.target_codex.title}"[:50]
 
 
+class LegacyRingSlice(models.Model):
+    """Chronological growth ring recording assistant milestones."""
 
-# Phase 9.3 models
-class PurposeGraftRecord(models.Model):
-    """Symbolic grafting of roles or traits between assistants."""
-
-    source_assistant = models.ForeignKey(
-        "assistants.Assistant",
-        related_name="graft_origin",
-        on_delete=models.CASCADE,
-    )
-    target_assistant = models.ForeignKey(
-        "assistants.Assistant",
-        related_name="graft_target",
-        on_delete=models.CASCADE,
-    )
-    grafted_traits = models.JSONField()
-    symbolic_justification = models.TextField()
-    narrative_epoch = models.CharField(max_length=100)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-
-        return f"{self.source_assistant} -> {self.target_assistant}"
-
-
-class SuccessionRitualEvent(models.Model):
-    """Ceremonial transition of an archetype to a successor assistant."""
-
-    outgoing_archetype = models.CharField(max_length=100)
-    successor_assistant = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE
-    )
-    ritual_steps = models.JSONField()
-    memory_basis = models.ManyToManyField(SwarmMemoryEntry)
-    confirmed = models.BooleanField(default=False)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-
-        return f"{self.outgoing_archetype} -> {self.successor_assistant.name}"
-
-
-class ReincarnationTreeNode(models.Model):
-    """Node representing assistant lineage in a reincarnation forest."""
-
-    node_name = models.CharField(max_length=150)
     assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
-    parent_nodes = models.ManyToManyField(
-        "self", symmetrical=False, blank=True
-    )
-    symbolic_signature = models.JSONField()
-    phase_index = models.CharField(max_length=100)
+    timestamp = models.DateTimeField()
+    symbolic_state = models.JSONField()
+    purpose_score = models.FloatField()
+    role_tag = models.CharField(max_length=100)
+    reflection_notes = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-timestamp"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Ring {self.role_tag} @ {self.timestamp.strftime('%Y-%m-%d')}"
+
+
+class MemoryDendroMark(models.Model):
+    """Transformation signature etched into memory history."""
+
+    memory = models.ForeignKey(SwarmMemoryEntry, on_delete=models.CASCADE)
+    dendro_layer = models.CharField(max_length=100)
+    symbolic_trigger_event = models.TextField()
+    growth_direction = models.CharField(max_length=50)
+    belief_delta = models.FloatField()
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -1935,6 +1901,25 @@ class ReincarnationTreeNode(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
 
-        return self.node_name
+        return f"Mark {self.dendro_layer} for {self.memory.id}"[:50]
+
+
+class SymbolicLifespanModel(models.Model):
+    """Reflective trajectory of an assistant's belief evolution."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    lifespan_curve = models.JSONField()
+    archetype_pathway = models.JSONField()
+    codex_participation = models.ManyToManyField(SwarmCodex)
+    reflective_summary = models.TextField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+
+        return f"Lifespan for {self.assistant.name}"[:50]
 
 

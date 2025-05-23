@@ -884,29 +884,24 @@ class BeliefFeedbackSignalSerializer(serializers.ModelSerializer):
 
 
 
-
-class NarrativeTrainingGroundSerializer(serializers.ModelSerializer):
+class LegacyRingSliceSerializer(serializers.ModelSerializer):
     class Meta:
-        model = NarrativeTrainingGround
+        model = LegacyRingSlice
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
 
 
-
-
-class SwarmMythEditLogSerializer(serializers.ModelSerializer):
+class MemoryDendroMarkSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SwarmMythEditLog
-
+        model = MemoryDendroMark
 
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
 
-class LegacyContinuityVaultSerializer(serializers.ModelSerializer):
+class SymbolicLifespanModelSerializer(serializers.ModelSerializer):
     class Meta:
-        model = LegacyContinuityVault
+        model = SymbolicLifespanModel
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
-
-
-
