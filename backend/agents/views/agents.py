@@ -87,13 +87,24 @@ from agents.models.lore import (
     StoryConvergencePath,
     RitualFusionEvent,
     NarrativeCurationTimeline,
+    AssistantSummoningScroll,
+    GuildMemoryRelayNode,
+    SymbolicInterlinkMap,
 
     RitualGoalPlanner,
     MythTimelineDirector,
     CodexDecisionFramework,
 
 )
-from agents.models.identity import PersonaFusionEvent
+from agents.models.identity import (
+    PersonaFusionEvent,
+    MemoryInheritanceSeed,
+    PersonalCodexAnchor,
+    RitualContractBinding,
+    ReincarnationTreeNode,
+    BeliefVectorDelta,
+    SymbolicIdentityCard,
+)
 from agents.models.coordination import (
     CollaborationThread,
     DelegationStream,
@@ -102,6 +113,9 @@ from agents.models.coordination import (
     MythflowOrchestrationPlan,
     DirectiveMemoryNode,
     SymbolicPlanningLattice,
+    SymbolicProphecyEngine,
+    MemoryPredictionInterface,
+    RitualForecastingDashboard,
 )
 from agents.models.storyfield import (
     StoryfieldZone,
@@ -189,6 +203,12 @@ from agents.serializers import (
     MythBloomNodeSerializer,
     BeliefSeedReplicationSerializer,
     PersonaFusionEventSerializer,
+    MemoryInheritanceSeedSerializer,
+    PersonalCodexAnchorSerializer,
+    RitualContractBindingSerializer,
+    ReincarnationTreeNodeSerializer,
+    BeliefVectorDeltaSerializer,
+    SymbolicIdentityCardSerializer,
     DialogueCodexMutationLogSerializer,
     PublicRitualLogEntrySerializer,
     BeliefContinuityThreadSerializer,
@@ -198,9 +218,11 @@ from agents.serializers import (
     RitualFusionEventSerializer,
     NarrativeCurationTimelineSerializer,
 
+
     RitualGoalPlannerSerializer,
     MythTimelineDirectorSerializer,
     CodexDecisionFrameworkSerializer,
+
 
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -209,10 +231,15 @@ from agents.serializers import (
     AgentPlotlineCurationSerializer,
 )
 from assistants.serializers import (
+    AssistantSerializer,
     AssistantCivilizationSerializer,
     AssistantReputationSerializer,
 )
-from assistants.models.assistant import Assistant, AssistantReputation
+from assistants.models.assistant import (
+    Assistant,
+    AssistantReputation,
+    CodexLinkedGuild,
+)
 
 from agents.utils.agent_controller import (
     update_agent_profile_from_feedback,
@@ -1621,4 +1648,5 @@ def codex_decisions(request):
     serializer.is_valid(raise_exception=True)
     decision = serializer.save()
     return Response(CodexDecisionFrameworkSerializer(decision).data, status=201)
+
 

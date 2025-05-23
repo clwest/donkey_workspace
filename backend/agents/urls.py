@@ -35,9 +35,11 @@ urlpatterns = [
     path("myth/converge/", agents.story_convergence),
     path("ritual/fuse/", agents.ritual_fusion),
     path("timeline/curate/", agents.timeline_curate),
+
     path("planner/ritual-goals/", agents.ritual_goals),
     path("timeline/director/", agents.timeline_director),
     path("codex/decisions/", agents.codex_decisions),
+
 
     path("onboarding/ritual/", agents.onboarding_ritual),
     path("codex/briefing/", agents.codex_briefing),
@@ -83,6 +85,9 @@ urlpatterns = [
     path("creation-myths/", agents.creation_myths),
     path("cosmogenesis/", agents.cosmogenesis_simulations),
     path("mythic-forecast/", agents.mythic_forecast),
+    path("prophecy/engine/", agents.prophecy_engine),
+    path("memory/predict/", agents.memory_prediction),
+    path("ritual/forecast/", agents.ritual_forecast),
     path("belief-atlases/", agents.belief_atlases),
     path("symbolic-weather/", agents.symbolic_weather),
     path("treaty-breaches/", agents.treaty_breaches),
@@ -107,6 +112,13 @@ urlpatterns = [
     path("signal-artifacts/", agents.signal_artifacts),
     path("navigation-vectors/", agents.navigation_vectors),
     path("flux-index/", agents.flux_index),
+    path("timeline/", agents.world_timeline_anchor),
+
+    path("assistants/<uuid:id>/rebirth/", agents.assistant_myth_rebirth),
+
+    path("summon/<uuid:scroll>/", agents.summon_scroll),
+    path("guilds/<int:id>/memory-relay/", agents.guild_memory_relay),
+    path("memory/interlink/", agents.memory_interlink),
 
     path("clusters/", agents.list_clusters),
     path("clusters/<uuid:id>/", agents.cluster_detail_view),
