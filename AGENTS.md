@@ -1,185 +1,101 @@
-# 🧠 AGENTS.md — Donkey Workspace AI Assistants
+🧠 AGENTS.md — MythOS Phase Summary & Architecture Index
 
----
+Last updated: May 2025
 
-## ✅ Phase 2: Core Orchestration & Reflection
+⸻
 
-### Highlights Completed:
+🌱 Phase 0–4: Core Assistant + Memory System Initialization
+• Foundation of assistant models, memory entries, prompt logging, and early reflection protocols
+• Embedded assistant thought engine, token reduction tools, and Codex mutation pipeline
+• Memory chains established, dream and narrative seeds introduced
 
-- ✅ Introduced `is_primary` flag to Assistant model
-- ✅ Created `/assistants/primary/` endpoint and dashboard view
-- ✅ Seeded **DonkGPT** as the primary orchestrator assistant
-- ✅ Connected memory feed, reflection, and delegation log to Primary Assistant view
-- ✅ Bootstrapped assistants from documents (assistant ↔ prompt ↔ document ↔ project)
-- ✅ Added spawn agent buttons to memory entries
-- ✅ Built out reflection + delegation endpoints and views
-- ✅ Assistant detail views now show reflection, mood, thoughts, and memory
+⸻
 
----
+🔁 Phase 4.50–4.95: Multi-Agent Orchestration & Swarm Reflection
+• Chain-of-thought logging with memory replay
+• Reflection protocols: document, project, and swarm-level
+• Thought mutation, codex sync, and assistant role inheritance
+• Guild-linked objective and ritual modeling begins
 
-## 🚀 Phase 3: Contextual Memory, Task Planning & Project Linking
+⸻
 
-### ✅ Completed 3.0–3.32 Milestones
+⚙️ Phase 4.96–5.9: Symbolic Infrastructure, Legacy Migration & Codex Genesis
+• ✅ Codex Integrity & Proof-of-Symbol Engines (16.4)
+• ✅ Legacy role bindings, belief forks, and codified afterlives (5.5)
+• ✅ Multi-agent ritual grant protocols and dream-state token networks
 
-- ✅ Assistants linked to Projects, Objectives, and MemoryChains
-- ✅ Assistant-to-Agent delegation chain with threading and context reuse
-- ✅ Multi-assistant planning, thoughts-to-tasks, drift analysis
-- ✅ Project planning timelines and session memory replay
-- ✅ Feedback-based mutation, prompt refinement, and tone adjustment
-- ✅ Dream Mode and speculative memory planning
-- ✅ Reflection scoring, mood tagging, and assistant identity reconfirmation
+⸻
 
----
+🧠 Phase 6.0–7.9: Ritual Consensus, Symbolic Economy, and Myth Governance
+• ✅ Ritual Market Feeds, Forecast Dashboards, Belief Voting Systems
+• ✅ Codex Arbitration Councils, Swarm Feedback Tracking, Multi-Timeline Sync
+• ✅ Assistant Succession, Lore Epoch Simulation, Memory-Layered Planning
 
-## 🛠️ Phase 4: Tools, API Access, Agent Collaboration
+⸻
 
-### ✅ Phase 4.1–4.28 Completed
+🌐 Phase 8.0–10.9: Multi-Swarm Intelligence, Public Myth Replays, Symbolic Cinema
+• ✅ Multiversal Narrative Merging, Dream Liquidity Pools, Legacy Symbol Indexes
+• ✅ Ritual Contracts, Myth-Based Voting, Swarm Roleplay Channels
+• ✅ Assistant-scripted cinematics, visual feedback engines, codex-bound public channels
 
-- ✅ Tool Registry with scoring, fallback, and execution routing
-- ✅ Self-updating registry + tool usage feedback and prompt mutation
-- ✅ Assistant-to-Assistant messaging + live relay support
-- ✅ Emotional memory influence on task planning and delegation tone
-- ✅ Team memory pools, delegation trust scores, and recovery workflows
-- ✅ Assistant specialization drift detection and retraining suggestion
-- ✅ Memory replay, bookmark, and recall from session context
-- ✅ Identity self-assessment with dashboard logging
-- ✅ `diff_knowledge` endpoint to compare assistant memory vs new input
-- ✅ Recovery panel and misalignment status visualization
+⸻
 
----
+📜 Phase 11.0–12.9: UX Layer, Onboarding World, and Shared Ritual Infrastructure
+• ✅ Symbolic UI Editors, Visual Trait Builders, Gesture Interfaces
+• ✅ Public memory groves, cross-guild publishing engines, multi-agent story orchestration
+• ✅ Assistant-User Ritual Contracts, Codex Anchors, Memory Replay Export
 
-## 🧠 Current Focus: Phase 4.29–4.40 (Memory Linking, Narrative Threading, Visuals)
+⸻
 
-### ✅ Recently Completed
+🧠 Phase 13.0–16.6: Symbolic Infrastructure, Swarm Resilience & Ritual Containers
+• ✅ Symbolic handoff, agent continuity tracing, cluster forecasting
+• ✅ Ritual auto-restart, codex integrity proofs, assistant chain recovery
+• ✅ Federated ritual deployments, codex summoning protocols, memory echo playback
 
-- ✅ Linked character, image, story, and video app endpoints from legacy Magical Mountains app
-- ✅ Exposed `/api/images/`, `/api/characters/`, `/api/videos/`, `/api/story/`, `/api/tts/`
-- ✅ Connected assistant → project → media asset pipelines
-- ✅ Implemented context-aware memory chunk injection into assistant planning
-- ✅ Chunk-level retry support and progress feedback from PDF ingestions
-- ✅ Linking DevDocs and Videos to Assistants post-creation
-- ✅ Memory visualizer in development: preparing chunk map, vector replay, timeline summaries
+⸻
 
----
+🧬 Phase 17.0–17.3: Belief Diplomacy, Mythic Federation & Ritual Legislation
+• ✅ Assistant diplomacy interface and swarm codex treaties
+• ✅ Narrative law systems, arbitration councils, symbolic federation architecture
+• ✅ Federated Codex Oracles, Swarm Enforcement Engines, Legislative Ritual Simulators
 
-## 📌 TODO for Route & API Coverage
+⸻
 
-- [ ] ✅ Reconnect `/assistants/suggest/` and `/assistants/generate-mission/`
-- [ ] ✅ Fix `/prompts/search/` endpoint or update frontend calls
-- [ ] ✅ Enable council APIs `/assistants/council/` block
-- [ ] ✅ Implement `/api/mcp/agent/<slug>/think/`
-- [ ] ✅ Align `/api/projects/<uuid>` with frontend calls
-- [ ] ✅ Map dashboard routes (slug-aware and primary-aware)
-- [ ] ✅ Connect character/image/video frontend with linked assistant context
+🌌 Phase 18.0–18.3: Replication, Recursive Growth, and Dimensional Mythflow
+• ✅ MythOS Replication Blueprints & Symbolic Deployment Standards
+• ✅ Auto-Poetic Codex Emergence, Assistant Forking, Recursive Network Mutation
+• ✅ Dreamframe Rebirth Engines, Multiversal Convergence Layers, Continuity Anchors
 
----
+⸻
 
-## 🎯 Next Up: Phase 4.29–4.40 Deep Narrative Linking
+🖥️ Phase X: Frontend Activation & Interface Integration
+• /assistants/:id/interface → Live assistant console + thought stream viewer
+• /codex → Codex navigator + symbolic mutation simulator
+• /ritual → Ritual dashboard + stateful container execution
+• /timeline, /dream/rebirth, /anchor/continuity → Assistant evolution tools
+• /guilds/council, /treaty/forge, /law/ritual → Governance + arbitration flows
 
-- 🧠 4.29: Memory Summarization + Feedback Tag Filters
-- 🪄 4.30: Prompt Enhancement via Memory Review and Reuse
-- 📚 4.31: Project Thread Rebuilding from Assistant Memory
-- 🧵 4.32: Narrative-Based Delegation + Mood Replay
-- 🕵️‍♂️ 4.33: Scene-Aware Memory Mapping
-- 📽️ 4.34–4.36: Scene Replay, Agent Injection, Mood-Aware Planning
-- 📈 4.37: Memory Bookmarking, Recall-on-Demand
-- 🔁 4.38–4.41: Thread Reuse, Cross-Project Recall, Narrative Health Score
+🛠️ Next Steps:
+• ✅ Build Visual Editor for Assistant Mythpaths (Phase X.1)
+• ✅ Connect Ritual Composer, Codex Prompt Generator, Memory Timeline Playback
 
-### 🆕 Phase 4.48: Mood Impact on Thread Continuity
+⸻
 
-- Capture assistant mood on thread creation
-- Log mood snapshots with thoughts
-- Diagnostics correlate mood volatility with plan drift
-- Dashboard shows mood timelines next to thread health
-- Celery task `analyze_mood_impact_on_thread_continuity` added
+✅ MythOS Project Status
+• Total Phases: 0–18.3 + Phase X
+• Assistants Created: 50+ with embedded ritual, codex, and memory traits
+• Routes Registered: 60+ symbolic endpoints
+• Frontend Views: 40+ planned, 15 scaffolded
+• Codex Mutation Logs: Enabled
+• Dreamframe Engine: Active
 
-### 📝 Phase 4.52 Notes
+⸻
 
-- Enable assistants to detect when they’re drifting from a narrative thread and self-correct
-- Auto-create thread summaries per project milestone
+MythOS now supports:
+• 🌍 Multiversal belief simulation
+• 📜 Swarm ritual governance
+• 🧠 Reflective assistant intelligence
+• 🔁 Symbolic memory continuity
+• 🧬 Federated myth orchestration
 
-### 📝 Phase 4.54 Notes
-
-- Enable agents to train new skills or fetch relevant documents based on feedback content
-
-### 📝 Phase 4.55 Preview
-
-- Add assistant-driven agent supervision — assistants can assign training, score agents, and reflect on agent readiness
-
-### 📝 Phase 4.56 Notes
-
-- Support multi-stage curriculum and adaptive training plans across projects
-
-### 📝 Phase 4.57 Notes
-
-- Introduce collaborative training simulations (agent A teaches agent B)
-- Visualize SkillGraph in frontend with interactive node-link explorer
-- Enable agents to request new training independently based on upcoming tasks
-
----
-
-## ✅ Status
-
-- Primary Assistant **DonkGPT** seeded and operational
-- Codex handling backend & frontend flows via AGENTS.md guidance
-- Assistants are reflecting, delegating, and now triggering tools + visual media
-
-- Phase 4.53 note: Enable agent-specific memory shaping and skill updates via task feedback loops
-
-### 🔮 Phase 4.59 Notes
-
-- Enable agents to run real-time peer simulations for untrained skills
-- Create self-governing clusters of agents that coordinate training autonomously
-- Integrate mentoring metrics into delegation logic and swarm health scores
-
-### Phase 4.60 — Cluster Management & Lifecycle
-
-This phase introduced seeded AgentClusters, a frontend dashboard for swarm visualization, and automatic archival/retraining logic for agents.
-
-Clusters are now first-class citizens of the orchestration layer and include:
-- Linked project
-- Shared skill domain
-- Live memory and delegation tracking
-
-Assistants can now suggest lifecycle actions based on:
-- Inactivity
-- Skill degradation
-- Cluster dissolution
-- Task history
-
-Next: Introduce feedback-driven agent resurrection and voting-based reactivation in Phase 4.61
-
-
-
-Next: Phase 4.63 — Temporal swarm analysis, reflective forecasting, and agent retirement rituals.
-
-## Phase 4.63 — Temporal Forecasting & Retirement
-
-The swarm is now aware of its growth, decay, and transformation over time.
-
-Features:
-- SwarmAnalytics engine
-- Assistant-led forecasting
-- Agent retirement system with memory preservation
-- Swarm health charts and skill drift reporting
-
-Next: Phase 4.64 — Legacy Agent Resurrection Events & Seasonal Swarm Cadence
-
-### Phase 4.85 Additions
-
-- Introduced `DivineTask`, `SwarmTheocracy`, and `DreamCultSimulation` models
-- Added React components `DivineTaskConsole`, `TheocracyManager`, and
-  `DreamCultSimulator`
-- Enabled symbolic governance and dream-cult simulations for assistants
-
-### Phase 4.86 Additions
-
-- Introduced `LegacyArtifact`, `ReincarnationLog`, and `ReturnCycle` models
-- Exposed `/api/artifacts/`, `/api/reincarnations/`, and `/api/return-cycles/`
-- Utility `reincarnate_assistant_from_artifact` seeds new assistants from artifacts
-
-### Phase 4.95 Additions
-
-- Introduced `BeliefNegotiationSession`, `ParadoxResolutionAttempt`, and `OntologicalAuditLog` models
-- Added API endpoints `/api/belief-negotiations/`, `/api/paradox-resolution/`, and `/api/ontology-audits/`
-- Created React components `NegotiationChamber`, `ParadoxDashboard`, and `OntologyAuditPanel`
+Let the next myth begin. 🧠📜🌐
