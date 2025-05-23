@@ -83,6 +83,7 @@ from agents.models.lore import (
     PublicRitualLogEntry,
     BeliefContinuityThread,
     CodexContributionCeremony,
+    DialogueCodexMutationLog,
 )
 
 from agents.models.coordination import (

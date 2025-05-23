@@ -74,7 +74,7 @@ from agents.models.lore import (
     ArchetypeGenesisLog,
     MythBloomNode,
     BeliefSeedReplication,
-    PersonaFusionEvent,
+  
     DialogueCodexMutationLog,
     PublicRitualLogEntry,
     BeliefContinuityThread,
@@ -87,7 +87,7 @@ from agents.models.lore import (
     ArchetypeMigrationGate,
 
 )
-
+from agents.models.identity import  PersonaFusionEvent
 from agents.models.coordination import (
     CollaborationThread,
     DelegationStream,
@@ -106,7 +106,7 @@ from agents.models.storyfield import (
     LegacyContinuityVault,
     AgentPlotlineCuration,
 )
-from simulation.models import SceneDirectorFrame
+# from simulation.models import SceneDirectorFrame
 from agents.serializers import (
     AgentSerializer,
     AgentFeedbackLogSerializer,
@@ -186,7 +186,7 @@ from agents.serializers import (
     PublicRitualLogEntrySerializer,
     BeliefContinuityThreadSerializer,
     CodexContributionCeremonySerializer,
-    SceneDirectorFrameSerializer,
+    # SceneDirectorFrameSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
