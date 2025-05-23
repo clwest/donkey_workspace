@@ -7,7 +7,6 @@ from agents.models.core import (
     Agent,
     AgentFeedbackLog,
     AgentCluster,
-
 )
 from agents.models.lore import (
     SwarmMemoryEntry,
@@ -70,25 +69,18 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
-    SymbolicResonanceGraph,
-    CognitiveBalanceReport,
-    PurposeMigrationEvent,
-
     SymbolicAnomalyEvent,
     BeliefCollapseRecoveryRitual,
     MultiverseLoopLink,
-
-
-
 )
 from agents.models.coordination import (
     CollaborationThread,
     DelegationStream,
     MythflowInsight,
+    SymbolicCoordinationEngine,
     MythflowOrchestrationPlan,
     DirectiveMemoryNode,
     SymbolicPlanningLattice,
-
 )
 from agents.serializers import (
     AgentSerializer,
@@ -151,18 +143,15 @@ from agents.serializers import (
     AgentAwareCodexSerializer,
     SymbolicCoordinationEngineSerializer,
     CosmogenesisSimulationSerializer,
-
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
     SymbolicWeatherFrontSerializer,
-    SwarmCosmologySerializer,
-    PurposeIndexEntrySerializer,
-    BeliefSignalNodeSerializer,
-    MythicAlignmentMarketSerializer,
-    SymbolicResonanceGraphSerializer,
-    CognitiveBalanceReportSerializer,
-    PurposeMigrationEventSerializer,
-
+    SymbolicAnomalyEventSerializer,
+    BeliefCollapseRecoveryRitualSerializer,
+    MultiverseLoopLinkSerializer,
+    MythflowOrchestrationPlanSerializer,
+    DirectiveMemoryNodeSerializer,
+    SymbolicPlanningLatticeSerializer,
 
 )
 from assistants.serializers import (
@@ -391,7 +380,9 @@ def lore_epochs(request):
     epoch = serializer.save()
     return Response(LoreEpochSerializer(epoch).data, status=201)
 
+
 from agents.utils.myth_reset import run_myth_reset_cycle
+
 
 @api_view(["POST"])
 def myth_reset_cycle(request):
@@ -1111,7 +1102,6 @@ def symbolic_weather(request):
     return Response(SymbolicWeatherFrontSerializer(front).data, status=201)
 
 
-
 @api_view(["GET", "POST"])
 def collaboration_threads(request):
     if request.method == "GET":
@@ -1191,8 +1181,9 @@ def resonance_graphs(request):
 
     serializer = SymbolicResonanceGraphSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    graph = serializer.save()
-    return Response(SymbolicResonanceGraphSerializer(graph).data, status=201)
+    engine = serializer.save()
+    return Response(SymbolicCoordinationEngineSerializer(engine).data, status=201)
+
 
 
 @api_view(["GET", "POST"])

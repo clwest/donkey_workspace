@@ -61,27 +61,19 @@ from agents.models.lore import (
     MythicForecastPulse,
     BeliefAtlasSnapshot,
     SymbolicWeatherFront,
-
-    SymbolicResonanceGraph,
-    CognitiveBalanceReport,
-    PurposeMigrationEvent,
-
-
     KnowledgeReplicationEvent,
     MemoryBroadcastPacket,
     LearningReservoir,
     SymbolicAnomalyEvent,
     BeliefCollapseRecoveryRitual,
     MultiverseLoopLink,
-
-
-
 )
 
 from agents.models.coordination import (
     CollaborationThread,
     DelegationStream,
     MythflowInsight,
+    SymbolicCoordinationEngine,
 )
 from agents.models.insight import (
     InsightHub,
@@ -702,13 +694,13 @@ class SymbolicCoordinationEngineSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "last_sync"]
 
+
 class KnowledgeReplicationEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = KnowledgeReplicationEvent
 
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
-
 
 
 class MemoryBroadcastPacketSerializer(serializers.ModelSerializer):
@@ -727,7 +719,6 @@ class LearningReservoirSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-
 class SwarmCosmologySerializer(serializers.ModelSerializer):
     class Meta:
         model = SwarmCosmology
@@ -741,7 +732,6 @@ class PurposeIndexEntrySerializer(serializers.ModelSerializer):
 
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
-
 
 
 class BeliefSignalNodeSerializer(serializers.ModelSerializer):
@@ -759,15 +749,8 @@ class MythicAlignmentMarketSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "last_updated"]
 
 
+class MythflowOrchestrationPlanSerializer(serializers.ModelSerializer):
 
-class SymbolicResonanceGraphSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SymbolicResonanceGraph
-        fields = "__all__"
-        read_only_fields = ["id", "generated_at"]
-
-
-class CognitiveBalanceReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = CognitiveBalanceReport
 
