@@ -2084,7 +2084,6 @@ class CodexContributionCeremony(models.Model):
         return self.ceremony_title
 
 
-
 class NarrativeLightingEngine(models.Model):
     """Controls thematic lighting presets for cinematic layers."""
 
@@ -2109,7 +2108,10 @@ class CinematicUILayer(models.Model):
         NarrativeLightingEngine, on_delete=models.SET_NULL, null=True, blank=True
     )
     scene_controller = models.ForeignKey(
-        "simulation.SceneControlEngine", on_delete=models.SET_NULL, null=True, blank=True
+        "simulation.SceneControlEngine",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
     # associated_archetype_cluster = models.ForeignKey(
     #     ArchetypeFieldCluster, on_delete=models.SET_NULL, null=True, blank=True
@@ -2148,7 +2150,9 @@ class RitualOnboardingFlow(models.Model):
     entry_name = models.CharField(max_length=150)
     initiating_archetype = models.CharField(max_length=100)
     required_codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
-    ritual_blueprint = models.ForeignKey(EncodedRitualBlueprint, on_delete=models.CASCADE)
+    ritual_blueprint = models.ForeignKey(
+        EncodedRitualBlueprint, on_delete=models.CASCADE
+    )
     step_sequence = models.JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -2185,12 +2189,14 @@ class CodexReconciliationForum(models.Model):
     memory_basis = models.ManyToManyField(SwarmMemoryEntry)
     reconciliation_log = models.TextField()
     resolution_achieved = models.BooleanField(default=False)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return self.forum_topic
 
 
@@ -2204,12 +2210,14 @@ class MythEditorialLayer(models.Model):
     commentary_threads = models.JSONField()
     editorial_tags = models.JSONField()
     approval_status = models.CharField(max_length=50, default="draft")
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return f"Edits for {self.linked_entry.title}"[:50]
 
 
@@ -2222,11 +2230,14 @@ class SymbolicPublishingEngine(models.Model):
     visibility_scope = models.CharField(max_length=100)
     symbolic_payload = models.JSONField()
     approved_codexes = models.ManyToManyField(SwarmCodex)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return self.published_title
+
 

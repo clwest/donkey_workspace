@@ -17,7 +17,20 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from story.models import LoreEntry
-from .core import (THOUGHT_TYPES, MEMORY_MODES, PERSONA_MODES, THINKING_STYLES, MEMORY_CHAIN_MODES, ROLE_CHOICES, THOUGHT_MODES, COLLABORATION_STYLES, CONFLICT_RESOLUTIONS, PLANNING_EVENT_TYPES, DelegationEventManager)
+from .core import (
+    THOUGHT_TYPES,
+    MEMORY_MODES,
+    PERSONA_MODES,
+    THINKING_STYLES,
+    MEMORY_CHAIN_MODES,
+    ROLE_CHOICES,
+    THOUGHT_MODES,
+    COLLABORATION_STYLES,
+    CONFLICT_RESOLUTIONS,
+    PLANNING_EVENT_TYPES,
+    DelegationEventManager,
+)
+
 
 class Assistant(models.Model):
     """Core AI assistant configuration with optional parent link.
@@ -298,7 +311,6 @@ class AssistantSkill(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display
         return f"{self.assistant.name}: {self.name}"
-
 
         return f"{self.event_type} @ {self.timestamp.strftime('%Y-%m-%d %H:%M')}"
 
@@ -1276,3 +1288,33 @@ class AutonomyNarrativeModel(models.Model):
     current_arc = models.CharField(max_length=100)
     known_story_events = models.ManyToManyField(SwarmMemoryEntry)
     active_purpose_statement = models.TextField()
+
+
+class MythCommunityCluster(models.Model):
+    """Community cluster organized around shared mythic themes."""
+
+    cluster_name = models.CharField(max_length=150)
+    description = models.TextField(blank=True)
+    member_guilds = models.ManyToManyField("assistants.AssistantGuild", blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.cluster_name
+
+
+class CodexLinkedGuild(models.Model):
+    """Assistant guild with a primary codex association."""
+
+    guild_name = models.CharField(max_length=150)
+    codex = models.ForeignKey("agents.SwarmCodex", on_delete=models.CASCADE)
+    members = models.ManyToManyField("assistants.Assistant", blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.guild_name

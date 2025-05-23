@@ -89,14 +89,13 @@ from agents.models.lore import (
     AssistantTutorialScript,
     RitualOnboardingFlow,
 
+
     SymbolicDocumentationEntry,
     CodexReconciliationForum,
     MythEditorialLayer,
     SymbolicPublishingEngine,
-
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
-
 )
 
 from agents.models.coordination import (
@@ -999,7 +998,6 @@ class NarrativeLightingEngineSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-
 class CinematicUILayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = CinematicUILayer
@@ -1021,6 +1019,7 @@ class RitualOnboardingFlowSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+
 class SymbolicDocumentationEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = SymbolicDocumentationEntry
@@ -1031,6 +1030,7 @@ class SymbolicDocumentationEntrySerializer(serializers.ModelSerializer):
 class CodexReconciliationForumSerializer(serializers.ModelSerializer):
     class Meta:
         model = CodexReconciliationForum
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
@@ -1038,6 +1038,7 @@ class CodexReconciliationForumSerializer(serializers.ModelSerializer):
 class MythEditorialLayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = MythEditorialLayer
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
@@ -1045,6 +1046,7 @@ class MythEditorialLayerSerializer(serializers.ModelSerializer):
 class SymbolicPublishingEngineSerializer(serializers.ModelSerializer):
     class Meta:
         model = SymbolicPublishingEngine
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

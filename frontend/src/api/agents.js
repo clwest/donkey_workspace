@@ -100,3 +100,15 @@ export const fetchAvailableRituals = (params) =>
   apiFetch(`/mythos/ritual-launchpads/`, { params });
 
 export const fetchCodexInteraction = () => apiFetch(`/mythos/codex/`);
+
+export const fetchMythRecordingSessions = () => apiFetch("/myth/record/");
+export const createMythRecordingSession = (body) =>
+  apiFetch("/myth/record/", { method: "POST", body });
+
+export const fetchSymbolicDocs = () => apiFetch("/docs/symbolic/");
+export const createSymbolicDoc = (body) =>
+  apiFetch("/docs/symbolic/", { method: "POST", body });
+
+export const fetchBeliefArtifacts = () => apiFetch("/artifacts/archive/");
+export const createBeliefArtifact = (body) =>
+  apiFetch("/artifacts/archive/", { method: "POST", body });
