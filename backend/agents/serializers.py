@@ -102,13 +102,11 @@ from agents.models.lore import (
     RitualLoopVisualizationEngine,
     SymbolicOscillationMap,
     CodexRestabilizationNode,
-    CodexCurrencyModule,
-    SymbolicInfluenceLedger,
-    BeliefContributionMarketplace,
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
 
 )
+from agents.models.markets import CodexCurrencyModule, SymbolicInfluenceLedger, BeliefContributionMarketplace
 from agents.models.governance import SymbolicConsensusChamber, RitualNegotiationEngine, NarrativeGovernanceModel
 from agents.models.coordination import (
     CollaborationThread,

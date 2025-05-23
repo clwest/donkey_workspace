@@ -98,9 +98,6 @@ from agents.models.lore import (
     RitualLoopVisualizationEngine,
     SymbolicOscillationMap,
     CodexRestabilizationNode,
-    CodexCurrencyModule,
-    SymbolicInfluenceLedger,
-    BeliefContributionMarketplace,
     LegacyArtifactExporter,
 )
 from agents.models.governance import SymbolicConsensusChamber, RitualNegotiationEngine, NarrativeGovernanceModel
@@ -226,10 +223,9 @@ from agents.serializers import (
     RitualLoopVisualizationEngineSerializer,
     SymbolicOscillationMapSerializer,
     CodexRestabilizationNodeSerializer,
-    CodexCurrencyModuleSerializer,
-    SymbolicInfluenceLedgerSerializer,
-    BeliefContributionMarketplaceSerializer,
-
+    # SymbolicConsensusChamberSerializer,
+    # RitualNegotiationEngineSerializer,
+    # NarrativeGovernanceModelSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -237,6 +233,7 @@ from agents.serializers import (
     AgentPlotlineCurationSerializer,
  
 )
+
 from assistants.serializers import (
     AssistantSerializer,
     AssistantCivilizationSerializer,
@@ -1800,40 +1797,38 @@ def codex_stabilize(request):
 
 
 @api_view(["GET", "POST"])
-
-def codex_value(request):
+def governance_consensus(request):
     if request.method == "GET":
-        modules = CodexCurrencyModule.objects.all().order_by("-created_at")
-        return Response(CodexCurrencyModuleSerializer(modules, many=True).data)
+        chambers = SymbolicConsensusChamber.objects.all().order_by("-created_at")
+        return Response(SymbolicConsensusChamberSerializer(chambers, many=True).data)
 
-    serializer = CodexCurrencyModuleSerializer(data=request.data)
+    serializer = SymbolicConsensusChamberSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    module = serializer.save()
-    return Response(CodexCurrencyModuleSerializer(module).data, status=201)
+    chamber = serializer.save()
+    return Response(SymbolicConsensusChamberSerializer(chamber).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def influence_ledger(request):
+def ritual_negotiate(request):
     if request.method == "GET":
-        ledgers = SymbolicInfluenceLedger.objects.all().order_by("-created_at")
-        return Response(SymbolicInfluenceLedgerSerializer(ledgers, many=True).data)
+        engines = RitualNegotiationEngine.objects.all().order_by("-created_at")
+        return Response(RitualNegotiationEngineSerializer(engines, many=True).data)
 
-    serializer = SymbolicInfluenceLedgerSerializer(data=request.data)
+    serializer = RitualNegotiationEngineSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    ledger = serializer.save()
-    return Response(SymbolicInfluenceLedgerSerializer(ledger).data, status=201)
+    engine = serializer.save()
+    return Response(RitualNegotiationEngineSerializer(engine).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def belief_market(request):
+def network_governance(request):
     if request.method == "GET":
-        markets = BeliefContributionMarketplace.objects.all().order_by("-created_at")
-        return Response(BeliefContributionMarketplaceSerializer(markets, many=True).data)
+        models = NarrativeGovernanceModel.objects.all().order_by("-created_at")
+        return Response(NarrativeGovernanceModelSerializer(models, many=True).data)
 
-    serializer = BeliefContributionMarketplaceSerializer(data=request.data)
+    serializer = NarrativeGovernanceModelSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    market = serializer.save()
-    return Response(BeliefContributionMarketplaceSerializer(market).data, status=201)
-
+    model = serializer.save()
+    return Response(NarrativeGovernanceModelSerializer(model).data, status=201)
 
 

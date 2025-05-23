@@ -50,9 +50,6 @@ urlpatterns = [
     path("oscillation/map/", agents.oscillation_map),
     path("memory/regenerate/", agents.memory_regenerate),
     path("codex/stabilize/", agents.codex_stabilize),
-    path("codex/value/", agents.codex_value),
-    path("influence/ledger/", agents.influence_ledger),
-    path("market/belief/", agents.belief_market),
 
     path("governance/consensus/", agents.governance_consensus),
     path("ritual/negotiate/", agents.ritual_negotiate),
