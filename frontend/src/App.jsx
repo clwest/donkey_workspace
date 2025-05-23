@@ -75,6 +75,9 @@ import MilestonesPage from "./pages/assistant/milestones/MilestonesPage";
 import MilestoneCreatePage from "./pages/assistant/milestones/MilestoneCreatePage";
 import MilestoneEditPage from "./pages/assistant/milestones/MilestoneEditPage";
 import MemoryChainsPage from "./pages/assistant/memory_chains/MemoryChainsPage";
+import MemoryNavigatorPage from "./pages/assistant/analysis/MemoryNavigatorPage";
+import ArchetypeAffinityPage from "./pages/assistant/analysis/ArchetypeAffinityPage";
+import BeliefEvolutionPage from "./pages/assistant/analysis/BeliefEvolutionPage";
 
 import NextActionsPage from "./pages/assistant/objectives/NextActionsPage";
 import ObjectivesPage from "./pages/assistant/objectives/ObjectivesPage";
@@ -108,6 +111,10 @@ import RoutingHistoryPage from "./pages/assistants/RoutingHistoryPage";
 import StoryboardEditorPage from "./pages/storyboard/StoryboardEditorPage";
 import NarrativeEventDetailPage from "./pages/storyboard/NarrativeEventDetailPage";
 import RealityShaperDashboard from "./pages/lore/RealityShaperDashboard";
+import MythOSOverviewPage from "./pages/mythos/MythOSOverviewPage";
+import MythOSAssistantPage from "./pages/mythos/MythOSAssistantPage";
+import MythOSRitualsPage from "./pages/mythos/MythOSRitualsPage";
+import MythOSCodexPage from "./pages/mythos/MythOSCodexPage";
 
 import { ToastContainer } from "react-toastify";
 import Navbar from "./components/Navbar";
@@ -285,6 +292,18 @@ export default function App() {
             element={<AssistantThoughtMapPage />}
           />
           <Route
+            path="/assistants/:slug/timeline"
+            element={<MemoryNavigatorPage />}
+          />
+          <Route
+            path="/assistants/:slug/affinity"
+            element={<ArchetypeAffinityPage />}
+          />
+          <Route
+            path="/assistants/:slug/belief"
+            element={<BeliefEvolutionPage />}
+          />
+          <Route
             path="/assistants/:slug/memories"
             element={<AssistantMemoriesPage />}
           />
@@ -383,6 +402,10 @@ export default function App() {
           <Route path="/storyboard" element={<StoryboardEditorPage />} />
           <Route path="/storyboard/events/:id" element={<NarrativeEventDetailPage />} />
           <Route path="/lore" element={<RealityShaperDashboard />} />
+          <Route path="/mythos" element={<MythOSOverviewPage />} />
+          <Route path="/mythos/assistants/:id" element={<MythOSAssistantPage />} />
+          <Route path="/mythos/rituals" element={<MythOSRitualsPage />} />
+          <Route path="/mythos/codex" element={<MythOSCodexPage />} />
           <Route path="/assistants/sources" element={<SignalSourcesPage />} />
           <Route path="/assistants/signals" element={<SignalCatchesPage />} />
           <Route path="/assistants/routing-history" element={<RoutingHistoryPage />} />
