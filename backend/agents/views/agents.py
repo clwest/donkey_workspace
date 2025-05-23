@@ -74,21 +74,21 @@ from agents.models.lore import (
     ArchetypeGenesisLog,
     MythBloomNode,
     BeliefSeedReplication,
-  
     DialogueCodexMutationLog,
     PublicRitualLogEntry,
     BeliefContinuityThread,
     CodexContributionCeremony,
+
     MemoryEchoEffectMap,
+
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
     MythicAfterlifeRegistry,
     ContinuityEngineNode,
     ArchetypeMigrationGate,
-
 )
-from agents.models.identity import  PersonaFusionEvent
+from agents.models.identity import PersonaFusionEvent
 from agents.models.coordination import (
     CollaborationThread,
     DelegationStream,
@@ -107,6 +107,7 @@ from agents.models.storyfield import (
     LegacyContinuityVault,
     AgentPlotlineCuration,
 )
+
 # from simulation.models import SceneDirectorFrame
 from agents.serializers import (
     AgentSerializer,
@@ -187,15 +188,15 @@ from agents.serializers import (
     PublicRitualLogEntrySerializer,
     BeliefContinuityThreadSerializer,
     CodexContributionCeremonySerializer,
+
     MemoryEchoEffectMapSerializer,
+
     # SceneDirectorFrameSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
     IntentHarmonizationSessionSerializer,
     AgentPlotlineCurationSerializer,
-
-
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -1432,6 +1433,7 @@ def migration_gates(request):
     gate = serializer.save()
     return Response(ArchetypeMigrationGateSerializer(gate).data, status=201)
 
+
 @api_view(["GET", "POST"])
 def persona_fusions(request):
     if request.method == "GET":
@@ -1496,13 +1498,14 @@ def belief_threads(request):
 def codex_contributions(request):
     if request.method == "GET":
         contributions = CodexContributionCeremony.objects.all().order_by("-created_at")
-        return Response(CodexContributionCeremonySerializer(contributions, many=True).data)
+        return Response(
+            CodexContributionCeremonySerializer(contributions, many=True).data
+        )
 
     serializer = CodexContributionCeremonySerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     contribution = serializer.save()
     return Response(CodexContributionCeremonySerializer(contribution).data, status=201)
-
 
 
 @api_view(["GET", "POST"])
@@ -1515,4 +1518,5 @@ def memory_echo_effects(request):
     serializer.is_valid(raise_exception=True)
     effect = serializer.save()
     return Response(MemoryEchoEffectMapSerializer(effect).data, status=201)
+
 
