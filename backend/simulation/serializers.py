@@ -13,6 +13,9 @@ from .models import (
     CinemythStoryline,
     SceneControlEngine,
     SceneDirectorFrame,
+    DreamframeStoryGenerator,
+    SimScenarioEngine,
+    MultiUserNarrativeLab,
     PurposeLoopCinematicEngine,
     ReflectiveTheaterSession,
     MythflowPlaybackSession,
@@ -146,6 +149,27 @@ class SceneControlEngineSerializer(serializers.ModelSerializer):
 class SceneDirectorFrameSerializer(serializers.ModelSerializer):
     class Meta:
         model = SceneDirectorFrame
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class DreamframeStoryGeneratorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DreamframeStoryGenerator
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SimScenarioEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SimScenarioEngine
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MultiUserNarrativeLabSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MultiUserNarrativeLab
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
