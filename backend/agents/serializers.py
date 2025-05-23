@@ -80,6 +80,8 @@ from agents.models.lore import (
     ArchetypeGenesisLog,
     MythBloomNode,
     BeliefSeedReplication,
+    PersonaFusionEvent,
+    DialogueCodexMutationLog,
 )
 
 from agents.models.coordination import (
@@ -107,6 +109,7 @@ from agents.models.storyfield import (
     StoryfieldZone,
     MythPatternCluster,
     IntentHarmonizationSession,
+    AgentPlotlineCuration,
 )
 from assistants.models.assistant import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -637,6 +640,20 @@ class PersonaTemplateSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+class PersonaFusionEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PersonaFusionEvent
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class DialogueCodexMutationLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DialogueCodexMutationLog
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
 class BeliefContinuityRitualSerializer(serializers.ModelSerializer):
     memory_reference_ids = serializers.PrimaryKeyRelatedField(
         queryset=SwarmMemoryEntry.objects.all(),
@@ -922,5 +939,12 @@ class MythBloomNodeSerializer(serializers.ModelSerializer):
 class BeliefSeedReplicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = BeliefSeedReplication
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class AgentPlotlineCurationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AgentPlotlineCuration
         fields = "__all__"
         read_only_fields = ["id", "created_at"]

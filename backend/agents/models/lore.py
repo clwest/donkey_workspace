@@ -1995,15 +1995,19 @@ class RitualBlueprint(models.Model):
         return self.name
 
 
+
 class EncodedRitualBlueprint(models.Model):
     """Machine-readable ritual instructions."""
     name = models.CharField(max_length=150)
     encoded_steps = models.JSONField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self):  # pragma: no cover - display helper
+
         return self.name
+
 

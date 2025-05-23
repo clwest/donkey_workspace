@@ -59,6 +59,18 @@ export const fetchArchetypeFusionEvents = () => apiFetch("/archetype-fusion/");
 export const createArchetypeFusionEvent = (body) =>
   apiFetch("/archetype-fusion/", { method: "POST", body });
 
+export const fetchPersonaFusions = () => apiFetch("/persona-fusions/");
+export const createPersonaFusion = (body) =>
+  apiFetch("/persona-fusions/", { method: "POST", body });
+
+export const fetchDialogueMutations = () => apiFetch("/dialogue-mutations/");
+export const createDialogueMutation = (body) =>
+  apiFetch("/dialogue-mutations/", { method: "POST", body });
+
+export const fetchSceneDirectorFrames = () => apiFetch("/scene-director/");
+export const createSceneDirectorFrame = (body) =>
+  apiFetch("/scene-director/", { method: "POST", body });
+
 export const fetchResonanceGraphs = () => apiFetch("/agents/resonance-graphs/");
 export const fetchCognitiveBalance = () => apiFetch("/agents/cognitive-balance/");
 export const fetchPurposeMigrations = () =>

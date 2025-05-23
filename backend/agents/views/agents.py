@@ -74,6 +74,8 @@ from agents.models.lore import (
     ArchetypeGenesisLog,
     MythBloomNode,
     BeliefSeedReplication,
+    PersonaFusionEvent,
+    DialogueCodexMutationLog,
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
@@ -99,7 +101,9 @@ from agents.models.storyfield import (
     NarrativeTrainingGround,
     SwarmMythEditLog,
     LegacyContinuityVault,
+    AgentPlotlineCuration,
 )
+from simulation.models import SceneDirectorFrame
 from agents.serializers import (
     AgentSerializer,
     AgentFeedbackLogSerializer,
@@ -174,10 +178,14 @@ from agents.serializers import (
     ArchetypeGenesisLogSerializer,
     MythBloomNodeSerializer,
     BeliefSeedReplicationSerializer,
+    PersonaFusionEventSerializer,
+    DialogueCodexMutationLogSerializer,
+    SceneDirectorFrameSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
     IntentHarmonizationSessionSerializer,
+    AgentPlotlineCurationSerializer,
 
 
 )
@@ -1415,3 +1423,39 @@ def migration_gates(request):
     serializer.is_valid(raise_exception=True)
     gate = serializer.save()
     return Response(ArchetypeMigrationGateSerializer(gate).data, status=201)
+
+@api_view(["GET", "POST"])
+def persona_fusions(request):
+    if request.method == "GET":
+        events = PersonaFusionEvent.objects.all().order_by("-created_at")
+        return Response(PersonaFusionEventSerializer(events, many=True).data)
+
+    serializer = PersonaFusionEventSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    event = serializer.save()
+    return Response(PersonaFusionEventSerializer(event).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def dialogue_mutations(request):
+    if request.method == "GET":
+        logs = DialogueCodexMutationLog.objects.all().order_by("-created_at")
+        return Response(DialogueCodexMutationLogSerializer(logs, many=True).data)
+
+    serializer = DialogueCodexMutationLogSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    log = serializer.save()
+    return Response(DialogueCodexMutationLogSerializer(log).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def scene_director(request):
+    if request.method == "GET":
+        frames = SceneDirectorFrame.objects.all().order_by("-created_at")
+        return Response(SceneDirectorFrameSerializer(frames, many=True).data)
+
+    serializer = SceneDirectorFrameSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    frame = serializer.save()
+    return Response(SceneDirectorFrameSerializer(frame).data, status=201)
+

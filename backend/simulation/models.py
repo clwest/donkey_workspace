@@ -81,6 +81,7 @@ class SymbolicDialogueExchange(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+
 class MemoryProjectionFrame(models.Model):
     assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
     projected_memory_sequence = models.ManyToManyField("agents.SwarmMemoryEntry")
@@ -109,5 +110,6 @@ class DreamframePlaybackSegment(models.Model):
     visual_style = models.CharField(max_length=100)
     narration_script = models.TextField()
     symbolic_affect_curve = models.JSONField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
