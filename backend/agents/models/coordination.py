@@ -1,5 +1,5 @@
 from django.db import models
-from assistants.models import Assistant
+
 from agents.models.lore import SwarmMemoryEntry
 
 
@@ -7,7 +7,7 @@ class CollaborationThread(models.Model):
     """Symbolic container for cross-assistant collaboration."""
 
     title = models.CharField(max_length=150)
-    participants = models.ManyToManyField(Assistant)
+    participants = models.ManyToManyField("assistants.Assistant")
     narrative_focus = models.TextField()
     symbolic_tags = models.JSONField()
     originating_memory = models.ForeignKey(
@@ -22,10 +22,10 @@ class DelegationStream(models.Model):
 
     stream_name = models.CharField(max_length=100)
     source_assistant = models.ForeignKey(
-        Assistant, related_name="stream_source", on_delete=models.CASCADE
+        "assistants.Assistant", related_name="stream_source", on_delete=models.CASCADE
     )
     target_assistant = models.ForeignKey(
-        Assistant, related_name="stream_target", on_delete=models.CASCADE
+        "assistants.Assistant", related_name="stream_target", on_delete=models.CASCADE
     )
     symbolic_context = models.JSONField()
     task_rationale = models.TextField()
@@ -37,7 +37,7 @@ class MythflowInsight(models.Model):
     """Insight artifact guiding swarm narrative flow."""
 
     thread = models.ForeignKey(CollaborationThread, on_delete=models.CASCADE)
-    generated_by = models.ForeignKey(Assistant, on_delete=models.CASCADE)
+    generated_by = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
     insight_summary = models.TextField()
     symbolic_shift_detected = models.BooleanField(default=False)
     recommended_action = models.TextField(blank=True)
