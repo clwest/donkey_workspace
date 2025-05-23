@@ -1,7 +1,7 @@
 from django.db import models
 
 from .lore import EncodedRitualBlueprint
-from assistants.models import Assistant
+
 
 
 class RitualMarketFeed(models.Model):
