@@ -106,6 +106,9 @@ from agents.models.coordination import (
     MythflowOrchestrationPlan,
     DirectiveMemoryNode,
     SymbolicPlanningLattice,
+    SymbolicProphecyEngine,
+    MemoryPredictionInterface,
+    RitualForecastingDashboard,
 )
 from agents.models.storyfield import (
     StoryfieldZone,
@@ -207,6 +210,9 @@ from agents.serializers import (
     StoryConvergencePathSerializer,
     RitualFusionEventSerializer,
     NarrativeCurationTimelineSerializer,
+    SymbolicProphecyEngineSerializer,
+    MemoryPredictionInterfaceSerializer,
+    RitualForecastingDashboardSerializer,
 
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -1593,87 +1599,40 @@ def timeline_curate(request):
     return Response(NarrativeCurationTimelineSerializer(timeline).data, status=201)
 
 
-@api_view(["POST"])
-def user_mythpath_initialize(request):
-    """Create initial identity card and related seeds for a new user."""
 
-    assistant_data = request.data.get("assistant", {})
-    identity_data = request.data.get("identity_card", {})
+@api_view(["GET", "POST"])
+def prophecy_engine(request):
+    if request.method == "GET":
+        engines = SymbolicProphecyEngine.objects.all().order_by("-created_at")
+        return Response(SymbolicProphecyEngineSerializer(engines, many=True).data)
 
-    assistant = Assistant.objects.create(
-        name=assistant_data.get("name", ""),
-        specialty=assistant_data.get("specialty", ""),
-    )
-
-    card = SymbolicIdentityCard.objects.create(
-        assistant=assistant,
-        archetype=identity_data.get("archetype", ""),
-        symbolic_tags=identity_data.get("symbolic_tags", {}),
-        myth_path=identity_data.get("myth_path", ""),
-        purpose_signature=identity_data.get("purpose_signature", ""),
-    )
-
-    MemoryInheritanceSeed.objects.create(
-        user_id=str(request.user.id) if request.user.is_authenticated else "anon",
-        narrative_path=identity_data.get("myth_path", ""),
-        symbolic_tags=identity_data.get("symbolic_tags", {}),
-    )
-
-    codex = SwarmCodex.objects.first()
-    if codex:
-        PersonalCodexAnchor.objects.create(
-            user_id=str(request.user.id) if request.user.is_authenticated else "anon",
-            codex=codex,
-            symbolic_statements={},
-            anchor_strength=0.5,
-        )
-
-    return Response(
-        {
-            "assistant": AgentSerializer(assistant).data,
-            "identity_card": SymbolicIdentityCardSerializer(card).data,
-        },
-        status=201,
-    )
+    serializer = SymbolicProphecyEngineSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    engine = serializer.save()
+    return Response(SymbolicProphecyEngineSerializer(engine).data, status=201)
 
 
-@api_view(["GET"])
-def world_timeline_anchor(request):
-    """Return recent global memory and codex events."""
+@api_view(["GET", "POST"])
+def memory_prediction(request):
+    if request.method == "GET":
+        predictions = MemoryPredictionInterface.objects.all().order_by("-created_at")
+        return Response(MemoryPredictionInterfaceSerializer(predictions, many=True).data)
 
-    memories = SwarmMemoryEntry.objects.all().order_by("-created_at")[:10]
-    codices = SwarmCodex.objects.all().order_by("-created_at")[:10]
-
-    data = {
-        "memories": SwarmMemoryEntrySerializer(memories, many=True).data,
-        "codices": SwarmCodexSerializer(codices, many=True).data,
-    }
-    return Response(data)
+    serializer = MemoryPredictionInterfaceSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    prediction = serializer.save()
+    return Response(MemoryPredictionInterfaceSerializer(prediction).data, status=201)
 
 
-@api_view(["POST"])
-def assistant_myth_rebirth(request, id):
-    """Reincarnate an assistant into a new form."""
+@api_view(["GET", "POST"])
+def ritual_forecast(request):
+    if request.method == "GET":
+        dashboards = RitualForecastingDashboard.objects.all().order_by("-created_at")
+        return Response(RitualForecastingDashboardSerializer(dashboards, many=True).data)
 
-    parent = get_object_or_404(Assistant, id=id)
-    name = request.data.get("name", f"{parent.name} Reborn")
-    new_assistant = Assistant.objects.create(name=name, specialty=parent.specialty)
+    serializer = RitualForecastingDashboardSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    dashboard = serializer.save()
+    return Response(RitualForecastingDashboardSerializer(dashboard).data, status=201)
 
-    log = ReincarnationLog.objects.create(ancestor=parent, descendant=new_assistant)
-    node = ReincarnationTreeNode.objects.create(
-        node_name="rebirth",
-        assistant=new_assistant,
-        symbolic_signature={},
-        phase_index="13.0",
-    )
-    BeliefVectorDelta.objects.create(assistant=new_assistant, delta_vector={})
-
-    return Response(
-        {
-            "descendant": AgentSerializer(new_assistant).data,
-            "log": ReincarnationLogSerializer(log).data,
-            "tree_node": ReincarnationTreeNodeSerializer(node).data,
-        },
-        status=201,
-    )
 
