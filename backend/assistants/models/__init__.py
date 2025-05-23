@@ -4,5 +4,6 @@ from .reflection import *
 from .thoughts import *
 from .project import *
 from .tasks import *
+from .extensions import *
 
 __all__ = []

@@ -58,6 +58,13 @@ urlpatterns = [
     path("conscience/", conscience.conscience_profiles),
     path("reflexive-epistemology/", conscience.reflexive_epistemology),
     path("decision-frameworks/", conscience.decision_frameworks),
+    path("codex/voice/", views.codex_voice_command, name="codex-voice"),
+    path("rituals/haptic/", views.haptic_ritual, name="haptic-ritual"),
+    path(
+        "<uuid:assistant_id>/sensory/",
+        views.assistant_sensory_profile,
+        name="assistant-sensory-profile",
+    ),
 
     path(
         "primary/delegations/",

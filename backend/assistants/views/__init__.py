@@ -110,6 +110,11 @@ from .conscience import (
     reflexive_epistemology,
     decision_frameworks,
 )
+from .sensory import (
+    codex_voice_command,
+    assistant_sensory_profile,
+    haptic_ritual,
+)
 
 from .bootstrap import prompt_to_assistant
 from .signals import (
@@ -246,4 +251,7 @@ __all__ = [
     "conscience_profiles",
     "reflexive_epistemology",
     "decision_frameworks",
+    "codex_voice_command",
+    "assistant_sensory_profile",
+    "haptic_ritual",
 ]
