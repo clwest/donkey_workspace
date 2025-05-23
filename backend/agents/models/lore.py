@@ -1811,7 +1811,6 @@ class ReflectiveFluxIndex(models.Model):
         return self.swarm_scope
 
 
-
 class RecursiveRitualContract(models.Model):
     """Repeatable symbolic logic bound to ritual reflection."""
 
@@ -1868,6 +1867,7 @@ class BeliefFeedbackSignal(models.Model):
         return f"Signal to {self.target_codex.title}"[:50]
 
 
+
 # Phase 9.3 models
 class PurposeGraftRecord(models.Model):
     """Symbolic grafting of roles or traits between assistants."""
@@ -1885,12 +1885,14 @@ class PurposeGraftRecord(models.Model):
     grafted_traits = models.JSONField()
     symbolic_justification = models.TextField()
     narrative_epoch = models.CharField(max_length=100)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return f"{self.source_assistant} -> {self.target_assistant}"
 
 
@@ -1904,12 +1906,14 @@ class SuccessionRitualEvent(models.Model):
     ritual_steps = models.JSONField()
     memory_basis = models.ManyToManyField(SwarmMemoryEntry)
     confirmed = models.BooleanField(default=False)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return f"{self.outgoing_archetype} -> {self.successor_assistant.name}"
 
 
@@ -1923,11 +1927,14 @@ class ReincarnationTreeNode(models.Model):
     )
     symbolic_signature = models.JSONField()
     phase_index = models.CharField(max_length=100)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return self.node_name
+
 
