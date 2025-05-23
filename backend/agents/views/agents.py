@@ -107,6 +107,9 @@ from agents.models.lore import (
     LegacyArtifactExporter,
     RecursiveRitualContract,
     # resilience & deployment
+
+)
+from agents.models.deployment import (
     SymbolicResilienceMonitor,
     MythOSDeploymentPacket,
     BeliefDeploymentStrategyEngine,

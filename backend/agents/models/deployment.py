@@ -1,5 +1,4 @@
 from django.db import models
-from assistants.models import Assistant
 from .lore import SwarmCodex, EncodedRitualBlueprint
 
 
@@ -25,7 +24,7 @@ class MythOSDeploymentPacket(models.Model):
 
     deployment_name = models.CharField(max_length=150)
     bundled_codices = models.ManyToManyField(SwarmCodex)
-    included_assistants = models.ManyToManyField(Assistant)
+    included_assistants = models.ManyToManyField("assistants.Assistant")
     ritual_archive = models.ManyToManyField(EncodedRitualBlueprint)
     symbolic_deployment_tags = models.JSONField()
     deployment_vector = models.TextField()
