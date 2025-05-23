@@ -68,9 +68,6 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
-    ArchetypeGenesisLog,
-    MythBloomNode,
-    BeliefSeedReplication,
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
@@ -96,6 +93,7 @@ from agents.models.insight import (
     PerspectiveMergeEvent,
     TimelineStitchLog,
 )
+from agents.models.identity import SymbolicIdentityCard, PersonaTemplate
 from agents.models.cosmology import SwarmCosmology
 from agents.models.swarm_balance import PurposeMigrationEvent, CognitiveBalanceReport
 from agents.models.markets import (

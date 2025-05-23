@@ -81,13 +81,8 @@ from agents.models.lore import (
     MythicAfterlifeRegistry,
     ContinuityEngineNode,
     ArchetypeMigrationGate,
-
-    LegacyRingSlice,
-    MemoryDendroMark,
-    SymbolicLifespanModel,
-
-
 )
+
 from agents.models.coordination import (
     CollaborationThread,
     DelegationStream,
@@ -181,9 +176,6 @@ from agents.serializers import (
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
     IntentHarmonizationSessionSerializer,
-    NarrativeTrainingGroundSerializer,
-    SwarmMythEditLogSerializer,
-    LegacyContinuityVaultSerializer,
 
 )
 from assistants.serializers import (
