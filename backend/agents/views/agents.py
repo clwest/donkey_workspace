@@ -123,13 +123,14 @@ from agents.models.recovery import (
 from agents.models.forecast import SymbolicForecastIndex,AssistantSentimentModelEngine
 from agents.models.governance import SymbolicConsensusChamber, RitualNegotiationEngine, NarrativeGovernanceModel
 
-from agents.models.legislative import (
+from agents.models.federation import (
     CodexFederationArchitecture,
     SymbolicTreatyProtocol,
+)
+from agents.models.legislative import (
     FederatedCodexOracle,
     SwarmTreatyEnforcementEngine,
     LegislativeRitualSimulationSystem,
-
 )
 from agents.models.coordination import (
     CollaborationThread,
