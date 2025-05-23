@@ -88,6 +88,8 @@ from agents.models.lore import (
     CinematicUILayer,
     AssistantTutorialScript,
     RitualOnboardingFlow,
+    BeliefInheritanceTree,
+    RitualResponseArchive,
 
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
@@ -1020,6 +1022,7 @@ class RitualOnboardingFlowSerializer(serializers.ModelSerializer):
 class BeliefInheritanceTreeSerializer(serializers.ModelSerializer):
     class Meta:
         model = BeliefInheritanceTree
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

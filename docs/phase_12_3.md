@@ -1,3 +1,4 @@
+
 # Phase 12.3 — Memory-Driven Belief Inheritance Trees
 
 This phase introduces a new layer of symbolic history tracking. Assistants now record how beliefs evolve across memory interactions and ritual executions.
@@ -15,5 +16,6 @@ View routes:
 
 - `/belief/tree` – list or create belief inheritance trees.
 - `/ritual/archive` – list or create ritual response archives.
+
 
 

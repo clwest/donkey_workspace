@@ -80,12 +80,11 @@ class SymbolicDialogueExchange(models.Model):
     codex_alignment_score = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
 
+
 class CinemythStoryline(models.Model):
     """Assistant-authored symbolic film arc."""
 
-    authored_by = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE
-    )
+    authored_by = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
     storyline_title = models.CharField(max_length=150)
     act_structure = models.JSONField()
     memory_sources = models.ManyToManyField("agents.SwarmMemoryEntry")
@@ -113,4 +112,38 @@ class ReflectiveTheaterSession(models.Model):
     symbolic_mood_map = models.JSONField()
     reflection_rating = models.FloatField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class MythflowPlaybackSession(models.Model):
+    """Replay assistant-user mythflow interactions over time."""
+
+    user_id = models.CharField(max_length=150)
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    playback_sequence = models.JSONField()
+    reflective_summary = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class SymbolicMilestoneLog(models.Model):
+    """Record key narrative transformation events."""
+
+    user_id = models.CharField(max_length=150)
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    milestone_type = models.CharField(max_length=100)
+    related_memory = models.ManyToManyField("agents.SwarmMemoryEntry")
+    codex_context = models.ForeignKey("agents.SwarmCodex", on_delete=models.CASCADE)
+    reflection_notes = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class PersonalRitualGuide(models.Model):
+    """Personalized ritual walkthrough for a user."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    user_id = models.CharField(max_length=150)
+    ritual_blueprint = models.ForeignKey("agents.EncodedRitualBlueprint", on_delete=models.CASCADE)
+    personalized_steps = models.JSONField()
+    codex_alignment_score = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
 

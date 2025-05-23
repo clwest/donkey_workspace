@@ -9,6 +9,7 @@ from agents.models import (
     BeliefInheritanceTree,
     RitualResponseArchive,
 )
+
 from agents.utils.journey_export import create_myth_journey_package
 import tempfile
 import os
@@ -16,13 +17,16 @@ import os
 
 def test_phase12_3_models_create(db):
     assistant = Assistant.objects.create(name="A", specialty="oracle")
+
     mem = SwarmMemoryEntry.objects.create(title="m", content="c")
     blueprint = EncodedRitualBlueprint.objects.create(name="B", encoded_steps={})
 
     tree = BeliefInheritanceTree.objects.create(
+
         user_id="u1",
         assistant=assistant,
         core_belief_nodes={"root": "a"},
+
         symbolic_summary="sum",
     )
     tree.memory_links.add(mem)
@@ -43,3 +47,4 @@ def test_phase12_3_models_create(db):
         path = create_myth_journey_package("u1", assistant, tmpdir, memories=[mem])
         assert os.path.exists(path)
 
+n

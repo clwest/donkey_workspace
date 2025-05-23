@@ -2161,7 +2161,9 @@ class RitualOnboardingFlow(models.Model):
 
 
 class BeliefInheritanceTree(models.Model):
+
     """Map assistant-user memory lineage into beliefs."""
+
 
     user_id = models.CharField(max_length=150)
     assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
@@ -2174,6 +2176,7 @@ class BeliefInheritanceTree(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return self.user_id
 
 
@@ -2186,6 +2189,7 @@ class RitualResponseArchive(models.Model):
     ritual_inputs = models.JSONField()
     output_summary = models.TextField()
     belief_state_shift = models.JSONField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -2193,4 +2197,5 @@ class RitualResponseArchive(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Archive {self.id}"
+
 
