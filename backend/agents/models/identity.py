@@ -2,8 +2,9 @@ from django.db import models
 
 from .lore import ResurrectionTemplate, SwarmCodex
 
+
 class SymbolicIdentityCard(models.Model):
-    assistant = models.OneToOneField("assistant.Assistant", on_delete=models.CASCADE)
+    assistant = models.OneToOneField("assistants.Assistant", on_delete=models.CASCADE)
     archetype = models.CharField(max_length=100)
     symbolic_tags = models.JSONField()
     myth_path = models.CharField(max_length=100)
@@ -24,9 +25,7 @@ class PersonaTemplate(models.Model):
     resurrection_template = models.ForeignKey(
         ResurrectionTemplate, null=True, on_delete=models.SET_NULL
     )
-    starter_codex = models.ForeignKey(
-        SwarmCodex, null=True, on_delete=models.SET_NULL
-    )
+    starter_codex = models.ForeignKey(SwarmCodex, null=True, on_delete=models.SET_NULL)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
