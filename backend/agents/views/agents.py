@@ -113,6 +113,9 @@ from agents.models.deployment import (
     SymbolicResilienceMonitor,
     MythOSDeploymentPacket,
     BeliefDeploymentStrategyEngine,
+    GuildDeploymentKit,
+    AssistantNetworkTransferProtocol,
+    RitualFunctionContainer,
 )
 from agents.models.recovery import (
     RitualCompressionCache,
@@ -1328,9 +1331,11 @@ from agents.serializers import (
     SymbolicResilienceMonitorSerializer,
     MythOSDeploymentPacketSerializer,
     BeliefDeploymentStrategyEngineSerializer,
-    RitualCompressionCacheSerializer,
-    AssistantDeploymentAutoRestarterSerializer,
-    CodexProofOfSymbolEngineSerializer,
+
+    GuildDeploymentKitSerializer,
+    AssistantNetworkTransferProtocolSerializer,
+    RitualFunctionContainerSerializer,
+
 )
 
 
@@ -1518,50 +1523,43 @@ def deployment_strategies(request):
 
 
 @api_view(["GET", "POST"])
-def ritual_compression_caches(request):
+def deployment_kits(request):
     if request.method == "GET":
-        caches = RitualCompressionCache.objects.all().order_by("-created_at")
-        return Response(RitualCompressionCacheSerializer(caches, many=True).data)
+        kits = GuildDeploymentKit.objects.all().order_by("-created_at")
+        return Response(GuildDeploymentKitSerializer(kits, many=True).data)
 
-    serializer = RitualCompressionCacheSerializer(data=request.data)
+    serializer = GuildDeploymentKitSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    cache = serializer.save()
-    return Response(RitualCompressionCacheSerializer(cache).data, status=201)
+    kit = serializer.save()
+    return Response(GuildDeploymentKitSerializer(kit).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def assistant_auto_restarts(request, assistant_id=None):
+def assistant_transfers(request, assistant_id=None):
     if request.method == "GET":
         if assistant_id:
-            entries = AssistantDeploymentAutoRestarter.objects.filter(
-                assistant_id=assistant_id
-            ).order_by("-created_at")
+            transfers = AssistantNetworkTransferProtocol.objects.filter(assistant_id=assistant_id).order_by("-created_at")
         else:
-            entries = AssistantDeploymentAutoRestarter.objects.all().order_by(
-                "-created_at"
-            )
-        return Response(
-            AssistantDeploymentAutoRestarterSerializer(entries, many=True).data
-        )
+            transfers = AssistantNetworkTransferProtocol.objects.all().order_by("-created_at")
+        return Response(AssistantNetworkTransferProtocolSerializer(transfers, many=True).data)
 
-    serializer = AssistantDeploymentAutoRestarterSerializer(data=request.data)
+    serializer = AssistantNetworkTransferProtocolSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    entry = serializer.save()
-    return Response(
-        AssistantDeploymentAutoRestarterSerializer(entry).data, status=201
-    )
+    transfer = serializer.save()
+    return Response(AssistantNetworkTransferProtocolSerializer(transfer).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def codex_proof_logs(request):
+def ritual_containers(request):
     if request.method == "GET":
-        logs = CodexProofOfSymbolEngine.objects.all().order_by("-created_at")
-        return Response(CodexProofOfSymbolEngineSerializer(logs, many=True).data)
+        containers = RitualFunctionContainer.objects.all().order_by("-created_at")
+        return Response(RitualFunctionContainerSerializer(containers, many=True).data)
 
-    serializer = CodexProofOfSymbolEngineSerializer(data=request.data)
+    serializer = RitualFunctionContainerSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    log = serializer.save()
-    return Response(CodexProofOfSymbolEngineSerializer(log).data, status=201)
+    container = serializer.save()
+    return Response(RitualFunctionContainerSerializer(container).data, status=201)
+
 
 
 @api_view(["GET", "POST"])

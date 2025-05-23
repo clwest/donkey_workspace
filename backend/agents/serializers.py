@@ -145,6 +145,9 @@ from agents.models.deployment import (
     SymbolicResilienceMonitor,
     MythOSDeploymentPacket,
     BeliefDeploymentStrategyEngine,
+    GuildDeploymentKit,
+    AssistantNetworkTransferProtocol,
+    RitualFunctionContainer,
 )
 from agents.models.recovery import (
     RitualCompressionCache,
@@ -904,23 +907,29 @@ class BeliefDeploymentStrategyEngineSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-class RitualCompressionCacheSerializer(serializers.ModelSerializer):
+
+class GuildDeploymentKitSerializer(serializers.ModelSerializer):
     class Meta:
-        model = RitualCompressionCache
+        model = GuildDeploymentKit
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class AssistantDeploymentAutoRestarterSerializer(serializers.ModelSerializer):
+
+class AssistantNetworkTransferProtocolSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AssistantDeploymentAutoRestarter
+        model = AssistantNetworkTransferProtocol
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class CodexProofOfSymbolEngineSerializer(serializers.ModelSerializer):
+
+class RitualFunctionContainerSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CodexProofOfSymbolEngine
+        model = RitualFunctionContainer
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
