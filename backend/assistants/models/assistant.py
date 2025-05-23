@@ -1309,8 +1309,14 @@ class CodexLinkedGuild(models.Model):
     """Assistant guild with a primary codex association."""
 
     guild_name = models.CharField(max_length=150)
-    codex = models.ForeignKey("agents.SwarmCodex", on_delete=models.CASCADE)
-    members = models.ManyToManyField("assistants.Assistant", blank=True)
+    codex = models.ForeignKey(
+        "agents.SwarmCodex",
+        on_delete=models.CASCADE,
+        related_name="assistant_guilds",
+    )
+    members = models.ManyToManyField(
+        "assistants.Assistant", blank=True, related_name="assistant_guild_memberships"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

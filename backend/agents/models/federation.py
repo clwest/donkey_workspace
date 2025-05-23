@@ -7,8 +7,12 @@ class CodexLinkedGuild(models.Model):
     """Symbolic collective anchored to a codex."""
 
     guild_name = models.CharField(max_length=150)
-    anchor_codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
-    member_assistants = models.ManyToManyField("assistants.Assistant")
+    anchor_codex = models.ForeignKey(
+        SwarmCodex, on_delete=models.CASCADE, related_name="anchored_guilds"
+    )
+    member_assistants = models.ManyToManyField(
+        "assistants.Assistant", related_name="agent_guild_memberships"
+    )
     member_users = models.JSONField()
     ritual_focus = models.JSONField()
     codex_compliance_score = models.FloatField()
