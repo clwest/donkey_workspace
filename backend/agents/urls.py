@@ -125,7 +125,10 @@ urlpatterns = [
     path("navigation-vectors/", agents.navigation_vectors),
     path("flux-index/", agents.flux_index),
     path("forecast/symbolic/", agents.symbolic_forecasts),
+    path("market/rituals/", agents.ritual_market_feeds),
     path("codex/trends/", agents.codex_trends),
+    path("assistants/trend-reactivity/", agents.trend_reactivity_models),
+    path("system/stability/", agents.stability_graphs),
     path("assistants/<uuid:assistant_id>/sentiment/", agents.assistant_sentiments),
 
     path("clusters/", agents.list_clusters),

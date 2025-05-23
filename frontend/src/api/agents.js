@@ -129,3 +129,7 @@ export const getCodexTrends = () => apiFetch("/agents/codex/trends/");
 export const fetchSymbolicForecasts = () => apiFetch("/agents/forecast/symbolic/");
 export const fetchAssistantSentiments = (assistantId) =>
   apiFetch(`/agents/assistants/${assistantId}/sentiment/`);
+export const fetchRitualMarketFeeds = () => apiFetch("/agents/market/rituals/");
+export const fetchTrendReactivityModels = () =>
+  apiFetch("/agents/assistants/trend-reactivity/");
+export const fetchStabilityGraphs = () => apiFetch("/agents/system/stability/");

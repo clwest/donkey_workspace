@@ -83,6 +83,9 @@ from agents.models.lore import (
     ReflectiveFluxIndex,
     SymbolicForecastIndex,
     AssistantSentimentModelEngine,
+    RitualMarketFeed,
+    MultiAgentTrendReactivityModel,
+    SymbolicStabilityGraph,
     MythicAfterlifeRegistry,
     ContinuityEngineNode,
     ArchetypeMigrationGate,
@@ -1289,6 +1292,11 @@ def belief_seeds(request):
 
 
 from agents.serializers import MythicAlignmentMarketSerializer
+from agents.serializers import (
+    RitualMarketFeedSerializer,
+    MultiAgentTrendReactivityModelSerializer,
+    SymbolicStabilityGraphSerializer,
+)
 
 
 @api_view(["GET", "POST"])
@@ -1400,6 +1408,42 @@ def assistant_sentiments(request, assistant_id=None):
     serializer.is_valid(raise_exception=True)
     entry = serializer.save()
     return Response(AssistantSentimentModelEngineSerializer(entry).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def ritual_market_feeds(request):
+    if request.method == "GET":
+        feeds = RitualMarketFeed.objects.all().order_by("-created_at")
+        return Response(RitualMarketFeedSerializer(feeds, many=True).data)
+
+    serializer = RitualMarketFeedSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    feed = serializer.save()
+    return Response(RitualMarketFeedSerializer(feed).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def trend_reactivity_models(request):
+    if request.method == "GET":
+        models = MultiAgentTrendReactivityModel.objects.all().order_by("-created_at")
+        return Response(MultiAgentTrendReactivityModelSerializer(models, many=True).data)
+
+    serializer = MultiAgentTrendReactivityModelSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    model = serializer.save()
+    return Response(MultiAgentTrendReactivityModelSerializer(model).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def stability_graphs(request):
+    if request.method == "GET":
+        graphs = SymbolicStabilityGraph.objects.all().order_by("-created_at")
+        return Response(SymbolicStabilityGraphSerializer(graphs, many=True).data)
+
+    serializer = SymbolicStabilityGraphSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    graph = serializer.save()
+    return Response(SymbolicStabilityGraphSerializer(graph).data, status=201)
 
 
 @api_view(["GET", "POST"])

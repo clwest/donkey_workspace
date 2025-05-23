@@ -132,6 +132,11 @@ from agents.models.prophecy import (
     RitualForecastingDashboard,
 )
 from agents.models.forecast import SymbolicForecastIndex, AssistantSentimentModelEngine
+from agents.models.trend import (
+    RitualMarketFeed,
+    MultiAgentTrendReactivityModel,
+    SymbolicStabilityGraph,
+)
 from agents.models.cosmology import SwarmCosmology
 from agents.models.swarm_balance import (
     PurposeMigrationEvent,
@@ -818,6 +823,27 @@ class SymbolicForecastIndexSerializer(serializers.ModelSerializer):
 class AssistantSentimentModelEngineSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssistantSentimentModelEngine
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RitualMarketFeedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RitualMarketFeed
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MultiAgentTrendReactivityModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MultiAgentTrendReactivityModel
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicStabilityGraphSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicStabilityGraph
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
