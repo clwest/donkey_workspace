@@ -1,4 +1,12 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+// Determine the base API url.  If VITE_API_URL is not defined or looks malformed
+// (e.g. only contains a port like ":8000/api"), fall back to using the current
+// page origin.  This prevents "Failed to fetch" errors when the env variable is
+// missing a hostname.
+let API_URL = import.meta.env.VITE_API_URL;
+if (!API_URL || API_URL.startsWith(":")) {
+  const base = window.location.origin.replace(/\/$/, "");
+  API_URL = `${base}/api`;
+}
 
 export default async function apiFetch(url, options = {}) {
   const { params, ...fetchOptions } = options;
@@ -57,3 +65,5 @@ export const generateImage = (payload) =>
 export const fetchCharacters = () => apiFetch(`/characters/profiles/`);
 
 export const fetchStories = () => apiFetch(`/stories/`);
+
+export { API_URL };

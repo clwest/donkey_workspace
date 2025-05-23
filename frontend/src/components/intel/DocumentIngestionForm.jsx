@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import apiFetch from "../../utils/apiClient";
+import apiFetch, { API_URL } from "../../utils/apiClient";
 import { toast } from "react-toastify";
 
 export default function DocumentIngestionForm({ onSuccess }) {
@@ -39,7 +39,6 @@ export default function DocumentIngestionForm({ onSuccess }) {
     try {
         let res;
         if (pdfFiles.length > 0) {
-        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
         const formData = new FormData();
         formData.append("source_type", "pdf");
         formData.append("title", title);
