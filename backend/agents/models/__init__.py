@@ -1,5 +1,6 @@
 from .core import *
 from .lore import *
+from .identity import *
 from .mythology_mesh import *
 from .coordination import *
 from .insight import *
