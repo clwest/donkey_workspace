@@ -32,12 +32,18 @@ class AssistantDiplomacyInterface(models.Model):
 class CodexConvergenceCeremony(models.Model):
     """Ritualized codex merging mechanism."""
 
-    converging_codices = models.ManyToManyField(SwarmCodex)
+    converging_codices = models.ManyToManyField(
+        SwarmCodex, related_name="convergence_ceremonies"
+    )
     ceremony_title = models.CharField(max_length=150)
     symbolic_thresholds = models.JSONField()
     ritual_chain = models.ManyToManyField(EncodedRitualBlueprint)
     merged_codex_output = models.ForeignKey(
-        SwarmCodex, on_delete=models.SET_NULL, null=True, blank=True
+        SwarmCodex,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="ceremony_merged_outputs",
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
