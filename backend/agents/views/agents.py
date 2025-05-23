@@ -74,20 +74,21 @@ from agents.models.lore import (
     ArchetypeGenesisLog,
     MythBloomNode,
     BeliefSeedReplication,
-  
     DialogueCodexMutationLog,
     PublicRitualLogEntry,
     BeliefContinuityThread,
     CodexContributionCeremony,
+    NarrativeLightingEngine,
+    CodexVisualElementLayer,
+    AssistantAestheticCloneProfile,
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
     MythicAfterlifeRegistry,
     ContinuityEngineNode,
     ArchetypeMigrationGate,
-
 )
-from agents.models.identity import  PersonaFusionEvent
+from agents.models.identity import PersonaFusionEvent
 from agents.models.coordination import (
     CollaborationThread,
     DelegationStream,
@@ -106,6 +107,7 @@ from agents.models.storyfield import (
     LegacyContinuityVault,
     AgentPlotlineCuration,
 )
+
 # from simulation.models import SceneDirectorFrame
 from agents.serializers import (
     AgentSerializer,
@@ -186,14 +188,15 @@ from agents.serializers import (
     PublicRitualLogEntrySerializer,
     BeliefContinuityThreadSerializer,
     CodexContributionCeremonySerializer,
+    NarrativeLightingEngineSerializer,
+    CodexVisualElementLayerSerializer,
+    AssistantAestheticCloneProfileSerializer,
     # SceneDirectorFrameSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
     IntentHarmonizationSessionSerializer,
     AgentPlotlineCurationSerializer,
-
-
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -1430,6 +1433,7 @@ def migration_gates(request):
     gate = serializer.save()
     return Response(ArchetypeMigrationGateSerializer(gate).data, status=201)
 
+
 @api_view(["GET", "POST"])
 def persona_fusions(request):
     if request.method == "GET":
@@ -1494,10 +1498,54 @@ def belief_threads(request):
 def codex_contributions(request):
     if request.method == "GET":
         contributions = CodexContributionCeremony.objects.all().order_by("-created_at")
-        return Response(CodexContributionCeremonySerializer(contributions, many=True).data)
+        return Response(
+            CodexContributionCeremonySerializer(contributions, many=True).data
+        )
 
     serializer = CodexContributionCeremonySerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     contribution = serializer.save()
     return Response(CodexContributionCeremonySerializer(contribution).data, status=201)
 
+
+@api_view(["GET", "POST"])
+def narrative_lighting(request):
+    if request.method == "GET":
+        engines = NarrativeLightingEngine.objects.all().order_by("-created_at")
+        return Response(NarrativeLightingEngineSerializer(engines, many=True).data)
+
+    serializer = NarrativeLightingEngineSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    engine = serializer.save()
+    return Response(NarrativeLightingEngineSerializer(engine).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def codex_visual_style(request):
+    if request.method == "GET":
+        layers = CodexVisualElementLayer.objects.all().order_by("-created_at")
+        return Response(CodexVisualElementLayerSerializer(layers, many=True).data)
+
+    serializer = CodexVisualElementLayerSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    layer = serializer.save()
+    return Response(CodexVisualElementLayerSerializer(layer).data, status=201)
+
+
+@api_view(["POST"])
+def clone_assistant_aesthetic(request, id):
+    target = get_object_or_404(Assistant, id=id)
+    source_id = request.data.get("source_assistant")
+    source = get_object_or_404(Assistant, id=source_id)
+    serializer = AssistantAestheticCloneProfileSerializer(
+        data={
+            "source_assistant": source.id,
+            "target_assistant": target.id,
+            "traits_cloned": request.data.get("traits_cloned", {}),
+            "symbolic_variants": request.data.get("symbolic_variants", {}),
+            "clone_score": request.data.get("clone_score", 0.0),
+        }
+    )
+    serializer.is_valid(raise_exception=True)
+    profile = serializer.save()
+    return Response(AssistantAestheticCloneProfileSerializer(profile).data, status=201)
