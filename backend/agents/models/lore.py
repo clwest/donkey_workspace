@@ -1561,3 +1561,49 @@ class SymbolicWeatherFront(models.Model):
         return self.name
 
 
+
+class KnowledgeReplicationEvent(models.Model):
+    """Replicate and tailor symbolic knowledge between assistants."""
+
+    origin_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        related_name="replication_origin",
+        on_delete=models.CASCADE,
+    )
+    target_assistants = models.ManyToManyField("assistants.Assistant")
+    source_memory = models.ForeignKey(SwarmMemoryEntry, on_delete=models.CASCADE)
+    transformed_summary = models.TextField()
+    symbolic_adjustments = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class MemoryBroadcastPacket(models.Model):
+    """Broadcast mythic knowledge to symbolic cohorts."""
+
+    name = models.CharField(max_length=150)
+    payload_memories = models.ManyToManyField(SwarmMemoryEntry)
+    targeting_scope = models.CharField(max_length=100)  # guild, civilization, biome
+    symbolic_tuning_vector = models.JSONField()
+    broadcast_status = models.CharField(max_length=50, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class LearningReservoir(models.Model):
+    """Symbolic knowledge buffer for assistant training."""
+
+    assistant = models.OneToOneField("assistants.Assistant", on_delete=models.CASCADE)
+    accumulated_tokens = models.ManyToManyField(LoreToken)
+    queued_memories = models.ManyToManyField(SwarmMemoryEntry)
+    symbolic_weight_map = models.JSONField()
+    reservoir_status = models.CharField(max_length=50, default="active")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+

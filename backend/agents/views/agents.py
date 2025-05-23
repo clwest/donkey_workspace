@@ -68,6 +68,9 @@ from agents.models.lore import (
     SymbolicWeatherFront,
 
 
+    KnowledgeReplicationEvent,
+    MemoryBroadcastPacket,
+    LearningReservoir,
 )
 from agents.models.coordination import CollaborationThread, DelegationStream, MythflowInsight
 from agents.serializers import (
@@ -133,6 +136,9 @@ from agents.serializers import (
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
     SymbolicWeatherFrontSerializer,
+    KnowledgeReplicationEventSerializer,
+    MemoryBroadcastPacketSerializer,
+    LearningReservoirSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -1101,3 +1107,38 @@ def mythflow_insights(request):
     insight = serializer.save()
     return Response(MythflowInsightSerializer(insight).data, status=201)
 
+
+@api_view(["GET", "POST"])
+def knowledge_replications(request):
+    if request.method == "GET":
+        events = KnowledgeReplicationEvent.objects.all().order_by("-created_at")
+        return Response(KnowledgeReplicationEventSerializer(events, many=True).data)
+
+    serializer = KnowledgeReplicationEventSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    event = serializer.save()
+    return Response(KnowledgeReplicationEventSerializer(event).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def memory_broadcasts(request):
+    if request.method == "GET":
+        packets = MemoryBroadcastPacket.objects.all().order_by("-created_at")
+        return Response(MemoryBroadcastPacketSerializer(packets, many=True).data)
+
+    serializer = MemoryBroadcastPacketSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    packet = serializer.save()
+    return Response(MemoryBroadcastPacketSerializer(packet).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def learning_reservoirs(request):
+    if request.method == "GET":
+        reservoirs = LearningReservoir.objects.all().order_by("-created_at")
+        return Response(LearningReservoirSerializer(reservoirs, many=True).data)
+
+    serializer = LearningReservoirSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    reservoir = serializer.save()
+    return Response(LearningReservoirSerializer(reservoir).data, status=201)

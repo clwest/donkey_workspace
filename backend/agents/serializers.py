@@ -62,6 +62,9 @@ from agents.models.lore import (
     BeliefAtlasSnapshot,
     SymbolicWeatherFront,
 
+    KnowledgeReplicationEvent,
+    MemoryBroadcastPacket,
+    LearningReservoir,
 
 )
 
@@ -663,6 +666,27 @@ class DelegationStreamSerializer(serializers.ModelSerializer):
 class MythflowInsightSerializer(serializers.ModelSerializer):
     class Meta:
         model = MythflowInsight
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class KnowledgeReplicationEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = KnowledgeReplicationEvent
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MemoryBroadcastPacketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemoryBroadcastPacket
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class LearningReservoirSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LearningReservoir
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
