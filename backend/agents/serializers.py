@@ -83,7 +83,6 @@ from agents.models.lore import (
     PublicRitualLogEntry,
     BeliefContinuityThread,
     CodexContributionCeremony,
-
     NarrativeLightingEngine,
     CinematicUILayer,
     AssistantTutorialScript,
@@ -91,6 +90,11 @@ from agents.models.lore import (
     StoryConvergencePath,
     RitualFusionEvent,
     NarrativeCurationTimeline,
+    SymbolicDocumentationEntry,
+    CodexReconciliationForum,
+    MythEditorialLayer,
+    SymbolicPublishingEngine,
+
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
 )
@@ -99,6 +103,7 @@ from agents.models.coordination import (
     CollaborationThread,
     DelegationStream,
     MythflowInsight,
+    MythflowOrchestrationPlan,
     SymbolicCoordinationEngine,
     SymbolicPlanningLattice,
 )
@@ -113,7 +118,11 @@ from agents.models.identity import (
     PersonaFusionEvent,
 )
 from agents.models.cosmology import SwarmCosmology
-from agents.models.swarm_balance import PurposeMigrationEvent, CognitiveBalanceReport
+from agents.models.swarm_balance import (
+    PurposeMigrationEvent,
+    CognitiveBalanceReport,
+    SymbolicResonanceGraph,
+)
 from agents.models.markets import (
     ForecastingMarketLedger,
     SymbolicFutureContract,
@@ -846,11 +855,23 @@ class ReflectiveFluxIndexSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "timestamp"]
 
 
-class MythflowOrchestrationPlanSerializer(serializers.ModelSerializer):
+class SymbolicResonanceGraphSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicResonanceGraph
+        fields = "__all__"
+        read_only_fields = ["id", "generated_at"]
 
+
+class CognitiveBalanceReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = CognitiveBalanceReport
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
 
+
+class MythflowOrchestrationPlanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythflowOrchestrationPlan
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
@@ -986,7 +1007,6 @@ class CodexContributionCeremonySerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-
 class NarrativeLightingEngineSerializer(serializers.ModelSerializer):
     class Meta:
         model = NarrativeLightingEngine
@@ -1031,9 +1051,9 @@ class RitualFusionEventSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
 class NarrativeCurationTimelineSerializer(serializers.ModelSerializer):
     class Meta:
         model = NarrativeCurationTimeline
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
-
