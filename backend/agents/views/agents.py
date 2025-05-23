@@ -90,6 +90,9 @@ from agents.models.lore import (
     SymbolicFeedbackChamber,
     MultiAgentDialogueAmplifier,
     MythicResolutionSequence,
+    MythchainOutputGenerator,
+    NarrativeArtifactExporter,
+    SymbolicPatternBroadcastEngine,
 
 )
 from agents.models.coordination import (
@@ -201,6 +204,9 @@ from agents.serializers import (
     SymbolicFeedbackChamberSerializer,
     MultiAgentDialogueAmplifierSerializer,
     MythicResolutionSequenceSerializer,
+    MythchainOutputGeneratorSerializer,
+    NarrativeArtifactExporterSerializer,
+    SymbolicPatternBroadcastEngineSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1628,4 +1634,41 @@ def sequence_resolve(request):
     serializer.is_valid(raise_exception=True)
     sequence = serializer.save()
     return Response(MythicResolutionSequenceSerializer(sequence).data, status=201)
+
+
+
+@api_view(["GET", "POST"])
+def export_mythchain(request):
+    if request.method == "GET":
+        gens = MythchainOutputGenerator.objects.all().order_by("-created_at")
+        return Response(MythchainOutputGeneratorSerializer(gens, many=True).data)
+
+    serializer = MythchainOutputGeneratorSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    gen = serializer.save()
+    return Response(MythchainOutputGeneratorSerializer(gen).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def export_artifact(request):
+    if request.method == "GET":
+        exports = NarrativeArtifactExporter.objects.all().order_by("-created_at")
+        return Response(NarrativeArtifactExporterSerializer(exports, many=True).data)
+
+    serializer = NarrativeArtifactExporterSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    export = serializer.save()
+    return Response(NarrativeArtifactExporterSerializer(export).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def broadcast_patterns(request):
+    if request.method == "GET":
+        broadcasts = SymbolicPatternBroadcastEngine.objects.all().order_by("-created_at")
+        return Response(SymbolicPatternBroadcastEngineSerializer(broadcasts, many=True).data)
+
+    serializer = SymbolicPatternBroadcastEngineSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    engine = serializer.save()
+    return Response(SymbolicPatternBroadcastEngineSerializer(engine).data, status=201)
 

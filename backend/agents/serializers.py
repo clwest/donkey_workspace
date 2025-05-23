@@ -93,6 +93,9 @@ from agents.models.lore import (
     SymbolicFeedbackChamber,
     MultiAgentDialogueAmplifier,
     MythicResolutionSequence,
+    MythchainOutputGenerator,
+    NarrativeArtifactExporter,
+    SymbolicPatternBroadcastEngine,
 
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
@@ -1110,3 +1113,25 @@ class MythicResolutionSequenceSerializer(serializers.ModelSerializer):
 
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
+
+class MythchainOutputGeneratorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythchainOutputGenerator
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class NarrativeArtifactExporterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NarrativeArtifactExporter
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicPatternBroadcastEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicPatternBroadcastEngine
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
