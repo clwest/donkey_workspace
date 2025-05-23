@@ -7,6 +7,7 @@ from agents.models.core import Agent
 from django.contrib.postgres.fields import ArrayField
 from pgvector.django import VectorField
 from django.utils import timezone
+from metrics.models import RitualPerformanceMetric
 
 User = settings.AUTH_USER_MODEL
 
@@ -2302,6 +2303,58 @@ class MythicResolutionSequence(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return f"Resolution {self.id}"
+
+
+class ResurrectionTimelineTracker(models.Model):
+    """Log assistant resurrection events and role evolution."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    reincarnation_events = models.JSONField()
+    codex_alignment_path = models.JSONField()
+    memory_retention_log = models.ManyToManyField(SwarmMemoryEntry)
+    role_evolution_tags = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Timeline for {self.assistant.name}"
+
+
+class RitualEchoThreadSystem(models.Model):
+    """Trace ritual recurrence patterns across assistants."""
+
+    ritual_metric = models.ForeignKey(RitualPerformanceMetric, on_delete=models.CASCADE)
+    memory_entry = models.ForeignKey(SwarmMemoryEntry, on_delete=models.CASCADE)
+    codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    echo_pattern = models.JSONField()
+    echo_intensity = models.FloatField()
+    assistant_history = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Echo {self.id}"
+
+
+class CodexRecurrenceLoopEngine(models.Model):
+    """Track cyclical codex evolution and provide renewal feedback."""
+
+    codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    cycle_trigger_points = models.JSONField()
+    mutation_path_log = models.TextField()
+    symbolic_phase_tags = models.JSONField()
+    renewal_recommendation = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Cycle Engine for {self.codex.title}"
 
 
 

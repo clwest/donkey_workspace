@@ -42,12 +42,15 @@ urlpatterns = [
     path("export/mythchain/", agents.export_mythchain),
     path("export/artifact/", agents.export_artifact),
     path("broadcast/patterns/", agents.broadcast_patterns),
+    path("ritual/echo/", agents.ritual_echo),
+    path("codex/cycles/", agents.codex_cycles),
 
 
     path("onboarding/ritual/", agents.onboarding_ritual),
     path("codex/briefing/", agents.codex_briefing),
 
     path("assistant/<uuid:id>/tutorial/", agents.assistant_tutorial),
+    path("assistants/<uuid:id>/resurrection/", agents.assistant_resurrection),
     path("myth/record/", agents.myth_record),
 
     path("belief-continuity/", agents.belief_continuity),
