@@ -1074,3 +1074,65 @@ class NarrativeCurationTimelineSerializer(serializers.ModelSerializer):
         model = NarrativeCurationTimeline
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
+
+class MemoryInheritanceSeedSerializer(serializers.ModelSerializer):
+    onboarding_memory_ids = serializers.PrimaryKeyRelatedField(
+        queryset=SwarmMemoryEntry.objects.all(),
+        many=True,
+        write_only=True,
+        required=False,
+        source="onboarding_memory",
+    )
+    onboarding_memory = SwarmMemoryEntrySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = MemoryInheritanceSeed
+        fields = "__all__"
+        read_only_fields = ["id", "created_at", "onboarding_memory"]
+
+
+class PersonalCodexAnchorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PersonalCodexAnchor
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RitualContractBindingSerializer(serializers.ModelSerializer):
+    shared_memory_ids = serializers.PrimaryKeyRelatedField(
+        queryset=SwarmMemoryEntry.objects.all(),
+        many=True,
+        write_only=True,
+        required=False,
+        source="shared_memory",
+    )
+    shared_memory = SwarmMemoryEntrySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = RitualContractBinding
+        fields = "__all__"
+        read_only_fields = ["id", "created_at", "shared_memory"]
+
+
+class ReincarnationTreeNodeSerializer(serializers.ModelSerializer):
+    retained_memories_ids = serializers.PrimaryKeyRelatedField(
+        queryset=SwarmMemoryEntry.objects.all(),
+        many=True,
+        write_only=True,
+        required=False,
+        source="retained_memories",
+    )
+    retained_memories = SwarmMemoryEntrySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ReincarnationTreeNode
+        fields = "__all__"
+        read_only_fields = ["id", "created_at", "retained_memories"]
+
+
+class BeliefVectorDeltaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BeliefVectorDelta
+        fields = "__all__"
+        read_only_fields = ["id", "recorded_at"]

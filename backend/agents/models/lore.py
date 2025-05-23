@@ -2197,7 +2197,6 @@ class RitualFusionEvent(models.Model):
     class Meta:
         ordering = ["-created_at"]
 
-
     def __str__(self):  # pragma: no cover - display helper
         return f"Fusion {self.id}"
 
@@ -2218,3 +2217,55 @@ class NarrativeCurationTimeline(models.Model):
     def __str__(self):  # pragma: no cover - display helper
         return self.title
 
+
+class PublicMemoryGrove(models.Model):
+    """Publicly accessible collection of swarm memories."""
+
+    grove_name = models.CharField(max_length=150)
+    linked_cluster = models.ForeignKey(
+        "assistants.MythCommunityCluster", on_delete=models.CASCADE
+    )
+    codex_reference = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    featured_memories = models.ManyToManyField(SwarmMemoryEntry, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.grove_name
+
+
+class SharedRitualCalendar(models.Model):
+    """Calendar of rituals shared across a guild."""
+
+    linked_guild = models.ForeignKey(
+        "assistants.CodexLinkedGuild", on_delete=models.CASCADE
+    )
+    event_schedule = models.JSONField(default=dict)
+    ritual_themes = models.JSONField(default=dict)
+    codex_cycle_marker = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.linked_guild.guild_name
+
+
+class SymbolicReflectionArena(models.Model):
+    """Arena for public symbolic reflections."""
+
+    arena_name = models.CharField(max_length=150)
+    participants = models.JSONField(default=dict)
+    reflection_topic = models.CharField(max_length=200)
+    codex_focus = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    summary_log = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.arena_name

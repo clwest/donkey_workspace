@@ -9,6 +9,9 @@ import RitualOnboardingPage from "./pages/onboarding/RitualOnboardingPage";
 import MythOnboardingWorldPage from "./pages/onboarding/MythOnboardingWorldPage";
 import ArchetypeSelectionChamberPage from "./pages/onboarding/ArchetypeSelectionChamberPage";
 import SummoningRitualConsolePage from "./pages/onboarding/SummoningRitualConsolePage";
+import UserMythpathInitializerPage from "./pages/onboarding/UserMythpathInitializerPage";
+import WorldTimelinePage from "./pages/WorldTimelinePage";
+import AssistantMythRebirthPage from "./pages/assistants/AssistantMythRebirthPage";
 import CodexBriefingPage from "./pages/codex/CodexBriefingPage";
 import AssistantTutorialPage from "./pages/assistant/tutorial/AssistantTutorialPage";
 
@@ -118,6 +121,9 @@ import RoutingHistoryPage from "./pages/assistants/RoutingHistoryPage";
 import StoryboardEditorPage from "./pages/storyboard/StoryboardEditorPage";
 import NarrativeEventDetailPage from "./pages/storyboard/NarrativeEventDetailPage";
 import RealityShaperDashboard from "./pages/lore/RealityShaperDashboard";
+import WorldDashboardPage from "./pages/mythos/WorldDashboardPage";
+import AssistantPresenceMapPage from "./pages/mythos/AssistantPresenceMapPage";
+import MythflowHeatmapPage from "./pages/mythos/MythflowHeatmapPage";
 
 import MotionTestPage from "./pages/ui/MotionTestPage";
 import MemoryEchoPage from "./pages/memories/entries/MemoryEchoPage";
@@ -148,7 +154,8 @@ export default function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/logout" element={<LogoutPage />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/onboarding" element={<MythOnboardingWorldPage />} />
+          <Route path="/onboarding" element={<UserMythpathInitializerPage />} />
+          <Route path="/onboarding/world" element={<MythOnboardingWorldPage />} />
           <Route path="/onboarding/archetype" element={<ArchetypeSelectionChamberPage />} />
           <Route path="/onboarding/summon" element={<SummoningRitualConsolePage />} />
           <Route path="/onboarding/wizard" element={<OnboardingWizardPage />} />
@@ -373,6 +380,7 @@ export default function App() {
             path="/assistants/:id/interface"
             element={<AssistantInterfacePage />}
           />
+          <Route path="/assistants/:id/rebirth" element={<AssistantMythRebirthPage />} />
           <Route path="/assistants/:slug" element={<AssistantDetailPage />} />
           {/* MCP Core */}
           <Route path="/reflect" element={<ReflectionPage />} />
@@ -414,6 +422,7 @@ export default function App() {
           <Route path="/agents" element={<AgentPage />} />
           <Route path="/agents/archive" element={<AgentArchivePage />} />
           <Route path="/swarm/timeline" element={<SwarmTimelinePage />} />
+          <Route path="/timeline" element={<WorldTimelinePage />} />
           <Route path="/agents/:slug" element={<AgentDetailPage />} />
           <Route path="/intel/documents" element={<DocumentBrowserPage />} />
           <Route path="/intel/documents/:id" element={<DocumentDetailPage />} />
@@ -423,6 +432,9 @@ export default function App() {
           <Route path="/stories" element={<StoryListPage />} />
           <Route path="/storyboard" element={<StoryboardEditorPage />} />
           <Route path="/storyboard/events/:id" element={<NarrativeEventDetailPage />} />
+          <Route path="/dashboard/world" element={<WorldDashboardPage />} />
+          <Route path="/map/assistants" element={<AssistantPresenceMapPage />} />
+          <Route path="/heatmap/mythflow" element={<MythflowHeatmapPage />} />
           <Route path="/lore" element={<RealityShaperDashboard />} />
 
           <Route path="/prophecy/engine" element={<ProphecyEnginePage />} />

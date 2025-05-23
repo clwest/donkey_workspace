@@ -89,7 +89,15 @@ from agents.models.lore import (
     NarrativeCurationTimeline,
 
 )
-from agents.models.identity import PersonaFusionEvent
+from agents.models.identity import (
+    PersonaFusionEvent,
+    MemoryInheritanceSeed,
+    PersonalCodexAnchor,
+    RitualContractBinding,
+    ReincarnationTreeNode,
+    BeliefVectorDelta,
+    SymbolicIdentityCard,
+)
 from agents.models.coordination import (
     CollaborationThread,
     DelegationStream,
@@ -188,6 +196,12 @@ from agents.serializers import (
     MythBloomNodeSerializer,
     BeliefSeedReplicationSerializer,
     PersonaFusionEventSerializer,
+    MemoryInheritanceSeedSerializer,
+    PersonalCodexAnchorSerializer,
+    RitualContractBindingSerializer,
+    ReincarnationTreeNodeSerializer,
+    BeliefVectorDeltaSerializer,
+    SymbolicIdentityCardSerializer,
     DialogueCodexMutationLogSerializer,
     PublicRitualLogEntrySerializer,
     BeliefContinuityThreadSerializer,
@@ -1585,6 +1599,7 @@ def timeline_curate(request):
     return Response(NarrativeCurationTimelineSerializer(timeline).data, status=201)
 
 
+
 @api_view(["GET", "POST"])
 def prophecy_engine(request):
     if request.method == "GET":
@@ -1619,4 +1634,5 @@ def ritual_forecast(request):
     serializer.is_valid(raise_exception=True)
     dashboard = serializer.save()
     return Response(RitualForecastingDashboardSerializer(dashboard).data, status=201)
+
 
