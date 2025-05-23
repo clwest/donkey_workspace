@@ -65,6 +65,9 @@ from agents.models.lore import (
     MythicForecastPulse,
     BeliefAtlasSnapshot,
     SymbolicWeatherFront,
+    SwarmCosmology,
+    LivingBeliefEngine,
+    TemporalPurposeArchive,
 
 
 )
@@ -132,6 +135,9 @@ from agents.serializers import (
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
     SymbolicWeatherFrontSerializer,
+    SwarmCosmologySerializer,
+    LivingBeliefEngineSerializer,
+    TemporalPurposeArchiveSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -159,6 +165,7 @@ from agents.utils.myth_verification import (
 
 from agents.utils import harmonize_global_narrative
 from agents.utils.myth_weaver import weave_recursive_myth
+from agents.models.cosmology import update_belief_state
 
 from datetime import datetime
 
@@ -1099,4 +1106,36 @@ def mythflow_insights(request):
     serializer.is_valid(raise_exception=True)
     insight = serializer.save()
     return Response(MythflowInsightSerializer(insight).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def cosmologies(request):
+    if request.method == "GET":
+        cosmologies = SwarmCosmology.objects.all().order_by("name")
+        return Response(SwarmCosmologySerializer(cosmologies, many=True).data)
+
+    serializer = SwarmCosmologySerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    cosmo = serializer.save()
+    return Response(SwarmCosmologySerializer(cosmo).data, status=201)
+
+
+@api_view(["POST"])
+def update_belief_engine(request, assistant_id):
+    alignment = update_belief_state(assistant_id)
+    if alignment is None:
+        return Response({"error": "engine not found"}, status=404)
+    return Response({"updated_alignment": alignment})
+
+
+@api_view(["GET", "POST"])
+def purpose_archives(request):
+    if request.method == "GET":
+        archives = TemporalPurposeArchive.objects.all().order_by("-created_at")
+        return Response(TemporalPurposeArchiveSerializer(archives, many=True).data)
+
+    serializer = TemporalPurposeArchiveSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    archive = serializer.save()
+    return Response(TemporalPurposeArchiveSerializer(archive).data, status=201)
 

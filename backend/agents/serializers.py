@@ -66,6 +66,9 @@ from agents.models.lore import (
     KnowledgeReplicationEvent,
     MemoryBroadcastPacket,
     LearningReservoir,
+    SwarmCosmology,
+    LivingBeliefEngine,
+    TemporalPurposeArchive,
 
 
 )
@@ -701,6 +704,27 @@ class LearningReservoirSerializer(serializers.ModelSerializer):
     class Meta:
         model = LearningReservoir
 
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SwarmCosmologySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SwarmCosmology
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class LivingBeliefEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LivingBeliefEngine
+        fields = "__all__"
+        read_only_fields = ["id", "last_updated"]
+
+
+class TemporalPurposeArchiveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TemporalPurposeArchive
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
