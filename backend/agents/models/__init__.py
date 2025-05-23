@@ -9,6 +9,7 @@ from .swarm_balance import *
 from .storyfield import *
 from .markets import *
 from .federation import *
+from .governance import *
 from .mythchain import *
 
 from .planning import *

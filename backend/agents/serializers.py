@@ -107,8 +107,9 @@ from agents.models.lore import (
     BeliefContributionMarketplace,
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
-)
 
+)
+from agents.models.governance import SymbolicConsensusChamber, RitualNegotiationEngine, NarrativeGovernanceModel
 from agents.models.coordination import (
     CollaborationThread,
     DelegationStream,
@@ -1225,6 +1226,7 @@ class CodexRestabilizationNodeSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+
 class CodexCurrencyModuleSerializer(serializers.ModelSerializer):
     class Meta:
         model = CodexCurrencyModule
@@ -1251,6 +1253,7 @@ class SymbolicInfluenceLedgerSerializer(serializers.ModelSerializer):
 class BeliefContributionMarketplaceSerializer(serializers.ModelSerializer):
     class Meta:
         model = BeliefContributionMarketplace
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

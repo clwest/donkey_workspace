@@ -101,12 +101,9 @@ from agents.models.lore import (
     CodexCurrencyModule,
     SymbolicInfluenceLedger,
     BeliefContributionMarketplace,
-
     LegacyArtifactExporter,
-
-
-
 )
+from agents.models.governance import SymbolicConsensusChamber, RitualNegotiationEngine, NarrativeGovernanceModel
 from agents.models.coordination import (
     CollaborationThread,
     DelegationStream,
@@ -232,6 +229,7 @@ from agents.serializers import (
     CodexCurrencyModuleSerializer,
     SymbolicInfluenceLedgerSerializer,
     BeliefContributionMarketplaceSerializer,
+
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1802,6 +1800,7 @@ def codex_stabilize(request):
 
 
 @api_view(["GET", "POST"])
+
 def codex_value(request):
     if request.method == "GET":
         modules = CodexCurrencyModule.objects.all().order_by("-created_at")
@@ -1835,5 +1834,6 @@ def belief_market(request):
     serializer.is_valid(raise_exception=True)
     market = serializer.save()
     return Response(BeliefContributionMarketplaceSerializer(market).data, status=201)
+
 
 
