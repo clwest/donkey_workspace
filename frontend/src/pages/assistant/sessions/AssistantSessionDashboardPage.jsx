@@ -95,7 +95,12 @@ export default function AssistantSessionDashboardPage({ slug: slugProp }) {
       )}
       {dreamText && (
         <div className="alert alert-primary dream-output">
-          <pre className="mb-0">{dreamText}</pre>
+          <textarea
+            className="form-control"
+            value={dreamText}
+            readOnly
+            rows={10}
+          />
         </div>
       )}
 
