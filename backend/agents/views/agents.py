@@ -75,6 +75,9 @@ from agents.models.lore import (
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
+    MythicAfterlifeRegistry,
+    ContinuityEngineNode,
+    ArchetypeMigrationGate,
 
 )
 from agents.models.coordination import (
@@ -160,6 +163,9 @@ from agents.serializers import (
     SignalEncodingArtifactSerializer,
     BeliefNavigationVectorSerializer,
     ReflectiveFluxIndexSerializer,
+    MythicAfterlifeRegistrySerializer,
+    ContinuityEngineNodeSerializer,
+    ArchetypeMigrationGateSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1329,4 +1335,40 @@ def belief_feedback(request):
     serializer.is_valid(raise_exception=True)
     signal = serializer.save()
     return Response(BeliefFeedbackSignalSerializer(signal).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def afterlife_registry(request):
+    if request.method == "GET":
+        entries = MythicAfterlifeRegistry.objects.all().order_by("-created_at")
+        return Response(MythicAfterlifeRegistrySerializer(entries, many=True).data)
+
+    serializer = MythicAfterlifeRegistrySerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    entry = serializer.save()
+    return Response(MythicAfterlifeRegistrySerializer(entry).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def continuity_engine(request):
+    if request.method == "GET":
+        nodes = ContinuityEngineNode.objects.all().order_by("-last_updated")
+        return Response(ContinuityEngineNodeSerializer(nodes, many=True).data)
+
+    serializer = ContinuityEngineNodeSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    node = serializer.save()
+    return Response(ContinuityEngineNodeSerializer(node).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def migration_gates(request):
+    if request.method == "GET":
+        gates = ArchetypeMigrationGate.objects.all().order_by("-created_at")
+        return Response(ArchetypeMigrationGateSerializer(gates, many=True).data)
+
+    serializer = ArchetypeMigrationGateSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    gate = serializer.save()
+    return Response(ArchetypeMigrationGateSerializer(gate).data, status=201)
 

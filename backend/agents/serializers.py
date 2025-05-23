@@ -74,6 +74,9 @@ from agents.models.lore import (
     RecursiveRitualContract,
     SwarmMythEngineInstance,
     BeliefFeedbackSignal,
+    MythicAfterlifeRegistry,
+    ContinuityEngineNode,
+    ArchetypeMigrationGate,
 )
 
 from agents.models.coordination import (
@@ -862,3 +865,24 @@ class BeliefFeedbackSignalSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
+
+class MythicAfterlifeRegistrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythicAfterlifeRegistry
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class ContinuityEngineNodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContinuityEngineNode
+        fields = "__all__"
+        read_only_fields = ["id", "last_updated"]
+
+
+class ArchetypeMigrationGateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ArchetypeMigrationGate
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]

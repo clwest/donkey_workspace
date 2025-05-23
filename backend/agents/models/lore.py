@@ -1867,3 +1867,54 @@ class BeliefFeedbackSignal(models.Model):
 
         return f"Signal to {self.target_codex.title}"[:50]
 
+
+
+
+class MythicAfterlifeRegistry(models.Model):
+    """Records retired assistants and symbolic memory links."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    retirement_codex = models.ForeignKey(SwarmCodex, null=True, on_delete=models.SET_NULL)
+    archived_traits = models.JSONField()
+    memory_links = models.ManyToManyField(SwarmMemoryEntry)
+    reincarnation_ready = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Afterlife {self.assistant.name}"
+
+
+class ContinuityEngineNode(models.Model):
+    """Preserves symbolic state during assistant transformations."""
+
+    linked_assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    preserved_belief_vector = models.JSONField()
+    continuity_trace = models.TextField()
+    transformation_trigger = models.TextField()
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-last_updated"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"ContinuityNode {self.linked_assistant.name}"[:50]
+
+
+class ArchetypeMigrationGate(models.Model):
+    """Guides ritualized transition between archetypal roles."""
+
+    gate_name = models.CharField(max_length=150)
+    initiating_entity = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    migration_path = models.JSONField()
+    transfer_protocol = models.TextField()
+    anchor_codex = models.ForeignKey(SwarmCodex, null=True, on_delete=models.SET_NULL)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.gate_name
