@@ -1,14 +1,15 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import usePostSummonRouter from "../../onboarding/summon";
 
 export default function SummoningRitualConsole() {
   const location = useLocation();
-  const navigate = useNavigate();
+  const postSummon = usePostSummonRouter();
   const tone = location.state?.tone || "";
   const tag = location.state?.tag || "";
 
   const summon = () => {
-    const id = "new";
-    navigate(`/assistants/${id}/interface`);
+    const assistant = { id: "new" };
+    postSummon(assistant);
   };
 
   return (

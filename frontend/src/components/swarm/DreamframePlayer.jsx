@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import apiFetch from "../../utils/apiClient";
 
-export default function DreamframePlayer() {
+export default function DreamframePlayer({ assistantId }) {
   const [segments, setSegments] = useState([]);
 
   useEffect(() => {
-    apiFetch("/dreamframes/")
+    const url = assistantId
+      ? `/assistants/${assistantId}/dreamframes/`
+      : "/dreamframes/";
+    apiFetch(url)
       .then((res) => setSegments(res.results || res))
       .catch(() => setSegments([]));
   }, []);
