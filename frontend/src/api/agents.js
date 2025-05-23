@@ -101,6 +101,9 @@ export const fetchAvailableRituals = (params) =>
 
 export const fetchCodexInteraction = () => apiFetch(`/mythos/codex/`);
 
+export const fetchCodexAnchors = (assistantId) =>
+  apiFetch(`/assistants/${assistantId}/codex-anchors/`);
+
 export const fetchMythRecordingSessions = () => apiFetch("/myth/record/");
 export const createMythRecordingSession = (body) =>
   apiFetch("/myth/record/", { method: "POST", body });
