@@ -23,6 +23,13 @@ EXECUTION_MODE_CHOICES = [
     ("reflection", "Reflection Before Action"),
 ]
 
+# Export options for narrative artifacts
+EXPORT_FORMAT_CHOICES = [
+    ("json", "json"),
+    ("md", "markdown"),
+    ("pdf", "pdf"),
+]
+
 
 def _current_season():
     from agents.utils.swarm_analytics import get_season_marker
@@ -534,6 +541,22 @@ class ReincarnationLog(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"{self.ancestor.name} -> {self.descendant.name}"
+
+
+class NarrativeArtifactExporter(models.Model):
+    """Export legacy artifacts in various formats."""
+
+    artifact = models.ForeignKey(LegacyArtifact, on_delete=models.CASCADE)
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    export_format = models.CharField(max_length=10, choices=EXPORT_FORMAT_CHOICES)
+    export_location = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"{self.artifact} -> {self.export_format}"
 
 
 class ReturnCycle(models.Model):
