@@ -55,3 +55,19 @@ This file documents all frontend route paths under `/assistants/`, their associa
 ✅ **Note:** All routes now follow the `/assistants/` prefix for clarity and consistency.
 
 Let Chris know if any additional routes should be included or reorganized!
+
+## 🔹 Phase X Symbolic Routes
+
+| Path | Component | Purpose |
+| ---- | --------- | ------- |
+| `/assistants/:id/fork` | `AssistantForkPage` | Symbolic divergence viewer |
+| `/codex/converge` | `CodexConvergePage` | Codex convergence ceremonies |
+| `/codex/proof` | `CodexProofPage` | Symbolic integrity viewer |
+| `/ritual/containers` | `RitualContainersPage` | View persistent ritual containers |
+| `/replay/engine` | `ReplayEnginePage` | Belief replay engine |
+| `/dream/rebirth` | `DreamRebirthPage` | Trigger dream rebirth |
+| `/anchor/continuity` | `ContinuityAnchorPage` | Symbolic continuity dashboard |
+| `/guilds/council` | `ArbitrationCouncilPage` | Arbitration council UI |
+| `/treaty/forge` | `TreatyForgePage` | Symbolic treaty creation interface |
+| `/federation/codices` | `FederationCodicesPage` | Codex Federation dashboard |
+| `/law/ritual` | `RitualLawPage` | Ritual law viewer |
