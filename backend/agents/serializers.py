@@ -69,12 +69,10 @@ from agents.models.lore import (
     BeliefSignalNode,
     MythicAlignmentMarket,
 
-    MemoryRealmZone,
-    RitualSyncPulse,
-    ArchetypeFieldCluster,
+    SignalEncodingArtifact,
+    BeliefNavigationVector,
+    ReflectiveFluxIndex,
 
-    
-    
 
 )
 
@@ -767,28 +765,30 @@ class MythicAlignmentMarketSerializer(serializers.ModelSerializer):
 
 
 
-class MemoryRealmZoneSerializer(serializers.ModelSerializer):
+
+class SignalEncodingArtifactSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MemoryRealmZone
+        model = SignalEncodingArtifact
+
 
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-
-class RitualSyncPulseSerializer(serializers.ModelSerializer):
+class BeliefNavigationVectorSerializer(serializers.ModelSerializer):
     class Meta:
-        model = RitualSyncPulse
+        model = BeliefNavigationVector
         fields = "__all__"
-        read_only_fields = ["id", "created_at"]
+        read_only_fields = ["id", "calculated_at"]
 
 
-class ArchetypeFieldClusterSerializer(serializers.ModelSerializer):
+class ReflectiveFluxIndexSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ArchetypeFieldCluster
+        model = ReflectiveFluxIndex
 
         fields = "__all__"
-        read_only_fields = ["id", "created_at"]
+        read_only_fields = ["id", "timestamp"]
+
 
 
 class MythflowOrchestrationPlanSerializer(serializers.ModelSerializer):
@@ -800,7 +800,6 @@ class MythflowOrchestrationPlanSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-
 class PurposeMigrationEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurposeMigrationEvent
@@ -808,30 +807,10 @@ class PurposeMigrationEventSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
 class SymbolicPlanningLatticeSerializer(serializers.ModelSerializer):
     class Meta:
         model = SymbolicPlanningLattice
         fields = "__all__"
         read_only_fields = ["id", "last_updated"]
-
-
-class PurposeRadianceFieldSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PurposeRadianceField
-        fields = "__all__"
-        read_only_fields = ["id", "last_emitted"]
-
-
-class SymbolicGravityWellSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SymbolicGravityWell
-        fields = "__all__"
-        read_only_fields = ["id", "created_at"]
-
-
-class MemoryHarmonicsPulseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MemoryHarmonicsPulse
-        fields = "__all__"
-        read_only_fields = ["id", "created_at"]
 

@@ -65,13 +65,15 @@ from agents.models.lore import (
     MythicForecastPulse,
     BeliefAtlasSnapshot,
     SymbolicWeatherFront,
-   
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
-    MemoryRealmZone,
-    RitualSyncPulse,
-    ArchetypeFieldCluster,
+
+
+    SignalEncodingArtifact,
+    BeliefNavigationVector,
+    ReflectiveFluxIndex,
+
 
 )
 from agents.models.coordination import (
@@ -150,20 +152,12 @@ from agents.serializers import (
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
     SymbolicWeatherFrontSerializer,
-    PurposeIndexEntrySerializer,
-    BeliefSignalNodeSerializer,
-    MythicAlignmentMarketSerializer,
-    AscensionStructureSerializer,
-    MythicMemoryPalaceSerializer,
-    EternalReturnCycleIndexSerializer,
 
     MythflowOrchestrationPlanSerializer,
-
+    SignalEncodingArtifactSerializer,
+    BeliefNavigationVectorSerializer,
+    ReflectiveFluxIndexSerializer,
     SymbolicPlanningLatticeSerializer,
-
-    PurposeRadianceFieldSerializer,
-    SymbolicGravityWellSerializer,
-    MemoryHarmonicsPulseSerializer,
 
 )
 from assistants.serializers import (
@@ -1185,6 +1179,7 @@ def alignment_market(request):
     market = serializer.save()
     return Response(MythicAlignmentMarketSerializer(market).data, status=201)
 
+
 @api_view(["GET", "POST"])
 def resonance_graphs(request):
     if request.method == "GET":
@@ -1195,7 +1190,6 @@ def resonance_graphs(request):
     serializer.is_valid(raise_exception=True)
     engine = serializer.save()
     return Response(SymbolicCoordinationEngineSerializer(engine).data, status=201)
-
 
 
 @api_view(["GET", "POST"])
@@ -1224,75 +1218,38 @@ def purpose_migrations(request):
 
 @api_view(["GET", "POST"])
 
-def purpose_radiance(request):
+def signal_artifacts(request):
     if request.method == "GET":
-        fields = PurposeRadianceField.objects.all().order_by("-last_emitted")
-        return Response(PurposeRadianceFieldSerializer(fields, many=True).data)
+        artifacts = SignalEncodingArtifact.objects.all().order_by("-created_at")
+        return Response(SignalEncodingArtifactSerializer(artifacts, many=True).data)
 
-    serializer = PurposeRadianceFieldSerializer(data=request.data)
+    serializer = SignalEncodingArtifactSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    field = serializer.save()
-    return Response(PurposeRadianceFieldSerializer(field).data, status=201)
-
-
-@api_view(["GET", "POST"])
-def gravity_wells(request):
-    if request.method == "GET":
-        wells = SymbolicGravityWell.objects.all().order_by("-created_at")
-        return Response(SymbolicGravityWellSerializer(wells, many=True).data)
-
-    serializer = SymbolicGravityWellSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    well = serializer.save()
-    return Response(SymbolicGravityWellSerializer(well).data, status=201)
-
-
-@api_view(["GET", "POST"])
-def memory_harmonics(request):
-    if request.method == "GET":
-        pulses = MemoryHarmonicsPulse.objects.all().order_by("-created_at")
-        return Response(MemoryHarmonicsPulseSerializer(pulses, many=True).data)
-
-    serializer = MemoryHarmonicsPulseSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    pulse = serializer.save()
-    return Response(MemoryHarmonicsPulseSerializer(pulse).data, status=201)
-
-
+    artifact = serializer.save()
+    return Response(SignalEncodingArtifactSerializer(artifact).data, status=201)
 
 
 
 @api_view(["GET", "POST"])
-def memory_realms(request):
+def navigation_vectors(request):
     if request.method == "GET":
-        realms = MemoryRealmZone.objects.all().order_by("-created_at")
-        return Response(MemoryRealmZoneSerializer(realms, many=True).data)
+        vectors = BeliefNavigationVector.objects.all().order_by("-calculated_at")
+        return Response(BeliefNavigationVectorSerializer(vectors, many=True).data)
 
-    serializer = MemoryRealmZoneSerializer(data=request.data)
+    serializer = BeliefNavigationVectorSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    realm = serializer.save()
-    return Response(MemoryRealmZoneSerializer(realm).data, status=201)
+    vector = serializer.save()
+    return Response(BeliefNavigationVectorSerializer(vector).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def ritual_sync(request):
+def flux_index(request):
     if request.method == "GET":
-        pulses = RitualSyncPulse.objects.all().order_by("-created_at")
-        return Response(RitualSyncPulseSerializer(pulses, many=True).data)
+        indices = ReflectiveFluxIndex.objects.all().order_by("-timestamp")
+        return Response(ReflectiveFluxIndexSerializer(indices, many=True).data)
 
-    serializer = RitualSyncPulseSerializer(data=request.data)
+    serializer = ReflectiveFluxIndexSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    pulse = serializer.save()
-    return Response(RitualSyncPulseSerializer(pulse).data, status=201)
+    index = serializer.save()
+    return Response(ReflectiveFluxIndexSerializer(index).data, status=201)
 
-
-@api_view(["GET", "POST"])
-def archetype_fields(request):
-    if request.method == "GET":
-        clusters = ArchetypeFieldCluster.objects.all().order_by("-created_at")
-        return Response(ArchetypeFieldClusterSerializer(clusters, many=True).data)
-
-    serializer = ArchetypeFieldClusterSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    cluster = serializer.save()
-    return Response(ArchetypeFieldClusterSerializer(cluster).data, status=201)

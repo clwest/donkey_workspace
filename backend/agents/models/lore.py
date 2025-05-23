@@ -1585,7 +1585,6 @@ class SymbolicWeatherFront(models.Model):
         return self.name
 
 
-
 class KnowledgeReplicationEvent(models.Model):
     """Replicate and tailor symbolic knowledge between assistants."""
 
@@ -1634,10 +1633,8 @@ class LearningReservoir(models.Model):
     class Meta:
         ordering = ["-created_at"]
 
-
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Realignment by {self.initiated_by.name}"[:50]
-
 
 
 class LoreSwarmCosmology(models.Model):
@@ -1668,7 +1665,6 @@ class PurposeIndexEntry(models.Model):
     class Meta:
         ordering = ["-created_at"]
 
-
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Purpose index for {self.assistant.name}"
 
@@ -1676,9 +1672,13 @@ class PurposeIndexEntry(models.Model):
 class BeliefSignalNode(models.Model):
     """Transmit symbolic values and belief vectors as inheritance signals."""
 
-    origin_assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    origin_assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
     transmitted_beliefs = models.JSONField()
-    receivers = models.ManyToManyField("assistants.Assistant", related_name="inherited_beliefs")
+    receivers = models.ManyToManyField(
+        "assistants.Assistant", related_name="inherited_beliefs"
+    )
     signal_strength = models.FloatField()
     inheritance_type = models.CharField(max_length=100)
 
@@ -1710,14 +1710,15 @@ class MythicAlignmentMarket(models.Model):
 
 
 
-class MemoryRealmZone(models.Model):
-    """Symbolic geography where memories cluster."""
+class SignalEncodingArtifact(models.Model):
+    """Stores and transmits encoded mythopoeic sequences."""
 
-    zone_name = models.CharField(max_length=150)
-    origin_myth = models.ForeignKey(TranscendentMyth, on_delete=models.CASCADE)
-    memory_inhabitants = models.ManyToManyField(SwarmMemoryEntry)
-    spatial_traits = models.JSONField()
-    symbolic_navigation_tags = models.JSONField()
+    source = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    encoding_payload = models.TextField()
+    symbolic_origin = models.CharField(max_length=100)
+    modulation_tags = models.JSONField()
+    receiver_scope = models.CharField(max_length=100)
+
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -1725,42 +1726,42 @@ class MemoryRealmZone(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
+
+        return f"Artifact from {self.source.name}"
+
 
         return self.zone_name
 
+class BeliefNavigationVector(models.Model):
+    """Directional path through belief states for assistants."""
 
-class RitualSyncPulse(models.Model):
-    """Synchronize ritual participation across assistants."""
-
-    pulse_id = models.CharField(max_length=100)
-    initiating_guild = models.ForeignKey("assistants.AssistantGuild", on_delete=models.CASCADE)
-    synchronization_targets = models.ManyToManyField("assistants.Assistant")
-    sync_tags = models.JSONField()
-    phase_trigger = models.CharField(max_length=100)
-    created_at = models.DateTimeField(auto_now_add=True)
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    vector_path = models.JSONField()
+    alignment_score = models.FloatField()
+    calculated_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ["-created_at"]
+        ordering = ["-calculated_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
-        return self.pulse_id
+        return f"Vector for {self.assistant.name}"
 
 
-class ArchetypeFieldCluster(models.Model):
-    """Group assistants into archetype-driven clusters."""
+class ReflectiveFluxIndex(models.Model):
+    """Global diagnostic of narrative energy shifts."""
 
-    cluster_name = models.CharField(max_length=150)
-    anchor_roles = models.JSONField()
-    participating_assistants = models.ManyToManyField("assistants.Assistant")
-    resonance_score = models.FloatField()
-    symbolic_purpose_vector = models.JSONField()
+    swarm_scope = models.CharField(max_length=100)
+    flux_measurements = models.JSONField()
+    insight_summary = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
 
-    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ["-created_at"]
+        ordering = ["-timestamp"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
 
-        return self.cluster_name
+        return self.swarm_scope
+
 
