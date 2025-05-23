@@ -4,7 +4,6 @@ from utils.llm_router import call_llm
 import json
 
 
-
 class AgentReflectionEngine:
     """
     Handles retrieval and summarization of important memories
@@ -71,12 +70,12 @@ Here are important memory logs:
 {f"Focus especially on: {goal}" if goal else "Reflect holistically on them."}
 
 Please respond in this structured JSON format:
-{
+{{
   "title": "A short, meaningful title summarizing the main insight.",
   "summary": "A thoughtful and detailed reflection analyzing the memories.",
   "tags": ["tag1", "tag2"],
   "mood": "neutral"
-}"""
+}}"""
 
         raw = call_llm(
             [{"role": "user", "content": prompt}],
@@ -112,10 +111,14 @@ Reflection:
 Respond ONLY with the single word for the mood.
 """
 
-        return call_llm(
-            [{"role": "user", "content": prompt}],
-            model="gpt-4o",
-        ).strip().lower()
+        return (
+            call_llm(
+                [{"role": "user", "content": prompt}],
+                model="gpt-4o",
+            )
+            .strip()
+            .lower()
+        )
 
     def reflect_on_custom(self, memories: List[MemoryContext], goal: str = "") -> dict:
         if not memories:
@@ -140,12 +143,12 @@ Here are the memories:
 4. Predict the mood of the overall reflection (Positive, Neutral, Negative).
 
 Respond in this JSON format:
-{
+{{
   "title": "Title here",
   "summary": "Summary here",
   "tags": ["tag1", "tag2"],
   "mood": "Positive"
-}
+}}
 """
 
         raw = call_llm(

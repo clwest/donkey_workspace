@@ -101,6 +101,7 @@ from agents.models.storyfield import (
     NarrativeTrainingGround,
     SwarmMythEditLog,
     LegacyContinuityVault,
+    AgentPlotlineCuration,
 )
 from simulation.models import SceneDirectorFrame
 from agents.serializers import (
@@ -184,6 +185,7 @@ from agents.serializers import (
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
     IntentHarmonizationSessionSerializer,
+    AgentPlotlineCurationSerializer,
 
 
 )
@@ -1456,3 +1458,4 @@ def scene_director(request):
     serializer.is_valid(raise_exception=True)
     frame = serializer.save()
     return Response(SceneDirectorFrameSerializer(frame).data, status=201)
+

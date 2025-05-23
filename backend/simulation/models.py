@@ -96,3 +96,4 @@ class SceneDirectorFrame(models.Model):
     def __str__(self):  # pragma: no cover - display helper
         return f"DirectorFrame {self.id}"
 
+
