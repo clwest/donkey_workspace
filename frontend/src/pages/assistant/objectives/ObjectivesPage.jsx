@@ -11,6 +11,7 @@ export default function ObjectivesPage() {
   const [selected, setSelected] = useState(null);
   const [customPrompt, setCustomPrompt] = useState("");
   const [events, setEvents] = useState([]);
+  const [planningId, setPlanningId] = useState(null);
 
 
   useEffect(() => {
@@ -41,12 +42,18 @@ export default function ObjectivesPage() {
   }, [slug]);
 
   async function handlePlanTasks(objId) {
+    setPlanningId(objId);
     try {
-      await apiFetch(`/assistants/${slug}/plan-tasks/${objId}/`, { method: "POST" });
-      const data = await apiFetch(`/assistants/${slug}/objectives/`);
-      setObjectives(data);
+      const tasks = await apiFetch(`/assistants/${slug}/plan-tasks/${objId}/`, {
+        method: "POST",
+      });
+      setObjectives((prev) =>
+        prev.map((o) => (o.id === objId ? { ...o, tasks } : o))
+      );
     } catch (err) {
       console.error("Failed to plan tasks", err);
+    } finally {
+      setPlanningId(null);
     }
   }
 
@@ -94,8 +101,19 @@ export default function ObjectivesPage() {
                 <button
                   className="btn btn-sm btn-outline-primary"
                   onClick={() => handlePlanTasks(obj.id)}
+                  disabled={planningId === obj.id}
                 >
-                  📋 Plan Tasks
+                  {planningId === obj.id ? (
+                    <>
+                      <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                      />
+                      Planning...
+                    </>
+                  ) : (
+                    "📋 Plan Tasks"
+                  )}
                 </button>
                <button
                   className="btn btn-sm btn-outline-secondary"
@@ -129,6 +147,15 @@ export default function ObjectivesPage() {
                   💡 Suggest Agent
                 </button>
               </div>
+              {obj.tasks?.length > 0 && (
+                <ul className="list-group mt-2">
+                  {obj.tasks.map((task) => (
+                    <li key={task.id} className="list-group-item small">
+                      {task.title}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </li>
           ))}
         </ul>
