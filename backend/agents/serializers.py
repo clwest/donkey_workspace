@@ -1015,3 +1015,17 @@ class RitualOnboardingFlowSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
+
+class BeliefInheritanceTreeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BeliefInheritanceTree
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RitualResponseArchiveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RitualResponseArchive
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
