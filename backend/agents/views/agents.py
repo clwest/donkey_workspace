@@ -152,6 +152,7 @@ from agents.serializers import (
     MythflowOrchestrationPlanSerializer,
     DirectiveMemoryNodeSerializer,
     SymbolicPlanningLatticeSerializer,
+
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -180,6 +181,7 @@ from agents.utils.myth_verification import (
 from agents.utils import harmonize_global_narrative
 from agents.utils import generate_ritual_from_ecosystem_state
 from agents.utils.myth_weaver import weave_recursive_myth
+from agents.utils.myth_evolution import evolve_myth_elements
 from agents.models.cosmology import update_belief_state
 
 from datetime import datetime
@@ -1171,56 +1173,41 @@ def alignment_market(request):
     market = serializer.save()
     return Response(MythicAlignmentMarketSerializer(market).data, status=201)
 
-
-@api_view(["POST"])
-def ritual_network(request):
-    ritual = generate_ritual_from_ecosystem_state()
-    return Response(ritual, status=200)
-
-
 @api_view(["GET", "POST"])
-def coordination_engine(request):
+def resonance_graphs(request):
     if request.method == "GET":
-        engines = SymbolicCoordinationEngine.objects.all().order_by("-last_sync")
-        return Response(SymbolicCoordinationEngineSerializer(engines, many=True).data)
+        graphs = SymbolicResonanceGraph.objects.all().order_by("-generated_at")
+        return Response(SymbolicResonanceGraphSerializer(graphs, many=True).data)
 
-    serializer = SymbolicCoordinationEngineSerializer(data=request.data)
+    serializer = SymbolicResonanceGraphSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     engine = serializer.save()
     return Response(SymbolicCoordinationEngineSerializer(engine).data, status=201)
 
 
-@api_view(["GET", "POST"])
-def mythflow_plans(request):
-    if request.method == "GET":
-        plans = MythflowOrchestrationPlan.objects.all().order_by("-created_at")
-        return Response(MythflowOrchestrationPlanSerializer(plans, many=True).data)
-
-    serializer = MythflowOrchestrationPlanSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    plan = serializer.save()
-    return Response(MythflowOrchestrationPlanSerializer(plan).data, status=201)
-
 
 @api_view(["GET", "POST"])
-def directive_memory(request):
+def cognitive_balance_reports(request):
     if request.method == "GET":
-        nodes = DirectiveMemoryNode.objects.all().order_by("-created_at")
-        return Response(DirectiveMemoryNodeSerializer(nodes, many=True).data)
+        reports = CognitiveBalanceReport.objects.all().order_by("-created_at")
+        return Response(CognitiveBalanceReportSerializer(reports, many=True).data)
 
-    serializer = DirectiveMemoryNodeSerializer(data=request.data)
+    serializer = CognitiveBalanceReportSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    node = serializer.save()
-    return Response(DirectiveMemoryNodeSerializer(node).data, status=201)
+    report = serializer.save()
+    return Response(CognitiveBalanceReportSerializer(report).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def planning_lattices(request):
+def purpose_migrations(request):
     if request.method == "GET":
-        lattices = SymbolicPlanningLattice.objects.all().order_by("-last_updated")
-        return Response(SymbolicPlanningLatticeSerializer(lattices, many=True).data)
+        migrations = PurposeMigrationEvent.objects.all().order_by("-created_at")
+        return Response(PurposeMigrationEventSerializer(migrations, many=True).data)
 
-    serializer = SymbolicPlanningLatticeSerializer(data=request.data)
+    serializer = PurposeMigrationEventSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    lattice = serializer.save()
-    return Response(SymbolicPlanningLatticeSerializer(lattice).data, status=201)
+    migration = serializer.save()
+    return Response(PurposeMigrationEventSerializer(migration).data, status=201)
+
+
+

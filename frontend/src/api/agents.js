@@ -53,3 +53,8 @@ export const createTimelineReflection = (body) =>
 export const fetchArchetypeFusionEvents = () => apiFetch("/archetype-fusion/");
 export const createArchetypeFusionEvent = (body) =>
   apiFetch("/archetype-fusion/", { method: "POST", body });
+
+export const fetchResonanceGraphs = () => apiFetch("/agents/resonance-graphs/");
+export const fetchCognitiveBalance = () => apiFetch("/agents/cognitive-balance/");
+export const fetchPurposeMigrations = () =>
+  apiFetch("/agents/purpose-migrations/");

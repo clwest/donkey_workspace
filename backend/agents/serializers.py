@@ -750,21 +750,25 @@ class MythicAlignmentMarketSerializer(serializers.ModelSerializer):
 
 
 class MythflowOrchestrationPlanSerializer(serializers.ModelSerializer):
+
     class Meta:
-        model = MythflowOrchestrationPlan
+        model = CognitiveBalanceReport
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class DirectiveMemoryNodeSerializer(serializers.ModelSerializer):
+
+class PurposeMigrationEventSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DirectiveMemoryNode
+        model = PurposeMigrationEvent
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
-
 
 class SymbolicPlanningLatticeSerializer(serializers.ModelSerializer):
     class Meta:
         model = SymbolicPlanningLattice
         fields = "__all__"
         read_only_fields = ["id", "last_updated"]
+

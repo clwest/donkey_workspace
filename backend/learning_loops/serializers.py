@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from .models import AdaptiveLoopConfig
+from .models import LearningTrailNode
 
 
-class AdaptiveLoopConfigSerializer(serializers.ModelSerializer):
+class LearningTrailNodeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AdaptiveLoopConfig
+        model = LearningTrailNode
         fields = "__all__"
