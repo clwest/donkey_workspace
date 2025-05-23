@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "videos",
     "storyboard",
     "intel_core",
+    "mythcasting",
     "capabilities.dev_docs",
     "tools",
     "workflows",
