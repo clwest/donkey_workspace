@@ -1,7 +1,7 @@
 from django.db import models
 
 from .lore import SwarmCodex
-from assistants.models import Assistant
+
 
 
 class SymbolicForecastIndex(models.Model):
@@ -25,7 +25,7 @@ class SymbolicForecastIndex(models.Model):
 class AssistantSentimentModelEngine(models.Model):
     """Model the emotional state of an assistant via symbolic signals."""
 
-    assistant = models.ForeignKey(Assistant, on_delete=models.CASCADE)
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
     symbolic_affect_log = models.JSONField()
     codex_resonance_score = models.FloatField()
     entropy_weighted_emotion_vector = models.JSONField()
