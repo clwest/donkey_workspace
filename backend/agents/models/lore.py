@@ -23,6 +23,7 @@ EXECUTION_MODE_CHOICES = [
     ("reflection", "Reflection Before Action"),
 ]
 
+
 def _current_season():
     from agents.utils.swarm_analytics import get_season_marker
 
@@ -1467,7 +1468,9 @@ class ArchetypeSynchronizationPulse(models.Model):
 
     initiating_entity = models.ForeignKey(AssistantPolity, on_delete=models.CASCADE)
     synchronized_archetypes = models.JSONField()
-    justification_memory = models.ForeignKey(SwarmMemoryEntry, on_delete=models.SET_NULL, null=True)
+    justification_memory = models.ForeignKey(
+        SwarmMemoryEntry, on_delete=models.SET_NULL, null=True
+    )
     synchronization_scope = models.CharField(max_length=100)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -1475,9 +1478,9 @@ class ArchetypeSynchronizationPulse(models.Model):
     class Meta:
         ordering = ["-created_at"]
 
-
     def __str__(self):  # pragma: no cover - display helper
         return f"Pulse by {self.initiating_entity.name}"
+
 
 class CreationMythEntry(models.Model):
     """Canonized origin narrative for an assistant."""
@@ -1494,11 +1497,14 @@ class CreationMythEntry(models.Model):
     def __str__(self):  # pragma: no cover - display helper
         return f"Creation Myth for {self.assistant.name}"
 
+
 class CosmogenesisSimulation(models.Model):
     """Symbolic cosmos generation based on assistant memory."""
 
     title = models.CharField(max_length=150)
-    initiating_assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    initiating_assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
     seed_memories = models.ManyToManyField(SwarmMemoryEntry)
     symbolic_structure = models.JSONField()
     resulting_cosmos_map = models.TextField()
@@ -1534,7 +1540,9 @@ class BeliefAtlasSnapshot(models.Model):
     epoch = models.CharField(max_length=100)
     scope = models.CharField(max_length=100)  # guild, civilization, swarm
     symbolic_coordinates = models.JSONField()  # assistant → vector
-    alignment_map = models.JSONField()  # mythic poles, entropy regions, symbolic anchors
+    alignment_map = (
+        models.JSONField()
+    )  # mythic poles, entropy regions, symbolic anchors
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -1561,3 +1569,63 @@ class SymbolicWeatherFront(models.Model):
         return self.name
 
 
+class DreamIntelligenceNode(models.Model):
+    """Subconscious symbolic intelligence generated during dream states."""
+
+    generated_by = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="dream_nodes"
+    )
+    symbolic_payload = models.TextField()
+    purpose_vector = models.JSONField()
+    emotional_signature = models.CharField(max_length=100)
+    linked_memory = models.ManyToManyField(SwarmMemoryEntry)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"DreamNode {self.generated_by.name}"[:50]
+
+
+class MissionConsensusRound(models.Model):
+    """Purpose-alignment process for resolving multi-agent planning conflicts."""
+
+    title = models.CharField(max_length=150)
+    involved_assistants = models.ManyToManyField("assistants.Assistant")
+    proposed_objective = models.TextField()
+    alignment_vectors = models.JSONField()
+    consensus_reached = models.BooleanField(default=False)
+    final_mission_statement = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.title
+
+
+class NarrativeRealignmentProposal(models.Model):
+    """Allow symbolic shifts in narrative strategy to preserve coherence."""
+
+    initiated_by = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="realignment_proposals",
+    )
+    affected_thread = models.ForeignKey(
+        "agents.CollaborationThread",
+        on_delete=models.CASCADE,
+        related_name="realignment_proposals",
+    )
+    reason = models.TextField()
+    realignment_strategy = models.TextField()
+    approved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Realignment by {self.initiated_by.name}"[:50]

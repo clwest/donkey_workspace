@@ -7,7 +7,6 @@ from agents.models.core import (
     Agent,
     AgentFeedbackLog,
     AgentCluster,
-
 )
 from agents.models.lore import (
     SwarmMemoryEntry,
@@ -59,17 +58,21 @@ from agents.models.lore import (
     BeliefContinuityRitual,
     CosmologicalRole,
     LegacyTokenVault,
-
     ArchetypeSynchronizationPulse,
     CreationMythEntry,
     CosmogenesisSimulation,
     MythicForecastPulse,
     BeliefAtlasSnapshot,
     SymbolicWeatherFront,
-
-
+    DreamIntelligenceNode,
+    MissionConsensusRound,
+    NarrativeRealignmentProposal,
 )
-from agents.models.coordination import CollaborationThread, DelegationStream, MythflowInsight
+from agents.models.coordination import (
+    CollaborationThread,
+    DelegationStream,
+    MythflowInsight,
+)
 from agents.serializers import (
     AgentSerializer,
     AgentFeedbackLogSerializer,
@@ -129,10 +132,12 @@ from agents.serializers import (
     DelegationStreamSerializer,
     MythflowInsightSerializer,
     CosmogenesisSimulationSerializer,
-
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
     SymbolicWeatherFrontSerializer,
+    DreamIntelligenceNodeSerializer,
+    MissionConsensusRoundSerializer,
+    NarrativeRealignmentProposalSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -357,7 +362,9 @@ def lore_epochs(request):
     epoch = serializer.save()
     return Response(LoreEpochSerializer(epoch).data, status=201)
 
+
 from agents.utils.myth_reset import run_myth_reset_cycle
+
 
 @api_view(["POST"])
 def myth_reset_cycle(request):
@@ -1065,7 +1072,6 @@ def symbolic_weather(request):
     return Response(SymbolicWeatherFrontSerializer(front).data, status=201)
 
 
-
 @api_view(["GET", "POST"])
 def collaboration_threads(request):
     if request.method == "GET":
@@ -1101,3 +1107,40 @@ def mythflow_insights(request):
     insight = serializer.save()
     return Response(MythflowInsightSerializer(insight).data, status=201)
 
+
+@api_view(["GET", "POST"])
+def dream_intel_nodes(request):
+    if request.method == "GET":
+        nodes = DreamIntelligenceNode.objects.all().order_by("-created_at")
+        return Response(DreamIntelligenceNodeSerializer(nodes, many=True).data)
+
+    serializer = DreamIntelligenceNodeSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    node = serializer.save()
+    return Response(DreamIntelligenceNodeSerializer(node).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def mission_consensus_rounds(request):
+    if request.method == "GET":
+        rounds = MissionConsensusRound.objects.all().order_by("-created_at")
+        return Response(MissionConsensusRoundSerializer(rounds, many=True).data)
+
+    serializer = MissionConsensusRoundSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    round_obj = serializer.save()
+    return Response(MissionConsensusRoundSerializer(round_obj).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def narrative_realignment_proposals(request):
+    if request.method == "GET":
+        proposals = NarrativeRealignmentProposal.objects.all().order_by("-created_at")
+        return Response(
+            NarrativeRealignmentProposalSerializer(proposals, many=True).data
+        )
+
+    serializer = NarrativeRealignmentProposalSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    proposal = serializer.save()
+    return Response(NarrativeRealignmentProposalSerializer(proposal).data, status=201)

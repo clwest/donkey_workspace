@@ -61,8 +61,9 @@ from agents.models.lore import (
     MythicForecastPulse,
     BeliefAtlasSnapshot,
     SymbolicWeatherFront,
-
-
+    DreamIntelligenceNode,
+    MissionConsensusRound,
+    NarrativeRealignmentProposal,
 )
 
 from agents.models.coordination import (
@@ -72,6 +73,7 @@ from agents.models.coordination import (
 )
 from assistants.models.assistant import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
+
 
 class AgentSerializer(serializers.ModelSerializer):
     trained_documents = DocumentSerializer(many=True, read_only=True)
@@ -613,11 +615,13 @@ class ArchetypeSynchronizationPulseSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
 class CreationMythEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = CreationMythEntry
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 
 class CosmogenesisSimulationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -631,6 +635,7 @@ class MythicForecastPulseSerializer(serializers.ModelSerializer):
         model = MythicForecastPulse
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 
 class BeliefAtlasSnapshotSerializer(serializers.ModelSerializer):
     class Meta:
@@ -666,3 +671,23 @@ class MythflowInsightSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
+class DreamIntelligenceNodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DreamIntelligenceNode
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MissionConsensusRoundSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MissionConsensusRound
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class NarrativeRealignmentProposalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NarrativeRealignmentProposal
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]

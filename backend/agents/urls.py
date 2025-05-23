@@ -1,4 +1,5 @@
 import warnings
+
 warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
 from django.urls import path
 from . import views
@@ -64,7 +65,6 @@ urlpatterns = [
     path("mythic-forecast/", agents.mythic_forecast),
     path("belief-atlases/", agents.belief_atlases),
     path("symbolic-weather/", agents.symbolic_weather),
-
     path("treaty-breaches/", agents.treaty_breaches),
     path("symbolic-sanctions/", agents.symbolic_sanctions),
     path("tribunals/", agents.tribunals),
@@ -72,6 +72,9 @@ urlpatterns = [
     path("reputation-rebirths/", agents.reputation_regeneration_events),
     path("collaboration-threads/", agents.collaboration_threads),
     path("delegation-streams/", agents.delegation_streams),
+    path("dream-intel/", agents.dream_intel_nodes),
+    path("mission-consensus/", agents.mission_consensus_rounds),
+    path("realignment-proposals/", agents.narrative_realignment_proposals),
     path("mythflow-insights/", agents.mythflow_insights),
     path("clusters/", agents.list_clusters),
     path("clusters/<uuid:id>/", agents.cluster_detail_view),
