@@ -2219,56 +2219,17 @@ class NarrativeCurationTimeline(models.Model):
 
 
 
-class AssistantSummoningScroll(models.Model):
-    """Portable artifact that invokes an assistant via symbolic cues."""
+class RitualGoalPlanner(models.Model):
+    """Structured planner converting intentions into ritual paths."""
 
-    scroll_title = models.CharField(max_length=150)
-    invocation_phrase = models.CharField(max_length=150)
     assistant = models.ForeignKey(
         "assistants.Assistant", on_delete=models.CASCADE
     )
-    scroll_url = models.TextField()
-    symbolic_rune_tags = models.JSONField()
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return self.scroll_title
-
-
-class GuildMemoryRelayNode(models.Model):
-    """Broadcast memory packets across guild networks."""
-
-
-    linked_guild = models.ForeignKey(
-        "assistants.CodexLinkedGuild", on_delete=models.CASCADE
-    )
-
-    transmission_window = models.CharField(max_length=100)
-    shared_memories = models.ManyToManyField(SwarmMemoryEntry)
-    symbolic_payload_tags = models.JSONField()
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-
-        return f"Relay {self.id} for {self.linked_guild.guild_name}"[:50]
-
-
-class SymbolicInterlinkMap(models.Model):
-    """Map connecting memory, codices and assistants via archetype tags."""
-
-    interlink_title = models.CharField(max_length=150)
-    source_memory = models.ForeignKey(SwarmMemoryEntry, on_delete=models.CASCADE)
+    goal_title = models.CharField(max_length=150)
+    input_intention = models.TextField()
     linked_codices = models.ManyToManyField(SwarmCodex)
-    connected_assistants = models.ManyToManyField("assistants.Assistant")
-    archetype_tags = models.JSONField()
+    ritual_path = models.JSONField()
+    milestone_memory = models.ManyToManyField(SwarmMemoryEntry)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -2277,5 +2238,47 @@ class SymbolicInterlinkMap(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
 
-        return self.interlink_title
+        return self.goal_title
+
+
+class MythTimelineDirector(models.Model):
+    """Assistant-driven myth timeline controller."""
+
+    title = models.CharField(max_length=150)
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    timeline_segments = models.JSONField()
+    memory_nodes = models.ManyToManyField(SwarmMemoryEntry)
+    codex_weights = models.JSONField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+
+        return self.title
+
+
+class CodexDecisionFramework(models.Model):
+    """Decision logic guided by codex rules and memory."""
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    decision_context = models.TextField()
+    codex_applied = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    outcome_paths = models.JSONField()
+    symbolic_alignment_score = models.FloatField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+
+        return f"Codex decision {self.id}"
 

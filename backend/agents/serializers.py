@@ -91,6 +91,10 @@ from agents.models.lore import (
     RitualFusionEvent,
     NarrativeCurationTimeline,
 
+    RitualGoalPlanner,
+    MythTimelineDirector,
+    CodexDecisionFramework,
+
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
 )
@@ -1077,23 +1081,25 @@ class NarrativeCurationTimelineSerializer(serializers.ModelSerializer):
 
 
 
-class AssistantSummoningScrollSerializer(serializers.ModelSerializer):
+class RitualGoalPlannerSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AssistantSummoningScroll
+        model = RitualGoalPlanner
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class GuildMemoryRelayNodeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = GuildMemoryRelayNode
 
+class MythTimelineDirectorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythTimelineDirector
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
-class SymbolicInterlinkMapSerializer(serializers.ModelSerializer):
+
+class CodexDecisionFrameworkSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SymbolicInterlinkMap
+        model = CodexDecisionFramework
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

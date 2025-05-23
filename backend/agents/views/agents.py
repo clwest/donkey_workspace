@@ -91,6 +91,10 @@ from agents.models.lore import (
     GuildMemoryRelayNode,
     SymbolicInterlinkMap,
 
+    RitualGoalPlanner,
+    MythTimelineDirector,
+    CodexDecisionFramework,
+
 )
 from agents.models.identity import (
     PersonaFusionEvent,
@@ -214,9 +218,10 @@ from agents.serializers import (
     RitualFusionEventSerializer,
     NarrativeCurationTimelineSerializer,
 
-    AssistantSummoningScrollSerializer,
-    GuildMemoryRelayNodeSerializer,
-    SymbolicInterlinkMapSerializer,
+
+    RitualGoalPlannerSerializer,
+    MythTimelineDirectorSerializer,
+    CodexDecisionFrameworkSerializer,
 
 
     SymbolicPlanningLatticeSerializer,
@@ -1609,32 +1614,39 @@ def timeline_curate(request):
     return Response(NarrativeCurationTimelineSerializer(timeline).data, status=201)
 
 
+@api_view(["GET", "POST"])
+def ritual_goals(request):
+    if request.method == "GET":
+        planners = RitualGoalPlanner.objects.all().order_by("-created_at")
+        return Response(RitualGoalPlannerSerializer(planners, many=True).data)
 
-
-@api_view(["GET"])
-def summon_scroll(request, scroll):
-    scroll_obj = get_object_or_404(AssistantSummoningScroll, id=scroll)
-    return Response(AssistantSerializer(scroll_obj.assistant).data)
-
-
-@api_view(["GET"])
-def guild_memory_relay(request, id):
-    guild = get_object_or_404(CodexLinkedGuild, id=id)
-    nodes = GuildMemoryRelayNode.objects.filter(linked_guild=guild).order_by("-created_at")
-    return Response(GuildMemoryRelayNodeSerializer(nodes, many=True).data)
+    serializer = RitualGoalPlannerSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    planner = serializer.save()
+    return Response(RitualGoalPlannerSerializer(planner).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def ritual_forecast(request):
+def timeline_director(request):
     if request.method == "GET":
-        dashboards = RitualForecastingDashboard.objects.all().order_by("-created_at")
-        return Response(RitualForecastingDashboardSerializer(dashboards, many=True).data)
+        directors = MythTimelineDirector.objects.all().order_by("-created_at")
+        return Response(MythTimelineDirectorSerializer(directors, many=True).data)
+
+    serializer = MythTimelineDirectorSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    director = serializer.save()
+    return Response(MythTimelineDirectorSerializer(director).data, status=201)
 
 
-@api_view(["GET"])
-def memory_interlink(request):
-    maps = SymbolicInterlinkMap.objects.all().order_by("-created_at")
-    return Response(SymbolicInterlinkMapSerializer(maps, many=True).data)
+@api_view(["GET", "POST"])
+def codex_decisions(request):
+    if request.method == "GET":
+        decisions = CodexDecisionFramework.objects.all().order_by("-created_at")
+        return Response(CodexDecisionFrameworkSerializer(decisions, many=True).data)
 
+    serializer = CodexDecisionFrameworkSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    decision = serializer.save()
+    return Response(CodexDecisionFrameworkSerializer(decision).data, status=201)
 
 
