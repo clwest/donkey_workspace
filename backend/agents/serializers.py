@@ -90,10 +90,12 @@ from agents.models.insight import (
 )
 from agents.models.cosmology import SwarmCosmology
 from agents.models.swarm_balance import PurposeMigrationEvent, CognitiveBalanceReport
-from agents.models.radiance import (
-    PurposeRadianceField,
-    SymbolicGravityWell,
-    MemoryHarmonicsPulse,
+
+from agents.models.storyfield import (
+    StoryfieldZone,
+    MythPatternCluster,
+    IntentHarmonizationSession,
+
 )
 from assistants.models.assistant import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -814,3 +816,23 @@ class SymbolicPlanningLatticeSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "last_updated"]
 
+
+class StoryfieldZoneSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StoryfieldZone
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MythPatternClusterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythPatternCluster
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class IntentHarmonizationSessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = IntentHarmonizationSession
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]

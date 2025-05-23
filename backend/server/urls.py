@@ -87,9 +87,9 @@ urlpatterns = [
     path("api/cognitive-balance/", agent_views.cognitive_balance_reports),
     path("api/purpose-migrations/", agent_views.purpose_migrations),
 
-    path("api/memory-realms/", agent_views.memory_realms),
-    path("api/ritual-sync/", agent_views.ritual_sync),
-    path("api/archetype-fields/", agent_views.archetype_fields),
+    path("api/storyfields/", agent_views.storyfields),
+    path("api/myth-patterns/", agent_views.myth_patterns),
+    path("api/intent-harmony/", agent_views.intent_harmony),
 
     path("api/intel/", include("intel_core.urls")),
     path("api/signal-artifacts/", agent_views.signal_artifacts),

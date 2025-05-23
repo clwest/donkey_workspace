@@ -78,6 +78,9 @@ urlpatterns = [
     path("resonance-graphs/", agents.resonance_graphs),
     path("cognitive-balance/", agents.cognitive_balance_reports),
     path("purpose-migrations/", agents.purpose_migrations),
+    path("storyfields/", agents.storyfields),
+    path("myth-patterns/", agents.myth_patterns),
+    path("intent-harmony/", agents.intent_harmony),
 
     path("signal-artifacts/", agents.signal_artifacts),
     path("navigation-vectors/", agents.navigation_vectors),

@@ -58,3 +58,7 @@ export const fetchResonanceGraphs = () => apiFetch("/agents/resonance-graphs/");
 export const fetchCognitiveBalance = () => apiFetch("/agents/cognitive-balance/");
 export const fetchPurposeMigrations = () =>
   apiFetch("/agents/purpose-migrations/");
+
+export const fetchStoryfields = () => apiFetch("/agents/storyfields/");
+export const fetchMythPatterns = () => apiFetch("/agents/myth-patterns/");
+export const fetchIntentHarmony = () => apiFetch("/agents/intent-harmony/");
