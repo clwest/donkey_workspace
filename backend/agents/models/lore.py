@@ -1708,3 +1708,53 @@ class MythicAlignmentMarket(models.Model):
         return f"Market entry for {self.participant.name}"
 
 
+
+class MemoryRealmZone(models.Model):
+    """Symbolic geography where memories cluster."""
+
+    zone_name = models.CharField(max_length=150)
+    origin_myth = models.ForeignKey(TranscendentMyth, on_delete=models.CASCADE)
+    memory_inhabitants = models.ManyToManyField(SwarmMemoryEntry)
+    spatial_traits = models.JSONField()
+    symbolic_navigation_tags = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.zone_name
+
+
+class RitualSyncPulse(models.Model):
+    """Synchronize ritual participation across assistants."""
+
+    pulse_id = models.CharField(max_length=100)
+    initiating_guild = models.ForeignKey("assistants.AssistantGuild", on_delete=models.CASCADE)
+    synchronization_targets = models.ManyToManyField("assistants.Assistant")
+    sync_tags = models.JSONField()
+    phase_trigger = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.pulse_id
+
+
+class ArchetypeFieldCluster(models.Model):
+    """Group assistants into archetype-driven clusters."""
+
+    cluster_name = models.CharField(max_length=150)
+    anchor_roles = models.JSONField()
+    participating_assistants = models.ManyToManyField("assistants.Assistant")
+    resonance_score = models.FloatField()
+    symbolic_purpose_vector = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.cluster_name

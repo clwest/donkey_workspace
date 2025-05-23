@@ -69,6 +69,9 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
+    MemoryRealmZone,
+    RitualSyncPulse,
+    ArchetypeFieldCluster,
  
 )
 from agents.models.coordination import (
@@ -133,6 +136,9 @@ from agents.serializers import (
     LegacyTokenVaultSerializer,
     LoreTokenExchangeSerializer,
     ArchetypeSynchronizationPulseSerializer,
+    MemoryRealmZoneSerializer,
+    RitualSyncPulseSerializer,
+    ArchetypeFieldClusterSerializer,
     CreationMythEntrySerializer,
     TokenMarketSerializer,
     CollaborationThreadSerializer,
@@ -1207,3 +1213,38 @@ def purpose_migrations(request):
 
 
 
+
+@api_view(["GET", "POST"])
+def memory_realms(request):
+    if request.method == "GET":
+        realms = MemoryRealmZone.objects.all().order_by("-created_at")
+        return Response(MemoryRealmZoneSerializer(realms, many=True).data)
+
+    serializer = MemoryRealmZoneSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    realm = serializer.save()
+    return Response(MemoryRealmZoneSerializer(realm).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def ritual_sync(request):
+    if request.method == "GET":
+        pulses = RitualSyncPulse.objects.all().order_by("-created_at")
+        return Response(RitualSyncPulseSerializer(pulses, many=True).data)
+
+    serializer = RitualSyncPulseSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    pulse = serializer.save()
+    return Response(RitualSyncPulseSerializer(pulse).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def archetype_fields(request):
+    if request.method == "GET":
+        clusters = ArchetypeFieldCluster.objects.all().order_by("-created_at")
+        return Response(ArchetypeFieldClusterSerializer(clusters, many=True).data)
+
+    serializer = ArchetypeFieldClusterSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    cluster = serializer.save()
+    return Response(ArchetypeFieldClusterSerializer(cluster).data, status=201)

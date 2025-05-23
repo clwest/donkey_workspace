@@ -68,6 +68,9 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
+    MemoryRealmZone,
+    RitualSyncPulse,
+    ArchetypeFieldCluster,
     
     
 
@@ -754,6 +757,27 @@ class MythicAlignmentMarketSerializer(serializers.ModelSerializer):
         model = MythicAlignmentMarket
         fields = "__all__"
         read_only_fields = ["id", "last_updated"]
+
+
+class MemoryRealmZoneSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemoryRealmZone
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RitualSyncPulseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RitualSyncPulse
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class ArchetypeFieldClusterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ArchetypeFieldCluster
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
 
 
 class MythflowOrchestrationPlanSerializer(serializers.ModelSerializer):
