@@ -87,6 +87,11 @@ from agents.models.insight import (
 )
 from agents.models.cosmology import SwarmCosmology
 from agents.models.swarm_balance import PurposeMigrationEvent, CognitiveBalanceReport
+from agents.models.radiance import (
+    PurposeRadianceField,
+    SymbolicGravityWell,
+    MemoryHarmonicsPulse,
+)
 from assistants.models.assistant import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
 
@@ -778,4 +783,25 @@ class SymbolicPlanningLatticeSerializer(serializers.ModelSerializer):
         model = SymbolicPlanningLattice
         fields = "__all__"
         read_only_fields = ["id", "last_updated"]
+
+
+class PurposeRadianceFieldSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PurposeRadianceField
+        fields = "__all__"
+        read_only_fields = ["id", "last_emitted"]
+
+
+class SymbolicGravityWellSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicGravityWell
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MemoryHarmonicsPulseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemoryHarmonicsPulse
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
 
