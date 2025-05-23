@@ -104,6 +104,9 @@ from agents.models.lore import (
     CodexRestabilizationNode,
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
+    CodexMemoryCrystallizationLayer,
+    DreamframeRebirthEngine,
+    FederatedMythicIntelligenceSummoner,
 
 )
 from agents.models.markets import CodexCurrencyModule, SymbolicInfluenceLedger, BeliefContributionMarketplace
@@ -1351,6 +1354,27 @@ class SymbolicOscillationMapSerializer(serializers.ModelSerializer):
 class CodexRestabilizationNodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = CodexRestabilizationNode
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CodexMemoryCrystallizationLayerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CodexMemoryCrystallizationLayer
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class DreamframeRebirthEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DreamframeRebirthEngine
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class FederatedMythicIntelligenceSummonerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FederatedMythicIntelligenceSummoner
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

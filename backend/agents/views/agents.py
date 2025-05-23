@@ -106,6 +106,9 @@ from agents.models.lore import (
     CodexRestabilizationNode,
     LegacyArtifactExporter,
     RecursiveRitualContract,
+    CodexMemoryCrystallizationLayer,
+    DreamframeRebirthEngine,
+    FederatedMythicIntelligenceSummoner,
     # resilience & deployment
 
 )
@@ -261,6 +264,9 @@ from agents.serializers import (
     RitualLoopVisualizationEngineSerializer,
     SymbolicOscillationMapSerializer,
     CodexRestabilizationNodeSerializer,
+    CodexMemoryCrystallizationLayerSerializer,
+    DreamframeRebirthEngineSerializer,
+    FederatedMythicIntelligenceSummonerSerializer,
     SymbolicConsensusChamberSerializer,
     RitualNegotiationEngineSerializer,
     NarrativeGovernanceModelSerializer,
@@ -2027,5 +2033,41 @@ def network_governance(request):
     serializer.is_valid(raise_exception=True)
     model = serializer.save()
     return Response(NarrativeGovernanceModelSerializer(model).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def codex_crystallize(request):
+    if request.method == "GET":
+        layers = CodexMemoryCrystallizationLayer.objects.all().order_by("-created_at")
+        return Response(CodexMemoryCrystallizationLayerSerializer(layers, many=True).data)
+
+    serializer = CodexMemoryCrystallizationLayerSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    layer = serializer.save()
+    return Response(CodexMemoryCrystallizationLayerSerializer(layer).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def dream_rebirth(request):
+    if request.method == "GET":
+        engines = DreamframeRebirthEngine.objects.all().order_by("-created_at")
+        return Response(DreamframeRebirthEngineSerializer(engines, many=True).data)
+
+    serializer = DreamframeRebirthEngineSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    engine = serializer.save()
+    return Response(DreamframeRebirthEngineSerializer(engine).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def federated_summon(request):
+    if request.method == "GET":
+        summoners = FederatedMythicIntelligenceSummoner.objects.all().order_by("-created_at")
+        return Response(FederatedMythicIntelligenceSummonerSerializer(summoners, many=True).data)
+
+    serializer = FederatedMythicIntelligenceSummonerSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    summoner = serializer.save()
+    return Response(FederatedMythicIntelligenceSummonerSerializer(summoner).data, status=201)
 
 
