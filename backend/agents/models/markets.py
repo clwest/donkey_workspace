@@ -142,3 +142,59 @@ class SymbolicFundingProtocol(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return str(self.guild)
+
+
+class GuildCurrencyExchangeHub(models.Model):
+    """Manage inter-guild symbolic trade and token exchange."""
+
+    guild = models.ForeignKey(
+        'assistants.CodexLinkedGuild', on_delete=models.CASCADE
+    )
+    exchange_rates = models.JSONField()
+    partner_guilds = models.ManyToManyField(
+        'assistants.CodexLinkedGuild', related_name='exchange_partners'
+    )
+    symbolic_reserve = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"ExchangeHub {self.guild.guild_name}"
+
+
+class BeliefTokenMarket(models.Model):
+    """Token-based market for codex-governed symbolic exchange."""
+
+    codex = models.ForeignKey('agents.SwarmCodex', on_delete=models.CASCADE)
+    listed_tokens = models.JSONField()
+    trade_history = models.JSONField()
+    liquidity_pool = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"TokenMarket {self.codex.title}"
+
+
+class RitualGrantSystem(models.Model):
+    """Symbolic funding of ritual activity across assistants."""
+
+    assistant = models.ForeignKey('assistants.Assistant', on_delete=models.CASCADE)
+    funded_ritual = models.ForeignKey(
+        'agents.EncodedRitualBlueprint', on_delete=models.CASCADE
+    )
+    funding_source = models.ForeignKey(GuildCurrencyExchangeHub, on_delete=models.CASCADE)
+    symbolic_outcome_summary = models.TextField()
+    granted_tokens = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Grant {self.id}"
+
