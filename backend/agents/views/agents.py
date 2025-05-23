@@ -81,12 +81,6 @@ from agents.models.lore import (
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
-    # SymbolicForecastIndex,
-    # AssistantSentimentModelEngine,
-    # RitualMarketFeed,
-    # MultiAgentTrendReactivityModel,
-    # SymbolicStabilityGraph,
-
     MythicAfterlifeRegistry,
     ContinuityEngineNode,
     ArchetypeMigrationGate,
