@@ -146,6 +146,17 @@ import RitualGrantPage from "./pages/ritual/RitualGrantPage";
 import MythOSCodexPage from "./pages/mythos/MythOSCodexPage";
 import DreamframePage from "./pages/agents/DreamframePage";
 import MythOSRitualsPage from "./pages/mythos/MythOSRitualsPage";
+import AssistantForkPage from "./pages/assistants/AssistantForkPage";
+import CodexConvergePage from "./pages/codex/CodexConvergePage";
+import CodexProofPage from "./pages/codex/CodexProofPage";
+import RitualContainersPage from "./pages/ritual/RitualContainersPage";
+import ReplayEnginePage from "./pages/replay/ReplayEnginePage";
+import DreamRebirthPage from "./pages/agents/DreamRebirthPage";
+import ContinuityAnchorPage from "./pages/anchor/ContinuityAnchorPage";
+import ArbitrationCouncilPage from "./pages/guilds/ArbitrationCouncilPage";
+import TreatyForgePage from "./pages/treaty/TreatyForgePage";
+import FederationCodicesPage from "./pages/federation/FederationCodicesPage";
+import RitualLawPage from "./pages/law/RitualLawPage";
 
 
 import { ToastContainer } from "react-toastify";
@@ -395,6 +406,10 @@ export default function App() {
             path="/assistants/:id/interface"
             element={<AssistantInterfacePage />}
           />
+          <Route
+            path="/assistants/:id/fork"
+            element={<AssistantForkPage />}
+          />
           <Route path="/assistants/:id/rebirth" element={<AssistantMythRebirthPage />} />
           <Route path="/assistants/:slug" element={<AssistantDetailPage />} />
           {/* MCP Core */}
@@ -457,17 +472,27 @@ export default function App() {
 
           {/* MythOS symbolic gateways */}
           <Route path="/codex" element={<MythOSCodexPage />} />
+          <Route path="/codex/converge" element={<CodexConvergePage />} />
+          <Route path="/codex/proof" element={<CodexProofPage />} />
           <Route path="/dream" element={<DreamframePage />} />
+          <Route path="/dream/rebirth" element={<DreamRebirthPage />} />
           <Route path="/ritual" element={<MythOSRitualsPage />} />
+          <Route path="/ritual/containers" element={<RitualContainersPage />} />
           <Route path="/reflection" element={<ReflectionPage />} />
 
           <Route path="/prophecy/engine" element={<ProphecyEnginePage />} />
           <Route path="/memory/predict" element={<MemoryPredictionPage />} />
           <Route path="/ritual/forecast" element={<RitualForecastPage />} />
           <Route path="/ritual/rewards" element={<RitualRewardsPage />} />
+          <Route path="/replay/engine" element={<ReplayEnginePage />} />
+          <Route path="/anchor/continuity" element={<ContinuityAnchorPage />} />
           <Route path="/assistants/:id/economy" element={<AssistantEconomyPage />} />
+          <Route path="/guilds/council" element={<ArbitrationCouncilPage />} />
           <Route path="/guilds/:id/funding" element={<GuildFundingPage />} />
           <Route path="/guilds/:id/exchange" element={<GuildExchangePage />} />
+          <Route path="/treaty/forge" element={<TreatyForgePage />} />
+          <Route path="/federation/codices" element={<FederationCodicesPage />} />
+          <Route path="/law/ritual" element={<RitualLawPage />} />
           <Route path="/market/tokens" element={<TokenMarketPage />} />
           <Route path="/market/rituals" element={<RitualMarketPage />} />
           <Route path="/ritual/grants" element={<RitualGrantPage />} />

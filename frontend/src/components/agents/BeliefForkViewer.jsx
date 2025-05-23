@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import apiFetch from "../../utils/apiClient";
 
-export default function BeliefForkViewer() {
+export default function BeliefForkViewer({ assistantId }) {
   const [forks, setForks] = useState([]);
 
   useEffect(() => {
-    apiFetch("/agents/belief-forks/")
+    const url = assistantId
+      ? `/assistants/${assistantId}/belief-forks/`
+      : "/agents/belief-forks/";
+    apiFetch(url)
       .then(setForks)
       .catch(() => setForks([]));
-  }, []);
+  }, [assistantId]);
 
   return (
     <div className="my-3">
