@@ -921,6 +921,25 @@ class DebateSummary(models.Model):
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.db import IntegrityError
+from django.db.utils import DataError, ProgrammingError
+
+
+def safe_create_planning_log(project, event_type, summary, related_object=None):
+    """Create a ProjectPlanningLog entry, ignoring object_id type mismatches."""
+    try:
+        ProjectPlanningLog.objects.create(
+            project=project,
+            event_type=event_type,
+            summary=summary,
+            related_object=related_object,
+        )
+    except (DataError, IntegrityError, ProgrammingError, ValueError):
+        ProjectPlanningLog.objects.create(
+            project=project,
+            event_type=event_type,
+            summary=summary,
+        )
 
 
 @receiver(post_save, sender=DelegationEvent)
@@ -934,7 +953,7 @@ def queue_delegation_reflection(sender, instance, created, **kwargs):
 @receiver(post_save, sender="assistants.AssistantObjective")
 def log_objective_added(sender, instance, created, **kwargs):
     if created:
-        ProjectPlanningLog.objects.create(
+        safe_create_planning_log(
             project=instance.project,
             event_type="objective_added",
             summary=f"Objective added: {instance.title}",
@@ -946,7 +965,7 @@ def log_objective_added(sender, instance, created, **kwargs):
 def log_task_change(sender, instance, created, **kwargs):
     assistant_project = getattr(instance.project, "assistant_project", None)
     if assistant_project:
-        ProjectPlanningLog.objects.create(
+        safe_create_planning_log(
             project=assistant_project,
             event_type="task_modified",
             summary=f"{'Created' if created else 'Updated'} task: {instance.title}",
@@ -959,7 +978,7 @@ def log_milestone_event(sender, instance, created, **kwargs):
     assistant_project = getattr(instance.project, "assistant_project", None)
     if assistant_project and (created or instance.is_completed):
         event_type = "milestone_completed" if instance.is_completed else "task_modified"
-        ProjectPlanningLog.objects.create(
+        safe_create_planning_log(
             project=assistant_project,
             event_type=event_type,
             summary=f"Milestone: {instance.title}",
@@ -970,7 +989,7 @@ def log_milestone_event(sender, instance, created, **kwargs):
 @receiver(post_save, sender="assistants.AssistantReflectionLog")
 def log_reflection_event(sender, instance, created, **kwargs):
     if created and instance.project:
-        ProjectPlanningLog.objects.create(
+        safe_create_planning_log(
             project=instance.project,
             event_type="reflection_recorded",
             summary=instance.summary[:200],

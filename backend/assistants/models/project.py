@@ -85,7 +85,9 @@ class AssistantProject(models.Model):
         self.memory_shift_score = sum(m.importance for m in memories) / len(memories)
         self.save(update_fields=["summary", "memory_shift_score"])
 
-        ProjectPlanningLog.objects.create(
+        from assistants.models.assistant import safe_create_planning_log
+
+        safe_create_planning_log(
             project=self,
             event_type="plan_regenerated",
             summary=f"Plan regenerated due to {reason}",
