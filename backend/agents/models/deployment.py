@@ -52,3 +52,57 @@ class BeliefDeploymentStrategyEngine(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return self.target_environment
+
+
+class AssistantRehydrationPipeline(models.Model):
+    """Resurrect assistants from archived mythic state."""
+
+    assistant_archive_id = models.CharField(max_length=150)
+    rehydration_source = models.TextField()
+    memory_rebind_trace = models.JSONField()
+    codex_state_applied = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    assistant_rehydrated_flag = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return self.assistant_archive_id
+
+
+class RitualExecutionOrchestrationLog(models.Model):
+    """Full trace of ritual execution across nodes."""
+
+    ritual = models.ForeignKey(EncodedRitualBlueprint, on_delete=models.CASCADE)
+    orchestrator_id = models.CharField(max_length=150)
+    execution_path = models.JSONField()
+    symbolic_disruption_flags = models.JSONField()
+    codex_sync_summary = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Log for {self.ritual.name}"
+
+
+class SymbolicReplayEngine(models.Model):
+    """Replay mythic scenarios across distributed networks."""
+
+    replay_id = models.CharField(max_length=150)
+    source_network = models.CharField(max_length=150)
+    symbolic_inputs = models.JSONField()
+    assistant_context = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    replay_result = models.TextField()
+    entropy_convergence_score = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return self.replay_id
