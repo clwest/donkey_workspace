@@ -157,6 +157,8 @@ import ArbitrationCouncilPage from "./pages/guilds/ArbitrationCouncilPage";
 import TreatyForgePage from "./pages/treaty/TreatyForgePage";
 import FederationCodicesPage from "./pages/federation/FederationCodicesPage";
 import RitualLawPage from "./pages/law/RitualLawPage";
+import DeployStandardsPage from "./pages/deploy/DeployStandardsPage";
+import FederatedSummonPage from "./pages/summon/FederatedSummonPage";
 
 
 import { ToastContainer } from "react-toastify";
@@ -485,6 +487,8 @@ export default function App() {
           <Route path="/ritual/forecast" element={<RitualForecastPage />} />
           <Route path="/ritual/rewards" element={<RitualRewardsPage />} />
           <Route path="/replay/engine" element={<ReplayEnginePage />} />
+          <Route path="/deploy/standards" element={<DeployStandardsPage />} />
+          <Route path="/summon/federated" element={<FederatedSummonPage />} />
           <Route path="/anchor/continuity" element={<ContinuityAnchorPage />} />
           <Route path="/assistants/:id/economy" element={<AssistantEconomyPage />} />
           <Route path="/guilds/council" element={<ArbitrationCouncilPage />} />

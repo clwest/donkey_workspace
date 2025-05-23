@@ -4,11 +4,13 @@ import { fetchAvailableRituals } from "../../api/agents";
 
 export default function RitualLaunchpadPanel({ assistantId }) {
   const [rituals, setRituals] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchAvailableRituals(assistantId ? { assistant: assistantId } : {})
       .then((res) => setRituals(res.results || res))
-      .catch(() => setRituals([]));
+      .catch(() => setRituals([]))
+      .finally(() => setLoading(false));
   }, [assistantId]);
 
   const handleLaunch = (id) => {
@@ -20,6 +22,7 @@ export default function RitualLaunchpadPanel({ assistantId }) {
   return (
     <div className="p-2 border rounded">
       <h5>Ritual Launchpads</h5>
+      {loading && <div>Loading rituals...</div>}
       <ul className="list-group">
         {rituals.map((r) => (
           <li key={r.id} className="list-group-item d-flex justify-content-between align-items-center">

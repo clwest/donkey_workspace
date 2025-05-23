@@ -5,6 +5,7 @@ import CodexAnchorPanel from "../swarm/CodexAnchorPanel";
 import RitualLaunchpadPanel from "../swarm/RitualLaunchpadPanel";
 import BeliefEvolutionDashboard from "./analysis/BeliefEvolutionDashboard";
 import DreamframeViewer from "../swarm/DreamframeViewer";
+import BeliefForkViewer from "../agents/BeliefForkViewer";
 
 export default function AssistantInterfaceRenderer({ assistantId, showDreams = false }) {
   const [data, setData] = useState(null);
@@ -39,6 +40,7 @@ export default function AssistantInterfaceRenderer({ assistantId, showDreams = f
         </div>
       </div>
       <BeliefEvolutionDashboard assistantId={assistantId} />
+      <BeliefForkViewer assistantId={assistantId} />
       {showDreams && (
         <div className="mt-3">
           <DreamframeViewer assistantId={assistantId} />
