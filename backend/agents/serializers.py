@@ -68,6 +68,9 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
+    ArchetypeGenesisLog,
+    MythBloomNode,
+    BeliefSeedReplication,
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
@@ -859,6 +862,27 @@ class SwarmMythEngineInstanceSerializer(serializers.ModelSerializer):
 class BeliefFeedbackSignalSerializer(serializers.ModelSerializer):
     class Meta:
         model = BeliefFeedbackSignal
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class ArchetypeGenesisLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ArchetypeGenesisLog
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MythBloomNodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythBloomNode
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class BeliefSeedReplicationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BeliefSeedReplication
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
