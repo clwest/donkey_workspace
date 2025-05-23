@@ -80,6 +80,9 @@ from agents.models.lore import (
     PublicRitualLogEntry,
     BeliefContinuityThread,
     CodexContributionCeremony,
+    PublicMemoryGrove,
+    SharedRitualCalendar,
+    SymbolicReflectionArena,
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
@@ -190,9 +193,11 @@ from agents.serializers import (
     PublicRitualLogEntrySerializer,
     BeliefContinuityThreadSerializer,
     CodexContributionCeremonySerializer,
-    MemoryInheritanceSeedSerializer,
-    PersonalCodexAnchorSerializer,
-    RitualContractBindingSerializer,
+s
+    PublicMemoryGroveSerializer,
+    SharedRitualCalendarSerializer,
+    SymbolicReflectionArenaSerializer,
+
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1512,7 +1517,6 @@ def codex_contributions(request):
     return Response(CodexContributionCeremonySerializer(contribution).data, status=201)
 
 
-
 @api_view(["GET"])
 def onboarding_ritual(request):
     """Trigger cinematic ritual onboarding flow."""
@@ -1568,24 +1572,38 @@ def journey_export(request):
 
 
 @api_view(["GET", "POST"])
-def belief_tree(request):
-    if request.method == "GET":
-        trees = BeliefInheritanceTree.objects.all().order_by("-created_at")
-        return Response(BeliefInheritanceTreeSerializer(trees, many=True).data)
 
-    serializer = BeliefInheritanceTreeSerializer(data=request.data)
+def memory_groves(request):
+    if request.method == "GET":
+        groves = PublicMemoryGrove.objects.all().order_by("-created_at")
+        return Response(PublicMemoryGroveSerializer(groves, many=True).data)
+
+    serializer = PublicMemoryGroveSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    tree = serializer.save()
-    return Response(BeliefInheritanceTreeSerializer(tree).data, status=201)
+    grove = serializer.save()
+    return Response(PublicMemoryGroveSerializer(grove).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def ritual_archive(request):
+def ritual_calendars(request):
     if request.method == "GET":
-        archives = RitualResponseArchive.objects.all().order_by("-created_at")
-        return Response(RitualResponseArchiveSerializer(archives, many=True).data)
+        calendars = SharedRitualCalendar.objects.all().order_by("-created_at")
+        return Response(SharedRitualCalendarSerializer(calendars, many=True).data)
 
-    serializer = RitualResponseArchiveSerializer(data=request.data)
+    serializer = SharedRitualCalendarSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    archive = serializer.save()
-    return Response(RitualResponseArchiveSerializer(archive).data, status=201)
+    calendar = serializer.save()
+    return Response(SharedRitualCalendarSerializer(calendar).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def reflection_arenas(request):
+    if request.method == "GET":
+        arenas = SymbolicReflectionArena.objects.all().order_by("-created_at")
+        return Response(SymbolicReflectionArenaSerializer(arenas, many=True).data)
+
+    serializer = SymbolicReflectionArenaSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    arena = serializer.save()
+    return Response(SymbolicReflectionArenaSerializer(arena).data, status=201)
+
