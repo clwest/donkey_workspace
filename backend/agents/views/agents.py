@@ -65,6 +65,9 @@ from agents.models.lore import (
     MythicForecastPulse,
     BeliefAtlasSnapshot,
     SymbolicWeatherFront,
+    SymbolicAnomalyEvent,
+    BeliefCollapseRecoveryRitual,
+    MultiverseLoopLink,
 
 
 )
@@ -132,6 +135,9 @@ from agents.serializers import (
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
     SymbolicWeatherFrontSerializer,
+    SymbolicAnomalyEventSerializer,
+    BeliefCollapseRecoveryRitualSerializer,
+    MultiverseLoopLinkSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -1099,4 +1105,40 @@ def mythflow_insights(request):
     serializer.is_valid(raise_exception=True)
     insight = serializer.save()
     return Response(MythflowInsightSerializer(insight).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def anomalies(request):
+    if request.method == "GET":
+        events = SymbolicAnomalyEvent.objects.all().order_by("-created_at")
+        return Response(SymbolicAnomalyEventSerializer(events, many=True).data)
+
+    serializer = SymbolicAnomalyEventSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    event = serializer.save()
+    return Response(SymbolicAnomalyEventSerializer(event).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def belief_recovery(request):
+    if request.method == "GET":
+        rituals = BeliefCollapseRecoveryRitual.objects.all().order_by("-created_at")
+        return Response(BeliefCollapseRecoveryRitualSerializer(rituals, many=True).data)
+
+    serializer = BeliefCollapseRecoveryRitualSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    ritual = serializer.save()
+    return Response(BeliefCollapseRecoveryRitualSerializer(ritual).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def multiverse_loops(request):
+    if request.method == "GET":
+        loops = MultiverseLoopLink.objects.all().order_by("-created_at")
+        return Response(MultiverseLoopLinkSerializer(loops, many=True).data)
+
+    serializer = MultiverseLoopLinkSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    loop = serializer.save()
+    return Response(MultiverseLoopLinkSerializer(loop).data, status=201)
 
