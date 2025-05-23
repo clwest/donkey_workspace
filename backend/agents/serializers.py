@@ -1015,3 +1015,25 @@ class RitualOnboardingFlowSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
+
+class MemoryInheritanceSeedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemoryInheritanceSeed
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class PersonalCodexAnchorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PersonalCodexAnchor
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RitualContractBindingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RitualContractBinding
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
