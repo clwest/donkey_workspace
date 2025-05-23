@@ -1,4 +1,5 @@
 import warnings
+
 warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
 from django.urls import path
 from rest_framework.routers import DefaultRouter
@@ -68,4 +69,5 @@ urlpatterns = router.urls + [
     path("memory-braids/", views.memory_braids, name="memory-braids"),
     path("continuity-anchors/", views.continuity_anchors, name="continuity-anchors"),
     path("anamnesis/", views.anamnesis, name="anamnesis"),
+    path("grove/public/", views.public_memory_grove, name="public-memory-grove"),
 ]
