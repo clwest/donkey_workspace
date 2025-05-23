@@ -87,23 +87,7 @@ from agents.models.lore import (
     StoryConvergencePath,
     RitualFusionEvent,
     NarrativeCurationTimeline,
-    AssistantSummoningScroll,
-    GuildMemoryRelayNode,
-    SymbolicInterlinkMap,
 
-    RitualGoalPlanner,
-    MythTimelineDirector,
-    CodexDecisionFramework,
-
-)
-from agents.models.identity import (
-    PersonaFusionEvent,
-    MemoryInheritanceSeed,
-    PersonalCodexAnchor,
-    RitualContractBinding,
-    ReincarnationTreeNode,
-    BeliefVectorDelta,
-    SymbolicIdentityCard,
 )
 from agents.models.coordination import (
     CollaborationThread,
@@ -125,6 +109,9 @@ from agents.models.storyfield import (
     SwarmMythEditLog,
     LegacyContinuityVault,
     AgentPlotlineCuration,
+    SymbolicRoadmapPlan,
+    CommunityMythPlanningArena,
+    FederatedCodexForecastTool,
 )
 
 # from simulation.models import SceneDirectorFrame
@@ -213,16 +200,13 @@ from agents.serializers import (
     PublicRitualLogEntrySerializer,
     BeliefContinuityThreadSerializer,
     CodexContributionCeremonySerializer,
-
     StoryConvergencePathSerializer,
     RitualFusionEventSerializer,
     NarrativeCurationTimelineSerializer,
 
-
-    RitualGoalPlannerSerializer,
-    MythTimelineDirectorSerializer,
-    CodexDecisionFrameworkSerializer,
-
+    SymbolicRoadmapPlanSerializer,
+    CommunityMythPlanningArenaSerializer,
+    FederatedCodexForecastToolSerializer,
 
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -1279,7 +1263,9 @@ def belief_seeds(request):
     seed = serializer.save()
     return Response(BeliefSeedReplicationSerializer(seed).data, status=201)
 
+
 from agents.serializers import MythicAlignmentMarketSerializer
+
 
 @api_view(["GET", "POST"])
 def alignment_market(request):
@@ -1577,7 +1563,6 @@ def myth_record(request):
     return Response(MythRecordingSessionSerializer(session).data, status=201)
 
 
-
 @api_view(["GET", "POST"])
 def story_convergence(request):
     if request.method == "GET":
@@ -1615,38 +1600,38 @@ def timeline_curate(request):
 
 
 @api_view(["GET", "POST"])
-def ritual_goals(request):
-    if request.method == "GET":
-        planners = RitualGoalPlanner.objects.all().order_by("-created_at")
-        return Response(RitualGoalPlannerSerializer(planners, many=True).data)
 
-    serializer = RitualGoalPlannerSerializer(data=request.data)
+def symbolic_roadmaps(request):
+    if request.method == "GET":
+        plans = SymbolicRoadmapPlan.objects.all().order_by("-created_at")
+        return Response(SymbolicRoadmapPlanSerializer(plans, many=True).data)
+
+    serializer = SymbolicRoadmapPlanSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    planner = serializer.save()
-    return Response(RitualGoalPlannerSerializer(planner).data, status=201)
+    plan = serializer.save()
+    return Response(SymbolicRoadmapPlanSerializer(plan).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def timeline_director(request):
+def myth_planning_arenas(request):
     if request.method == "GET":
-        directors = MythTimelineDirector.objects.all().order_by("-created_at")
-        return Response(MythTimelineDirectorSerializer(directors, many=True).data)
+        arenas = CommunityMythPlanningArena.objects.all().order_by("-created_at")
+        return Response(CommunityMythPlanningArenaSerializer(arenas, many=True).data)
 
-    serializer = MythTimelineDirectorSerializer(data=request.data)
+    serializer = CommunityMythPlanningArenaSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    director = serializer.save()
-    return Response(MythTimelineDirectorSerializer(director).data, status=201)
+    arena = serializer.save()
+    return Response(CommunityMythPlanningArenaSerializer(arena).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def codex_decisions(request):
+def codex_forecasts(request):
     if request.method == "GET":
-        decisions = CodexDecisionFramework.objects.all().order_by("-created_at")
-        return Response(CodexDecisionFrameworkSerializer(decisions, many=True).data)
+        forecasts = FederatedCodexForecastTool.objects.all().order_by("-created_at")
+        return Response(FederatedCodexForecastToolSerializer(forecasts, many=True).data)
 
-    serializer = CodexDecisionFrameworkSerializer(data=request.data)
+    serializer = FederatedCodexForecastToolSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    decision = serializer.save()
-    return Response(CodexDecisionFrameworkSerializer(decision).data, status=201)
-
+    forecast = serializer.save()
+    return Response(FederatedCodexForecastToolSerializer(forecast).data, status=201)
 

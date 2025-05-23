@@ -91,10 +91,6 @@ from agents.models.lore import (
     RitualFusionEvent,
     NarrativeCurationTimeline,
 
-    RitualGoalPlanner,
-    MythTimelineDirector,
-    CodexDecisionFramework,
-
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
 )
@@ -134,6 +130,11 @@ from agents.models.storyfield import (
     MythPatternCluster,
     IntentHarmonizationSession,
     AgentPlotlineCuration,
+)
+from agents.models.planning import (
+    SymbolicRoadmapPlan,
+    CommunityMythPlanningArena,
+    FederatedCodexForecastTool,
 )
 from assistants.models.assistant import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -1081,25 +1082,26 @@ class NarrativeCurationTimelineSerializer(serializers.ModelSerializer):
 
 
 
-class RitualGoalPlannerSerializer(serializers.ModelSerializer):
+class SymbolicRoadmapPlanSerializer(serializers.ModelSerializer):
     class Meta:
-        model = RitualGoalPlanner
+        model = SymbolicRoadmapPlan
 
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
 
-class MythTimelineDirectorSerializer(serializers.ModelSerializer):
+class CommunityMythPlanningArenaSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MythTimelineDirector
+        model = CommunityMythPlanningArena
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class CodexDecisionFrameworkSerializer(serializers.ModelSerializer):
+
+class FederatedCodexForecastToolSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CodexDecisionFramework
+        model = FederatedCodexForecastTool
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
-
