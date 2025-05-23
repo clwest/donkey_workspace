@@ -75,6 +75,8 @@ from agents.models.lore import (
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
+    SymbolicIdentityCard,
+    PersonaTemplate,
 
 )
 from agents.models.coordination import (
@@ -160,6 +162,8 @@ from agents.serializers import (
     SignalEncodingArtifactSerializer,
     BeliefNavigationVectorSerializer,
     ReflectiveFluxIndexSerializer,
+    SymbolicIdentityCardSerializer,
+    PersonaTemplateSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1329,4 +1333,51 @@ def belief_feedback(request):
     serializer.is_valid(raise_exception=True)
     signal = serializer.save()
     return Response(BeliefFeedbackSignalSerializer(signal).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def identity_cards(request):
+    if request.method == "GET":
+        cards = SymbolicIdentityCard.objects.all().order_by("-created_at")
+        return Response(SymbolicIdentityCardSerializer(cards, many=True).data)
+
+    serializer = SymbolicIdentityCardSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    card = serializer.save()
+    return Response(SymbolicIdentityCardSerializer(card).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def persona_templates(request):
+    if request.method == "GET":
+        templates = PersonaTemplate.objects.all().order_by("-created_at")
+        return Response(PersonaTemplateSerializer(templates, many=True).data)
+
+    serializer = PersonaTemplateSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    template = serializer.save()
+    return Response(PersonaTemplateSerializer(template).data, status=201)
+
+
+@api_view(["POST"])
+def onboarding(request):
+    assistant_data = request.data.get("assistant", {})
+    card_data = request.data.get("identity_card", {})
+
+    assistant_serializer = AssistantSerializer(data=assistant_data)
+    assistant_serializer.is_valid(raise_exception=True)
+    assistant = assistant_serializer.save()
+
+    card_data["assistant"] = assistant.id
+    card_serializer = SymbolicIdentityCardSerializer(data=card_data)
+    card_serializer.is_valid(raise_exception=True)
+    card = card_serializer.save()
+
+    return Response(
+        {
+            "assistant": assistant_serializer.data,
+            "identity_card": SymbolicIdentityCardSerializer(card).data,
+        },
+        status=201,
+    )
 
