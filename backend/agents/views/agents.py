@@ -67,6 +67,9 @@ from agents.models.lore import (
     DreamIntelligenceNode,
     MissionConsensusRound,
     NarrativeRealignmentProposal,
+    EncodedRitualBlueprint,
+    RitualSimulationLog,
+    MemoryReprogrammingScript,
 )
 from agents.models.coordination import (
     CollaborationThread,
@@ -145,6 +148,9 @@ from agents.serializers import (
     DreamIntelligenceNodeSerializer,
     MissionConsensusRoundSerializer,
     NarrativeRealignmentProposalSerializer,
+    EncodedRitualBlueprintSerializer,
+    RitualSimulationLogSerializer,
+    MemoryReprogrammingScriptSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -1152,4 +1158,40 @@ def narrative_realignment_proposals(request):
     serializer.is_valid(raise_exception=True)
     proposal = serializer.save()
     return Response(NarrativeRealignmentProposalSerializer(proposal).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def ritual_blueprints(request):
+    if request.method == "GET":
+        blueprints = EncodedRitualBlueprint.objects.all().order_by("-created_at")
+        return Response(EncodedRitualBlueprintSerializer(blueprints, many=True).data)
+
+    serializer = EncodedRitualBlueprintSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    blueprint = serializer.save()
+    return Response(EncodedRitualBlueprintSerializer(blueprint).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def ritual_simulations(request):
+    if request.method == "GET":
+        logs = RitualSimulationLog.objects.all().order_by("-created_at")
+        return Response(RitualSimulationLogSerializer(logs, many=True).data)
+
+    serializer = RitualSimulationLogSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    log = serializer.save()
+    return Response(RitualSimulationLogSerializer(log).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def memory_reprogramming(request):
+    if request.method == "GET":
+        scripts = MemoryReprogrammingScript.objects.all().order_by("-created_at")
+        return Response(MemoryReprogrammingScriptSerializer(scripts, many=True).data)
+
+    serializer = MemoryReprogrammingScriptSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    script = serializer.save()
+    return Response(MemoryReprogrammingScriptSerializer(script).data, status=201)
 

@@ -64,6 +64,9 @@ from agents.models.lore import (
     DreamIntelligenceNode,
     MissionConsensusRound,
     NarrativeRealignmentProposal,
+    EncodedRitualBlueprint,
+    RitualSimulationLog,
+    MemoryReprogrammingScript,
 )
 
 from agents.models.coordination import (
@@ -697,6 +700,27 @@ class MissionConsensusRoundSerializer(serializers.ModelSerializer):
 class NarrativeRealignmentProposalSerializer(serializers.ModelSerializer):
     class Meta:
         model = NarrativeRealignmentProposal
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class EncodedRitualBlueprintSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EncodedRitualBlueprint
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RitualSimulationLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RitualSimulationLog
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MemoryReprogrammingScriptSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemoryReprogrammingScript
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
