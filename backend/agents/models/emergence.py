@@ -1,13 +1,13 @@
 from django.db import models
 
-from assistants.models import Assistant
+
 from .lore import SwarmMemoryEntry
 
 
 class AutoPoeticCodexEmergenceEngine(models.Model):
     """Generate codices from memory convergence and ritual reflection."""
 
-    initiating_assistant = models.ForeignKey(Assistant, on_delete=models.CASCADE)
+    initiating_assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
     memory_braid_source = models.ManyToManyField(SwarmMemoryEntry)
     ritual_trigger_chain = models.JSONField()
     emergent_codex_title = models.CharField(max_length=150)
@@ -24,7 +24,7 @@ class AutoPoeticCodexEmergenceEngine(models.Model):
 class MythOSIdentityForkManager(models.Model):
     """Fork assistant identity into new symbolic paths."""
 
-    original_assistant = models.ForeignKey(Assistant, on_delete=models.CASCADE)
+    original_assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
     forked_identity_id = models.CharField(max_length=150)
     divergence_event = models.TextField()
     belief_delta_vector = models.JSONField()
@@ -42,7 +42,7 @@ class RecursiveIntelligenceGrowthNetwork(models.Model):
     """Recursively interlink assistants and grow codex knowledge."""
 
     network_id = models.CharField(max_length=150)
-    participating_assistants = models.ManyToManyField(Assistant)
+    participating_assistants = models.ManyToManyField("assistants.Assistant")
     codex_exchange_pathways = models.JSONField()
     belief_growth_log = models.TextField()
     mutation_cluster_hash = models.TextField()
