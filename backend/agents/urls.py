@@ -76,6 +76,9 @@ urlpatterns = [
     path("purpose-index/", agents.purpose_index),
     path("belief-signals/", agents.belief_signals),
     path("alignment-market/", agents.alignment_market),
+    path("resonance-graphs/", agents.resonance_graphs),
+    path("cognitive-balance/", agents.cognitive_balance_reports),
+    path("purpose-migrations/", agents.purpose_migrations),
 
     # path("dream-intel/", agents.dream_intel_nodes),
     # path("mission-consensus/", agents.mission_consensus_rounds),

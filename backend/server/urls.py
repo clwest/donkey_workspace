@@ -84,6 +84,10 @@ urlpatterns = [
     path("api/myth-weaver/", agent_views.myth_weaver),
     path("api/legacy-vaults/", agent_views.legacy_vaults),
 
+    path("api/resonance-graphs/", agent_views.resonance_graphs),
+    path("api/cognitive-balance/", agent_views.cognitive_balance_reports),
+    path("api/purpose-migrations/", agent_views.purpose_migrations),
+
     path("api/identity-cards/", agent_views.identity_cards),
     path("api/timeline-reflection/", agent_views.timeline_reflection),
     path("api/archetype-fusion/", agent_views.archetype_fusion),

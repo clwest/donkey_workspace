@@ -62,6 +62,10 @@ from agents.models.lore import (
     BeliefAtlasSnapshot,
     SymbolicWeatherFront,
 
+    SymbolicResonanceGraph,
+    CognitiveBalanceReport,
+    PurposeMigrationEvent,
+
 
     KnowledgeReplicationEvent,
     MemoryBroadcastPacket,
@@ -739,5 +743,26 @@ class MythicAlignmentMarketSerializer(serializers.ModelSerializer):
         model = MythicAlignmentMarket
         fields = "__all__"
         read_only_fields = ["id", "last_updated"]
+
+
+class SymbolicResonanceGraphSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicResonanceGraph
+        fields = "__all__"
+        read_only_fields = ["id", "generated_at"]
+
+
+class CognitiveBalanceReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CognitiveBalanceReport
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class PurposeMigrationEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PurposeMigrationEvent
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
 
 

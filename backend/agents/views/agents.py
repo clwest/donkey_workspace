@@ -69,6 +69,9 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
+    SymbolicResonanceGraph,
+    CognitiveBalanceReport,
+    PurposeMigrationEvent,
 
     SymbolicAnomalyEvent,
     BeliefCollapseRecoveryRitual,
@@ -145,6 +148,9 @@ from agents.serializers import (
     PurposeIndexEntrySerializer,
     BeliefSignalNodeSerializer,
     MythicAlignmentMarketSerializer,
+    SymbolicResonanceGraphSerializer,
+    CognitiveBalanceReportSerializer,
+    PurposeMigrationEventSerializer,
 
 )
 from assistants.serializers import (
@@ -1150,5 +1156,41 @@ def alignment_market(request):
     serializer.is_valid(raise_exception=True)
     market = serializer.save()
     return Response(MythicAlignmentMarketSerializer(market).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def resonance_graphs(request):
+    if request.method == "GET":
+        graphs = SymbolicResonanceGraph.objects.all().order_by("-generated_at")
+        return Response(SymbolicResonanceGraphSerializer(graphs, many=True).data)
+
+    serializer = SymbolicResonanceGraphSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    graph = serializer.save()
+    return Response(SymbolicResonanceGraphSerializer(graph).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def cognitive_balance_reports(request):
+    if request.method == "GET":
+        reports = CognitiveBalanceReport.objects.all().order_by("-created_at")
+        return Response(CognitiveBalanceReportSerializer(reports, many=True).data)
+
+    serializer = CognitiveBalanceReportSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    report = serializer.save()
+    return Response(CognitiveBalanceReportSerializer(report).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def purpose_migrations(request):
+    if request.method == "GET":
+        migrations = PurposeMigrationEvent.objects.all().order_by("-created_at")
+        return Response(PurposeMigrationEventSerializer(migrations, many=True).data)
+
+    serializer = PurposeMigrationEventSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    migration = serializer.save()
+    return Response(PurposeMigrationEventSerializer(migration).data, status=201)
 
 
