@@ -68,12 +68,9 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
-
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
-
-
 )
 
 from agents.models.coordination import (
@@ -95,7 +92,6 @@ from agents.models.storyfield import (
     StoryfieldZone,
     MythPatternCluster,
     IntentHarmonizationSession,
-
 )
 from assistants.models.assistant import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -766,12 +762,9 @@ class MythicAlignmentMarketSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "last_updated"]
 
 
-
-
 class SignalEncodingArtifactSerializer(serializers.ModelSerializer):
     class Meta:
         model = SignalEncodingArtifact
-
 
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
@@ -790,7 +783,6 @@ class ReflectiveFluxIndexSerializer(serializers.ModelSerializer):
 
         fields = "__all__"
         read_only_fields = ["id", "timestamp"]
-
 
 
 class MythflowOrchestrationPlanSerializer(serializers.ModelSerializer):
@@ -834,5 +826,26 @@ class MythPatternClusterSerializer(serializers.ModelSerializer):
 class IntentHarmonizationSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = IntentHarmonizationSession
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RecursiveRitualContractSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RecursiveRitualContract
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SwarmMythEngineInstanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SwarmMythEngineInstance
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class BeliefFeedbackSignalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BeliefFeedbackSignal
         fields = "__all__"
         read_only_fields = ["id", "created_at"]

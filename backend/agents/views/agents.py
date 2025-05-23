@@ -68,13 +68,9 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
-
-
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
-
-
 )
 from agents.models.coordination import (
     CollaborationThread,
@@ -143,7 +139,6 @@ from agents.serializers import (
     LegacyTokenVaultSerializer,
     LoreTokenExchangeSerializer,
     ArchetypeSynchronizationPulseSerializer,
-
     CreationMythEntrySerializer,
     TokenMarketSerializer,
     CollaborationThreadSerializer,
@@ -155,7 +150,6 @@ from agents.serializers import (
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
     SymbolicWeatherFrontSerializer,
-
     MythflowOrchestrationPlanSerializer,
     SignalEncodingArtifactSerializer,
     BeliefNavigationVectorSerializer,
@@ -164,7 +158,6 @@ from agents.serializers import (
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
     IntentHarmonizationSessionSerializer,
-
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -1223,7 +1216,6 @@ def purpose_migrations(request):
 
 
 @api_view(["GET", "POST"])
-
 def signal_artifacts(request):
     if request.method == "GET":
         artifacts = SignalEncodingArtifact.objects.all().order_by("-created_at")
@@ -1233,7 +1225,6 @@ def signal_artifacts(request):
     serializer.is_valid(raise_exception=True)
     artifact = serializer.save()
     return Response(SignalEncodingArtifactSerializer(artifact).data, status=201)
-
 
 
 @api_view(["GET", "POST"])
@@ -1294,3 +1285,39 @@ def intent_harmony(request):
     serializer.is_valid(raise_exception=True)
     session = serializer.save()
     return Response(IntentHarmonizationSessionSerializer(session).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def ritual_contracts(request):
+    if request.method == "GET":
+        contracts = RecursiveRitualContract.objects.all().order_by("-created_at")
+        return Response(RecursiveRitualContractSerializer(contracts, many=True).data)
+
+    serializer = RecursiveRitualContractSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    contract = serializer.save()
+    return Response(RecursiveRitualContractSerializer(contract).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def myth_engines(request):
+    if request.method == "GET":
+        engines = SwarmMythEngineInstance.objects.all().order_by("-created_at")
+        return Response(SwarmMythEngineInstanceSerializer(engines, many=True).data)
+
+    serializer = SwarmMythEngineInstanceSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    engine = serializer.save()
+    return Response(SwarmMythEngineInstanceSerializer(engine).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def belief_feedback(request):
+    if request.method == "GET":
+        signals = BeliefFeedbackSignal.objects.all().order_by("-created_at")
+        return Response(BeliefFeedbackSignalSerializer(signals, many=True).data)
+
+    serializer = BeliefFeedbackSignalSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    signal = serializer.save()
+    return Response(BeliefFeedbackSignalSerializer(signal).data, status=201)

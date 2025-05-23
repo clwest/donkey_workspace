@@ -1708,8 +1708,6 @@ class MythicAlignmentMarket(models.Model):
         return f"Market entry for {self.participant.name}"
 
 
-
-
 class SignalEncodingArtifact(models.Model):
     """Stores and transmits encoded mythopoeic sequences."""
 
@@ -1719,7 +1717,6 @@ class SignalEncodingArtifact(models.Model):
     modulation_tags = models.JSONField()
     receiver_scope = models.CharField(max_length=100)
 
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -1727,11 +1724,10 @@ class SignalEncodingArtifact(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
 
-
         return f"Artifact from {self.source.name}"
 
-
         return self.zone_name
+
 
 class BeliefNavigationVector(models.Model):
     """Directional path through belief states for assistants."""
@@ -1756,7 +1752,6 @@ class ReflectiveFluxIndex(models.Model):
     insight_summary = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
-
     class Meta:
         ordering = ["-timestamp"]
 
@@ -1765,3 +1760,51 @@ class ReflectiveFluxIndex(models.Model):
         return self.swarm_scope
 
 
+class RecursiveRitualContract(models.Model):
+    """Repeatable symbolic logic bound to ritual reflection."""
+
+    initiator = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    ritual_cycle_definition = models.JSONField()
+    trigger_conditions = models.JSONField()
+    symbolic_outputs = models.JSONField()
+    cycle_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Contract by {self.initiator.name}"[:50]
+
+
+class SwarmMythEngineInstance(models.Model):
+    """Distributed mythflow generator instance."""
+
+    instance_name = models.CharField(max_length=150)
+    data_inputs = models.JSONField()  # memory, lore tokens, ritual logs
+    narrative_output = models.TextField()
+    mythic_tags = models.JSONField()
+    engine_status = models.CharField(max_length=50, default="active")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.instance_name
+
+
+class BeliefFeedbackSignal(models.Model):
+    """Reactive belief tuning signal for codex updates."""
+
+    origin_type = models.CharField(max_length=100)  # user, assistant, system
+    symbolic_impact_vector = models.JSONField()
+    target_codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    myth_response_log = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Signal to {self.target_codex.title}"[:50]
