@@ -1708,6 +1708,7 @@ class MythicAlignmentMarket(models.Model):
         return f"Market entry for {self.participant.name}"
 
 
+
 class SignalEncodingArtifact(models.Model):
     """Stores and transmits encoded mythopoeic sequences."""
 
@@ -1716,12 +1717,14 @@ class SignalEncodingArtifact(models.Model):
     symbolic_origin = models.CharField(max_length=100)
     modulation_tags = models.JSONField()
     receiver_scope = models.CharField(max_length=100)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return f"Artifact from {self.source.name}"
 
 
@@ -1753,3 +1756,4 @@ class ReflectiveFluxIndex(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.swarm_scope
+

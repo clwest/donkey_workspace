@@ -78,9 +78,11 @@ urlpatterns = [
     path("resonance-graphs/", agents.resonance_graphs),
     path("cognitive-balance/", agents.cognitive_balance_reports),
     path("purpose-migrations/", agents.purpose_migrations),
+
     path("signal-artifacts/", agents.signal_artifacts),
     path("navigation-vectors/", agents.navigation_vectors),
     path("flux-index/", agents.flux_index),
+
     # path("dream-intel/", agents.dream_intel_nodes),
     # path("mission-consensus/", agents.mission_consensus_rounds),
     # path("realignment-proposals/", agents.narrative_realignment_proposals),

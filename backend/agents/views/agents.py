@@ -68,9 +68,11 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
+
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
+
 )
 from agents.models.coordination import (
     CollaborationThread,
@@ -145,11 +147,13 @@ from agents.serializers import (
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
     SymbolicWeatherFrontSerializer,
+
     MythflowOrchestrationPlanSerializer,
     SignalEncodingArtifactSerializer,
     BeliefNavigationVectorSerializer,
     ReflectiveFluxIndexSerializer,
     SymbolicPlanningLatticeSerializer,
+
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -1208,6 +1212,7 @@ def purpose_migrations(request):
 
 
 @api_view(["GET", "POST"])
+
 def signal_artifacts(request):
     if request.method == "GET":
         artifacts = SignalEncodingArtifact.objects.all().order_by("-created_at")
@@ -1217,6 +1222,7 @@ def signal_artifacts(request):
     serializer.is_valid(raise_exception=True)
     artifact = serializer.save()
     return Response(SignalEncodingArtifactSerializer(artifact).data, status=201)
+
 
 
 @api_view(["GET", "POST"])
