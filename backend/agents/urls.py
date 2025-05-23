@@ -35,6 +35,9 @@ urlpatterns = [
     path("myth/converge/", agents.story_convergence),
     path("ritual/fuse/", agents.ritual_fusion),
     path("timeline/curate/", agents.timeline_curate),
+    path("planner/ritual-goals/", agents.ritual_goals),
+    path("timeline/director/", agents.timeline_director),
+    path("codex/decisions/", agents.codex_decisions),
 
     path("onboarding/ritual/", agents.onboarding_ritual),
     path("codex/briefing/", agents.codex_briefing),

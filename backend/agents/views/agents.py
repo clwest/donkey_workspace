@@ -88,6 +88,10 @@ from agents.models.lore import (
     RitualFusionEvent,
     NarrativeCurationTimeline,
 
+    RitualGoalPlanner,
+    MythTimelineDirector,
+    CodexDecisionFramework,
+
 )
 from agents.models.identity import PersonaFusionEvent
 from agents.models.coordination import (
@@ -193,6 +197,10 @@ from agents.serializers import (
     StoryConvergencePathSerializer,
     RitualFusionEventSerializer,
     NarrativeCurationTimelineSerializer,
+
+    RitualGoalPlannerSerializer,
+    MythTimelineDirectorSerializer,
+    CodexDecisionFrameworkSerializer,
 
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -1577,4 +1585,40 @@ def timeline_curate(request):
     serializer.is_valid(raise_exception=True)
     timeline = serializer.save()
     return Response(NarrativeCurationTimelineSerializer(timeline).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def ritual_goals(request):
+    if request.method == "GET":
+        planners = RitualGoalPlanner.objects.all().order_by("-created_at")
+        return Response(RitualGoalPlannerSerializer(planners, many=True).data)
+
+    serializer = RitualGoalPlannerSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    planner = serializer.save()
+    return Response(RitualGoalPlannerSerializer(planner).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def timeline_director(request):
+    if request.method == "GET":
+        directors = MythTimelineDirector.objects.all().order_by("-created_at")
+        return Response(MythTimelineDirectorSerializer(directors, many=True).data)
+
+    serializer = MythTimelineDirectorSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    director = serializer.save()
+    return Response(MythTimelineDirectorSerializer(director).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def codex_decisions(request):
+    if request.method == "GET":
+        decisions = CodexDecisionFramework.objects.all().order_by("-created_at")
+        return Response(CodexDecisionFrameworkSerializer(decisions, many=True).data)
+
+    serializer = CodexDecisionFrameworkSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    decision = serializer.save()
+    return Response(CodexDecisionFrameworkSerializer(decision).data, status=201)
 
