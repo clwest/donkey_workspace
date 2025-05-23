@@ -139,6 +139,9 @@ import AssistantEconomyPage from "./pages/assistants/AssistantEconomyPage";
 import GuildFundingPage from "./pages/guilds/GuildFundingPage";
 import GuildExchangePage from "./pages/guilds/GuildExchangePage";
 import TokenMarketPage from "./pages/market/TokenMarketPage";
+import RitualMarketPage from "./pages/market/RitualMarketPage";
+import TrendReactivityPage from "./pages/assistants/TrendReactivityPage";
+import SystemStabilityPage from "./pages/system/SystemStabilityPage";
 import RitualGrantPage from "./pages/ritual/RitualGrantPage";
 import MythOSCodexPage from "./pages/mythos/MythOSCodexPage";
 import DreamframePage from "./pages/agents/DreamframePage";
@@ -466,7 +469,10 @@ export default function App() {
           <Route path="/guilds/:id/funding" element={<GuildFundingPage />} />
           <Route path="/guilds/:id/exchange" element={<GuildExchangePage />} />
           <Route path="/market/tokens" element={<TokenMarketPage />} />
+          <Route path="/market/rituals" element={<RitualMarketPage />} />
           <Route path="/ritual/grants" element={<RitualGrantPage />} />
+          <Route path="/assistants/trend-reactivity" element={<TrendReactivityPage />} />
+          <Route path="/system/stability" element={<SystemStabilityPage />} />
 
           <Route path="/ui/motion" element={<MotionTestPage />} />
           <Route path="/assistants/:id/aura" element={<AssistantAuraPage />} />
