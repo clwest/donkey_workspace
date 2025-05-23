@@ -75,6 +75,9 @@ import MilestonesPage from "./pages/assistant/milestones/MilestonesPage";
 import MilestoneCreatePage from "./pages/assistant/milestones/MilestoneCreatePage";
 import MilestoneEditPage from "./pages/assistant/milestones/MilestoneEditPage";
 import MemoryChainsPage from "./pages/assistant/memory_chains/MemoryChainsPage";
+import MemoryNavigatorPage from "./pages/assistant/analysis/MemoryNavigatorPage";
+import ArchetypeAffinityPage from "./pages/assistant/analysis/ArchetypeAffinityPage";
+import BeliefEvolutionPage from "./pages/assistant/analysis/BeliefEvolutionPage";
 
 import NextActionsPage from "./pages/assistant/objectives/NextActionsPage";
 import ObjectivesPage from "./pages/assistant/objectives/ObjectivesPage";
@@ -283,6 +286,18 @@ export default function App() {
           <Route
             path="/assistants/:slug/thought-map"
             element={<AssistantThoughtMapPage />}
+          />
+          <Route
+            path="/assistants/:slug/timeline"
+            element={<MemoryNavigatorPage />}
+          />
+          <Route
+            path="/assistants/:slug/affinity"
+            element={<ArchetypeAffinityPage />}
+          />
+          <Route
+            path="/assistants/:slug/belief"
+            element={<BeliefEvolutionPage />}
           />
           <Route
             path="/assistants/:slug/memories"
