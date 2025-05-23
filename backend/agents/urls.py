@@ -96,7 +96,7 @@ urlpatterns = [
     path("signal-artifacts/", agents.signal_artifacts),
     path("navigation-vectors/", agents.navigation_vectors),
     path("flux-index/", agents.flux_index),
-    path("plotline-curation/", agents.plotline_curation),
+
     path("clusters/", agents.list_clusters),
     path("clusters/<uuid:id>/", agents.cluster_detail_view),
     path("", agents.list_agents),
