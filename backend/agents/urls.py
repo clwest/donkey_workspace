@@ -60,8 +60,6 @@ urlpatterns = [
 
     path("assistant/<uuid:id>/tutorial/", agents.assistant_tutorial),
     path("assistants/<uuid:id>/resurrection/", agents.assistant_resurrection),
-    path("myth/record/", agents.myth_record),
-
     path("belief-continuity/", agents.belief_continuity),
     path("belief-clusters/", agents.belief_clusters),
     path("lore-tokens/", agents.lore_tokens),

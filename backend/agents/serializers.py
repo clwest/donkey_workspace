@@ -107,7 +107,11 @@ from agents.models.lore import (
 
 )
 from agents.models.markets import CodexCurrencyModule, SymbolicInfluenceLedger, BeliefContributionMarketplace
-from agents.models.governance import SymbolicConsensusChamber, RitualNegotiationEngine, NarrativeGovernanceModel
+from agents.models.governance import (
+    SymbolicConsensusChamber,
+    RitualNegotiationEngine,
+    NarrativeGovernanceModel,
+)
 from agents.models.coordination import (
     CollaborationThread,
     DelegationStream,
@@ -560,6 +564,27 @@ class DreamPurposeNegotiationSerializer(serializers.ModelSerializer):
 class BiomeMutationEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = BiomeMutationEvent
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicConsensusChamberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicConsensusChamber
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RitualNegotiationEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RitualNegotiationEngine
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class NarrativeGovernanceModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NarrativeGovernanceModel
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

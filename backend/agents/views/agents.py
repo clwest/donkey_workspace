@@ -64,7 +64,7 @@ from agents.models.lore import (
     CosmogenesisSimulation,
     MythicForecastPulse,
     BeliefAtlasSnapshot,
-    MythicContract,
+    SwarmMythEngineInstance,
     DreamLiquidityPool,
     RoleSymbolExchange,
     SymbolicWeatherFront,
@@ -86,6 +86,7 @@ from agents.models.lore import (
     RitualMarketFeed,
     MultiAgentTrendReactivityModel,
     SymbolicStabilityGraph,
+
     MythicAfterlifeRegistry,
     ContinuityEngineNode,
     ArchetypeMigrationGate,
@@ -104,7 +105,9 @@ from agents.models.lore import (
     SymbolicOscillationMap,
     CodexRestabilizationNode,
     LegacyArtifactExporter,
+    RecursiveRitualContract,
 )
+from agents.models.forecast import SymbolicForecastIndex,AssistantSentimentModelEngine
 from agents.models.governance import SymbolicConsensusChamber, RitualNegotiationEngine, NarrativeGovernanceModel
 from agents.models.coordination import (
     CollaborationThread,
@@ -129,11 +132,22 @@ from agents.models.storyfield import (
     CodexStoryReshaper,
 
 )
-
+from simulation.models import SceneDirectorFrame
+from simulation.serializers import SceneDirectorFrameSerializer
 from agents.models.mythchain import MythchainOutputGenerator, NarrativeArtifactExporter, SymbolicPatternBroadcastEngine
-
+from agents.models.swarm_balance import SymbolicResonanceGraph, CognitiveBalanceReport, PurposeMigrationEvent
+from agents.models.identity import PersonaFusionEvent
 # from simulation.models import SceneDirectorFrame
 from agents.serializers import (
+    SymbolicPatternBroadcastEngineSerializer,
+    MythchainOutputGeneratorSerializer,
+    NarrativeArtifactExporterSerializer,
+    BeliefFeedbackSignalSerializer,
+    SwarmMythEngineInstanceSerializer,
+    RecursiveRitualContractSerializer,
+    PurposeMigrationEventSerializer,
+    CognitiveBalanceReportSerializer,
+    SymbolicResonanceGraphSerializer,
     AgentSerializer,
     AgentFeedbackLogSerializer,
     AgentClusterSerializer,
@@ -210,7 +224,8 @@ from agents.serializers import (
     MythBloomNodeSerializer,
     BeliefSeedReplicationSerializer,
     PersonaFusionEventSerializer,
-
+    PurposeIndexEntrySerializer,
+    BeliefSignalNodeSerializer,
     SymbolicIdentityCardSerializer,
     DialogueCodexMutationLogSerializer,
     PublicRitualLogEntrySerializer,
@@ -230,9 +245,10 @@ from agents.serializers import (
     RitualLoopVisualizationEngineSerializer,
     SymbolicOscillationMapSerializer,
     CodexRestabilizationNodeSerializer,
-    # SymbolicConsensusChamberSerializer,
-    # RitualNegotiationEngineSerializer,
-    # NarrativeGovernanceModelSerializer,
+    SymbolicConsensusChamberSerializer,
+    RitualNegotiationEngineSerializer,
+    NarrativeGovernanceModelSerializer,
+
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1646,16 +1662,16 @@ def assistant_tutorial(request, id):
     return Response({"assistant": id, "message": "Tutorial start"})
 
 
-@api_view(["GET", "POST"])
-def myth_record(request):
-    if request.method == "GET":
-        sessions = MythRecordingSession.objects.all().order_by("-created_at")
-        return Response(MythRecordingSessionSerializer(sessions, many=True).data)
+# @api_view(["GET", "POST"])
+# def myth_record(request):
+#     if request.method == "GET":
+#         sessions = MythRecordingSession.objects.all().order_by("-created_at")
+#         return Response(MythRecordingSessionSerializer(sessions, many=True).data)
 
-    serializer = MythRecordingSessionSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    session = serializer.save()
-    return Response(MythRecordingSessionSerializer(session).data, status=201)
+#     serializer = MythRecordingSessionSerializer(data=request.data)
+#     serializer.is_valid(raise_exception=True)
+#     session = serializer.save()
+#     return Response(MythRecordingSessionSerializer(session).data, status=201)
 
 
 @api_view(["GET", "POST"])
