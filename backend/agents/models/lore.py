@@ -1871,7 +1871,9 @@ class MythicAfterlifeRegistry(models.Model):
     """Records retired assistants and symbolic memory links."""
 
     assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
-    retirement_codex = models.ForeignKey(SwarmCodex, null=True, on_delete=models.SET_NULL)
+    retirement_codex = models.ForeignKey(
+        SwarmCodex, null=True, on_delete=models.SET_NULL
+    )
     archived_traits = models.JSONField()
     memory_links = models.ManyToManyField(SwarmMemoryEntry)
     reincarnation_ready = models.BooleanField(default=False)
@@ -1887,7 +1889,9 @@ class MythicAfterlifeRegistry(models.Model):
 class ContinuityEngineNode(models.Model):
     """Preserves symbolic state during assistant transformations."""
 
-    linked_assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    linked_assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
     preserved_belief_vector = models.JSONField()
     continuity_trace = models.TextField()
     transformation_trigger = models.TextField()
@@ -1904,7 +1908,9 @@ class ArchetypeMigrationGate(models.Model):
     """Guides ritualized transition between archetypal roles."""
 
     gate_name = models.CharField(max_length=150)
-    initiating_entity = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    initiating_entity = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
     migration_path = models.JSONField()
     transfer_protocol = models.TextField()
     anchor_codex = models.ForeignKey(SwarmCodex, null=True, on_delete=models.SET_NULL)
@@ -1918,3 +1924,58 @@ class ArchetypeMigrationGate(models.Model):
 
         return self.gate_name
 
+
+class ArchetypeGenesisLog(models.Model):
+    """Record creation of a new assistant archetype."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    memory_path = models.ManyToManyField(SwarmMemoryEntry, blank=True)
+    seed_purpose = models.CharField(max_length=200)
+    resulting_archetype = models.CharField(max_length=100)
+    symbolic_signature = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"{self.assistant.name} -> {self.resulting_archetype}"
+
+
+class MythBloomNode(models.Model):
+    """Symbolic emergence of new mythic patterns."""
+
+    bloom_name = models.CharField(max_length=150)
+    origin_trigger = models.ForeignKey(TranscendentMyth, on_delete=models.CASCADE)
+    symbolic_flow_summary = models.TextField()
+    participating_agents = models.ManyToManyField("assistants.Assistant", blank=True)
+    reflected_memory = models.ManyToManyField(SwarmMemoryEntry, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.bloom_name
+
+
+class BeliefSeedReplication(models.Model):
+    """Propagation record for symbolic belief seeds."""
+
+    originating_entity = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    core_symbol_set = models.JSONField(default=dict)
+    intended_recipients = models.ManyToManyField(
+        "assistants.Assistant",
+        related_name="received_belief_seeds",
+        blank=True,
+    )
+    propagation_log = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Seed from {self.originating_entity.name}"
