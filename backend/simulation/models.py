@@ -15,3 +15,44 @@ class SimulationRunLog(models.Model):
     log_details = models.TextField(blank=True)
     started_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
+
+
+class MythScenarioSimulator(models.Model):
+    """Generates symbolic narrative simulations."""
+
+    simulation_title = models.CharField(max_length=150)
+    initiating_entity = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    selected_archetypes = models.JSONField()
+    memory_inputs = models.ManyToManyField("agents.SwarmMemoryEntry")
+    narrative_goals = models.TextField()
+    simulation_outcome = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class RitualInteractionEvent(models.Model):
+    """Record of a ritual launched via the interface."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    ritual_blueprint = models.ForeignKey(
+        "agents.RitualBlueprint", on_delete=models.CASCADE
+    )
+    trigger_method = models.CharField(max_length=100)
+    reflection_notes = models.TextField(blank=True)
+    memory_write_back = models.ForeignKey(
+        "agents.SwarmMemoryEntry", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    belief_impact_score = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class SimulationStateTracker(models.Model):
+    """Tracks symbolic state across a simulation run."""
+
+    simulator = models.ForeignKey(MythScenarioSimulator, on_delete=models.CASCADE)
+    symbolic_state_snapshot = models.JSONField()
+    role_drift_detected = models.BooleanField(default=False)
+    codex_alignment_score = models.FloatField()
+    memory_deltas = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
