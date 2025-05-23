@@ -80,12 +80,10 @@ from agents.models.lore import (
     PublicRitualLogEntry,
     BeliefContinuityThread,
     CodexContributionCeremony,
-
     SymbolicDocumentationEntry,
     CodexReconciliationForum,
     MythEditorialLayer,
     SymbolicPublishingEngine,
-
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
@@ -95,7 +93,6 @@ from agents.models.lore import (
     StoryConvergencePath,
     RitualFusionEvent,
     NarrativeCurationTimeline,
-
 )
 from agents.models.identity import PersonaFusionEvent
 from agents.models.coordination import (
@@ -197,11 +194,9 @@ from agents.serializers import (
     PublicRitualLogEntrySerializer,
     BeliefContinuityThreadSerializer,
     CodexContributionCeremonySerializer,
-
     StoryConvergencePathSerializer,
     RitualFusionEventSerializer,
     NarrativeCurationTimelineSerializer,
-
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1537,7 +1532,7 @@ def codex_briefing(request):
 def assistant_tutorial(request, id):
     """Return tutorial script for assistant."""
     return Response({"assistant": id, "message": "Tutorial start"})
-=======
+
 
 @api_view(["GET", "POST"])
 def myth_record(request):
@@ -1549,7 +1544,6 @@ def myth_record(request):
     serializer.is_valid(raise_exception=True)
     session = serializer.save()
     return Response(MythRecordingSessionSerializer(session).data, status=201)
-
 
 
 @api_view(["GET", "POST"])
@@ -1586,4 +1580,3 @@ def timeline_curate(request):
     serializer.is_valid(raise_exception=True)
     timeline = serializer.save()
     return Response(NarrativeCurationTimelineSerializer(timeline).data, status=201)
-
