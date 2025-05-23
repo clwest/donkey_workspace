@@ -1,8 +1,17 @@
 from dotenv import load_dotenv
 import os
 import re
-from youtube_transcript_api import YouTubeTranscriptApi, NoTranscriptFound
+import logging
+from youtube_transcript_api import (
+    YouTubeTranscriptApi,
+    NoTranscriptFound,
+    TranscriptsDisabled,
+    VideoUnavailable,
+    TooManyRequests,
+)
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+logger = logging.getLogger(__name__)
 
 
 # Load environment variables
@@ -34,28 +43,29 @@ def process_youtube_video(youtube_url):
         list: A list of text chunks from the video's transcript.
     """
     try:
-        # Extract video ID from URL
         video_id = extract_video_id(youtube_url)
-
-        # Fetch transcript
-        transcript = YouTubeTranscriptApi.get_transcript(video_id)
-
-        # Extract text
-        transcript_text = " ".join([item["text"] for item in transcript])
-
-        # Split text into manageable chunks
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000, chunk_overlap=200
-        )
-        chunks = text_splitter.split_text(transcript_text)
-
-        return chunks
-
-    except NoTranscriptFound:
-        print(f"Error: No subtitles found for video {youtube_url}.")
+    except ValueError as exc:
+        logger.error(str(exc))
         return []
-    except Exception as e:
-        print(f"Error processing video {youtube_url}: {e}")
+
+    try:
+        transcript = YouTubeTranscriptApi.get_transcript(video_id)
+    except NoTranscriptFound:
+        logger.warning(f"No subtitles found for video {youtube_url}.")
+        return []
+    except (TranscriptsDisabled, VideoUnavailable, TooManyRequests) as exc:
+        logger.error(f"Transcript unavailable for {youtube_url}: {exc}")
+        return []
+    except Exception as exc:
+        logger.error(f"Error fetching transcript for {youtube_url}: {exc}")
+        return []
+
+    try:
+        transcript_text = " ".join(item.get("text", "") for item in transcript)
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+        return text_splitter.split_text(transcript_text)
+    except Exception as exc:
+        logger.error(f"Error processing video {youtube_url}: {exc}")
         return []
 
 
