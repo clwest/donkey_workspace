@@ -60,6 +60,9 @@ from agents.models.lore import (
     CosmogenesisSimulation,
     MythicForecastPulse,
     BeliefAtlasSnapshot,
+    MythicContract,
+    DreamLiquidityPool,
+    RoleSymbolExchange,
     SymbolicWeatherFront,
     KnowledgeReplicationEvent,
     MemoryBroadcastPacket,
@@ -87,6 +90,12 @@ from agents.models.insight import (
 )
 from agents.models.cosmology import SwarmCosmology
 from agents.models.swarm_balance import PurposeMigrationEvent, CognitiveBalanceReport
+from agents.models.markets import (
+    ForecastingMarketLedger,
+    SymbolicFutureContract,
+    CosmoEconomicAlignmentMap,
+
+)
 
 from agents.models.storyfield import (
     StoryfieldZone,
@@ -833,13 +842,16 @@ class IntentHarmonizationSessionSerializer(serializers.ModelSerializer):
 class RecursiveRitualContractSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecursiveRitualContract
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 
 
 class SwarmMythEngineInstanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = SwarmMythEngineInstance
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
@@ -849,3 +861,4 @@ class BeliefFeedbackSignalSerializer(serializers.ModelSerializer):
         model = BeliefFeedbackSignal
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
