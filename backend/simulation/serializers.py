@@ -10,11 +10,9 @@ from .models import (
     CinemythStoryline,
     PurposeLoopCinematicEngine,
     ReflectiveTheaterSession,
-    SymbolicDialogueScript,
-    MemoryDecisionTreeNode,
-    MythflowReflectionLoop,
-    SceneControlEngine,
-    SceneDirectorFrame,
+    MythflowPlaybackSession,
+    SymbolicMilestoneLog,
+    PersonalRitualGuide,
 )
 
 
@@ -88,36 +86,26 @@ class ReflectiveTheaterSessionSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-class SymbolicDialogueScriptSerializer(serializers.ModelSerializer):
+
+class MythflowPlaybackSessionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SymbolicDialogueScript
+        model = MythflowPlaybackSession
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class MemoryDecisionTreeNodeSerializer(serializers.ModelSerializer):
+class SymbolicMilestoneLogSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MemoryDecisionTreeNode
+        model = SymbolicMilestoneLog
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class MythflowReflectionLoopSerializer(serializers.ModelSerializer):
+
+class PersonalRitualGuideSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MythflowReflectionLoop
+        model = PersonalRitualGuide
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
-
-class SceneControlEngineSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SceneControlEngine
-        fields = "__all__"
-        read_only_fields = ["id", "last_updated"]
-
-
-class SceneDirectorFrameSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SceneDirectorFrame
-        fields = "__all__"
-        read_only_fields = ["id", "created_at"]

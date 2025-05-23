@@ -2158,3 +2158,44 @@ class RitualOnboardingFlow(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.entry_name
 
+
+
+class BeliefInheritanceTree(models.Model):
+
+    """Map assistant-user memory lineage into beliefs."""
+
+
+    user_id = models.CharField(max_length=150)
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    core_belief_nodes = models.JSONField()
+    memory_links = models.ManyToManyField(SwarmMemoryEntry)
+    symbolic_summary = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+
+        return self.user_id
+
+
+class RitualResponseArchive(models.Model):
+    """Log ritual responses for replay and analysis."""
+
+    ritual_blueprint = models.ForeignKey(EncodedRitualBlueprint, on_delete=models.CASCADE)
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    user_id = models.CharField(max_length=150)
+    ritual_inputs = models.JSONField()
+    output_summary = models.TextField()
+    belief_state_shift = models.JSONField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Archive {self.id}"
+
+

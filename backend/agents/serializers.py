@@ -90,6 +90,7 @@ from agents.models.lore import (
     CinematicUILayer,
     AssistantTutorialScript,
     RitualOnboardingFlow,
+
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
 )
@@ -1033,3 +1034,4 @@ class RitualOnboardingFlowSerializer(serializers.ModelSerializer):
         model = RitualOnboardingFlow
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
