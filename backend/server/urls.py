@@ -88,9 +88,11 @@ urlpatterns = [
     path("api/resonance-graphs/", agent_views.resonance_graphs),
     path("api/cognitive-balance/", agent_views.cognitive_balance_reports),
     path("api/purpose-migrations/", agent_views.purpose_migrations),
-    path("api/purpose-radiance/", agent_views.purpose_radiance),
-    path("api/gravity-wells/", agent_views.gravity_wells),
-    path("api/memory-harmonics/", agent_views.memory_harmonics),
+
+    path("api/memory-realms/", agent_views.memory_realms),
+    path("api/ritual-sync/", agent_views.ritual_sync),
+    path("api/archetype-fields/", agent_views.archetype_fields),
+
     path("api/intel/", include("intel_core.urls")),
     path("api/documents/", include("documents.urls")),
     path("api/tools/", include("tools.urls")),
