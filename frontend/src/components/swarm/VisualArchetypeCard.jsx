@@ -3,14 +3,17 @@ import { fetchVisualArchetypeCard } from "../../api/agents";
 
 export default function VisualArchetypeCard({ assistantId }) {
   const [card, setCard] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!assistantId) return;
     fetchVisualArchetypeCard(assistantId)
       .then(setCard)
-      .catch(() => setCard(null));
+      .catch(() => setCard(null))
+      .finally(() => setLoading(false));
   }, [assistantId]);
 
+  if (loading) return <div>Loading archetype...</div>;
   if (!card) return null;
 
   return (

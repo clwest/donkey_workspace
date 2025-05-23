@@ -61,6 +61,8 @@ Let Chris know if any additional routes should be included or reorganized!
 | Path | Component | Purpose |
 | ---- | --------- | ------- |
 | `/assistants/:id/fork` | `AssistantForkPage` | Symbolic divergence viewer |
+| `/assistants/:id/interface` | `AssistantInterfacePage` | Live assistant portal |
+| `/assistants/:slug/thoughts` | `AssistantThoughtsPage` | Full thought logs |
 | `/codex/converge` | `CodexConvergePage` | Codex convergence ceremonies |
 | `/codex/proof` | `CodexProofPage` | Symbolic integrity viewer |
 | `/ritual/containers` | `RitualContainersPage` | View persistent ritual containers |
@@ -71,3 +73,5 @@ Let Chris know if any additional routes should be included or reorganized!
 | `/treaty/forge` | `TreatyForgePage` | Symbolic treaty creation interface |
 | `/federation/codices` | `FederationCodicesPage` | Codex Federation dashboard |
 | `/law/ritual` | `RitualLawPage` | Ritual law viewer |
+| `/deploy/standards` | `DeployStandardsPage` | Belief-aligned environment evaluator |
+| `/summon/federated` | `FederatedSummonPage` | Federated assistant summoner |
