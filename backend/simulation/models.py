@@ -79,3 +79,17 @@ class SymbolicDialogueExchange(models.Model):
     symbolic_intent = models.JSONField()
     codex_alignment_score = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class MythflowReflectionLoop(models.Model):
+    """Recursive reflection cycle triggered during a mythflow session."""
+
+    session = models.ForeignKey(MythflowSession, on_delete=models.CASCADE)
+    triggered_by = models.CharField(max_length=100)
+    involved_assistants = models.ManyToManyField("assistants.Assistant")
+    loop_reflections = models.TextField()
+    belief_realignment_score = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
