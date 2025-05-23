@@ -97,6 +97,8 @@ from agents.models.lore import (
     RitualEchoThreadSystem,
     LegacyArtifactExporter,
     CodexRecurrenceLoopEngine,
+    CycleAnchorRegistry,
+    MemoryRegenerationProtocol,
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
 )
@@ -1171,4 +1173,27 @@ class CodexRecurrenceLoopEngineSerializer(serializers.ModelSerializer):
         model = CodexRecurrenceLoopEngine
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
+
+class CycleAnchorRegistrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CycleAnchorRegistry
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MemoryRegenerationProtocolSerializer(serializers.ModelSerializer):
+    corrupted_memory_nodes_ids = serializers.PrimaryKeyRelatedField(
+        queryset=SwarmMemoryEntry.objects.all(),
+        many=True,
+        write_only=True,
+        required=False,
+        source="corrupted_memory_nodes",
+    )
+    corrupted_memory_nodes = SwarmMemoryEntrySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = MemoryRegenerationProtocol
+        fields = "__all__"
+        read_only_fields = ["id", "created_at", "corrupted_memory_nodes"]
 

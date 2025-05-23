@@ -44,6 +44,9 @@ urlpatterns = [
     path("broadcast/patterns/", agents.broadcast_patterns),
     path("ritual/echo/", agents.ritual_echo),
     path("codex/cycles/", agents.codex_cycles),
+    path("cycle/anchors/", agents.cycle_anchors),
+    path("entropy/balance/", agents.entropy_balance),
+    path("memory/regenerate/", agents.memory_regenerate),
 
 
     path("onboarding/ritual/", agents.onboarding_ritual),
