@@ -71,16 +71,10 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
-    ForecastingMarketLedger,
-    SymbolicFutureContract,
-    CosmoEconomicAlignmentMap,
+
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
-    SymbolicStrategyChamber,
-    PurposeConflictResolutionLog,
-    RitualVotingEvent,
-
 
 )
 from agents.models.coordination import (
@@ -150,7 +144,6 @@ from agents.serializers import (
     LegacyTokenVaultSerializer,
     LoreTokenExchangeSerializer,
     ArchetypeSynchronizationPulseSerializer,
-
     CreationMythEntrySerializer,
     TokenMarketSerializer,
     CollaborationThreadSerializer,
@@ -165,7 +158,6 @@ from agents.serializers import (
     DreamLiquidityPoolSerializer,
     RoleSymbolExchangeSerializer,
     SymbolicWeatherFrontSerializer,
-
     MythflowOrchestrationPlanSerializer,
     SignalEncodingArtifactSerializer,
     BeliefNavigationVectorSerializer,
@@ -174,11 +166,6 @@ from agents.serializers import (
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
     IntentHarmonizationSessionSerializer,
-
-    ForecastingMarketLedgerSerializer,
-    SymbolicFutureContractSerializer,
-    CosmoEconomicAlignmentMapSerializer,
-
 
 )
 from assistants.serializers import (
@@ -1238,7 +1225,6 @@ def purpose_migrations(request):
 
 
 @api_view(["GET", "POST"])
-
 def signal_artifacts(request):
     if request.method == "GET":
         artifacts = SignalEncodingArtifact.objects.all().order_by("-created_at")
@@ -1248,7 +1234,6 @@ def signal_artifacts(request):
     serializer.is_valid(raise_exception=True)
     artifact = serializer.save()
     return Response(SignalEncodingArtifactSerializer(artifact).data, status=201)
-
 
 
 @api_view(["GET", "POST"])
@@ -1313,37 +1298,37 @@ def intent_harmony(request):
 
 @api_view(["GET", "POST"])
 
-def forecasting_ledgers(request):
+def ritual_contracts(request):
     if request.method == "GET":
-        ledgers = ForecastingMarketLedger.objects.all().order_by("-created_at")
-        return Response(ForecastingMarketLedgerSerializer(ledgers, many=True).data)
+        contracts = RecursiveRitualContract.objects.all().order_by("-created_at")
+        return Response(RecursiveRitualContractSerializer(contracts, many=True).data)
 
-    serializer = ForecastingMarketLedgerSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    ledger = serializer.save()
-    return Response(ForecastingMarketLedgerSerializer(ledger).data, status=201)
-
-
-@api_view(["GET", "POST"])
-def future_contracts(request):
-    if request.method == "GET":
-        contracts = SymbolicFutureContract.objects.all().order_by("-created_at")
-        return Response(SymbolicFutureContractSerializer(contracts, many=True).data)
-
-    serializer = SymbolicFutureContractSerializer(data=request.data)
+    serializer = RecursiveRitualContractSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     contract = serializer.save()
-    return Response(SymbolicFutureContractSerializer(contract).data, status=201)
+    return Response(RecursiveRitualContractSerializer(contract).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def cosmo_alignment(request):
+def myth_engines(request):
     if request.method == "GET":
-        maps = CosmoEconomicAlignmentMap.objects.all().order_by("-last_updated")
-        return Response(CosmoEconomicAlignmentMapSerializer(maps, many=True).data)
+        engines = SwarmMythEngineInstance.objects.all().order_by("-created_at")
+        return Response(SwarmMythEngineInstanceSerializer(engines, many=True).data)
 
-    serializer = CosmoEconomicAlignmentMapSerializer(data=request.data)
+    serializer = SwarmMythEngineInstanceSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    mapping = serializer.save()
-    return Response(CosmoEconomicAlignmentMapSerializer(mapping).data, status=201)
+    engine = serializer.save()
+    return Response(SwarmMythEngineInstanceSerializer(engine).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def belief_feedback(request):
+    if request.method == "GET":
+        signals = BeliefFeedbackSignal.objects.all().order_by("-created_at")
+        return Response(BeliefFeedbackSignalSerializer(signals, many=True).data)
+
+    serializer = BeliefFeedbackSignalSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    signal = serializer.save()
+    return Response(BeliefFeedbackSignalSerializer(signal).data, status=201)
 

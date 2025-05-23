@@ -71,12 +71,9 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
-
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
-
-
 )
 
 from agents.models.coordination import (
@@ -104,7 +101,6 @@ from agents.models.storyfield import (
     StoryfieldZone,
     MythPatternCluster,
     IntentHarmonizationSession,
-
 )
 from assistants.models.assistant import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -775,12 +771,9 @@ class MythicAlignmentMarketSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "last_updated"]
 
 
-
-
 class SignalEncodingArtifactSerializer(serializers.ModelSerializer):
     class Meta:
         model = SignalEncodingArtifact
-
 
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
@@ -799,7 +792,6 @@ class ReflectiveFluxIndexSerializer(serializers.ModelSerializer):
 
         fields = "__all__"
         read_only_fields = ["id", "timestamp"]
-
 
 
 class MythflowOrchestrationPlanSerializer(serializers.ModelSerializer):
@@ -847,26 +839,26 @@ class IntentHarmonizationSessionSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-class ForecastingMarketLedgerSerializer(serializers.ModelSerializer):
+class RecursiveRitualContractSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ForecastingMarketLedger
+        model = RecursiveRitualContract
 
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
 
-class SymbolicFutureContractSerializer(serializers.ModelSerializer):
+class SwarmMythEngineInstanceSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SymbolicFutureContract
+        model = SwarmMythEngineInstance
 
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class CosmoEconomicAlignmentMapSerializer(serializers.ModelSerializer):
+class BeliefFeedbackSignalSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CosmoEconomicAlignmentMap
+        model = BeliefFeedbackSignal
         fields = "__all__"
-        read_only_fields = ["id", "last_updated"]
+        read_only_fields = ["id", "created_at"]
 
