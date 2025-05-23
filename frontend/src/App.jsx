@@ -108,6 +108,10 @@ import RoutingHistoryPage from "./pages/assistants/RoutingHistoryPage";
 import StoryboardEditorPage from "./pages/storyboard/StoryboardEditorPage";
 import NarrativeEventDetailPage from "./pages/storyboard/NarrativeEventDetailPage";
 import RealityShaperDashboard from "./pages/lore/RealityShaperDashboard";
+import MythOSOverviewPage from "./pages/mythos/MythOSOverviewPage";
+import MythOSAssistantPage from "./pages/mythos/MythOSAssistantPage";
+import MythOSRitualsPage from "./pages/mythos/MythOSRitualsPage";
+import MythOSCodexPage from "./pages/mythos/MythOSCodexPage";
 
 import { ToastContainer } from "react-toastify";
 import Navbar from "./components/Navbar";
@@ -383,6 +387,10 @@ export default function App() {
           <Route path="/storyboard" element={<StoryboardEditorPage />} />
           <Route path="/storyboard/events/:id" element={<NarrativeEventDetailPage />} />
           <Route path="/lore" element={<RealityShaperDashboard />} />
+          <Route path="/mythos" element={<MythOSOverviewPage />} />
+          <Route path="/mythos/assistants/:id" element={<MythOSAssistantPage />} />
+          <Route path="/mythos/rituals" element={<MythOSRitualsPage />} />
+          <Route path="/mythos/codex" element={<MythOSCodexPage />} />
           <Route path="/assistants/sources" element={<SignalSourcesPage />} />
           <Route path="/assistants/signals" element={<SignalCatchesPage />} />
           <Route path="/assistants/routing-history" element={<RoutingHistoryPage />} />
