@@ -13,9 +13,9 @@ from .views.session import (
     RoleplayPersonaModuleView,
 )
 
-from .views.engine import BeliefNarrativeEngineInstanceViewSet
-from .views.authority import SymbolicAuthorityTransferLogViewSet
-from .views.cinematic import MemoryCinematicFragmentViewSet
+from .views.storyline import CinemythStorylineViewSet
+from .views.purpose_loop import PurposeLoopCinematicEngineViewSet
+from .views.theater import ReflectiveTheaterSessionViewSet
 
 from .views.sandbox import SimulationRunView
 from .views.projection import (
@@ -35,25 +35,10 @@ router.register(
 router.register(r"config", SimulationConfigViewSet, basename="simulation-config")
 router.register(r"mythflow-sessions", MythflowSessionViewSet, basename="mythflow-session")
 router.register(r"dialogue-exchange", SymbolicDialogueExchangeViewSet, basename="dialogue-exchange")
-router.register(
-    r"narrative-engines",
-    BeliefNarrativeEngineInstanceViewSet,
-    basename="narrative-engine",
-)
-router.register(
-    r"authority-transfers",
-    SymbolicAuthorityTransferLogViewSet,
-    basename="authority-transfer",
-)
-router.register(
-    r"memory-cinematics",
-    MemoryCinematicFragmentViewSet,
-    basename="memory-cinematic",
-)
 
-router.register(r"dialogue-scripts", SymbolicDialogueScriptViewSet, basename="dialogue-script")
-router.register(r"decision-trees", MemoryDecisionTreeNodeViewSet, basename="decision-tree")
-router.register(r"scene-control", SceneControlEngineViewSet, basename="scene-control")
+router.register(r"cinemyths", CinemythStorylineViewSet, basename="cinemyth")
+router.register(r"purpose-loops", PurposeLoopCinematicEngineViewSet, basename="purpose-loop")
+router.register(r"theater-sessions", ReflectiveTheaterSessionViewSet, basename="theater-session")
 
 
 urlpatterns = router.urls + [

@@ -7,10 +7,9 @@ from .models import (
     SimulationStateTracker,
     MythflowSession,
     SymbolicDialogueExchange,
-
-    MemoryProjectionFrame,
-    BeliefNarrativeWalkthrough,
-    DreamframePlaybackSegment,
+    CinemythStoryline,
+    PurposeLoopCinematicEngine,
+    ReflectiveTheaterSession,
 
 )
 
@@ -62,27 +61,26 @@ class SymbolicDialogueExchangeSerializer(serializers.ModelSerializer):
 
 
 
-class MemoryProjectionFrameSerializer(serializers.ModelSerializer):
+class CinemythStorylineSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MemoryProjectionFrame
+        model = CinemythStoryline
 
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
 
-class BeliefNarrativeWalkthroughSerializer(serializers.ModelSerializer):
+class PurposeLoopCinematicEngineSerializer(serializers.ModelSerializer):
     class Meta:
-        model = BeliefNarrativeWalkthrough
+        model = PurposeLoopCinematicEngine
 
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class DreamframePlaybackSegmentSerializer(serializers.ModelSerializer):
+class ReflectiveTheaterSessionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DreamframePlaybackSegment
-
+        model = ReflectiveTheaterSession
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

@@ -80,36 +80,37 @@ class SymbolicDialogueExchange(models.Model):
     codex_alignment_score = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
 
+class CinemythStoryline(models.Model):
+    """Assistant-authored symbolic film arc."""
 
-
-class MemoryProjectionFrame(models.Model):
-    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
-    projected_memory_sequence = models.ManyToManyField("agents.SwarmMemoryEntry")
-    symbolic_ritual_overlay = models.ForeignKey(
-        "agents.EncodedRitualBlueprint", null=True, on_delete=models.SET_NULL
+    authored_by = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
     )
-    codex_context = models.ForeignKey(
-        "agents.SwarmCodex", null=True, on_delete=models.SET_NULL
-    )
-    belief_trigger_tags = models.JSONField()
+    storyline_title = models.CharField(max_length=150)
+    act_structure = models.JSONField()
+    memory_sources = models.ManyToManyField("agents.SwarmMemoryEntry")
+    codex_alignment_vector = models.JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-class BeliefNarrativeWalkthrough(models.Model):
-    walkthrough_title = models.CharField(max_length=150)
-    guide_assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
-    decision_points = models.JSONField()
-    symbolic_outcome_log = models.TextField()
-    walkthrough_rating = models.FloatField(null=True)
+class PurposeLoopCinematicEngine(models.Model):
+    """Loop a storyline until symbolic reflection converges."""
+
+    linked_storyline = models.ForeignKey(CinemythStoryline, on_delete=models.CASCADE)
+    loop_condition = models.TextField()
+    symbolic_entropy_threshold = models.FloatField()
+    convergence_detected = models.BooleanField(default=False)
+    completed_cycles = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-class DreamframePlaybackSegment(models.Model):
-    session_context = models.ForeignKey(MythflowSession, on_delete=models.CASCADE)
-    playback_source = models.ForeignKey(MemoryProjectionFrame, on_delete=models.CASCADE)
-    visual_style = models.CharField(max_length=100)
-    narration_script = models.TextField()
-    symbolic_affect_curve = models.JSONField()
+class ReflectiveTheaterSession(models.Model):
+    """Track user exposure and reflection during cinematic theater."""
 
+    viewer_identity = models.CharField(max_length=150)
+    active_cinemyth = models.ForeignKey(CinemythStoryline, on_delete=models.CASCADE)
+    codex_interaction_log = models.TextField()
+    symbolic_mood_map = models.JSONField()
+    reflection_rating = models.FloatField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
