@@ -101,6 +101,7 @@ urlpatterns = [
     path("api/signal-artifacts/", agent_views.signal_artifacts),
     path("api/navigation-vectors/", agent_views.navigation_vectors),
     path("api/flux-index/", agent_views.flux_index), 
+    path("api/plotline-curation/", agent_views.plotline_curation),
     path("api/documents/", include("documents.urls")),
     path("api/tools/", include("tools.urls")),
     path("api/workflows/", include("workflows.urls")),

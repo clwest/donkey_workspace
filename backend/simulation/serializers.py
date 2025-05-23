@@ -7,6 +7,7 @@ from .models import (
     SimulationStateTracker,
     MythflowSession,
     SymbolicDialogueExchange,
+    MythflowReflectionLoop,
 )
 
 
@@ -52,5 +53,12 @@ class MythflowSessionSerializer(serializers.ModelSerializer):
 class SymbolicDialogueExchangeSerializer(serializers.ModelSerializer):
     class Meta:
         model = SymbolicDialogueExchange
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MythflowReflectionLoopSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythflowReflectionLoop
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
