@@ -2084,7 +2084,6 @@ class CodexContributionCeremony(models.Model):
         return self.ceremony_title
 
 
-
 class NarrativeLightingEngine(models.Model):
     """Controls thematic lighting presets for cinematic layers."""
 
@@ -2109,7 +2108,10 @@ class CinematicUILayer(models.Model):
         NarrativeLightingEngine, on_delete=models.SET_NULL, null=True, blank=True
     )
     scene_controller = models.ForeignKey(
-        "simulation.SceneControlEngine", on_delete=models.SET_NULL, null=True, blank=True
+        "simulation.SceneControlEngine",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
     # associated_archetype_cluster = models.ForeignKey(
     #     ArchetypeFieldCluster, on_delete=models.SET_NULL, null=True, blank=True
@@ -2148,7 +2150,9 @@ class RitualOnboardingFlow(models.Model):
     entry_name = models.CharField(max_length=150)
     initiating_archetype = models.CharField(max_length=100)
     required_codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
-    ritual_blueprint = models.ForeignKey(EncodedRitualBlueprint, on_delete=models.CASCADE)
+    ritual_blueprint = models.ForeignKey(
+        EncodedRitualBlueprint, on_delete=models.CASCADE
+    )
     step_sequence = models.JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -2169,6 +2173,7 @@ class StoryConvergencePath(models.Model):
     symbolic_unity_vector = models.JSONField()
     codex_targets = models.ManyToManyField(SwarmCodex)
     convergence_summary = models.TextField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -2186,10 +2191,12 @@ class RitualFusionEvent(models.Model):
     fusion_script = models.JSONField()
     symbolic_impact_summary = models.TextField()
     codex_context = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
+
 
     def __str__(self):  # pragma: no cover - display helper
         return f"Fusion {self.id}"
@@ -2210,3 +2217,4 @@ class NarrativeCurationTimeline(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return self.title
+
