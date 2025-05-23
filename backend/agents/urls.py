@@ -28,6 +28,9 @@ urlpatterns = [
     path("return-cycles/", agents.return_cycles),
     path("myth-cycles/", agents.myth_cycles),
     path("resurrection-templates/", agents.resurrection_templates),
+    path("identity-cards/", agents.identity_cards),
+    path("persona-templates/", agents.persona_templates),
+    path("onboarding/", agents.onboarding),
     path("belief-continuity/", agents.belief_continuity),
     path("belief-clusters/", agents.belief_clusters),
     path("lore-tokens/", agents.lore_tokens),
@@ -88,6 +91,10 @@ urlpatterns = [
     path("signal-artifacts/", agents.signal_artifacts),
     path("navigation-vectors/", agents.navigation_vectors),
     path("flux-index/", agents.flux_index),
+
+    path("hyperstructures/", agents.hyperstructures),
+    path("dream-worlds/", agents.dream_worlds),
+    path("reflective-ecosystem/", agents.reflective_ecosystem),
 
     path("clusters/", agents.list_clusters),
     path("clusters/<uuid:id>/", agents.cluster_detail_view),

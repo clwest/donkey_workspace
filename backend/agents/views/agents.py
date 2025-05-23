@@ -71,10 +71,12 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
-
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
+    MythHyperstructure,
+    DreamWorldModel,
+    ReflectiveEcosystemEngine,
 
 )
 from agents.models.coordination import (
@@ -157,12 +159,15 @@ from agents.serializers import (
     CosmogenesisSimulationSerializer,
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
- 
     SymbolicWeatherFrontSerializer,
     MythflowOrchestrationPlanSerializer,
     SignalEncodingArtifactSerializer,
     BeliefNavigationVectorSerializer,
     ReflectiveFluxIndexSerializer,
+    MythHyperstructureSerializer,
+    DreamWorldModelSerializer,
+    ReflectiveEcosystemEngineSerializer,
+
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1301,7 +1306,6 @@ def intent_harmony(request):
 
 
 @api_view(["GET", "POST"])
-
 def ritual_contracts(request):
     if request.method == "GET":
         contracts = RecursiveRitualContract.objects.all().order_by("-created_at")
@@ -1338,6 +1342,7 @@ def belief_feedback(request):
 
 
 @api_view(["GET", "POST"])
+
 def training_grounds(request):
     if request.method == "GET":
         grounds = NarrativeTrainingGround.objects.all().order_by("-created_at")
@@ -1371,4 +1376,5 @@ def legacy_continuity_vaults(request):
     serializer.is_valid(raise_exception=True)
     vault = serializer.save()
     return Response(LegacyContinuityVaultSerializer(vault).data, status=201)
+
 

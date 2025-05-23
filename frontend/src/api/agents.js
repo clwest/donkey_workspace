@@ -47,6 +47,11 @@ export const fetchPurposeArchives = () => apiFetch("/purpose-archives/");
 export const fetchIdentityCards = () => apiFetch("/identity-cards/");
 export const createIdentityCard = (body) =>
   apiFetch("/identity-cards/", { method: "POST", body });
+export const fetchPersonaTemplates = () => apiFetch("/persona-templates/");
+export const createPersonaTemplate = (body) =>
+  apiFetch("/persona-templates/", { method: "POST", body });
+export const onboardAssistant = (body) =>
+  apiFetch("/onboarding/", { method: "POST", body });
 export const fetchTimelineReflections = () => apiFetch("/timeline-reflection/");
 export const createTimelineReflection = (body) =>
   apiFetch("/timeline-reflection/", { method: "POST", body });
