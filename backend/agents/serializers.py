@@ -77,6 +77,9 @@ from agents.models.lore import (
     MythicAfterlifeRegistry,
     ContinuityEngineNode,
     ArchetypeMigrationGate,
+    ArchetypeGenesisLog,
+    MythBloomNode,
+    BeliefSeedReplication,
 )
 
 from agents.models.coordination import (
