@@ -98,6 +98,9 @@ from agents.models.coordination import (
     MythflowOrchestrationPlan,
     DirectiveMemoryNode,
     SymbolicPlanningLattice,
+    SymbolicProphecyEngine,
+    MemoryPredictionInterface,
+    RitualForecastingDashboard,
 )
 from agents.models.storyfield import (
     StoryfieldZone,
@@ -193,6 +196,9 @@ from agents.serializers import (
     StoryConvergencePathSerializer,
     RitualFusionEventSerializer,
     NarrativeCurationTimelineSerializer,
+    SymbolicProphecyEngineSerializer,
+    MemoryPredictionInterfaceSerializer,
+    RitualForecastingDashboardSerializer,
 
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -1577,4 +1583,40 @@ def timeline_curate(request):
     serializer.is_valid(raise_exception=True)
     timeline = serializer.save()
     return Response(NarrativeCurationTimelineSerializer(timeline).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def prophecy_engine(request):
+    if request.method == "GET":
+        engines = SymbolicProphecyEngine.objects.all().order_by("-created_at")
+        return Response(SymbolicProphecyEngineSerializer(engines, many=True).data)
+
+    serializer = SymbolicProphecyEngineSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    engine = serializer.save()
+    return Response(SymbolicProphecyEngineSerializer(engine).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def memory_prediction(request):
+    if request.method == "GET":
+        predictions = MemoryPredictionInterface.objects.all().order_by("-created_at")
+        return Response(MemoryPredictionInterfaceSerializer(predictions, many=True).data)
+
+    serializer = MemoryPredictionInterfaceSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    prediction = serializer.save()
+    return Response(MemoryPredictionInterfaceSerializer(prediction).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def ritual_forecast(request):
+    if request.method == "GET":
+        dashboards = RitualForecastingDashboard.objects.all().order_by("-created_at")
+        return Response(RitualForecastingDashboardSerializer(dashboards, many=True).data)
+
+    serializer = RitualForecastingDashboardSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    dashboard = serializer.save()
+    return Response(RitualForecastingDashboardSerializer(dashboard).data, status=201)
 

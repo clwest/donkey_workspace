@@ -122,6 +122,9 @@ import RealityShaperDashboard from "./pages/lore/RealityShaperDashboard";
 import MotionTestPage from "./pages/ui/MotionTestPage";
 import MemoryEchoPage from "./pages/memories/entries/MemoryEchoPage";
 import AssistantAuraPage from "./pages/assistant/common/AssistantAuraPage";
+import ProphecyEnginePage from "./pages/prophecy/ProphecyEnginePage";
+import MemoryPredictionPage from "./pages/memory/MemoryPredictionPage";
+import RitualForecastPage from "./pages/ritual/RitualForecastPage";
 
 
 import { ToastContainer } from "react-toastify";
@@ -421,6 +424,10 @@ export default function App() {
           <Route path="/storyboard" element={<StoryboardEditorPage />} />
           <Route path="/storyboard/events/:id" element={<NarrativeEventDetailPage />} />
           <Route path="/lore" element={<RealityShaperDashboard />} />
+
+          <Route path="/prophecy/engine" element={<ProphecyEnginePage />} />
+          <Route path="/memory/predict" element={<MemoryPredictionPage />} />
+          <Route path="/ritual/forecast" element={<RitualForecastPage />} />
 
           <Route path="/ui/motion" element={<MotionTestPage />} />
           <Route path="/assistants/:id/aura" element={<AssistantAuraPage />} />
