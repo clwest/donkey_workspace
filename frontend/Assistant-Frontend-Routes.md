@@ -11,6 +11,7 @@ This file documents all frontend route paths under `/assistants/`, their associa
 | `/assistants`            | `AssistantList`          | Lists all assistants                     |
 | `/assistants/:slug/chat` | `ChatWithAssistantPage`  | Chat interface with a specific assistant |
 | `/assistant-dashboard`   | `AssistantDashboardPage` | Overview dashboard of all assistants     |
+| `/assistants/:id/rebirth` | `AssistantMythRebirthPage` | Assistant reincarnation portal |
 
 ## 🔹 Project Routes
 
@@ -37,6 +38,12 @@ This file documents all frontend route paths under `/assistants/`, their associa
 | `/assistants/projects/:projectId/milestones/:milestoneId/edit` | `MilestoneEditPage`   | Edit an existing milestone |
 
 ---
+
+## 🔹 MythOS Routes
+
+| Path | Component | Purpose |
+| ---- | --------- | ------- |
+| `/timeline` | `WorldTimelinePage` | View global myth events |
 
 ✅ **Note:** All routes now follow the `/assistants/` prefix for clarity and consistency.
 

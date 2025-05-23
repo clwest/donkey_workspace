@@ -35,7 +35,7 @@ urlpatterns = [
     path("myth/converge/", agents.story_convergence),
     path("ritual/fuse/", agents.ritual_fusion),
     path("timeline/curate/", agents.timeline_curate),
-
+    path("onboarding/", agents.user_mythpath_initialize),
     path("onboarding/ritual/", agents.onboarding_ritual),
     path("codex/briefing/", agents.codex_briefing),
 
@@ -104,6 +104,9 @@ urlpatterns = [
     path("signal-artifacts/", agents.signal_artifacts),
     path("navigation-vectors/", agents.navigation_vectors),
     path("flux-index/", agents.flux_index),
+    path("timeline/", agents.world_timeline_anchor),
+
+    path("assistants/<uuid:id>/rebirth/", agents.assistant_myth_rebirth),
 
     path("clusters/", agents.list_clusters),
     path("clusters/<uuid:id>/", agents.cluster_detail_view),
