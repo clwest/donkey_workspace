@@ -84,6 +84,9 @@ from agents.models.lore import (
     BeliefContinuityThread,
     CodexContributionCeremony,
     DialogueCodexMutationLog,
+    NarrativeLightingEngine,
+    CodexVisualElementLayer,
+    AssistantAestheticCloneProfile,
 )
 
 from agents.models.coordination import (
@@ -98,7 +101,11 @@ from agents.models.insight import (
     PerspectiveMergeEvent,
     TimelineStitchLog,
 )
-from agents.models.identity import SymbolicIdentityCard, PersonaTemplate, PersonaFusionEvent
+from agents.models.identity import (
+    SymbolicIdentityCard,
+    PersonaTemplate,
+    PersonaFusionEvent,
+)
 from agents.models.cosmology import SwarmCosmology
 from agents.models.swarm_balance import PurposeMigrationEvent, CognitiveBalanceReport
 from agents.models.markets import (
@@ -969,5 +976,26 @@ class BeliefContinuityThreadSerializer(serializers.ModelSerializer):
 class CodexContributionCeremonySerializer(serializers.ModelSerializer):
     class Meta:
         model = CodexContributionCeremony
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class NarrativeLightingEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NarrativeLightingEngine
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CodexVisualElementLayerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CodexVisualElementLayer
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class AssistantAestheticCloneProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantAestheticCloneProfile
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
