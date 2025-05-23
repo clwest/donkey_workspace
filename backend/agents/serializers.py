@@ -862,3 +862,24 @@ class BeliefFeedbackSignalSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
+class LegacyRingSliceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LegacyRingSlice
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MemoryDendroMarkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemoryDendroMark
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicLifespanModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicLifespanModel
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+

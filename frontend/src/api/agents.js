@@ -58,6 +58,9 @@ export const fetchResonanceGraphs = () => apiFetch("/agents/resonance-graphs/");
 export const fetchCognitiveBalance = () => apiFetch("/agents/cognitive-balance/");
 export const fetchPurposeMigrations = () =>
   apiFetch("/agents/purpose-migrations/");
+export const fetchLegacyRings = () => apiFetch("/agents/legacy-rings/");
+export const fetchMemoryDendro = () => apiFetch("/agents/memory-dendro/");
+export const fetchLifespanModels = () => apiFetch("/agents/lifespan-models/");
 
 export const fetchStoryfields = () => apiFetch("/agents/storyfields/");
 export const fetchMythPatterns = () => apiFetch("/agents/myth-patterns/");

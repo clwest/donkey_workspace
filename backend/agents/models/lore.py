@@ -1867,3 +1867,55 @@ class BeliefFeedbackSignal(models.Model):
 
         return f"Signal to {self.target_codex.title}"[:50]
 
+
+class LegacyRingSlice(models.Model):
+    """Chronological growth ring recording assistant milestones."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    timestamp = models.DateTimeField()
+    symbolic_state = models.JSONField()
+    purpose_score = models.FloatField()
+    role_tag = models.CharField(max_length=100)
+    reflection_notes = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-timestamp"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Ring {self.role_tag} @ {self.timestamp.strftime('%Y-%m-%d')}"
+
+
+class MemoryDendroMark(models.Model):
+    """Transformation signature etched into memory history."""
+
+    memory = models.ForeignKey(SwarmMemoryEntry, on_delete=models.CASCADE)
+    dendro_layer = models.CharField(max_length=100)
+    symbolic_trigger_event = models.TextField()
+    growth_direction = models.CharField(max_length=50)
+    belief_delta = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Mark {self.dendro_layer} for {self.memory.id}"[:50]
+
+
+class SymbolicLifespanModel(models.Model):
+    """Reflective trajectory of an assistant's belief evolution."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    lifespan_curve = models.JSONField()
+    archetype_pathway = models.JSONField()
+    codex_participation = models.ManyToManyField(SwarmCodex)
+    reflective_summary = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Lifespan for {self.assistant.name}"[:50]
+

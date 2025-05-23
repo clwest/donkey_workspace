@@ -75,6 +75,9 @@ from agents.models.lore import (
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
+    LegacyRingSlice,
+    MemoryDendroMark,
+    SymbolicLifespanModel,
 
 )
 from agents.models.coordination import (
@@ -160,6 +163,9 @@ from agents.serializers import (
     SignalEncodingArtifactSerializer,
     BeliefNavigationVectorSerializer,
     ReflectiveFluxIndexSerializer,
+    LegacyRingSliceSerializer,
+    MemoryDendroMarkSerializer,
+    SymbolicLifespanModelSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1329,4 +1335,40 @@ def belief_feedback(request):
     serializer.is_valid(raise_exception=True)
     signal = serializer.save()
     return Response(BeliefFeedbackSignalSerializer(signal).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def legacy_rings(request):
+    if request.method == "GET":
+        rings = LegacyRingSlice.objects.all().order_by("-timestamp")
+        return Response(LegacyRingSliceSerializer(rings, many=True).data)
+
+    serializer = LegacyRingSliceSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    ring = serializer.save()
+    return Response(LegacyRingSliceSerializer(ring).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def memory_dendro(request):
+    if request.method == "GET":
+        marks = MemoryDendroMark.objects.all().order_by("-created_at")
+        return Response(MemoryDendroMarkSerializer(marks, many=True).data)
+
+    serializer = MemoryDendroMarkSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    mark = serializer.save()
+    return Response(MemoryDendroMarkSerializer(mark).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def lifespan_models(request):
+    if request.method == "GET":
+        models_qs = SymbolicLifespanModel.objects.all().order_by("-created_at")
+        return Response(SymbolicLifespanModelSerializer(models_qs, many=True).data)
+
+    serializer = SymbolicLifespanModelSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    model = serializer.save()
+    return Response(SymbolicLifespanModelSerializer(model).data, status=201)
 
