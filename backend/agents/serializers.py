@@ -90,6 +90,7 @@ from agents.models.lore import (
     StoryConvergencePath,
     RitualFusionEvent,
     NarrativeCurationTimeline,
+
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
 )
@@ -764,6 +765,27 @@ class DelegationStreamSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+class SymbolicProphecyEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicProphecyEngine
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MemoryPredictionInterfaceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemoryPredictionInterface
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RitualForecastingDashboardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RitualForecastingDashboard
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
 class MythflowInsightSerializer(serializers.ModelSerializer):
     class Meta:
         model = MythflowInsight
@@ -1059,18 +1081,23 @@ class NarrativeCurationTimelineSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+
 class SymbolicRoadmapPlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = SymbolicRoadmapPlan
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 
 
 class CommunityMythPlanningArenaSerializer(serializers.ModelSerializer):
     class Meta:
         model = CommunityMythPlanningArena
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 
 
 class FederatedCodexForecastToolSerializer(serializers.ModelSerializer):

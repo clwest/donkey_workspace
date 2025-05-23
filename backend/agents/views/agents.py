@@ -87,8 +87,8 @@ from agents.models.lore import (
     StoryConvergencePath,
     RitualFusionEvent,
     NarrativeCurationTimeline,
+
 )
-from agents.models.identity import PersonaFusionEvent
 from agents.models.coordination import (
     CollaborationThread,
     DelegationStream,
@@ -97,6 +97,9 @@ from agents.models.coordination import (
     MythflowOrchestrationPlan,
     DirectiveMemoryNode,
     SymbolicPlanningLattice,
+    SymbolicProphecyEngine,
+    MemoryPredictionInterface,
+    RitualForecastingDashboard,
 )
 from agents.models.storyfield import (
     StoryfieldZone,
@@ -187,6 +190,12 @@ from agents.serializers import (
     MythBloomNodeSerializer,
     BeliefSeedReplicationSerializer,
     PersonaFusionEventSerializer,
+    MemoryInheritanceSeedSerializer,
+    PersonalCodexAnchorSerializer,
+    RitualContractBindingSerializer,
+    ReincarnationTreeNodeSerializer,
+    BeliefVectorDeltaSerializer,
+    SymbolicIdentityCardSerializer,
     DialogueCodexMutationLogSerializer,
     PublicRitualLogEntrySerializer,
     BeliefContinuityThreadSerializer,
@@ -194,9 +203,11 @@ from agents.serializers import (
     StoryConvergencePathSerializer,
     RitualFusionEventSerializer,
     NarrativeCurationTimelineSerializer,
+
     SymbolicRoadmapPlanSerializer,
     CommunityMythPlanningArenaSerializer,
     FederatedCodexForecastToolSerializer,
+
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -204,10 +215,15 @@ from agents.serializers import (
     AgentPlotlineCurationSerializer,
 )
 from assistants.serializers import (
+    AssistantSerializer,
     AssistantCivilizationSerializer,
     AssistantReputationSerializer,
 )
-from assistants.models.assistant import Assistant, AssistantReputation
+from assistants.models.assistant import (
+    Assistant,
+    AssistantReputation,
+    CodexLinkedGuild,
+)
 
 from agents.utils.agent_controller import (
     update_agent_profile_from_feedback,
@@ -1584,6 +1600,7 @@ def timeline_curate(request):
 
 
 @api_view(["GET", "POST"])
+
 def symbolic_roadmaps(request):
     if request.method == "GET":
         plans = SymbolicRoadmapPlan.objects.all().order_by("-created_at")
@@ -1617,3 +1634,4 @@ def codex_forecasts(request):
     serializer.is_valid(raise_exception=True)
     forecast = serializer.save()
     return Response(FederatedCodexForecastToolSerializer(forecast).data, status=201)
+

@@ -2197,7 +2197,6 @@ class RitualFusionEvent(models.Model):
     class Meta:
         ordering = ["-created_at"]
 
-
     def __str__(self):  # pragma: no cover - display helper
         return f"Fusion {self.id}"
 
@@ -2217,4 +2216,69 @@ class NarrativeCurationTimeline(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return self.title
+
+
+
+class RitualGoalPlanner(models.Model):
+    """Structured planner converting intentions into ritual paths."""
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    goal_title = models.CharField(max_length=150)
+    input_intention = models.TextField()
+    linked_codices = models.ManyToManyField(SwarmCodex)
+    ritual_path = models.JSONField()
+    milestone_memory = models.ManyToManyField(SwarmMemoryEntry)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+
+        return self.goal_title
+
+
+class MythTimelineDirector(models.Model):
+    """Assistant-driven myth timeline controller."""
+
+    title = models.CharField(max_length=150)
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    timeline_segments = models.JSONField()
+    memory_nodes = models.ManyToManyField(SwarmMemoryEntry)
+    codex_weights = models.JSONField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+
+        return self.title
+
+
+class CodexDecisionFramework(models.Model):
+    """Decision logic guided by codex rules and memory."""
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    decision_context = models.TextField()
+    codex_applied = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    outcome_paths = models.JSONField()
+    symbolic_alignment_score = models.FloatField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+
+        return f"Codex decision {self.id}"
 
