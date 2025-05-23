@@ -1624,16 +1624,28 @@ class LearningReservoir(models.Model):
 
 
 
-class MythicIdentityCard(models.Model):
-    """Symbolic identity snapshot for an assistant."""
+class SwarmCosmology(models.Model):
+    """Meta-framework describing mythic universes."""
 
-    assistant = models.OneToOneField(
-        "assistants.Assistant", on_delete=models.CASCADE
-    )
-    identity_signature = models.CharField(max_length=256)
-    symbolic_traits = models.JSONField()
-    narrative_roles = models.JSONField()
-    lineage_map = models.JSONField()
+    name = models.CharField(max_length=150)
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
+
+
+class PurposeIndexEntry(models.Model):
+    """Record symbolic intent snapshots across mythic context and time."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    cosmology = models.ForeignKey(SwarmCosmology, on_delete=models.CASCADE)
+    purpose_vector = models.JSONField()
+    timeline_marker = models.CharField(max_length=100)
+    alignment_tags = models.JSONField()
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -1642,39 +1654,17 @@ class MythicIdentityCard(models.Model):
 
 
     def __str__(self) -> str:  # pragma: no cover - display helper
-        return f"IdentityCard for {self.assistant.name}"
+        return f"Purpose index for {self.assistant.name}"
 
 
-class CrossTimelineReflectionRite(models.Model):
-    """Ritualized comparison across timelines."""
+class BeliefSignalNode(models.Model):
+    """Transmit symbolic values and belief vectors as inheritance signals."""
 
-
-    assistant = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE
-    )
-
-    reflected_identities = models.ManyToManyField(MythicIdentityCard)
-    ritual_summary = models.TextField()
-    symbolic_convergence_score = models.FloatField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return f"ReflectionRite {self.id}"
-
-
-class ArchetypeFusionEvent(models.Model):
-    """Fusion of mythic archetypes."""
-
-    primary_archetype = models.CharField(max_length=100)
-    merged_with = models.CharField(max_length=100)
-    resulting_archetype = models.CharField(max_length=100)
-    symbolic_justification = models.TextField()
-    fusion_initiator = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE
-    )
+    origin_assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    transmitted_beliefs = models.JSONField()
+    receivers = models.ManyToManyField("assistants.Assistant", related_name="inherited_beliefs")
+    signal_strength = models.FloatField()
+    inheritance_type = models.CharField(max_length=100)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -1682,5 +1672,23 @@ class ArchetypeFusionEvent(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
-        return self.resulting_archetype
+        return f"Signal from {self.origin_assistant.name}"
+
+
+class MythicAlignmentMarket(models.Model):
+    """Symbolic reputation and access economy."""
+
+    participant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    alignment_score = models.FloatField()
+    ritual_contributions = models.JSONField()
+    symbolic_asset_tags = models.JSONField()
+    access_level = models.CharField(max_length=50)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-last_updated"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Market entry for {self.participant.name}"
+
 

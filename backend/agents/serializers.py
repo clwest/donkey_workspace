@@ -709,25 +709,35 @@ class LearningReservoirSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-class MythicIdentityCardSerializer(serializers.ModelSerializer):
+
+class SwarmCosmologySerializer(serializers.ModelSerializer):
     class Meta:
-        model = MythicIdentityCard
+        model = SwarmCosmology
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class PurposeIndexEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PurposeIndexEntry
 
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class CrossTimelineReflectionRiteSerializer(serializers.ModelSerializer):
+
+class BeliefSignalNodeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CrossTimelineReflectionRite
+        model = BeliefSignalNode
 
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class ArchetypeFusionEventSerializer(serializers.ModelSerializer):
+class MythicAlignmentMarketSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ArchetypeFusionEvent
+        model = MythicAlignmentMarket
         fields = "__all__"
-        read_only_fields = ["id", "created_at"]
+        read_only_fields = ["id", "last_updated"]
+
 
