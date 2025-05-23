@@ -2158,3 +2158,52 @@ class RitualOnboardingFlow(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.entry_name
 
+
+class MemoryInheritanceSeed(models.Model):
+    """Carry symbolic onboarding decisions into assistant memory."""
+
+    user_id = models.CharField(max_length=150)
+    narrative_path = models.CharField(max_length=100)
+    symbolic_tags = models.JSONField()
+    onboarding_memory = models.ManyToManyField(SwarmMemoryEntry)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"InheritanceSeed for {self.user_id}"
+
+
+class PersonalCodexAnchor(models.Model):
+    """Define user belief proximity to codex segments."""
+
+    user_id = models.CharField(max_length=150)
+    codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    symbolic_statements = models.JSONField()
+    anchor_strength = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"CodexAnchor {self.id}"
+
+
+class RitualContractBinding(models.Model):
+    """Log formal connection between user and assistant."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    user_id = models.CharField(max_length=150)
+    contract_terms = models.TextField()
+    codex_link = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    shared_memory = models.ManyToManyField(SwarmMemoryEntry)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Contract {self.id}"
+
