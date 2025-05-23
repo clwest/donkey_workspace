@@ -78,6 +78,9 @@ from agents.models.lore import (
     PublicRitualLogEntry,
     BeliefContinuityThread,
     CodexContributionCeremony,
+    CodexLinkedGuild,
+    MythCommunityCluster,
+    SwarmFederationEngine,
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
@@ -185,6 +188,9 @@ from agents.serializers import (
     PublicRitualLogEntrySerializer,
     BeliefContinuityThreadSerializer,
     CodexContributionCeremonySerializer,
+    CodexLinkedGuildSerializer,
+    MythCommunityClusterSerializer,
+    SwarmFederationEngineSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1501,6 +1507,41 @@ def codex_contributions(request):
     return Response(CodexContributionCeremonySerializer(contribution).data, status=201)
 
 
+@api_view(["GET", "POST"])
+def guilds(request):
+    if request.method == "GET":
+        guilds = CodexLinkedGuild.objects.all().order_by("-created_at")
+        return Response(CodexLinkedGuildSerializer(guilds, many=True).data)
+
+    serializer = CodexLinkedGuildSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    guild = serializer.save()
+    return Response(CodexLinkedGuildSerializer(guild).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def communities(request):
+    if request.method == "GET":
+        clusters = MythCommunityCluster.objects.all().order_by("-created_at")
+        return Response(MythCommunityClusterSerializer(clusters, many=True).data)
+
+    serializer = MythCommunityClusterSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    cluster = serializer.save()
+    return Response(MythCommunityClusterSerializer(cluster).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def swarm(request):
+    if request.method == "GET":
+        engines = SwarmFederationEngine.objects.all().order_by("-last_synced")
+        return Response(SwarmFederationEngineSerializer(engines, many=True).data)
+
+    serializer = SwarmFederationEngineSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    engine = serializer.save()
+    return Response(SwarmFederationEngineSerializer(engine).data, status=201)
+
 
 @api_view(["GET"])
 def onboarding_ritual(request):
@@ -1518,5 +1559,3 @@ def codex_briefing(request):
 def assistant_tutorial(request, id):
     """Return tutorial script for assistant."""
     return Response({"assistant": id, "message": "Tutorial start"})
-
-
