@@ -1,11 +1,8 @@
 import logging
 from typing import Optional
 
-from assistants.models.assistant import (
-    Assistant,
-
-)
-from assistants.models.thoughts import Assistant
+from assistants.models.assistant import Assistant
+from assistants.models.thoughts import AssistantThoughtLog
 from assistants.models.reflection import AssistantReflectionLog
 from assistants.models.project import AssistantProject
 from assistants.utils.delegation import spawn_delegated_assistant
