@@ -7,6 +7,7 @@ from .models import (
     SimulationStateTracker,
     MythflowSession,
     SymbolicDialogueExchange,
+    SceneDirectorFrame,
 )
 
 
@@ -54,3 +55,10 @@ class SymbolicDialogueExchangeSerializer(serializers.ModelSerializer):
         model = SymbolicDialogueExchange
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
+class SceneDirectorFrameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SceneDirectorFrame
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+

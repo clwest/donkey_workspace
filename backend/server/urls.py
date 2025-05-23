@@ -90,6 +90,9 @@ urlpatterns = [
     path("api/afterlife-registry/", agent_views.afterlife_registry),
     path("api/continuity-engine/", agent_views.continuity_engine),
     path("api/migration-gates/", agent_views.migration_gates),
+    path("api/persona-fusions/", agent_views.persona_fusions),
+    path("api/dialogue-mutations/", agent_views.dialogue_mutations),
+    path("api/scene-director/", agent_views.scene_director),
 
 
     path("api/storyfields/", agent_views.storyfields),

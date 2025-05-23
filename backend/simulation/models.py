@@ -79,3 +79,20 @@ class SymbolicDialogueExchange(models.Model):
     symbolic_intent = models.JSONField()
     codex_alignment_score = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+class SceneDirectorFrame(models.Model):
+    """Assistant-controlled frame adjusting scene flow."""
+
+    session = models.ForeignKey(MythflowSession, on_delete=models.CASCADE)
+    director_assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    symbolic_adjustments = models.JSONField()
+    role_reassignments = models.JSONField()
+    final_scene_notes = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"DirectorFrame {self.id}"
+
