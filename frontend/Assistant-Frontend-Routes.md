@@ -44,6 +44,10 @@ This file documents all frontend route paths under `/assistants/`, their associa
 | Path | Component | Purpose |
 | ---- | --------- | ------- |
 | `/timeline` | `WorldTimelinePage` | View global myth events |
+| `/codex` | `MythOSCodexPage` | Codex interaction layer |
+| `/dream` | `DreamframePage` | Playback symbolic dream footage |
+| `/ritual` | `MythOSRitualsPage` | Launch available rituals |
+| `/reflection` | `ReflectionPage` | Personal reflection console |
 
 ✅ **Note:** All routes now follow the `/assistants/` prefix for clarity and consistency.
 

@@ -134,6 +134,9 @@ import AssistantAuraPage from "./pages/assistant/common/AssistantAuraPage";
 import ProphecyEnginePage from "./pages/prophecy/ProphecyEnginePage";
 import MemoryPredictionPage from "./pages/memory/MemoryPredictionPage";
 import RitualForecastPage from "./pages/ritual/RitualForecastPage";
+import MythOSCodexPage from "./pages/mythos/MythOSCodexPage";
+import DreamframePage from "./pages/agents/DreamframePage";
+import MythOSRitualsPage from "./pages/mythos/MythOSRitualsPage";
 
 
 import { ToastContainer } from "react-toastify";
@@ -442,6 +445,12 @@ export default function App() {
           <Route path="/memory/synthesize" element={<SymbolicMemorySynthesizerPage />} />
           <Route path="/reflection/logs" element={<TemporalReflectionLogsPage />} />
           <Route path="/lore" element={<RealityShaperDashboard />} />
+
+          {/* MythOS symbolic gateways */}
+          <Route path="/codex" element={<MythOSCodexPage />} />
+          <Route path="/dream" element={<DreamframePage />} />
+          <Route path="/ritual" element={<MythOSRitualsPage />} />
+          <Route path="/reflection" element={<ReflectionPage />} />
 
           <Route path="/prophecy/engine" element={<ProphecyEnginePage />} />
           <Route path="/memory/predict" element={<MemoryPredictionPage />} />
