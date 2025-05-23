@@ -67,3 +67,13 @@ export const fetchPurposeMigrations = () =>
 export const fetchStoryfields = () => apiFetch("/agents/storyfields/");
 export const fetchMythPatterns = () => apiFetch("/agents/myth-patterns/");
 export const fetchIntentHarmony = () => apiFetch("/agents/intent-harmony/");
+export const fetchTrainingGrounds = () => apiFetch("/training-grounds/");
+export const createTrainingGround = (body) =>
+  apiFetch("/training-grounds/", { method: "POST", body });
+export const fetchMythEditLogs = () => apiFetch("/myth-edit-log/");
+export const createMythEditLog = (body) =>
+  apiFetch("/myth-edit-log/", { method: "POST", body });
+export const fetchLegacyContinuityVaults = () =>
+  apiFetch("/legacy-continuity-vaults/");
+export const createLegacyContinuityVault = (body) =>
+  apiFetch("/legacy-continuity-vaults/", { method: "POST", body });

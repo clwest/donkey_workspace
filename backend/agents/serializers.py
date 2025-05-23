@@ -884,24 +884,29 @@ class BeliefFeedbackSignalSerializer(serializers.ModelSerializer):
 
 
 
-class PurposeGraftRecordSerializer(serializers.ModelSerializer):
+
+class NarrativeTrainingGroundSerializer(serializers.ModelSerializer):
     class Meta:
-        model = PurposeGraftRecord
+        model = NarrativeTrainingGround
+
+
+
+
+class SwarmMythEditLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SwarmMythEditLog
+
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class SuccessionRitualEventSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SuccessionRitualEvent
 
+class LegacyContinuityVaultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LegacyContinuityVault
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
-class ReincarnationTreeNodeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ReincarnationTreeNode
 
-        fields = "__all__"
-        read_only_fields = ["id", "created_at"]
 

@@ -97,6 +97,9 @@ from agents.models.storyfield import (
     StoryfieldZone,
     MythPatternCluster,
     IntentHarmonizationSession,
+    NarrativeTrainingGround,
+    SwarmMythEditLog,
+    LegacyContinuityVault,
 )
 from agents.serializers import (
     AgentSerializer,
@@ -175,6 +178,10 @@ from agents.serializers import (
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
     IntentHarmonizationSessionSerializer,
+    NarrativeTrainingGroundSerializer,
+    SwarmMythEditLogSerializer,
+    LegacyContinuityVaultSerializer,
+
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -1378,37 +1385,40 @@ def belief_feedback(request):
 
 @api_view(["GET", "POST"])
 
-def purpose_grafts(request):
-    if request.method == "GET":
-        grafts = PurposeGraftRecord.objects.all().order_by("-created_at")
-        return Response(PurposeGraftRecordSerializer(grafts, many=True).data)
 
-    serializer = PurposeGraftRecordSerializer(data=request.data)
+def training_grounds(request):
+    if request.method == "GET":
+        grounds = NarrativeTrainingGround.objects.all().order_by("-created_at")
+        return Response(NarrativeTrainingGroundSerializer(grounds, many=True).data)
+
+    serializer = NarrativeTrainingGroundSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    graft = serializer.save()
-    return Response(PurposeGraftRecordSerializer(graft).data, status=201)
+    ground = serializer.save()
+    return Response(NarrativeTrainingGroundSerializer(ground).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def succession_rituals(request):
+def myth_edit_log(request):
     if request.method == "GET":
-        rituals = SuccessionRitualEvent.objects.all().order_by("-created_at")
-        return Response(SuccessionRitualEventSerializer(rituals, many=True).data)
+        logs = SwarmMythEditLog.objects.all().order_by("-created_at")
+        return Response(SwarmMythEditLogSerializer(logs, many=True).data)
 
-    serializer = SuccessionRitualEventSerializer(data=request.data)
+    serializer = SwarmMythEditLogSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    ritual = serializer.save()
-    return Response(SuccessionRitualEventSerializer(ritual).data, status=201)
+    log = serializer.save()
+    return Response(SwarmMythEditLogSerializer(log).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def reincarnation_forest(request):
+def legacy_continuity_vaults(request):
     if request.method == "GET":
-        nodes = ReincarnationTreeNode.objects.all().order_by("-created_at")
-        return Response(ReincarnationTreeNodeSerializer(nodes, many=True).data)
+        vaults = LegacyContinuityVault.objects.all().order_by("-created_at")
+        return Response(LegacyContinuityVaultSerializer(vaults, many=True).data)
 
-    serializer = ReincarnationTreeNodeSerializer(data=request.data)
+    serializer = LegacyContinuityVaultSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    node = serializer.save()
-    return Response(ReincarnationTreeNodeSerializer(node).data, status=201)
+    vault = serializer.save()
+    return Response(LegacyContinuityVaultSerializer(vault).data, status=201)
+
+
 
