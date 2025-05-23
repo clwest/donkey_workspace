@@ -78,9 +78,10 @@ from agents.models.lore import (
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
-    MythHyperstructure,
-    DreamWorldModel,
-    ReflectiveEcosystemEngine,
+    PurposeGraftRecord,
+    SuccessionRitualEvent,
+    ReincarnationTreeNode,
+
 
 )
 from agents.models.coordination import (
@@ -165,9 +166,10 @@ from agents.serializers import (
     SignalEncodingArtifactSerializer,
     BeliefNavigationVectorSerializer,
     ReflectiveFluxIndexSerializer,
-    ArchetypeGenesisLogSerializer,
-    MythBloomNodeSerializer,
-    BeliefSeedReplicationSerializer,
+
+    PurposeGraftRecordSerializer,
+    SuccessionRitualEventSerializer,
+    ReincarnationTreeNodeSerializer,
 
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -1375,37 +1377,38 @@ def belief_feedback(request):
 
 
 @api_view(["GET", "POST"])
-def hyperstructures(request):
-    if request.method == "GET":
-        structures = MythHyperstructure.objects.all().order_by("-created_at")
-        return Response(MythHyperstructureSerializer(structures, many=True).data)
 
-    serializer = MythHyperstructureSerializer(data=request.data)
+def purpose_grafts(request):
+    if request.method == "GET":
+        grafts = PurposeGraftRecord.objects.all().order_by("-created_at")
+        return Response(PurposeGraftRecordSerializer(grafts, many=True).data)
+
+    serializer = PurposeGraftRecordSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    structure = serializer.save()
-    return Response(MythHyperstructureSerializer(structure).data, status=201)
+    graft = serializer.save()
+    return Response(PurposeGraftRecordSerializer(graft).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def dream_worlds(request):
+def succession_rituals(request):
     if request.method == "GET":
-        worlds = DreamWorldModel.objects.all().order_by("-created_at")
-        return Response(DreamWorldModelSerializer(worlds, many=True).data)
+        rituals = SuccessionRitualEvent.objects.all().order_by("-created_at")
+        return Response(SuccessionRitualEventSerializer(rituals, many=True).data)
 
-    serializer = DreamWorldModelSerializer(data=request.data)
+    serializer = SuccessionRitualEventSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    world = serializer.save()
-    return Response(DreamWorldModelSerializer(world).data, status=201)
+    ritual = serializer.save()
+    return Response(SuccessionRitualEventSerializer(ritual).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def reflective_ecosystem(request):
+def reincarnation_forest(request):
     if request.method == "GET":
-        engines = ReflectiveEcosystemEngine.objects.all().order_by("-last_sync")
-        return Response(ReflectiveEcosystemEngineSerializer(engines, many=True).data)
+        nodes = ReincarnationTreeNode.objects.all().order_by("-created_at")
+        return Response(ReincarnationTreeNodeSerializer(nodes, many=True).data)
 
-    serializer = ReflectiveEcosystemEngineSerializer(data=request.data)
+    serializer = ReincarnationTreeNodeSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    engine = serializer.save()
-    return Response(ReflectiveEcosystemEngineSerializer(engine).data, status=201)
+    node = serializer.save()
+    return Response(ReincarnationTreeNodeSerializer(node).data, status=201)
 

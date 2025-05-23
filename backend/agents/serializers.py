@@ -77,8 +77,11 @@ from agents.models.lore import (
     RecursiveRitualContract,
     SwarmMythEngineInstance,
     BeliefFeedbackSignal,
-    SymbolicIdentityCard,
-    PersonaTemplate,
+
+    PurposeGraftRecord,
+    SuccessionRitualEvent,
+    ReincarnationTreeNode,
+
 )
 
 from agents.models.coordination import (
@@ -881,25 +884,24 @@ class BeliefFeedbackSignalSerializer(serializers.ModelSerializer):
 
 
 
-class ArchetypeGenesisLogSerializer(serializers.ModelSerializer):
+class PurposeGraftRecordSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ArchetypeGenesisLog
-
-        fields = "__all__"
-        read_only_fields = ["id", "created_at"]
-
-class MythBloomNodeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MythBloomNode
-
+        model = PurposeGraftRecord
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-
-class BeliefSeedReplicationSerializer(serializers.ModelSerializer):
+class SuccessionRitualEventSerializer(serializers.ModelSerializer):
     class Meta:
-        model = BeliefSeedReplication
+        model = SuccessionRitualEvent
+
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+class ReincarnationTreeNodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReincarnationTreeNode
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

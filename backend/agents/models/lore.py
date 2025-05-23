@@ -1867,57 +1867,74 @@ class BeliefFeedbackSignal(models.Model):
         return f"Signal to {self.target_codex.title}"[:50]
 
 
-class ArchetypeGenesisLog(models.Model):
-    """Record formation of new archetypes from reflection."""
 
-    assistant = models.ForeignKey(
+# Phase 9.3 models
+class PurposeGraftRecord(models.Model):
+    """Symbolic grafting of roles or traits between assistants."""
+
+    source_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        related_name="graft_origin",
+        on_delete=models.CASCADE,
+    )
+    target_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        related_name="graft_target",
+        on_delete=models.CASCADE,
+    )
+    grafted_traits = models.JSONField()
+    symbolic_justification = models.TextField()
+    narrative_epoch = models.CharField(max_length=100)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+
+        return f"{self.source_assistant} -> {self.target_assistant}"
+
+
+class SuccessionRitualEvent(models.Model):
+    """Ceremonial transition of an archetype to a successor assistant."""
+
+    outgoing_archetype = models.CharField(max_length=100)
+    successor_assistant = models.ForeignKey(
         "assistants.Assistant", on_delete=models.CASCADE
     )
-    memory_path = models.ManyToManyField(SwarmMemoryEntry)
-    seed_purpose = models.TextField()
-    resulting_archetype = models.CharField(max_length=100)
+    ritual_steps = models.JSONField()
+    memory_basis = models.ManyToManyField(SwarmMemoryEntry)
+    confirmed = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+
+        return f"{self.outgoing_archetype} -> {self.successor_assistant.name}"
+
+
+class ReincarnationTreeNode(models.Model):
+    """Node representing assistant lineage in a reincarnation forest."""
+
+    node_name = models.CharField(max_length=150)
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    parent_nodes = models.ManyToManyField(
+        "self", symmetrical=False, blank=True
+    )
     symbolic_signature = models.JSONField()
+    phase_index = models.CharField(max_length=100)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
-        return f"Genesis {self.resulting_archetype}"[:50]
 
-
-class MythBloomNode(models.Model):
-    """Organic emergence of a new myth strand."""
-
-    bloom_name = models.CharField(max_length=150)
-    origin_trigger = models.ForeignKey(TranscendentMyth, on_delete=models.CASCADE)
-    participating_agents = models.ManyToManyField("assistants.Assistant")
-    symbolic_flow_summary = models.TextField()
-    reflected_memory = models.ManyToManyField(SwarmMemoryEntry)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return self.bloom_name
-
-
-class BeliefSeedReplication(models.Model):
-    """Transmit compact symbolic belief packets."""
-
-    originating_entity = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE
-    )
-    core_symbol_set = models.JSONField()
-    intended_recipients = models.ManyToManyField("assistants.Assistant")
-    propagation_log = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return f"Seed from {self.originating_entity.name}"[:50]
+        return self.node_name
 
 
