@@ -30,4 +30,18 @@ export const fetchMemoryBroadcasts = () =>
 export const fetchLearningReservoirs = () =>
   apiFetch("/agents/learning-reservoirs/");
 
+export const fetchCosmologies = () => apiFetch("/cosmologies/");
+export const updateBeliefEngine = (id) =>
+  apiFetch(`/belief-engine/${id}/update/`, { method: "POST" });
+export const fetchPurposeArchives = () => apiFetch("/purpose-archives/");
 
+
+export const fetchIdentityCards = () => apiFetch("/identity-cards/");
+export const createIdentityCard = (body) =>
+  apiFetch("/identity-cards/", { method: "POST", body });
+export const fetchTimelineReflections = () => apiFetch("/timeline-reflection/");
+export const createTimelineReflection = (body) =>
+  apiFetch("/timeline-reflection/", { method: "POST", body });
+export const fetchArchetypeFusionEvents = () => apiFetch("/archetype-fusion/");
+export const createArchetypeFusionEvent = (body) =>
+  apiFetch("/archetype-fusion/", { method: "POST", body });

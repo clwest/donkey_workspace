@@ -65,4 +65,7 @@ urlpatterns = router.urls + [
     path("replace/<uuid:id>/", views.replace_memory),
     path("vector/", views.vector_memories, name="vector-memories"),
     path("<uuid:id>/resonance/", empathy.memory_resonance, name="memory-resonance"),
+    path("memory-braids/", views.memory_braids, name="memory-braids"),
+    path("continuity-anchors/", views.continuity_anchors, name="continuity-anchors"),
+    path("anamnesis/", views.anamnesis, name="anamnesis"),
 ]

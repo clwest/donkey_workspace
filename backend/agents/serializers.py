@@ -66,6 +66,10 @@ from agents.models.lore import (
     KnowledgeReplicationEvent,
     MemoryBroadcastPacket,
     LearningReservoir,
+    SymbolicAnomalyEvent,
+    BeliefCollapseRecoveryRitual,
+    MultiverseLoopLink,
+
 
 
 )
@@ -705,6 +709,7 @@ class LearningReservoirSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+
 class SwarmCosmologySerializer(serializers.ModelSerializer):
     class Meta:
         model = SwarmCosmology
@@ -715,13 +720,16 @@ class SwarmCosmologySerializer(serializers.ModelSerializer):
 class PurposeIndexEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = PurposeIndexEntry
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 
 
 class BeliefSignalNodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = BeliefSignalNode
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
@@ -731,4 +739,5 @@ class MythicAlignmentMarketSerializer(serializers.ModelSerializer):
         model = MythicAlignmentMarket
         fields = "__all__"
         read_only_fields = ["id", "last_updated"]
+
 

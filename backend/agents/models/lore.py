@@ -1623,6 +1623,7 @@ class LearningReservoir(models.Model):
         return f"Realignment by {self.initiated_by.name}"[:50]
 
 
+
 class SwarmCosmology(models.Model):
     """Meta-framework describing mythic universes."""
 
@@ -1645,10 +1646,12 @@ class PurposeIndexEntry(models.Model):
     purpose_vector = models.JSONField()
     timeline_marker = models.CharField(max_length=100)
     alignment_tags = models.JSONField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
+
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Purpose index for {self.assistant.name}"
@@ -1662,6 +1665,7 @@ class BeliefSignalNode(models.Model):
     receivers = models.ManyToManyField("assistants.Assistant", related_name="inherited_beliefs")
     signal_strength = models.FloatField()
     inheritance_type = models.CharField(max_length=100)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -1686,4 +1690,5 @@ class MythicAlignmentMarket(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Market entry for {self.participant.name}"
+
 
