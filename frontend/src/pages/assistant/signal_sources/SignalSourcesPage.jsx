@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
+import apiFetch from "../../../utils/apiClient";
 
 export default function SignalSourcesPage() {
   const [sources, setSources] = useState([]);
 
   useEffect(() => {
     async function fetchSources() {
-      const res = await fetch("http://localhost:8000/api/assistants/sources/");
-      const data = await res.json();
-      setSources(data);
+      try {
+        const data = await apiFetch(`/assistants/sources/`);
+        setSources(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Failed to load signal sources", err);
+        setSources([]);
+      }
     }
     fetchSources();
   }, []);
