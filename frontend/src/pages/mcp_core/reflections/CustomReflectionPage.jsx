@@ -23,7 +23,11 @@ export default function CustomReflectionPage() {
   useEffect(() => {
     fetch('http://localhost:8000/api/mcp/memories/')
       .then(res => res.json())
-      .then(data => setMemories(data));
+      .then(data => {
+        // API returns paginated results under `results`
+        const results = Array.isArray(data) ? data : data.results;
+        setMemories(results || []);
+      });
   }, []);
 
   const toggleMemorySelection = (id) => {
