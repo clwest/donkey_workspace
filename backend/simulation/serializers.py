@@ -7,6 +7,9 @@ from .models import (
     SimulationStateTracker,
     MythflowSession,
     SymbolicDialogueExchange,
+    CinemythStoryline,
+    PurposeLoopCinematicEngine,
+    ReflectiveTheaterSession,
 )
 
 
@@ -52,5 +55,26 @@ class MythflowSessionSerializer(serializers.ModelSerializer):
 class SymbolicDialogueExchangeSerializer(serializers.ModelSerializer):
     class Meta:
         model = SymbolicDialogueExchange
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CinemythStorylineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CinemythStoryline
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class PurposeLoopCinematicEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PurposeLoopCinematicEngine
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class ReflectiveTheaterSessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReflectiveTheaterSession
         fields = "__all__"
         read_only_fields = ["id", "created_at"]

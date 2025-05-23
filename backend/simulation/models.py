@@ -79,3 +79,38 @@ class SymbolicDialogueExchange(models.Model):
     symbolic_intent = models.JSONField()
     codex_alignment_score = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class CinemythStoryline(models.Model):
+    """Assistant-authored symbolic film arc."""
+
+    authored_by = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    storyline_title = models.CharField(max_length=150)
+    act_structure = models.JSONField()
+    memory_sources = models.ManyToManyField("agents.SwarmMemoryEntry")
+    codex_alignment_vector = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class PurposeLoopCinematicEngine(models.Model):
+    """Loop a storyline until symbolic reflection converges."""
+
+    linked_storyline = models.ForeignKey(CinemythStoryline, on_delete=models.CASCADE)
+    loop_condition = models.TextField()
+    symbolic_entropy_threshold = models.FloatField()
+    convergence_detected = models.BooleanField(default=False)
+    completed_cycles = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class ReflectiveTheaterSession(models.Model):
+    """Track user exposure and reflection during cinematic theater."""
+
+    viewer_identity = models.CharField(max_length=150)
+    active_cinemyth = models.ForeignKey(CinemythStoryline, on_delete=models.CASCADE)
+    codex_interaction_log = models.TextField()
+    symbolic_mood_map = models.JSONField()
+    reflection_rating = models.FloatField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
