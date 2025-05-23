@@ -83,9 +83,11 @@ from agents.models.lore import (
     PublicRitualLogEntry,
     BeliefContinuityThread,
     CodexContributionCeremony,
+
     CodexLinkedGuild,
     MythCommunityCluster,
     SwarmFederationEngine,
+
     NarrativeLightingEngine,
     CinematicUILayer,
     AssistantTutorialScript,
@@ -1006,7 +1008,6 @@ class SwarmFederationEngineSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "last_synced"]
 
-
 class NarrativeLightingEngineSerializer(serializers.ModelSerializer):
     class Meta:
         model = NarrativeLightingEngine
@@ -1034,4 +1035,5 @@ class RitualOnboardingFlowSerializer(serializers.ModelSerializer):
         model = RitualOnboardingFlow
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 

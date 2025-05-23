@@ -80,9 +80,11 @@ from agents.models.lore import (
     PublicRitualLogEntry,
     BeliefContinuityThread,
     CodexContributionCeremony,
+
     CodexLinkedGuild,
     MythCommunityCluster,
     SwarmFederationEngine,
+
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
@@ -196,6 +198,7 @@ from agents.serializers import (
     CodexLinkedGuildSerializer,
     MythCommunityClusterSerializer,
     SwarmFederationEngineSerializer,
+
 
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -1516,6 +1519,7 @@ def codex_contributions(request):
     return Response(CodexContributionCeremonySerializer(contribution).data, status=201)
 
 
+
 @api_view(["GET", "POST"])
 def guilds(request):
     if request.method == "GET":
@@ -1541,6 +1545,7 @@ def communities(request):
 
 
 @api_view(["GET", "POST"])
+
 def swarm(request):
     if request.method == "GET":
         engines = SwarmFederationEngine.objects.all().order_by("-last_synced")
@@ -1568,3 +1573,5 @@ def codex_briefing(request):
 def assistant_tutorial(request, id):
     """Return tutorial script for assistant."""
     return Response({"assistant": id, "message": "Tutorial start"})
+=======
+

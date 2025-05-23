@@ -87,6 +87,7 @@ urlpatterns = [
     path("api/resonance-graphs/", agent_views.resonance_graphs),
     path("api/cognitive-balance/", agent_views.cognitive_balance_reports),
     path("api/purpose-migrations/", agent_views.purpose_migrations),
+
     path("api/afterlife-registry/", agent_views.afterlife_registry),
     path("api/continuity-engine/", agent_views.continuity_engine),
     path("api/migration-gates/", agent_views.migration_gates),

@@ -35,8 +35,10 @@ urlpatterns = [
     path("codex/briefing/", agents.codex_briefing),
     path("assistant/<uuid:id>/tutorial/", agents.assistant_tutorial),
 
-    path("belief/tree", agents.belief_tree),
-    path("ritual/archive", agents.ritual_archive),
+    path("memory/grove/", agents.memory_groves),
+    path("ritual/calendar/", agents.ritual_calendars),
+    path("reflection/arena/", agents.reflection_arenas),
+
     path("belief-continuity/", agents.belief_continuity),
     path("belief-clusters/", agents.belief_clusters),
     path("lore-tokens/", agents.lore_tokens),
