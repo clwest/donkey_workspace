@@ -168,7 +168,7 @@ This document provides a comprehensive overview of the `intel_core` Django app, 
 - Standalone script to populate missing `Document.slug` values (ensures uniqueness).
 
 ### 7.2 `management/commands/backfill_embeddings.py`
-- Django management command: for each `Document` missing an embedding, calls `generate_embedding` and saves it.
+- Django management command: for each `DocumentChunk` missing an `EmbeddingMetadata` record, generates an embedding for the chunk text and links it back to the chunk.
 
 ---
 
