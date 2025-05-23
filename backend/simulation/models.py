@@ -81,6 +81,7 @@ class SymbolicDialogueExchange(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+
 class SymbolicDialogueScript(models.Model):
     """Pre-authored or generated symbolic dialogue scaffold."""
 
@@ -115,3 +116,4 @@ class SceneControlEngine(models.Model):
     active_roles = models.JSONField()
     symbolic_scene_state = models.JSONField()
     last_updated = models.DateTimeField(auto_now=True)
+

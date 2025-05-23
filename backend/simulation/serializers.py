@@ -7,6 +7,7 @@ from .models import (
     SimulationStateTracker,
     MythflowSession,
     SymbolicDialogueExchange,
+    MythflowReflectionLoop,
 )
 
 
@@ -75,3 +76,4 @@ class SceneControlEngineSerializer(serializers.ModelSerializer):
         model = SceneControlEngine
         fields = "__all__"
         read_only_fields = ["id", "last_updated"]
+

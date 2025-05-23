@@ -99,6 +99,7 @@ from agents.models.storyfield import (
     NarrativeTrainingGround,
     SwarmMythEditLog,
     LegacyContinuityVault,
+    AgentPlotlineCuration,
 )
 from agents.serializers import (
     AgentSerializer,
@@ -178,6 +179,7 @@ from agents.serializers import (
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
     IntentHarmonizationSessionSerializer,
+    AgentPlotlineCurationSerializer,
 
 
 )
@@ -1415,3 +1417,15 @@ def migration_gates(request):
     serializer.is_valid(raise_exception=True)
     gate = serializer.save()
     return Response(ArchetypeMigrationGateSerializer(gate).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def plotline_curation(request):
+    if request.method == "GET":
+        curations = AgentPlotlineCuration.objects.all().order_by("-created_at")
+        return Response(AgentPlotlineCurationSerializer(curations, many=True).data)
+
+    serializer = AgentPlotlineCurationSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    entry = serializer.save()
+    return Response(AgentPlotlineCurationSerializer(entry).data, status=201)
