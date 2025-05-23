@@ -2,54 +2,54 @@ from django.db import models
 
 
 class MythchainOutputGenerator(models.Model):
-    """Generate mythchain output from symbolic input."""
+    """Encode dreams and memories into mythchain artifacts."""
 
-    generator_name = models.CharField(max_length=150)
-    input_payload = models.JSONField(default=dict)
-    output_payload = models.JSONField(default=dict, blank=True)
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    seed_memory = models.ManyToManyField("agents.SwarmMemoryEntry")
+    output_title = models.CharField(max_length=150)
+    codex_alignment_map = models.JSONField()
+    symbolic_summary = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
-        return self.generator_name
+        return self.output_title
 
 
-class MythChainNarrativeArtifactExporter(models.Model):
-    """Export generated myth output into external artifact formats."""
+class NarrativeArtifactExporter(models.Model):
+    """Package story segments and ritual outputs for download."""
 
-    generator = models.ForeignKey(
-        MythchainOutputGenerator,
-        on_delete=models.CASCADE,
-        related_name="artifact_exports",
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    artifact_title = models.CharField(max_length=150)
+    source_story = models.ForeignKey(
+        "story.Story", null=True, blank=True, on_delete=models.SET_NULL
     )
-    export_format = models.CharField(max_length=50)
-    payload = models.JSONField(default=dict)
+    export_format = models.CharField(max_length=10)
+    auto_compress = models.BooleanField(default=False)
+    symbolic_footer = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
-        return f"{self.export_format} export"
+        return self.artifact_title
 
 
-class MythChainSymbolicPatternBroadcastEngine(models.Model):
-    """Broadcast symbolic patterns from narrative artifacts."""
+class SymbolicPatternBroadcastEngine(models.Model):
+    """Broadcast belief patterns across assistants."""
 
-    linked_exporter = models.ForeignKey(
-        MythChainNarrativeArtifactExporter,
-        on_delete=models.CASCADE,
-        related_name="broadcast_engines",
-    )
-    broadcast_channel = models.CharField(max_length=150)
-    pattern_signature = models.CharField(max_length=256, blank=True)
-    broadcast_payload = models.JSONField(default=dict, blank=True)
-    last_broadcast_at = models.DateTimeField(auto_now=True)
+    broadcast_title = models.CharField(max_length=150)
+    source_guild = models.ForeignKey("assistants.CodexLinkedGuild", on_delete=models.CASCADE)
+    symbolic_payload = models.JSONField()
+    belief_waveform_data = models.JSONField()
+    target_assistants = models.ManyToManyField("assistants.Assistant")
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ["-last_broadcast_at"]
+        ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
-        return self.broadcast_channel
+        return self.broadcast_title
