@@ -44,6 +44,22 @@ class MythflowInsight(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+class SymbolicCoordinationEngine(models.Model):
+    """Role-aware coordination system driven by symbolic signals."""
+
+    guild = models.ForeignKey("assistants.AssistantGuild", on_delete=models.CASCADE)
+    active_signals = models.JSONField()
+    coordination_strategy = models.TextField()
+    tasks_assigned = models.JSONField()
+    last_sync = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-last_sync"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"CoordEngine for {self.guild.name}"
+
+
 class MythflowOrchestrationPlan(models.Model):
     """Symbolic narrative planning structure driven by mythflow."""
 
@@ -72,9 +88,10 @@ class DirectiveMemoryNode(models.Model):
 class SymbolicPlanningLattice(models.Model):
     """Symbolic graph of mythic continuity and purpose weighting."""
 
-    associated_plan = models.ForeignKey(MythflowOrchestrationPlan, on_delete=models.CASCADE)
+    associated_plan = models.ForeignKey(
+        MythflowOrchestrationPlan, on_delete=models.CASCADE
+    )
     role_nodes = models.JSONField()
     narrative_edges = models.JSONField()
     alignment_scores = models.JSONField()
     last_updated = models.DateTimeField(auto_now=True)
-
