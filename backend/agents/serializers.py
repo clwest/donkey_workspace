@@ -90,6 +90,9 @@ from agents.models.lore import (
     StoryConvergencePath,
     RitualFusionEvent,
     NarrativeCurationTimeline,
+    SymbolicFeedbackChamber,
+    MultiAgentDialogueAmplifier,
+    MythicResolutionSequence,
 
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
@@ -1051,5 +1054,26 @@ class RitualFusionEventSerializer(serializers.ModelSerializer):
 class NarrativeCurationTimelineSerializer(serializers.ModelSerializer):
     class Meta:
         model = NarrativeCurationTimeline
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicFeedbackChamberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicFeedbackChamber
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MultiAgentDialogueAmplifierSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MultiAgentDialogueAmplifier
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MythicResolutionSequenceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythicResolutionSequence
         fields = "__all__"
         read_only_fields = ["id", "created_at"]

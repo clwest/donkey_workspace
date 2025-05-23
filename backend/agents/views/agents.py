@@ -87,6 +87,9 @@ from agents.models.lore import (
     StoryConvergencePath,
     RitualFusionEvent,
     NarrativeCurationTimeline,
+    SymbolicFeedbackChamber,
+    MultiAgentDialogueAmplifier,
+    MythicResolutionSequence,
 
 )
 from agents.models.identity import PersonaFusionEvent
@@ -193,6 +196,9 @@ from agents.serializers import (
     StoryConvergencePathSerializer,
     RitualFusionEventSerializer,
     NarrativeCurationTimelineSerializer,
+    SymbolicFeedbackChamberSerializer,
+    MultiAgentDialogueAmplifierSerializer,
+    MythicResolutionSequenceSerializer,
 
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -1578,3 +1584,39 @@ def timeline_curate(request):
     timeline = serializer.save()
     return Response(NarrativeCurationTimelineSerializer(timeline).data, status=201)
 
+
+
+@api_view(["GET", "POST"])
+def reflection_chamber(request):
+    if request.method == "GET":
+        chambers = SymbolicFeedbackChamber.objects.all().order_by("-created_at")
+        return Response(SymbolicFeedbackChamberSerializer(chambers, many=True).data)
+
+    serializer = SymbolicFeedbackChamberSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    chamber = serializer.save()
+    return Response(SymbolicFeedbackChamberSerializer(chamber).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def dialogue_amplify(request):
+    if request.method == "GET":
+        amplifiers = MultiAgentDialogueAmplifier.objects.all().order_by("-created_at")
+        return Response(MultiAgentDialogueAmplifierSerializer(amplifiers, many=True).data)
+
+    serializer = MultiAgentDialogueAmplifierSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    amplifier = serializer.save()
+    return Response(MultiAgentDialogueAmplifierSerializer(amplifier).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def sequence_resolve(request):
+    if request.method == "GET":
+        sequences = MythicResolutionSequence.objects.all().order_by("-created_at")
+        return Response(MythicResolutionSequenceSerializer(sequences, many=True).data)
+
+    serializer = MythicResolutionSequenceSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    sequence = serializer.save()
+    return Response(MythicResolutionSequenceSerializer(sequence).data, status=201)
