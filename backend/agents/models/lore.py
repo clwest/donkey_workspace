@@ -1569,63 +1569,56 @@ class SymbolicWeatherFront(models.Model):
         return self.name
 
 
-class DreamIntelligenceNode(models.Model):
-    """Subconscious symbolic intelligence generated during dream states."""
 
-    generated_by = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE, related_name="dream_nodes"
-    )
-    symbolic_payload = models.TextField()
-    purpose_vector = models.JSONField()
-    emotional_signature = models.CharField(max_length=100)
-    linked_memory = models.ManyToManyField(SwarmMemoryEntry)
-    created_at = models.DateTimeField(auto_now_add=True)
+class KnowledgeReplicationEvent(models.Model):
+    """Replicate and tailor symbolic knowledge between assistants."""
 
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return f"DreamNode {self.generated_by.name}"[:50]
-
-
-class MissionConsensusRound(models.Model):
-    """Purpose-alignment process for resolving multi-agent planning conflicts."""
-
-    title = models.CharField(max_length=150)
-    involved_assistants = models.ManyToManyField("assistants.Assistant")
-    proposed_objective = models.TextField()
-    alignment_vectors = models.JSONField()
-    consensus_reached = models.BooleanField(default=False)
-    final_mission_statement = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return self.title
-
-
-class NarrativeRealignmentProposal(models.Model):
-    """Allow symbolic shifts in narrative strategy to preserve coherence."""
-
-    initiated_by = models.ForeignKey(
+    origin_assistant = models.ForeignKey(
         "assistants.Assistant",
+        related_name="replication_origin",
         on_delete=models.CASCADE,
-        related_name="realignment_proposals",
     )
-    affected_thread = models.ForeignKey(
-        "agents.CollaborationThread",
-        on_delete=models.CASCADE,
-        related_name="realignment_proposals",
-    )
-    reason = models.TextField()
-    realignment_strategy = models.TextField()
-    approved = models.BooleanField(default=False)
+    target_assistants = models.ManyToManyField("assistants.Assistant")
+    source_memory = models.ForeignKey(SwarmMemoryEntry, on_delete=models.CASCADE)
+    transformed_summary = models.TextField()
+    symbolic_adjustments = models.JSONField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
+
+
+class MemoryBroadcastPacket(models.Model):
+    """Broadcast mythic knowledge to symbolic cohorts."""
+
+    name = models.CharField(max_length=150)
+    payload_memories = models.ManyToManyField(SwarmMemoryEntry)
+    targeting_scope = models.CharField(max_length=100)  # guild, civilization, biome
+    symbolic_tuning_vector = models.JSONField()
+    broadcast_status = models.CharField(max_length=50, default="pending")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class LearningReservoir(models.Model):
+    """Symbolic knowledge buffer for assistant training."""
+
+    assistant = models.OneToOneField("assistants.Assistant", on_delete=models.CASCADE)
+    accumulated_tokens = models.ManyToManyField(LoreToken)
+    queued_memories = models.ManyToManyField(SwarmMemoryEntry)
+    symbolic_weight_map = models.JSONField()
+    reservoir_status = models.CharField(max_length=50, default="active")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Realignment by {self.initiated_by.name}"[:50]
+

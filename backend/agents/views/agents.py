@@ -70,6 +70,7 @@ from agents.models.lore import (
     EpistemicCurrent,
     FeedbackAnchorNode,
     KnowledgeEcologyMap,
+
 )
 from agents.models.coordination import (
     CollaborationThread,
@@ -151,6 +152,7 @@ from agents.serializers import (
     EpistemicCurrentSerializer,
     FeedbackAnchorNodeSerializer,
     KnowledgeEcologyMapSerializer,
+
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -1123,41 +1125,39 @@ def mythflow_insights(request):
 
 @api_view(["GET", "POST"])
 
-def dream_intel_nodes(request):
+def knowledge_replications(request):
     if request.method == "GET":
-        nodes = DreamIntelligenceNode.objects.all().order_by("-created_at")
-        return Response(DreamIntelligenceNodeSerializer(nodes, many=True).data)
+        events = KnowledgeReplicationEvent.objects.all().order_by("-created_at")
+        return Response(KnowledgeReplicationEventSerializer(events, many=True).data)
 
-    serializer = DreamIntelligenceNodeSerializer(data=request.data)
+    serializer = KnowledgeReplicationEventSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    node = serializer.save()
-    return Response(DreamIntelligenceNodeSerializer(node).data, status=201)
+    event = serializer.save()
+    return Response(KnowledgeReplicationEventSerializer(event).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def mission_consensus_rounds(request):
+def memory_broadcasts(request):
     if request.method == "GET":
-        rounds = MissionConsensusRound.objects.all().order_by("-created_at")
-        return Response(MissionConsensusRoundSerializer(rounds, many=True).data)
+        packets = MemoryBroadcastPacket.objects.all().order_by("-created_at")
+        return Response(MemoryBroadcastPacketSerializer(packets, many=True).data)
 
-    serializer = MissionConsensusRoundSerializer(data=request.data)
+    serializer = MemoryBroadcastPacketSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    round_obj = serializer.save()
-    return Response(MissionConsensusRoundSerializer(round_obj).data, status=201)
+    packet = serializer.save()
+    return Response(MemoryBroadcastPacketSerializer(packet).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def narrative_realignment_proposals(request):
+def learning_reservoirs(request):
     if request.method == "GET":
-        proposals = NarrativeRealignmentProposal.objects.all().order_by("-created_at")
-        return Response(
-            NarrativeRealignmentProposalSerializer(proposals, many=True).data
-        )
+        reservoirs = LearningReservoir.objects.all().order_by("-created_at")
+        return Response(LearningReservoirSerializer(reservoirs, many=True).data)
 
-    serializer = NarrativeRealignmentProposalSerializer(data=request.data)
+    serializer = LearningReservoirSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    proposal = serializer.save()
-    return Response(NarrativeRealignmentProposalSerializer(proposal).data, status=201)
+    reservoir = serializer.save()
+    return Response(LearningReservoirSerializer(reservoir).data, status=201)
 
 
 @api_view(["GET", "POST"])
