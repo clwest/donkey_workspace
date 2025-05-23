@@ -12,13 +12,13 @@ from .federation import *
 from .governance import *
 from .mythchain import *
 from .diplomacy import *
+from .emergence import *
 
 from .planning import *
 from .forecast import *
 from .trend import *
 from .deployment import *
 from .recovery import *
-
 
 
 __all__ = []
