@@ -42,3 +42,19 @@ class MythflowInsight(models.Model):
     symbolic_shift_detected = models.BooleanField(default=False)
     recommended_action = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class SymbolicCoordinationEngine(models.Model):
+    """Role-aware coordination system driven by symbolic signals."""
+
+    guild = models.ForeignKey("assistants.AssistantGuild", on_delete=models.CASCADE)
+    active_signals = models.JSONField()
+    coordination_strategy = models.TextField()
+    tasks_assigned = models.JSONField()
+    last_sync = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-last_sync"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"CoordEngine for {self.guild.name}"

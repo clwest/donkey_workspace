@@ -43,6 +43,7 @@ from agents.models.lore import (
     DreamPurposeNegotiation,
     BiomeMutationEvent,
     SwarmCodex,
+    AgentAwareCodex,
     SymbolicLawEntry,
     RitualArchiveEntry,
     AssistantPolity,
@@ -73,7 +74,12 @@ from agents.models.lore import (
 
 
 )
-from agents.models.coordination import CollaborationThread, DelegationStream, MythflowInsight
+from agents.models.coordination import (
+    CollaborationThread,
+    DelegationStream,
+    MythflowInsight,
+    SymbolicCoordinationEngine,
+)
 from agents.serializers import (
     AgentSerializer,
     AgentFeedbackLogSerializer,
@@ -132,6 +138,8 @@ from agents.serializers import (
     CollaborationThreadSerializer,
     DelegationStreamSerializer,
     MythflowInsightSerializer,
+    AgentAwareCodexSerializer,
+    SymbolicCoordinationEngineSerializer,
     CosmogenesisSimulationSerializer,
 
     MythicForecastPulseSerializer,
@@ -168,6 +176,7 @@ from agents.utils.myth_verification import (
 )
 
 from agents.utils import harmonize_global_narrative
+from agents.utils import generate_ritual_from_ecosystem_state
 from agents.utils.myth_weaver import weave_recursive_myth
 from agents.models.cosmology import update_belief_state
 
@@ -797,6 +806,18 @@ def codexes(request):
 
 
 @api_view(["GET", "POST"])
+def agent_codices(request):
+    if request.method == "GET":
+        codices = AgentAwareCodex.objects.all().order_by("-last_updated")
+        return Response(AgentAwareCodexSerializer(codices, many=True).data)
+
+    serializer = AgentAwareCodexSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    codex = serializer.save()
+    return Response(AgentAwareCodexSerializer(codex).data, status=201)
+
+
+@api_view(["GET", "POST"])
 def symbolic_laws(request):
     if request.method == "GET":
         laws = SymbolicLawEntry.objects.all().order_by("-created_at")
@@ -1147,5 +1168,23 @@ def multiverse_loops(request):
     serializer.is_valid(raise_exception=True)
     loop = serializer.save()
     return Response(MultiverseLoopLinkSerializer(loop).data, status=201)
+
+
+@api_view(["POST"])
+def ritual_network(request):
+    ritual = generate_ritual_from_ecosystem_state()
+    return Response(ritual, status=200)
+
+
+@api_view(["GET", "POST"])
+def coordination_engine(request):
+    if request.method == "GET":
+        engines = SymbolicCoordinationEngine.objects.all().order_by("-last_sync")
+        return Response(SymbolicCoordinationEngineSerializer(engines, many=True).data)
+
+    serializer = SymbolicCoordinationEngineSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    engine = serializer.save()
+    return Response(SymbolicCoordinationEngineSerializer(engine).data, status=201)
 
 
