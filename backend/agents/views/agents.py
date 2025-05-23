@@ -1100,3 +1100,38 @@ def mythflow_insights(request):
     insight = serializer.save()
     return Response(MythflowInsightSerializer(insight).data, status=201)
 
+
+@api_view(["GET", "POST"])
+def identity_cards(request):
+    if request.method == "GET":
+        cards = MythicIdentityCard.objects.all().order_by("-created_at")
+        return Response(MythicIdentityCardSerializer(cards, many=True).data)
+
+    serializer = MythicIdentityCardSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    card = serializer.save()
+    return Response(MythicIdentityCardSerializer(card).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def timeline_reflection(request):
+    if request.method == "GET":
+        rites = CrossTimelineReflectionRite.objects.all().order_by("-created_at")
+        return Response(CrossTimelineReflectionRiteSerializer(rites, many=True).data)
+
+    serializer = CrossTimelineReflectionRiteSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    rite = serializer.save()
+    return Response(CrossTimelineReflectionRiteSerializer(rite).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def archetype_fusion(request):
+    if request.method == "GET":
+        events = ArchetypeFusionEvent.objects.all().order_by("-created_at")
+        return Response(ArchetypeFusionEventSerializer(events, many=True).data)
+
+    serializer = ArchetypeFusionEventSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    event = serializer.save()
+    return Response(ArchetypeFusionEventSerializer(event).data, status=201)

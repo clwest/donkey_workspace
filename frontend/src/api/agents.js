@@ -31,3 +31,12 @@ export const fetchLearningReservoirs = () =>
   apiFetch("/agents/learning-reservoirs/");
 
 
+export const fetchIdentityCards = () => apiFetch("/identity-cards/");
+export const createIdentityCard = (body) =>
+  apiFetch("/identity-cards/", { method: "POST", body });
+export const fetchTimelineReflections = () => apiFetch("/timeline-reflection/");
+export const createTimelineReflection = (body) =>
+  apiFetch("/timeline-reflection/", { method: "POST", body });
+export const fetchArchetypeFusionEvents = () => apiFetch("/archetype-fusion/");
+export const createArchetypeFusionEvent = (body) =>
+  apiFetch("/archetype-fusion/", { method: "POST", body });

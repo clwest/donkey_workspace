@@ -704,3 +704,23 @@ class LearningReservoirSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
+class MythicIdentityCardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythicIdentityCard
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CrossTimelineReflectionRiteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CrossTimelineReflectionRite
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class ArchetypeFusionEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ArchetypeFusionEvent
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
