@@ -89,7 +89,13 @@ from agents.models.insight import (
     TimelineStitchLog,
 )
 from agents.models.cosmology import SwarmCosmology
-from agents.models.swarm_balance import PurposeMigrationEvent, CognitiveBalanceReport
+from agents.models.swarm_balance import (
+    PurposeMigrationEvent,
+    CognitiveBalanceReport,
+    SymbolicStrategyChamber,
+    PurposeConflictResolutionLog,
+    RitualVotingEvent,
+)
 
 from agents.models.storyfield import (
     StoryfieldZone,
@@ -834,5 +840,26 @@ class MythPatternClusterSerializer(serializers.ModelSerializer):
 class IntentHarmonizationSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = IntentHarmonizationSession
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicStrategyChamberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicStrategyChamber
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class PurposeConflictResolutionLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PurposeConflictResolutionLog
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RitualVotingEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RitualVotingEvent
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
