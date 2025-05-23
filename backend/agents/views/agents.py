@@ -80,9 +80,11 @@ from agents.models.lore import (
     PublicRitualLogEntry,
     BeliefContinuityThread,
     CodexContributionCeremony,
-    MythRecordingSession,
+
     SymbolicDocumentationEntry,
-    BeliefArtifactArchive,
+    CodexReconciliationForum,
+    MythEditorialLayer,
+    SymbolicPublishingEngine,
 
     SignalEncodingArtifact,
     BeliefNavigationVector,
@@ -195,9 +197,10 @@ from agents.serializers import (
     BeliefContinuityThreadSerializer,
     CodexContributionCeremonySerializer,
 
-    MythRecordingSessionSerializer,
     SymbolicDocumentationEntrySerializer,
-    BeliefArtifactArchiveSerializer,
+    CodexReconciliationForumSerializer,
+    MythEditorialLayerSerializer,
+    SymbolicPublishingEngineSerializer,
 
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -1561,12 +1564,38 @@ def symbolic_docs(request):
 
 
 @api_view(["GET", "POST"])
-def artifact_archive(request):
+def codex_forums(request):
     if request.method == "GET":
-        artifacts = BeliefArtifactArchive.objects.all().order_by("-created_at")
-        return Response(BeliefArtifactArchiveSerializer(artifacts, many=True).data)
+        forums = CodexReconciliationForum.objects.all().order_by("-created_at")
+        return Response(CodexReconciliationForumSerializer(forums, many=True).data)
 
-    serializer = BeliefArtifactArchiveSerializer(data=request.data)
+    serializer = CodexReconciliationForumSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    artifact = serializer.save()
-    return Response(BeliefArtifactArchiveSerializer(artifact).data, status=201)
+    forum = serializer.save()
+    return Response(CodexReconciliationForumSerializer(forum).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def editorial_layers(request):
+    if request.method == "GET":
+        layers = MythEditorialLayer.objects.all().order_by("-created_at")
+        return Response(MythEditorialLayerSerializer(layers, many=True).data)
+
+    serializer = MythEditorialLayerSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    layer = serializer.save()
+    return Response(MythEditorialLayerSerializer(layer).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def publishing_engines(request):
+    if request.method == "GET":
+        engines = SymbolicPublishingEngine.objects.all().order_by("-created_at")
+        return Response(
+            SymbolicPublishingEngineSerializer(engines, many=True).data
+        )
+
+    serializer = SymbolicPublishingEngineSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    engine = serializer.save()
+    return Response(SymbolicPublishingEngineSerializer(engine).data, status=201)

@@ -2162,38 +2162,33 @@ class RitualOnboardingFlow(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.entry_name
 
-class MythRecordingSession(models.Model):
-    """User-led narrative capture tied to memory and assistant state."""
-
-    recorder_id = models.CharField(max_length=150)
-    linked_assistant = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE
-    )
-    memory_reference = models.ManyToManyField(SwarmMemoryEntry)
-    symbolic_tags = models.JSONField()
-    story_notes = models.TextField()
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-
-        return f"Session {self.recorder_id}"
-
 
 class SymbolicDocumentationEntry(models.Model):
-    """Community-contributed story log linked to ritual context."""
+    """User-generated myth or ritual documentation entry."""
 
-    author_id = models.CharField(max_length=150)
-    codex_reference = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
-    entry_title = models.CharField(max_length=150)
-    symbolic_themes = models.JSONField()
-    ritual_connection = models.ForeignKey(
-        EncodedRitualBlueprint, on_delete=models.SET_NULL, null=True
+    title = models.CharField(max_length=150)
+    content = models.TextField()
+    created_by = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.SET_NULL, null=True, blank=True
     )
-    content_body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.title
+
+
+class CodexReconciliationForum(models.Model):
+    """Assistant-guided discussion forum for resolving codex contradictions."""
+
+    forum_topic = models.CharField(max_length=150)
+    initiating_codices = models.ManyToManyField(SwarmCodex)
+    participating_assistants = models.ManyToManyField("assistants.Assistant")
+    memory_basis = models.ManyToManyField(SwarmMemoryEntry)
+    reconciliation_log = models.TextField()
+    resolution_achieved = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -2202,18 +2197,39 @@ class SymbolicDocumentationEntry(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
 
-        return self.entry_title
+        return self.forum_topic
 
 
-class BeliefArtifactArchive(models.Model):
-    """Library storing belief artifacts and symbolic submissions."""
+class MythEditorialLayer(models.Model):
+    """Collaborative annotation layer for symbolic documentation entries."""
 
-    contributor_id = models.CharField(max_length=150)
-    artifact_type = models.CharField(max_length=100)
-    artifact_title = models.CharField(max_length=150)
+    linked_entry = models.ForeignKey(
+        SymbolicDocumentationEntry, on_delete=models.CASCADE
+    )
+    suggested_edits = models.JSONField()
+    commentary_threads = models.JSONField()
+    editorial_tags = models.JSONField()
+    approval_status = models.CharField(max_length=50, default="draft")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+
+        return f"Edits for {self.linked_entry.title}"[:50]
+
+
+class SymbolicPublishingEngine(models.Model):
+    """Utility for publishing myth entries into swarm memory libraries."""
+
+    published_title = models.CharField(max_length=150)
+    content_type = models.CharField(max_length=100)
+    publishing_entity = models.CharField(max_length=100)
+    visibility_scope = models.CharField(max_length=100)
     symbolic_payload = models.JSONField()
-    related_codices = models.ManyToManyField(SwarmCodex)
-    archived_memory = models.ManyToManyField(SwarmMemoryEntry)
+    approved_codexes = models.ManyToManyField(SwarmCodex)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -2222,5 +2238,6 @@ class BeliefArtifactArchive(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
 
-        return self.artifact_title
+        return self.published_title
+
 

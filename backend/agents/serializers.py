@@ -88,6 +88,12 @@ from agents.models.lore import (
     CinematicUILayer,
     AssistantTutorialScript,
     RitualOnboardingFlow,
+
+
+    SymbolicDocumentationEntry,
+    CodexReconciliationForum,
+    MythEditorialLayer,
+    SymbolicPublishingEngine,
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
 )
@@ -1014,13 +1020,6 @@ class RitualOnboardingFlowSerializer(serializers.ModelSerializer):
 
 
 
-class MythRecordingSessionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MythRecordingSession
-        fields = "__all__"
-        read_only_fields = ["id", "created_at"]
-
-
 class SymbolicDocumentationEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = SymbolicDocumentationEntry
@@ -1028,9 +1027,26 @@ class SymbolicDocumentationEntrySerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-class BeliefArtifactArchiveSerializer(serializers.ModelSerializer):
+class CodexReconciliationForumSerializer(serializers.ModelSerializer):
     class Meta:
-        model = BeliefArtifactArchive
+        model = CodexReconciliationForum
+
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MythEditorialLayerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythEditorialLayer
+
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicPublishingEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicPublishingEngine
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
