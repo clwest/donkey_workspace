@@ -2197,7 +2197,6 @@ class RitualFusionEvent(models.Model):
     class Meta:
         ordering = ["-created_at"]
 
-
     def __str__(self):  # pragma: no cover - display helper
         return f"Fusion {self.id}"
 
@@ -2220,6 +2219,7 @@ class NarrativeCurationTimeline(models.Model):
 
 
 
+
 class SymbolicFeedbackChamber(models.Model):
     """Guided belief review and codex reflection."""
 
@@ -2228,6 +2228,7 @@ class SymbolicFeedbackChamber(models.Model):
     codex_review = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
     memory_archive = models.ManyToManyField(SwarmMemoryEntry)
     ritual_scorecards = models.JSONField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -2245,10 +2246,12 @@ class MultiAgentDialogueAmplifier(models.Model):
     active_codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
     layered_response = models.TextField()
     symbolic_resonance_score = models.FloatField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
+
 
     def __str__(self):  # pragma: no cover - display helper
         return self.amplifier_title
@@ -2262,10 +2265,13 @@ class MythicResolutionSequence(models.Model):
     codex_closure_state = models.TextField()
     legacy_artifacts = models.JSONField()
     symbolic_final_score = models.FloatField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
+
     def __str__(self):  # pragma: no cover - display helper
         return f"Resolution {self.id}"
+

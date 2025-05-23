@@ -93,4 +93,25 @@ export const routeMap = [
     serializer: "-",
     notes: "Activity timeline",
   },
+  {
+    frontend: "/dashboard/world",
+    backend: "/api/metrics/world-metrics/",
+    view: "WorldDashboardPage",
+    serializer: "WorldMetrics",
+    notes: "MythOS world metrics dashboard",
+  },
+  {
+    frontend: "/map/assistants",
+    backend: "/api/metrics/assistant-presence/",
+    view: "AssistantPresenceMapPage",
+    serializer: "-",
+    notes: "Assistant presence map",
+  },
+  {
+    frontend: "/heatmap/mythflow",
+    backend: "/api/metrics/mythflow-heatmap/",
+    view: "MythflowHeatmapPage",
+    serializer: "-",
+    notes: "Mythflow heatmap viewer",
+  },
 ];

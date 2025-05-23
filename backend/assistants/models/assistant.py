@@ -1324,3 +1324,37 @@ class CodexLinkedGuild(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.guild_name
+
+
+class AssistantTravelLog(models.Model):
+    """Record symbolic and ritual journeys taken by an assistant."""
+
+    assistant = models.ForeignKey(Assistant, on_delete=models.CASCADE)
+    travel_route = models.JSONField()
+    visited_memory = models.ManyToManyField("agents.SwarmMemoryEntry", blank=True)
+    symbolic_tags = models.JSONField(default=list, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Travel log for {self.assistant.name}"
+
+
+class SymbolicInfluenceReport(models.Model):
+    """Dashboard report of user impact and codex alignment."""
+
+    user_id = models.CharField(max_length=150)
+    assistant = models.ForeignKey(Assistant, on_delete=models.CASCADE)
+    codex_impact_vector = models.JSONField(default=dict)
+    ritual_interaction_stats = models.JSONField(default=dict)
+    memory_contributions = models.ManyToManyField("agents.SwarmMemoryEntry", blank=True)
+    symbolic_score_summary = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Influence for {self.user_id}"
