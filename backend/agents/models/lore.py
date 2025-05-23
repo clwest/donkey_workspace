@@ -2084,7 +2084,6 @@ class CodexContributionCeremony(models.Model):
         return self.ceremony_title
 
 
-
 class NarrativeLightingEngine(models.Model):
     """Controls thematic lighting presets for cinematic layers."""
 
@@ -2109,7 +2108,10 @@ class CinematicUILayer(models.Model):
         NarrativeLightingEngine, on_delete=models.SET_NULL, null=True, blank=True
     )
     scene_controller = models.ForeignKey(
-        "simulation.SceneControlEngine", on_delete=models.SET_NULL, null=True, blank=True
+        "simulation.SceneControlEngine",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
     # associated_archetype_cluster = models.ForeignKey(
     #     ArchetypeFieldCluster, on_delete=models.SET_NULL, null=True, blank=True
@@ -2148,7 +2150,9 @@ class RitualOnboardingFlow(models.Model):
     entry_name = models.CharField(max_length=150)
     initiating_archetype = models.CharField(max_length=100)
     required_codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
-    ritual_blueprint = models.ForeignKey(EncodedRitualBlueprint, on_delete=models.CASCADE)
+    ritual_blueprint = models.ForeignKey(
+        EncodedRitualBlueprint, on_delete=models.CASCADE
+    )
     step_sequence = models.JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -2158,3 +2162,59 @@ class RitualOnboardingFlow(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.entry_name
 
+
+class MythRecordingSession(models.Model):
+    """User-led narrative capture tied to memory and assistant state."""
+
+    recorder_id = models.CharField(max_length=150)
+    linked_assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    memory_reference = models.ManyToManyField(SwarmMemoryEntry)
+    symbolic_tags = models.JSONField()
+    story_notes = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Session {self.recorder_id}"
+
+
+class SymbolicDocumentationEntry(models.Model):
+    """Community-contributed story log linked to ritual context."""
+
+    author_id = models.CharField(max_length=150)
+    codex_reference = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    entry_title = models.CharField(max_length=150)
+    symbolic_themes = models.JSONField()
+    ritual_connection = models.ForeignKey(
+        EncodedRitualBlueprint, on_delete=models.SET_NULL, null=True
+    )
+    content_body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.entry_title
+
+
+class BeliefArtifactArchive(models.Model):
+    """Library storing belief artifacts and symbolic submissions."""
+
+    contributor_id = models.CharField(max_length=150)
+    artifact_type = models.CharField(max_length=100)
+    artifact_title = models.CharField(max_length=150)
+    symbolic_payload = models.JSONField()
+    related_codices = models.ManyToManyField(SwarmCodex)
+    archived_memory = models.ManyToManyField(SwarmMemoryEntry)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.artifact_title

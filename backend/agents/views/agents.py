@@ -78,6 +78,9 @@ from agents.models.lore import (
     PublicRitualLogEntry,
     BeliefContinuityThread,
     CodexContributionCeremony,
+    MythRecordingSession,
+    SymbolicDocumentationEntry,
+    BeliefArtifactArchive,
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
@@ -185,6 +188,9 @@ from agents.serializers import (
     PublicRitualLogEntrySerializer,
     BeliefContinuityThreadSerializer,
     CodexContributionCeremonySerializer,
+    MythRecordingSessionSerializer,
+    SymbolicDocumentationEntrySerializer,
+    BeliefArtifactArchiveSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1501,7 +1507,6 @@ def codex_contributions(request):
     return Response(CodexContributionCeremonySerializer(contribution).data, status=201)
 
 
-
 @api_view(["GET"])
 def onboarding_ritual(request):
     """Trigger cinematic ritual onboarding flow."""
@@ -1520,3 +1525,37 @@ def assistant_tutorial(request, id):
     return Response({"assistant": id, "message": "Tutorial start"})
 
 
+@api_view(["GET", "POST"])
+def myth_record(request):
+    if request.method == "GET":
+        sessions = MythRecordingSession.objects.all().order_by("-created_at")
+        return Response(MythRecordingSessionSerializer(sessions, many=True).data)
+
+    serializer = MythRecordingSessionSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    session = serializer.save()
+    return Response(MythRecordingSessionSerializer(session).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def symbolic_docs(request):
+    if request.method == "GET":
+        entries = SymbolicDocumentationEntry.objects.all().order_by("-created_at")
+        return Response(SymbolicDocumentationEntrySerializer(entries, many=True).data)
+
+    serializer = SymbolicDocumentationEntrySerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    entry = serializer.save()
+    return Response(SymbolicDocumentationEntrySerializer(entry).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def artifact_archive(request):
+    if request.method == "GET":
+        artifacts = BeliefArtifactArchive.objects.all().order_by("-created_at")
+        return Response(BeliefArtifactArchiveSerializer(artifacts, many=True).data)
+
+    serializer = BeliefArtifactArchiveSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    artifact = serializer.save()
+    return Response(BeliefArtifactArchiveSerializer(artifact).data, status=201)

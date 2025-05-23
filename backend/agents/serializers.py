@@ -83,15 +83,12 @@ from agents.models.lore import (
     PublicRitualLogEntry,
     BeliefContinuityThread,
     CodexContributionCeremony,
-
     NarrativeLightingEngine,
     CinematicUILayer,
     AssistantTutorialScript,
     RitualOnboardingFlow,
-
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
-
 )
 
 from agents.models.coordination import (
@@ -985,14 +982,12 @@ class CodexContributionCeremonySerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-
 class NarrativeLightingEngineSerializer(serializers.ModelSerializer):
     class Meta:
         model = NarrativeLightingEngine
 
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
-
 
 
 class CinematicUILayerSerializer(serializers.ModelSerializer):
@@ -1015,3 +1010,23 @@ class RitualOnboardingFlowSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
+class MythRecordingSessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythRecordingSession
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicDocumentationEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicDocumentationEntry
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class BeliefArtifactArchiveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BeliefArtifactArchive
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
