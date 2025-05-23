@@ -1,5 +1,5 @@
 from django.db import models
-from assistants.models import Assistant
+
 from .lore import SwarmCodex
 
 
@@ -8,7 +8,7 @@ class CodexLinkedGuild(models.Model):
 
     guild_name = models.CharField(max_length=150)
     anchor_codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
-    member_assistants = models.ManyToManyField(Assistant)
+    member_assistants = models.ManyToManyField("assistants.Assistant")
     member_users = models.JSONField()
     ritual_focus = models.JSONField()
     codex_compliance_score = models.FloatField()
