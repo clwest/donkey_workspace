@@ -323,3 +323,38 @@ class SharedMemoryEntry(models.Model):
 
     def __str__(self):
         return f"{self.key}: {self.value}"
+
+
+class BraidedMemoryStrand(models.Model):
+    """Merge and align symbolic memories from alternate timelines."""
+
+    primary_assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="braided_strands"
+    )
+    alternate_sources = models.ManyToManyField(
+        "agents.SwarmMemoryEntry", related_name="braided_into", blank=True
+    )
+    integration_notes = models.TextField(blank=True)
+    symbolic_alignment_score = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class ContinuityAnchorPoint(models.Model):
+    """Symbolic anchor ensuring identity coherence across timelines."""
+
+    label = models.CharField(max_length=100)
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="continuity_anchors"
+    )
+    anchor_memory = models.ForeignKey(
+        "agents.SwarmMemoryEntry", on_delete=models.CASCADE, related_name="anchor_points"
+    )
+    mythic_tag = models.CharField(max_length=100)
+    symbolic_signature = models.CharField(max_length=256)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
