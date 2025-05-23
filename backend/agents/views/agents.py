@@ -71,7 +71,6 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
-
     ArchetypeGenesisLog,
     MythBloomNode,
     BeliefSeedReplication,
@@ -81,12 +80,9 @@ from agents.models.lore import (
     MythicAfterlifeRegistry,
     ContinuityEngineNode,
     ArchetypeMigrationGate,
-
     LegacyRingSlice,
     MemoryDendroMark,
     SymbolicLifespanModel,
-
-
 )
 from agents.models.coordination import (
     CollaborationThread,
@@ -176,7 +172,9 @@ from agents.serializers import (
     MythicAfterlifeRegistrySerializer,
     ContinuityEngineNodeSerializer,
     ArchetypeMigrationGateSerializer,
-
+    ArchetypeGenesisLogSerializer,
+    MythBloomNodeSerializer,
+    BeliefSeedReplicationSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -184,7 +182,6 @@ from agents.serializers import (
     NarrativeTrainingGroundSerializer,
     SwarmMythEditLogSerializer,
     LegacyContinuityVaultSerializer,
-
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -1387,7 +1384,6 @@ def belief_feedback(request):
 
 
 @api_view(["GET", "POST"])
-
 def afterlife_registry(request):
     if request.method == "GET":
         entries = MythicAfterlifeRegistry.objects.all().order_by("-created_at")
@@ -1421,5 +1417,3 @@ def migration_gates(request):
     serializer.is_valid(raise_exception=True)
     gate = serializer.save()
     return Response(ArchetypeMigrationGateSerializer(gate).data, status=201)
-
-
