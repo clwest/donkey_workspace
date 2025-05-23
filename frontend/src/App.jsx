@@ -51,6 +51,7 @@ import AssistantThoughtDetailPage from "./pages/assistant/common/AssistantThough
 import AssistantDemoPage from "./pages/assistant/common/AssistantDemoPage";
 import ChatWithAssistantPage from "./pages/assistant/common/ChatWithAssistantPage";
 import CreateNewAssistantPage from "./pages/assistant/common/CreateNewAssistantPage";
+import AssistantInterfacePage from "./pages/assistants/AssistantInterfacePage";
 
 import ProjectDetailPage from "./pages/assistant/projects/ProjectDetailPage";
 import ProjectCreateFromMemoryPage from "./pages/assistant/projects/ProjectCreateFromMemoryPage";
@@ -352,6 +353,10 @@ export default function App() {
           <Route
             path="/assistants/:slug/chat"
             element={<ChatWithAssistantPage />}
+          />
+          <Route
+            path="/assistants/:id/interface"
+            element={<AssistantInterfacePage />}
           />
           <Route path="/assistants/:slug" element={<AssistantDetailPage />} />
           {/* MCP Core */}

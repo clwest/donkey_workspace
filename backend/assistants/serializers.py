@@ -30,6 +30,8 @@ from .models.assistant import (
     DecisionFramework,
     PurposeRouteMap,
     AutonomyNarrativeModel,
+    SymbolicUXPlaybook,
+    RoleDrivenUITemplate,
 )
 from .models.project import (
     AssistantProject,
@@ -1261,18 +1263,18 @@ class AutonomyNarrativeModelSerializer(serializers.ModelSerializer):
 
 
 
-
-class HapticFeedbackChannelSerializer(serializers.ModelSerializer):
+class SymbolicUXPlaybookSerializer(serializers.ModelSerializer):
     class Meta:
-        model = HapticFeedbackChannel
+        model = SymbolicUXPlaybook
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class AssistantSensoryExtensionProfileSerializer(serializers.ModelSerializer):
-    assistant = serializers.PrimaryKeyRelatedField(read_only=True)
-
+class RoleDrivenUITemplateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AssistantSensoryExtensionProfile
+        model = RoleDrivenUITemplate
+
         fields = "__all__"
-        read_only_fields = ["id", "assistant", "created_at"]
+        read_only_fields = ["id", "created_at"]
+
+
