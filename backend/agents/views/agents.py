@@ -78,6 +78,9 @@ from agents.models.lore import (
     PublicRitualLogEntry,
     BeliefContinuityThread,
     CodexContributionCeremony,
+    PublicMemoryGrove,
+    SharedRitualCalendar,
+    SymbolicReflectionArena,
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
@@ -185,6 +188,9 @@ from agents.serializers import (
     PublicRitualLogEntrySerializer,
     BeliefContinuityThreadSerializer,
     CodexContributionCeremonySerializer,
+    PublicMemoryGroveSerializer,
+    SharedRitualCalendarSerializer,
+    SymbolicReflectionArenaSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1501,7 +1507,6 @@ def codex_contributions(request):
     return Response(CodexContributionCeremonySerializer(contribution).data, status=201)
 
 
-
 @api_view(["GET"])
 def onboarding_ritual(request):
     """Trigger cinematic ritual onboarding flow."""
@@ -1520,3 +1525,37 @@ def assistant_tutorial(request, id):
     return Response({"assistant": id, "message": "Tutorial start"})
 
 
+@api_view(["GET", "POST"])
+def memory_groves(request):
+    if request.method == "GET":
+        groves = PublicMemoryGrove.objects.all().order_by("-created_at")
+        return Response(PublicMemoryGroveSerializer(groves, many=True).data)
+
+    serializer = PublicMemoryGroveSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    grove = serializer.save()
+    return Response(PublicMemoryGroveSerializer(grove).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def ritual_calendars(request):
+    if request.method == "GET":
+        calendars = SharedRitualCalendar.objects.all().order_by("-created_at")
+        return Response(SharedRitualCalendarSerializer(calendars, many=True).data)
+
+    serializer = SharedRitualCalendarSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    calendar = serializer.save()
+    return Response(SharedRitualCalendarSerializer(calendar).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def reflection_arenas(request):
+    if request.method == "GET":
+        arenas = SymbolicReflectionArena.objects.all().order_by("-created_at")
+        return Response(SymbolicReflectionArenaSerializer(arenas, many=True).data)
+
+    serializer = SymbolicReflectionArenaSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    arena = serializer.save()
+    return Response(SymbolicReflectionArenaSerializer(arena).data, status=201)

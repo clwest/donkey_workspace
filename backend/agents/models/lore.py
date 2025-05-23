@@ -2084,7 +2084,6 @@ class CodexContributionCeremony(models.Model):
         return self.ceremony_title
 
 
-
 class NarrativeLightingEngine(models.Model):
     """Controls thematic lighting presets for cinematic layers."""
 
@@ -2109,7 +2108,10 @@ class CinematicUILayer(models.Model):
         NarrativeLightingEngine, on_delete=models.SET_NULL, null=True, blank=True
     )
     scene_controller = models.ForeignKey(
-        "simulation.SceneControlEngine", on_delete=models.SET_NULL, null=True, blank=True
+        "simulation.SceneControlEngine",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
     # associated_archetype_cluster = models.ForeignKey(
     #     ArchetypeFieldCluster, on_delete=models.SET_NULL, null=True, blank=True
@@ -2148,7 +2150,9 @@ class RitualOnboardingFlow(models.Model):
     entry_name = models.CharField(max_length=150)
     initiating_archetype = models.CharField(max_length=100)
     required_codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
-    ritual_blueprint = models.ForeignKey(EncodedRitualBlueprint, on_delete=models.CASCADE)
+    ritual_blueprint = models.ForeignKey(
+        EncodedRitualBlueprint, on_delete=models.CASCADE
+    )
     step_sequence = models.JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -2158,3 +2162,51 @@ class RitualOnboardingFlow(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.entry_name
 
+
+class PublicMemoryGrove(models.Model):
+    """Shared symbolic memory space connected to a mythic cluster."""
+
+    grove_name = models.CharField(max_length=150)
+    linked_cluster = models.ForeignKey("MythCommunityCluster", on_delete=models.CASCADE)
+    featured_memories = models.ManyToManyField(SwarmMemoryEntry)
+    codex_reference = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.grove_name
+
+
+class SharedRitualCalendar(models.Model):
+    """Time-based coordination hub for symbolic events."""
+
+    linked_guild = models.ForeignKey("CodexLinkedGuild", on_delete=models.CASCADE)
+    event_schedule = models.JSONField()
+    ritual_themes = models.JSONField()
+    codex_cycle_marker = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.codex_cycle_marker
+
+
+class SymbolicReflectionArena(models.Model):
+    """Structured arena for collective reflection events."""
+
+    arena_name = models.CharField(max_length=150)
+    participants = models.JSONField()
+    reflection_topic = models.TextField()
+    codex_focus = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    summary_log = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.arena_name

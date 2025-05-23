@@ -83,15 +83,15 @@ from agents.models.lore import (
     PublicRitualLogEntry,
     BeliefContinuityThread,
     CodexContributionCeremony,
-
+    PublicMemoryGrove,
+    SharedRitualCalendar,
+    SymbolicReflectionArena,
     NarrativeLightingEngine,
     CinematicUILayer,
     AssistantTutorialScript,
     RitualOnboardingFlow,
-
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
-
 )
 
 from agents.models.coordination import (
@@ -985,14 +985,12 @@ class CodexContributionCeremonySerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-
 class NarrativeLightingEngineSerializer(serializers.ModelSerializer):
     class Meta:
         model = NarrativeLightingEngine
 
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
-
 
 
 class CinematicUILayerSerializer(serializers.ModelSerializer):
@@ -1015,3 +1013,23 @@ class RitualOnboardingFlowSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
+class PublicMemoryGroveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PublicMemoryGrove
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SharedRitualCalendarSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SharedRitualCalendar
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicReflectionArenaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicReflectionArena
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
