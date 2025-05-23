@@ -6,10 +6,10 @@ django.setup()
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from assistants.models import Assistant
-from agents.models import SwarmMemoryEntry, LegacyArtifact, NarrativeArtifactExporter
+from agents.models import SwarmMemoryEntry, LegacyArtifact, LegacyArtifactExporter
 
 
-class NarrativeArtifactExporterTest(TestCase):
+class LegacyArtifactExporterTest(TestCase):
     def setUp(self):
         self.assistant = Assistant.objects.create(name="A")
         self.mem = SwarmMemoryEntry.objects.create(title="t", content="c")
@@ -21,7 +21,7 @@ class NarrativeArtifactExporterTest(TestCase):
         )
 
     def test_valid_format(self):
-        exporter = NarrativeArtifactExporter(
+        exporter = LegacyArtifactExporter(
             artifact=self.artifact,
             assistant=self.assistant,
             export_format="json",
@@ -31,7 +31,7 @@ class NarrativeArtifactExporterTest(TestCase):
         self.assertEqual(exporter.export_format, "json")
 
     def test_invalid_format(self):
-        exporter = NarrativeArtifactExporter(
+        exporter = LegacyArtifactExporter(
             artifact=self.artifact,
             assistant=self.assistant,
             export_format="txt",

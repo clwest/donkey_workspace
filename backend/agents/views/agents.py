@@ -91,8 +91,7 @@ from agents.models.lore import (
     MultiAgentDialogueAmplifier,
     MythicResolutionSequence,
 
-
-    NarrativeArtifactExporter,
+    LegacyArtifactExporter,
     SymbolicPatternBroadcastEngine,
 
 
@@ -121,7 +120,7 @@ from agents.models.storyfield import (
 
 )
 
-from agents.models.mythchain import MythchainOutputGenerator
+from agents.models.mythchain import MythchainOutputGenerator, NarrativeArtifactExporter
 
 # from simulation.models import SceneDirectorFrame
 from agents.serializers import (
