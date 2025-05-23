@@ -2218,54 +2218,64 @@ class NarrativeCurationTimeline(models.Model):
         return self.title
 
 
-class PublicMemoryGrove(models.Model):
-    """Publicly accessible collection of swarm memories."""
 
-    grove_name = models.CharField(max_length=150)
-    linked_cluster = models.ForeignKey(
-        "assistants.MythCommunityCluster", on_delete=models.CASCADE
+class AssistantSummoningScroll(models.Model):
+    """Portable artifact that invokes an assistant via symbolic cues."""
+
+    scroll_title = models.CharField(max_length=150)
+    invocation_phrase = models.CharField(max_length=150)
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
     )
-    codex_reference = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
-    featured_memories = models.ManyToManyField(SwarmMemoryEntry, blank=True)
+    scroll_url = models.TextField()
+    symbolic_rune_tags = models.JSONField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
-        return self.grove_name
+        return self.scroll_title
 
 
-class SharedRitualCalendar(models.Model):
-    """Calendar of rituals shared across a guild."""
+class GuildMemoryRelayNode(models.Model):
+    """Broadcast memory packets across guild networks."""
+
 
     linked_guild = models.ForeignKey(
         "assistants.CodexLinkedGuild", on_delete=models.CASCADE
     )
-    event_schedule = models.JSONField(default=dict)
-    ritual_themes = models.JSONField(default=dict)
-    codex_cycle_marker = models.CharField(max_length=100)
+
+    transmission_window = models.CharField(max_length=100)
+    shared_memories = models.ManyToManyField(SwarmMemoryEntry)
+    symbolic_payload_tags = models.JSONField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
-        return self.linked_guild.guild_name
+
+        return f"Relay {self.id} for {self.linked_guild.guild_name}"[:50]
 
 
-class SymbolicReflectionArena(models.Model):
-    """Arena for public symbolic reflections."""
+class SymbolicInterlinkMap(models.Model):
+    """Map connecting memory, codices and assistants via archetype tags."""
 
-    arena_name = models.CharField(max_length=150)
-    participants = models.JSONField(default=dict)
-    reflection_topic = models.CharField(max_length=200)
-    codex_focus = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
-    summary_log = models.TextField(blank=True)
+    interlink_title = models.CharField(max_length=150)
+    source_memory = models.ForeignKey(SwarmMemoryEntry, on_delete=models.CASCADE)
+    linked_codices = models.ManyToManyField(SwarmCodex)
+    connected_assistants = models.ManyToManyField("assistants.Assistant")
+    archetype_tags = models.JSONField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
-        return self.arena_name
+
+        return self.interlink_title
+

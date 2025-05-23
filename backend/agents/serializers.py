@@ -1076,63 +1076,24 @@ class NarrativeCurationTimelineSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-class MemoryInheritanceSeedSerializer(serializers.ModelSerializer):
-    onboarding_memory_ids = serializers.PrimaryKeyRelatedField(
-        queryset=SwarmMemoryEntry.objects.all(),
-        many=True,
-        write_only=True,
-        required=False,
-        source="onboarding_memory",
-    )
-    onboarding_memory = SwarmMemoryEntrySerializer(many=True, read_only=True)
 
+class AssistantSummoningScrollSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MemoryInheritanceSeed
-        fields = "__all__"
-        read_only_fields = ["id", "created_at", "onboarding_memory"]
-
-
-class PersonalCodexAnchorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PersonalCodexAnchor
+        model = AssistantSummoningScroll
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class RitualContractBindingSerializer(serializers.ModelSerializer):
-    shared_memory_ids = serializers.PrimaryKeyRelatedField(
-        queryset=SwarmMemoryEntry.objects.all(),
-        many=True,
-        write_only=True,
-        required=False,
-        source="shared_memory",
-    )
-    shared_memory = SwarmMemoryEntrySerializer(many=True, read_only=True)
-
+class GuildMemoryRelayNodeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = RitualContractBinding
+        model = GuildMemoryRelayNode
+
         fields = "__all__"
-        read_only_fields = ["id", "created_at", "shared_memory"]
+        read_only_fields = ["id", "created_at"]
 
-
-class ReincarnationTreeNodeSerializer(serializers.ModelSerializer):
-    retained_memories_ids = serializers.PrimaryKeyRelatedField(
-        queryset=SwarmMemoryEntry.objects.all(),
-        many=True,
-        write_only=True,
-        required=False,
-        source="retained_memories",
-    )
-    retained_memories = SwarmMemoryEntrySerializer(many=True, read_only=True)
-
+class SymbolicInterlinkMapSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ReincarnationTreeNode
+        model = SymbolicInterlinkMap
         fields = "__all__"
-        read_only_fields = ["id", "created_at", "retained_memories"]
+        read_only_fields = ["id", "created_at"]
 
-
-class BeliefVectorDeltaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = BeliefVectorDelta
-        fields = "__all__"
-        read_only_fields = ["id", "recorded_at"]
