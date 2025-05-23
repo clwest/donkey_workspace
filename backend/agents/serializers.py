@@ -496,6 +496,13 @@ class SwarmCodexSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+class AgentAwareCodexSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AgentAwareCodex
+        fields = "__all__"
+        read_only_fields = ["id", "last_updated"]
+
+
 class SymbolicLawEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = SymbolicLawEntry
@@ -688,6 +695,13 @@ class MythflowInsightSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
+class SymbolicCoordinationEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicCoordinationEngine
+        fields = "__all__"
+        read_only_fields = ["id", "last_sync"]
+
 class KnowledgeReplicationEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = KnowledgeReplicationEvent
@@ -745,6 +759,7 @@ class MythicAlignmentMarketSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "last_updated"]
 
 
+
 class SymbolicResonanceGraphSerializer(serializers.ModelSerializer):
     class Meta:
         model = SymbolicResonanceGraph
@@ -755,14 +770,22 @@ class SymbolicResonanceGraphSerializer(serializers.ModelSerializer):
 class CognitiveBalanceReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = CognitiveBalanceReport
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 
 
 class PurposeMigrationEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurposeMigrationEvent
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+class SymbolicPlanningLatticeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicPlanningLattice
+        fields = "__all__"
+        read_only_fields = ["id", "last_updated"]
 

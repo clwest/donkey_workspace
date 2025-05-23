@@ -1108,6 +1108,22 @@ class SwarmCodex(models.Model):
         return self.title
 
 
+class AgentAwareCodex(models.Model):
+    """Codex that tracks assistant-specific awareness and clause dynamics."""
+
+    base_codex = models.OneToOneField(SwarmCodex, on_delete=models.CASCADE)
+    codex_awareness_map = models.JSONField()
+    sentiment_trend = models.CharField(max_length=100)
+    evolving_clauses = models.JSONField()
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-last_updated"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"AwareCodex for {self.base_codex.title}"
+
+
 class SymbolicLawEntry(models.Model):
     """Encoded rule linked to a codex and memory origin."""
 

@@ -75,6 +75,9 @@ urlpatterns = [
     path("api/agents/", include("agents.urls")),
     path("api/lore-tokens/", agent_views.lore_tokens),
     path("api/codexes/", agent_views.codexes),
+    path("api/agent-codices/", agent_views.agent_codices),
+    path("api/ritual-network/", agent_views.ritual_network),
+    path("api/coordination-engine/", agent_views.coordination_engine),
     path("api/symbolic-laws/", agent_views.symbolic_laws),
     path("api/ritual-archives/", agent_views.ritual_archives),
     path("api/polities/", agent_views.polities),
@@ -82,6 +85,7 @@ urlpatterns = [
     path("api/legacy-roles/", agent_views.legacy_roles),
     path("api/cosmological-roles/", agent_views.cosmological_roles),
     path("api/myth-weaver/", agent_views.myth_weaver),
+    path("api/myth-evolution/", agent_views.myth_evolution),
     path("api/legacy-vaults/", agent_views.legacy_vaults),
 
     path("api/resonance-graphs/", agent_views.resonance_graphs),

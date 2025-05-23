@@ -8,3 +8,5 @@ from .reincarnation import reincarnate_assistant_from_artifact
 from .narrative_harmonizer import harmonize_global_narrative
 from .myth_verification import verify_lore_token_signature, sync_chronomyth_state
 from .law_evolution import evolve_symbolic_law
+from .myth_evolution import evolve_myth_elements
+
