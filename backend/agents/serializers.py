@@ -90,6 +90,7 @@ from agents.models.lore import (
     CinematicUILayer,
     AssistantTutorialScript,
     RitualOnboardingFlow,
+
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
 )
@@ -1014,6 +1015,7 @@ class RitualOnboardingFlowSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+
 class PublicMemoryGroveSerializer(serializers.ModelSerializer):
     class Meta:
         model = PublicMemoryGrove
@@ -1024,12 +1026,15 @@ class PublicMemoryGroveSerializer(serializers.ModelSerializer):
 class SharedRitualCalendarSerializer(serializers.ModelSerializer):
     class Meta:
         model = SharedRitualCalendar
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 
 
 class SymbolicReflectionArenaSerializer(serializers.ModelSerializer):
     class Meta:
         model = SymbolicReflectionArena
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]

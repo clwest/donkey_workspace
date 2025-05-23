@@ -2186,12 +2186,14 @@ class SharedRitualCalendar(models.Model):
     event_schedule = models.JSONField()
     ritual_themes = models.JSONField()
     codex_cycle_marker = models.CharField(max_length=100)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return self.codex_cycle_marker
 
 
@@ -2203,10 +2205,13 @@ class SymbolicReflectionArena(models.Model):
     reflection_topic = models.TextField()
     codex_focus = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
     summary_log = models.TextField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return self.arena_name
+

@@ -16,6 +16,11 @@ from .views.session import (
 from .views.storyline import CinemythStorylineViewSet
 from .views.purpose_loop import PurposeLoopCinematicEngineViewSet
 from .views.theater import ReflectiveTheaterSessionViewSet
+from .views.playback import (
+    MythflowPlaybackSessionViewSet,
+    SymbolicMilestoneLogViewSet,
+    PersonalRitualGuideViewSet,
+)
 
 from .views.sandbox import SimulationRunView
 
@@ -34,6 +39,9 @@ router.register(r"dialogue-exchange", SymbolicDialogueExchangeViewSet, basename=
 router.register(r"cinemyths", CinemythStorylineViewSet, basename="cinemyth")
 router.register(r"purpose-loops", PurposeLoopCinematicEngineViewSet, basename="purpose-loop")
 router.register(r"theater-sessions", ReflectiveTheaterSessionViewSet, basename="theater-session")
+router.register(r"mythflow-playback", MythflowPlaybackSessionViewSet, basename="mythflow-playback")
+router.register(r"milestones", SymbolicMilestoneLogViewSet, basename="milestone")
+router.register(r"ritual-guide", PersonalRitualGuideViewSet, basename="ritual-guide")
 
 
 urlpatterns = router.urls + [
