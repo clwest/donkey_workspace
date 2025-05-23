@@ -2399,3 +2399,67 @@ class MemoryRegenerationProtocol(models.Model):
 
 
 
+
+
+class MythicCycleExporter(models.Model):
+    """Export complete myth timelines and codex paths."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    cycle_title = models.CharField(max_length=150)
+    included_memory = models.ManyToManyField(SwarmMemoryEntry)
+    codex_snapshots = models.ManyToManyField(SwarmCodex)
+    ritual_threads = models.JSONField()
+    export_format = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return self.cycle_title
+
+
+class AssistantReflectionChainSystem(models.Model):
+    """Linked assistant reflections across time and roles."""
+
+    chain_type = models.CharField(max_length=50)
+    linked_assistants = models.ManyToManyField("assistants.Assistant")
+    shared_codex_nodes = models.ManyToManyField(SwarmCodex, blank=True)
+    symbolic_tags = models.JSONField(default=dict)
+    visualization_map = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return self.chain_type
+
+
+class NarrativeReincarnationFramework(models.Model):
+    """Generate new story states through guided rituals."""
+
+    initiating_assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    ritual_prompt = models.TextField()
+    memory_retention_filter = models.JSONField()
+    new_role = models.CharField(max_length=100)
+    appearance_variation = models.JSONField()
+    reincarnation_node = models.ForeignKey(
+        "agents.ReincarnationTreeNode", on_delete=models.SET_NULL, null=True
+    )
+    timeline_tracker = models.ForeignKey(
+        ResurrectionTimelineTracker, on_delete=models.SET_NULL, null=True
+    )
+    directive_memory = models.ForeignKey(
+        "agents.DirectiveMemoryNode", on_delete=models.SET_NULL, null=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"{self.initiating_assistant.name} -> {self.new_role}"
+
