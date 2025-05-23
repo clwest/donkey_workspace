@@ -76,6 +76,9 @@ from agents.models.lore import (
     BeliefSeedReplication,
     PersonaFusionEvent,
     DialogueCodexMutationLog,
+    PublicRitualLogEntry,
+    BeliefContinuityThread,
+    CodexContributionCeremony,
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
@@ -180,6 +183,9 @@ from agents.serializers import (
     BeliefSeedReplicationSerializer,
     PersonaFusionEventSerializer,
     DialogueCodexMutationLogSerializer,
+    PublicRitualLogEntrySerializer,
+    BeliefContinuityThreadSerializer,
+    CodexContributionCeremonySerializer,
     SceneDirectorFrameSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -1458,4 +1464,40 @@ def scene_director(request):
     serializer.is_valid(raise_exception=True)
     frame = serializer.save()
     return Response(SceneDirectorFrameSerializer(frame).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def public_rituals(request):
+    if request.method == "GET":
+        logs = PublicRitualLogEntry.objects.all().order_by("-created_at")
+        return Response(PublicRitualLogEntrySerializer(logs, many=True).data)
+
+    serializer = PublicRitualLogEntrySerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    log = serializer.save()
+    return Response(PublicRitualLogEntrySerializer(log).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def belief_threads(request):
+    if request.method == "GET":
+        threads = BeliefContinuityThread.objects.all().order_by("-created_at")
+        return Response(BeliefContinuityThreadSerializer(threads, many=True).data)
+
+    serializer = BeliefContinuityThreadSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    thread = serializer.save()
+    return Response(BeliefContinuityThreadSerializer(thread).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def codex_contributions(request):
+    if request.method == "GET":
+        contributions = CodexContributionCeremony.objects.all().order_by("-created_at")
+        return Response(CodexContributionCeremonySerializer(contributions, many=True).data)
+
+    serializer = CodexContributionCeremonySerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    contribution = serializer.save()
+    return Response(CodexContributionCeremonySerializer(contribution).data, status=201)
 
