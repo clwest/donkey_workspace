@@ -2158,3 +2158,55 @@ class RitualOnboardingFlow(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.entry_name
 
+
+class StoryConvergencePath(models.Model):
+    """Unify belief threads and codex roles."""
+
+    initiating_assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    involved_memory = models.ManyToManyField(SwarmMemoryEntry)
+    symbolic_unity_vector = models.JSONField()
+    codex_targets = models.ManyToManyField(SwarmCodex)
+    convergence_summary = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Convergence {self.id}"
+
+
+class RitualFusionEvent(models.Model):
+    """Merge ritual blueprints into a hybrid event."""
+
+    initiator_id = models.CharField(max_length=150)
+    ritual_components = models.ManyToManyField(EncodedRitualBlueprint)
+    fusion_script = models.JSONField()
+    symbolic_impact_summary = models.TextField()
+    codex_context = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Fusion {self.id}"
+
+
+class NarrativeCurationTimeline(models.Model):
+    """Collaboratively curated mythic timeline."""
+
+    title = models.CharField(max_length=150)
+    contributors = models.JSONField()
+    timeline_segments = models.JSONField()
+    linked_memory = models.ManyToManyField(SwarmMemoryEntry)
+    codex_nodes = models.ManyToManyField(SwarmCodex)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return self.title

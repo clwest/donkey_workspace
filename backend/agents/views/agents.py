@@ -84,6 +84,9 @@ from agents.models.lore import (
     MythicAfterlifeRegistry,
     ContinuityEngineNode,
     ArchetypeMigrationGate,
+    StoryConvergencePath,
+    RitualFusionEvent,
+    NarrativeCurationTimeline,
 )
 from agents.models.identity import PersonaFusionEvent
 from agents.models.coordination import (
@@ -185,6 +188,9 @@ from agents.serializers import (
     PublicRitualLogEntrySerializer,
     BeliefContinuityThreadSerializer,
     CodexContributionCeremonySerializer,
+    StoryConvergencePathSerializer,
+    RitualFusionEventSerializer,
+    NarrativeCurationTimelineSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1520,3 +1526,39 @@ def assistant_tutorial(request, id):
     return Response({"assistant": id, "message": "Tutorial start"})
 
 
+
+
+@api_view(["GET", "POST"])
+def story_convergence(request):
+    if request.method == "GET":
+        paths = StoryConvergencePath.objects.all().order_by("-created_at")
+        return Response(StoryConvergencePathSerializer(paths, many=True).data)
+
+    serializer = StoryConvergencePathSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    path = serializer.save()
+    return Response(StoryConvergencePathSerializer(path).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def ritual_fusion(request):
+    if request.method == "GET":
+        events = RitualFusionEvent.objects.all().order_by("-created_at")
+        return Response(RitualFusionEventSerializer(events, many=True).data)
+
+    serializer = RitualFusionEventSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    event = serializer.save()
+    return Response(RitualFusionEventSerializer(event).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def timeline_curate(request):
+    if request.method == "GET":
+        timelines = NarrativeCurationTimeline.objects.all().order_by("-created_at")
+        return Response(NarrativeCurationTimelineSerializer(timelines, many=True).data)
+
+    serializer = NarrativeCurationTimelineSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    timeline = serializer.save()
+    return Response(NarrativeCurationTimelineSerializer(timeline).data, status=201)

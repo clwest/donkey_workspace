@@ -88,6 +88,9 @@ from agents.models.lore import (
     CinematicUILayer,
     AssistantTutorialScript,
     RitualOnboardingFlow,
+    StoryConvergencePath,
+    RitualFusionEvent,
+    NarrativeCurationTimeline,
 
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
@@ -1015,3 +1018,24 @@ class RitualOnboardingFlowSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
+
+class StoryConvergencePathSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StoryConvergencePath
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RitualFusionEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RitualFusionEvent
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class NarrativeCurationTimelineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NarrativeCurationTimeline
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
