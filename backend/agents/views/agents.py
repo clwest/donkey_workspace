@@ -93,6 +93,8 @@ from agents.models.lore import (
     ResurrectionTimelineTracker,
     RitualEchoThreadSystem,
     CodexRecurrenceLoopEngine,
+    CycleAnchorRegistry,
+    MemoryRegenerationProtocol,
 
     LegacyArtifactExporter,
 
@@ -216,6 +218,8 @@ from agents.serializers import (
     ResurrectionTimelineTrackerSerializer,
     RitualEchoThreadSystemSerializer,
     CodexRecurrenceLoopEngineSerializer,
+    CycleAnchorRegistrySerializer,
+    MemoryRegenerationProtocolSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1713,5 +1717,39 @@ def codex_cycles(request):
     serializer.is_valid(raise_exception=True)
     cycle = serializer.save()
     return Response(CodexRecurrenceLoopEngineSerializer(cycle).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def cycle_anchors(request):
+    if request.method == "GET":
+        anchors = CycleAnchorRegistry.objects.all().order_by("-created_at")
+        return Response(CycleAnchorRegistrySerializer(anchors, many=True).data)
+
+    serializer = CycleAnchorRegistrySerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    anchor = serializer.save()
+    return Response(CycleAnchorRegistrySerializer(anchor).data, status=201)
+
+
+@api_view(["GET"])
+def entropy_balance(request):
+    data = {
+        "memory_entropy": SwarmMemoryEntry.objects.count(),
+        "codex_cycles": CodexRecurrenceLoopEngine.objects.count(),
+        "active_directives": DirectiveMemoryNode.objects.count(),
+    }
+    return Response(data)
+
+
+@api_view(["GET", "POST"])
+def memory_regenerate(request):
+    if request.method == "GET":
+        protocols = MemoryRegenerationProtocol.objects.all().order_by("-created_at")
+        return Response(MemoryRegenerationProtocolSerializer(protocols, many=True).data)
+
+    serializer = MemoryRegenerationProtocolSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    protocol = serializer.save()
+    return Response(MemoryRegenerationProtocolSerializer(protocol).data, status=201)
 
 

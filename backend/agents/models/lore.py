@@ -2357,6 +2357,45 @@ class CodexRecurrenceLoopEngine(models.Model):
         return f"Cycle Engine for {self.codex.title}"
 
 
+class CycleAnchorRegistry(models.Model):
+    """Preserve symbolic anchors across narrative cycles."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    anchor_name = models.CharField(max_length=150)
+    ritual_link = models.ForeignKey(
+        EncodedRitualBlueprint, on_delete=models.SET_NULL, null=True
+    )
+    codex_reference = models.ForeignKey(
+        SwarmCodex, on_delete=models.SET_NULL, null=True
+    )
+    role_trait_snapshot = models.JSONField()
+    symbolic_notes = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return self.anchor_name
+
+
+class MemoryRegenerationProtocol(models.Model):
+    """Guided restoration of corrupted memories."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    trigger_codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    corrupted_memory_nodes = models.ManyToManyField(SwarmMemoryEntry)
+    regeneration_script = models.TextField()
+    symbolic_success_score = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Regeneration for {self.assistant.name}"
+
+
 
 
 
