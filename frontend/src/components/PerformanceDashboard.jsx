@@ -1,22 +1,20 @@
 import { useEffect, useState } from "react";
 
 export default function PerformanceDashboard({ assistantId }) {
-  const [metrics, setMetrics] = useState([]);
+  const [logs, setLogs] = useState([]);
 
   useEffect(() => {
     if (!assistantId) return;
-    fetch(`http://localhost:8000/api/metrics/performance/${assistantId}/`)
+    fetch(`http://localhost:8000/api/execution-logs/`)
       .then((res) => res.json())
-      .then((data) => setMetrics(data.metrics || []))
-      .catch((e) => console.error("metrics", e));
+      .then((data) => setLogs(data))
+      .catch((e) => console.error("logs", e));
   }, [assistantId]);
 
   return (
     <div className="p-2 border rounded">
-      <h5>Performance Metrics</h5>
-      <pre className="small bg-light p-2">
-        {JSON.stringify(metrics, null, 2)}
-      </pre>
+      <h5>Execution Logs</h5>
+      <pre className="small bg-light p-2">{JSON.stringify(logs, null, 2)}</pre>
     </div>
   );
 }
