@@ -87,7 +87,6 @@ from agents.models.lore import (
     StoryConvergencePath,
     RitualFusionEvent,
     NarrativeCurationTimeline,
-
 )
 from agents.models.identity import PersonaFusionEvent
 from agents.models.coordination import (
@@ -107,6 +106,9 @@ from agents.models.storyfield import (
     SwarmMythEditLog,
     LegacyContinuityVault,
     AgentPlotlineCuration,
+    SymbolicRoadmapPlan,
+    CommunityMythPlanningArena,
+    FederatedCodexForecastTool,
 )
 
 # from simulation.models import SceneDirectorFrame
@@ -189,11 +191,12 @@ from agents.serializers import (
     PublicRitualLogEntrySerializer,
     BeliefContinuityThreadSerializer,
     CodexContributionCeremonySerializer,
-
     StoryConvergencePathSerializer,
     RitualFusionEventSerializer,
     NarrativeCurationTimelineSerializer,
-
+    SymbolicRoadmapPlanSerializer,
+    CommunityMythPlanningArenaSerializer,
+    FederatedCodexForecastToolSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1244,7 +1247,9 @@ def belief_seeds(request):
     seed = serializer.save()
     return Response(BeliefSeedReplicationSerializer(seed).data, status=201)
 
+
 from agents.serializers import MythicAlignmentMarketSerializer
+
 
 @api_view(["GET", "POST"])
 def alignment_market(request):
@@ -1542,7 +1547,6 @@ def myth_record(request):
     return Response(MythRecordingSessionSerializer(session).data, status=201)
 
 
-
 @api_view(["GET", "POST"])
 def story_convergence(request):
     if request.method == "GET":
@@ -1578,3 +1582,38 @@ def timeline_curate(request):
     timeline = serializer.save()
     return Response(NarrativeCurationTimelineSerializer(timeline).data, status=201)
 
+
+@api_view(["GET", "POST"])
+def symbolic_roadmaps(request):
+    if request.method == "GET":
+        plans = SymbolicRoadmapPlan.objects.all().order_by("-created_at")
+        return Response(SymbolicRoadmapPlanSerializer(plans, many=True).data)
+
+    serializer = SymbolicRoadmapPlanSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    plan = serializer.save()
+    return Response(SymbolicRoadmapPlanSerializer(plan).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def myth_planning_arenas(request):
+    if request.method == "GET":
+        arenas = CommunityMythPlanningArena.objects.all().order_by("-created_at")
+        return Response(CommunityMythPlanningArenaSerializer(arenas, many=True).data)
+
+    serializer = CommunityMythPlanningArenaSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    arena = serializer.save()
+    return Response(CommunityMythPlanningArenaSerializer(arena).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def codex_forecasts(request):
+    if request.method == "GET":
+        forecasts = FederatedCodexForecastTool.objects.all().order_by("-created_at")
+        return Response(FederatedCodexForecastToolSerializer(forecasts, many=True).data)
+
+    serializer = FederatedCodexForecastToolSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    forecast = serializer.save()
+    return Response(FederatedCodexForecastToolSerializer(forecast).data, status=201)

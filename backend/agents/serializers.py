@@ -90,7 +90,6 @@ from agents.models.lore import (
     StoryConvergencePath,
     RitualFusionEvent,
     NarrativeCurationTimeline,
-
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
 )
@@ -130,6 +129,11 @@ from agents.models.storyfield import (
     MythPatternCluster,
     IntentHarmonizationSession,
     AgentPlotlineCuration,
+)
+from agents.models.planning import (
+    SymbolicRoadmapPlan,
+    CommunityMythPlanningArena,
+    FederatedCodexForecastTool,
 )
 from assistants.models.assistant import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -1051,5 +1055,26 @@ class RitualFusionEventSerializer(serializers.ModelSerializer):
 class NarrativeCurationTimelineSerializer(serializers.ModelSerializer):
     class Meta:
         model = NarrativeCurationTimeline
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicRoadmapPlanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicRoadmapPlan
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CommunityMythPlanningArenaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CommunityMythPlanningArena
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class FederatedCodexForecastToolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FederatedCodexForecastTool
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
