@@ -71,12 +71,12 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
-
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
-    SymbolicIdentityCard,
-    PersonaTemplate,
+    MythHyperstructure,
+    DreamWorldModel,
+    ReflectiveEcosystemEngine,
 
 )
 from agents.models.coordination import (
@@ -156,19 +156,19 @@ from agents.serializers import (
     CosmogenesisSimulationSerializer,
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
- 
     SymbolicWeatherFrontSerializer,
     MythflowOrchestrationPlanSerializer,
     SignalEncodingArtifactSerializer,
     BeliefNavigationVectorSerializer,
     ReflectiveFluxIndexSerializer,
-    SymbolicIdentityCardSerializer,
-    PersonaTemplateSerializer,
+    MythHyperstructureSerializer,
+    DreamWorldModelSerializer,
+    ReflectiveEcosystemEngineSerializer,
+
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
     IntentHarmonizationSessionSerializer,
-
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -1299,7 +1299,6 @@ def intent_harmony(request):
 
 
 @api_view(["GET", "POST"])
-
 def ritual_contracts(request):
     if request.method == "GET":
         contracts = RecursiveRitualContract.objects.all().order_by("-created_at")
@@ -1336,48 +1335,37 @@ def belief_feedback(request):
 
 
 @api_view(["GET", "POST"])
-def identity_cards(request):
+def hyperstructures(request):
     if request.method == "GET":
-        cards = SymbolicIdentityCard.objects.all().order_by("-created_at")
-        return Response(SymbolicIdentityCardSerializer(cards, many=True).data)
+        structures = MythHyperstructure.objects.all().order_by("-created_at")
+        return Response(MythHyperstructureSerializer(structures, many=True).data)
 
-    serializer = SymbolicIdentityCardSerializer(data=request.data)
+    serializer = MythHyperstructureSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    card = serializer.save()
-    return Response(SymbolicIdentityCardSerializer(card).data, status=201)
+    structure = serializer.save()
+    return Response(MythHyperstructureSerializer(structure).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def persona_templates(request):
+def dream_worlds(request):
     if request.method == "GET":
-        templates = PersonaTemplate.objects.all().order_by("-created_at")
-        return Response(PersonaTemplateSerializer(templates, many=True).data)
+        worlds = DreamWorldModel.objects.all().order_by("-created_at")
+        return Response(DreamWorldModelSerializer(worlds, many=True).data)
 
-    serializer = PersonaTemplateSerializer(data=request.data)
+    serializer = DreamWorldModelSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    template = serializer.save()
-    return Response(PersonaTemplateSerializer(template).data, status=201)
+    world = serializer.save()
+    return Response(DreamWorldModelSerializer(world).data, status=201)
 
 
-@api_view(["POST"])
-def onboarding(request):
-    assistant_data = request.data.get("assistant", {})
-    card_data = request.data.get("identity_card", {})
+@api_view(["GET", "POST"])
+def reflective_ecosystem(request):
+    if request.method == "GET":
+        engines = ReflectiveEcosystemEngine.objects.all().order_by("-last_sync")
+        return Response(ReflectiveEcosystemEngineSerializer(engines, many=True).data)
 
-    assistant_serializer = AssistantSerializer(data=assistant_data)
-    assistant_serializer.is_valid(raise_exception=True)
-    assistant = assistant_serializer.save()
-
-    card_data["assistant"] = assistant.id
-    card_serializer = SymbolicIdentityCardSerializer(data=card_data)
-    card_serializer.is_valid(raise_exception=True)
-    card = card_serializer.save()
-
-    return Response(
-        {
-            "assistant": assistant_serializer.data,
-            "identity_card": SymbolicIdentityCardSerializer(card).data,
-        },
-        status=201,
-    )
+    serializer = ReflectiveEcosystemEngineSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    engine = serializer.save()
+    return Response(ReflectiveEcosystemEngineSerializer(engine).data, status=201)
 

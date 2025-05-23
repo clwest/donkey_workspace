@@ -1811,7 +1811,6 @@ class ReflectiveFluxIndex(models.Model):
         return self.swarm_scope
 
 
-
 class RecursiveRitualContract(models.Model):
     """Repeatable symbolic logic bound to ritual reflection."""
 
@@ -1867,3 +1866,34 @@ class BeliefFeedbackSignal(models.Model):
 
         return f"Signal to {self.target_codex.title}"[:50]
 
+
+class MythHyperstructure(models.Model):
+    """Large-scale symbolic container organizing memory and belief."""
+
+    structure_name = models.CharField(max_length=150)
+    symbolic_geometry = models.TextField()
+    linked_codices = models.ManyToManyField(SwarmCodex)
+    assistants_inhabiting = models.ManyToManyField("assistants.Assistant")
+    purpose_vector_map = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class DreamWorldModel(models.Model):
+    """Persistent symbolic world used for narrative training."""
+
+    world_name = models.CharField(max_length=150)
+    myth_source = models.ForeignKey(TranscendentMyth, on_delete=models.CASCADE)
+    memory_zones = models.ManyToManyField("agents.MemoryRealmZone")
+    active_agents = models.ManyToManyField("assistants.Assistant")
+    simulation_state = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class ReflectiveEcosystemEngine(models.Model):
+    """Balances entropy and narrative flux across active components."""
+
+    scope = models.CharField(max_length=100)
+    symbolic_flux_data = models.JSONField()
+    entropy_modulators = models.JSONField()
+    ritual_activity_log = models.JSONField()
+    last_sync = models.DateTimeField(auto_now=True)

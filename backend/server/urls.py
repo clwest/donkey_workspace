@@ -96,6 +96,9 @@ urlpatterns = [
     path("api/signal-artifacts/", agent_views.signal_artifacts),
     path("api/navigation-vectors/", agent_views.navigation_vectors),
     path("api/flux-index/", agent_views.flux_index),
+    path("api/hyperstructures/", agent_views.hyperstructures),
+    path("api/dream-worlds/", agent_views.dream_worlds),
+    path("api/reflective-ecosystem/", agent_views.reflective_ecosystem),
  
     path("api/documents/", include("documents.urls")),
     path("api/tools/", include("tools.urls")),
