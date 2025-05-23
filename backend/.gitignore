@@ -52,3 +52,4 @@ venv/
 !project/migrations/0003_milestone_status.py
 !metrics/migrations/0001_initial.py
 !agents/migrations/0001_mythchain_models.py
+!agents/migrations/0002_rename_broadcast_channel.py
