@@ -1811,7 +1811,6 @@ class ReflectiveFluxIndex(models.Model):
         return self.swarm_scope
 
 
-
 class RecursiveRitualContract(models.Model):
     """Repeatable symbolic logic bound to ritual reflection."""
 
@@ -1868,8 +1867,6 @@ class BeliefFeedbackSignal(models.Model):
         return f"Signal to {self.target_codex.title}"[:50]
 
 
-
-
 class MythicAfterlifeRegistry(models.Model):
     """Records retired assistants and symbolic memory links."""
 
@@ -1911,10 +1908,13 @@ class ArchetypeMigrationGate(models.Model):
     migration_path = models.JSONField()
     transfer_protocol = models.TextField()
     anchor_codex = models.ForeignKey(SwarmCodex, null=True, on_delete=models.SET_NULL)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return self.gate_name
+
