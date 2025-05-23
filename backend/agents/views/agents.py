@@ -65,9 +65,11 @@ from agents.models.lore import (
     MythicForecastPulse,
     BeliefAtlasSnapshot,
     SymbolicWeatherFront,
+
     SymbolicAnomalyEvent,
     BeliefCollapseRecoveryRitual,
     MultiverseLoopLink,
+
 
 
 )
@@ -135,9 +137,11 @@ from agents.serializers import (
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
     SymbolicWeatherFrontSerializer,
+
     SymbolicAnomalyEventSerializer,
     BeliefCollapseRecoveryRitualSerializer,
     MultiverseLoopLinkSerializer,
+
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -165,6 +169,7 @@ from agents.utils.myth_verification import (
 
 from agents.utils import harmonize_global_narrative
 from agents.utils.myth_weaver import weave_recursive_myth
+from agents.models.cosmology import update_belief_state
 
 from datetime import datetime
 
@@ -1108,6 +1113,7 @@ def mythflow_insights(request):
 
 
 @api_view(["GET", "POST"])
+
 def anomalies(request):
     if request.method == "GET":
         events = SymbolicAnomalyEvent.objects.all().order_by("-created_at")
@@ -1141,4 +1147,5 @@ def multiverse_loops(request):
     serializer.is_valid(raise_exception=True)
     loop = serializer.save()
     return Response(MultiverseLoopLinkSerializer(loop).data, status=201)
+
 
