@@ -100,9 +100,9 @@ from agents.models.lore import (
     CodexRestabilizationNode,
 
     LegacyArtifactExporter,
-
-
-
+    SymbolicConsensusChamber,
+    RitualNegotiationEngine,
+    NarrativeGovernanceModel,
 )
 from agents.models.coordination import (
     CollaborationThread,
@@ -226,6 +226,9 @@ from agents.serializers import (
     RitualLoopVisualizationEngineSerializer,
     SymbolicOscillationMapSerializer,
     CodexRestabilizationNodeSerializer,
+    SymbolicConsensusChamberSerializer,
+    RitualNegotiationEngineSerializer,
+    NarrativeGovernanceModelSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1793,5 +1796,41 @@ def codex_stabilize(request):
     serializer.is_valid(raise_exception=True)
     node = serializer.save()
     return Response(CodexRestabilizationNodeSerializer(node).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def governance_consensus(request):
+    if request.method == "GET":
+        chambers = SymbolicConsensusChamber.objects.all().order_by("-created_at")
+        return Response(SymbolicConsensusChamberSerializer(chambers, many=True).data)
+
+    serializer = SymbolicConsensusChamberSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    chamber = serializer.save()
+    return Response(SymbolicConsensusChamberSerializer(chamber).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def ritual_negotiate(request):
+    if request.method == "GET":
+        engines = RitualNegotiationEngine.objects.all().order_by("-created_at")
+        return Response(RitualNegotiationEngineSerializer(engines, many=True).data)
+
+    serializer = RitualNegotiationEngineSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    engine = serializer.save()
+    return Response(RitualNegotiationEngineSerializer(engine).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def network_governance(request):
+    if request.method == "GET":
+        models = NarrativeGovernanceModel.objects.all().order_by("-created_at")
+        return Response(NarrativeGovernanceModelSerializer(models, many=True).data)
+
+    serializer = NarrativeGovernanceModelSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    model = serializer.save()
+    return Response(NarrativeGovernanceModelSerializer(model).data, status=201)
 
 

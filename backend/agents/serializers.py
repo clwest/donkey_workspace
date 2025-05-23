@@ -104,6 +104,9 @@ from agents.models.lore import (
     CodexRestabilizationNode,
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
+    SymbolicConsensusChamber,
+    RitualNegotiationEngine,
+    NarrativeGovernanceModel,
 )
 
 from agents.models.coordination import (
@@ -1218,6 +1221,27 @@ class SymbolicOscillationMapSerializer(serializers.ModelSerializer):
 class CodexRestabilizationNodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = CodexRestabilizationNode
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicConsensusChamberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicConsensusChamber
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RitualNegotiationEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RitualNegotiationEngine
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class NarrativeGovernanceModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NarrativeGovernanceModel
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
