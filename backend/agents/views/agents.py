@@ -72,7 +72,7 @@ from agents.models.lore import (
     MemoryRealmZone,
     RitualSyncPulse,
     ArchetypeFieldCluster,
- 
+
 )
 from agents.models.coordination import (
     CollaborationThread,
@@ -150,10 +150,20 @@ from agents.serializers import (
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
     SymbolicWeatherFrontSerializer,
+    PurposeIndexEntrySerializer,
+    BeliefSignalNodeSerializer,
+    MythicAlignmentMarketSerializer,
+    AscensionStructureSerializer,
+    MythicMemoryPalaceSerializer,
+    EternalReturnCycleIndexSerializer,
 
     MythflowOrchestrationPlanSerializer,
 
     SymbolicPlanningLatticeSerializer,
+
+    PurposeRadianceFieldSerializer,
+    SymbolicGravityWellSerializer,
+    MemoryHarmonicsPulseSerializer,
 
 )
 from assistants.serializers import (
@@ -1210,6 +1220,44 @@ def purpose_migrations(request):
     serializer.is_valid(raise_exception=True)
     migration = serializer.save()
     return Response(PurposeMigrationEventSerializer(migration).data, status=201)
+
+
+@api_view(["GET", "POST"])
+
+def purpose_radiance(request):
+    if request.method == "GET":
+        fields = PurposeRadianceField.objects.all().order_by("-last_emitted")
+        return Response(PurposeRadianceFieldSerializer(fields, many=True).data)
+
+    serializer = PurposeRadianceFieldSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    field = serializer.save()
+    return Response(PurposeRadianceFieldSerializer(field).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def gravity_wells(request):
+    if request.method == "GET":
+        wells = SymbolicGravityWell.objects.all().order_by("-created_at")
+        return Response(SymbolicGravityWellSerializer(wells, many=True).data)
+
+    serializer = SymbolicGravityWellSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    well = serializer.save()
+    return Response(SymbolicGravityWellSerializer(well).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def memory_harmonics(request):
+    if request.method == "GET":
+        pulses = MemoryHarmonicsPulse.objects.all().order_by("-created_at")
+        return Response(MemoryHarmonicsPulseSerializer(pulses, many=True).data)
+
+    serializer = MemoryHarmonicsPulseSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    pulse = serializer.save()
+    return Response(MemoryHarmonicsPulseSerializer(pulse).data, status=201)
+
 
 
 

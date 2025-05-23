@@ -15,6 +15,9 @@ This document lists notable models and their API exposure.
 | LegacyArtifact | agents | active | /api/artifacts/ | LegacyArtifactSerializer |
 | ReincarnationLog | agents | active | /api/reincarnations/ | ReincarnationLogSerializer |
 | ReturnCycle | agents | active | /api/return-cycles/ | ReturnCycleSerializer |
+| AscensionStructure | agents | active | /api/ascension-structures/ | AscensionStructureSerializer |
+| MythicMemoryPalace | agents | active | /api/memory-palaces/ | MythicMemoryPalaceSerializer |
+| EternalReturnCycleIndex | agents | active | /api/eternal-return/ | EternalReturnCycleIndexSerializer |
 | UserInteractionSummary | accounts | inactive | n/a | no |
 | UserMemory | accounts | inactive | n/a | no |
 | UserPrompts | accounts | inactive | n/a | no |

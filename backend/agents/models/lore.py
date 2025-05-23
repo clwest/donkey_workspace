@@ -1709,6 +1709,7 @@ class MythicAlignmentMarket(models.Model):
 
 
 
+
 class MemoryRealmZone(models.Model):
     """Symbolic geography where memories cluster."""
 
@@ -1717,12 +1718,14 @@ class MemoryRealmZone(models.Model):
     memory_inhabitants = models.ManyToManyField(SwarmMemoryEntry)
     spatial_traits = models.JSONField()
     symbolic_navigation_tags = models.JSONField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return self.zone_name
 
 
@@ -1751,10 +1754,13 @@ class ArchetypeFieldCluster(models.Model):
     participating_assistants = models.ManyToManyField("assistants.Assistant")
     resonance_score = models.FloatField()
     symbolic_purpose_vector = models.JSONField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return self.cluster_name
+

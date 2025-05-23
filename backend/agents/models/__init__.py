@@ -5,5 +5,6 @@ from .coordination import *
 from .insight import *
 from .cosmology import *
 from .swarm_balance import *
+from .radiance import *
 
 __all__ = []
