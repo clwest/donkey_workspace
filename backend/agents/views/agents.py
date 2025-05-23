@@ -65,6 +65,10 @@ from agents.models.lore import (
     MythicForecastPulse,
     BeliefAtlasSnapshot,
     SymbolicWeatherFront,
+    SwarmCosmology,
+    PurposeIndexEntry,
+    BeliefSignalNode,
+    MythicAlignmentMarket,
 
 
 )
@@ -132,6 +136,10 @@ from agents.serializers import (
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
     SymbolicWeatherFrontSerializer,
+    SwarmCosmologySerializer,
+    PurposeIndexEntrySerializer,
+    BeliefSignalNodeSerializer,
+    MythicAlignmentMarketSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -1099,4 +1107,40 @@ def mythflow_insights(request):
     serializer.is_valid(raise_exception=True)
     insight = serializer.save()
     return Response(MythflowInsightSerializer(insight).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def purpose_index(request):
+    if request.method == "GET":
+        entries = PurposeIndexEntry.objects.all().order_by("-created_at")
+        return Response(PurposeIndexEntrySerializer(entries, many=True).data)
+
+    serializer = PurposeIndexEntrySerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    entry = serializer.save()
+    return Response(PurposeIndexEntrySerializer(entry).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def belief_signals(request):
+    if request.method == "GET":
+        signals = BeliefSignalNode.objects.all().order_by("-created_at")
+        return Response(BeliefSignalNodeSerializer(signals, many=True).data)
+
+    serializer = BeliefSignalNodeSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    signal = serializer.save()
+    return Response(BeliefSignalNodeSerializer(signal).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def alignment_market(request):
+    if request.method == "GET":
+        markets = MythicAlignmentMarket.objects.all().order_by("-last_updated")
+        return Response(MythicAlignmentMarketSerializer(markets, many=True).data)
+
+    serializer = MythicAlignmentMarketSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    market = serializer.save()
+    return Response(MythicAlignmentMarketSerializer(market).data, status=201)
 
