@@ -75,6 +75,9 @@ from agents.models.lore import (
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
+    PurposeGraftRecord,
+    SuccessionRitualEvent,
+    ReincarnationTreeNode,
 
 )
 from agents.models.coordination import (
@@ -160,6 +163,9 @@ from agents.serializers import (
     SignalEncodingArtifactSerializer,
     BeliefNavigationVectorSerializer,
     ReflectiveFluxIndexSerializer,
+    PurposeGraftRecordSerializer,
+    SuccessionRitualEventSerializer,
+    ReincarnationTreeNodeSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1329,4 +1335,40 @@ def belief_feedback(request):
     serializer.is_valid(raise_exception=True)
     signal = serializer.save()
     return Response(BeliefFeedbackSignalSerializer(signal).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def purpose_grafts(request):
+    if request.method == "GET":
+        grafts = PurposeGraftRecord.objects.all().order_by("-created_at")
+        return Response(PurposeGraftRecordSerializer(grafts, many=True).data)
+
+    serializer = PurposeGraftRecordSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    graft = serializer.save()
+    return Response(PurposeGraftRecordSerializer(graft).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def succession_rituals(request):
+    if request.method == "GET":
+        rituals = SuccessionRitualEvent.objects.all().order_by("-created_at")
+        return Response(SuccessionRitualEventSerializer(rituals, many=True).data)
+
+    serializer = SuccessionRitualEventSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    ritual = serializer.save()
+    return Response(SuccessionRitualEventSerializer(ritual).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def reincarnation_forest(request):
+    if request.method == "GET":
+        nodes = ReincarnationTreeNode.objects.all().order_by("-created_at")
+        return Response(ReincarnationTreeNodeSerializer(nodes, many=True).data)
+
+    serializer = ReincarnationTreeNodeSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    node = serializer.save()
+    return Response(ReincarnationTreeNodeSerializer(node).data, status=201)
 
