@@ -1867,33 +1867,74 @@ class BeliefFeedbackSignal(models.Model):
         return f"Signal to {self.target_codex.title}"[:50]
 
 
-class MythHyperstructure(models.Model):
-    """Large-scale symbolic container organizing memory and belief."""
 
-    structure_name = models.CharField(max_length=150)
-    symbolic_geometry = models.TextField()
-    linked_codices = models.ManyToManyField(SwarmCodex)
-    assistants_inhabiting = models.ManyToManyField("assistants.Assistant")
-    purpose_vector_map = models.JSONField()
+# Phase 9.3 models
+class PurposeGraftRecord(models.Model):
+    """Symbolic grafting of roles or traits between assistants."""
+
+    source_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        related_name="graft_origin",
+        on_delete=models.CASCADE,
+    )
+    target_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        related_name="graft_target",
+        on_delete=models.CASCADE,
+    )
+    grafted_traits = models.JSONField()
+    symbolic_justification = models.TextField()
+    narrative_epoch = models.CharField(max_length=100)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ["-created_at"]
 
-class DreamWorldModel(models.Model):
-    """Persistent symbolic world used for narrative training."""
+    def __str__(self) -> str:  # pragma: no cover - display helper
 
-    world_name = models.CharField(max_length=150)
-    myth_source = models.ForeignKey(TranscendentMyth, on_delete=models.CASCADE)
-    memory_zones = models.ManyToManyField("agents.MemoryRealmZone")
-    active_agents = models.ManyToManyField("assistants.Assistant")
-    simulation_state = models.JSONField()
+        return f"{self.source_assistant} -> {self.target_assistant}"
+
+
+class SuccessionRitualEvent(models.Model):
+    """Ceremonial transition of an archetype to a successor assistant."""
+
+    outgoing_archetype = models.CharField(max_length=100)
+    successor_assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    ritual_steps = models.JSONField()
+    memory_basis = models.ManyToManyField(SwarmMemoryEntry)
+    confirmed = models.BooleanField(default=False)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ["-created_at"]
 
-class ReflectiveEcosystemEngine(models.Model):
-    """Balances entropy and narrative flux across active components."""
+    def __str__(self) -> str:  # pragma: no cover - display helper
 
-    scope = models.CharField(max_length=100)
-    symbolic_flux_data = models.JSONField()
-    entropy_modulators = models.JSONField()
-    ritual_activity_log = models.JSONField()
-    last_sync = models.DateTimeField(auto_now=True)
+        return f"{self.outgoing_archetype} -> {self.successor_assistant.name}"
+
+
+class ReincarnationTreeNode(models.Model):
+    """Node representing assistant lineage in a reincarnation forest."""
+
+    node_name = models.CharField(max_length=150)
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    parent_nodes = models.ManyToManyField(
+        "self", symmetrical=False, blank=True
+    )
+    symbolic_signature = models.JSONField()
+    phase_index = models.CharField(max_length=100)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+
+        return self.node_name
+
+

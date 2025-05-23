@@ -68,14 +68,20 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
+    ArchetypeGenesisLog,
+    MythBloomNode,
+    BeliefSeedReplication,
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
     RecursiveRitualContract,
     SwarmMythEngineInstance,
     BeliefFeedbackSignal,
-    SymbolicIdentityCard,
-    PersonaTemplate,
+
+    PurposeGraftRecord,
+    SuccessionRitualEvent,
+    ReincarnationTreeNode,
+
 )
 
 from agents.models.coordination import (
@@ -878,6 +884,7 @@ class BeliefFeedbackSignalSerializer(serializers.ModelSerializer):
 
 
 
+
 class NarrativeTrainingGroundSerializer(serializers.ModelSerializer):
     class Meta:
         model = NarrativeTrainingGround
@@ -889,8 +896,10 @@ class SwarmMythEditLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = SwarmMythEditLog
 
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 
 
 class LegacyContinuityVaultSerializer(serializers.ModelSerializer):
@@ -898,5 +907,6 @@ class LegacyContinuityVaultSerializer(serializers.ModelSerializer):
         model = LegacyContinuityVault
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 
 

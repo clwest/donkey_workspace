@@ -71,12 +71,17 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
+
+    ArchetypeGenesisLog,
+    MythBloomNode,
+    BeliefSeedReplication,
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
-    MythHyperstructure,
-    DreamWorldModel,
-    ReflectiveEcosystemEngine,
+    PurposeGraftRecord,
+    SuccessionRitualEvent,
+    ReincarnationTreeNode,
+
 
 )
 from agents.models.coordination import (
@@ -164,9 +169,10 @@ from agents.serializers import (
     SignalEncodingArtifactSerializer,
     BeliefNavigationVectorSerializer,
     ReflectiveFluxIndexSerializer,
-    MythHyperstructureSerializer,
-    DreamWorldModelSerializer,
-    ReflectiveEcosystemEngineSerializer,
+
+    PurposeGraftRecordSerializer,
+    SuccessionRitualEventSerializer,
+    ReincarnationTreeNodeSerializer,
 
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -1186,6 +1192,42 @@ def belief_signals(request):
 
 
 @api_view(["GET", "POST"])
+def archetype_genesis(request):
+    if request.method == "GET":
+        logs = ArchetypeGenesisLog.objects.all().order_by("-created_at")
+        return Response(ArchetypeGenesisLogSerializer(logs, many=True).data)
+
+    serializer = ArchetypeGenesisLogSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    log = serializer.save()
+    return Response(ArchetypeGenesisLogSerializer(log).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def myth_blooms(request):
+    if request.method == "GET":
+        blooms = MythBloomNode.objects.all().order_by("-created_at")
+        return Response(MythBloomNodeSerializer(blooms, many=True).data)
+
+    serializer = MythBloomNodeSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    bloom = serializer.save()
+    return Response(MythBloomNodeSerializer(bloom).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def belief_seeds(request):
+    if request.method == "GET":
+        seeds = BeliefSeedReplication.objects.all().order_by("-created_at")
+        return Response(BeliefSeedReplicationSerializer(seeds, many=True).data)
+
+    serializer = BeliefSeedReplicationSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    seed = serializer.save()
+    return Response(BeliefSeedReplicationSerializer(seed).data, status=201)
+
+
+@api_view(["GET", "POST"])
 def alignment_market(request):
     if request.method == "GET":
         markets = MythicAlignmentMarket.objects.all().order_by("-last_updated")
@@ -1343,6 +1385,7 @@ def belief_feedback(request):
 
 @api_view(["GET", "POST"])
 
+
 def training_grounds(request):
     if request.method == "GET":
         grounds = NarrativeTrainingGround.objects.all().order_by("-created_at")
@@ -1376,5 +1419,6 @@ def legacy_continuity_vaults(request):
     serializer.is_valid(raise_exception=True)
     vault = serializer.save()
     return Response(LegacyContinuityVaultSerializer(vault).data, status=201)
+
 
 
