@@ -141,6 +141,11 @@ from agents.models.trend import (
     MultiAgentTrendReactivityModel,
     SymbolicStabilityGraph,
 )
+from agents.models.deployment import (
+    SymbolicResilienceMonitor,
+    MythOSDeploymentPacket,
+    BeliefDeploymentStrategyEngine,
+)
 from agents.models.cosmology import SwarmCosmology
 from agents.models.swarm_balance import (
     PurposeMigrationEvent,
@@ -869,6 +874,27 @@ class MultiAgentTrendReactivityModelSerializer(serializers.ModelSerializer):
 class SymbolicStabilityGraphSerializer(serializers.ModelSerializer):
     class Meta:
         model = SymbolicStabilityGraph
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicResilienceMonitorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicResilienceMonitor
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MythOSDeploymentPacketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythOSDeploymentPacket
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class BeliefDeploymentStrategyEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BeliefDeploymentStrategyEngine
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

@@ -127,6 +127,9 @@ urlpatterns = [
     path("codex/trends/", agents.codex_trends),
     path("assistants/trend-reactivity/", agents.trend_reactivity_models),
     path("system/stability/", agents.stability_graphs),
+    path("system/resilience/", agents.resilience_monitors),
+    path("deploy/packet/", agents.deployment_packets),
+    path("deploy/strategy/", agents.deployment_strategies),
     path("assistants/<uuid:assistant_id>/sentiment/", agents.assistant_sentiments),
 
     path("clusters/", agents.list_clusters),
