@@ -93,6 +93,7 @@ from agents.models.lore import (
     SymbolicFeedbackChamber,
     MultiAgentDialogueAmplifier,
     MythicResolutionSequence,
+    TemporalReflectionLog,
 
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
@@ -1108,5 +1109,12 @@ class MythicResolutionSequenceSerializer(serializers.ModelSerializer):
     class Meta:
         model = MythicResolutionSequence
 
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class TemporalReflectionLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TemporalReflectionLog
         fields = "__all__"
         read_only_fields = ["id", "created_at"]

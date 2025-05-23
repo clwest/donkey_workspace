@@ -2275,3 +2275,21 @@ class MythicResolutionSequence(models.Model):
     def __str__(self):  # pragma: no cover - display helper
         return f"Resolution {self.id}"
 
+
+
+class TemporalReflectionLog(models.Model):
+    """Auto-generated assistant reflection timeline aligned to mythpath."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    user_id = models.CharField(max_length=150)
+    memory_snapshots = models.ManyToManyField(SwarmMemoryEntry)
+    codex_affinity_graph = models.JSONField()
+    belief_drift_score = models.FloatField()
+    timeline_reflection_summary = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"TemporalLog {self.id}"

@@ -124,6 +124,9 @@ import RealityShaperDashboard from "./pages/lore/RealityShaperDashboard";
 import WorldDashboardPage from "./pages/mythos/WorldDashboardPage";
 import AssistantPresenceMapPage from "./pages/mythos/AssistantPresenceMapPage";
 import MythflowHeatmapPage from "./pages/mythos/MythflowHeatmapPage";
+import MythpathExplorerPage from "./pages/mythos/MythpathExplorerPage";
+import SymbolicMemorySynthesizerPage from "./pages/memory/SymbolicMemorySynthesizerPage";
+import TemporalReflectionLogsPage from "./pages/reflection/TemporalReflectionLogsPage";
 
 import MotionTestPage from "./pages/ui/MotionTestPage";
 import MemoryEchoPage from "./pages/memories/entries/MemoryEchoPage";
@@ -435,6 +438,9 @@ export default function App() {
           <Route path="/dashboard/world" element={<WorldDashboardPage />} />
           <Route path="/map/assistants" element={<AssistantPresenceMapPage />} />
           <Route path="/heatmap/mythflow" element={<MythflowHeatmapPage />} />
+          <Route path="/timeline/explore" element={<MythpathExplorerPage />} />
+          <Route path="/memory/synthesize" element={<SymbolicMemorySynthesizerPage />} />
+          <Route path="/reflection/logs" element={<TemporalReflectionLogsPage />} />
           <Route path="/lore" element={<RealityShaperDashboard />} />
 
           <Route path="/prophecy/engine" element={<ProphecyEnginePage />} />
