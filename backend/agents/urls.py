@@ -31,6 +31,9 @@ urlpatterns = [
     path("public-rituals/", agents.public_rituals),
     path("belief-threads/", agents.belief_threads),
     path("codex-contributions/", agents.codex_contributions),
+    path("onboarding/ritual/", agents.onboarding_ritual),
+    path("codex/briefing/", agents.codex_briefing),
+    path("assistant/<uuid:id>/tutorial/", agents.assistant_tutorial),
 
     path("belief-continuity/", agents.belief_continuity),
     path("belief-clusters/", agents.belief_clusters),

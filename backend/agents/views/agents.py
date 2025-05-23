@@ -1501,3 +1501,21 @@ def codex_contributions(request):
     contribution = serializer.save()
     return Response(CodexContributionCeremonySerializer(contribution).data, status=201)
 
+
+@api_view(["GET"])
+def onboarding_ritual(request):
+    """Trigger cinematic ritual onboarding flow."""
+    return Response({"message": "Ritual onboarding initiated"})
+
+
+@api_view(["GET"])
+def codex_briefing(request):
+    """Provide codex briefing overlay."""
+    return Response({"message": "Codex briefing"})
+
+
+@api_view(["GET"])
+def assistant_tutorial(request, id):
+    """Return tutorial script for assistant."""
+    return Response({"assistant": id, "message": "Tutorial start"})
+

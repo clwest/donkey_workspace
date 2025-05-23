@@ -2082,3 +2082,75 @@ class CodexContributionCeremony(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.ceremony_title
+
+
+class NarrativeLightingEngine(models.Model):
+    """Controls thematic lighting presets for cinematic layers."""
+
+    engine_name = models.CharField(max_length=150)
+    lighting_params = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.engine_name
+
+
+class CinematicUILayer(models.Model):
+    """Animated overlay layer tied to mythic scenes."""
+
+    layer_name = models.CharField(max_length=150)
+    scene_trigger = models.CharField(max_length=100)
+    animation_details = models.JSONField(default=dict)
+    lighting_engine = models.ForeignKey(
+        NarrativeLightingEngine, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    scene_controller = models.ForeignKey(
+        "simulation.SceneControlEngine", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    associated_archetype_cluster = models.ForeignKey(
+        ArchetypeFieldCluster, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.layer_name
+
+
+class AssistantTutorialScript(models.Model):
+    """Symbolic walkthrough guided by an assistant."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    tutorial_title = models.CharField(max_length=150)
+    walkthrough_steps = models.JSONField()
+    belief_tags = models.JSONField()
+    role_focus = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.tutorial_title
+
+
+class RitualOnboardingFlow(models.Model):
+    """Initiate users through interactive ritual completion."""
+
+    entry_name = models.CharField(max_length=150)
+    initiating_archetype = models.CharField(max_length=100)
+    required_codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    ritual_blueprint = models.ForeignKey(EncodedRitualBlueprint, on_delete=models.CASCADE)
+    step_sequence = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.entry_name
