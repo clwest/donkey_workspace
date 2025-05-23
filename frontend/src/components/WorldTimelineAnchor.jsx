@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import apiFetch from "./utils/apiClient";
+import apiFetch from "../utils/apiClient"
 
 export default function WorldTimelineAnchor() {
   const [data, setData] = useState({ memories: [], codices: [] });

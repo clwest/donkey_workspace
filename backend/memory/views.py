@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework import status, viewsets
 import warnings
 from assistants.models import Assistant
-from agents.models import PublicMemoryGrove
+
 from .models import (
     MemoryEntry,
     MemoryChain,
@@ -832,7 +832,7 @@ def anamnesis(request):
 def public_memory_grove(request):
     """Query public memory groves by codex or tags."""
 
-    queryset = PublicMemoryGrove.objects.all()
+    
 
     codex = request.GET.get("codex")
     if codex:

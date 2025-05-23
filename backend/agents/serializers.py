@@ -116,6 +116,7 @@ from agents.models.identity import (
     PersonaTemplate,
     PersonaFusionEvent,
 )
+from agents.models.prophecy import SymbolicProphecyEngine, MemoryPredictionInterface, RitualForecastingDashboard
 from agents.models.cosmology import SwarmCosmology
 from agents.models.swarm_balance import (
     PurposeMigrationEvent,
