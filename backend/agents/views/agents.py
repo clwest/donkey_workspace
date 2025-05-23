@@ -71,6 +71,10 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
+
+    ArchetypeGenesisLog,
+    MythBloomNode,
+    BeliefSeedReplication,
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
@@ -161,9 +165,9 @@ from agents.serializers import (
     SignalEncodingArtifactSerializer,
     BeliefNavigationVectorSerializer,
     ReflectiveFluxIndexSerializer,
-    MythHyperstructureSerializer,
-    DreamWorldModelSerializer,
-    ReflectiveEcosystemEngineSerializer,
+    ArchetypeGenesisLogSerializer,
+    MythBloomNodeSerializer,
+    BeliefSeedReplicationSerializer,
 
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -1176,6 +1180,42 @@ def belief_signals(request):
     serializer.is_valid(raise_exception=True)
     signal = serializer.save()
     return Response(BeliefSignalNodeSerializer(signal).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def archetype_genesis(request):
+    if request.method == "GET":
+        logs = ArchetypeGenesisLog.objects.all().order_by("-created_at")
+        return Response(ArchetypeGenesisLogSerializer(logs, many=True).data)
+
+    serializer = ArchetypeGenesisLogSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    log = serializer.save()
+    return Response(ArchetypeGenesisLogSerializer(log).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def myth_blooms(request):
+    if request.method == "GET":
+        blooms = MythBloomNode.objects.all().order_by("-created_at")
+        return Response(MythBloomNodeSerializer(blooms, many=True).data)
+
+    serializer = MythBloomNodeSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    bloom = serializer.save()
+    return Response(MythBloomNodeSerializer(bloom).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def belief_seeds(request):
+    if request.method == "GET":
+        seeds = BeliefSeedReplication.objects.all().order_by("-created_at")
+        return Response(BeliefSeedReplicationSerializer(seeds, many=True).data)
+
+    serializer = BeliefSeedReplicationSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    seed = serializer.save()
+    return Response(BeliefSeedReplicationSerializer(seed).data, status=201)
 
 
 @api_view(["GET", "POST"])

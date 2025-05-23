@@ -68,6 +68,9 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
+    ArchetypeGenesisLog,
+    MythBloomNode,
+    BeliefSeedReplication,
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
@@ -877,22 +880,26 @@ class BeliefFeedbackSignalSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-class MythHyperstructureSerializer(serializers.ModelSerializer):
+
+class ArchetypeGenesisLogSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MythHyperstructure
+        model = ArchetypeGenesisLog
+
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+class MythBloomNodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythBloomNode
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class DreamWorldModelSerializer(serializers.ModelSerializer):
+
+class BeliefSeedReplicationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DreamWorldModel
+        model = BeliefSeedReplication
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
-
-class ReflectiveEcosystemEngineSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ReflectiveEcosystemEngine
-        fields = "__all__"
-        read_only_fields = ["id", "last_sync"]

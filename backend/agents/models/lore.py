@@ -1867,33 +1867,57 @@ class BeliefFeedbackSignal(models.Model):
         return f"Signal to {self.target_codex.title}"[:50]
 
 
-class MythHyperstructure(models.Model):
-    """Large-scale symbolic container organizing memory and belief."""
+class ArchetypeGenesisLog(models.Model):
+    """Record formation of new archetypes from reflection."""
 
-    structure_name = models.CharField(max_length=150)
-    symbolic_geometry = models.TextField()
-    linked_codices = models.ManyToManyField(SwarmCodex)
-    assistants_inhabiting = models.ManyToManyField("assistants.Assistant")
-    purpose_vector_map = models.JSONField()
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    memory_path = models.ManyToManyField(SwarmMemoryEntry)
+    seed_purpose = models.TextField()
+    resulting_archetype = models.CharField(max_length=100)
+    symbolic_signature = models.JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ["-created_at"]
 
-class DreamWorldModel(models.Model):
-    """Persistent symbolic world used for narrative training."""
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Genesis {self.resulting_archetype}"[:50]
 
-    world_name = models.CharField(max_length=150)
-    myth_source = models.ForeignKey(TranscendentMyth, on_delete=models.CASCADE)
-    memory_zones = models.ManyToManyField("agents.MemoryRealmZone")
-    active_agents = models.ManyToManyField("assistants.Assistant")
-    simulation_state = models.JSONField()
+
+class MythBloomNode(models.Model):
+    """Organic emergence of a new myth strand."""
+
+    bloom_name = models.CharField(max_length=150)
+    origin_trigger = models.ForeignKey(TranscendentMyth, on_delete=models.CASCADE)
+    participating_agents = models.ManyToManyField("assistants.Assistant")
+    symbolic_flow_summary = models.TextField()
+    reflected_memory = models.ManyToManyField(SwarmMemoryEntry)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ["-created_at"]
 
-class ReflectiveEcosystemEngine(models.Model):
-    """Balances entropy and narrative flux across active components."""
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.bloom_name
 
-    scope = models.CharField(max_length=100)
-    symbolic_flux_data = models.JSONField()
-    entropy_modulators = models.JSONField()
-    ritual_activity_log = models.JSONField()
-    last_sync = models.DateTimeField(auto_now=True)
+
+class BeliefSeedReplication(models.Model):
+    """Transmit compact symbolic belief packets."""
+
+    originating_entity = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    core_symbol_set = models.JSONField()
+    intended_recipients = models.ManyToManyField("assistants.Assistant")
+    propagation_log = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Seed from {self.originating_entity.name}"[:50]
+
+
