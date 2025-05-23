@@ -43,7 +43,15 @@ from .models.reflection import (
     AssistantReflectionLog,
     AssistantReflectionInsight,
 )
-from .models.thoughts import AssistantThoughtLog, EmotionalResonanceLog, CollaborationLog
+from .models.thoughts import (
+    AssistantThoughtLog,
+    EmotionalResonanceLog,
+    CollaborationLog,
+)
+from .models.extensions import (
+    HapticFeedbackChannel,
+    AssistantSensoryExtensionProfile,
+)
 from .models.project import AssistantNextAction, ProjectPlanningLog
 from .models.core import  AssistantMythLayer
 
@@ -1252,3 +1260,19 @@ class AutonomyNarrativeModelSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+
+
+class HapticFeedbackChannelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HapticFeedbackChannel
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class AssistantSensoryExtensionProfileSerializer(serializers.ModelSerializer):
+    assistant = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = AssistantSensoryExtensionProfile
+        fields = "__all__"
+        read_only_fields = ["id", "assistant", "created_at"]
