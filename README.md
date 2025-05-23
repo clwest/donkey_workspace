@@ -51,6 +51,12 @@ python manage.py migrate
 python manage.py runserver
 ```
 
+Whenever new models are added—such as the `MythchainOutputGenerator`,
+`NarrativeArtifactExporter`, and `SymbolicPatternBroadcastEngine`—run
+`python manage.py makemigrations` followed by `python manage.py migrate`
+before running tests or deploying the backend. This ensures all tables are
+created and up to date.
+
 ### Seeding All Data
 
 Once your backend is running, you can populate every model and DevDoc dataset in one command:
@@ -65,6 +71,17 @@ If you encounter a `ProgrammingError` complaining that `assistants_assistant`
 does not exist, ensure you ran `python manage.py makemigrations` before
 `python manage.py migrate`. This generates all initial migration files so Django
 creates the required tables.
+
+### Running Tests
+
+Use the helper script to automatically run migrations before executing tests:
+
+```bash
+./tests/run_tests.sh
+```
+
+Pass any additional pytest flags after the script. This ensures the database is
+fully migrated with the latest models before the test suite runs.
 
 
 ### Debugging & Logs

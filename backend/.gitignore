@@ -51,3 +51,4 @@ venv/
 !project/migrations/0002_project_roles_project_team_project_team_chain.py
 !project/migrations/0003_milestone_status.py
 !metrics/migrations/0001_initial.py
+!agents/migrations/0001_mythchain_models.py

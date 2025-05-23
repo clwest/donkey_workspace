@@ -85,8 +85,12 @@ celery:
 	@celery -A server worker --loglevel=info --pool=solo
 
 # ==== 🧪 Dev Utilities ====
-migrate:
-	@python manage.py migrate
+
+makemigrations:
+       @python manage.py makemigrations
+
+migrate: makemigrations
+       @python manage.py migrate
 
 reset-db:
 	@echo "💣 Dropping and recreating DB..."
