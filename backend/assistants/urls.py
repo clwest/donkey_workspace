@@ -518,6 +518,11 @@ urlpatterns = [
         name="assistant-objectives",
     ),
     path(
+        "primary/objectives/",
+        objectives.primary_objectives,
+        name="primary-objectives",
+    ),
+    path(
         "<slug:slug>/objectives/",
         objectives.objectives_for_assistant,
         name="objectives-for-assistant",

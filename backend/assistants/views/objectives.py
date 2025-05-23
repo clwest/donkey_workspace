@@ -68,6 +68,26 @@ def objectives_for_assistant(request, slug):
     return Response(serializer.data)
 
 
+@api_view(["GET"])
+def primary_objectives(request):
+    """Return objectives for the primary assistant's most recent project."""
+    assistant = Assistant.objects.filter(is_primary=True).first()
+    if not assistant:
+        return Response({"error": "No primary assistant."}, status=404)
+
+    project = (
+        AssistantProject.objects.filter(assistant=assistant)
+        .order_by("-created_at")
+        .first()
+    )
+    if not project:
+        return Response([], status=200)
+
+    objectives = AssistantObjective.objects.filter(project=project)
+    serializer = AssistantObjectiveWithTasksSerializer(objectives, many=True)
+    return Response(serializer.data)
+
+
 @api_view(["POST"])
 def reflect_to_objectives(request, slug):
     """Infer new objectives from recent assistant thoughts."""
