@@ -56,3 +56,26 @@ class SimulationStateTracker(models.Model):
     codex_alignment_score = models.FloatField()
     memory_deltas = models.JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class MythflowSession(models.Model):
+    """Hosts a real-time symbolic interaction session."""
+
+    session_name = models.CharField(max_length=150)
+    active_scenario = models.ForeignKey(MythScenarioSimulator, on_delete=models.CASCADE)
+    participants = models.ManyToManyField("assistants.Assistant")
+    memory_trace = models.ManyToManyField("agents.SwarmMemoryEntry")
+    live_codex_context = models.ManyToManyField("agents.SwarmCodex")
+    session_status = models.CharField(max_length=50, default="active")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class SymbolicDialogueExchange(models.Model):
+    """Records dialogue lines with symbolic context."""
+
+    session = models.ForeignKey(MythflowSession, on_delete=models.CASCADE)
+    sender = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    message_content = models.TextField()
+    symbolic_intent = models.JSONField()
+    codex_alignment_score = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
