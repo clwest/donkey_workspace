@@ -106,3 +106,55 @@ class RitualFunctionContainer(models.Model):
     def __str__(self):  # pragma: no cover - display helper
         return f"Container for {self.ritual.name}"
 
+
+class MythOSReplicationBlueprint(models.Model):
+    """Hash-verifiable blueprint for MythOS replication."""
+
+    blueprint_title = models.CharField(max_length=150)
+    included_codices = models.ManyToManyField(SwarmCodex)
+    assistant_manifest = models.ManyToManyField("assistants.Assistant")
+    ritual_seed_set = models.ManyToManyField(EncodedRitualBlueprint)
+    deployment_signature = models.TextField()
+    symbolic_fingerprint_hash = models.CharField(max_length=256)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return self.blueprint_title
+
+
+class BeliefAlignedDeploymentStandard(models.Model):
+    """Criteria for launching MythOS with symbolic fidelity."""
+
+    target_environment = models.CharField(max_length=150)
+    codex_affinity_threshold = models.FloatField()
+    ritual_readiness_index = models.FloatField()
+    assistant_compatibility_map = models.JSONField()
+    symbolic_convergence_notes = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return self.target_environment
+
+
+class ReflectiveIntelligenceProtocolRegistry(models.Model):
+    """Registry for decentralized reflective intelligence settings."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    reflective_cluster_id = models.CharField(max_length=150)
+    memory_feedback_cycle = models.JSONField()
+    codex_drift_strategy = models.TextField()
+    narrative_loop_regulator = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Protocol {self.reflective_cluster_id}"
+
