@@ -30,6 +30,14 @@ export const fetchMemoryBroadcasts = () =>
 export const fetchLearningReservoirs = () =>
   apiFetch("/agents/learning-reservoirs/");
 
+export const fetchMythflowPlans = () =>
+  apiFetch("/agents/mythflow-plans/");
+export const fetchDirectiveMemory = () =>
+  apiFetch("/agents/directive-memory/");
+export const fetchPlanningLattices = () =>
+  apiFetch("/agents/planning-lattices/");
+
+
 export const fetchCosmologies = () => apiFetch("/cosmologies/");
 export const updateBeliefEngine = (id) =>
   apiFetch(`/belief-engine/${id}/update/`, { method: "POST" });

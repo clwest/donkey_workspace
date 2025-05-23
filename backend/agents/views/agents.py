@@ -43,6 +43,7 @@ from agents.models.lore import (
     DreamPurposeNegotiation,
     BiomeMutationEvent,
     SwarmCodex,
+    AgentAwareCodex,
     SymbolicLawEntry,
     RitualArchiveEntry,
     AssistantPolity,
@@ -77,7 +78,15 @@ from agents.models.lore import (
 
 
 )
-from agents.models.coordination import CollaborationThread, DelegationStream, MythflowInsight
+from agents.models.coordination import (
+    CollaborationThread,
+    DelegationStream,
+    MythflowInsight,
+    MythflowOrchestrationPlan,
+    DirectiveMemoryNode,
+    SymbolicPlanningLattice,
+
+)
 from agents.serializers import (
     AgentSerializer,
     AgentFeedbackLogSerializer,
@@ -136,15 +145,20 @@ from agents.serializers import (
     CollaborationThreadSerializer,
     DelegationStreamSerializer,
     MythflowInsightSerializer,
+    AgentAwareCodexSerializer,
+    SymbolicCoordinationEngineSerializer,
     CosmogenesisSimulationSerializer,
 
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
     SymbolicWeatherFrontSerializer,
-    SwarmCosmologySerializer,
-    PurposeIndexEntrySerializer,
-    BeliefSignalNodeSerializer,
-    MythicAlignmentMarketSerializer,
+    SymbolicAnomalyEventSerializer,
+    BeliefCollapseRecoveryRitualSerializer,
+    MultiverseLoopLinkSerializer,
+    MythflowOrchestrationPlanSerializer,
+    DirectiveMemoryNodeSerializer,
+    SymbolicPlanningLatticeSerializer,
+
 
 )
 from assistants.serializers import (
@@ -172,6 +186,7 @@ from agents.utils.myth_verification import (
 )
 
 from agents.utils import harmonize_global_narrative
+from agents.utils import generate_ritual_from_ecosystem_state
 from agents.utils.myth_weaver import weave_recursive_myth
 from agents.utils.myth_evolution import evolve_myth_elements
 from agents.models.cosmology import update_belief_state
@@ -802,6 +817,18 @@ def codexes(request):
 
 
 @api_view(["GET", "POST"])
+def agent_codices(request):
+    if request.method == "GET":
+        codices = AgentAwareCodex.objects.all().order_by("-last_updated")
+        return Response(AgentAwareCodexSerializer(codices, many=True).data)
+
+    serializer = AgentAwareCodexSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    codex = serializer.save()
+    return Response(AgentAwareCodexSerializer(codex).data, status=201)
+
+
+@api_view(["GET", "POST"])
 def symbolic_laws(request):
     if request.method == "GET":
         laws = SymbolicLawEntry.objects.all().order_by("-created_at")
@@ -1157,5 +1184,6 @@ def alignment_market(request):
 def myth_evolution(request):
     result = evolve_myth_elements()
     return Response(result, status=201)
+
 
 
