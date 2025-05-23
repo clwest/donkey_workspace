@@ -1,6 +1,6 @@
 from assistants.models import Assistant
 from agents.models.lore import SwarmMemoryEntry
-from .models import BraidedMemoryStrand, ContinuityAnchorPoint
+from memory.models import BraidedMemoryStrand, ContinuityAnchorPoint
 
 
 def run_anamnesis_retrieval(assistant: Assistant) -> dict:

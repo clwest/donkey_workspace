@@ -1640,7 +1640,7 @@ class LearningReservoir(models.Model):
 
 
 
-class SwarmCosmology(models.Model):
+class LoreSwarmCosmology(models.Model):
     """Meta-framework describing mythic universes."""
 
     name = models.CharField(max_length=150)
@@ -1658,7 +1658,7 @@ class PurposeIndexEntry(models.Model):
     """Record symbolic intent snapshots across mythic context and time."""
 
     assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
-    cosmology = models.ForeignKey(SwarmCosmology, on_delete=models.CASCADE)
+    cosmology = models.ForeignKey(LoreSwarmCosmology, on_delete=models.CASCADE)
     purpose_vector = models.JSONField()
     timeline_marker = models.CharField(max_length=100)
     alignment_tags = models.JSONField()

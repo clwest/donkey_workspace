@@ -64,9 +64,13 @@ from agents.models.lore import (
     KnowledgeReplicationEvent,
     MemoryBroadcastPacket,
     LearningReservoir,
-    SymbolicAnomalyEvent,
-    BeliefCollapseRecoveryRitual,
-    MultiverseLoopLink,
+    AgentAwareCodex,
+    PurposeIndexEntry,
+    BeliefSignalNode,
+    MythicAlignmentMarket,
+    
+    
+
 )
 
 from agents.models.coordination import (
@@ -74,12 +78,15 @@ from agents.models.coordination import (
     DelegationStream,
     MythflowInsight,
     SymbolicCoordinationEngine,
+    SymbolicPlanningLattice,
 )
 from agents.models.insight import (
     InsightHub,
     PerspectiveMergeEvent,
     TimelineStitchLog,
 )
+from agents.models.cosmology import SwarmCosmology
+from agents.models.swarm_balance import PurposeMigrationEvent, CognitiveBalanceReport
 from assistants.models.assistant import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
 
