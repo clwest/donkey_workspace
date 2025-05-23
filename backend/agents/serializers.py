@@ -102,6 +102,9 @@ from agents.models.lore import (
     RitualLoopVisualizationEngine,
     SymbolicOscillationMap,
     CodexRestabilizationNode,
+    CodexCurrencyModule,
+    SymbolicInfluenceLedger,
+    BeliefContributionMarketplace,
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
 )
@@ -1218,6 +1221,36 @@ class SymbolicOscillationMapSerializer(serializers.ModelSerializer):
 class CodexRestabilizationNodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = CodexRestabilizationNode
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CodexCurrencyModuleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CodexCurrencyModule
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicInfluenceLedgerSerializer(serializers.ModelSerializer):
+    memory_contributions_ids = serializers.PrimaryKeyRelatedField(
+        queryset=SwarmMemoryEntry.objects.all(),
+        many=True,
+        write_only=True,
+        required=False,
+        source="memory_contributions",
+    )
+    memory_contributions = SwarmMemoryEntrySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = SymbolicInfluenceLedger
+        fields = "__all__"
+        read_only_fields = ["id", "created_at", "memory_contributions"]
+
+
+class BeliefContributionMarketplaceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BeliefContributionMarketplace
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

@@ -98,6 +98,9 @@ from agents.models.lore import (
     RitualLoopVisualizationEngine,
     SymbolicOscillationMap,
     CodexRestabilizationNode,
+    CodexCurrencyModule,
+    SymbolicInfluenceLedger,
+    BeliefContributionMarketplace,
 
     LegacyArtifactExporter,
 
@@ -226,6 +229,9 @@ from agents.serializers import (
     RitualLoopVisualizationEngineSerializer,
     SymbolicOscillationMapSerializer,
     CodexRestabilizationNodeSerializer,
+    CodexCurrencyModuleSerializer,
+    SymbolicInfluenceLedgerSerializer,
+    BeliefContributionMarketplaceSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1793,5 +1799,41 @@ def codex_stabilize(request):
     serializer.is_valid(raise_exception=True)
     node = serializer.save()
     return Response(CodexRestabilizationNodeSerializer(node).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def codex_value(request):
+    if request.method == "GET":
+        modules = CodexCurrencyModule.objects.all().order_by("-created_at")
+        return Response(CodexCurrencyModuleSerializer(modules, many=True).data)
+
+    serializer = CodexCurrencyModuleSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    module = serializer.save()
+    return Response(CodexCurrencyModuleSerializer(module).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def influence_ledger(request):
+    if request.method == "GET":
+        ledgers = SymbolicInfluenceLedger.objects.all().order_by("-created_at")
+        return Response(SymbolicInfluenceLedgerSerializer(ledgers, many=True).data)
+
+    serializer = SymbolicInfluenceLedgerSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    ledger = serializer.save()
+    return Response(SymbolicInfluenceLedgerSerializer(ledger).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def belief_market(request):
+    if request.method == "GET":
+        markets = BeliefContributionMarketplace.objects.all().order_by("-created_at")
+        return Response(BeliefContributionMarketplaceSerializer(markets, many=True).data)
+
+    serializer = BeliefContributionMarketplaceSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    market = serializer.save()
+    return Response(BeliefContributionMarketplaceSerializer(market).data, status=201)
 
 
