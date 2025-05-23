@@ -116,13 +116,14 @@ from agents.models.governance import (
     NarrativeGovernanceModel,
 )
 
-from agents.models.legislative import (
+from agents.models.federation import (
     CodexFederationArchitecture,
     SymbolicTreatyProtocol,
+)
+from agents.models.legislative import (
     FederatedCodexOracle,
     SwarmTreatyEnforcementEngine,
     LegislativeRitualSimulationSystem,
-
 )
 from agents.models.coordination import (
     CollaborationThread,

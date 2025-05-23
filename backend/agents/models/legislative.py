@@ -1,38 +1,11 @@
 from django.db import models
-from .federation import CodexLinkedGuild
-from .lore import SwarmCodex
 
-
-class CodexFederationArchitecture(models.Model):
-    """Structure describing federated codex governance."""
-
-    federation_name = models.CharField(max_length=150)
-    member_codices = models.ManyToManyField(SwarmCodex, blank=True)
-    alliance_map = models.JSONField(default=dict, blank=True)
-    treaty_framework = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self):  # pragma: no cover - display helper
-        return self.federation_name
-
-
-class SymbolicTreatyProtocol(models.Model):
-    """Defines codex-aligned treaty clauses and enforcement terms."""
-
-    treaty_name = models.CharField(max_length=150)
-    codex_scope = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
-    clause_map = models.JSONField(default=dict, blank=True)
-    enforcement_guidelines = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self):  # pragma: no cover - display helper
-        return self.treaty_name
+# Reuse federation-level models rather than redefining them here to
+# avoid duplicate model names across the ``agents`` app. Django will
+# raise an app registry conflict if two models share the same class
+# name within one app. The canonical implementations live in
+# ``federation.py`` and are imported below for ForeignKey relations.
+from .federation import CodexFederationArchitecture, SymbolicTreatyProtocol
 
 
 class FederatedCodexOracle(models.Model):
