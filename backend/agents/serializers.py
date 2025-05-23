@@ -82,6 +82,9 @@ from agents.models.lore import (
     BeliefSeedReplication,
     PersonaFusionEvent,
     DialogueCodexMutationLog,
+    PublicRitualLogEntry,
+    BeliefContinuityThread,
+    CodexContributionCeremony,
 )
 
 from agents.models.coordination import (
@@ -946,5 +949,26 @@ class BeliefSeedReplicationSerializer(serializers.ModelSerializer):
 class AgentPlotlineCurationSerializer(serializers.ModelSerializer):
     class Meta:
         model = AgentPlotlineCuration
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class PublicRitualLogEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PublicRitualLogEntry
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class BeliefContinuityThreadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BeliefContinuityThread
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CodexContributionCeremonySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CodexContributionCeremony
         fields = "__all__"
         read_only_fields = ["id", "created_at"]

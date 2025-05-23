@@ -2011,3 +2011,57 @@ class EncodedRitualBlueprint(models.Model):
         return self.name
 
 
+class PublicRitualLogEntry(models.Model):
+    """Immutable record of a completed ritual."""
+
+    ritual_title = models.CharField(max_length=150)
+    participant_identity = models.CharField(max_length=100)
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    ritual_blueprint = models.ForeignKey(EncodedRitualBlueprint, on_delete=models.CASCADE)
+    memory_links = models.ManyToManyField(SwarmMemoryEntry)
+    reflection_summary = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.ritual_title
+
+
+class BeliefContinuityThread(models.Model):
+    """Long-term belief relationship for a user."""
+
+    user_id = models.CharField(max_length=150)
+    related_codices = models.ManyToManyField(SwarmCodex)
+    symbolic_tags = models.JSONField()
+    assistant_interactions = models.ManyToManyField("assistants.Assistant")
+    continuity_score = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.user_id
+
+
+class CodexContributionCeremony(models.Model):
+    """Structured proposal for modifying a codex."""
+
+    ceremony_title = models.CharField(max_length=150)
+    contributor_id = models.CharField(max_length=100)
+    symbolic_proposal = models.TextField()
+    codex_target = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    approval_status = models.CharField(max_length=50, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.ceremony_title
+
+

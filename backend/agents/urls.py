@@ -28,6 +28,9 @@ urlpatterns = [
     path("return-cycles/", agents.return_cycles),
     path("myth-cycles/", agents.myth_cycles),
     path("resurrection-templates/", agents.resurrection_templates),
+    path("public-rituals/", agents.public_rituals),
+    path("belief-threads/", agents.belief_threads),
+    path("codex-contributions/", agents.codex_contributions),
 
     path("belief-continuity/", agents.belief_continuity),
     path("belief-clusters/", agents.belief_clusters),
