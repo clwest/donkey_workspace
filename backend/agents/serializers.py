@@ -134,6 +134,9 @@ from agents.models.storyfield import (
     MythPatternCluster,
     IntentHarmonizationSession,
     AgentPlotlineCuration,
+    PlotlineExtractorEngine,
+    MemoryCompressionRitualTool,
+    CodexStoryReshaper,
 )
 from agents.models.planning import (
     SymbolicRoadmapPlan,
@@ -1108,5 +1111,26 @@ class MythicResolutionSequenceSerializer(serializers.ModelSerializer):
     class Meta:
         model = MythicResolutionSequence
 
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class PlotlineExtractorEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlotlineExtractorEngine
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MemoryCompressionRitualToolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemoryCompressionRitualTool
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CodexStoryReshaperSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CodexStoryReshaper
         fields = "__all__"
         read_only_fields = ["id", "created_at"]

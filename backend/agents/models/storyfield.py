@@ -150,3 +150,49 @@ class RitualPreservationLibrary(models.Model):
         return self.library_name
 
 
+class PlotlineExtractorEngine(models.Model):
+    """Extract archetypal plot arcs from memory clusters."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    input_memory_set = models.ManyToManyField(SwarmMemoryEntry)
+    archetype_tags = models.JSONField()
+    codex_influence_map = models.JSONField()
+    symbolic_plot_summary = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class MemoryCompressionRitualTool(models.Model):
+    """Compress multiple memories into a symbolic summary node."""
+
+    initiating_assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    source_entries = models.ManyToManyField(SwarmMemoryEntry)
+    ritual_script = models.TextField()
+    compressed_summary = models.TextField()
+    aura_score = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class CodexStoryReshaper(models.Model):
+    """Restructure narrative timelines by codex rule or ritual reordering."""
+
+    reshaper_title = models.CharField(max_length=150)
+    initiating_assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    target_codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    belief_shift_map = models.JSONField()
+    ritual_reorder_log = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+

@@ -110,6 +110,9 @@ from agents.models.storyfield import (
     SwarmMythEditLog,
     LegacyContinuityVault,
     AgentPlotlineCuration,
+    PlotlineExtractorEngine,
+    MemoryCompressionRitualTool,
+    CodexStoryReshaper,
 
 )
 
@@ -206,6 +209,9 @@ from agents.serializers import (
     MythPatternClusterSerializer,
     IntentHarmonizationSessionSerializer,
     AgentPlotlineCurationSerializer,
+    PlotlineExtractorEngineSerializer,
+    MemoryCompressionRitualToolSerializer,
+    CodexStoryReshaperSerializer,
 )
 from assistants.serializers import (
     AssistantSerializer,
@@ -1628,4 +1634,40 @@ def sequence_resolve(request):
     serializer.is_valid(raise_exception=True)
     sequence = serializer.save()
     return Response(MythicResolutionSequenceSerializer(sequence).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def story_extract(request):
+    if request.method == "GET":
+        engines = PlotlineExtractorEngine.objects.all().order_by("-created_at")
+        return Response(PlotlineExtractorEngineSerializer(engines, many=True).data)
+
+    serializer = PlotlineExtractorEngineSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    engine = serializer.save()
+    return Response(PlotlineExtractorEngineSerializer(engine).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def memory_compress(request):
+    if request.method == "GET":
+        tools = MemoryCompressionRitualTool.objects.all().order_by("-created_at")
+        return Response(MemoryCompressionRitualToolSerializer(tools, many=True).data)
+
+    serializer = MemoryCompressionRitualToolSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    tool = serializer.save()
+    return Response(MemoryCompressionRitualToolSerializer(tool).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def codex_reshape(request):
+    if request.method == "GET":
+        reshapers = CodexStoryReshaper.objects.all().order_by("-created_at")
+        return Response(CodexStoryReshaperSerializer(reshapers, many=True).data)
+
+    serializer = CodexStoryReshaperSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    reshaper = serializer.save()
+    return Response(CodexStoryReshaperSerializer(reshaper).data, status=201)
 
