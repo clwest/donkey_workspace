@@ -173,6 +173,7 @@ from agents.utils.myth_verification import (
 
 from agents.utils import harmonize_global_narrative
 from agents.utils.myth_weaver import weave_recursive_myth
+from agents.utils.myth_evolution import evolve_myth_elements
 from agents.models.cosmology import update_belief_state
 
 from datetime import datetime
@@ -1150,5 +1151,11 @@ def alignment_market(request):
     serializer.is_valid(raise_exception=True)
     market = serializer.save()
     return Response(MythicAlignmentMarketSerializer(market).data, status=201)
+
+
+@api_view(["POST"])
+def myth_evolution(request):
+    result = evolve_myth_elements()
+    return Response(result, status=201)
 
 

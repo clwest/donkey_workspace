@@ -82,6 +82,7 @@ urlpatterns = [
     path("api/legacy-roles/", agent_views.legacy_roles),
     path("api/cosmological-roles/", agent_views.cosmological_roles),
     path("api/myth-weaver/", agent_views.myth_weaver),
+    path("api/myth-evolution/", agent_views.myth_evolution),
     path("api/legacy-vaults/", agent_views.legacy_vaults),
 
     path("api/identity-cards/", agent_views.identity_cards),
