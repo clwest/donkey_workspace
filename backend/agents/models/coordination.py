@@ -44,17 +44,37 @@ class MythflowInsight(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-class SymbolicCoordinationEngine(models.Model):
-    """Role-aware coordination system driven by symbolic signals."""
+class MythflowOrchestrationPlan(models.Model):
+    """Symbolic narrative planning structure driven by mythflow."""
 
-    guild = models.ForeignKey("assistants.AssistantGuild", on_delete=models.CASCADE)
-    active_signals = models.JSONField()
-    coordination_strategy = models.TextField()
-    tasks_assigned = models.JSONField()
-    last_sync = models.DateTimeField(auto_now=True)
+    title = models.CharField(max_length=150)
+    lead_assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    goal_sequence = models.JSONField()
+    narrative_constraints = models.TextField()
+    participating_agents = models.ManyToManyField(
+        "assistants.Assistant", related_name="mythflow_plans"
+    )
+    mythflow_state = models.CharField(max_length=50, default="active")
+    created_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        ordering = ["-last_sync"]
 
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return f"CoordEngine for {self.guild.name}"
+class DirectiveMemoryNode(models.Model):
+    """Durable symbolic intent memory across cycles."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    purpose_statement = models.TextField()
+    triggering_conditions = models.JSONField()
+    directive_tags = models.JSONField()
+    temporal_scope = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class SymbolicPlanningLattice(models.Model):
+    """Symbolic graph of mythic continuity and purpose weighting."""
+
+    associated_plan = models.ForeignKey(MythflowOrchestrationPlan, on_delete=models.CASCADE)
+    role_nodes = models.JSONField()
+    narrative_edges = models.JSONField()
+    alignment_scores = models.JSONField()
+    last_updated = models.DateTimeField(auto_now=True)
+

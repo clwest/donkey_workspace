@@ -82,7 +82,10 @@ from agents.models.coordination import (
     CollaborationThread,
     DelegationStream,
     MythflowInsight,
-    SymbolicCoordinationEngine,
+    MythflowOrchestrationPlan,
+    DirectiveMemoryNode,
+    SymbolicPlanningLattice,
+
 )
 from agents.serializers import (
     AgentSerializer,
@@ -149,10 +152,13 @@ from agents.serializers import (
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
     SymbolicWeatherFrontSerializer,
-    SwarmCosmologySerializer,
-    PurposeIndexEntrySerializer,
-    BeliefSignalNodeSerializer,
-    MythicAlignmentMarketSerializer,
+    SymbolicAnomalyEventSerializer,
+    BeliefCollapseRecoveryRitualSerializer,
+    MultiverseLoopLinkSerializer,
+    MythflowOrchestrationPlanSerializer,
+    DirectiveMemoryNodeSerializer,
+    SymbolicPlanningLatticeSerializer,
+
 
 )
 from assistants.serializers import (
@@ -1191,3 +1197,39 @@ def coordination_engine(request):
     return Response(SymbolicCoordinationEngineSerializer(engine).data, status=201)
 
 
+
+
+@api_view(["GET", "POST"])
+def mythflow_plans(request):
+    if request.method == "GET":
+        plans = MythflowOrchestrationPlan.objects.all().order_by("-created_at")
+        return Response(MythflowOrchestrationPlanSerializer(plans, many=True).data)
+
+    serializer = MythflowOrchestrationPlanSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    plan = serializer.save()
+    return Response(MythflowOrchestrationPlanSerializer(plan).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def directive_memory(request):
+    if request.method == "GET":
+        nodes = DirectiveMemoryNode.objects.all().order_by("-created_at")
+        return Response(DirectiveMemoryNodeSerializer(nodes, many=True).data)
+
+    serializer = DirectiveMemoryNodeSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    node = serializer.save()
+    return Response(DirectiveMemoryNodeSerializer(node).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def planning_lattices(request):
+    if request.method == "GET":
+        lattices = SymbolicPlanningLattice.objects.all().order_by("-last_updated")
+        return Response(SymbolicPlanningLatticeSerializer(lattices, many=True).data)
+
+    serializer = SymbolicPlanningLatticeSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    lattice = serializer.save()
+    return Response(SymbolicPlanningLatticeSerializer(lattice).data, status=201)
