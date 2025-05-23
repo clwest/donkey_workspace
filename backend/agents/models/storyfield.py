@@ -1,7 +1,6 @@
 from django.db import models
 
 from .lore import SwarmMemoryEntry
-from assistants.models.assistant import Assistant
 
 
 class StoryfieldZone(models.Model):
@@ -29,7 +28,7 @@ class MythPatternCluster(models.Model):
 class IntentHarmonizationSession(models.Model):
     """Multi-agent purpose calibration session within a symbolic scenario."""
 
-    involved_assistants = models.ManyToManyField(Assistant)
+    involved_assistants = models.ManyToManyField("assistants.Assistant")
     coordination_focus = models.TextField()
     proposed_strategies = models.JSONField()
     symbolic_alignment_score = models.FloatField()
