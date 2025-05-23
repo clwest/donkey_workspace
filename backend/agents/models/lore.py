@@ -8,7 +8,7 @@ from django.contrib.postgres.fields import ArrayField
 from pgvector.django import VectorField
 from django.utils import timezone
 from metrics.models import RitualPerformanceMetric
-
+from agents.models.coordination import DirectiveMemoryNode
 User = settings.AUTH_USER_MODEL
 
 LLM_CHOICES = [

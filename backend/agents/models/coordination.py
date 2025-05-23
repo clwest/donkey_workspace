@@ -1,6 +1,5 @@
 from django.db import models
 
-from agents.models.lore import SwarmMemoryEntry
 
 
 class CollaborationThread(models.Model):
@@ -11,7 +10,7 @@ class CollaborationThread(models.Model):
     narrative_focus = models.TextField()
     symbolic_tags = models.JSONField()
     originating_memory = models.ForeignKey(
-        SwarmMemoryEntry, on_delete=models.SET_NULL, null=True
+        "agents.SwarmMemoryEntry", on_delete=models.SET_NULL, null=True
     )
     active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
