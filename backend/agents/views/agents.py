@@ -69,10 +69,12 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
-    AscensionStructure,
-    MythicMemoryPalace,
-    EternalReturnCycleIndex,
- 
+
+    PurposeRadianceField,
+    SymbolicGravityWell,
+    MemoryHarmonicsPulse,
+
+
 )
 from agents.models.coordination import (
     CollaborationThread,
@@ -157,6 +159,10 @@ from agents.serializers import (
     MythflowOrchestrationPlanSerializer,
 
     SymbolicPlanningLatticeSerializer,
+
+    PurposeRadianceFieldSerializer,
+    SymbolicGravityWellSerializer,
+    MemoryHarmonicsPulseSerializer,
 
 )
 from assistants.serializers import (
@@ -1216,39 +1222,41 @@ def purpose_migrations(request):
 
 
 @api_view(["GET", "POST"])
-def ascension_structures(request):
-    if request.method == "GET":
-        structures = AscensionStructure.objects.all().order_by("-created_at")
-        return Response(AscensionStructureSerializer(structures, many=True).data)
 
-    serializer = AscensionStructureSerializer(data=request.data)
+def purpose_radiance(request):
+    if request.method == "GET":
+        fields = PurposeRadianceField.objects.all().order_by("-last_emitted")
+        return Response(PurposeRadianceFieldSerializer(fields, many=True).data)
+
+    serializer = PurposeRadianceFieldSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    structure = serializer.save()
-    return Response(AscensionStructureSerializer(structure).data, status=201)
+    field = serializer.save()
+    return Response(PurposeRadianceFieldSerializer(field).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def memory_palaces(request):
+def gravity_wells(request):
     if request.method == "GET":
-        palaces = MythicMemoryPalace.objects.all().order_by("-last_updated")
-        return Response(MythicMemoryPalaceSerializer(palaces, many=True).data)
+        wells = SymbolicGravityWell.objects.all().order_by("-created_at")
+        return Response(SymbolicGravityWellSerializer(wells, many=True).data)
 
-    serializer = MythicMemoryPalaceSerializer(data=request.data)
+    serializer = SymbolicGravityWellSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    palace = serializer.save()
-    return Response(MythicMemoryPalaceSerializer(palace).data, status=201)
+    well = serializer.save()
+    return Response(SymbolicGravityWellSerializer(well).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def eternal_return(request):
+def memory_harmonics(request):
     if request.method == "GET":
-        cycles = EternalReturnCycleIndex.objects.all().order_by("-created_at")
-        return Response(EternalReturnCycleIndexSerializer(cycles, many=True).data)
+        pulses = MemoryHarmonicsPulse.objects.all().order_by("-created_at")
+        return Response(MemoryHarmonicsPulseSerializer(pulses, many=True).data)
 
-    serializer = EternalReturnCycleIndexSerializer(data=request.data)
+    serializer = MemoryHarmonicsPulseSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    cycle = serializer.save()
-    return Response(EternalReturnCycleIndexSerializer(cycle).data, status=201)
+    pulse = serializer.save()
+    return Response(MemoryHarmonicsPulseSerializer(pulse).data, status=201)
+
 
 
 
