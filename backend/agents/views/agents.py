@@ -73,6 +73,9 @@ from agents.models.lore import (
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
+    SymbolicStrategyChamber,
+    PurposeConflictResolutionLog,
+    RitualVotingEvent,
 
 
 )
@@ -166,6 +169,9 @@ from agents.serializers import (
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
     IntentHarmonizationSessionSerializer,
+    SymbolicStrategyChamberSerializer,
+    PurposeConflictResolutionLogSerializer,
+    RitualVotingEventSerializer,
 
 )
 from assistants.serializers import (
@@ -1296,3 +1302,39 @@ def intent_harmony(request):
     serializer.is_valid(raise_exception=True)
     session = serializer.save()
     return Response(IntentHarmonizationSessionSerializer(session).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def strategy_chambers(request):
+    if request.method == "GET":
+        chambers = SymbolicStrategyChamber.objects.all().order_by("-created_at")
+        return Response(SymbolicStrategyChamberSerializer(chambers, many=True).data)
+
+    serializer = SymbolicStrategyChamberSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    chamber = serializer.save()
+    return Response(SymbolicStrategyChamberSerializer(chamber).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def conflict_resolution(request):
+    if request.method == "GET":
+        logs = PurposeConflictResolutionLog.objects.all().order_by("-created_at")
+        return Response(PurposeConflictResolutionLogSerializer(logs, many=True).data)
+
+    serializer = PurposeConflictResolutionLogSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    log = serializer.save()
+    return Response(PurposeConflictResolutionLogSerializer(log).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def ritual_votes(request):
+    if request.method == "GET":
+        events = RitualVotingEvent.objects.all().order_by("-created_at")
+        return Response(RitualVotingEventSerializer(events, many=True).data)
+
+    serializer = RitualVotingEventSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    event = serializer.save()
+    return Response(RitualVotingEventSerializer(event).data, status=201)
