@@ -1565,3 +1565,27 @@ def journey_export(request):
     )
     return Response({"export_path": path}, status=201)
 
+
+
+@api_view(["GET", "POST"])
+def belief_tree(request):
+    if request.method == "GET":
+        trees = BeliefInheritanceTree.objects.all().order_by("-created_at")
+        return Response(BeliefInheritanceTreeSerializer(trees, many=True).data)
+
+    serializer = BeliefInheritanceTreeSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    tree = serializer.save()
+    return Response(BeliefInheritanceTreeSerializer(tree).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def ritual_archive(request):
+    if request.method == "GET":
+        archives = RitualResponseArchive.objects.all().order_by("-created_at")
+        return Response(RitualResponseArchiveSerializer(archives, many=True).data)
+
+    serializer = RitualResponseArchiveSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    archive = serializer.save()
+    return Response(RitualResponseArchiveSerializer(archive).data, status=201)

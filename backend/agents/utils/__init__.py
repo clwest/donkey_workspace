@@ -11,3 +11,5 @@ from .law_evolution import evolve_symbolic_law
 from .myth_evolution import evolve_myth_elements
 from .journey_export import generate_journey_export_package
 
+
+from .journey_export import create_myth_journey_package

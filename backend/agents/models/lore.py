@@ -2161,7 +2161,9 @@ class RitualOnboardingFlow(models.Model):
 
 
 class BeliefInheritanceTree(models.Model):
-    """Lineage-style belief mapping between a user and an assistant."""
+
+    """Map assistant-user memory lineage into beliefs."""
+
 
     user_id = models.CharField(max_length=150)
     assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
@@ -2175,11 +2177,11 @@ class BeliefInheritanceTree(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
 
-        return f"BeliefTree {self.user_id}"[:50]
+        return self.user_id
 
 
 class RitualResponseArchive(models.Model):
-    """Detailed log of ritual executions and resulting belief shifts."""
+    """Log ritual responses for replay and analysis."""
 
     ritual_blueprint = models.ForeignKey(EncodedRitualBlueprint, on_delete=models.CASCADE)
     assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
@@ -2194,7 +2196,6 @@ class RitualResponseArchive(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
-
-        return f"RitualArchive {self.id}"
+        return f"Archive {self.id}"
 
 

@@ -1,73 +1,68 @@
-from __future__ import annotations
 
 import json
 import os
-from typing import Any
+from typing import List
 
-from assistants.models.assistant import Assistant
 from agents.models.lore import (
-    SwarmMemoryEntry,
-    SwarmCodex,
-    EncodedRitualBlueprint,
     BeliefInheritanceTree,
     RitualResponseArchive,
+    SwarmMemoryEntry,
 )
 
-EXPORT_DIR = "exports/journeys"
 
-
-def generate_journey_export_package(
-    assistant: Assistant,
+def create_myth_journey_package(
     user_id: str,
-    export_format: str = "json",
-) -> str:
-    """Compile a simple myth journey snapshot and return export file path."""
+    assistant,
+    export_dir: str,
+    *,
+    memories: List[SwarmMemoryEntry] | None = None,
+    format_list: List[str] | None = None,
+):
+    """Create a portable package of a user's myth journey."""
 
-    os.makedirs(EXPORT_DIR, exist_ok=True)
+    os.makedirs(export_dir, exist_ok=True)
+    format_list = format_list or ["json", "md"]
 
-    identity = {
-        "assistant": assistant.name,
-        "assistant_id": str(assistant.id),
-        "user_id": user_id,
+    belief_trees = BeliefInheritanceTree.objects.filter(user_id=user_id, assistant=assistant)
+    rituals = RitualResponseArchive.objects.filter(user_id=user_id, assistant=assistant)
+
+    data = {
+        "user": user_id,
+        "assistant": str(assistant),
+        "belief_trees": [
+            {
+                "id": str(tree.id),
+                "summary": tree.symbolic_summary,
+                "created_at": tree.created_at.isoformat(),
+            }
+            for tree in belief_trees
+        ],
+        "ritual_archives": [
+            {
+                "id": str(r.id),
+                "summary": r.output_summary,
+                "created_at": r.created_at.isoformat(),
+            }
+            for r in rituals
+        ],
+        "memory_ids": [m.id for m in memories] if memories else [],
     }
-    memories = list(
-        SwarmMemoryEntry.objects.filter(created_by=assistant).values("id", "title")
-    )
-    codices = list(SwarmCodex.objects.filter(created_by=assistant).values("id", "title"))
-    rituals = list(
-        EncodedRitualBlueprint.objects.all().values("id", "name")[:5]
-    )
-    belief_trees = list(
-        BeliefInheritanceTree.objects.filter(user_id=user_id, assistant=assistant)
-        .values("id", "symbolic_summary")
-    )
-    archives = list(
-        RitualResponseArchive.objects.filter(user_id=user_id, assistant=assistant)
-        .values("id", "output_summary")
-    )
 
-    package: dict[str, Any] = {
-        "identity": identity,
-        "memory_map": memories,
-        "codex_anchors": codices,
-        "ritual_contracts": rituals,
-        "belief_inheritance": belief_trees,
-        "ritual_archives": archives,
-    }
+    if "json" in format_list:
+        with open(os.path.join(export_dir, "journey.json"), "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
 
-    filename = f"journey_{assistant.slug}_{user_id}.{export_format}"
-    path = os.path.join(EXPORT_DIR, filename)
+    if "md" in format_list:
+        lines = [f"# Myth Journey for {user_id}", ""]
+        lines.append(f"Assistant: {assistant}\n")
+        lines.append("## Belief Trees")
+        for tree in belief_trees:
+            lines.append(f"- {tree.symbolic_summary}")
+        lines.append("\n## Ritual Archives")
+        for r in rituals:
+            lines.append(f"- {r.output_summary}")
+        with open(os.path.join(export_dir, "journey.md"), "w", encoding="utf-8") as f:
+            f.write("\n".join(lines))
 
-    if export_format == "json":
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(package, f, indent=2, ensure_ascii=False)
-    elif export_format == "md":
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(f"# Myth Journey for {assistant.name}\n\n")
-            f.write(json.dumps(package, indent=2))
-    else:
-        # Placeholder for other formats
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(package, f, indent=2, ensure_ascii=False)
+    return os.path.join(export_dir, "journey.json") if "json" in format_list else None
 
-    return path
