@@ -112,12 +112,14 @@ from agents.models.governance import (
     RitualNegotiationEngine,
     NarrativeGovernanceModel,
 )
+
 from agents.models.legislative import (
     CodexFederationArchitecture,
     SymbolicTreatyProtocol,
     FederatedCodexOracle,
     SwarmTreatyEnforcementEngine,
     LegislativeRitualSimulationSystem,
+
 )
 from agents.models.coordination import (
     CollaborationThread,
@@ -1401,6 +1403,7 @@ class CodexFederationArchitectureSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+
 class SymbolicTreatyProtocolSerializer(serializers.ModelSerializer):
     class Meta:
         model = SymbolicTreatyProtocol
@@ -1411,9 +1414,9 @@ class SymbolicTreatyProtocolSerializer(serializers.ModelSerializer):
 class FederatedCodexOracleSerializer(serializers.ModelSerializer):
     class Meta:
         model = FederatedCodexOracle
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
-
 
 class SwarmTreatyEnforcementEngineSerializer(serializers.ModelSerializer):
     class Meta:
@@ -1425,6 +1428,7 @@ class SwarmTreatyEnforcementEngineSerializer(serializers.ModelSerializer):
 class LegislativeRitualSimulationSystemSerializer(serializers.ModelSerializer):
     class Meta:
         model = LegislativeRitualSimulationSystem
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
