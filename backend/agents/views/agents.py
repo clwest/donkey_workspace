@@ -1114,38 +1114,37 @@ def mythflow_insights(request):
 
 @api_view(["GET", "POST"])
 
-def anomalies(request):
+def identity_cards(request):
     if request.method == "GET":
-        events = SymbolicAnomalyEvent.objects.all().order_by("-created_at")
-        return Response(SymbolicAnomalyEventSerializer(events, many=True).data)
+        cards = MythicIdentityCard.objects.all().order_by("-created_at")
+        return Response(MythicIdentityCardSerializer(cards, many=True).data)
 
-    serializer = SymbolicAnomalyEventSerializer(data=request.data)
+    serializer = MythicIdentityCardSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    card = serializer.save()
+    return Response(MythicIdentityCardSerializer(card).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def timeline_reflection(request):
+    if request.method == "GET":
+        rites = CrossTimelineReflectionRite.objects.all().order_by("-created_at")
+        return Response(CrossTimelineReflectionRiteSerializer(rites, many=True).data)
+
+    serializer = CrossTimelineReflectionRiteSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    rite = serializer.save()
+    return Response(CrossTimelineReflectionRiteSerializer(rite).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def archetype_fusion(request):
+    if request.method == "GET":
+        events = ArchetypeFusionEvent.objects.all().order_by("-created_at")
+        return Response(ArchetypeFusionEventSerializer(events, many=True).data)
+
+    serializer = ArchetypeFusionEventSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     event = serializer.save()
-    return Response(SymbolicAnomalyEventSerializer(event).data, status=201)
-
-
-@api_view(["GET", "POST"])
-def belief_recovery(request):
-    if request.method == "GET":
-        rituals = BeliefCollapseRecoveryRitual.objects.all().order_by("-created_at")
-        return Response(BeliefCollapseRecoveryRitualSerializer(rituals, many=True).data)
-
-    serializer = BeliefCollapseRecoveryRitualSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    ritual = serializer.save()
-    return Response(BeliefCollapseRecoveryRitualSerializer(ritual).data, status=201)
-
-
-@api_view(["GET", "POST"])
-def multiverse_loops(request):
-    if request.method == "GET":
-        loops = MultiverseLoopLink.objects.all().order_by("-created_at")
-        return Response(MultiverseLoopLinkSerializer(loops, many=True).data)
-
-    serializer = MultiverseLoopLinkSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    loop = serializer.save()
-    return Response(MultiverseLoopLinkSerializer(loop).data, status=201)
-
+    return Response(ArchetypeFusionEventSerializer(event).data, status=201)
 

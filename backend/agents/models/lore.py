@@ -1623,52 +1623,64 @@ class LearningReservoir(models.Model):
         return f"Realignment by {self.initiated_by.name}"[:50]
 
 
-class SymbolicAnomalyEvent(models.Model):
-    """Log symbolic inconsistencies or paradoxes detected in memory."""
+
+class MythicIdentityCard(models.Model):
+    """Symbolic identity snapshot for an assistant."""
+
+    assistant = models.OneToOneField(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    identity_signature = models.CharField(max_length=256)
+    symbolic_traits = models.JSONField()
+    narrative_roles = models.JSONField()
+    lineage_map = models.JSONField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"IdentityCard for {self.assistant.name}"
+
+
+class CrossTimelineReflectionRite(models.Model):
+    """Ritualized comparison across timelines."""
+
 
     assistant = models.ForeignKey(
         "assistants.Assistant", on_delete=models.CASCADE
     )
-    anomaly_type = models.CharField(max_length=100)
-    memory_reference = models.ManyToManyField(SwarmMemoryEntry)
-    detected_by = models.CharField(max_length=100)
-    symbolic_trace = models.TextField()
+
+    reflected_identities = models.ManyToManyField(MythicIdentityCard)
+    ritual_summary = models.TextField()
+    symbolic_convergence_score = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"ReflectionRite {self.id}"
 
-class BeliefCollapseRecoveryRitual(models.Model):
-    """Restore assistant beliefs after symbolic collapse."""
 
-    assistant = models.ForeignKey(
+class ArchetypeFusionEvent(models.Model):
+    """Fusion of mythic archetypes."""
+
+    primary_archetype = models.CharField(max_length=100)
+    merged_with = models.CharField(max_length=100)
+    resulting_archetype = models.CharField(max_length=100)
+    symbolic_justification = models.TextField()
+    fusion_initiator = models.ForeignKey(
         "assistants.Assistant", on_delete=models.CASCADE
     )
-    initiating_memory = models.ForeignKey(
-        SwarmMemoryEntry, on_delete=models.CASCADE
-    )
-    collapse_type = models.CharField(max_length=100)
-    ritual_steps = models.JSONField()
-    restored_alignment = models.JSONField()
-    successful = models.BooleanField(default=False)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
-
-class MultiverseLoopLink(models.Model):
-    """Connect mythic timelines for recursive loops."""
-
-    linked_timelines = models.JSONField()
-    anchor_assistant = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE
-    )
-    loop_reason = models.TextField()
-    echo_transfer_summary = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.resulting_archetype
 

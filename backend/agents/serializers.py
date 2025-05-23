@@ -709,26 +709,25 @@ class LearningReservoirSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-
-class SymbolicAnomalyEventSerializer(serializers.ModelSerializer):
+class MythicIdentityCardSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SymbolicAnomalyEvent
+        model = MythicIdentityCard
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-
-class BeliefCollapseRecoveryRitualSerializer(serializers.ModelSerializer):
+class CrossTimelineReflectionRiteSerializer(serializers.ModelSerializer):
     class Meta:
-        model = BeliefCollapseRecoveryRitual
+        model = CrossTimelineReflectionRite
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class MultiverseLoopLinkSerializer(serializers.ModelSerializer):
+class ArchetypeFusionEventSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MultiverseLoopLink
-
+        model = ArchetypeFusionEvent
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

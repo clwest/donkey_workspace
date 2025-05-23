@@ -72,9 +72,10 @@ urlpatterns = [
     path("reputation-rebirths/", agents.reputation_regeneration_events),
     path("collaboration-threads/", agents.collaboration_threads),
     path("delegation-streams/", agents.delegation_streams),
-    path("anomalies/", agents.anomalies),
-    path("belief-recovery/", agents.belief_recovery),
-    path("multiverse-loops/", agents.multiverse_loops),
+    path("identity-cards/", agents.identity_cards),
+    path("timeline-reflection/", agents.timeline_reflection),
+    path("archetype-fusion/", agents.archetype_fusion),
+
     # path("dream-intel/", agents.dream_intel_nodes),
     # path("mission-consensus/", agents.mission_consensus_rounds),
     # path("realignment-proposals/", agents.narrative_realignment_proposals),
