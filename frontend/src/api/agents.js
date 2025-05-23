@@ -101,6 +101,9 @@ export const fetchAvailableRituals = (params) =>
 
 export const fetchCodexInteraction = () => apiFetch(`/mythos/codex/`);
 
+export const fetchCodexAnchors = (assistantId) =>
+  apiFetch(`/assistants/${assistantId}/codex-anchors/`);
+
 export const fetchMythRecordingSessions = () => apiFetch("/myth/record/");
 export const createMythRecordingSession = (body) =>
   apiFetch("/myth/record/", { method: "POST", body });
@@ -112,3 +115,12 @@ export const createSymbolicDoc = (body) =>
 export const fetchBeliefArtifacts = () => apiFetch("/artifacts/archive/");
 export const createBeliefArtifact = (body) =>
   apiFetch("/artifacts/archive/", { method: "POST", body });
+
+export const fetchDirectiveTracker = (id) =>
+  apiFetch(`/assistants/${id}/directive-tracker/`);
+export const fetchIdentityCard = (id) =>
+  apiFetch(`/assistants/${id}/identity-card/`);
+export const updateIdentityCard = (id, body) =>
+  apiFetch(`/assistants/${id}/identity-card/`, { method: "PUT", body });
+export const triggerRitualAction = (id, action) =>
+  apiFetch(`/assistants/${id}/ritual/${action}/`, { method: "POST" });
