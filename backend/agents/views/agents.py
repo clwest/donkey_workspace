@@ -90,6 +90,7 @@ from agents.models.lore import (
     SymbolicFeedbackChamber,
     MultiAgentDialogueAmplifier,
     MythicResolutionSequence,
+    TemporalReflectionLog,
 
 )
 from agents.models.coordination import (
@@ -201,6 +202,7 @@ from agents.serializers import (
     SymbolicFeedbackChamberSerializer,
     MultiAgentDialogueAmplifierSerializer,
     MythicResolutionSequenceSerializer,
+    TemporalReflectionLogSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1628,4 +1630,37 @@ def sequence_resolve(request):
     serializer.is_valid(raise_exception=True)
     sequence = serializer.save()
     return Response(MythicResolutionSequenceSerializer(sequence).data, status=201)
+
+
+@api_view(["GET"])
+def timeline_explore(request):
+    memories = SwarmMemoryEntry.objects.all().order_by("-created_at")[:5]
+    codices = SwarmCodex.objects.all().order_by("-created_at")[:5]
+    rituals = PublicRitualLogEntry.objects.all().order_by("-created_at")[:5]
+    data = {
+        "memories": SwarmMemoryEntrySerializer(memories, many=True).data,
+        "codices": SwarmCodexSerializer(codices, many=True).data,
+        "rituals": PublicRitualLogEntrySerializer(rituals, many=True).data,
+    }
+    return Response(data)
+
+
+@api_view(["POST"])
+def memory_synthesize(request):
+    ids = request.data.get("memory_ids", [])
+    memories = SwarmMemoryEntry.objects.filter(id__in=ids)
+    summary = " ".join(m.content for m in memories)[:200]
+    return Response({"summary": summary, "count": memories.count()})
+
+
+@api_view(["GET", "POST"])
+def temporal_reflection_logs(request):
+    if request.method == "GET":
+        logs = TemporalReflectionLog.objects.all().order_by("-created_at")
+        return Response(TemporalReflectionLogSerializer(logs, many=True).data)
+
+    serializer = TemporalReflectionLogSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    log = serializer.save()
+    return Response(TemporalReflectionLogSerializer(log).data, status=201)
 
