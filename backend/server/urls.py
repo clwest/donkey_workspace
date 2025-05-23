@@ -90,6 +90,9 @@ urlpatterns = [
     path("api/storyfields/", agent_views.storyfields),
     path("api/myth-patterns/", agent_views.myth_patterns),
     path("api/intent-harmony/", agent_views.intent_harmony),
+    path("api/strategy-chambers/", agent_views.strategy_chambers),
+    path("api/conflict-resolution/", agent_views.conflict_resolution),
+    path("api/ritual-votes/", agent_views.ritual_votes),
 
     path("api/intel/", include("intel_core.urls")),
     path("api/signal-artifacts/", agent_views.signal_artifacts),
