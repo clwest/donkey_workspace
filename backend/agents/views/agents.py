@@ -114,6 +114,11 @@ from agents.models.deployment import (
     MythOSDeploymentPacket,
     BeliefDeploymentStrategyEngine,
 )
+from agents.models.recovery import (
+    RitualCompressionCache,
+    AssistantDeploymentAutoRestarter,
+    CodexProofOfSymbolEngine,
+)
 from agents.models.forecast import SymbolicForecastIndex,AssistantSentimentModelEngine
 from agents.models.governance import SymbolicConsensusChamber, RitualNegotiationEngine, NarrativeGovernanceModel
 from agents.models.coordination import (
@@ -1323,6 +1328,9 @@ from agents.serializers import (
     SymbolicResilienceMonitorSerializer,
     MythOSDeploymentPacketSerializer,
     BeliefDeploymentStrategyEngineSerializer,
+    RitualCompressionCacheSerializer,
+    AssistantDeploymentAutoRestarterSerializer,
+    CodexProofOfSymbolEngineSerializer,
 )
 
 
@@ -1507,6 +1515,53 @@ def deployment_strategies(request):
     serializer.is_valid(raise_exception=True)
     strategy = serializer.save()
     return Response(BeliefDeploymentStrategyEngineSerializer(strategy).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def ritual_compression_caches(request):
+    if request.method == "GET":
+        caches = RitualCompressionCache.objects.all().order_by("-created_at")
+        return Response(RitualCompressionCacheSerializer(caches, many=True).data)
+
+    serializer = RitualCompressionCacheSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    cache = serializer.save()
+    return Response(RitualCompressionCacheSerializer(cache).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def assistant_auto_restarts(request, assistant_id=None):
+    if request.method == "GET":
+        if assistant_id:
+            entries = AssistantDeploymentAutoRestarter.objects.filter(
+                assistant_id=assistant_id
+            ).order_by("-created_at")
+        else:
+            entries = AssistantDeploymentAutoRestarter.objects.all().order_by(
+                "-created_at"
+            )
+        return Response(
+            AssistantDeploymentAutoRestarterSerializer(entries, many=True).data
+        )
+
+    serializer = AssistantDeploymentAutoRestarterSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    entry = serializer.save()
+    return Response(
+        AssistantDeploymentAutoRestarterSerializer(entry).data, status=201
+    )
+
+
+@api_view(["GET", "POST"])
+def codex_proof_logs(request):
+    if request.method == "GET":
+        logs = CodexProofOfSymbolEngine.objects.all().order_by("-created_at")
+        return Response(CodexProofOfSymbolEngineSerializer(logs, many=True).data)
+
+    serializer = CodexProofOfSymbolEngineSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    log = serializer.save()
+    return Response(CodexProofOfSymbolEngineSerializer(log).data, status=201)
 
 
 @api_view(["GET", "POST"])
