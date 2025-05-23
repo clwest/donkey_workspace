@@ -1508,15 +1508,22 @@ def codex_contributions(request):
     return Response(CodexContributionCeremonySerializer(contribution).data, status=201)
 
 
-@api_view(["GET", "POST"])
-def memory_echo_effects(request):
-    if request.method == "GET":
-        effects = MemoryEchoEffectMap.objects.all().order_by("-created_at")
-        return Response(MemoryEchoEffectMapSerializer(effects, many=True).data)
 
-    serializer = MemoryEchoEffectMapSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    effect = serializer.save()
-    return Response(MemoryEchoEffectMapSerializer(effect).data, status=201)
+@api_view(["GET"])
+def onboarding_ritual(request):
+    """Trigger cinematic ritual onboarding flow."""
+    return Response({"message": "Ritual onboarding initiated"})
+
+
+@api_view(["GET"])
+def codex_briefing(request):
+    """Provide codex briefing overlay."""
+    return Response({"message": "Codex briefing"})
+
+
+@api_view(["GET"])
+def assistant_tutorial(request, id):
+    """Return tutorial script for assistant."""
+    return Response({"assistant": id, "message": "Tutorial start"})
 
 
