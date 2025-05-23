@@ -30,8 +30,7 @@ from .models.assistant import (
     DecisionFramework,
     PurposeRouteMap,
     AutonomyNarrativeModel,
-    SymbolicUXPlaybook,
-    RoleDrivenUITemplate,
+   
 )
 from .models.project import (
     AssistantProject,
@@ -41,6 +40,7 @@ from .models.project import (
     AssistantPromptLink,
     AssistantMemoryChain,
 )
+from assistants.models.interface import SymbolicUXPlaybook, RoleDrivenUITemplate
 from .models.reflection import (
     AssistantReflectionLog,
     AssistantReflectionInsight,

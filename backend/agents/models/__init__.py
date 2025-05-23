@@ -8,7 +8,7 @@ from .cosmology import *
 from .swarm_balance import *
 from .storyfield import *
 from .markets import *
-from .visuals import *
+
 
 
 __all__ = []
