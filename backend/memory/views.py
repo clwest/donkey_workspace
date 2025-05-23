@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework import status, viewsets
 import warnings
 from assistants.models import Assistant
+from agents.models import PublicMemoryGrove
 from .models import (
     MemoryEntry,
     MemoryChain,
@@ -317,7 +318,6 @@ def save_reflection(request):
 
     if not (title and summary and memory_ids):
         return Response({"error": "Missing required fields"}, status=400)
-
 
     memories = MemoryEntry.objects.filter(id__in=memory_ids)
     reflection = get_memory_service().log_reflection(summary, memories)
@@ -824,4 +824,37 @@ def anamnesis(request):
         return Response({"error": "assistant_slug required"}, status=400)
     assistant = get_object_or_404(Assistant, slug=slug)
     data = run_anamnesis_retrieval(assistant)
+    return Response(data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def public_memory_grove(request):
+    """Query public memory groves by codex or tags."""
+
+    queryset = PublicMemoryGrove.objects.all()
+
+    codex = request.GET.get("codex")
+    if codex:
+        queryset = queryset.filter(codex_reference__id=codex)
+
+    memory_tag = request.GET.get("memory_tag")
+    if memory_tag:
+        queryset = queryset.filter(featured_memories__tags__slug=memory_tag)
+
+    assistant = request.GET.get("assistant")
+    if assistant:
+        queryset = queryset.filter(featured_memories__linked_agents__id=assistant)
+
+    queryset = queryset.distinct()
+
+    data = [
+        {
+            "grove_name": g.grove_name,
+            "linked_cluster": g.linked_cluster_id,
+            "codex_reference": g.codex_reference_id,
+            "memory_count": g.featured_memories.count(),
+        }
+        for g in queryset
+    ]
     return Response(data)

@@ -87,9 +87,11 @@ from agents.models.lore import (
     StoryConvergencePath,
     RitualFusionEvent,
     NarrativeCurationTimeline,
+    SymbolicFeedbackChamber,
+    MultiAgentDialogueAmplifier,
+    MythicResolutionSequence,
 
 )
-from agents.models.identity import PersonaFusionEvent
 from agents.models.coordination import (
     CollaborationThread,
     DelegationStream,
@@ -98,6 +100,9 @@ from agents.models.coordination import (
     MythflowOrchestrationPlan,
     DirectiveMemoryNode,
     SymbolicPlanningLattice,
+    SymbolicProphecyEngine,
+    MemoryPredictionInterface,
+    RitualForecastingDashboard,
 )
 from agents.models.storyfield import (
     StoryfieldZone,
@@ -107,6 +112,9 @@ from agents.models.storyfield import (
     SwarmMythEditLog,
     LegacyContinuityVault,
     AgentPlotlineCuration,
+    SymbolicRoadmapPlan,
+    CommunityMythPlanningArena,
+    FederatedCodexForecastTool,
 )
 
 # from simulation.models import SceneDirectorFrame
@@ -185,14 +193,26 @@ from agents.serializers import (
     MythBloomNodeSerializer,
     BeliefSeedReplicationSerializer,
     PersonaFusionEventSerializer,
+    MemoryInheritanceSeedSerializer,
+    PersonalCodexAnchorSerializer,
+    RitualContractBindingSerializer,
+    ReincarnationTreeNodeSerializer,
+    BeliefVectorDeltaSerializer,
+    SymbolicIdentityCardSerializer,
     DialogueCodexMutationLogSerializer,
     PublicRitualLogEntrySerializer,
     BeliefContinuityThreadSerializer,
     CodexContributionCeremonySerializer,
-
     StoryConvergencePathSerializer,
     RitualFusionEventSerializer,
     NarrativeCurationTimelineSerializer,
+    SymbolicFeedbackChamberSerializer,
+    MultiAgentDialogueAmplifierSerializer,
+    MythicResolutionSequenceSerializer,
+
+    SymbolicRoadmapPlanSerializer,
+    CommunityMythPlanningArenaSerializer,
+    FederatedCodexForecastToolSerializer,
 
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -201,10 +221,15 @@ from agents.serializers import (
     AgentPlotlineCurationSerializer,
 )
 from assistants.serializers import (
+    AssistantSerializer,
     AssistantCivilizationSerializer,
     AssistantReputationSerializer,
 )
-from assistants.models.assistant import Assistant, AssistantReputation
+from assistants.models.assistant import (
+    Assistant,
+    AssistantReputation,
+    CodexLinkedGuild,
+)
 
 from agents.utils.agent_controller import (
     update_agent_profile_from_feedback,
@@ -1244,7 +1269,9 @@ def belief_seeds(request):
     seed = serializer.save()
     return Response(BeliefSeedReplicationSerializer(seed).data, status=201)
 
+
 from agents.serializers import MythicAlignmentMarketSerializer
+
 
 @api_view(["GET", "POST"])
 def alignment_market(request):
@@ -1542,7 +1569,6 @@ def myth_record(request):
     return Response(MythRecordingSessionSerializer(session).data, status=201)
 
 
-
 @api_view(["GET", "POST"])
 def story_convergence(request):
     if request.method == "GET":
@@ -1577,4 +1603,42 @@ def timeline_curate(request):
     serializer.is_valid(raise_exception=True)
     timeline = serializer.save()
     return Response(NarrativeCurationTimelineSerializer(timeline).data, status=201)
+
+
+
+
+@api_view(["GET", "POST"])
+def reflection_chamber(request):
+    if request.method == "GET":
+        chambers = SymbolicFeedbackChamber.objects.all().order_by("-created_at")
+        return Response(SymbolicFeedbackChamberSerializer(chambers, many=True).data)
+
+    serializer = SymbolicFeedbackChamberSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    chamber = serializer.save()
+    return Response(SymbolicFeedbackChamberSerializer(chamber).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def dialogue_amplify(request):
+    if request.method == "GET":
+        amplifiers = MultiAgentDialogueAmplifier.objects.all().order_by("-created_at")
+        return Response(MultiAgentDialogueAmplifierSerializer(amplifiers, many=True).data)
+
+    serializer = MultiAgentDialogueAmplifierSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    amplifier = serializer.save()
+    return Response(MultiAgentDialogueAmplifierSerializer(amplifier).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def sequence_resolve(request):
+    if request.method == "GET":
+        sequences = MythicResolutionSequence.objects.all().order_by("-created_at")
+        return Response(MythicResolutionSequenceSerializer(sequences, many=True).data)
+
+    serializer = MythicResolutionSequenceSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    sequence = serializer.save()
+    return Response(MythicResolutionSequenceSerializer(sequence).data, status=201)
 

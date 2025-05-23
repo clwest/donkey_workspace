@@ -2197,7 +2197,6 @@ class RitualFusionEvent(models.Model):
     class Meta:
         ordering = ["-created_at"]
 
-
     def __str__(self):  # pragma: no cover - display helper
         return f"Fusion {self.id}"
 
@@ -2217,4 +2216,62 @@ class NarrativeCurationTimeline(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return self.title
+
+
+
+
+class SymbolicFeedbackChamber(models.Model):
+    """Guided belief review and codex reflection."""
+
+    chamber_title = models.CharField(max_length=150)
+    participant_ids = models.JSONField()
+    codex_review = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    memory_archive = models.ManyToManyField(SwarmMemoryEntry)
+    ritual_scorecards = models.JSONField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return self.chamber_title
+
+
+class MultiAgentDialogueAmplifier(models.Model):
+    """Blend assistant voices into harmonized responses."""
+
+    amplifier_title = models.CharField(max_length=150)
+    agents_involved = models.ManyToManyField("assistants.Assistant")
+    active_codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    layered_response = models.TextField()
+    symbolic_resonance_score = models.FloatField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+    def __str__(self):  # pragma: no cover - display helper
+        return self.amplifier_title
+
+
+class MythicResolutionSequence(models.Model):
+    """Finalize story arcs and preserve legacy artifacts."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    resolution_steps = models.JSONField()
+    codex_closure_state = models.TextField()
+    legacy_artifacts = models.JSONField()
+    symbolic_final_score = models.FloatField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Resolution {self.id}"
 

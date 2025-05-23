@@ -207,3 +207,37 @@ class SceneDirectorFrame(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+class DreamframeStoryGenerator(models.Model):
+    """Generate symbolic dreamframes based on codex and ritual memory."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    seed_codex = models.ForeignKey("agents.SwarmCodex", on_delete=models.CASCADE)
+    ritual_resonance_tags = models.JSONField()
+    output_script = models.TextField()
+    symbolic_style = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class SimScenarioEngine(models.Model):
+    """Host interactive guided myth scenarios with branching outcomes."""
+
+    scenario_title = models.CharField(max_length=150)
+    host_assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    symbolic_inputs = models.JSONField()
+    user_paths = models.JSONField()
+    codex_alterations = models.JSONField()
+    ritual_outcomes = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class MultiUserNarrativeLab(models.Model):
+    """Collaborative space for multi-user myth experiments."""
+
+    lab_title = models.CharField(max_length=150)
+    participant_ids = models.JSONField()
+    narrative_threads = models.JSONField()
+    symbolic_experiments = models.JSONField()
+    assistant_mediators = models.ManyToManyField("assistants.Assistant")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+

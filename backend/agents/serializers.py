@@ -90,6 +90,9 @@ from agents.models.lore import (
     StoryConvergencePath,
     RitualFusionEvent,
     NarrativeCurationTimeline,
+    SymbolicFeedbackChamber,
+    MultiAgentDialogueAmplifier,
+    MythicResolutionSequence,
 
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
@@ -130,6 +133,11 @@ from agents.models.storyfield import (
     MythPatternCluster,
     IntentHarmonizationSession,
     AgentPlotlineCuration,
+)
+from agents.models.planning import (
+    SymbolicRoadmapPlan,
+    CommunityMythPlanningArena,
+    FederatedCodexForecastTool,
 )
 from assistants.models.assistant import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -760,6 +768,27 @@ class DelegationStreamSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+class SymbolicProphecyEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicProphecyEngine
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MemoryPredictionInterfaceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemoryPredictionInterface
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RitualForecastingDashboardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RitualForecastingDashboard
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
 class MythflowInsightSerializer(serializers.ModelSerializer):
     class Meta:
         model = MythflowInsight
@@ -1051,5 +1080,32 @@ class RitualFusionEventSerializer(serializers.ModelSerializer):
 class NarrativeCurationTimelineSerializer(serializers.ModelSerializer):
     class Meta:
         model = NarrativeCurationTimeline
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+
+class SymbolicFeedbackChamberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicFeedbackChamber
+
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+
+class MultiAgentDialogueAmplifierSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MultiAgentDialogueAmplifier
+
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+
+class MythicResolutionSequenceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythicResolutionSequence
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
