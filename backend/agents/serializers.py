@@ -102,6 +102,9 @@ from agents.models.lore import (
     RitualLoopVisualizationEngine,
     SymbolicOscillationMap,
     CodexRestabilizationNode,
+    CodexCurrencyModule,
+    SymbolicInfluenceLedger,
+    BeliefContributionMarketplace,
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
 
@@ -1223,23 +1226,34 @@ class CodexRestabilizationNodeSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-class SymbolicConsensusChamberSerializer(serializers.ModelSerializer):
+
+class CodexCurrencyModuleSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SymbolicConsensusChamber
+        model = CodexCurrencyModule
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class RitualNegotiationEngineSerializer(serializers.ModelSerializer):
+class SymbolicInfluenceLedgerSerializer(serializers.ModelSerializer):
+    memory_contributions_ids = serializers.PrimaryKeyRelatedField(
+        queryset=SwarmMemoryEntry.objects.all(),
+        many=True,
+        write_only=True,
+        required=False,
+        source="memory_contributions",
+    )
+    memory_contributions = SwarmMemoryEntrySerializer(many=True, read_only=True)
+
     class Meta:
-        model = RitualNegotiationEngine
+        model = SymbolicInfluenceLedger
         fields = "__all__"
-        read_only_fields = ["id", "created_at"]
+        read_only_fields = ["id", "created_at", "memory_contributions"]
 
 
-class NarrativeGovernanceModelSerializer(serializers.ModelSerializer):
+class BeliefContributionMarketplaceSerializer(serializers.ModelSerializer):
     class Meta:
-        model = NarrativeGovernanceModel
+        model = BeliefContributionMarketplace
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

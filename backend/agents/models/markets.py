@@ -53,3 +53,54 @@ class CosmoEconomicAlignmentMap(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return self.mythic_zone
+
+
+class CodexCurrencyModule(models.Model):
+    """Assigns symbolic value to codex and ritual activities."""
+
+    codex = models.ForeignKey('agents.SwarmCodex', on_delete=models.CASCADE)
+    mutation_impact_score = models.FloatField()
+    ritual_weight_multiplier = models.FloatField()
+    symbolic_value_curve = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):  # pragma: no cover - display helper
+        return str(self.codex)
+
+
+class SymbolicInfluenceLedger(models.Model):
+    """Tracks belief transactions and ritual scores for assistants."""
+
+    user_id = models.CharField(max_length=150)
+    assistant = models.ForeignKey('assistants.Assistant', on_delete=models.CASCADE)
+    codex_transactions = models.JSONField()
+    ritual_scores = models.JSONField()
+    memory_contributions = models.ManyToManyField('agents.SwarmMemoryEntry')
+    influence_balance = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):  # pragma: no cover - display helper
+        return self.user_id
+
+
+class BeliefContributionMarketplace(models.Model):
+    """Federated exchange for codex proposals and ritual endorsements."""
+
+    proposal_title = models.CharField(max_length=150)
+    proposer = models.ForeignKey('assistants.Assistant', on_delete=models.CASCADE)
+    staked_tokens = models.JSONField()
+    endorsed_rituals = models.JSONField()
+    ranked_insights = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):  # pragma: no cover - display helper
+        return self.proposal_title
