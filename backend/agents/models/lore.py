@@ -2084,6 +2084,7 @@ class CodexContributionCeremony(models.Model):
         return self.ceremony_title
 
 
+
 class NarrativeLightingEngine(models.Model):
     """Controls thematic lighting presets for cinematic layers."""
 
@@ -2113,12 +2114,14 @@ class CinematicUILayer(models.Model):
     associated_archetype_cluster = models.ForeignKey(
         ArchetypeFieldCluster, on_delete=models.SET_NULL, null=True, blank=True
     )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return self.layer_name
 
 
@@ -2154,3 +2157,4 @@ class RitualOnboardingFlow(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.entry_name
+

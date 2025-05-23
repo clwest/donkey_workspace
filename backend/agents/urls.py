@@ -35,6 +35,8 @@ urlpatterns = [
     path("codex/briefing/", agents.codex_briefing),
     path("assistant/<uuid:id>/tutorial/", agents.assistant_tutorial),
 
+    path("memory-echo-effects/", agents.memory_echo_effects),
+
     path("belief-continuity/", agents.belief_continuity),
     path("belief-clusters/", agents.belief_clusters),
     path("lore-tokens/", agents.lore_tokens),
@@ -87,7 +89,6 @@ urlpatterns = [
     path("myth-blooms/", agents.myth_blooms),
     path("belief-seeds/", agents.belief_seeds),
     path("belief-signals/", agents.belief_signals),
-
     path("alignment-market/", agents.alignment_market),
     path("resonance-graphs/", agents.resonance_graphs),
     path("cognitive-balance/", agents.cognitive_balance_reports),
@@ -95,10 +96,14 @@ urlpatterns = [
     path("storyfields/", agents.storyfields),
     path("myth-patterns/", agents.myth_patterns),
     path("intent-harmony/", agents.intent_harmony),
-
     path("signal-artifacts/", agents.signal_artifacts),
     path("navigation-vectors/", agents.navigation_vectors),
     path("flux-index/", agents.flux_index),
+
+    path("plotline-curation/", agents.plotline_curation),
+    path("mythflow/lighting/", agents.narrative_lighting),
+    path("codex/style/", agents.codex_visual_style),
+    path("assistants/<uuid:id>/clone/", agents.clone_assistant_aesthetic),
 
     path("clusters/", agents.list_clusters),
     path("clusters/<uuid:id>/", agents.cluster_detail_view),

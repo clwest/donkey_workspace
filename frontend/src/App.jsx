@@ -54,6 +54,7 @@ import AssistantThoughtDetailPage from "./pages/assistant/common/AssistantThough
 import AssistantDemoPage from "./pages/assistant/common/AssistantDemoPage";
 import ChatWithAssistantPage from "./pages/assistant/common/ChatWithAssistantPage";
 import CreateNewAssistantPage from "./pages/assistant/common/CreateNewAssistantPage";
+import AssistantInterfacePage from "./pages/assistants/AssistantInterfacePage";
 
 import ProjectDetailPage from "./pages/assistant/projects/ProjectDetailPage";
 import ProjectCreateFromMemoryPage from "./pages/assistant/projects/ProjectCreateFromMemoryPage";
@@ -78,6 +79,9 @@ import MilestonesPage from "./pages/assistant/milestones/MilestonesPage";
 import MilestoneCreatePage from "./pages/assistant/milestones/MilestoneCreatePage";
 import MilestoneEditPage from "./pages/assistant/milestones/MilestoneEditPage";
 import MemoryChainsPage from "./pages/assistant/memory_chains/MemoryChainsPage";
+import MemoryNavigatorPage from "./pages/assistant/analysis/MemoryNavigatorPage";
+import ArchetypeAffinityPage from "./pages/assistant/analysis/ArchetypeAffinityPage";
+import BeliefEvolutionPage from "./pages/assistant/analysis/BeliefEvolutionPage";
 
 import NextActionsPage from "./pages/assistant/objectives/NextActionsPage";
 import ObjectivesPage from "./pages/assistant/objectives/ObjectivesPage";
@@ -111,6 +115,11 @@ import RoutingHistoryPage from "./pages/assistants/RoutingHistoryPage";
 import StoryboardEditorPage from "./pages/storyboard/StoryboardEditorPage";
 import NarrativeEventDetailPage from "./pages/storyboard/NarrativeEventDetailPage";
 import RealityShaperDashboard from "./pages/lore/RealityShaperDashboard";
+
+import MotionTestPage from "./pages/ui/MotionTestPage";
+import MemoryEchoPage from "./pages/memories/entries/MemoryEchoPage";
+import AssistantAuraPage from "./pages/assistant/common/AssistantAuraPage";
+
 
 import { ToastContainer } from "react-toastify";
 import Navbar from "./components/Navbar";
@@ -152,6 +161,7 @@ export default function App() {
           <Route path="/memories" element={<MemoryBrowserPage />} /> {/* ➕ */}
           <Route path="/memories/bookmarked" element={<BookmarkedMemoriesPage />} />
           <Route path="/memories/:id" element={<MemoryDetailPage />} />{" "}
+          <Route path="/memory/:id/echo" element={<MemoryEchoPage />} />
           {/* 🧠 */}
           <Route path="/memories/reflect" element={<MemoryReflectionPage />} />
           <Route path="/memories/chains" element={<MemoryChainsListPage />} />
@@ -291,6 +301,18 @@ export default function App() {
             element={<AssistantThoughtMapPage />}
           />
           <Route
+            path="/assistants/:slug/timeline"
+            element={<MemoryNavigatorPage />}
+          />
+          <Route
+            path="/assistants/:slug/affinity"
+            element={<ArchetypeAffinityPage />}
+          />
+          <Route
+            path="/assistants/:slug/belief"
+            element={<BeliefEvolutionPage />}
+          />
+          <Route
             path="/assistants/:slug/memories"
             element={<AssistantMemoriesPage />}
           />
@@ -337,6 +359,10 @@ export default function App() {
           <Route
             path="/assistants/:slug/chat"
             element={<ChatWithAssistantPage />}
+          />
+          <Route
+            path="/assistants/:id/interface"
+            element={<AssistantInterfacePage />}
           />
           <Route path="/assistants/:slug" element={<AssistantDetailPage />} />
           {/* MCP Core */}
@@ -389,6 +415,10 @@ export default function App() {
           <Route path="/storyboard" element={<StoryboardEditorPage />} />
           <Route path="/storyboard/events/:id" element={<NarrativeEventDetailPage />} />
           <Route path="/lore" element={<RealityShaperDashboard />} />
+
+          <Route path="/ui/motion" element={<MotionTestPage />} />
+          <Route path="/assistants/:id/aura" element={<AssistantAuraPage />} />
+
           <Route path="/assistants/sources" element={<SignalSourcesPage />} />
           <Route path="/assistants/signals" element={<SignalCatchesPage />} />
           <Route path="/assistants/routing-history" element={<RoutingHistoryPage />} />

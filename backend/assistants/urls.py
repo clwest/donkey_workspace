@@ -39,6 +39,7 @@ from .views import (
     autonomy,
     check_in,
     subassistant,
+    interface as interface_views,
 )
 from tasks.views.delegate import TaskDelegateView
 from insights.views.plan import InsightPlanView
@@ -58,6 +59,13 @@ urlpatterns = [
     path("conscience/", conscience.conscience_profiles),
     path("reflexive-epistemology/", conscience.reflexive_epistemology),
     path("decision-frameworks/", conscience.decision_frameworks),
+    path("codex/voice/", views.codex_voice_command, name="codex-voice"),
+    path("rituals/haptic/", views.haptic_ritual, name="haptic-ritual"),
+    path(
+        "<uuid:assistant_id>/sensory/",
+        views.assistant_sensory_profile,
+        name="assistant-sensory-profile",
+    ),
 
     path(
         "primary/delegations/",
@@ -666,6 +674,17 @@ urlpatterns = [
         "<uuid:assistant_id>/generate-plan/",
         InsightPlanView.as_view(),
         name="generate-plan",
+    ),
+    path(
+        "<uuid:assistant_id>/interface/",
+        interface_views.assistant_interface,
+        name="assistant-interface",
+    ),
+    path("ux/playbooks/", interface_views.ux_playbooks, name="ux-playbooks"),
+    path(
+        "templates/<str:role>/",
+        interface_views.role_template,
+        name="role-template",
     ),
     # ===== DEBATE ENDPOINTS =====
     # path("debate/start/", debate.start_debate, name="start-debate"),
