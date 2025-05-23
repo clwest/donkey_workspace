@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import ProjectQuickCreate from "../../../components/assistant/ProjectQuickCreate";
+import apiFetch from "../../../utils/apiClient";
 import "./styles/ProjectDashboardPage.css";
 
 export default function ProjectsDashboardPage() {
@@ -10,9 +11,16 @@ export default function ProjectsDashboardPage() {
 
   useEffect(() => {
     async function fetchProjects() {
-      const res = await fetch("http://localhost:8000/api/assistants/projects/");
-      const data = await res.json();
-      setProjects(data);
+      try {
+        const data = await apiFetch("/assistants/projects/");
+        if (Array.isArray(data)) {
+          setProjects(data);
+        } else {
+          console.error("Unexpected projects payload", data);
+        }
+      } catch (err) {
+        console.error("Failed to load projects", err);
+      }
     }
     fetchProjects();
   }, []);
@@ -20,9 +28,7 @@ export default function ProjectsDashboardPage() {
   async function deleteProject(id) {
     if (!window.confirm("Are you sure you want to delete this project?")) return;
 
-    await fetch(`http://localhost:8000/api/assistants/projects/${id}/`, {
-      method: "DELETE",
-    });
+    await apiFetch(`/assistants/projects/${id}/`, { method: "DELETE" });
 
     setProjects(prev => prev.filter(p => p.id !== id));
   }
