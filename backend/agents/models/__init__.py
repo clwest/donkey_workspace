@@ -11,6 +11,7 @@ from .markets import *
 from .federation import *
 from .governance import *
 from .mythchain import *
+from .diplomacy import *
 
 from .planning import *
 from .forecast import *
