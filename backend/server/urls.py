@@ -83,6 +83,12 @@ urlpatterns = [
     path("api/cosmological-roles/", agent_views.cosmological_roles),
     path("api/myth-weaver/", agent_views.myth_weaver),
     path("api/legacy-vaults/", agent_views.legacy_vaults),
+    path("api/training-grounds/", agent_views.training_grounds),
+    path("api/myth-edit-log/", agent_views.myth_edit_log),
+    path(
+        "api/legacy-continuity-vaults/",
+        agent_views.legacy_continuity_vaults,
+    ),
     path("api/resonance-graphs/", agent_views.resonance_graphs),
     path("api/cognitive-balance/", agent_views.cognitive_balance_reports),
     path("api/purpose-migrations/", agent_views.purpose_migrations),

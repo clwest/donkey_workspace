@@ -862,3 +862,24 @@ class BeliefFeedbackSignalSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
+class NarrativeTrainingGroundSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NarrativeTrainingGround
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SwarmMythEditLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SwarmMythEditLog
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class LegacyContinuityVaultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LegacyContinuityVault
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
