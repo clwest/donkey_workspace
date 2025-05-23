@@ -81,12 +81,6 @@ from agents.models.lore import (
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
-    # SymbolicForecastIndex,
-    # AssistantSentimentModelEngine,
-    # RitualMarketFeed,
-    # MultiAgentTrendReactivityModel,
-    # SymbolicStabilityGraph,
-
     MythicAfterlifeRegistry,
     ContinuityEngineNode,
     ArchetypeMigrationGate,
@@ -127,6 +121,15 @@ from agents.models.recovery import (
 )
 from agents.models.forecast import SymbolicForecastIndex,AssistantSentimentModelEngine
 from agents.models.governance import SymbolicConsensusChamber, RitualNegotiationEngine, NarrativeGovernanceModel
+
+from agents.models.legislative import (
+    CodexFederationArchitecture,
+    SymbolicTreatyProtocol,
+    FederatedCodexOracle,
+    SwarmTreatyEnforcementEngine,
+    LegislativeRitualSimulationSystem,
+
+)
 from agents.models.coordination import (
     CollaborationThread,
     DelegationStream,
@@ -270,6 +273,13 @@ from agents.serializers import (
     SymbolicConsensusChamberSerializer,
     RitualNegotiationEngineSerializer,
     NarrativeGovernanceModelSerializer,
+    CodexFederationArchitectureSerializer,
+
+    SymbolicTreatyProtocolSerializer,
+    FederatedCodexOracleSerializer,
+    SwarmTreatyEnforcementEngineSerializer,
+    LegislativeRitualSimulationSystemSerializer,
+
 
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -2069,5 +2079,6 @@ def federated_summon(request):
     serializer.is_valid(raise_exception=True)
     summoner = serializer.save()
     return Response(FederatedMythicIntelligenceSummonerSerializer(summoner).data, status=201)
+
 
 
