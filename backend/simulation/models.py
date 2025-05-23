@@ -79,3 +79,39 @@ class SymbolicDialogueExchange(models.Model):
     symbolic_intent = models.JSONField()
     codex_alignment_score = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class SymbolicDialogueScript(models.Model):
+    """Pre-authored or generated symbolic dialogue scaffold."""
+
+    title = models.CharField(max_length=150)
+    author = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    narrative_context = models.TextField()
+    codex_link = models.ForeignKey("agents.SwarmCodex", on_delete=models.CASCADE)
+    dialogue_sequence = models.JSONField()
+    archetype_tags = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class MemoryDecisionTreeNode(models.Model):
+    """Codex-aware branching logic referencing memory."""
+
+    script = models.ForeignKey(SymbolicDialogueScript, on_delete=models.CASCADE)
+    memory_reference = models.ForeignKey(
+        "agents.SwarmMemoryEntry", on_delete=models.CASCADE
+    )
+    symbolic_condition = models.TextField()
+    decision_options = models.JSONField()
+    resulting_path = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class SceneControlEngine(models.Model):
+    """Maintains scene state and codex constraints."""
+
+    session = models.ForeignKey(MythflowSession, on_delete=models.CASCADE)
+    scene_title = models.CharField(max_length=150)
+    codex_constraints = models.ManyToManyField("agents.SwarmCodex")
+    active_roles = models.JSONField()
+    symbolic_scene_state = models.JSONField()
+    last_updated = models.DateTimeField(auto_now=True)

@@ -54,3 +54,24 @@ class SymbolicDialogueExchangeSerializer(serializers.ModelSerializer):
         model = SymbolicDialogueExchange
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
+
+class SymbolicDialogueScriptSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicDialogueScript
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MemoryDecisionTreeNodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemoryDecisionTreeNode
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SceneControlEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SceneControlEngine
+        fields = "__all__"
+        read_only_fields = ["id", "last_updated"]
