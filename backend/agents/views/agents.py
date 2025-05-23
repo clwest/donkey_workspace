@@ -81,6 +81,8 @@ from agents.models.lore import (
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
+    SymbolicForecastIndex,
+    AssistantSentimentModelEngine,
     MythicAfterlifeRegistry,
     ContinuityEngineNode,
     ArchetypeMigrationGate,
@@ -196,6 +198,8 @@ from agents.serializers import (
     SignalEncodingArtifactSerializer,
     BeliefNavigationVectorSerializer,
     ReflectiveFluxIndexSerializer,
+    SymbolicForecastIndexSerializer,
+    AssistantSentimentModelEngineSerializer,
     MythicAfterlifeRegistrySerializer,
     ContinuityEngineNodeSerializer,
     ArchetypeMigrationGateSerializer,
@@ -1372,6 +1376,33 @@ def flux_index(request):
 
 
 @api_view(["GET", "POST"])
+def symbolic_forecasts(request):
+    if request.method == "GET":
+        forecasts = SymbolicForecastIndex.objects.all().order_by("-created_at")
+        return Response(SymbolicForecastIndexSerializer(forecasts, many=True).data)
+
+    serializer = SymbolicForecastIndexSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    forecast = serializer.save()
+    return Response(SymbolicForecastIndexSerializer(forecast).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def assistant_sentiments(request, assistant_id=None):
+    if request.method == "GET":
+        if assistant_id:
+            entries = AssistantSentimentModelEngine.objects.filter(assistant_id=assistant_id).order_by("-created_at")
+        else:
+            entries = AssistantSentimentModelEngine.objects.all().order_by("-created_at")
+        return Response(AssistantSentimentModelEngineSerializer(entries, many=True).data)
+
+    serializer = AssistantSentimentModelEngineSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    entry = serializer.save()
+    return Response(AssistantSentimentModelEngineSerializer(entry).data, status=201)
+
+
+@api_view(["GET", "POST"])
 def storyfields(request):
     if request.method == "GET":
         zones = StoryfieldZone.objects.all().order_by("-created_at")
@@ -1724,6 +1755,12 @@ def codex_cycles(request):
     serializer.is_valid(raise_exception=True)
     cycle = serializer.save()
     return Response(CodexRecurrenceLoopEngineSerializer(cycle).data, status=201)
+
+
+@api_view(["GET"])
+def codex_trends(request):
+    cycles = CodexRecurrenceLoopEngine.objects.all().order_by("-created_at")[:20]
+    return Response(CodexRecurrenceLoopEngineSerializer(cycles, many=True).data)
 
 
 @api_view(["GET", "POST"])

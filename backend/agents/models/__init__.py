@@ -13,6 +13,7 @@ from .governance import *
 from .mythchain import *
 
 from .planning import *
+from .forecast import *
 
 
 
