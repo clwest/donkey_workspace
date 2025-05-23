@@ -134,6 +134,7 @@ Additional planning and deep-dive instructions live in `backend/AGENTS.md` and `
 - [Phase 15.7 Features](docs/phase_15_7.md)
 
 - [Phase 16.0 Features](docs/phase_16_0.md)
+- [Phase 16.3 Features](docs/phase_16_3.md)
 
 
 - Other domain docs are under `backend/docs/` and `frontend/docs/`.
