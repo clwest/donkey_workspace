@@ -30,6 +30,8 @@ from .models.assistant import (
     DecisionFramework,
     PurposeRouteMap,
     AutonomyNarrativeModel,
+    SymbolicUXPlaybook,
+    RoleDrivenUITemplate,
 )
 from .models.project import (
     AssistantProject,
@@ -1248,6 +1250,20 @@ class PurposeRouteMapSerializer(serializers.ModelSerializer):
 class AutonomyNarrativeModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = AutonomyNarrativeModel
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicUXPlaybookSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicUXPlaybook
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RoleDrivenUITemplateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RoleDrivenUITemplate
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

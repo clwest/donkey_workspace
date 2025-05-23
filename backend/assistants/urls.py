@@ -39,6 +39,7 @@ from .views import (
     autonomy,
     check_in,
     subassistant,
+    interface as interface_views,
 )
 from tasks.views.delegate import TaskDelegateView
 from insights.views.plan import InsightPlanView
@@ -666,6 +667,17 @@ urlpatterns = [
         "<uuid:assistant_id>/generate-plan/",
         InsightPlanView.as_view(),
         name="generate-plan",
+    ),
+    path(
+        "<uuid:assistant_id>/interface/",
+        interface_views.assistant_interface,
+        name="assistant-interface",
+    ),
+    path("ux/playbooks/", interface_views.ux_playbooks, name="ux-playbooks"),
+    path(
+        "templates/<str:role>/",
+        interface_views.role_template,
+        name="role-template",
     ),
     # ===== DEBATE ENDPOINTS =====
     # path("debate/start/", debate.start_debate, name="start-debate"),
