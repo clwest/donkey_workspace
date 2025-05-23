@@ -78,9 +78,9 @@ from agents.models.lore import (
     SwarmMythEngineInstance,
     BeliefFeedbackSignal,
 
-    PurposeGraftRecord,
-    SuccessionRitualEvent,
-    ReincarnationTreeNode,
+    MythicAfterlifeRegistry,
+    ContinuityEngineNode,
+    ArchetypeMigrationGate,
 
 )
 
@@ -883,25 +883,23 @@ class BeliefFeedbackSignalSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-
-class LegacyRingSliceSerializer(serializers.ModelSerializer):
+class MythicAfterlifeRegistrySerializer(serializers.ModelSerializer):
     class Meta:
-        model = LegacyRingSlice
-        fields = "__all__"
-        read_only_fields = ["id", "created_at"]
-
-
-class MemoryDendroMarkSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MemoryDendroMark
+        model = MythicAfterlifeRegistry
 
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
-
-
-class SymbolicLifespanModelSerializer(serializers.ModelSerializer):
+class ContinuityEngineNodeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SymbolicLifespanModel
+        model = ContinuityEngineNode
+        fields = "__all__"
+        read_only_fields = ["id", "last_updated"]
+
+
+class ArchetypeMigrationGateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ArchetypeMigrationGate
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]

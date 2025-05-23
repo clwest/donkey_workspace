@@ -78,6 +78,9 @@ from agents.models.lore import (
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
+    MythicAfterlifeRegistry,
+    ContinuityEngineNode,
+    ArchetypeMigrationGate,
 
     LegacyRingSlice,
     MemoryDendroMark,
@@ -170,10 +173,9 @@ from agents.serializers import (
     SignalEncodingArtifactSerializer,
     BeliefNavigationVectorSerializer,
     ReflectiveFluxIndexSerializer,
-
-    LegacyRingSliceSerializer,
-    MemoryDendroMarkSerializer,
-    SymbolicLifespanModelSerializer,
+    MythicAfterlifeRegistrySerializer,
+    ContinuityEngineNodeSerializer,
+    ArchetypeMigrationGateSerializer,
 
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -1386,38 +1388,38 @@ def belief_feedback(request):
 
 @api_view(["GET", "POST"])
 
-def legacy_rings(request):
+def afterlife_registry(request):
     if request.method == "GET":
-        rings = LegacyRingSlice.objects.all().order_by("-timestamp")
-        return Response(LegacyRingSliceSerializer(rings, many=True).data)
+        entries = MythicAfterlifeRegistry.objects.all().order_by("-created_at")
+        return Response(MythicAfterlifeRegistrySerializer(entries, many=True).data)
 
-    serializer = LegacyRingSliceSerializer(data=request.data)
+    serializer = MythicAfterlifeRegistrySerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    ring = serializer.save()
-    return Response(LegacyRingSliceSerializer(ring).data, status=201)
+    entry = serializer.save()
+    return Response(MythicAfterlifeRegistrySerializer(entry).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def memory_dendro(request):
+def continuity_engine(request):
     if request.method == "GET":
-        marks = MemoryDendroMark.objects.all().order_by("-created_at")
-        return Response(MemoryDendroMarkSerializer(marks, many=True).data)
+        nodes = ContinuityEngineNode.objects.all().order_by("-last_updated")
+        return Response(ContinuityEngineNodeSerializer(nodes, many=True).data)
 
-    serializer = MemoryDendroMarkSerializer(data=request.data)
+    serializer = ContinuityEngineNodeSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    mark = serializer.save()
-    return Response(MemoryDendroMarkSerializer(mark).data, status=201)
+    node = serializer.save()
+    return Response(ContinuityEngineNodeSerializer(node).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def lifespan_models(request):
+def migration_gates(request):
     if request.method == "GET":
-        models_qs = SymbolicLifespanModel.objects.all().order_by("-created_at")
-        return Response(SymbolicLifespanModelSerializer(models_qs, many=True).data)
+        gates = ArchetypeMigrationGate.objects.all().order_by("-created_at")
+        return Response(ArchetypeMigrationGateSerializer(gates, many=True).data)
 
-    serializer = SymbolicLifespanModelSerializer(data=request.data)
+    serializer = ArchetypeMigrationGateSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    model = serializer.save()
-    return Response(SymbolicLifespanModelSerializer(model).data, status=201)
+    gate = serializer.save()
+    return Response(ArchetypeMigrationGateSerializer(gate).data, status=201)
 
 
