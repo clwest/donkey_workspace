@@ -12,6 +12,9 @@ This document lists the key REST endpoints and core models used throughout the p
 | `/api/intel/` | Document ingestion and chunk search |
 | `/api/prompts/` | Prompt templates and mutation tools |
 | `/api/agents/` | Agent clusters and orchestration hooks |
+| `/api/agents/mythflow-plans/` | Create and coordinate symbolic planning frameworks |
+| `/api/agents/directive-memory/` | Manage purpose-linked directive memory nodes |
+| `/api/agents/planning-lattices/` | Visualize narrative planning lattices |
 | `/api/images/` | Image generation and gallery endpoints |
 | `/api/characters/` | Character profiles and similarity search |
 | `/api/videos/` | Video ingestion and retrieval |

@@ -732,3 +732,24 @@ class MultiverseLoopLinkSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
+
+class MythflowOrchestrationPlanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythflowOrchestrationPlan
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class DirectiveMemoryNodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DirectiveMemoryNode
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicPlanningLatticeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicPlanningLattice
+        fields = "__all__"
+        read_only_fields = ["id", "last_updated"]
