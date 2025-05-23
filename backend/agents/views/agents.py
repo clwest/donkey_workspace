@@ -73,6 +73,10 @@ from agents.models.coordination import (
     DelegationStream,
     MythflowInsight,
 )
+
+from agents.models.coordination import CollaborationThread, DelegationStream, MythflowInsight
+from agents.models.insight import InsightHub, PerspectiveMergeEvent, TimelineStitchLog
+
 from agents.serializers import (
     AgentSerializer,
     AgentFeedbackLogSerializer,
@@ -131,6 +135,9 @@ from agents.serializers import (
     CollaborationThreadSerializer,
     DelegationStreamSerializer,
     MythflowInsightSerializer,
+    InsightHubSerializer,
+    PerspectiveMergeEventSerializer,
+    TimelineStitchLogSerializer,
     CosmogenesisSimulationSerializer,
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
@@ -1109,6 +1116,7 @@ def mythflow_insights(request):
 
 
 @api_view(["GET", "POST"])
+
 def dream_intel_nodes(request):
     if request.method == "GET":
         nodes = DreamIntelligenceNode.objects.all().order_by("-created_at")
@@ -1144,3 +1152,4 @@ def narrative_realignment_proposals(request):
     serializer.is_valid(raise_exception=True)
     proposal = serializer.save()
     return Response(NarrativeRealignmentProposalSerializer(proposal).data, status=201)
+

@@ -71,6 +71,11 @@ from agents.models.coordination import (
     DelegationStream,
     MythflowInsight,
 )
+from agents.models.insight import (
+    InsightHub,
+    PerspectiveMergeEvent,
+    TimelineStitchLog,
+)
 from assistants.models.assistant import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
 
@@ -672,11 +677,13 @@ class MythflowInsightSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+
 class DreamIntelligenceNodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = DreamIntelligenceNode
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 
 
 class MissionConsensusRoundSerializer(serializers.ModelSerializer):
@@ -686,8 +693,10 @@ class MissionConsensusRoundSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+
 class NarrativeRealignmentProposalSerializer(serializers.ModelSerializer):
     class Meta:
         model = NarrativeRealignmentProposal
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
