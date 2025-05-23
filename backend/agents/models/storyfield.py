@@ -2,8 +2,7 @@ from django.db import models
 
 from .lore import SwarmMemoryEntry, SwarmCodex, EncodedRitualBlueprint
 
-# used in multiple storyfield models
-from assistants.models import Assistant
+
 
 
 class StoryfieldZone(models.Model):
@@ -169,7 +168,7 @@ class MultiAgentDialogueAmplifier(models.Model):
     """Blend assistant responses into unified mythic conclusions."""
 
     amplifier_title = models.CharField(max_length=150)
-    agents_involved = models.ManyToManyField(Assistant)
+    agents_involved = models.ManyToManyField("assistants.Assistant")
     active_codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
     layered_response = models.TextField()
     symbolic_resonance_score = models.FloatField()
@@ -182,7 +181,7 @@ class MultiAgentDialogueAmplifier(models.Model):
 class MythicResolutionSequence(models.Model):
     """Finalize narrative arcs and preserve legacy artifacts."""
 
-    assistant = models.ForeignKey(Assistant, on_delete=models.CASCADE)
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
     resolution_steps = models.JSONField()
     codex_closure_state = models.TextField()
     legacy_artifacts = models.JSONField()
