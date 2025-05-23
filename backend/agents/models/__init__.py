@@ -15,6 +15,7 @@ from .mythchain import *
 from .planning import *
 from .forecast import *
 from .trend import *
+from .deployment import *
 
 
 

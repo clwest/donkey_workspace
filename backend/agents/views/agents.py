@@ -106,6 +106,10 @@ from agents.models.lore import (
     CodexRestabilizationNode,
     LegacyArtifactExporter,
     RecursiveRitualContract,
+    # resilience & deployment
+    SymbolicResilienceMonitor,
+    MythOSDeploymentPacket,
+    BeliefDeploymentStrategyEngine,
 )
 from agents.models.forecast import SymbolicForecastIndex,AssistantSentimentModelEngine
 from agents.models.governance import SymbolicConsensusChamber, RitualNegotiationEngine, NarrativeGovernanceModel
@@ -1313,6 +1317,9 @@ from agents.serializers import (
     RitualMarketFeedSerializer,
     MultiAgentTrendReactivityModelSerializer,
     SymbolicStabilityGraphSerializer,
+    SymbolicResilienceMonitorSerializer,
+    MythOSDeploymentPacketSerializer,
+    BeliefDeploymentStrategyEngineSerializer,
 )
 
 
@@ -1461,6 +1468,42 @@ def stability_graphs(request):
     serializer.is_valid(raise_exception=True)
     graph = serializer.save()
     return Response(SymbolicStabilityGraphSerializer(graph).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def resilience_monitors(request):
+    if request.method == "GET":
+        monitors = SymbolicResilienceMonitor.objects.all().order_by("-created_at")
+        return Response(SymbolicResilienceMonitorSerializer(monitors, many=True).data)
+
+    serializer = SymbolicResilienceMonitorSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    monitor = serializer.save()
+    return Response(SymbolicResilienceMonitorSerializer(monitor).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def deployment_packets(request):
+    if request.method == "GET":
+        packets = MythOSDeploymentPacket.objects.all().order_by("-created_at")
+        return Response(MythOSDeploymentPacketSerializer(packets, many=True).data)
+
+    serializer = MythOSDeploymentPacketSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    packet = serializer.save()
+    return Response(MythOSDeploymentPacketSerializer(packet).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def deployment_strategies(request):
+    if request.method == "GET":
+        strategies = BeliefDeploymentStrategyEngine.objects.all().order_by("-created_at")
+        return Response(BeliefDeploymentStrategyEngineSerializer(strategies, many=True).data)
+
+    serializer = BeliefDeploymentStrategyEngineSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    strategy = serializer.save()
+    return Response(BeliefDeploymentStrategyEngineSerializer(strategy).data, status=201)
 
 
 @api_view(["GET", "POST"])
