@@ -6,6 +6,8 @@ from .models import (
     SimulatedMemoryFork,
     SharedMemoryPool,
     SharedMemoryEntry,
+    BraidedMemoryStrand,
+    ContinuityAnchorPoint,
 )
 
 from assistants.models.thoughts import AssistantThoughtLog
@@ -193,3 +195,15 @@ class NarrativeThreadOverviewSerializer(NarrativeThreadSerializer):
             "continuity_score",
             "gaps_detected",
         ]
+
+
+class BraidedMemoryStrandSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BraidedMemoryStrand
+        fields = "__all__"
+
+
+class ContinuityAnchorPointSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContinuityAnchorPoint
+        fields = "__all__"

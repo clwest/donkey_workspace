@@ -77,3 +77,4 @@ class SymbolicPlanningLattice(models.Model):
     narrative_edges = models.JSONField()
     alignment_scores = models.JSONField()
     last_updated = models.DateTimeField(auto_now=True)
+

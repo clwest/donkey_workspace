@@ -11,12 +11,15 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status, viewsets
 import warnings
+from assistants.models import Assistant
 from .models import (
     MemoryEntry,
     MemoryChain,
     MemoryFeedback,
     SharedMemoryPool,
     SharedMemoryEntry,
+    BraidedMemoryStrand,
+    ContinuityAnchorPoint,
 )
 from .serializers import (
     MemoryEntrySerializer,
@@ -24,6 +27,8 @@ from .serializers import (
     MemoryChainSerializer,
     SharedMemoryPoolSerializer,
     SharedMemoryEntrySerializer,
+    BraidedMemoryStrandSerializer,
+    ContinuityAnchorPointSerializer,
 )
 from prompts.serializers import PromptSerializer
 from prompts.models import Prompt
@@ -37,6 +42,7 @@ from embeddings.helpers.helpers_io import get_embedding_for_text
 from memory.memory_service import get_memory_service
 from mcp_core.models import NarrativeThread
 from memory.utils.thread_helpers import get_linked_chains, recall_from_thread
+from memory.utils.anamnesis_engine import run_anamnesis_retrieval
 
 load_dotenv()
 
@@ -775,3 +781,47 @@ def shared_memory_pool_entries(request, pool_id):
     entries = pool.entries.order_by("-created_at")
     serializer = SharedMemoryEntrySerializer(entries, many=True)
     return Response(serializer.data)
+
+
+@api_view(["GET", "POST"])
+@permission_classes([AllowAny])
+def memory_braids(request):
+    """List or create BraidedMemoryStrand objects."""
+    if request.method == "POST":
+        serializer = BraidedMemoryStrandSerializer(data=request.data)
+        if serializer.is_valid():
+            strand = serializer.save()
+            return Response(BraidedMemoryStrandSerializer(strand).data, status=201)
+        return Response(serializer.errors, status=400)
+
+    strands = BraidedMemoryStrand.objects.all().order_by("-created_at")
+    serializer = BraidedMemoryStrandSerializer(strands, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["GET", "POST"])
+@permission_classes([AllowAny])
+def continuity_anchors(request):
+    """List or create ContinuityAnchorPoint objects."""
+    if request.method == "POST":
+        serializer = ContinuityAnchorPointSerializer(data=request.data)
+        if serializer.is_valid():
+            anchor = serializer.save()
+            return Response(ContinuityAnchorPointSerializer(anchor).data, status=201)
+        return Response(serializer.errors, status=400)
+
+    anchors = ContinuityAnchorPoint.objects.all().order_by("-created_at")
+    serializer = ContinuityAnchorPointSerializer(anchors, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def anamnesis(request):
+    """Recover fragmented memory for an assistant."""
+    slug = request.data.get("assistant_slug")
+    if not slug:
+        return Response({"error": "assistant_slug required"}, status=400)
+    assistant = get_object_or_404(Assistant, slug=slug)
+    data = run_anamnesis_retrieval(assistant)
+    return Response(data)

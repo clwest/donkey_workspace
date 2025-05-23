@@ -1108,6 +1108,22 @@ class SwarmCodex(models.Model):
         return self.title
 
 
+class AgentAwareCodex(models.Model):
+    """Codex that tracks assistant-specific awareness and clause dynamics."""
+
+    base_codex = models.OneToOneField(SwarmCodex, on_delete=models.CASCADE)
+    codex_awareness_map = models.JSONField()
+    sentiment_trend = models.CharField(max_length=100)
+    evolving_clauses = models.JSONField()
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-last_updated"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"AwareCodex for {self.base_codex.title}"
+
+
 class SymbolicLawEntry(models.Model):
     """Encoded rule linked to a codex and memory origin."""
 
@@ -1623,52 +1639,72 @@ class LearningReservoir(models.Model):
         return f"Realignment by {self.initiated_by.name}"[:50]
 
 
-class SymbolicAnomalyEvent(models.Model):
-    """Log symbolic inconsistencies or paradoxes detected in memory."""
 
-    assistant = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE
-    )
-    anomaly_type = models.CharField(max_length=100)
-    memory_reference = models.ManyToManyField(SwarmMemoryEntry)
-    detected_by = models.CharField(max_length=100)
-    symbolic_trace = models.TextField()
+class SwarmCosmology(models.Model):
+    """Meta-framework describing mythic universes."""
+
+    name = models.CharField(max_length=150)
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
+
+
+class PurposeIndexEntry(models.Model):
+    """Record symbolic intent snapshots across mythic context and time."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    cosmology = models.ForeignKey(SwarmCosmology, on_delete=models.CASCADE)
+    purpose_vector = models.JSONField()
+    timeline_marker = models.CharField(max_length=100)
+    alignment_tags = models.JSONField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
 
-class BeliefCollapseRecoveryRitual(models.Model):
-    """Restore assistant beliefs after symbolic collapse."""
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Purpose index for {self.assistant.name}"
 
-    assistant = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE
-    )
-    initiating_memory = models.ForeignKey(
-        SwarmMemoryEntry, on_delete=models.CASCADE
-    )
-    collapse_type = models.CharField(max_length=100)
-    ritual_steps = models.JSONField()
-    restored_alignment = models.JSONField()
-    successful = models.BooleanField(default=False)
+
+class BeliefSignalNode(models.Model):
+    """Transmit symbolic values and belief vectors as inheritance signals."""
+
+    origin_assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    transmitted_beliefs = models.JSONField()
+    receivers = models.ManyToManyField("assistants.Assistant", related_name="inherited_beliefs")
+    signal_strength = models.FloatField()
+    inheritance_type = models.CharField(max_length=100)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Signal from {self.origin_assistant.name}"
 
-class MultiverseLoopLink(models.Model):
-    """Connect mythic timelines for recursive loops."""
 
-    linked_timelines = models.JSONField()
-    anchor_assistant = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE
-    )
-    loop_reason = models.TextField()
-    echo_transfer_summary = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
+class MythicAlignmentMarket(models.Model):
+    """Symbolic reputation and access economy."""
+
+    participant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    alignment_score = models.FloatField()
+    ritual_contributions = models.JSONField()
+    symbolic_asset_tags = models.JSONField()
+    access_level = models.CharField(max_length=50)
+    last_updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["-created_at"]
+        ordering = ["-last_updated"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Market entry for {self.participant.name}"
+
 

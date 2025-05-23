@@ -43,6 +43,7 @@ from agents.models.lore import (
     DreamPurposeNegotiation,
     BiomeMutationEvent,
     SwarmCodex,
+    AgentAwareCodex,
     SymbolicLawEntry,
     RitualArchiveEntry,
     AssistantPolity,
@@ -65,6 +66,10 @@ from agents.models.lore import (
     MythicForecastPulse,
     BeliefAtlasSnapshot,
     SymbolicWeatherFront,
+    SwarmCosmology,
+    PurposeIndexEntry,
+    BeliefSignalNode,
+    MythicAlignmentMarket,
 
     SymbolicAnomalyEvent,
     BeliefCollapseRecoveryRitual,
@@ -80,6 +85,7 @@ from agents.models.coordination import (
     MythflowOrchestrationPlan,
     DirectiveMemoryNode,
     SymbolicPlanningLattice,
+
 )
 from agents.serializers import (
     AgentSerializer,
@@ -139,18 +145,20 @@ from agents.serializers import (
     CollaborationThreadSerializer,
     DelegationStreamSerializer,
     MythflowInsightSerializer,
+    AgentAwareCodexSerializer,
+    SymbolicCoordinationEngineSerializer,
     CosmogenesisSimulationSerializer,
 
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
     SymbolicWeatherFrontSerializer,
-
     SymbolicAnomalyEventSerializer,
     BeliefCollapseRecoveryRitualSerializer,
     MultiverseLoopLinkSerializer,
     MythflowOrchestrationPlanSerializer,
     DirectiveMemoryNodeSerializer,
     SymbolicPlanningLatticeSerializer,
+
 
 )
 from assistants.serializers import (
@@ -178,6 +186,7 @@ from agents.utils.myth_verification import (
 )
 
 from agents.utils import harmonize_global_narrative
+from agents.utils import generate_ritual_from_ecosystem_state
 from agents.utils.myth_weaver import weave_recursive_myth
 from agents.models.cosmology import update_belief_state
 
@@ -807,6 +816,18 @@ def codexes(request):
 
 
 @api_view(["GET", "POST"])
+def agent_codices(request):
+    if request.method == "GET":
+        codices = AgentAwareCodex.objects.all().order_by("-last_updated")
+        return Response(AgentAwareCodexSerializer(codices, many=True).data)
+
+    serializer = AgentAwareCodexSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    codex = serializer.save()
+    return Response(AgentAwareCodexSerializer(codex).data, status=201)
+
+
+@api_view(["GET", "POST"])
 def symbolic_laws(request):
     if request.method == "GET":
         laws = SymbolicLawEntry.objects.all().order_by("-created_at")
@@ -1123,40 +1144,57 @@ def mythflow_insights(request):
 
 
 @api_view(["GET", "POST"])
-
-def anomalies(request):
+def purpose_index(request):
     if request.method == "GET":
-        events = SymbolicAnomalyEvent.objects.all().order_by("-created_at")
-        return Response(SymbolicAnomalyEventSerializer(events, many=True).data)
+        entries = PurposeIndexEntry.objects.all().order_by("-created_at")
+        return Response(PurposeIndexEntrySerializer(entries, many=True).data)
 
-    serializer = SymbolicAnomalyEventSerializer(data=request.data)
+    serializer = PurposeIndexEntrySerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    event = serializer.save()
-    return Response(SymbolicAnomalyEventSerializer(event).data, status=201)
+    entry = serializer.save()
+    return Response(PurposeIndexEntrySerializer(entry).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def belief_recovery(request):
+def belief_signals(request):
     if request.method == "GET":
-        rituals = BeliefCollapseRecoveryRitual.objects.all().order_by("-created_at")
-        return Response(BeliefCollapseRecoveryRitualSerializer(rituals, many=True).data)
+        signals = BeliefSignalNode.objects.all().order_by("-created_at")
+        return Response(BeliefSignalNodeSerializer(signals, many=True).data)
 
-    serializer = BeliefCollapseRecoveryRitualSerializer(data=request.data)
+    serializer = BeliefSignalNodeSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    ritual = serializer.save()
-    return Response(BeliefCollapseRecoveryRitualSerializer(ritual).data, status=201)
+    signal = serializer.save()
+    return Response(BeliefSignalNodeSerializer(signal).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def multiverse_loops(request):
+def alignment_market(request):
     if request.method == "GET":
-        loops = MultiverseLoopLink.objects.all().order_by("-created_at")
-        return Response(MultiverseLoopLinkSerializer(loops, many=True).data)
+        markets = MythicAlignmentMarket.objects.all().order_by("-last_updated")
+        return Response(MythicAlignmentMarketSerializer(markets, many=True).data)
 
-    serializer = MultiverseLoopLinkSerializer(data=request.data)
+    serializer = MythicAlignmentMarketSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    loop = serializer.save()
-    return Response(MultiverseLoopLinkSerializer(loop).data, status=201)
+    market = serializer.save()
+    return Response(MythicAlignmentMarketSerializer(market).data, status=201)
+
+
+@api_view(["POST"])
+def ritual_network(request):
+    ritual = generate_ritual_from_ecosystem_state()
+    return Response(ritual, status=200)
+
+
+@api_view(["GET", "POST"])
+def coordination_engine(request):
+    if request.method == "GET":
+        engines = SymbolicCoordinationEngine.objects.all().order_by("-last_sync")
+        return Response(SymbolicCoordinationEngineSerializer(engines, many=True).data)
+
+    serializer = SymbolicCoordinationEngineSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    engine = serializer.save()
+    return Response(SymbolicCoordinationEngineSerializer(engine).data, status=201)
 
 
 

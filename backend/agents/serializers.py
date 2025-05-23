@@ -492,6 +492,13 @@ class SwarmCodexSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+class AgentAwareCodexSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AgentAwareCodex
+        fields = "__all__"
+        read_only_fields = ["id", "last_updated"]
+
+
 class SymbolicLawEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = SymbolicLawEntry
@@ -684,6 +691,13 @@ class MythflowInsightSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
+class SymbolicCoordinationEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicCoordinationEngine
+        fields = "__all__"
+        read_only_fields = ["id", "last_sync"]
+
 class KnowledgeReplicationEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = KnowledgeReplicationEvent
@@ -710,27 +724,36 @@ class LearningReservoirSerializer(serializers.ModelSerializer):
 
 
 
-class SymbolicAnomalyEventSerializer(serializers.ModelSerializer):
+class SwarmCosmologySerializer(serializers.ModelSerializer):
     class Meta:
-        model = SymbolicAnomalyEvent
+        model = SwarmCosmology
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class PurposeIndexEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PurposeIndexEntry
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
 
-class BeliefCollapseRecoveryRitualSerializer(serializers.ModelSerializer):
+class BeliefSignalNodeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = BeliefCollapseRecoveryRitual
+        model = BeliefSignalNode
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class MultiverseLoopLinkSerializer(serializers.ModelSerializer):
+class MythicAlignmentMarketSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MultiverseLoopLink
-
+        model = MythicAlignmentMarket
         fields = "__all__"
-        read_only_fields = ["id", "created_at"]
+        read_only_fields = ["id", "last_updated"]
+
 
 
 
