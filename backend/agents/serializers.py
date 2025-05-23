@@ -84,15 +84,10 @@ from agents.models.lore import (
     BeliefContinuityThread,
     CodexContributionCeremony,
 
-    CodexLinkedGuild,
-    MythCommunityCluster,
-    SwarmFederationEngine,
-
     NarrativeLightingEngine,
     CinematicUILayer,
     AssistantTutorialScript,
     RitualOnboardingFlow,
-
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
 )
@@ -988,25 +983,6 @@ class CodexContributionCeremonySerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-class CodexLinkedGuildSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CodexLinkedGuild
-        fields = "__all__"
-        read_only_fields = ["id", "created_at"]
-
-
-class MythCommunityClusterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MythCommunityCluster
-        fields = "__all__"
-        read_only_fields = ["id", "created_at"]
-
-
-class SwarmFederationEngineSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SwarmFederationEngine
-        fields = "__all__"
-        read_only_fields = ["id", "last_synced"]
 
 class NarrativeLightingEngineSerializer(serializers.ModelSerializer):
     class Meta:
@@ -1036,4 +1012,25 @@ class RitualOnboardingFlowSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
+
+class MythRecordingSessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythRecordingSession
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicDocumentationEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicDocumentationEntry
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class BeliefArtifactArchiveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BeliefArtifactArchive
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
 
