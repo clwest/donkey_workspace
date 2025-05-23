@@ -70,6 +70,11 @@ from agents.models.coordination import (
     DelegationStream,
     MythflowInsight,
 )
+from agents.models.insight import (
+    InsightHub,
+    PerspectiveMergeEvent,
+    TimelineStitchLog,
+)
 from assistants.models.assistant import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
 
@@ -663,6 +668,27 @@ class DelegationStreamSerializer(serializers.ModelSerializer):
 class MythflowInsightSerializer(serializers.ModelSerializer):
     class Meta:
         model = MythflowInsight
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class InsightHubSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InsightHub
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class PerspectiveMergeEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PerspectiveMergeEvent
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class TimelineStitchLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TimelineStitchLog
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

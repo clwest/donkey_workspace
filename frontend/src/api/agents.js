@@ -22,3 +22,7 @@ export const fetchDelegationStreams = () =>
   apiFetch("/agents/delegation-streams/");
 export const fetchMythflowInsights = () =>
   apiFetch("/agents/mythflow-insights/");
+
+export const fetchInsightHubs = () => apiFetch("/insight-hubs/");
+export const fetchPerspectiveMerges = () => apiFetch("/perspective-merges/");
+export const fetchTimelineStitchLogs = () => apiFetch("/timeline-stitching/");

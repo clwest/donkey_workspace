@@ -70,6 +70,7 @@ from agents.models.lore import (
 
 )
 from agents.models.coordination import CollaborationThread, DelegationStream, MythflowInsight
+from agents.models.insight import InsightHub, PerspectiveMergeEvent, TimelineStitchLog
 from agents.serializers import (
     AgentSerializer,
     AgentFeedbackLogSerializer,
@@ -128,6 +129,9 @@ from agents.serializers import (
     CollaborationThreadSerializer,
     DelegationStreamSerializer,
     MythflowInsightSerializer,
+    InsightHubSerializer,
+    PerspectiveMergeEventSerializer,
+    TimelineStitchLogSerializer,
     CosmogenesisSimulationSerializer,
 
     MythicForecastPulseSerializer,
@@ -1100,4 +1104,40 @@ def mythflow_insights(request):
     serializer.is_valid(raise_exception=True)
     insight = serializer.save()
     return Response(MythflowInsightSerializer(insight).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def insight_hubs(request):
+    if request.method == "GET":
+        hubs = InsightHub.objects.all().order_by("-created_at")
+        return Response(InsightHubSerializer(hubs, many=True).data)
+
+    serializer = InsightHubSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    hub = serializer.save()
+    return Response(InsightHubSerializer(hub).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def perspective_merges(request):
+    if request.method == "GET":
+        events = PerspectiveMergeEvent.objects.all().order_by("-created_at")
+        return Response(PerspectiveMergeEventSerializer(events, many=True).data)
+
+    serializer = PerspectiveMergeEventSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    event = serializer.save()
+    return Response(PerspectiveMergeEventSerializer(event).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def timeline_stitching(request):
+    if request.method == "GET":
+        logs = TimelineStitchLog.objects.all().order_by("-created_at")
+        return Response(TimelineStitchLogSerializer(logs, many=True).data)
+
+    serializer = TimelineStitchLogSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    log = serializer.save()
+    return Response(TimelineStitchLogSerializer(log).data, status=201)
 
