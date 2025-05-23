@@ -10,6 +10,7 @@ from .models import (
     BeliefNarrativeEngineInstance,
     SymbolicAuthorityTransferLog,
     MemoryCinematicFragment,
+
 )
 
 
@@ -78,3 +79,4 @@ class MemoryCinematicFragmentSerializer(serializers.ModelSerializer):
         model = MemoryCinematicFragment
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+

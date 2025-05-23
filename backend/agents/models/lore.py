@@ -1993,3 +1993,20 @@ class RitualBlueprint(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.name
+
+class DialogueCodexMutationLog(models.Model):
+    """Record codex changes triggered by symbolic dialogue."""
+
+    codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    triggering_dialogue = models.TextField()
+    mutation_reason = models.TextField()
+    symbolic_impact = models.JSONField()
+    approved_by = models.ManyToManyField("assistants.Assistant", blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Mutation for {self.codex.title}"
+

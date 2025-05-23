@@ -116,3 +116,4 @@ class MemoryCinematicFragment(models.Model):
     cinematic_summary = models.TextField()
     visual_style = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
+

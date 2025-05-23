@@ -33,3 +33,30 @@ class PersonaTemplate(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return self.template_name
+
+class PersonaFusionEvent(models.Model):
+    """Merge two assistant personas into a new archetypal blend."""
+
+    initiating_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        related_name="fusion_initiator",
+        on_delete=models.CASCADE,
+    )
+    fused_with = models.ForeignKey(
+        "assistants.Assistant",
+        related_name="fusion_target",
+        on_delete=models.CASCADE,
+    )
+    resulting_identity_card = models.ForeignKey(
+        SymbolicIdentityCard,
+        on_delete=models.CASCADE,
+    )
+    memory_alignment_summary = models.TextField()
+    fusion_archetype = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Fusion {self.initiating_assistant_id} + {self.fused_with_id}"

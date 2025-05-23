@@ -90,6 +90,9 @@ urlpatterns = [
     path("api/afterlife-registry/", agent_views.afterlife_registry),
     path("api/continuity-engine/", agent_views.continuity_engine),
     path("api/migration-gates/", agent_views.migration_gates),
+    path("api/persona-fusions/", agent_views.persona_fusions),
+    path("api/dialogue-mutations/", agent_views.dialogue_mutations),
+    path("api/scene-director/", agent_views.scene_director),
 
 
     path("api/storyfields/", agent_views.storyfields),
@@ -101,6 +104,7 @@ urlpatterns = [
     path("api/signal-artifacts/", agent_views.signal_artifacts),
     path("api/navigation-vectors/", agent_views.navigation_vectors),
     path("api/flux-index/", agent_views.flux_index), 
+    path("api/plotline-curation/", agent_views.plotline_curation),
     path("api/documents/", include("documents.urls")),
     path("api/tools/", include("tools.urls")),
     path("api/workflows/", include("workflows.urls")),
