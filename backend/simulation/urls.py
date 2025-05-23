@@ -12,7 +12,11 @@ from .views.session import (
     SymbolicDialogueExchangeViewSet,
     RoleplayPersonaModuleView,
 )
-from .views.reflection import MythflowReflectionLoopViewSet, NarrativePressureView
+
+from .views.dialogue import SymbolicDialogueScriptViewSet
+from .views.decision import MemoryDecisionTreeNodeViewSet
+from .views.scene import SceneControlEngineViewSet
+
 from .views.sandbox import SimulationRunView
 
 router = DefaultRouter()
@@ -26,7 +30,11 @@ router.register(
 router.register(r"config", SimulationConfigViewSet, basename="simulation-config")
 router.register(r"mythflow-sessions", MythflowSessionViewSet, basename="mythflow-session")
 router.register(r"dialogue-exchange", SymbolicDialogueExchangeViewSet, basename="dialogue-exchange")
-router.register(r"reflection-loops", MythflowReflectionLoopViewSet, basename="reflection-loop")
+
+router.register(r"dialogue-scripts", SymbolicDialogueScriptViewSet, basename="dialogue-script")
+router.register(r"decision-trees", MemoryDecisionTreeNodeViewSet, basename="decision-tree")
+router.register(r"scene-control", SceneControlEngineViewSet, basename="scene-control")
+
 
 urlpatterns = router.urls + [
     path("run/", SimulationRunView.as_view(), name="simulation-run"),
