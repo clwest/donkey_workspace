@@ -9,6 +9,9 @@ import RitualOnboardingPage from "./pages/onboarding/RitualOnboardingPage";
 import MythOnboardingWorldPage from "./pages/onboarding/MythOnboardingWorldPage";
 import ArchetypeSelectionChamberPage from "./pages/onboarding/ArchetypeSelectionChamberPage";
 import SummoningRitualConsolePage from "./pages/onboarding/SummoningRitualConsolePage";
+import UserMythpathInitializerPage from "./pages/onboarding/UserMythpathInitializerPage";
+import WorldTimelinePage from "./pages/WorldTimelinePage";
+import AssistantMythRebirthPage from "./pages/assistants/AssistantMythRebirthPage";
 import CodexBriefingPage from "./pages/codex/CodexBriefingPage";
 import AssistantTutorialPage from "./pages/assistant/tutorial/AssistantTutorialPage";
 
@@ -145,7 +148,8 @@ export default function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/logout" element={<LogoutPage />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/onboarding" element={<MythOnboardingWorldPage />} />
+          <Route path="/onboarding" element={<UserMythpathInitializerPage />} />
+          <Route path="/onboarding/world" element={<MythOnboardingWorldPage />} />
           <Route path="/onboarding/archetype" element={<ArchetypeSelectionChamberPage />} />
           <Route path="/onboarding/summon" element={<SummoningRitualConsolePage />} />
           <Route path="/onboarding/wizard" element={<OnboardingWizardPage />} />
@@ -370,6 +374,7 @@ export default function App() {
             path="/assistants/:id/interface"
             element={<AssistantInterfacePage />}
           />
+          <Route path="/assistants/:id/rebirth" element={<AssistantMythRebirthPage />} />
           <Route path="/assistants/:slug" element={<AssistantDetailPage />} />
           {/* MCP Core */}
           <Route path="/reflect" element={<ReflectionPage />} />
@@ -411,6 +416,7 @@ export default function App() {
           <Route path="/agents" element={<AgentPage />} />
           <Route path="/agents/archive" element={<AgentArchivePage />} />
           <Route path="/swarm/timeline" element={<SwarmTimelinePage />} />
+          <Route path="/timeline" element={<WorldTimelinePage />} />
           <Route path="/agents/:slug" element={<AgentDetailPage />} />
           <Route path="/intel/documents" element={<DocumentBrowserPage />} />
           <Route path="/intel/documents/:id" element={<DocumentDetailPage />} />
