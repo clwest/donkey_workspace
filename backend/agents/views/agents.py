@@ -95,6 +95,9 @@ from agents.models.lore import (
     CodexRecurrenceLoopEngine,
     CycleAnchorRegistry,
     MemoryRegenerationProtocol,
+    RitualLoopVisualizationEngine,
+    SymbolicOscillationMap,
+    CodexRestabilizationNode,
 
     LegacyArtifactExporter,
 
@@ -220,6 +223,9 @@ from agents.serializers import (
     CodexRecurrenceLoopEngineSerializer,
     CycleAnchorRegistrySerializer,
     MemoryRegenerationProtocolSerializer,
+    RitualLoopVisualizationEngineSerializer,
+    SymbolicOscillationMapSerializer,
+    CodexRestabilizationNodeSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1751,5 +1757,41 @@ def memory_regenerate(request):
     serializer.is_valid(raise_exception=True)
     protocol = serializer.save()
     return Response(MemoryRegenerationProtocolSerializer(protocol).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def ritual_loops(request):
+    if request.method == "GET":
+        loops = RitualLoopVisualizationEngine.objects.all().order_by("-created_at")
+        return Response(RitualLoopVisualizationEngineSerializer(loops, many=True).data)
+
+    serializer = RitualLoopVisualizationEngineSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    loop = serializer.save()
+    return Response(RitualLoopVisualizationEngineSerializer(loop).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def oscillation_map(request):
+    if request.method == "GET":
+        maps = SymbolicOscillationMap.objects.all().order_by("-created_at")
+        return Response(SymbolicOscillationMapSerializer(maps, many=True).data)
+
+    serializer = SymbolicOscillationMapSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    osc_map = serializer.save()
+    return Response(SymbolicOscillationMapSerializer(osc_map).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def codex_stabilize(request):
+    if request.method == "GET":
+        nodes = CodexRestabilizationNode.objects.all().order_by("-created_at")
+        return Response(CodexRestabilizationNodeSerializer(nodes, many=True).data)
+
+    serializer = CodexRestabilizationNodeSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    node = serializer.save()
+    return Response(CodexRestabilizationNodeSerializer(node).data, status=201)
 
 

@@ -99,6 +99,9 @@ from agents.models.lore import (
     CodexRecurrenceLoopEngine,
     CycleAnchorRegistry,
     MemoryRegenerationProtocol,
+    RitualLoopVisualizationEngine,
+    SymbolicOscillationMap,
+    CodexRestabilizationNode,
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
 )
@@ -1196,4 +1199,25 @@ class MemoryRegenerationProtocolSerializer(serializers.ModelSerializer):
         model = MemoryRegenerationProtocol
         fields = "__all__"
         read_only_fields = ["id", "created_at", "corrupted_memory_nodes"]
+
+
+class RitualLoopVisualizationEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RitualLoopVisualizationEngine
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicOscillationMapSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicOscillationMap
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CodexRestabilizationNodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CodexRestabilizationNode
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
 

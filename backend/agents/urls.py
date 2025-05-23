@@ -43,10 +43,13 @@ urlpatterns = [
     path("export/artifact/", agents.export_artifact),
     path("broadcast/patterns/", agents.broadcast_patterns),
     path("ritual/echo/", agents.ritual_echo),
+    path("ritual/loops/", agents.ritual_loops),
     path("codex/cycles/", agents.codex_cycles),
     path("cycle/anchors/", agents.cycle_anchors),
     path("entropy/balance/", agents.entropy_balance),
+    path("oscillation/map/", agents.oscillation_map),
     path("memory/regenerate/", agents.memory_regenerate),
+    path("codex/stabilize/", agents.codex_stabilize),
 
 
     path("onboarding/ritual/", agents.onboarding_ritual),

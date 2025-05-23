@@ -2396,6 +2396,58 @@ class MemoryRegenerationProtocol(models.Model):
         return f"Regeneration for {self.assistant.name}"
 
 
+class RitualLoopVisualizationEngine(models.Model):
+    """Render visual cycles of ritual performance history."""
+
+    ritual_metric = models.ForeignKey(RitualPerformanceMetric, on_delete=models.CASCADE)
+    anchor_registry = models.ForeignKey(CycleAnchorRegistry, on_delete=models.CASCADE)
+    echo_thread = models.ForeignKey(RitualEchoThreadSystem, on_delete=models.CASCADE)
+    loop_map = models.JSONField()
+    frequency_trails = models.JSONField()
+    convergence_points = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"LoopViz {self.id}"
+
+
+class SymbolicOscillationMap(models.Model):
+    """Visual tracker of belief vector swings and codex pressure."""
+
+    codex_engine = models.ForeignKey(CodexRecurrenceLoopEngine, on_delete=models.CASCADE)
+    directive_node = models.ForeignKey(DirectiveMemoryNode, on_delete=models.CASCADE)
+    belief_drift_waveforms = models.JSONField()
+    codex_strain = models.FloatField()
+    role_pressure = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"OscMap {self.id}"
+
+
+class CodexRestabilizationNode(models.Model):
+    """Assistant-guided realignment log after codex disruption."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    symbolic_disruption_score = models.FloatField()
+    stabilizing_action = models.TextField()
+    restoration_tags = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Restabilization {self.codex.title}"[:50]
+
+
 
 
 
