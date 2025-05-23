@@ -60,9 +60,6 @@ from agents.models.lore import (
     CosmogenesisSimulation,
     MythicForecastPulse,
     BeliefAtlasSnapshot,
-    MythicContract,
-    DreamLiquidityPool,
-    RoleSymbolExchange,
     SymbolicWeatherFront,
     KnowledgeReplicationEvent,
     MemoryBroadcastPacket,
@@ -74,6 +71,9 @@ from agents.models.lore import (
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
+    RecursiveRitualContract,
+    SwarmMythEngineInstance,
+    BeliefFeedbackSignal,
 )
 
 from agents.models.coordination import (

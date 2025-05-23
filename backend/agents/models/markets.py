@@ -1,5 +1,5 @@
 from django.db import models
-from assistants.models import Assistant
+
 
 
 class ForecastingMarketLedger(models.Model):
@@ -27,7 +27,7 @@ class SymbolicFutureContract(models.Model):
     future_event_description = models.TextField()
     value_basis = models.JSONField()
     staked_tokens = models.JSONField()
-    initiator = models.ForeignKey(Assistant, on_delete=models.CASCADE)
+    initiator = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
     expiration_timestamp = models.DateTimeField()
     contract_fulfilled = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
