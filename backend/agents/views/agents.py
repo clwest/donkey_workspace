@@ -65,11 +65,12 @@ from agents.models.lore import (
     MythicForecastPulse,
     BeliefAtlasSnapshot,
     SymbolicWeatherFront,
-   
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
- 
+    SignalEncodingArtifact,
+    BeliefNavigationVector,
+    ReflectiveFluxIndex,
 )
 from agents.models.coordination import (
     CollaborationThread,
@@ -144,11 +145,11 @@ from agents.serializers import (
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
     SymbolicWeatherFrontSerializer,
-
     MythflowOrchestrationPlanSerializer,
-
+    SignalEncodingArtifactSerializer,
+    BeliefNavigationVectorSerializer,
+    ReflectiveFluxIndexSerializer,
     SymbolicPlanningLatticeSerializer,
-
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -1169,6 +1170,7 @@ def alignment_market(request):
     market = serializer.save()
     return Response(MythicAlignmentMarketSerializer(market).data, status=201)
 
+
 @api_view(["GET", "POST"])
 def resonance_graphs(request):
     if request.method == "GET":
@@ -1179,7 +1181,6 @@ def resonance_graphs(request):
     serializer.is_valid(raise_exception=True)
     engine = serializer.save()
     return Response(SymbolicCoordinationEngineSerializer(engine).data, status=201)
-
 
 
 @api_view(["GET", "POST"])
@@ -1206,4 +1207,37 @@ def purpose_migrations(request):
     return Response(PurposeMigrationEventSerializer(migration).data, status=201)
 
 
+@api_view(["GET", "POST"])
+def signal_artifacts(request):
+    if request.method == "GET":
+        artifacts = SignalEncodingArtifact.objects.all().order_by("-created_at")
+        return Response(SignalEncodingArtifactSerializer(artifacts, many=True).data)
 
+    serializer = SignalEncodingArtifactSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    artifact = serializer.save()
+    return Response(SignalEncodingArtifactSerializer(artifact).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def navigation_vectors(request):
+    if request.method == "GET":
+        vectors = BeliefNavigationVector.objects.all().order_by("-calculated_at")
+        return Response(BeliefNavigationVectorSerializer(vectors, many=True).data)
+
+    serializer = BeliefNavigationVectorSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    vector = serializer.save()
+    return Response(BeliefNavigationVectorSerializer(vector).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def flux_index(request):
+    if request.method == "GET":
+        indices = ReflectiveFluxIndex.objects.all().order_by("-timestamp")
+        return Response(ReflectiveFluxIndexSerializer(indices, many=True).data)
+
+    serializer = ReflectiveFluxIndexSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    index = serializer.save()
+    return Response(ReflectiveFluxIndexSerializer(index).data, status=201)

@@ -68,9 +68,9 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
-    
-    
-
+    SignalEncodingArtifact,
+    BeliefNavigationVector,
+    ReflectiveFluxIndex,
 )
 
 from agents.models.coordination import (
@@ -756,6 +756,27 @@ class MythicAlignmentMarketSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "last_updated"]
 
 
+class SignalEncodingArtifactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SignalEncodingArtifact
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class BeliefNavigationVectorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BeliefNavigationVector
+        fields = "__all__"
+        read_only_fields = ["id", "calculated_at"]
+
+
+class ReflectiveFluxIndexSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReflectiveFluxIndex
+        fields = "__all__"
+        read_only_fields = ["id", "timestamp"]
+
+
 class MythflowOrchestrationPlanSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -765,7 +786,6 @@ class MythflowOrchestrationPlanSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-
 class PurposeMigrationEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurposeMigrationEvent
@@ -773,9 +793,9 @@ class PurposeMigrationEventSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
 class SymbolicPlanningLatticeSerializer(serializers.ModelSerializer):
     class Meta:
         model = SymbolicPlanningLattice
         fields = "__all__"
         read_only_fields = ["id", "last_updated"]
-
