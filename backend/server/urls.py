@@ -67,7 +67,6 @@ urlpatterns = [
     path("api/prompts/", include("prompts.urls")),
     path("api/v1/mcp/", include("mcp_core.urls")),
     path("api/v1/memory/", include("memory.urls")),
-
     path("api/mcp/", include("mcp_core.urls")),
     path("api/memory/", include("memory.urls")),
     path("api/shared-memory-pools/", include("memory.shared_urls")),
@@ -84,14 +83,18 @@ urlpatterns = [
     path("api/cosmological-roles/", agent_views.cosmological_roles),
     path("api/myth-weaver/", agent_views.myth_weaver),
     path("api/legacy-vaults/", agent_views.legacy_vaults),
-
     path("api/resonance-graphs/", agent_views.resonance_graphs),
     path("api/cognitive-balance/", agent_views.cognitive_balance_reports),
     path("api/purpose-migrations/", agent_views.purpose_migrations),
+
     path("api/storyfields/", agent_views.storyfields),
     path("api/myth-patterns/", agent_views.myth_patterns),
     path("api/intent-harmony/", agent_views.intent_harmony),
+
     path("api/intel/", include("intel_core.urls")),
+    path("api/signal-artifacts/", agent_views.signal_artifacts),
+    path("api/navigation-vectors/", agent_views.navigation_vectors),
+    path("api/flux-index/", agent_views.flux_index),
     path("api/documents/", include("documents.urls")),
     path("api/tools/", include("tools.urls")),
     path("api/workflows/", include("workflows.urls")),

@@ -68,8 +68,11 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
-    
-    
+
+    SignalEncodingArtifact,
+    BeliefNavigationVector,
+    ReflectiveFluxIndex,
+
 
 )
 
@@ -87,10 +90,12 @@ from agents.models.insight import (
 )
 from agents.models.cosmology import SwarmCosmology
 from agents.models.swarm_balance import PurposeMigrationEvent, CognitiveBalanceReport
+
 from agents.models.storyfield import (
     StoryfieldZone,
     MythPatternCluster,
     IntentHarmonizationSession,
+
 )
 from assistants.models.assistant import Assistant, AssistantCouncil
 from intel_core.serializers import DocumentSerializer
@@ -761,6 +766,33 @@ class MythicAlignmentMarketSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "last_updated"]
 
 
+
+
+class SignalEncodingArtifactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SignalEncodingArtifact
+
+
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class BeliefNavigationVectorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BeliefNavigationVector
+        fields = "__all__"
+        read_only_fields = ["id", "calculated_at"]
+
+
+class ReflectiveFluxIndexSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReflectiveFluxIndex
+
+        fields = "__all__"
+        read_only_fields = ["id", "timestamp"]
+
+
+
 class MythflowOrchestrationPlanSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -770,13 +802,13 @@ class MythflowOrchestrationPlanSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-
 class PurposeMigrationEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurposeMigrationEvent
 
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 
 class SymbolicPlanningLatticeSerializer(serializers.ModelSerializer):
     class Meta:

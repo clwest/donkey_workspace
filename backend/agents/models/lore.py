@@ -1585,7 +1585,6 @@ class SymbolicWeatherFront(models.Model):
         return self.name
 
 
-
 class KnowledgeReplicationEvent(models.Model):
     """Replicate and tailor symbolic knowledge between assistants."""
 
@@ -1634,10 +1633,8 @@ class LearningReservoir(models.Model):
     class Meta:
         ordering = ["-created_at"]
 
-
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Realignment by {self.initiated_by.name}"[:50]
-
 
 
 class LoreSwarmCosmology(models.Model):
@@ -1668,7 +1665,6 @@ class PurposeIndexEntry(models.Model):
     class Meta:
         ordering = ["-created_at"]
 
-
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Purpose index for {self.assistant.name}"
 
@@ -1676,9 +1672,13 @@ class PurposeIndexEntry(models.Model):
 class BeliefSignalNode(models.Model):
     """Transmit symbolic values and belief vectors as inheritance signals."""
 
-    origin_assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    origin_assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
     transmitted_beliefs = models.JSONField()
-    receivers = models.ManyToManyField("assistants.Assistant", related_name="inherited_beliefs")
+    receivers = models.ManyToManyField(
+        "assistants.Assistant", related_name="inherited_beliefs"
+    )
     signal_strength = models.FloatField()
     inheritance_type = models.CharField(max_length=100)
 
@@ -1706,5 +1706,62 @@ class MythicAlignmentMarket(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Market entry for {self.participant.name}"
+
+
+
+
+class SignalEncodingArtifact(models.Model):
+    """Stores and transmits encoded mythopoeic sequences."""
+
+    source = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    encoding_payload = models.TextField()
+    symbolic_origin = models.CharField(max_length=100)
+    modulation_tags = models.JSONField()
+    receiver_scope = models.CharField(max_length=100)
+
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+
+
+        return f"Artifact from {self.source.name}"
+
+
+        return self.zone_name
+
+class BeliefNavigationVector(models.Model):
+    """Directional path through belief states for assistants."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    vector_path = models.JSONField()
+    alignment_score = models.FloatField()
+    calculated_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-calculated_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Vector for {self.assistant.name}"
+
+
+class ReflectiveFluxIndex(models.Model):
+    """Global diagnostic of narrative energy shifts."""
+
+    swarm_scope = models.CharField(max_length=100)
+    flux_measurements = models.JSONField()
+    insight_summary = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+
+    class Meta:
+        ordering = ["-timestamp"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+
+        return self.swarm_scope
 
 

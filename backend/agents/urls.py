@@ -72,8 +72,6 @@ urlpatterns = [
     path("reputation-rebirths/", agents.reputation_regeneration_events),
     path("collaboration-threads/", agents.collaboration_threads),
     path("delegation-streams/", agents.delegation_streams),
-
-
     path("purpose-index/", agents.purpose_index),
     path("belief-signals/", agents.belief_signals),
     path("alignment-market/", agents.alignment_market),
@@ -84,6 +82,9 @@ urlpatterns = [
     path("myth-patterns/", agents.myth_patterns),
     path("intent-harmony/", agents.intent_harmony),
 
+    path("signal-artifacts/", agents.signal_artifacts),
+    path("navigation-vectors/", agents.navigation_vectors),
+    path("flux-index/", agents.flux_index),
 
     # path("dream-intel/", agents.dream_intel_nodes),
     # path("mission-consensus/", agents.mission_consensus_rounds),
