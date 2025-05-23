@@ -66,6 +66,10 @@ from agents.models.lore import (
     KnowledgeReplicationEvent,
     MemoryBroadcastPacket,
     LearningReservoir,
+    SymbolicAnomalyEvent,
+    BeliefCollapseRecoveryRitual,
+    MultiverseLoopLink,
+
 
 
 )
@@ -708,6 +712,7 @@ class LearningReservoirSerializer(serializers.ModelSerializer):
 class MythicIdentityCardSerializer(serializers.ModelSerializer):
     class Meta:
         model = MythicIdentityCard
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
@@ -715,6 +720,7 @@ class MythicIdentityCardSerializer(serializers.ModelSerializer):
 class CrossTimelineReflectionRiteSerializer(serializers.ModelSerializer):
     class Meta:
         model = CrossTimelineReflectionRite
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
@@ -724,3 +730,4 @@ class ArchetypeFusionEventSerializer(serializers.ModelSerializer):
         model = ArchetypeFusionEvent
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+

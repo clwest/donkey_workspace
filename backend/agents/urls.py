@@ -75,6 +75,7 @@ urlpatterns = [
     path("identity-cards/", agents.identity_cards),
     path("timeline-reflection/", agents.timeline_reflection),
     path("archetype-fusion/", agents.archetype_fusion),
+
     # path("dream-intel/", agents.dream_intel_nodes),
     # path("mission-consensus/", agents.mission_consensus_rounds),
     # path("realignment-proposals/", agents.narrative_realignment_proposals),

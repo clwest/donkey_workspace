@@ -1623,6 +1623,7 @@ class LearningReservoir(models.Model):
         return f"Realignment by {self.initiated_by.name}"[:50]
 
 
+
 class MythicIdentityCard(models.Model):
     """Symbolic identity snapshot for an assistant."""
 
@@ -1633,10 +1634,12 @@ class MythicIdentityCard(models.Model):
     symbolic_traits = models.JSONField()
     narrative_roles = models.JSONField()
     lineage_map = models.JSONField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
+
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"IdentityCard for {self.assistant.name}"
@@ -1645,9 +1648,11 @@ class MythicIdentityCard(models.Model):
 class CrossTimelineReflectionRite(models.Model):
     """Ritualized comparison across timelines."""
 
+
     assistant = models.ForeignKey(
         "assistants.Assistant", on_delete=models.CASCADE
     )
+
     reflected_identities = models.ManyToManyField(MythicIdentityCard)
     ritual_summary = models.TextField()
     symbolic_convergence_score = models.FloatField()
@@ -1670,6 +1675,7 @@ class ArchetypeFusionEvent(models.Model):
     fusion_initiator = models.ForeignKey(
         "assistants.Assistant", on_delete=models.CASCADE
     )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -1677,3 +1683,4 @@ class ArchetypeFusionEvent(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.resulting_archetype
+
