@@ -112,6 +112,13 @@ from agents.models.governance import (
     RitualNegotiationEngine,
     NarrativeGovernanceModel,
 )
+from agents.models.legislative import (
+    CodexFederationArchitecture,
+    SymbolicTreatyProtocol,
+    FederatedCodexOracle,
+    SwarmTreatyEnforcementEngine,
+    LegislativeRitualSimulationSystem,
+)
 from agents.models.coordination import (
     CollaborationThread,
     DelegationStream,
@@ -1383,6 +1390,41 @@ class BeliefContributionMarketplaceSerializer(serializers.ModelSerializer):
     class Meta:
         model = BeliefContributionMarketplace
 
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CodexFederationArchitectureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CodexFederationArchitecture
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicTreatyProtocolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicTreatyProtocol
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class FederatedCodexOracleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FederatedCodexOracle
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SwarmTreatyEnforcementEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SwarmTreatyEnforcementEngine
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class LegislativeRitualSimulationSystemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LegislativeRitualSimulationSystem
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

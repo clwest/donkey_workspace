@@ -124,6 +124,13 @@ from agents.models.recovery import (
 )
 from agents.models.forecast import SymbolicForecastIndex,AssistantSentimentModelEngine
 from agents.models.governance import SymbolicConsensusChamber, RitualNegotiationEngine, NarrativeGovernanceModel
+from agents.models.legislative import (
+    CodexFederationArchitecture,
+    SymbolicTreatyProtocol,
+    FederatedCodexOracle,
+    SwarmTreatyEnforcementEngine,
+    LegislativeRitualSimulationSystem,
+)
 from agents.models.coordination import (
     CollaborationThread,
     DelegationStream,
@@ -264,6 +271,11 @@ from agents.serializers import (
     SymbolicConsensusChamberSerializer,
     RitualNegotiationEngineSerializer,
     NarrativeGovernanceModelSerializer,
+    CodexFederationArchitectureSerializer,
+    SymbolicTreatyProtocolSerializer,
+    FederatedCodexOracleSerializer,
+    SwarmTreatyEnforcementEngineSerializer,
+    LegislativeRitualSimulationSystemSerializer,
 
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -2027,5 +2039,41 @@ def network_governance(request):
     serializer.is_valid(raise_exception=True)
     model = serializer.save()
     return Response(NarrativeGovernanceModelSerializer(model).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def codex_oracle(request):
+    if request.method == "GET":
+        oracles = FederatedCodexOracle.objects.all().order_by("-created_at")
+        return Response(FederatedCodexOracleSerializer(oracles, many=True).data)
+
+    serializer = FederatedCodexOracleSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    oracle = serializer.save()
+    return Response(FederatedCodexOracleSerializer(oracle).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def treaty_enforcement(request):
+    if request.method == "GET":
+        engines = SwarmTreatyEnforcementEngine.objects.all().order_by("-created_at")
+        return Response(SwarmTreatyEnforcementEngineSerializer(engines, many=True).data)
+
+    serializer = SwarmTreatyEnforcementEngineSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    engine = serializer.save()
+    return Response(SwarmTreatyEnforcementEngineSerializer(engine).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def legislative_simulate(request):
+    if request.method == "GET":
+        sims = LegislativeRitualSimulationSystem.objects.all().order_by("-created_at")
+        return Response(LegislativeRitualSimulationSystemSerializer(sims, many=True).data)
+
+    serializer = LegislativeRitualSimulationSystemSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    sim = serializer.save()
+    return Response(LegislativeRitualSimulationSystemSerializer(sim).data, status=201)
 
 

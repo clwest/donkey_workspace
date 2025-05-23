@@ -54,6 +54,9 @@ urlpatterns = [
     path("governance/consensus/", agents.governance_consensus),
     path("ritual/negotiate/", agents.ritual_negotiate),
     path("network/governance/", agents.network_governance),
+    path("codex/oracle/", agents.codex_oracle),
+    path("treaty/enforcement/", agents.treaty_enforcement),
+    path("legislative/simulate/", agents.legislative_simulate),
 
     path("onboarding/ritual/", agents.onboarding_ritual),
     path("codex/briefing/", agents.codex_briefing),
