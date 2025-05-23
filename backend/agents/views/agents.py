@@ -78,6 +78,10 @@ from agents.models.lore import (
     PublicRitualLogEntry,
     BeliefContinuityThread,
     CodexContributionCeremony,
+    SymbolicDocumentationEntry,
+    CodexReconciliationForum,
+    MythEditorialLayer,
+    SymbolicPublishingEngine,
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
@@ -185,6 +189,10 @@ from agents.serializers import (
     PublicRitualLogEntrySerializer,
     BeliefContinuityThreadSerializer,
     CodexContributionCeremonySerializer,
+    SymbolicDocumentationEntrySerializer,
+    CodexReconciliationForumSerializer,
+    MythEditorialLayerSerializer,
+    SymbolicPublishingEngineSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1518,5 +1526,43 @@ def codex_briefing(request):
 def assistant_tutorial(request, id):
     """Return tutorial script for assistant."""
     return Response({"assistant": id, "message": "Tutorial start"})
+
+
+@api_view(["GET", "POST"])
+def codex_forums(request):
+    if request.method == "GET":
+        forums = CodexReconciliationForum.objects.all().order_by("-created_at")
+        return Response(CodexReconciliationForumSerializer(forums, many=True).data)
+
+    serializer = CodexReconciliationForumSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    forum = serializer.save()
+    return Response(CodexReconciliationForumSerializer(forum).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def editorial_layers(request):
+    if request.method == "GET":
+        layers = MythEditorialLayer.objects.all().order_by("-created_at")
+        return Response(MythEditorialLayerSerializer(layers, many=True).data)
+
+    serializer = MythEditorialLayerSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    layer = serializer.save()
+    return Response(MythEditorialLayerSerializer(layer).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def publishing_engines(request):
+    if request.method == "GET":
+        engines = SymbolicPublishingEngine.objects.all().order_by("-created_at")
+        return Response(
+            SymbolicPublishingEngineSerializer(engines, many=True).data
+        )
+
+    serializer = SymbolicPublishingEngineSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    engine = serializer.save()
+    return Response(SymbolicPublishingEngineSerializer(engine).data, status=201)
 
 

@@ -31,8 +31,10 @@ urlpatterns = [
     path("public-rituals/", agents.public_rituals),
     path("belief-threads/", agents.belief_threads),
     path("codex-contributions/", agents.codex_contributions),
+    path("codex/forums/", agents.codex_forums),
     path("onboarding/ritual/", agents.onboarding_ritual),
     path("codex/briefing/", agents.codex_briefing),
+    path("docs/editorial/", agents.editorial_layers),
     path("assistant/<uuid:id>/tutorial/", agents.assistant_tutorial),
 
     path("belief-continuity/", agents.belief_continuity),
@@ -97,6 +99,7 @@ urlpatterns = [
     path("signal-artifacts/", agents.signal_artifacts),
     path("navigation-vectors/", agents.navigation_vectors),
     path("flux-index/", agents.flux_index),
+    path("library/publish/", agents.publishing_engines),
     path("clusters/", agents.list_clusters),
     path("clusters/<uuid:id>/", agents.cluster_detail_view),
     path("", agents.list_agents),
