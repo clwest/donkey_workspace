@@ -127,7 +127,7 @@ from .tasks import (
     # assistant_reflect_on_thoughts,
     assistant_project_task_detail,
 )
-from .objectives import reflect_to_objectives
+from .objectives import reflect_to_objectives, primary_objectives
 
 __all__ = [
     "AssistantViewSet",
@@ -208,6 +208,7 @@ __all__ = [
     "suggest_assistant",
     "prompt_to_assistant",
     "reflect_to_objectives",
+    "primary_objectives",
     "objective_from_reflection",
     "send_message",
     "inbox",
