@@ -2163,81 +2163,58 @@ class RitualOnboardingFlow(models.Model):
         return self.entry_name
 
 
-class SymbolicDocumentationEntry(models.Model):
-    """User-generated myth or ritual documentation entry."""
+class StoryConvergencePath(models.Model):
+    """Unify belief threads and codex roles."""
+
+    initiating_assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    involved_memory = models.ManyToManyField(SwarmMemoryEntry)
+    symbolic_unity_vector = models.JSONField()
+    codex_targets = models.ManyToManyField(SwarmCodex)
+    convergence_summary = models.TextField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Convergence {self.id}"
+
+
+class RitualFusionEvent(models.Model):
+    """Merge ritual blueprints into a hybrid event."""
+
+    initiator_id = models.CharField(max_length=150)
+    ritual_components = models.ManyToManyField(EncodedRitualBlueprint)
+    fusion_script = models.JSONField()
+    symbolic_impact_summary = models.TextField()
+    codex_context = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Fusion {self.id}"
+
+
+class NarrativeCurationTimeline(models.Model):
+    """Collaboratively curated mythic timeline."""
 
     title = models.CharField(max_length=150)
-    content = models.TextField()
-    created_by = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.SET_NULL, null=True, blank=True
-    )
+    contributors = models.JSONField()
+    timeline_segments = models.JSONField()
+    linked_memory = models.ManyToManyField(SwarmMemoryEntry)
+    codex_nodes = models.ManyToManyField(SwarmCodex)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
-    def __str__(self) -> str:  # pragma: no cover - display helper
+    def __str__(self):  # pragma: no cover - display helper
         return self.title
-
-
-class CodexReconciliationForum(models.Model):
-    """Assistant-guided discussion forum for resolving codex contradictions."""
-
-    forum_topic = models.CharField(max_length=150)
-    initiating_codices = models.ManyToManyField(SwarmCodex)
-    participating_assistants = models.ManyToManyField("assistants.Assistant")
-    memory_basis = models.ManyToManyField(SwarmMemoryEntry)
-    reconciliation_log = models.TextField()
-    resolution_achieved = models.BooleanField(default=False)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-
-        return self.forum_topic
-
-
-class MythEditorialLayer(models.Model):
-    """Collaborative annotation layer for symbolic documentation entries."""
-
-    linked_entry = models.ForeignKey(
-        SymbolicDocumentationEntry, on_delete=models.CASCADE
-    )
-    suggested_edits = models.JSONField()
-    commentary_threads = models.JSONField()
-    editorial_tags = models.JSONField()
-    approval_status = models.CharField(max_length=50, default="draft")
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-
-        return f"Edits for {self.linked_entry.title}"[:50]
-
-
-class SymbolicPublishingEngine(models.Model):
-    """Utility for publishing myth entries into swarm memory libraries."""
-
-    published_title = models.CharField(max_length=150)
-    content_type = models.CharField(max_length=100)
-    publishing_entity = models.CharField(max_length=100)
-    visibility_scope = models.CharField(max_length=100)
-    symbolic_payload = models.JSONField()
-    approved_codexes = models.ManyToManyField(SwarmCodex)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-
-        return self.published_title
-
 

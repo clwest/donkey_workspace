@@ -92,9 +92,10 @@ from agents.models.lore import (
     MythicAfterlifeRegistry,
     ContinuityEngineNode,
     ArchetypeMigrationGate,
-    MemoryInheritanceSeed,
-    PersonalCodexAnchor,
-    RitualContractBinding,
+    StoryConvergencePath,
+    RitualFusionEvent,
+    NarrativeCurationTimeline,
+
 )
 from agents.models.identity import PersonaFusionEvent
 from agents.models.coordination import (
@@ -197,10 +198,9 @@ from agents.serializers import (
     BeliefContinuityThreadSerializer,
     CodexContributionCeremonySerializer,
 
-    SymbolicDocumentationEntrySerializer,
-    CodexReconciliationForumSerializer,
-    MythEditorialLayerSerializer,
-    SymbolicPublishingEngineSerializer,
+    StoryConvergencePathSerializer,
+    RitualFusionEventSerializer,
+    NarrativeCurationTimelineSerializer,
 
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -1551,51 +1551,39 @@ def myth_record(request):
     return Response(MythRecordingSessionSerializer(session).data, status=201)
 
 
-@api_view(["GET", "POST"])
-def symbolic_docs(request):
-    if request.method == "GET":
-        entries = SymbolicDocumentationEntry.objects.all().order_by("-created_at")
-        return Response(SymbolicDocumentationEntrySerializer(entries, many=True).data)
-
-    serializer = SymbolicDocumentationEntrySerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    entry = serializer.save()
-    return Response(SymbolicDocumentationEntrySerializer(entry).data, status=201)
-
 
 @api_view(["GET", "POST"])
-def codex_forums(request):
+def story_convergence(request):
     if request.method == "GET":
-        forums = CodexReconciliationForum.objects.all().order_by("-created_at")
-        return Response(CodexReconciliationForumSerializer(forums, many=True).data)
+        paths = StoryConvergencePath.objects.all().order_by("-created_at")
+        return Response(StoryConvergencePathSerializer(paths, many=True).data)
 
-    serializer = CodexReconciliationForumSerializer(data=request.data)
+    serializer = StoryConvergencePathSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    forum = serializer.save()
-    return Response(CodexReconciliationForumSerializer(forum).data, status=201)
+    path = serializer.save()
+    return Response(StoryConvergencePathSerializer(path).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def editorial_layers(request):
+def ritual_fusion(request):
     if request.method == "GET":
-        layers = MythEditorialLayer.objects.all().order_by("-created_at")
-        return Response(MythEditorialLayerSerializer(layers, many=True).data)
+        events = RitualFusionEvent.objects.all().order_by("-created_at")
+        return Response(RitualFusionEventSerializer(events, many=True).data)
 
-    serializer = MythEditorialLayerSerializer(data=request.data)
+    serializer = RitualFusionEventSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    layer = serializer.save()
-    return Response(MythEditorialLayerSerializer(layer).data, status=201)
+    event = serializer.save()
+    return Response(RitualFusionEventSerializer(event).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def publishing_engines(request):
+def timeline_curate(request):
     if request.method == "GET":
-        engines = SymbolicPublishingEngine.objects.all().order_by("-created_at")
-        return Response(
-            SymbolicPublishingEngineSerializer(engines, many=True).data
-        )
+        timelines = NarrativeCurationTimeline.objects.all().order_by("-created_at")
+        return Response(NarrativeCurationTimelineSerializer(timelines, many=True).data)
 
-    serializer = SymbolicPublishingEngineSerializer(data=request.data)
+    serializer = NarrativeCurationTimelineSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    engine = serializer.save()
-    return Response(SymbolicPublishingEngineSerializer(engine).data, status=201)
+    timeline = serializer.save()
+    return Response(NarrativeCurationTimelineSerializer(timeline).data, status=201)
+

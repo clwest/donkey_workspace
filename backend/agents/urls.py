@@ -31,7 +31,11 @@ urlpatterns = [
     path("public-rituals/", agents.public_rituals),
     path("belief-threads/", agents.belief_threads),
     path("codex-contributions/", agents.codex_contributions),
-    path("codex/forums/", agents.codex_forums),
+
+    path("myth/converge/", agents.story_convergence),
+    path("ritual/fuse/", agents.ritual_fusion),
+    path("timeline/curate/", agents.timeline_curate),
+
     path("onboarding/ritual/", agents.onboarding_ritual),
     path("codex/briefing/", agents.codex_briefing),
     path("docs/editorial/", agents.editorial_layers),
