@@ -7,12 +7,15 @@ from assistants.models import (
     Assistant,
     SymbolicUXPlaybook,
     RoleDrivenUITemplate,
+    SymbolicToolkitRegistry,
 )
 from assistants.serializers import (
     AssistantSerializer,
     SymbolicUXPlaybookSerializer,
     RoleDrivenUITemplateSerializer,
+    SymbolicToolkitRegistrySerializer,
 )
+from assistants.utils.interface_adaptation import compute_adaptation_state
 
 
 @api_view(["GET"])
@@ -30,6 +33,7 @@ def assistant_interface(request, assistant_id):
             SymbolicUXPlaybookSerializer(playbook).data if playbook else None
         ),
         "template": RoleDrivenUITemplateSerializer(template).data if template else None,
+        "adaptation_layer": compute_adaptation_state(assistant),
     }
     return Response(data)
 
@@ -64,3 +68,33 @@ def role_template(request, role):
     """Retrieve default template for a given role."""
     template = get_object_or_404(RoleDrivenUITemplate, assigned_role=role)
     return Response(RoleDrivenUITemplateSerializer(template).data)
+
+
+@api_view(["GET", "POST"])
+@permission_classes([AllowAny])
+def symbolic_toolkits(request):
+    """Retrieve or create a symbolic toolkit for a user."""
+    if request.method == "GET":
+        user_id = request.query_params.get("user_id")
+        if not user_id:
+            return Response({"error": "user_id required"}, status=400)
+        toolkit, _ = SymbolicToolkitRegistry.objects.get_or_create(user_id=user_id)
+        return Response(SymbolicToolkitRegistrySerializer(toolkit).data)
+
+    serializer = SymbolicToolkitRegistrySerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    toolkit = serializer.save()
+    return Response(SymbolicToolkitRegistrySerializer(toolkit).data, status=201)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def ritual_intuition_panel(request):
+    """Provide assistant-guided ritual intuition data."""
+    suggestion = "Now is the time to Anchor."
+    data = {
+        "symbolic_readiness": 0.5,
+        "suggestion": suggestion,
+        "confidence": 0.5,
+    }
+    return Response(data)

@@ -688,6 +688,16 @@ urlpatterns = [
         interface_views.role_template,
         name="role-template",
     ),
+    path(
+        "interface/tools/",
+        interface_views.symbolic_toolkits,
+        name="interface-tools",
+    ),
+    path(
+        "ritual/intuition/",
+        interface_views.ritual_intuition_panel,
+        name="ritual-intuition",
+    ),
     # ===== DEBATE ENDPOINTS =====
     # path("debate/start/", debate.start_debate, name="start-debate"),
     # path("debate/<uuid:debate_id>/", debate.get_debate, name="debate-detail"),
