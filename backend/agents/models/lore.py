@@ -1709,6 +1709,7 @@ class MythicAlignmentMarket(models.Model):
 
 
 
+
 class SignalEncodingArtifact(models.Model):
     """Stores and transmits encoded mythopoeic sequences."""
 
@@ -1718,6 +1719,7 @@ class SignalEncodingArtifact(models.Model):
     modulation_tags = models.JSONField()
     receiver_scope = models.CharField(max_length=100)
 
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -1725,8 +1727,11 @@ class SignalEncodingArtifact(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
 
+
         return f"Artifact from {self.source.name}"
 
+
+        return self.zone_name
 
 class BeliefNavigationVector(models.Model):
     """Directional path through belief states for assistants."""
@@ -1751,9 +1756,12 @@ class ReflectiveFluxIndex(models.Model):
     insight_summary = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
+
     class Meta:
         ordering = ["-timestamp"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return self.swarm_scope
+
 

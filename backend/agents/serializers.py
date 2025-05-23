@@ -68,9 +68,11 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
+
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
+
 
 )
 
@@ -763,13 +765,14 @@ class MythicAlignmentMarketSerializer(serializers.ModelSerializer):
 
 
 
+
 class SignalEncodingArtifactSerializer(serializers.ModelSerializer):
     class Meta:
         model = SignalEncodingArtifact
 
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
-
 
 
 class BeliefNavigationVectorSerializer(serializers.ModelSerializer):
@@ -782,6 +785,7 @@ class BeliefNavigationVectorSerializer(serializers.ModelSerializer):
 class ReflectiveFluxIndexSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReflectiveFluxIndex
+
         fields = "__all__"
         read_only_fields = ["id", "timestamp"]
 
