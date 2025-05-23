@@ -126,7 +126,12 @@ from agents.models.identity import (
     PersonaTemplate,
     PersonaFusionEvent,
 )
-from agents.models.prophecy import SymbolicProphecyEngine, MemoryPredictionInterface, RitualForecastingDashboard
+from agents.models.prophecy import (
+    SymbolicProphecyEngine,
+    MemoryPredictionInterface,
+    RitualForecastingDashboard,
+)
+from agents.models.forecast import SymbolicForecastIndex, AssistantSentimentModelEngine
 from agents.models.cosmology import SwarmCosmology
 from agents.models.swarm_balance import (
     PurposeMigrationEvent,
@@ -799,6 +804,20 @@ class MemoryPredictionInterfaceSerializer(serializers.ModelSerializer):
 class RitualForecastingDashboardSerializer(serializers.ModelSerializer):
     class Meta:
         model = RitualForecastingDashboard
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicForecastIndexSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicForecastIndex
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class AssistantSentimentModelEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantSentimentModelEngine
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

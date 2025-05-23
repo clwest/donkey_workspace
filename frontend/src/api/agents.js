@@ -124,3 +124,8 @@ export const updateIdentityCard = (id, body) =>
   apiFetch(`/assistants/${id}/identity-card/`, { method: "PUT", body });
 export const triggerRitualAction = (id, action) =>
   apiFetch(`/assistants/${id}/ritual/${action}/`, { method: "POST" });
+
+export const getCodexTrends = () => apiFetch("/agents/codex/trends/");
+export const fetchSymbolicForecasts = () => apiFetch("/agents/forecast/symbolic/");
+export const fetchAssistantSentiments = (assistantId) =>
+  apiFetch(`/agents/assistants/${assistantId}/sentiment/`);
