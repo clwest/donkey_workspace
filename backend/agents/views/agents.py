@@ -109,6 +109,9 @@ from agents.models.coordination import (
     MythflowOrchestrationPlan,
     DirectiveMemoryNode,
     SymbolicPlanningLattice,
+    SymbolicProphecyEngine,
+    MemoryPredictionInterface,
+    RitualForecastingDashboard,
 )
 from agents.models.storyfield import (
     StoryfieldZone,
@@ -210,9 +213,11 @@ from agents.serializers import (
     StoryConvergencePathSerializer,
     RitualFusionEventSerializer,
     NarrativeCurationTimelineSerializer,
+
     AssistantSummoningScrollSerializer,
     GuildMemoryRelayNodeSerializer,
     SymbolicInterlinkMapSerializer,
+
 
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -1605,6 +1610,7 @@ def timeline_curate(request):
 
 
 
+
 @api_view(["GET"])
 def summon_scroll(request, scroll):
     scroll_obj = get_object_or_404(AssistantSummoningScroll, id=scroll)
@@ -1618,9 +1624,17 @@ def guild_memory_relay(request, id):
     return Response(GuildMemoryRelayNodeSerializer(nodes, many=True).data)
 
 
+@api_view(["GET", "POST"])
+def ritual_forecast(request):
+    if request.method == "GET":
+        dashboards = RitualForecastingDashboard.objects.all().order_by("-created_at")
+        return Response(RitualForecastingDashboardSerializer(dashboards, many=True).data)
+
+
 @api_view(["GET"])
 def memory_interlink(request):
     maps = SymbolicInterlinkMap.objects.all().order_by("-created_at")
     return Response(SymbolicInterlinkMapSerializer(maps, many=True).data)
+
 
 

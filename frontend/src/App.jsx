@@ -121,10 +121,16 @@ import RoutingHistoryPage from "./pages/assistants/RoutingHistoryPage";
 import StoryboardEditorPage from "./pages/storyboard/StoryboardEditorPage";
 import NarrativeEventDetailPage from "./pages/storyboard/NarrativeEventDetailPage";
 import RealityShaperDashboard from "./pages/lore/RealityShaperDashboard";
+import WorldDashboardPage from "./pages/mythos/WorldDashboardPage";
+import AssistantPresenceMapPage from "./pages/mythos/AssistantPresenceMapPage";
+import MythflowHeatmapPage from "./pages/mythos/MythflowHeatmapPage";
 
 import MotionTestPage from "./pages/ui/MotionTestPage";
 import MemoryEchoPage from "./pages/memories/entries/MemoryEchoPage";
 import AssistantAuraPage from "./pages/assistant/common/AssistantAuraPage";
+import ProphecyEnginePage from "./pages/prophecy/ProphecyEnginePage";
+import MemoryPredictionPage from "./pages/memory/MemoryPredictionPage";
+import RitualForecastPage from "./pages/ritual/RitualForecastPage";
 
 
 import { ToastContainer } from "react-toastify";
@@ -426,7 +432,14 @@ export default function App() {
           <Route path="/stories" element={<StoryListPage />} />
           <Route path="/storyboard" element={<StoryboardEditorPage />} />
           <Route path="/storyboard/events/:id" element={<NarrativeEventDetailPage />} />
+          <Route path="/dashboard/world" element={<WorldDashboardPage />} />
+          <Route path="/map/assistants" element={<AssistantPresenceMapPage />} />
+          <Route path="/heatmap/mythflow" element={<MythflowHeatmapPage />} />
           <Route path="/lore" element={<RealityShaperDashboard />} />
+
+          <Route path="/prophecy/engine" element={<ProphecyEnginePage />} />
+          <Route path="/memory/predict" element={<MemoryPredictionPage />} />
+          <Route path="/ritual/forecast" element={<RitualForecastPage />} />
 
           <Route path="/ui/motion" element={<MotionTestPage />} />
           <Route path="/assistants/:id/aura" element={<AssistantAuraPage />} />
