@@ -52,7 +52,6 @@ class BeliefDeploymentStrategyEngine(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return self.target_environment
-
 class GuildDeploymentKit(models.Model):
     """Portable belief package configured for a guild."""
 
@@ -106,3 +105,4 @@ class RitualFunctionContainer(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return f"Container for {self.ritual.name}"
+

@@ -149,6 +149,11 @@ from agents.models.deployment import (
     AssistantNetworkTransferProtocol,
     RitualFunctionContainer,
 )
+from agents.models.recovery import (
+    RitualCompressionCache,
+    AssistantDeploymentAutoRestarter,
+    CodexProofOfSymbolEngine,
+)
 from agents.models.cosmology import SwarmCosmology
 from agents.models.swarm_balance import (
     PurposeMigrationEvent,
@@ -902,23 +907,29 @@ class BeliefDeploymentStrategyEngineSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+
 class GuildDeploymentKitSerializer(serializers.ModelSerializer):
     class Meta:
         model = GuildDeploymentKit
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 
 
 class AssistantNetworkTransferProtocolSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssistantNetworkTransferProtocol
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 
 
 class RitualFunctionContainerSerializer(serializers.ModelSerializer):
     class Meta:
         model = RitualFunctionContainer
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
