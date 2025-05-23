@@ -112,3 +112,12 @@ export const createSymbolicDoc = (body) =>
 export const fetchBeliefArtifacts = () => apiFetch("/artifacts/archive/");
 export const createBeliefArtifact = (body) =>
   apiFetch("/artifacts/archive/", { method: "POST", body });
+
+export const fetchDirectiveTracker = (id) =>
+  apiFetch(`/assistants/${id}/directive-tracker/`);
+export const fetchIdentityCard = (id) =>
+  apiFetch(`/assistants/${id}/identity-card/`);
+export const updateIdentityCard = (id, body) =>
+  apiFetch(`/assistants/${id}/identity-card/`, { method: "PUT", body });
+export const triggerRitualAction = (id, action) =>
+  apiFetch(`/assistants/${id}/ritual/${action}/`, { method: "POST" });

@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
 import apiFetch from "../../utils/apiClient";
+import DirectiveTrackerPanel from "./interface/DirectiveTrackerPanel";
+import IdentityCardEditor from "./interface/IdentityCardEditor";
+import RitualQuickActionsLayer from "./interface/RitualQuickActionsLayer";
 
 export default function AssistantInterfaceFramework({ assistantId }) {
   const [data, setData] = useState(null);
+  const [showEditor, setShowEditor] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -28,7 +32,19 @@ export default function AssistantInterfaceFramework({ assistantId }) {
       {data.active_playbook && (
         <p>Tone: {data.active_playbook.tone_profile}</p>
       )}
-      {/* TODO: render layout_config when implemented */}
+      <button
+        className="btn btn-sm btn-outline-secondary mb-2"
+        onClick={() => setShowEditor(true)}
+      >
+        Edit Identity
+      </button>
+      <DirectiveTrackerPanel assistantId={assistantId} />
+      <IdentityCardEditor
+        assistantId={assistantId}
+        show={showEditor}
+        onClose={() => setShowEditor(false)}
+      />
+      <RitualQuickActionsLayer assistantId={assistantId} />
     </div>
   );
 }
