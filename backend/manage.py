@@ -3,7 +3,9 @@
 import os
 import sys
 import warnings
-
+import logging
+logging.getLogger("sentence_transformers").setLevel(logging.WARNING)
+logging.getLogger("litellm").setLevel(logging.WARNING)
 warnings.filterwarnings("ignore", category=UserWarning, module="dj_rest_auth")
 
 

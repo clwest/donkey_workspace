@@ -86,11 +86,11 @@ celery:
 
 # ==== 🧪 Dev Utilities ====
 
-makemigrations:
-       @python manage.py makemigrations
+# makemigrations:
+# <TAB>@python manage.py makemigrations
 
-migrate: makemigrations
-       @python manage.py migrate
+# migrate: makemigrations
+#        @python manage.py migrate
 
 reset-db:
 	@echo "💣 Dropping and recreating DB..."
