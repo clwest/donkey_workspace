@@ -10,7 +10,11 @@ from .models import (
     CinemythStoryline,
     PurposeLoopCinematicEngine,
     ReflectiveTheaterSession,
-
+    SymbolicDialogueScript,
+    MemoryDecisionTreeNode,
+    MythflowReflectionLoop,
+    SceneControlEngine,
+    SceneDirectorFrame,
 )
 
 
@@ -46,6 +50,7 @@ class SimulationStateTrackerSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
 class MythflowSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = MythflowSession
@@ -60,14 +65,12 @@ class SymbolicDialogueExchangeSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-
 class CinemythStorylineSerializer(serializers.ModelSerializer):
     class Meta:
         model = CinemythStoryline
 
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
-
 
 
 class PurposeLoopCinematicEngineSerializer(serializers.ModelSerializer):
@@ -84,3 +87,37 @@ class ReflectiveTheaterSessionSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
+class SymbolicDialogueScriptSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicDialogueScript
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MemoryDecisionTreeNodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemoryDecisionTreeNode
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MythflowReflectionLoopSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythflowReflectionLoop
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SceneControlEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SceneControlEngine
+        fields = "__all__"
+        read_only_fields = ["id", "last_updated"]
+
+
+class SceneDirectorFrameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SceneDirectorFrame
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
