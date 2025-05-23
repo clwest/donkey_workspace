@@ -68,8 +68,9 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
-
-
+    ForecastingMarketLedger,
+    SymbolicFutureContract,
+    CosmoEconomicAlignmentMap,
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
@@ -164,6 +165,9 @@ from agents.serializers import (
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
     IntentHarmonizationSessionSerializer,
+    ForecastingMarketLedgerSerializer,
+    SymbolicFutureContractSerializer,
+    CosmoEconomicAlignmentMapSerializer,
 
 )
 from assistants.serializers import (
@@ -1294,3 +1298,39 @@ def intent_harmony(request):
     serializer.is_valid(raise_exception=True)
     session = serializer.save()
     return Response(IntentHarmonizationSessionSerializer(session).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def forecasting_ledgers(request):
+    if request.method == "GET":
+        ledgers = ForecastingMarketLedger.objects.all().order_by("-created_at")
+        return Response(ForecastingMarketLedgerSerializer(ledgers, many=True).data)
+
+    serializer = ForecastingMarketLedgerSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    ledger = serializer.save()
+    return Response(ForecastingMarketLedgerSerializer(ledger).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def future_contracts(request):
+    if request.method == "GET":
+        contracts = SymbolicFutureContract.objects.all().order_by("-created_at")
+        return Response(SymbolicFutureContractSerializer(contracts, many=True).data)
+
+    serializer = SymbolicFutureContractSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    contract = serializer.save()
+    return Response(SymbolicFutureContractSerializer(contract).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def cosmo_alignment(request):
+    if request.method == "GET":
+        maps = CosmoEconomicAlignmentMap.objects.all().order_by("-last_updated")
+        return Response(CosmoEconomicAlignmentMapSerializer(maps, many=True).data)
+
+    serializer = CosmoEconomicAlignmentMapSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    mapping = serializer.save()
+    return Response(CosmoEconomicAlignmentMapSerializer(mapping).data, status=201)

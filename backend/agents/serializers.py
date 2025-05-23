@@ -90,6 +90,11 @@ from agents.models.insight import (
 )
 from agents.models.cosmology import SwarmCosmology
 from agents.models.swarm_balance import PurposeMigrationEvent, CognitiveBalanceReport
+from agents.models.markets import (
+    ForecastingMarketLedger,
+    SymbolicFutureContract,
+    CosmoEconomicAlignmentMap,
+)
 
 from agents.models.storyfield import (
     StoryfieldZone,
@@ -836,3 +841,24 @@ class IntentHarmonizationSessionSerializer(serializers.ModelSerializer):
         model = IntentHarmonizationSession
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
+
+class ForecastingMarketLedgerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ForecastingMarketLedger
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicFutureContractSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicFutureContract
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CosmoEconomicAlignmentMapSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CosmoEconomicAlignmentMap
+        fields = "__all__"
+        read_only_fields = ["id", "last_updated"]
