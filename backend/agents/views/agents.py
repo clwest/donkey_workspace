@@ -71,13 +71,16 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
+
     ArchetypeGenesisLog,
     MythBloomNode,
     BeliefSeedReplication,
-
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
+    MythHyperstructure,
+    DreamWorldModel,
+    ReflectiveEcosystemEngine,
 
 )
 from agents.models.coordination import (
@@ -157,7 +160,6 @@ from agents.serializers import (
     CosmogenesisSimulationSerializer,
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
- 
     SymbolicWeatherFrontSerializer,
     MythflowOrchestrationPlanSerializer,
     SignalEncodingArtifactSerializer,
@@ -166,11 +168,11 @@ from agents.serializers import (
     ArchetypeGenesisLogSerializer,
     MythBloomNodeSerializer,
     BeliefSeedReplicationSerializer,
+
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
     IntentHarmonizationSessionSerializer,
-
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -1337,7 +1339,6 @@ def intent_harmony(request):
 
 
 @api_view(["GET", "POST"])
-
 def ritual_contracts(request):
     if request.method == "GET":
         contracts = RecursiveRitualContract.objects.all().order_by("-created_at")
@@ -1371,4 +1372,40 @@ def belief_feedback(request):
     serializer.is_valid(raise_exception=True)
     signal = serializer.save()
     return Response(BeliefFeedbackSignalSerializer(signal).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def hyperstructures(request):
+    if request.method == "GET":
+        structures = MythHyperstructure.objects.all().order_by("-created_at")
+        return Response(MythHyperstructureSerializer(structures, many=True).data)
+
+    serializer = MythHyperstructureSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    structure = serializer.save()
+    return Response(MythHyperstructureSerializer(structure).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def dream_worlds(request):
+    if request.method == "GET":
+        worlds = DreamWorldModel.objects.all().order_by("-created_at")
+        return Response(DreamWorldModelSerializer(worlds, many=True).data)
+
+    serializer = DreamWorldModelSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    world = serializer.save()
+    return Response(DreamWorldModelSerializer(world).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def reflective_ecosystem(request):
+    if request.method == "GET":
+        engines = ReflectiveEcosystemEngine.objects.all().order_by("-last_sync")
+        return Response(ReflectiveEcosystemEngineSerializer(engines, many=True).data)
+
+    serializer = ReflectiveEcosystemEngineSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    engine = serializer.save()
+    return Response(ReflectiveEcosystemEngineSerializer(engine).data, status=201)
 

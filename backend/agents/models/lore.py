@@ -1811,7 +1811,6 @@ class ReflectiveFluxIndex(models.Model):
         return self.swarm_scope
 
 
-
 class RecursiveRitualContract(models.Model):
     """Repeatable symbolic logic bound to ritual reflection."""
 
@@ -1920,4 +1919,5 @@ class BeliefSeedReplication(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Seed from {self.originating_entity.name}"[:50]
+
 
