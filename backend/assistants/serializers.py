@@ -40,7 +40,11 @@ from .models.project import (
     AssistantPromptLink,
     AssistantMemoryChain,
 )
-from assistants.models.interface import SymbolicUXPlaybook, RoleDrivenUITemplate
+from assistants.models.interface import (
+    SymbolicUXPlaybook,
+    RoleDrivenUITemplate,
+    SymbolicToolkitRegistry,
+)
 from .models.reflection import (
     AssistantReflectionLog,
     AssistantReflectionInsight,
@@ -1303,6 +1307,13 @@ class RoleDrivenUITemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = RoleDrivenUITemplate
 
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicToolkitRegistrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicToolkitRegistry
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
