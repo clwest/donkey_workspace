@@ -98,12 +98,9 @@ from agents.models.lore import (
     RitualLoopVisualizationEngine,
     SymbolicOscillationMap,
     CodexRestabilizationNode,
-
     LegacyArtifactExporter,
-    SymbolicConsensusChamber,
-    RitualNegotiationEngine,
-    NarrativeGovernanceModel,
 )
+from agents.models.governance import SymbolicConsensusChamber, RitualNegotiationEngine, NarrativeGovernanceModel
 from agents.models.coordination import (
     CollaborationThread,
     DelegationStream,

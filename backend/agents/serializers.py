@@ -104,11 +104,9 @@ from agents.models.lore import (
     CodexRestabilizationNode,
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
-    SymbolicConsensusChamber,
-    RitualNegotiationEngine,
-    NarrativeGovernanceModel,
-)
 
+)
+from agents.models.governance import SymbolicConsensusChamber, RitualNegotiationEngine, NarrativeGovernanceModel
 from agents.models.coordination import (
     CollaborationThread,
     DelegationStream,
