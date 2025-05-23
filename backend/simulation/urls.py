@@ -18,6 +18,11 @@ from .views.authority import SymbolicAuthorityTransferLogViewSet
 from .views.cinematic import MemoryCinematicFragmentViewSet
 
 from .views.sandbox import SimulationRunView
+from .views.projection import (
+    memory_projection_frames,
+    belief_walkthroughs,
+    dreamframes,
+)
 
 router = DefaultRouter()
 router.register(r"simulators", MythScenarioSimulatorViewSet, basename="myth-simulator")
@@ -54,5 +59,5 @@ router.register(r"scene-control", SceneControlEngineViewSet, basename="scene-con
 urlpatterns = router.urls + [
     path("run/", SimulationRunView.as_view(), name="simulation-run"),
     path("roleplay-module/", RoleplayPersonaModuleView.as_view(), name="roleplay-module"),
-    path("narrative-pressure/", NarrativePressureView.as_view(), name="narrative-pressure"),
+
 ]

@@ -25,6 +25,7 @@ from images.urls import router as images_router
 from characters.urls import router as characters_router
 from storyboard.urls import router as storyboard_router
 from simulation.urls import router as simulation_router
+from simulation.views import projection as projection_views
 
 api_router = DefaultRouter()
 
@@ -113,6 +114,9 @@ urlpatterns = [
     path("api/learning-loops/", include("learning_loops.urls")),
     path("api/adaptive-loops/", include("learning_loops.config_urls")),
     path("api/simulation/", include("simulation.urls")),
+    path("api/memory-projection/", projection_views.memory_projection_frames),
+    path("api/belief-walkthroughs/", projection_views.belief_walkthroughs),
+    path("api/dreamframes/", projection_views.dreamframes),
     path("api/resources/", include("resources.urls")),
     path(
         "api/threads/<uuid:thread_id>/replay/",

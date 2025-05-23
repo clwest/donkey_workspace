@@ -81,39 +81,35 @@ class SymbolicDialogueExchange(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-class BeliefNarrativeEngineInstance(models.Model):
-    """Belief-calibrated narrative generator."""
 
-    engine_name = models.CharField(max_length=150)
-    driving_codex = models.ForeignKey("agents.SwarmCodex", on_delete=models.CASCADE)
-    assistants_involved = models.ManyToManyField("assistants.Assistant")
-    symbolic_goals = models.JSONField()
-    narrative_trace_log = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-
-class SymbolicAuthorityTransferLog(models.Model):
-    """Record of scene control handoffs between assistants."""
-
-    from_assistant = models.ForeignKey(
-        "assistants.Assistant", related_name="authority_from", on_delete=models.CASCADE
-    )
-    to_assistant = models.ForeignKey(
-        "assistants.Assistant", related_name="authority_to", on_delete=models.CASCADE
-    )
-    scene_context = models.ForeignKey(MythflowSession, on_delete=models.CASCADE)
-    symbolic_trigger = models.TextField()
-    justification = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-
-class MemoryCinematicFragment(models.Model):
-    """Stylized reflective snapshot from a memory sequence."""
-
+class MemoryProjectionFrame(models.Model):
     assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
-    memory_sequence = models.ManyToManyField("agents.SwarmMemoryEntry")
-    symbolic_filter_tags = models.JSONField()
-    cinematic_summary = models.TextField()
+    projected_memory_sequence = models.ManyToManyField("agents.SwarmMemoryEntry")
+    symbolic_ritual_overlay = models.ForeignKey(
+        "agents.EncodedRitualBlueprint", null=True, on_delete=models.SET_NULL
+    )
+    codex_context = models.ForeignKey(
+        "agents.SwarmCodex", null=True, on_delete=models.SET_NULL
+    )
+    belief_trigger_tags = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class BeliefNarrativeWalkthrough(models.Model):
+    walkthrough_title = models.CharField(max_length=150)
+    guide_assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    decision_points = models.JSONField()
+    symbolic_outcome_log = models.TextField()
+    walkthrough_rating = models.FloatField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class DreamframePlaybackSegment(models.Model):
+    session_context = models.ForeignKey(MythflowSession, on_delete=models.CASCADE)
+    playback_source = models.ForeignKey(MemoryProjectionFrame, on_delete=models.CASCADE)
     visual_style = models.CharField(max_length=100)
+    narration_script = models.TextField()
+    symbolic_affect_curve = models.JSONField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
