@@ -7,6 +7,11 @@ from .views.config import SimulationConfigViewSet
 from .views.simulator import MythScenarioSimulatorViewSet
 from .views.state import SimulationStateTrackerViewSet
 from .views.ritual import RitualInteractionEventViewSet
+from .views.session import (
+    MythflowSessionViewSet,
+    SymbolicDialogueExchangeViewSet,
+    RoleplayPersonaModuleView,
+)
 from .views.sandbox import SimulationRunView
 
 router = DefaultRouter()
@@ -18,7 +23,10 @@ router.register(
     r"ritual-launcher", RitualInteractionEventViewSet, basename="ritual-launcher"
 )
 router.register(r"config", SimulationConfigViewSet, basename="simulation-config")
+router.register(r"mythflow-sessions", MythflowSessionViewSet, basename="mythflow-session")
+router.register(r"dialogue-exchange", SymbolicDialogueExchangeViewSet, basename="dialogue-exchange")
 
 urlpatterns = router.urls + [
     path("run/", SimulationRunView.as_view(), name="simulation-run"),
+    path("roleplay-module/", RoleplayPersonaModuleView.as_view(), name="roleplay-module"),
 ]

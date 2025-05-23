@@ -5,6 +5,8 @@ from .models import (
     MythScenarioSimulator,
     RitualInteractionEvent,
     SimulationStateTracker,
+    MythflowSession,
+    SymbolicDialogueExchange,
 )
 
 
@@ -37,5 +39,18 @@ class RitualInteractionEventSerializer(serializers.ModelSerializer):
 class SimulationStateTrackerSerializer(serializers.ModelSerializer):
     class Meta:
         model = SimulationStateTracker
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+class MythflowSessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythflowSession
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SymbolicDialogueExchangeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicDialogueExchange
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
