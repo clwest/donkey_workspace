@@ -118,10 +118,14 @@ from agents.models.recovery import (
 )
 from agents.models.forecast import SymbolicForecastIndex,AssistantSentimentModelEngine
 from agents.models.governance import SymbolicConsensusChamber, RitualNegotiationEngine, NarrativeGovernanceModel
-from agents.models.federation import (
+
+from agents.models.legislative import (
     CodexFederationArchitecture,
-    NarrativeLawSystem,
     SymbolicTreatyProtocol,
+    FederatedCodexOracle,
+    SwarmTreatyEnforcementEngine,
+    LegislativeRitualSimulationSystem,
+
 )
 from agents.models.coordination import (
     CollaborationThread,
@@ -264,8 +268,12 @@ from agents.serializers import (
     RitualNegotiationEngineSerializer,
     NarrativeGovernanceModelSerializer,
     CodexFederationArchitectureSerializer,
-    NarrativeLawSystemSerializer,
+
     SymbolicTreatyProtocolSerializer,
+    FederatedCodexOracleSerializer,
+    SwarmTreatyEnforcementEngineSerializer,
+    LegislativeRitualSimulationSystemSerializer,
+
 
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -2032,44 +2040,40 @@ def network_governance(request):
 
 
 @api_view(["GET", "POST"])
-def federation_codices(request):
-    if request.method == "GET":
-        federations = CodexFederationArchitecture.objects.all().order_by(
-            "-created_at"
-        )
-        return Response(
-            CodexFederationArchitectureSerializer(federations, many=True).data
-        )
 
-    serializer = CodexFederationArchitectureSerializer(data=request.data)
+def codex_oracle(request):
+    if request.method == "GET":
+        oracles = FederatedCodexOracle.objects.all().order_by("-created_at")
+        return Response(FederatedCodexOracleSerializer(oracles, many=True).data)
+
+    serializer = FederatedCodexOracleSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    federation = serializer.save()
-    return Response(
-        CodexFederationArchitectureSerializer(federation).data, status=201
-    )
+    oracle = serializer.save()
+    return Response(FederatedCodexOracleSerializer(oracle).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def ritual_law(request):
+def treaty_enforcement(request):
     if request.method == "GET":
-        laws = NarrativeLawSystem.objects.all().order_by("-created_at")
-        return Response(NarrativeLawSystemSerializer(laws, many=True).data)
+        engines = SwarmTreatyEnforcementEngine.objects.all().order_by("-created_at")
+        return Response(SwarmTreatyEnforcementEngineSerializer(engines, many=True).data)
 
-    serializer = NarrativeLawSystemSerializer(data=request.data)
+    serializer = SwarmTreatyEnforcementEngineSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    law = serializer.save()
-    return Response(NarrativeLawSystemSerializer(law).data, status=201)
+    engine = serializer.save()
+    return Response(SwarmTreatyEnforcementEngineSerializer(engine).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def treaty_forge(request):
+def legislative_simulate(request):
     if request.method == "GET":
-        treaties = SymbolicTreatyProtocol.objects.all().order_by("-created_at")
-        return Response(SymbolicTreatyProtocolSerializer(treaties, many=True).data)
+        sims = LegislativeRitualSimulationSystem.objects.all().order_by("-created_at")
+        return Response(LegislativeRitualSimulationSystemSerializer(sims, many=True).data)
 
-    serializer = SymbolicTreatyProtocolSerializer(data=request.data)
+    serializer = LegislativeRitualSimulationSystemSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    treaty = serializer.save()
-    return Response(SymbolicTreatyProtocolSerializer(treaty).data, status=201)
+    sim = serializer.save()
+    return Response(LegislativeRitualSimulationSystemSerializer(sim).data, status=201)
+
 
 
