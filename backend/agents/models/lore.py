@@ -2162,7 +2162,6 @@ class RitualOnboardingFlow(models.Model):
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.entry_name
 
-
 class MythRecordingSession(models.Model):
     """User-led narrative capture tied to memory and assistant state."""
 
@@ -2173,12 +2172,14 @@ class MythRecordingSession(models.Model):
     memory_reference = models.ManyToManyField(SwarmMemoryEntry)
     symbolic_tags = models.JSONField()
     story_notes = models.TextField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return f"Session {self.recorder_id}"
 
 
@@ -2193,12 +2194,14 @@ class SymbolicDocumentationEntry(models.Model):
         EncodedRitualBlueprint, on_delete=models.SET_NULL, null=True
     )
     content_body = models.TextField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return self.entry_title
 
 
@@ -2211,10 +2214,13 @@ class BeliefArtifactArchive(models.Model):
     symbolic_payload = models.JSONField()
     related_codices = models.ManyToManyField(SwarmCodex)
     archived_memory = models.ManyToManyField(SwarmMemoryEntry)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
+
         return self.artifact_title
+

@@ -38,6 +38,10 @@ urlpatterns = [
     path("docs/symbolic/", agents.symbolic_docs),
     path("artifacts/archive/", agents.artifact_archive),
 
+    path("memory/grove/", agents.memory_groves),
+    path("ritual/calendar/", agents.ritual_calendars),
+    path("reflection/arena/", agents.reflection_arenas),
+
     path("belief-continuity/", agents.belief_continuity),
     path("belief-clusters/", agents.belief_clusters),
     path("lore-tokens/", agents.lore_tokens),

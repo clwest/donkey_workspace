@@ -114,91 +114,36 @@ class ReflectiveTheaterSession(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-class SymbolicDialogueScript(models.Model):
-    """Branching dialogue scaffold linked to codex guidance."""
+class MythflowPlaybackSession(models.Model):
+    """Replay assistant-user mythflow interactions over time."""
 
-    title = models.CharField(max_length=150)
-    author = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
-    narrative_context = models.TextField()
-    codex_link = models.ForeignKey("agents.SwarmCodex", on_delete=models.CASCADE)
-    dialogue_sequence = models.JSONField()
-    archetype_tags = models.JSONField()
+    user_id = models.CharField(max_length=150)
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    playback_sequence = models.JSONField()
+    reflective_summary = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        ordering = ["-created_at"]
 
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return self.title
+class SymbolicMilestoneLog(models.Model):
+    """Record key narrative transformation events."""
 
-
-class MemoryDecisionTreeNode(models.Model):
-    """Decision branch conditioned on memory."""
-
-    script = models.ForeignKey(SymbolicDialogueScript, on_delete=models.CASCADE)
-    memory_reference = models.ForeignKey(
-        "agents.SwarmMemoryEntry", on_delete=models.CASCADE
-    )
-    symbolic_condition = models.TextField()
-    decision_options = models.JSONField()
-    resulting_path = models.TextField()
+    user_id = models.CharField(max_length=150)
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    milestone_type = models.CharField(max_length=100)
+    related_memory = models.ManyToManyField("agents.SwarmMemoryEntry")
+    codex_context = models.ForeignKey("agents.SwarmCodex", on_delete=models.CASCADE)
+    reflection_notes = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        ordering = ["-created_at"]
 
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return self.symbolic_condition[:50]
+class PersonalRitualGuide(models.Model):
+    """Personalized ritual walkthrough for a user."""
 
-
-class MythflowReflectionLoop(models.Model):
-    """Reflection log triggered by narrative pressure."""
-
-    session = models.ForeignKey(MythflowSession, on_delete=models.CASCADE)
-    triggered_by = models.CharField(max_length=100)
-    involved_assistants = models.ManyToManyField("assistants.Assistant")
-    loop_reflections = models.TextField()
-    belief_realignment_score = models.FloatField()
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    user_id = models.CharField(max_length=150)
+    ritual_blueprint = models.ForeignKey("agents.EncodedRitualBlueprint", on_delete=models.CASCADE)
+    personalized_steps = models.JSONField()
+    codex_alignment_score = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        ordering = ["-created_at"]
 
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return f"{self.session_id}-{self.triggered_by}"
-
-
-class SceneControlEngine(models.Model):
-    """Maintain symbolic state and active roles within a scene."""
-
-    session = models.ForeignKey(MythflowSession, on_delete=models.CASCADE)
-    scene_title = models.CharField(max_length=150)
-    codex_constraints = models.ManyToManyField("agents.SwarmCodex")
-    active_roles = models.JSONField()
-    symbolic_scene_state = models.JSONField()
-    last_updated = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ["-last_updated"]
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return self.scene_title
-
-
-class SceneDirectorFrame(models.Model):
-    """Snapshot of director adjustments for a scene."""
-
-    session = models.ForeignKey(MythflowSession, on_delete=models.CASCADE)
-    director_assistant = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE
-    )
-    symbolic_adjustments = models.JSONField()
-    role_reassignments = models.JSONField()
-    final_scene_notes = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return f"Frame {self.id} for {self.session_id}"

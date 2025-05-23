@@ -94,14 +94,13 @@ urlpatterns = [
     path("api/persona-fusions/", agent_views.persona_fusions),
     path("api/dialogue-mutations/", agent_views.dialogue_mutations),
     path("api/scene-director/", agent_views.scene_director),
-
-
     path("api/storyfields/", agent_views.storyfields),
     path("api/myth-patterns/", agent_views.myth_patterns),
     path("api/intent-harmony/", agent_views.intent_harmony),
-
-
     path("api/intel/", include("intel_core.urls")),
+    path("api/guilds/", agent_views.guilds),
+    path("api/communities/", agent_views.communities),
+    path("api/swarm/", agent_views.swarm),
     path("api/signal-artifacts/", agent_views.signal_artifacts),
     path("api/navigation-vectors/", agent_views.navigation_vectors),
     path("api/flux-index/", agent_views.flux_index),
