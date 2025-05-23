@@ -773,6 +773,35 @@ class SignalCatchSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+class HapticFeedbackChannelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HapticFeedbackChannel
+        fields = [
+            "id",
+            "feedback_name",
+            "trigger_event",
+            "intensity_level",
+            "symbolic_context",
+            "linked_assistant",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
+class AssistantSensoryExtensionProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantSensoryExtensionProfile
+        fields = [
+            "id",
+            "assistant",
+            "supported_modes",
+            "feedback_triggers",
+            "memory_response_style",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
 class AssistantCollaborationProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assistant
