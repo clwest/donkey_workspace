@@ -14,3 +14,14 @@ class DevDocSummaryAPITest(APITestCase):
         resp = self.client.post("/api/v1/mcp/dev_docs/summarize/")
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(resp.json().get("error"), "No DevDocs found.")
+
+class DevDocListAPITest(APITestCase):
+    def setUp(self):
+        DevDoc.objects.create(title="Doc 1", content="c1")
+
+    def test_devdoc_list(self):
+        resp = self.client.get("/api/v1/mcp/dev_docs/")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["count"] == 1
+        assert data["results"][0]["title"] == "Doc 1"
