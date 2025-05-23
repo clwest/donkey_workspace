@@ -25,6 +25,7 @@ from images.urls import router as images_router
 from characters.urls import router as characters_router
 from storyboard.urls import router as storyboard_router
 from simulation.urls import router as simulation_router
+from simulation.views import projection as projection_views
 
 api_router = DefaultRouter()
 
@@ -90,6 +91,9 @@ urlpatterns = [
     path("api/afterlife-registry/", agent_views.afterlife_registry),
     path("api/continuity-engine/", agent_views.continuity_engine),
     path("api/migration-gates/", agent_views.migration_gates),
+    path("api/persona-fusions/", agent_views.persona_fusions),
+    path("api/dialogue-mutations/", agent_views.dialogue_mutations),
+    path("api/scene-director/", agent_views.scene_director),
 
 
     path("api/storyfields/", agent_views.storyfields),
@@ -101,6 +105,7 @@ urlpatterns = [
     path("api/signal-artifacts/", agent_views.signal_artifacts),
     path("api/navigation-vectors/", agent_views.navigation_vectors),
     path("api/flux-index/", agent_views.flux_index), 
+    path("api/plotline-curation/", agent_views.plotline_curation),
     path("api/documents/", include("documents.urls")),
     path("api/tools/", include("tools.urls")),
     path("api/workflows/", include("workflows.urls")),
@@ -109,6 +114,9 @@ urlpatterns = [
     path("api/learning-loops/", include("learning_loops.urls")),
     path("api/adaptive-loops/", include("learning_loops.config_urls")),
     path("api/simulation/", include("simulation.urls")),
+    path("api/memory-projection/", projection_views.memory_projection_frames),
+    path("api/belief-walkthroughs/", projection_views.belief_walkthroughs),
+    path("api/dreamframes/", projection_views.dreamframes),
     path("api/resources/", include("resources.urls")),
     path(
         "api/threads/<uuid:thread_id>/replay/",

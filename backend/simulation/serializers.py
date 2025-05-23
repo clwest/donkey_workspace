@@ -10,6 +10,7 @@ from .models import (
     CinemythStoryline,
     PurposeLoopCinematicEngine,
     ReflectiveTheaterSession,
+
 )
 
 
@@ -59,16 +60,20 @@ class SymbolicDialogueExchangeSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+
 class CinemythStorylineSerializer(serializers.ModelSerializer):
     class Meta:
         model = CinemythStoryline
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
 
 
 class PurposeLoopCinematicEngineSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurposeLoopCinematicEngine
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
@@ -78,3 +83,4 @@ class ReflectiveTheaterSessionSerializer(serializers.ModelSerializer):
         model = ReflectiveTheaterSession
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+

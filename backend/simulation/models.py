@@ -80,7 +80,6 @@ class SymbolicDialogueExchange(models.Model):
     codex_alignment_score = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
 
-
 class CinemythStoryline(models.Model):
     """Assistant-authored symbolic film arc."""
 
@@ -114,3 +113,4 @@ class ReflectiveTheaterSession(models.Model):
     symbolic_mood_map = models.JSONField()
     reflection_rating = models.FloatField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+

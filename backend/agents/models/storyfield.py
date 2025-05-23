@@ -80,3 +80,17 @@ class LegacyContinuityVault(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+
+class AgentPlotlineCuration(models.Model):
+    """Assistant-curated narrative branch or arc."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    curated_arc_title = models.CharField(max_length=150)
+    associated_memories = models.ManyToManyField(SwarmMemoryEntry)
+    narrative_branch_notes = models.TextField()
+    symbolic_convergence_score = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
