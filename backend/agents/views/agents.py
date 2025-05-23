@@ -78,9 +78,9 @@ from agents.models.lore import (
     PublicRitualLogEntry,
     BeliefContinuityThread,
     CodexContributionCeremony,
-    NarrativeLightingEngine,
-    CodexVisualElementLayer,
-    AssistantAestheticCloneProfile,
+
+    MemoryEchoEffectMap,
+
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
@@ -188,9 +188,9 @@ from agents.serializers import (
     PublicRitualLogEntrySerializer,
     BeliefContinuityThreadSerializer,
     CodexContributionCeremonySerializer,
-    NarrativeLightingEngineSerializer,
-    CodexVisualElementLayerSerializer,
-    AssistantAestheticCloneProfileSerializer,
+
+    MemoryEchoEffectMapSerializer,
+
     # SceneDirectorFrameSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -1509,43 +1509,14 @@ def codex_contributions(request):
 
 
 @api_view(["GET", "POST"])
-def narrative_lighting(request):
+def memory_echo_effects(request):
     if request.method == "GET":
-        engines = NarrativeLightingEngine.objects.all().order_by("-created_at")
-        return Response(NarrativeLightingEngineSerializer(engines, many=True).data)
+        effects = MemoryEchoEffectMap.objects.all().order_by("-created_at")
+        return Response(MemoryEchoEffectMapSerializer(effects, many=True).data)
 
-    serializer = NarrativeLightingEngineSerializer(data=request.data)
+    serializer = MemoryEchoEffectMapSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    engine = serializer.save()
-    return Response(NarrativeLightingEngineSerializer(engine).data, status=201)
+    effect = serializer.save()
+    return Response(MemoryEchoEffectMapSerializer(effect).data, status=201)
 
 
-@api_view(["GET", "POST"])
-def codex_visual_style(request):
-    if request.method == "GET":
-        layers = CodexVisualElementLayer.objects.all().order_by("-created_at")
-        return Response(CodexVisualElementLayerSerializer(layers, many=True).data)
-
-    serializer = CodexVisualElementLayerSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    layer = serializer.save()
-    return Response(CodexVisualElementLayerSerializer(layer).data, status=201)
-
-
-@api_view(["POST"])
-def clone_assistant_aesthetic(request, id):
-    target = get_object_or_404(Assistant, id=id)
-    source_id = request.data.get("source_assistant")
-    source = get_object_or_404(Assistant, id=source_id)
-    serializer = AssistantAestheticCloneProfileSerializer(
-        data={
-            "source_assistant": source.id,
-            "target_assistant": target.id,
-            "traits_cloned": request.data.get("traits_cloned", {}),
-            "symbolic_variants": request.data.get("symbolic_variants", {}),
-            "clone_score": request.data.get("clone_score", 0.0),
-        }
-    )
-    serializer.is_valid(raise_exception=True)
-    profile = serializer.save()
-    return Response(AssistantAestheticCloneProfileSerializer(profile).data, status=201)

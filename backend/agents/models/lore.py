@@ -2082,3 +2082,21 @@ class CodexContributionCeremony(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.ceremony_title
+
+
+class MemoryEchoEffectMap(models.Model):
+    """Link symbolic visual feedback to memory events."""
+
+    memory = models.ForeignKey(SwarmMemoryEntry, on_delete=models.CASCADE)
+    trigger_type = models.CharField(max_length=100)
+    visual_effect = models.TextField()
+    entropy_strength = models.FloatField()
+    particle_mode = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Echo for {self.memory_id}"
+
