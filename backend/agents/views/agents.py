@@ -69,6 +69,9 @@ from agents.models.lore import (
     PurposeIndexEntry,
     BeliefSignalNode,
     MythicAlignmentMarket,
+    AscensionStructure,
+    MythicMemoryPalace,
+    EternalReturnCycleIndex,
  
 )
 from agents.models.coordination import (
@@ -144,6 +147,12 @@ from agents.serializers import (
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
     SymbolicWeatherFrontSerializer,
+    PurposeIndexEntrySerializer,
+    BeliefSignalNodeSerializer,
+    MythicAlignmentMarketSerializer,
+    AscensionStructureSerializer,
+    MythicMemoryPalaceSerializer,
+    EternalReturnCycleIndexSerializer,
 
     MythflowOrchestrationPlanSerializer,
 
@@ -1204,6 +1213,42 @@ def purpose_migrations(request):
     serializer.is_valid(raise_exception=True)
     migration = serializer.save()
     return Response(PurposeMigrationEventSerializer(migration).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def ascension_structures(request):
+    if request.method == "GET":
+        structures = AscensionStructure.objects.all().order_by("-created_at")
+        return Response(AscensionStructureSerializer(structures, many=True).data)
+
+    serializer = AscensionStructureSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    structure = serializer.save()
+    return Response(AscensionStructureSerializer(structure).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def memory_palaces(request):
+    if request.method == "GET":
+        palaces = MythicMemoryPalace.objects.all().order_by("-last_updated")
+        return Response(MythicMemoryPalaceSerializer(palaces, many=True).data)
+
+    serializer = MythicMemoryPalaceSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    palace = serializer.save()
+    return Response(MythicMemoryPalaceSerializer(palace).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def eternal_return(request):
+    if request.method == "GET":
+        cycles = EternalReturnCycleIndex.objects.all().order_by("-created_at")
+        return Response(EternalReturnCycleIndexSerializer(cycles, many=True).data)
+
+    serializer = EternalReturnCycleIndexSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    cycle = serializer.save()
+    return Response(EternalReturnCycleIndexSerializer(cycle).data, status=201)
 
 
 
