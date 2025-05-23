@@ -89,7 +89,15 @@ from agents.models.lore import (
     NarrativeCurationTimeline,
 
 )
-from agents.models.identity import PersonaFusionEvent
+from agents.models.identity import (
+    PersonaFusionEvent,
+    MemoryInheritanceSeed,
+    PersonalCodexAnchor,
+    RitualContractBinding,
+    ReincarnationTreeNode,
+    BeliefVectorDelta,
+    SymbolicIdentityCard,
+)
 from agents.models.coordination import (
     CollaborationThread,
     DelegationStream,
@@ -185,6 +193,12 @@ from agents.serializers import (
     MythBloomNodeSerializer,
     BeliefSeedReplicationSerializer,
     PersonaFusionEventSerializer,
+    MemoryInheritanceSeedSerializer,
+    PersonalCodexAnchorSerializer,
+    RitualContractBindingSerializer,
+    ReincarnationTreeNodeSerializer,
+    BeliefVectorDeltaSerializer,
+    SymbolicIdentityCardSerializer,
     DialogueCodexMutationLogSerializer,
     PublicRitualLogEntrySerializer,
     BeliefContinuityThreadSerializer,
@@ -1577,4 +1591,89 @@ def timeline_curate(request):
     serializer.is_valid(raise_exception=True)
     timeline = serializer.save()
     return Response(NarrativeCurationTimelineSerializer(timeline).data, status=201)
+
+
+@api_view(["POST"])
+def user_mythpath_initialize(request):
+    """Create initial identity card and related seeds for a new user."""
+
+    assistant_data = request.data.get("assistant", {})
+    identity_data = request.data.get("identity_card", {})
+
+    assistant = Assistant.objects.create(
+        name=assistant_data.get("name", ""),
+        specialty=assistant_data.get("specialty", ""),
+    )
+
+    card = SymbolicIdentityCard.objects.create(
+        assistant=assistant,
+        archetype=identity_data.get("archetype", ""),
+        symbolic_tags=identity_data.get("symbolic_tags", {}),
+        myth_path=identity_data.get("myth_path", ""),
+        purpose_signature=identity_data.get("purpose_signature", ""),
+    )
+
+    MemoryInheritanceSeed.objects.create(
+        user_id=str(request.user.id) if request.user.is_authenticated else "anon",
+        narrative_path=identity_data.get("myth_path", ""),
+        symbolic_tags=identity_data.get("symbolic_tags", {}),
+    )
+
+    codex = SwarmCodex.objects.first()
+    if codex:
+        PersonalCodexAnchor.objects.create(
+            user_id=str(request.user.id) if request.user.is_authenticated else "anon",
+            codex=codex,
+            symbolic_statements={},
+            anchor_strength=0.5,
+        )
+
+    return Response(
+        {
+            "assistant": AgentSerializer(assistant).data,
+            "identity_card": SymbolicIdentityCardSerializer(card).data,
+        },
+        status=201,
+    )
+
+
+@api_view(["GET"])
+def world_timeline_anchor(request):
+    """Return recent global memory and codex events."""
+
+    memories = SwarmMemoryEntry.objects.all().order_by("-created_at")[:10]
+    codices = SwarmCodex.objects.all().order_by("-created_at")[:10]
+
+    data = {
+        "memories": SwarmMemoryEntrySerializer(memories, many=True).data,
+        "codices": SwarmCodexSerializer(codices, many=True).data,
+    }
+    return Response(data)
+
+
+@api_view(["POST"])
+def assistant_myth_rebirth(request, id):
+    """Reincarnate an assistant into a new form."""
+
+    parent = get_object_or_404(Assistant, id=id)
+    name = request.data.get("name", f"{parent.name} Reborn")
+    new_assistant = Assistant.objects.create(name=name, specialty=parent.specialty)
+
+    log = ReincarnationLog.objects.create(ancestor=parent, descendant=new_assistant)
+    node = ReincarnationTreeNode.objects.create(
+        node_name="rebirth",
+        assistant=new_assistant,
+        symbolic_signature={},
+        phase_index="13.0",
+    )
+    BeliefVectorDelta.objects.create(assistant=new_assistant, delta_vector={})
+
+    return Response(
+        {
+            "descendant": AgentSerializer(new_assistant).data,
+            "log": ReincarnationLogSerializer(log).data,
+            "tree_node": ReincarnationTreeNodeSerializer(node).data,
+        },
+        status=201,
+    )
 
