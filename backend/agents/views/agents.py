@@ -90,6 +90,9 @@ from agents.models.lore import (
     SymbolicFeedbackChamber,
     MultiAgentDialogueAmplifier,
     MythicResolutionSequence,
+    ResurrectionTimelineTracker,
+    RitualEchoThreadSystem,
+    CodexRecurrenceLoopEngine,
 
     LegacyArtifactExporter,
 
@@ -210,6 +213,9 @@ from agents.serializers import (
     SymbolicFeedbackChamberSerializer,
     MultiAgentDialogueAmplifierSerializer,
     MythicResolutionSequenceSerializer,
+    ResurrectionTimelineTrackerSerializer,
+    RitualEchoThreadSystemSerializer,
+    CodexRecurrenceLoopEngineSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1676,5 +1682,36 @@ def broadcast_patterns(request):
     serializer.is_valid(raise_exception=True)
     engine = serializer.save()
     return Response(SymbolicPatternBroadcastEngineSerializer(engine).data, status=201)
+
+
+@api_view(["GET"])
+def assistant_resurrection(request, id):
+    tracker = get_object_or_404(ResurrectionTimelineTracker, assistant__id=id)
+    serializer = ResurrectionTimelineTrackerSerializer(tracker)
+    return Response(serializer.data)
+
+
+@api_view(["GET", "POST"])
+def ritual_echo(request):
+    if request.method == "GET":
+        echoes = RitualEchoThreadSystem.objects.all().order_by("-created_at")
+        return Response(RitualEchoThreadSystemSerializer(echoes, many=True).data)
+
+    serializer = RitualEchoThreadSystemSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    echo = serializer.save()
+    return Response(RitualEchoThreadSystemSerializer(echo).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def codex_cycles(request):
+    if request.method == "GET":
+        cycles = CodexRecurrenceLoopEngine.objects.all().order_by("-created_at")
+        return Response(CodexRecurrenceLoopEngineSerializer(cycles, many=True).data)
+
+    serializer = CodexRecurrenceLoopEngineSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    cycle = serializer.save()
+    return Response(CodexRecurrenceLoopEngineSerializer(cycle).data, status=201)
 
 

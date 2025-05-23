@@ -1143,3 +1143,33 @@ class SymbolicPatternBroadcastEngineSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
+class ResurrectionTimelineTrackerSerializer(serializers.ModelSerializer):
+    memory_retention_log_ids = serializers.PrimaryKeyRelatedField(
+        queryset=SwarmMemoryEntry.objects.all(),
+        many=True,
+        write_only=True,
+        required=False,
+        source="memory_retention_log",
+    )
+    memory_retention_log = SwarmMemoryEntrySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ResurrectionTimelineTracker
+        fields = "__all__"
+        read_only_fields = ["id", "created_at", "memory_retention_log"]
+
+
+class RitualEchoThreadSystemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RitualEchoThreadSystem
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CodexRecurrenceLoopEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CodexRecurrenceLoopEngine
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
