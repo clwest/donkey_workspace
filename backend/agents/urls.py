@@ -38,6 +38,10 @@ urlpatterns = [
     path("ritual/contracts/", agents.ritual_contract_bindings),
     path("assistants/<uuid:id>/memory/inherited/", agents.assistant_inherited_memory),
 
+    path("belief/tree/", agents.belief_tree),
+    path("ritual/archive/", agents.ritual_archive),
+    path("journey/export/", agents.journey_export),
+
     path("belief-continuity/", agents.belief_continuity),
     path("belief-clusters/", agents.belief_clusters),
     path("lore-tokens/", agents.lore_tokens),

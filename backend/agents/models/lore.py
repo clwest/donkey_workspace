@@ -2159,51 +2159,42 @@ class RitualOnboardingFlow(models.Model):
         return self.entry_name
 
 
-class MemoryInheritanceSeed(models.Model):
-    """Carry symbolic onboarding decisions into assistant memory."""
+
+class BeliefInheritanceTree(models.Model):
+    """Lineage-style belief mapping between a user and an assistant."""
 
     user_id = models.CharField(max_length=150)
-    narrative_path = models.CharField(max_length=100)
-    symbolic_tags = models.JSONField()
-    onboarding_memory = models.ManyToManyField(SwarmMemoryEntry)
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    core_belief_nodes = models.JSONField()
+    memory_links = models.ManyToManyField(SwarmMemoryEntry)
+    symbolic_summary = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
-        return f"InheritanceSeed for {self.user_id}"
+
+        return f"BeliefTree {self.user_id}"[:50]
 
 
-class PersonalCodexAnchor(models.Model):
-    """Define user belief proximity to codex segments."""
+class RitualResponseArchive(models.Model):
+    """Detailed log of ritual executions and resulting belief shifts."""
 
-    user_id = models.CharField(max_length=150)
-    codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
-    symbolic_statements = models.JSONField()
-    anchor_strength = models.FloatField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-    def __str__(self) -> str:  # pragma: no cover - display helper
-        return f"CodexAnchor {self.id}"
-
-
-class RitualContractBinding(models.Model):
-    """Log formal connection between user and assistant."""
-
+    ritual_blueprint = models.ForeignKey(EncodedRitualBlueprint, on_delete=models.CASCADE)
     assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
     user_id = models.CharField(max_length=150)
-    contract_terms = models.TextField()
-    codex_link = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
-    shared_memory = models.ManyToManyField(SwarmMemoryEntry)
+    ritual_inputs = models.JSONField()
+    output_summary = models.TextField()
+    belief_state_shift = models.JSONField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self) -> str:  # pragma: no cover - display helper
-        return f"Contract {self.id}"
+
+        return f"RitualArchive {self.id}"
+
 
