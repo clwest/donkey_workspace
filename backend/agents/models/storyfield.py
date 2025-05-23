@@ -1,6 +1,6 @@
 from django.db import models
 
-from .lore import SwarmMemoryEntry
+from .lore import SwarmMemoryEntry, SwarmCodex, EncodedRitualBlueprint
 
 
 class StoryfieldZone(models.Model):
@@ -94,3 +94,55 @@ class AgentPlotlineCuration(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+
+class SwarmMythReplaySession(models.Model):
+    """Assistant-guided cinematic replay of myth segments."""
+
+    session_title = models.CharField(max_length=150)
+    initiating_assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE
+    )
+    myth_segments = models.JSONField()
+    codex_tags = models.JSONField()
+    reflection_script = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.session_title
+
+
+class LegacyStoryThread(models.Model):
+    """Chain of symbolic memory defining lineage across generations."""
+
+    thread_name = models.CharField(max_length=150)
+    lineage_chain = models.JSONField()
+    core_belief_shift = models.TextField()
+    linked_codices = models.ManyToManyField(SwarmCodex)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.thread_name
+
+
+class RitualPreservationLibrary(models.Model):
+    """Archive of ritual blueprints tied to codex epochs."""
+
+    library_name = models.CharField(max_length=150)
+    associated_codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    stored_rituals = models.ManyToManyField(EncodedRitualBlueprint)
+    symbolic_epoch = models.CharField(max_length=100)
+    notes = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.library_name
