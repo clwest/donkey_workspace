@@ -80,8 +80,6 @@ from agents.models.lore import (
     ArchetypeGenesisLog,
     MythBloomNode,
     BeliefSeedReplication,
-    PersonaFusionEvent,
-    DialogueCodexMutationLog,
     PublicRitualLogEntry,
     BeliefContinuityThread,
     CodexContributionCeremony,
@@ -99,7 +97,7 @@ from agents.models.insight import (
     PerspectiveMergeEvent,
     TimelineStitchLog,
 )
-from agents.models.identity import SymbolicIdentityCard, PersonaTemplate
+from agents.models.identity import SymbolicIdentityCard, PersonaTemplate, PersonaFusionEvent
 from agents.models.cosmology import SwarmCosmology
 from agents.models.swarm_balance import PurposeMigrationEvent, CognitiveBalanceReport
 from agents.models.markets import (
