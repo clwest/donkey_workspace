@@ -94,7 +94,6 @@ from agents.models.markets import (
     ForecastingMarketLedger,
     SymbolicFutureContract,
     CosmoEconomicAlignmentMap,
-
 )
 
 from agents.models.storyfield import (
@@ -847,7 +846,6 @@ class RecursiveRitualContractSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-
 class SwarmMythEngineInstanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = SwarmMythEngineInstance
@@ -862,3 +860,23 @@ class BeliefFeedbackSignalSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
+class MythHyperstructureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythHyperstructure
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class DreamWorldModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DreamWorldModel
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class ReflectiveEcosystemEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReflectiveEcosystemEngine
+        fields = "__all__"
+        read_only_fields = ["id", "last_sync"]

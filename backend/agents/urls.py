@@ -86,6 +86,10 @@ urlpatterns = [
     path("navigation-vectors/", agents.navigation_vectors),
     path("flux-index/", agents.flux_index),
 
+    path("hyperstructures/", agents.hyperstructures),
+    path("dream-worlds/", agents.dream_worlds),
+    path("reflective-ecosystem/", agents.reflective_ecosystem),
+
     path("clusters/", agents.list_clusters),
     path("clusters/<uuid:id>/", agents.cluster_detail_view),
     path("", agents.list_agents),
