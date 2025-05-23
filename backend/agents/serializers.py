@@ -74,6 +74,8 @@ from agents.models.lore import (
     RecursiveRitualContract,
     SwarmMythEngineInstance,
     BeliefFeedbackSignal,
+    SymbolicIdentityCard,
+    PersonaTemplate,
 )
 
 from agents.models.coordination import (
@@ -614,6 +616,20 @@ class ResurrectionTemplateSerializer(serializers.ModelSerializer):
         model = ResurrectionTemplate
         fields = "__all__"
         read_only_fields = ["id", "created_at", "seed_memories"]
+
+
+class SymbolicIdentityCardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicIdentityCard
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class PersonaTemplateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PersonaTemplate
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
 
 
 class BeliefContinuityRitualSerializer(serializers.ModelSerializer):
