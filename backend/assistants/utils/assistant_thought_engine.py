@@ -12,7 +12,8 @@ from assistants.models.assistant import (
     Assistant,
     ChatSession
 )
-from assistants.models.project import AssistantTask, AssistantObjective
+from assistants.models.project import AssistantTask, AssistantObjective, AssistantProject
+from project.models import Project
 from assistants.models.thoughts import AssistantThoughtLog
 
 from tools.models import Tool
@@ -89,9 +90,14 @@ Memories:
 
         # Create the core thought log with mood detection
         mood = detect_mood(content)
+        core_project = self.project
+        if isinstance(self.project, AssistantProject):
+            core_project = self.project.linked_projects.first() or Project.objects.filter(
+                assistant_project=self.project
+            ).first()
         log = AssistantThoughtLog.objects.create(
             assistant=self.assistant,
-            project=self.project,
+            project=core_project,
             thought=content,
             thought_type=thought_type,
             role=role,
