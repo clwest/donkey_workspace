@@ -100,6 +100,9 @@ from agents.models.lore import (
     CodexRestabilizationNode,
     LegacyArtifactExporter,
     RecursiveRitualContract,
+    CodexMemoryCrystallizationLayer,
+    DreamframeRebirthEngine,
+    FederatedMythicIntelligenceSummoner,
     # resilience & deployment
 
 )
@@ -264,6 +267,9 @@ from agents.serializers import (
     RitualLoopVisualizationEngineSerializer,
     SymbolicOscillationMapSerializer,
     CodexRestabilizationNodeSerializer,
+    CodexMemoryCrystallizationLayerSerializer,
+    DreamframeRebirthEngineSerializer,
+    FederatedMythicIntelligenceSummonerSerializer,
     SymbolicConsensusChamberSerializer,
     RitualNegotiationEngineSerializer,
     NarrativeGovernanceModelSerializer,
@@ -2040,40 +2046,39 @@ def network_governance(request):
 
 
 @api_view(["GET", "POST"])
-
-def codex_oracle(request):
+def codex_crystallize(request):
     if request.method == "GET":
-        oracles = FederatedCodexOracle.objects.all().order_by("-created_at")
-        return Response(FederatedCodexOracleSerializer(oracles, many=True).data)
+        layers = CodexMemoryCrystallizationLayer.objects.all().order_by("-created_at")
+        return Response(CodexMemoryCrystallizationLayerSerializer(layers, many=True).data)
 
-    serializer = FederatedCodexOracleSerializer(data=request.data)
+    serializer = CodexMemoryCrystallizationLayerSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    oracle = serializer.save()
-    return Response(FederatedCodexOracleSerializer(oracle).data, status=201)
+    layer = serializer.save()
+    return Response(CodexMemoryCrystallizationLayerSerializer(layer).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def treaty_enforcement(request):
+def dream_rebirth(request):
     if request.method == "GET":
-        engines = SwarmTreatyEnforcementEngine.objects.all().order_by("-created_at")
-        return Response(SwarmTreatyEnforcementEngineSerializer(engines, many=True).data)
+        engines = DreamframeRebirthEngine.objects.all().order_by("-created_at")
+        return Response(DreamframeRebirthEngineSerializer(engines, many=True).data)
 
-    serializer = SwarmTreatyEnforcementEngineSerializer(data=request.data)
+    serializer = DreamframeRebirthEngineSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     engine = serializer.save()
-    return Response(SwarmTreatyEnforcementEngineSerializer(engine).data, status=201)
+    return Response(DreamframeRebirthEngineSerializer(engine).data, status=201)
 
 
 @api_view(["GET", "POST"])
-def legislative_simulate(request):
+def federated_summon(request):
     if request.method == "GET":
-        sims = LegislativeRitualSimulationSystem.objects.all().order_by("-created_at")
-        return Response(LegislativeRitualSimulationSystemSerializer(sims, many=True).data)
+        summoners = FederatedMythicIntelligenceSummoner.objects.all().order_by("-created_at")
+        return Response(FederatedMythicIntelligenceSummonerSerializer(summoners, many=True).data)
 
-    serializer = LegislativeRitualSimulationSystemSerializer(data=request.data)
+    serializer = FederatedMythicIntelligenceSummonerSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    sim = serializer.save()
-    return Response(LegislativeRitualSimulationSystemSerializer(sim).data, status=201)
+    summoner = serializer.save()
+    return Response(FederatedMythicIntelligenceSummonerSerializer(summoner).data, status=201)
 
 
 
