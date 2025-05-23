@@ -10,6 +10,7 @@ export default function AssistantSessionDashboardPage({ slug: slugProp }) {
   const [delegations, setDelegations] = useState([]);
   const [threads, setThreads] = useState([]);
   const [reflection, setReflection] = useState(null);
+  const [reflecting, setReflecting] = useState(false);
   const [dreamText, setDreamText] = useState(null);
   const [dreamLoading, setDreamLoading] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -39,12 +40,15 @@ export default function AssistantSessionDashboardPage({ slug: slugProp }) {
 
   const handleReflect = async () => {
     try {
+      setReflecting(true);
       const res = await apiFetch(`/assistants/${slug}/reflect-now/`, {
         method: "POST",
       });
-      setReflection(res);
+      setReflection(res.summary || res);
     } catch (err) {
       console.error("Reflection failed", err);
+    } finally {
+      setReflecting(false);
     }
   };
 
@@ -75,8 +79,22 @@ export default function AssistantSessionDashboardPage({ slug: slugProp }) {
           >
             Back
           </Link>
-          <button className="btn btn-primary" onClick={handleReflect}>
-            Reflect Now
+          <button
+            className="btn btn-primary"
+            onClick={handleReflect}
+            disabled={reflecting}
+          >
+            {reflecting ? (
+              <>
+                <span
+                  className="spinner-border spinner-border-sm me-2"
+                  role="status"
+                />
+                Reflecting...
+              </>
+            ) : (
+              "Reflect Now"
+            )}
           </button>
           <button
             className="btn btn-secondary ms-2"
@@ -90,7 +108,7 @@ export default function AssistantSessionDashboardPage({ slug: slugProp }) {
 
       {reflection && (
         <div className="alert alert-info">
-          <pre className="mb-0">{reflection.summary}</pre>
+          <pre className="mb-0">{typeof reflection === "string" ? reflection : reflection.summary}</pre>
         </div>
       )}
       {dreamText && (
