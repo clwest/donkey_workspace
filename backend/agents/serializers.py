@@ -492,6 +492,13 @@ class SwarmCodexSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+class AgentAwareCodexSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AgentAwareCodex
+        fields = "__all__"
+        read_only_fields = ["id", "last_updated"]
+
+
 class SymbolicLawEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = SymbolicLawEntry
@@ -683,6 +690,13 @@ class MythflowInsightSerializer(serializers.ModelSerializer):
         model = MythflowInsight
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
+
+class SymbolicCoordinationEngineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicCoordinationEngine
+        fields = "__all__"
+        read_only_fields = ["id", "last_sync"]
 
 class KnowledgeReplicationEventSerializer(serializers.ModelSerializer):
     class Meta:
