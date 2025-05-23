@@ -1979,3 +1979,17 @@ class BeliefSeedReplication(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"Seed from {self.originating_entity.name}"
+
+
+class RitualBlueprint(models.Model):
+    """Reusable set of steps for launching a ritual event."""
+
+    name = models.CharField(max_length=150)
+    steps = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.name
