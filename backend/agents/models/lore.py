@@ -2277,6 +2277,7 @@ class MythicResolutionSequence(models.Model):
 
 
 
+
 class MythchainOutputGenerator(models.Model):
     """Encode dreams and memories into mythchain artifacts."""
 
@@ -2285,12 +2286,14 @@ class MythchainOutputGenerator(models.Model):
     output_title = models.CharField(max_length=150)
     codex_alignment_map = models.JSONField()
     symbolic_summary = models.TextField()
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self):  # pragma: no cover - display helper
+
         return self.output_title
 
 
