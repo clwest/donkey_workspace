@@ -64,6 +64,9 @@ from agents.models.lore import (
     CosmogenesisSimulation,
     MythicForecastPulse,
     BeliefAtlasSnapshot,
+    MythicContract,
+    DreamLiquidityPool,
+    RoleSymbolExchange,
     SymbolicWeatherFront,
     PurposeIndexEntry,
     BeliefSignalNode,
@@ -154,6 +157,9 @@ from agents.serializers import (
     CosmogenesisSimulationSerializer,
     MythicForecastPulseSerializer,
     BeliefAtlasSnapshotSerializer,
+    MythicContractSerializer,
+    DreamLiquidityPoolSerializer,
+    RoleSymbolExchangeSerializer,
     SymbolicWeatherFrontSerializer,
 
     MythflowOrchestrationPlanSerializer,
@@ -1294,3 +1300,39 @@ def intent_harmony(request):
     serializer.is_valid(raise_exception=True)
     session = serializer.save()
     return Response(IntentHarmonizationSessionSerializer(session).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def mythic_contracts(request):
+    if request.method == "GET":
+        contracts = MythicContract.objects.all().order_by("-created_at")
+        return Response(MythicContractSerializer(contracts, many=True).data)
+
+    serializer = MythicContractSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    contract = serializer.save()
+    return Response(MythicContractSerializer(contract).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def dream_pools(request):
+    if request.method == "GET":
+        pools = DreamLiquidityPool.objects.all().order_by("-created_at")
+        return Response(DreamLiquidityPoolSerializer(pools, many=True).data)
+
+    serializer = DreamLiquidityPoolSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    pool = serializer.save()
+    return Response(DreamLiquidityPoolSerializer(pool).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def symbol_exchange(request):
+    if request.method == "GET":
+        exchanges = RoleSymbolExchange.objects.all().order_by("-last_updated")
+        return Response(RoleSymbolExchangeSerializer(exchanges, many=True).data)
+
+    serializer = RoleSymbolExchangeSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    exchange = serializer.save()
+    return Response(RoleSymbolExchangeSerializer(exchange).data, status=201)

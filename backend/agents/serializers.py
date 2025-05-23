@@ -60,6 +60,9 @@ from agents.models.lore import (
     CosmogenesisSimulation,
     MythicForecastPulse,
     BeliefAtlasSnapshot,
+    MythicContract,
+    DreamLiquidityPool,
+    RoleSymbolExchange,
     SymbolicWeatherFront,
     KnowledgeReplicationEvent,
     MemoryBroadcastPacket,
@@ -836,3 +839,24 @@ class IntentHarmonizationSessionSerializer(serializers.ModelSerializer):
         model = IntentHarmonizationSession
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
+
+class MythicContractSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythicContract
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class DreamLiquidityPoolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DreamLiquidityPool
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RoleSymbolExchangeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RoleSymbolExchange
+        fields = "__all__"
+        read_only_fields = ["id", "last_updated"]

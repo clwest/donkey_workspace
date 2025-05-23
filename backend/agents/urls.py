@@ -86,6 +86,10 @@ urlpatterns = [
     path("navigation-vectors/", agents.navigation_vectors),
     path("flux-index/", agents.flux_index),
 
+    path("mythic-contracts/", agents.mythic_contracts),
+    path("dream-pools/", agents.dream_pools),
+    path("symbol-exchange/", agents.symbol_exchange),
+
     # path("dream-intel/", agents.dream_intel_nodes),
     # path("mission-consensus/", agents.mission_consensus_rounds),
     # path("realignment-proposals/", agents.narrative_realignment_proposals),

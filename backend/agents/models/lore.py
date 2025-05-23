@@ -1568,6 +1568,57 @@ class BeliefAtlasSnapshot(models.Model):
         return f"Atlas {self.epoch}"
 
 
+class MythicContract(models.Model):
+    """Purpose-aligned agreement encoded in symbolic form."""
+
+    title = models.CharField(max_length=150)
+    participants = models.ManyToManyField("assistants.Assistant")
+    contract_terms = models.TextField()
+    encoded_purpose = models.JSONField()
+    symbolic_assets_staked = models.JSONField()
+    contract_status = models.CharField(max_length=50, default="active")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.title
+
+
+class DreamLiquidityPool(models.Model):
+    """Reservoir of dream-state symbolic value."""
+
+    pool_name = models.CharField(max_length=100)
+    contributing_entities = models.ManyToManyField("assistants.Assistant")
+    staked_memories = models.ManyToManyField(SwarmMemoryEntry)
+    symbolic_token_balance = models.JSONField()
+    access_rules = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.pool_name
+
+
+class RoleSymbolExchange(models.Model):
+    """Bartering interface for role-aligned symbolic tokens."""
+
+    archetype_role = models.CharField(max_length=100)
+    tradable_symbols = models.JSONField()
+    exchange_rate_logic = models.TextField()
+    liquidity_available = models.FloatField()
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-last_updated"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.archetype_role
+
+
 class SymbolicWeatherFront(models.Model):
     """Simulated memory pressure systems affecting assistant cognition."""
 
