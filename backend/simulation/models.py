@@ -80,12 +80,11 @@ class SymbolicDialogueExchange(models.Model):
     codex_alignment_score = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
 
+
 class CinemythStoryline(models.Model):
     """Assistant-authored symbolic film arc."""
 
-    authored_by = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE
-    )
+    authored_by = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
     storyline_title = models.CharField(max_length=150)
     act_structure = models.JSONField()
     memory_sources = models.ManyToManyField("agents.SwarmMemoryEntry")
@@ -146,4 +145,5 @@ class PersonalRitualGuide(models.Model):
     personalized_steps = models.JSONField()
     codex_alignment_score = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
+
 

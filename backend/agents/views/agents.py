@@ -84,6 +84,9 @@ from agents.models.lore import (
     MythicAfterlifeRegistry,
     ContinuityEngineNode,
     ArchetypeMigrationGate,
+    MemoryInheritanceSeed,
+    PersonalCodexAnchor,
+    RitualContractBinding,
 )
 from agents.models.identity import PersonaFusionEvent
 from agents.models.coordination import (
@@ -185,6 +188,9 @@ from agents.serializers import (
     PublicRitualLogEntrySerializer,
     BeliefContinuityThreadSerializer,
     CodexContributionCeremonySerializer,
+    MemoryInheritanceSeedSerializer,
+    PersonalCodexAnchorSerializer,
+    RitualContractBindingSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1519,4 +1525,35 @@ def assistant_tutorial(request, id):
     """Return tutorial script for assistant."""
     return Response({"assistant": id, "message": "Tutorial start"})
 
+
+
+
+@api_view(["GET", "POST"])
+def personal_codex_anchors(request):
+    if request.method == "GET":
+        anchors = PersonalCodexAnchor.objects.all().order_by("-created_at")
+        return Response(PersonalCodexAnchorSerializer(anchors, many=True).data)
+
+    serializer = PersonalCodexAnchorSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    anchor = serializer.save()
+    return Response(PersonalCodexAnchorSerializer(anchor).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def ritual_contract_bindings(request):
+    if request.method == "GET":
+        contracts = RitualContractBinding.objects.all().order_by("-created_at")
+        return Response(RitualContractBindingSerializer(contracts, many=True).data)
+
+    serializer = RitualContractBindingSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    contract = serializer.save()
+    return Response(RitualContractBindingSerializer(contract).data, status=201)
+
+
+@api_view(["GET"])
+def assistant_inherited_memory(request, id):
+    seeds = MemoryInheritanceSeed.objects.filter(user_id=str(id)).order_by("-created_at")
+    return Response(MemoryInheritanceSeedSerializer(seeds, many=True).data)
 

@@ -6,6 +6,9 @@ import ProfilePage from "./pages/auth/ProfilePage";
 import LogoutPage from "./pages/auth/LogoutPage";
 import OnboardingWizardPage from "./pages/onboarding/OnboardingWizardPage";
 import RitualOnboardingPage from "./pages/onboarding/RitualOnboardingPage";
+import MythOnboardingWorldPage from "./pages/onboarding/MythOnboardingWorldPage";
+import ArchetypeSelectionChamberPage from "./pages/onboarding/ArchetypeSelectionChamberPage";
+import SummoningRitualConsolePage from "./pages/onboarding/SummoningRitualConsolePage";
 import CodexBriefingPage from "./pages/codex/CodexBriefingPage";
 import AssistantTutorialPage from "./pages/assistant/tutorial/AssistantTutorialPage";
 
@@ -142,7 +145,10 @@ export default function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/logout" element={<LogoutPage />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/onboarding" element={<OnboardingWizardPage />} />
+          <Route path="/onboarding" element={<MythOnboardingWorldPage />} />
+          <Route path="/onboarding/archetype" element={<ArchetypeSelectionChamberPage />} />
+          <Route path="/onboarding/summon" element={<SummoningRitualConsolePage />} />
+          <Route path="/onboarding/wizard" element={<OnboardingWizardPage />} />
           <Route path="/onboarding/ritual" element={<RitualOnboardingPage />} />
           <Route path="/codex/briefing" element={<CodexBriefingPage />} />
           <Route path="/assistant/:id/tutorial" element={<AssistantTutorialPage />} />
