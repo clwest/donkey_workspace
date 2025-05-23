@@ -67,6 +67,9 @@ from agents.models.lore import (
     DreamIntelligenceNode,
     MissionConsensusRound,
     NarrativeRealignmentProposal,
+    EpistemicCurrent,
+    FeedbackAnchorNode,
+    KnowledgeEcologyMap,
 )
 from agents.models.coordination import (
     CollaborationThread,
@@ -145,6 +148,9 @@ from agents.serializers import (
     DreamIntelligenceNodeSerializer,
     MissionConsensusRoundSerializer,
     NarrativeRealignmentProposalSerializer,
+    EpistemicCurrentSerializer,
+    FeedbackAnchorNodeSerializer,
+    KnowledgeEcologyMapSerializer,
 )
 from assistants.serializers import (
     AssistantCivilizationSerializer,
@@ -1152,4 +1158,40 @@ def narrative_realignment_proposals(request):
     serializer.is_valid(raise_exception=True)
     proposal = serializer.save()
     return Response(NarrativeRealignmentProposalSerializer(proposal).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def epistemic_currents(request):
+    if request.method == "GET":
+        currents = EpistemicCurrent.objects.all().order_by("-created_at")
+        return Response(EpistemicCurrentSerializer(currents, many=True).data)
+
+    serializer = EpistemicCurrentSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    current = serializer.save()
+    return Response(EpistemicCurrentSerializer(current).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def feedback_anchors(request):
+    if request.method == "GET":
+        anchors = FeedbackAnchorNode.objects.all().order_by("-created_at")
+        return Response(FeedbackAnchorNodeSerializer(anchors, many=True).data)
+
+    serializer = FeedbackAnchorNodeSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    anchor = serializer.save()
+    return Response(FeedbackAnchorNodeSerializer(anchor).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def knowledge_ecology_maps(request):
+    if request.method == "GET":
+        maps = KnowledgeEcologyMap.objects.all().order_by("-created_at")
+        return Response(KnowledgeEcologyMapSerializer(maps, many=True).data)
+
+    serializer = KnowledgeEcologyMapSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    km = serializer.save()
+    return Response(KnowledgeEcologyMapSerializer(km).data, status=201)
 
