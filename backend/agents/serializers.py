@@ -93,7 +93,10 @@ from agents.models.lore import (
     SymbolicFeedbackChamber,
     MultiAgentDialogueAmplifier,
     MythicResolutionSequence,
-    TemporalReflectionLog,
+    MythchainOutputGenerator,
+    NarrativeArtifactExporter,
+    SymbolicPatternBroadcastEngine,
+
 
     DialogueCodexMutationLog,
     NarrativeLightingEngine,
@@ -1117,23 +1120,26 @@ class MythicResolutionSequenceSerializer(serializers.ModelSerializer):
 
 
 
-class PlotlineExtractorEngineSerializer(serializers.ModelSerializer):
+class MythchainOutputGeneratorSerializer(serializers.ModelSerializer):
     class Meta:
-        model = PlotlineExtractorEngine
+        model = MythchainOutputGenerator
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class MemoryCompressionRitualToolSerializer(serializers.ModelSerializer):
+
+class NarrativeArtifactExporterSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MemoryCompressionRitualTool
+        model = NarrativeArtifactExporter
+
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
 
-class CodexStoryReshaperSerializer(serializers.ModelSerializer):
+class SymbolicPatternBroadcastEngineSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CodexStoryReshaper
-
+        model = SymbolicPatternBroadcastEngine
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+

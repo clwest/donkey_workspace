@@ -38,9 +38,10 @@ urlpatterns = [
     path("reflection/chamber/", agents.reflection_chamber),
     path("dialogue/amplify/", agents.dialogue_amplify),
     path("sequence/resolve/", agents.sequence_resolve),
-    path("story/extract/", agents.story_extract),
-    path("memory/compress/", agents.memory_compress),
-    path("codex/reshape/", agents.codex_reshape),
+
+    path("export/mythchain/", agents.export_mythchain),
+    path("export/artifact/", agents.export_artifact),
+    path("broadcast/patterns/", agents.broadcast_patterns),
 
 
     path("onboarding/ritual/", agents.onboarding_ritual),

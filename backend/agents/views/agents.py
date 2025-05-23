@@ -90,7 +90,11 @@ from agents.models.lore import (
     SymbolicFeedbackChamber,
     MultiAgentDialogueAmplifier,
     MythicResolutionSequence,
-    TemporalReflectionLog,
+
+    MythchainOutputGenerator,
+    NarrativeArtifactExporter,
+    SymbolicPatternBroadcastEngine,
+
 
 )
 from agents.models.coordination import (
@@ -205,7 +209,6 @@ from agents.serializers import (
     SymbolicFeedbackChamberSerializer,
     MultiAgentDialogueAmplifierSerializer,
     MythicResolutionSequenceSerializer,
-
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -1640,38 +1643,39 @@ def sequence_resolve(request):
 
 
 @api_view(["GET", "POST"])
-def story_extract(request):
-    if request.method == "GET":
-        engines = PlotlineExtractorEngine.objects.all().order_by("-created_at")
-        return Response(PlotlineExtractorEngineSerializer(engines, many=True).data)
 
-    serializer = PlotlineExtractorEngineSerializer(data=request.data)
+def export_mythchain(request):
+    if request.method == "GET":
+        gens = MythchainOutputGenerator.objects.all().order_by("-created_at")
+        return Response(MythchainOutputGeneratorSerializer(gens, many=True).data)
+
+    serializer = MythchainOutputGeneratorSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    gen = serializer.save()
+    return Response(MythchainOutputGeneratorSerializer(gen).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def export_artifact(request):
+    if request.method == "GET":
+        exports = NarrativeArtifactExporter.objects.all().order_by("-created_at")
+        return Response(NarrativeArtifactExporterSerializer(exports, many=True).data)
+
+    serializer = NarrativeArtifactExporterSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    export = serializer.save()
+    return Response(NarrativeArtifactExporterSerializer(export).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def broadcast_patterns(request):
+    if request.method == "GET":
+        broadcasts = SymbolicPatternBroadcastEngine.objects.all().order_by("-created_at")
+        return Response(SymbolicPatternBroadcastEngineSerializer(broadcasts, many=True).data)
+
+    serializer = SymbolicPatternBroadcastEngineSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     engine = serializer.save()
-    return Response(PlotlineExtractorEngineSerializer(engine).data, status=201)
-
-
-@api_view(["GET", "POST"])
-def memory_compress(request):
-    if request.method == "GET":
-        tools = MemoryCompressionRitualTool.objects.all().order_by("-created_at")
-        return Response(MemoryCompressionRitualToolSerializer(tools, many=True).data)
-
-    serializer = MemoryCompressionRitualToolSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    tool = serializer.save()
-    return Response(MemoryCompressionRitualToolSerializer(tool).data, status=201)
-
-
-@api_view(["GET", "POST"])
-def codex_reshape(request):
-    if request.method == "GET":
-        reshapers = CodexStoryReshaper.objects.all().order_by("-created_at")
-        return Response(CodexStoryReshaperSerializer(reshapers, many=True).data)
-
-    serializer = CodexStoryReshaperSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    reshaper = serializer.save()
-    return Response(CodexStoryReshaperSerializer(reshaper).data, status=201)
+    return Response(SymbolicPatternBroadcastEngineSerializer(engine).data, status=201)
 
 
