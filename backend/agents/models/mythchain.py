@@ -16,7 +16,7 @@ class MythchainOutputGenerator(models.Model):
         return self.generator_name
 
 
-class NarrativeArtifactExporter(models.Model):
+class MythChainNarrativeArtifactExporter(models.Model):
     """Export generated myth output into external artifact formats."""
 
     generator = models.ForeignKey(
@@ -35,11 +35,11 @@ class NarrativeArtifactExporter(models.Model):
         return f"{self.export_format} export"
 
 
-class SymbolicPatternBroadcastEngine(models.Model):
+class MythChainSymbolicPatternBroadcastEngine(models.Model):
     """Broadcast symbolic patterns from narrative artifacts."""
 
     linked_exporter = models.ForeignKey(
-        NarrativeArtifactExporter,
+        MythChainNarrativeArtifactExporter,
         on_delete=models.CASCADE,
         related_name="broadcast_engines",
     )

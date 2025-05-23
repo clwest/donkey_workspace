@@ -2301,7 +2301,7 @@ class MythicResolutionSequence(models.Model):
 
 
 
-class MythchainOutputGenerator(models.Model):
+class MythchainLoreOutputGenerator(models.Model):
     """Encode dreams and memories into mythchain artifacts."""
 
     assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
