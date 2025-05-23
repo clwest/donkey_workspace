@@ -31,6 +31,7 @@ urlpatterns = [
     path("public-rituals/", agents.public_rituals),
     path("belief-threads/", agents.belief_threads),
     path("codex-contributions/", agents.codex_contributions),
+    path("memory-echo-effects/", agents.memory_echo_effects),
 
     path("belief-continuity/", agents.belief_continuity),
     path("belief-clusters/", agents.belief_clusters),

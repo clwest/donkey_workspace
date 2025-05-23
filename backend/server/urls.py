@@ -104,7 +104,8 @@ urlpatterns = [
     path("api/intel/", include("intel_core.urls")),
     path("api/signal-artifacts/", agent_views.signal_artifacts),
     path("api/navigation-vectors/", agent_views.navigation_vectors),
-    path("api/flux-index/", agent_views.flux_index), 
+    path("api/flux-index/", agent_views.flux_index),
+    path("api/memory-echo-effects/", agent_views.memory_echo_effects),
 
     path("api/documents/", include("documents.urls")),
     path("api/tools/", include("tools.urls")),

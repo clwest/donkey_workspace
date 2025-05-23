@@ -83,6 +83,7 @@ from agents.models.lore import (
     PublicRitualLogEntry,
     BeliefContinuityThread,
     CodexContributionCeremony,
+    MemoryEchoEffectMap,
     DialogueCodexMutationLog,
 )
 
@@ -971,3 +972,11 @@ class CodexContributionCeremonySerializer(serializers.ModelSerializer):
         model = CodexContributionCeremony
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
+
+class MemoryEchoEffectMapSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemoryEchoEffectMap
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+

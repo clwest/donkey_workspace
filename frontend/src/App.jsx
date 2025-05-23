@@ -108,6 +108,9 @@ import RoutingHistoryPage from "./pages/assistants/RoutingHistoryPage";
 import StoryboardEditorPage from "./pages/storyboard/StoryboardEditorPage";
 import NarrativeEventDetailPage from "./pages/storyboard/NarrativeEventDetailPage";
 import RealityShaperDashboard from "./pages/lore/RealityShaperDashboard";
+import MotionTestPage from "./pages/ui/MotionTestPage";
+import MemoryEchoPage from "./pages/memories/entries/MemoryEchoPage";
+import AssistantAuraPage from "./pages/assistant/common/AssistantAuraPage";
 
 import { ToastContainer } from "react-toastify";
 import Navbar from "./components/Navbar";
@@ -146,6 +149,7 @@ export default function App() {
           <Route path="/memories" element={<MemoryBrowserPage />} /> {/* ➕ */}
           <Route path="/memories/bookmarked" element={<BookmarkedMemoriesPage />} />
           <Route path="/memories/:id" element={<MemoryDetailPage />} />{" "}
+          <Route path="/memory/:id/echo" element={<MemoryEchoPage />} />
           {/* 🧠 */}
           <Route path="/memories/reflect" element={<MemoryReflectionPage />} />
           <Route path="/memories/chains" element={<MemoryChainsListPage />} />
@@ -383,6 +387,8 @@ export default function App() {
           <Route path="/storyboard" element={<StoryboardEditorPage />} />
           <Route path="/storyboard/events/:id" element={<NarrativeEventDetailPage />} />
           <Route path="/lore" element={<RealityShaperDashboard />} />
+          <Route path="/ui/motion" element={<MotionTestPage />} />
+          <Route path="/assistants/:id/aura" element={<AssistantAuraPage />} />
           <Route path="/assistants/sources" element={<SignalSourcesPage />} />
           <Route path="/assistants/signals" element={<SignalCatchesPage />} />
           <Route path="/assistants/routing-history" element={<RoutingHistoryPage />} />

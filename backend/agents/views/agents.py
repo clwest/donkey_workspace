@@ -79,6 +79,7 @@ from agents.models.lore import (
     PublicRitualLogEntry,
     BeliefContinuityThread,
     CodexContributionCeremony,
+    MemoryEchoEffectMap,
     SignalEncodingArtifact,
     BeliefNavigationVector,
     ReflectiveFluxIndex,
@@ -186,6 +187,7 @@ from agents.serializers import (
     PublicRitualLogEntrySerializer,
     BeliefContinuityThreadSerializer,
     CodexContributionCeremonySerializer,
+    MemoryEchoEffectMapSerializer,
     # SceneDirectorFrameSerializer,
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
@@ -1500,4 +1502,17 @@ def codex_contributions(request):
     serializer.is_valid(raise_exception=True)
     contribution = serializer.save()
     return Response(CodexContributionCeremonySerializer(contribution).data, status=201)
+
+
+
+@api_view(["GET", "POST"])
+def memory_echo_effects(request):
+    if request.method == "GET":
+        effects = MemoryEchoEffectMap.objects.all().order_by("-created_at")
+        return Response(MemoryEchoEffectMapSerializer(effects, many=True).data)
+
+    serializer = MemoryEchoEffectMapSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    effect = serializer.save()
+    return Response(MemoryEchoEffectMapSerializer(effect).data, status=201)
 
