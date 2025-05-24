@@ -5,6 +5,8 @@ from agents.models.core import (
     AgentCluster,
     TrainedAgentLog,
 )
+from intel_core.serializers import DocumentSetSerializer
+from prompts.serializers import PromptSerializer
 from agents.models.lore import (
     SwarmMemoryEntry,
     SwarmJournalEntry,
@@ -268,6 +270,8 @@ class AgentClusterSerializer(serializers.ModelSerializer):
 
 class TrainedAgentLogSerializer(serializers.ModelSerializer):
     agent_name = serializers.CharField(source="agent.name", read_only=True)
+    prompt = PromptSerializer(read_only=True)
+    document_set = DocumentSetSerializer(read_only=True)
 
     class Meta:
         model = TrainedAgentLog
@@ -276,6 +280,8 @@ class TrainedAgentLogSerializer(serializers.ModelSerializer):
             "agent",
             "agent_name",
             "label",
+            "prompt",
+            "document_set",
             "document_count",
             "skill_matrix",
             "created_at",
