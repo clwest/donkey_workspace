@@ -181,7 +181,7 @@ class DocumentProgress(models.Model):
 class DocumentSet(models.Model):
     """Group multiple documents for assistant creation."""
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.BigAutoField(primary_key=True)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     documents = models.ManyToManyField(Document, related_name="document_sets", blank=True)
