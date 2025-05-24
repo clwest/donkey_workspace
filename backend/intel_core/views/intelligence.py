@@ -8,6 +8,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework import status
 from openai import OpenAI
 from intel_core.models import Document
+from intel_core.models import DocumentSet
 from prompts.models import Prompt
 from assistants.models.assistant import (
     Assistant,
@@ -313,3 +314,19 @@ Return only JSON in this format:
             },
             status=500,
         )
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def create_assistant_from_document_set(request, pk):
+    """Bootstrap an assistant using a DocumentSet."""
+    try:
+        doc_set = DocumentSet.objects.get(pk=pk)
+    except DocumentSet.DoesNotExist:
+        return Response({"error": "DocumentSet not found"}, status=404)
+
+    first_doc = doc_set.pdf_files.first()
+    if not first_doc:
+        return Response({"error": "DocumentSet has no documents"}, status=400)
+
+    return create_bootstrapped_assistant_from_document(request, first_doc.id)
