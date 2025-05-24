@@ -2,15 +2,15 @@
 
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
 import apiFetch from "../../../utils/apiClient";
 import ThoughtLogCard from "../../../components/assistant/thoughts/ThoughtLogCard";
+import ReflectionToastStatus from "../../../components/assistant/ReflectionToastStatus";
 
 export default function AssistantReflectPage() {
   const { slug } = useParams();
-  const [reflection, setReflection] = useState(null);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [toastStatus, setToastStatus] = useState(null);
 
   const reflect = async (force = false) => {
     setLoading(true);
@@ -19,15 +19,20 @@ export default function AssistantReflectPage() {
         method: "POST",
         params: force ? { force: "true" } : undefined,
       });
-      
-      setReflection(res);
+      if (res.status === "ok") {
+        await loadReflectionLogs();
+        setToastStatus("success");
+      } else {
+        setToastStatus("error");
+      }
     } catch (err) {
       console.error("Reflection failed", err);
       const detail = err?.statusText || err?.message;
       const msg = detail
         ? `Reflection request failed: ${detail}`
         : "Reflection request failed";
-      toast.error(msg);
+      console.error(msg);
+      setToastStatus("error");
     } finally {
       setLoading(false);
     }
@@ -37,8 +42,6 @@ export default function AssistantReflectPage() {
     try {
       const res = await apiFetch(`/assistants/${slug}/reflections/recent/`);
       setLogs(res.thoughts || []);
-      console.log("Heres the return")
-      console.log(res)
     } catch (err) {
       console.error("Failed to load reflection logs", err);
     }
@@ -63,7 +66,6 @@ export default function AssistantReflectPage() {
 
   useEffect(() => {
     reflect();
-    loadReflectionLogs();
   }, [slug]);
 
   return (
@@ -91,17 +93,13 @@ export default function AssistantReflectPage() {
         </Link>
       </div>
 
-      {reflection && reflection.trace === "[cache]" && (
-        <div className="alert alert-warning">Cached reflection shown. Click Force Refresh to regenerate.</div>
-      )}
-
-      {reflection && (
+      {logs.length > 0 && (
         <div className="card mb-5 shadow-sm border-info">
           <div className="card-header bg-info text-white">
             <strong>Latest Reflection Summary</strong>
           </div>
           <div className="card-body">
-            <pre className="mb-0 text-wrap">{reflection.summary}</pre>
+            <pre className="mb-0 text-wrap">{logs[0].content}</pre>
           </div>
         </div>
       )}
@@ -134,5 +132,6 @@ export default function AssistantReflectPage() {
         ))
       )}
     </div>
+    <ReflectionToastStatus status={toastStatus} />
   );
 }

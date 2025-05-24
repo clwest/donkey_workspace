@@ -320,13 +320,14 @@ Memories:
         prompt = self.build_summary_prompt(memory_texts)
         summary = self.generate_thought(prompt)
 
-        self.log_thought(summary)
+        log_result = self.log_thought(summary)
         set_cached_reflection(self.assistant.slug, summary)
 
         return {
             "summary": summary,
             "trace": prompt,
             "source_count": len(memory_texts),
+            "log_id": str(log_result.get("log").id) if log_result.get("log") else None,
         }
 
     def think(self) -> dict:
