@@ -3,9 +3,8 @@ import apiFetch from "../../utils/apiClient";
 import VisualArchetypeCard from "../swarm/VisualArchetypeCard";
 import CodexAnchorPanel from "../swarm/CodexAnchorPanel";
 import RitualLaunchpadPanel from "../swarm/RitualLaunchpadPanel";
-import BeliefEvolutionDashboard from "./analysis/BeliefEvolutionDashboard";
-import DreamframeViewer from "../swarm/DreamframeViewer";
 import BeliefForkViewer from "../agents/BeliefForkViewer";
+import AssistantThoughtStream from "./AssistantThoughtStream";
 
 export default function AssistantInterfaceRenderer({ assistantId, showDreams = false }) {
   const [data, setData] = useState(null);
@@ -34,18 +33,17 @@ export default function AssistantInterfaceRenderer({ assistantId, showDreams = f
       <div className="row mt-3">
         <div className="col-md-6 mb-3">
           <CodexAnchorPanel assistantId={assistantId} />
+          <div className="mt-3">
+            <RitualLaunchpadPanel assistantId={assistantId} />
+          </div>
         </div>
         <div className="col-md-6 mb-3">
-          <RitualLaunchpadPanel assistantId={assistantId} />
+          <AssistantThoughtStream assistantId={assistantId} />
+          <div className="mt-3">
+            <BeliefForkViewer assistantId={assistantId} />
+          </div>
         </div>
       </div>
-      <BeliefEvolutionDashboard assistantId={assistantId} />
-      <BeliefForkViewer assistantId={assistantId} />
-      {showDreams && (
-        <div className="mt-3">
-          <DreamframeViewer assistantId={assistantId} />
-        </div>
-      )}
     </div>
   );
 }

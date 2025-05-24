@@ -133,3 +133,4 @@ export const fetchRitualMarketFeeds = () => apiFetch("/agents/market/rituals/");
 export const fetchTrendReactivityModels = () =>
   apiFetch("/agents/assistants/trend-reactivity/");
 export const fetchStabilityGraphs = () => apiFetch("/agents/system/stability/");
+export const fetchAssistantThoughtLog = (id) => apiFetch(`/assistants/${id}/thought-log/`);
