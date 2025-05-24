@@ -104,6 +104,7 @@ class Assistant(models.Model):
     memory_mode = models.CharField(
         max_length=200, choices=MEMORY_MODES, default="long_term"
     )
+    archetype_path = models.CharField(max_length=50, null=True, blank=True)
     embedding = VectorField(
         dimensions=1536, null=True, blank=True
     )  # adjust dim if needed

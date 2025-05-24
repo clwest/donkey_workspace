@@ -5,8 +5,10 @@ export default function ArchetypeSelectionChamber() {
   const [tone, setTone] = useState("");
   const [tag, setTag] = useState("");
   const navigate = useNavigate();
-  const [params] = useSearchParams();
-  const path = params.get("path") || "";
+
+  const [searchParams] = useSearchParams();
+  const path = searchParams.get("path") || "custom";
+
 
   const submit = () => {
     navigate("/onboarding/summon", { state: { tone, tag, path } });

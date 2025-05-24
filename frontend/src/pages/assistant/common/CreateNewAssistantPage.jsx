@@ -1,12 +1,39 @@
 // frontend/pages/assistants/CreateNewAssistantPage.jsx
 
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import PromptIdeaGenerator from "../../../components/prompts/PromptIdeaGenerator";
 
+const mythDefaults = {
+  memory: {
+    tone: "reflective",
+    tag: "memory",
+    personality: "Reflects on past events and contextual cues.",
+  },
+  codex: {
+    tone: "precise",
+    tag: "codex",
+    personality:
+      "Embodies symbolic law, codified behavior, and structured ritual logic.",
+  },
+  ritual: {
+    tone: "observant",
+    tag: "ritual",
+    personality:
+      "Observes, records, and reacts to symbolic rituals and emergent patterns.",
+  },
+};
+
+const mythSummaries = {
+  memory: { emoji: "🧠", desc: "Memory Seeker" },
+  codex: { emoji: "📜", desc: "Codex Explorer" },
+  ritual: { emoji: "🌀", desc: "Ritual Witness" },
+};
+
 export default function CreateNewAssistantPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [specialty, setSpecialty] = useState("");
@@ -17,6 +44,10 @@ export default function CreateNewAssistantPage() {
   const [tone, setTone] = useState("");
   const [preferredModel, setPreferredModel] = useState("gpt-4o");
   const [saving, setSaving] = useState(false);
+  const [mythpath, setMythpath] = useState(
+    location.state?.mythpath || "custom"
+  );
+  const lockedPath = Boolean(location.state?.mythpath);
 
   useEffect(() => {
     async function fetchPrompts() {
@@ -31,6 +62,17 @@ export default function CreateNewAssistantPage() {
     }
     fetchPrompts();
   }, []);
+
+  useEffect(() => {
+    if (mythDefaults[mythpath]) {
+      setTone(mythDefaults[mythpath].tone);
+      setSpecialty(mythDefaults[mythpath].tag);
+      if (mythDefaults[mythpath].personality) {
+        setPersonality(mythDefaults[mythpath].personality);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mythpath]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,6 +90,7 @@ export default function CreateNewAssistantPage() {
           personality,
           tone,
           preferred_model: preferredModel,
+          archetype_path: mythpath !== "custom" ? mythpath : null,
         }),
       });
       const data = await res.json();
@@ -68,6 +111,25 @@ export default function CreateNewAssistantPage() {
   return (
     <div className="container my-5">
       <h1 className="mb-4">🧠 Create New Assistant</h1>
+      <div className="mb-3">
+        <label className="form-label">Mythpath</label>
+        <select
+          className="form-select"
+          value={mythpath}
+          onChange={(e) => setMythpath(e.target.value)}
+          disabled={lockedPath}
+        >
+          <option value="memory">Memory Seeker</option>
+          <option value="codex">Codex Explorer</option>
+          <option value="ritual">Ritual Witness</option>
+          <option value="custom">Custom</option>
+        </select>
+        {mythpath !== "custom" && (
+          <div className="form-text">
+            {mythSummaries[mythpath].emoji} {mythSummaries[mythpath].desc}
+          </div>
+        )}
+      </div>
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <label className="form-label">Name</label>
