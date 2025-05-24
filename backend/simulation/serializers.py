@@ -173,3 +173,45 @@ class MultiUserNarrativeLabSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
+class SwarmReflectionThreadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SwarmReflectionThread
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SwarmReflectionPlaybackLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SwarmReflectionPlaybackLog
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class PromptCascadeLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PromptCascadeLog
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CascadeNodeLinkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CascadeNodeLink
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SimulationClusterStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SimulationClusterStatus
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SimulationGridNodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SimulationGridNode
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+

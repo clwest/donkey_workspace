@@ -45,6 +45,9 @@ Frontend Path Backend URL View Serializer Notes
 /assistants/:id/dream/debug /api/assistants/:id/dream/debug/ DreamTriggerDebugger DreamTriggerLogSerializer Dreamframe state debugger
 /replay/engine /api/replay/engine/ SymbolicReplayEnginePage SymbolicReplayEngineSerializer Full scenario memory playback with codex echo
 /assistants/:id/fork/replay /api/assistants/:id/fork-replay/ ForkDrivenMemoryPlayback MemoryForkPlaybackSerializer Memory fork comparison
+/swarm/playback /api/simulation/swarm-reflection-playback/ SwarmReflectionPlaybackPage SwarmReflectionPlaybackLogSerializer Multi-assistant reflection timeline
+/cascade/:id /api/simulation/prompt-cascades/:id/ PromptCascadeWatcherPage PromptCascadeLogSerializer View prompt chain cascade
+/simulation/grid /api/simulation/simulation-grid/ SimulationGridPage SimulationClusterStatusSerializer Live simulation status grid
 
 ⸻
 
