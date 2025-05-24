@@ -358,3 +358,23 @@ class ContinuityAnchorPoint(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+
+class MemoryEmbeddingFailureLog(models.Model):
+    """Log failed embedding attempts for later analysis and retry."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    document_set = models.ForeignKey(
+        "intel_core.DocumentSet",
+        on_delete=models.CASCADE,
+        related_name="embedding_failures",
+    )
+    chunk_index = models.IntegerField()
+    text = models.TextField(blank=True)
+    error_message = models.TextField(blank=True)
+    resolved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]

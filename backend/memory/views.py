@@ -21,6 +21,7 @@ from .models import (
     SharedMemoryEntry,
     BraidedMemoryStrand,
     ContinuityAnchorPoint,
+    MemoryEmbeddingFailureLog,
 )
 from .serializers import (
     MemoryEntrySerializer,
@@ -858,3 +859,20 @@ def public_memory_grove(request):
         for g in queryset
     ]
     return Response(data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def symbolic_chunk_diff_view(request, document_set_id):
+    """Return failed chunks for a document set for comparison."""
+    failures = MemoryEmbeddingFailureLog.objects.filter(document_set_id=document_set_id)
+    diff = [
+        {
+            "chunk_index": f.chunk_index,
+            "text": f.text,
+            "error_message": f.error_message,
+            "resolved": f.resolved,
+        }
+        for f in failures
+    ]
+    return Response({"document_set_id": str(document_set_id), "chunks": diff})
