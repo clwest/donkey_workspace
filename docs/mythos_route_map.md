@@ -25,6 +25,7 @@ Compiled for Codex routing, view integration, and component planning
 | `/codex/proof` | `/api/codex/proof-of-symbol/` | `CodexProofLogViewer` | `CodexProofOfSymbolSerializer` | Proof trace hash validation |
 | `/codex/evolve` | `/api/codex/evolve/` | `PromptMutationExplorer` | `CodexPromptMutationSerializer` | Prompt + role mutation lineage |
 | `/codex/orchestrator/:assistantId` | `/api/codex/orchestrator/` | `CodexPromptOrchestrator` | `PromptUsageLogSerializer` | Assistant prompt editor/previewer |
+| `/codex/vote` | `/api/metrics/codex/vote/` | `CodexVotePage` | `CodexClauseVoteSerializer` | Clause mutation ballots |
 
 \-\-\-
 
@@ -36,6 +37,7 @@ Compiled for Codex routing, view integration, and component planning
 | `/ritual/composer` | `/api/ritual/compose/` | `RitualComposerPage` | `RitualDraftSerializer` | Ritual blueprint editor |
 | `/ritual/containers` | `/api/ritual/containers/` | `RitualContainerPanel` | `RitualFunctionContainerSerializer` | Persistent execution state viewer |
 | `/ritual/fork/replay` | `/api/ritual/fork-replay/` | `RitualForkReplayPage` | `RitualForkReplaySerializer` | Side-by-side ritual replays with divergence tagging |
+| `/ritual/reputation` | `/api/metrics/ritual/reputation/` | `RitualReputationPage` | `RitualReputationScoreSerializer` | Ritual rating tracker |
 
 \-\-\-
 
@@ -49,6 +51,7 @@ Compiled for Codex routing, view integration, and component planning
 | `/replay/engine` | `/api/replay/engine/` | `SymbolicReplayEnginePage` | `SymbolicReplayEngineSerializer` | Full scenario memory playback with codex echo |
 | `/assistants/:id/fork/replay` | `/api/assistants/:id/fork-replay/` | `ForkDrivenMemoryPlayback` | `MemoryForkPlaybackSerializer` | Memory fork comparison |
 | `/swarm/playback` | `/api/simulation/swarm-reflection-playback/` | `SwarmReflectionPlaybackPage` | `SwarmReflectionPlaybackLogSerializer` | Multi-assistant reflection timeline |
+| `/swarm/alignment` | `/api/metrics/swarm/alignment/` | `SwarmAlignmentPage` | `SwarmAlignmentIndexSerializer` | Swarm belief stability index |
 | `/cascade/:id` | `/api/simulation/prompt-cascades/:id/` | `PromptCascadeWatcherPage` | `PromptCascadeLogSerializer` | View prompt chain cascade |
 | `/simulation/grid` | `/api/simulation/simulation-grid/` | `SimulationGridPage` | `SimulationClusterStatusSerializer` | Live simulation status grid |
 

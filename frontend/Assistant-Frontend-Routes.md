@@ -65,7 +65,9 @@ Let Chris know if any additional routes should be included or reorganized!
 | `/assistants/:slug/thoughts` | `AssistantThoughtsPage` | Full thought logs |
 | `/codex/converge` | `CodexConvergePage` | Codex convergence ceremonies |
 | `/codex/proof` | `CodexProofPage` | Symbolic integrity viewer |
+| `/codex/vote` | `CodexVotePage` | Clause voting panel |
 | `/ritual/containers` | `RitualContainersPage` | View persistent ritual containers |
+| `/ritual/reputation` | `RitualReputationPage` | Ritual rating board |
 | `/replay/engine` | `ReplayEnginePage` | Belief replay engine |
 | `/dream/rebirth` | `DreamRebirthPage` | Trigger dream rebirth |
 | `/anchor/continuity` | `ContinuityAnchorPage` | Symbolic continuity dashboard |
@@ -75,3 +77,4 @@ Let Chris know if any additional routes should be included or reorganized!
 | `/law/ritual` | `RitualLawPage` | Ritual law viewer |
 | `/deploy/standards` | `DeployStandardsPage` | Belief-aligned environment evaluator |
 | `/summon/federated` | `FederatedSummonPage` | Federated assistant summoner |
+| `/swarm/alignment` | `SwarmAlignmentPage` | Swarm alignment pulse |

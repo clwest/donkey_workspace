@@ -7,6 +7,9 @@ from .views import (
     WorldMetricsView,
     AssistantPresenceView,
     MythflowHeatmapView,
+    RitualReputationScoreListView,
+    CodexClauseVoteListView,
+    SwarmAlignmentIndexView,
 )
 
 urlpatterns = [
@@ -34,5 +37,20 @@ urlpatterns = [
         "mythflow-heatmap/",
         MythflowHeatmapView.as_view(),
         name="mythflow-heatmap",
+    ),
+    path(
+        "ritual/reputation/",
+        RitualReputationScoreListView.as_view(),
+        name="ritual-reputation",
+    ),
+    path(
+        "codex/vote/",
+        CodexClauseVoteListView.as_view(),
+        name="codex-clause-vote",
+    ),
+    path(
+        "swarm/alignment/",
+        SwarmAlignmentIndexView.as_view(),
+        name="swarm-alignment-index",
     ),
 ]
