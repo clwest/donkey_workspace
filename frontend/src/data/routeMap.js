@@ -289,4 +289,18 @@ export const routeMap = [
     serializer: "PromptMutationLogSerializer",
     notes: "Prompt diff + codex trace map",
   },
+  {
+    frontend: "/plan/graph",
+    backend: "/api/plan/graph/",
+    view: "PlanningGraphPage",
+    serializer: "PlanningGraphNodeSerializer",
+    notes: "Multi-agent planning graph",
+  },
+  {
+    frontend: "/plan/assign",
+    backend: "/api/plan/assign/",
+    view: "TaskAssignmentPage",
+    serializer: "TaskAssignmentRecommendationSerializer",
+    notes: "Role-adaptive task assignment",
+  },
 ];

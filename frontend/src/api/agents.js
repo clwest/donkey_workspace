@@ -137,6 +137,10 @@ export const fetchTrendReactivityModels = () =>
 export const fetchStabilityGraphs = () => apiFetch("/agents/system/stability/");
 export const fetchAssistantThoughtLog = (id) => apiFetch(`/assistants/${id}/thought-log/`);
 
+export const fetchPlanningGraph = () => apiFetch("/plan/graph/");
+export const requestTaskAssignment = (body) =>
+  apiFetch("/plan/assign/", { method: "POST", body });
+
 export const fetchTrainedAgents = () => apiFetch("/agents/trained/");
 export const promoteTrainedAgent = (logId) =>
   apiFetch("/assistants/promote/", { method: "POST", body: { log_id: logId } });
