@@ -176,3 +176,19 @@ class DocumentProgress(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.processed}/{self.total_chunks}"
+
+
+class DocumentSet(models.Model):
+    """Collection of related source documents used to train an assistant."""
+
+    title = models.CharField(max_length=150)
+    tags = models.JSONField(default=list)
+    urls = models.JSONField(blank=True, null=True)
+    videos = models.JSONField(blank=True, null=True)
+    pdf_files = models.ManyToManyField(Document, blank=True, related_name="document_sets")
+    merged_embedding_vector = models.BinaryField(null=True)
+    symbolic_fingerprint = models.CharField(max_length=256, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title

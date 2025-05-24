@@ -9,6 +9,7 @@ from django.core.files.storage import default_storage
 from assistants.models.assistant import Assistant, ChatSession
 from project.models import Project
 from intel_core.models import Document
+from intel_core.models import DocumentSet
 from mcp_core.models import Tag
 from intel_core.processors.video_loader import load_videos
 from intel_core.processors.url_loader import load_urls
@@ -137,3 +138,69 @@ class DocumentService:
                 uploaded_files, title, project_name, session_id, assistant, project
             )
         raise ValueError("Invalid source_type")
+
+    @classmethod
+    def create_document_set(
+        cls,
+        *,
+        title: str,
+        urls: Optional[List[str]] = None,
+        videos: Optional[List[str]] = None,
+        files=None,
+        tags: Optional[List[str]] = None,
+        project_name: str = "General",
+        session_id: Optional[str] = None,
+        assistant_id: Optional[str] = None,
+        project_id: Optional[str] = None,
+    ) -> DocumentSet:
+        """Ingest multiple sources and wrap into a DocumentSet."""
+        urls = urls or []
+        videos = videos or []
+        files = files or []
+        docs: list[Document] = []
+        if urls:
+            docs.extend(
+                cls.ingest(
+                    source_type="url",
+                    urls=urls,
+                    title=title,
+                    project_name=project_name,
+                    session_id=session_id,
+                    assistant_id=assistant_id,
+                    project_id=project_id,
+                    tags=tags,
+                )
+            )
+        if videos:
+            docs.extend(
+                cls.ingest(
+                    source_type="youtube",
+                    urls=videos,
+                    title=title,
+                    project_name=project_name,
+                    session_id=session_id,
+                    assistant_id=assistant_id,
+                    project_id=project_id,
+                )
+            )
+        if files:
+            docs.extend(
+                cls.ingest(
+                    source_type="pdf",
+                    files=files,
+                    title=title,
+                    project_name=project_name,
+                    session_id=session_id,
+                    assistant_id=assistant_id,
+                    project_id=project_id,
+                )
+            )
+
+        document_set = DocumentSet.objects.create(
+            title=title,
+            tags=tags or [],
+            urls=urls,
+            videos=videos,
+        )
+        document_set.pdf_files.set([d for d in docs if isinstance(d, Document)])
+        return document_set

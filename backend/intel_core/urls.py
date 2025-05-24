@@ -32,6 +32,21 @@ urlpatterns = [
         name="document_progress",
     ),
     path(
+        "document-sets/",
+        documents.create_document_set,
+        name="create_document_set",
+    ),
+    path(
+        "document-sets/<uuid:pk>/",
+        documents.document_set_detail,
+        name="document_set_detail",
+    ),
+    path(
+        "document-sets/<uuid:pk>/bootstrap-assistant/",
+        intelligence.create_assistant_from_document_set,
+        name="bootstrap_assistant_from_set",
+    ),
+    path(
         "intelligence/bootstrap-agent/<uuid:pk>/",
         intelligence.bootstrap_agent_from_docs,
         name="bootstrap_agent_from_docs",

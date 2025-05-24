@@ -1,7 +1,7 @@
 # intel_core/serializers.py
 
 from rest_framework import serializers
-from intel_core.models import Document, DocumentFavorite
+from intel_core.models import Document, DocumentFavorite, DocumentSet
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -41,3 +41,20 @@ class DocumentSerializer(serializers.ModelSerializer):
 
     def get_chunk_count(self, obj):
         return obj.chunks.count()
+
+
+class DocumentSetSerializer(serializers.ModelSerializer):
+    pdf_files = DocumentSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = DocumentSet
+        fields = [
+            "id",
+            "title",
+            "tags",
+            "urls",
+            "videos",
+            "pdf_files",
+            "symbolic_fingerprint",
+            "created_at",
+        ]

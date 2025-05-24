@@ -30,87 +30,37 @@ export default function DocumentIngestionForm({ onSuccess }) {
     const sessionId = crypto.randomUUID();
 
     const payload = {
-        title,
-        project_name: "General",
-        session_id: sessionId,
-        tags: parsedTags,
+      title,
+      session_id: sessionId,
+      tags: parsedTags,
     };
 
     try {
-        let res;
-        if (pdfFiles.length > 0) {
-        const formData = new FormData();
-        formData.append("source_type", "pdf");
-        formData.append("title", title);
-        formData.append("project_name", "General");
-        formData.append("session_id", sessionId);
-        parsedTags.forEach((t) => formData.append("tags", t));
-        pdfFiles.forEach((file) => formData.append("files", file));
-        console.log("Uploading PDFs", pdfFiles);
-        const uploadRes = await fetch(`${API_URL}/intel/ingestions/`, {
-            method: "POST",
-            body: formData,
-            credentials: "include",
-        });
-        if (!uploadRes.ok) throw new Error("API Error");
-        res = await uploadRes.json();
-        const first = res.documents && res.documents[0];
-        const progressId = first?.metadata?.progress_id;
-        if (progressId) {
-          pollRef.current = setInterval(async () => {
-            try {
-              const data = await apiFetch(`/intel/documents/${progressId}/progress/`);
-              setProgress(data);
-              if (data.status !== "in_progress" && pollRef.current) {
-                clearInterval(pollRef.current);
-                pollRef.current = null;
-              }
-            } catch (err) {
-              console.error("Progress polling failed", err);
-              clearInterval(pollRef.current);
-              pollRef.current = null;
-            }
-          }, 2000);
-        }
-        setLoading(false);
-        return;
-        } else if (urlInput.trim()) {
-        payload.urls = urlInput
-            .split(",")
-            .map((u) => u.trim())
-            .filter((u) => u.length > 0);
-        payload.source_type = "url";
-        res = await apiFetch("/intel/ingestions/", {
-            method: "POST",
-            body: payload,
-        });
-        } else if (videoInput.trim()) {
-        payload.urls = videoInput
-            .split(",")
-            .map((u) => u.trim())
-            .filter((u) => u.length > 0);
-        payload.source_type = "youtube";
-        res = await apiFetch("/intel/ingestions/", {
-            method: "POST",
-            body: payload,
-        });
-        } else {
-        throw new Error("No input provided for URL, YouTube, or PDF");
-        }
-
-        toast.success(`✅ Loaded ${res.documents?.length || 0} documents!`);
-        if (onSuccess) await onSuccess();
-        // Log the API response for debugging purposes
-        console.log(res);
-        setUrlInput("");
-        setVideoInput("");
-        setTags("");
-        setTitle("");
+      const formData = new FormData();
+      formData.append("title", title);
+      parsedTags.forEach((t) => formData.append("tags", t));
+      if (urlInput.trim()) formData.append("urls", urlInput);
+      if (videoInput.trim()) formData.append("videos", videoInput);
+      pdfFiles.forEach((file) => formData.append("files", file));
+      const uploadRes = await fetch(`${API_URL}/intel/document-sets/`, {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+      if (!uploadRes.ok) throw new Error("API Error");
+      const res = await uploadRes.json();
+      toast.success("✅ Document set created!");
+      if (onSuccess) await onSuccess();
+      console.log(res);
+      setUrlInput("");
+      setVideoInput("");
+      setTags("");
+      setTitle("");
     } catch (err) {
-        console.error("Failed to load documents:", err);
-        toast.error("❌ Failed to load documents");
+      console.error("Failed to load documents:", err);
+      toast.error("❌ Failed to load documents");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
     };
 

@@ -8,7 +8,7 @@ django.setup()
 from rest_framework.test import APITestCase
 from unittest.mock import patch
 
-from intel_core.models import Document
+from intel_core.models import Document, DocumentSet
 from assistants.models import Assistant, AssistantThoughtLog
 
 
@@ -19,7 +19,9 @@ class BootstrapAssistantViewTest(APITestCase):
             content="Some content",
             source_url="http://example.com",
         )
-        self.url = f"/api/v1/intel/intelligence/bootstrap-assistant/{self.doc.id}/"
+        self.doc_set = DocumentSet.objects.create(title="MCP Docs", urls=[], videos=[], tags=[])
+        self.doc_set.pdf_files.add(self.doc)
+        self.url = f"/api/v1/intel/document-sets/{self.doc_set.id}/bootstrap-assistant/"
 
     def _fake_completion(self):
         class Msg:

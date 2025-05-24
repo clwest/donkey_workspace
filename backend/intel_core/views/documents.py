@@ -3,8 +3,15 @@ from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
-from intel_core.models import Document, DocumentFavorite, DocumentProgress
-from intel_core.serializers import DocumentSerializer
+import json
+from intel_core.services import DocumentService
+from intel_core.models import (
+    Document,
+    DocumentFavorite,
+    DocumentProgress,
+    DocumentSet,
+)
+from intel_core.serializers import DocumentSerializer, DocumentSetSerializer
 from prompts.utils.token_helpers import count_tokens, smart_chunk_prompt
 from assistants.models.assistant import Assistant
 
@@ -186,3 +193,50 @@ def document_progress_view(request, pk):
         "status": progress.status,
     }
     return Response(data)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def create_document_set(request):
+    """Create a DocumentSet from uploaded sources."""
+    title = request.data.get("title") or "Untitled"
+    urls = request.data.get("urls") or []
+    videos = request.data.get("videos") or []
+    tags = request.data.get("tags") or []
+    files = request.FILES.getlist("files")
+
+    if isinstance(urls, str):
+        try:
+            urls = json.loads(urls)
+        except Exception:
+            urls = [u.strip() for u in urls.split(",") if u.strip()]
+    if isinstance(videos, str):
+        try:
+            videos = json.loads(videos)
+        except Exception:
+            videos = [v.strip() for v in videos.split(",") if v.strip()]
+    if isinstance(tags, str):
+        try:
+            tags = json.loads(tags)
+        except Exception:
+            tags = [t.strip() for t in tags.split(",") if t.strip()]
+
+    document_set = DocumentService.create_document_set(
+        title=title,
+        urls=urls,
+        videos=videos,
+        files=files,
+        tags=tags,
+    )
+
+    return Response(DocumentSetSerializer(document_set).data, status=201)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def document_set_detail(request, pk):
+    try:
+        ds = DocumentSet.objects.get(pk=pk)
+    except DocumentSet.DoesNotExist:
+        return Response({"error": "Not found"}, status=404)
+    return Response(DocumentSetSerializer(ds).data)
