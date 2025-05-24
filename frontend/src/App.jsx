@@ -149,6 +149,7 @@ import MythOSRitualsPage from "./pages/mythos/MythOSRitualsPage";
 import AssistantForkPage from "./pages/assistants/AssistantForkPage";
 import CodexConvergePage from "./pages/codex/CodexConvergePage";
 import CodexProofPage from "./pages/codex/CodexProofPage";
+import CodexContractPage from "./pages/codex/CodexContractPage";
 import RitualContainersPage from "./pages/ritual/RitualContainersPage";
 import ReplayEnginePage from "./pages/replay/ReplayEnginePage";
 import DreamRebirthPage from "./pages/agents/DreamRebirthPage";
@@ -476,6 +477,7 @@ export default function App() {
           <Route path="/codex" element={<MythOSCodexPage />} />
           <Route path="/codex/converge" element={<CodexConvergePage />} />
           <Route path="/codex/proof" element={<CodexProofPage />} />
+          <Route path="/codex/contracts/:promptId" element={<CodexContractPage />} />
           <Route path="/dream" element={<DreamframePage />} />
           <Route path="/dream/rebirth" element={<DreamRebirthPage />} />
           <Route path="/ritual" element={<MythOSRitualsPage />} />
