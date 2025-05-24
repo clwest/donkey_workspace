@@ -1,39 +1,31 @@
-import React from "react";
+// pages/MythosLandingPage.jsx
+
 import { Link } from "react-router-dom";
 
-export default function MythOSLandingPage() {
+export default function MythosLandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-black text-white p-10 flex flex-col items-center justify-center space-y-6">
-      <h1 className="text-5xl font-bold tracking-tight text-center">
+    <div className="min-h-screen bg-gradient-to-br from-black via-zinc-900 to-black text-white px-6 py-16 flex flex-col items-center justify-center space-y-10 backdrop-blur-md">
+      <h1 className="text-7xl font-extrabold tracking-tight text-center drop-shadow-xl">
         🌌 Welcome to MythOS
       </h1>
-      <p className="text-lg text-zinc-400 text-center max-w-xl">
+      <p className="text-xl text-zinc-200 text-center max-w-2xl font-medium drop-shadow-md">
         A symbolic operating system for reflective agents, swarm intelligence, and narrative synchronization.
       </p>
-      <div className="text-center text-zinc-500 italic">Brought to you by <span className="text-white font-semibold">Donkey Betz</span> 🧠📜</div>
-      <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <Link
-          to="/assistants"
-          className="bg-zinc-800 hover:bg-zinc-700 px-6 py-3 rounded-xl shadow-xl text-center"
-        >
+      <p className="text-center text-zinc-400 text-sm">
+        Brought to you by Donkey Betz 🧠🥃
+      </p>
+
+      <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <Link to="/assistants/primary/interface" className="btn btn-outline-primary shadow-lg">
           🧠 Enter Assistant Interface
         </Link>
-        <Link
-          to="/codex"
-          className="bg-zinc-800 hover:bg-zinc-700 px-6 py-3 rounded-xl shadow-xl text-center"
-        >
+        <Link to="/codex" className="btn btn-outline-info shadow-md">
           📜 Explore the Codex
         </Link>
-        <Link
-          to="/ritual"
-          className="bg-zinc-800 hover:bg-zinc-700 px-6 py-3 rounded-xl shadow-xl text-center"
-        >
-          🔁 Ritual Dashboard
+        <Link to="/ritual" className="btn btn-outline-warning shadow-md">
+          🧂 Ritual Dashboard
         </Link>
-        <Link
-          to="/timeline"
-          className="bg-zinc-800 hover:bg-zinc-700 px-6 py-3 rounded-xl shadow-xl text-center"
-        >
+        <Link to="/timeline" className="btn btn-outline-secondary shadow-md">
           ⏳ Memory Timeline
         </Link>
       </div>
