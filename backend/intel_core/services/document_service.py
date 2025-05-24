@@ -198,9 +198,6 @@ class DocumentService:
 
         document_set = DocumentSet.objects.create(
             title=title,
-            tags=tags or [],
-            urls=urls,
-            videos=videos,
         )
-        document_set.pdf_files.set([d for d in docs if isinstance(d, Document)])
+        document_set.documents.set([d for d in docs if isinstance(d, Document)])
         return document_set

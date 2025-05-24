@@ -325,7 +325,7 @@ def create_assistant_from_document_set(request, pk):
     except DocumentSet.DoesNotExist:
         return Response({"error": "DocumentSet not found"}, status=404)
 
-    first_doc = doc_set.pdf_files.first()
+    first_doc = doc_set.documents.first()
     if not first_doc:
         return Response({"error": "DocumentSet has no documents"}, status=400)
 

@@ -19,8 +19,8 @@ class BootstrapAssistantViewTest(APITestCase):
             content="Some content",
             source_url="http://example.com",
         )
-        self.doc_set = DocumentSet.objects.create(title="MCP Docs", urls=[], videos=[], tags=[])
-        self.doc_set.pdf_files.add(self.doc)
+        self.doc_set = DocumentSet.objects.create(title="MCP Docs")
+        self.doc_set.documents.add(self.doc)
         self.url = f"/api/v1/intel/document-sets/{self.doc_set.id}/bootstrap-assistant/"
 
     def _fake_completion(self):
