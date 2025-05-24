@@ -154,6 +154,7 @@ from agents.models.prophecy import (
     MemoryPredictionInterface,
     RitualForecastingDashboard,
 )
+from agents.models.core import TrainedAgentLog
 from agents.models.forecast import SymbolicForecastIndex, AssistantSentimentModelEngine
 from agents.models.trend import (
     RitualMarketFeed,
