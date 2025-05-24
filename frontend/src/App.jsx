@@ -60,7 +60,7 @@ import AssistantThoughtDetailPage from "./pages/assistant/common/AssistantThough
 import AssistantDemoPage from "./pages/assistant/common/AssistantDemoPage";
 import ChatWithAssistantPage from "./pages/assistant/common/ChatWithAssistantPage";
 import CreateNewAssistantPage from "./pages/assistant/common/CreateNewAssistantPage";
-import AssistantInterfacePage from "./pages/assistants/AssistantInterfacePage";
+import AssistantInterfacePage from "./pages/assistants/[id]/interface";
 
 import ProjectDetailPage from "./pages/assistant/projects/ProjectDetailPage";
 import ProjectCreateFromMemoryPage from "./pages/assistant/projects/ProjectCreateFromMemoryPage";
