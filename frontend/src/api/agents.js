@@ -37,6 +37,8 @@ export const fetchDirectiveMemory = () =>
 export const fetchPlanningLattices = () =>
   apiFetch("/agents/planning-lattices/");
 
+export const fetchArenaActive = () => apiFetch("/agents/arena/active/");
+
 
 export const fetchCosmologies = () => apiFetch("/cosmologies/");
 export const updateBeliefEngine = (id) =>

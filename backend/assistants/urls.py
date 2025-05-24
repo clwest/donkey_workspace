@@ -731,6 +731,17 @@ urlpatterns = [
         symbolic.BeliefForkListView.as_view(),
         name="belief-forks",
     ),
+    # ===== Deployment Planner =====
+    path(
+        "<uuid:assistant_id>/deploy/",
+        views.assistant_deploy,
+        name="assistant-deploy",
+    ),
+    path(
+        "<uuid:assistant_id>/tools/",
+        views.assistant_toolchain,
+        name="assistant-toolchain",
+    ),
     # ===== DEBATE ENDPOINTS =====
     # path("debate/start/", debate.start_debate, name="start-debate"),
     # path("debate/<uuid:debate_id>/", debate.get_debate, name="debate-detail"),

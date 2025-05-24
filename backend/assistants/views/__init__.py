@@ -110,6 +110,7 @@ from .conscience import (
     reflexive_epistemology,
     decision_frameworks,
 )
+from .deployment_planner import assistant_deploy, assistant_toolchain, arena_active
 from .sensory import (
     codex_voice_command,
     assistant_sensory_profile,
@@ -263,4 +264,7 @@ __all__ = [
     "get_codex_anchors",
     "get_belief_history",
     "get_belief_forks",
+    "assistant_deploy",
+    "assistant_toolchain",
+    "arena_active",
 ]

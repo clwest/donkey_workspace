@@ -7,6 +7,7 @@ from .tasks import *
 from .interface import *
 from .dashboard import *
 from .personality import *
+from .deployment import *
 
 
 __all__ = []

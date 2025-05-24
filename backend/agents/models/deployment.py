@@ -158,3 +158,111 @@ class ReflectiveIntelligenceProtocolRegistry(models.Model):
     def __str__(self):  # pragma: no cover - display helper
         return f"Protocol {self.reflective_cluster_id}"
 
+
+
+class AssistantDeploymentLog(models.Model):
+    """Record assistant deployments across environments."""
+
+    assistant = models.ForeignKey('assistants.Assistant', on_delete=models.CASCADE)
+    label = models.CharField(max_length=150)
+    environment = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"{self.assistant.slug} -> {self.environment}"
+
+
+class DeploymentVector(models.Model):
+    """Symbolic deployment target descriptor."""
+
+    task = models.CharField(max_length=150)
+    codex = models.CharField(max_length=150)
+    ritual = models.CharField(max_length=150)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"{self.task}/{self.codex}/{self.ritual}"
+
+
+class ToolAssignment(models.Model):
+    """Selected tools for an assistant deployment."""
+
+    assistant = models.ForeignKey('assistants.Assistant', on_delete=models.CASCADE)
+    tools = models.ManyToManyField('tools.Tool')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Tools for {self.assistant.slug}"
+
+
+class SymbolicToolMap(models.Model):
+    """Map skills or symbols to tools."""
+
+    skill = models.CharField(max_length=150)
+    tool = models.ForeignKey('tools.Tool', on_delete=models.CASCADE)
+    weight = models.FloatField(default=1.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"{self.skill} -> {self.tool.slug}"
+
+
+class AgentExecutionSession(models.Model):
+    """Track a run of assistant + toolchain."""
+
+    assistant = models.ForeignKey('assistants.Assistant', on_delete=models.CASCADE)
+    toolchain = models.JSONField(default=list)
+    status = models.CharField(max_length=50, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Session {self.id} ({self.status})"
+
+
+class PromptExecutionTrace(models.Model):
+    """Record each prompt executed in a session."""
+
+    session = models.ForeignKey(AgentExecutionSession, on_delete=models.CASCADE, related_name='traces')
+    prompt = models.TextField()
+    result = models.TextField(blank=True)
+    success = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Trace {self.id} ({'ok' if self.success else 'fail'})"
+
+
+class ToolOutcomeLedger(models.Model):
+    """Outcome logs for tool executions in a session."""
+
+    session = models.ForeignKey(AgentExecutionSession, on_delete=models.CASCADE, related_name='tool_outcomes')
+    tool = models.ForeignKey('tools.Tool', on_delete=models.CASCADE)
+    payload = models.JSONField(default=dict)
+    result = models.JSONField(null=True, blank=True)
+    success = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"{self.tool.slug} ({'ok' if self.success else 'fail'})"

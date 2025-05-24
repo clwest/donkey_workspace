@@ -3,6 +3,7 @@ import warnings
 warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
 from django.urls import path
 from . import views
+from assistants.views.deployment_planner import arena_active
 
 from .views import agents
 
@@ -135,6 +136,8 @@ urlpatterns = [
     path("system/resilience/", agents.resilience_monitors),
     path("deploy/packet/", agents.deployment_packets),
     path("deploy/strategy/", agents.deployment_strategies),
+
+    path("arena/active/", arena_active, name="arena-active"),
 
     path("deploy/kits/", agents.deployment_kits),
     path("assistants/<uuid:assistant_id>/transfer/", agents.assistant_transfers),
