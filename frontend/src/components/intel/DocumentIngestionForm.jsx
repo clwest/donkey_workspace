@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import apiFetch, { API_URL } from "../../utils/apiClient";
 import { toast } from "react-toastify";
+import DocumentUploadProgressBar from "./DocumentUploadProgressBar";
+import SymbolicChunkLogViewer from "./SymbolicChunkLogViewer";
+import RitualIngestStatusToast from "./RitualIngestStatusToast";
 
 export default function DocumentIngestionForm({ onSuccess }) {
   const [urlInput, setUrlInput] = useState("");
@@ -10,6 +13,7 @@ export default function DocumentIngestionForm({ onSuccess }) {
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(null);
+  const [log, setLog] = useState([]);
   const pollRef = useRef(null);
 
   useEffect(() => {
@@ -29,15 +33,10 @@ export default function DocumentIngestionForm({ onSuccess }) {
 
     const sessionId = crypto.randomUUID();
 
-    const payload = {
-      title,
-      session_id: sessionId,
-      tags: parsedTags,
-    };
-
     try {
       const formData = new FormData();
       formData.append("title", title);
+      formData.append("session_id", sessionId);
       parsedTags.forEach((t) => formData.append("tags", t));
       if (urlInput.trim()) formData.append("urls", urlInput);
       if (videoInput.trim()) formData.append("videos", videoInput);
@@ -48,10 +47,23 @@ export default function DocumentIngestionForm({ onSuccess }) {
         credentials: "include",
       });
       if (!uploadRes.ok) throw new Error("API Error");
-      const res = await uploadRes.json();
-      toast.success("✅ Document set created!");
-      if (onSuccess) await onSuccess();
-      console.log(res);
+      await uploadRes.json();
+      setProgress({ stage: "parsing", percent_complete: 0 });
+      pollRef.current = setInterval(async () => {
+        try {
+          const stat = await apiFetch(
+            `/documents/upload-status/${sessionId}/`
+          );
+          setProgress(stat);
+          setLog((l) => [...l.slice(-10), `${stat.stage} ${stat.percent_complete}%`]);
+          if (stat.stage === "completed") {
+            clearInterval(pollRef.current);
+            if (onSuccess) await onSuccess();
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }, 3000);
       setUrlInput("");
       setVideoInput("");
       setTags("");
@@ -125,23 +137,11 @@ export default function DocumentIngestionForm({ onSuccess }) {
       </button>
 
       {progress && (
-        <div className="mt-3">
-          <div className="progress">
-            <div
-              className="progress-bar"
-              role="progressbar"
-              style={{ width: `${(progress.processed / progress.total_chunks) * 100}%` }}
-              aria-valuenow={progress.processed}
-              aria-valuemin="0"
-              aria-valuemax={progress.total_chunks}
-            ></div>
-          </div>
-          <small className="text-muted">
-            {progress.status === "completed"
-              ? `✅ ${progress.processed}/${progress.total_chunks} complete`
-              : `📄 Processing chunk ${progress.processed}/${progress.total_chunks}...`}
-          </small>
-        </div>
+        <>
+          <DocumentUploadProgressBar progress={progress} />
+          <SymbolicChunkLogViewer log={log} />
+          <RitualIngestStatusToast progress={progress} />
+        </>
       )}
     </form>
   );

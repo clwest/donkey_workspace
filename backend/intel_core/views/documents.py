@@ -4,14 +4,20 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 import json
+import uuid
+import os
+from django.core.files.storage import default_storage
+from django.conf import settings
 from intel_core.services import DocumentService
 from intel_core.models import (
     Document,
     DocumentFavorite,
     DocumentProgress,
     DocumentSet,
+    JobStatus,
 )
 from intel_core.serializers import DocumentSerializer, DocumentSetSerializer
+from intel_core.tasks import create_document_set_task
 from prompts.utils.token_helpers import count_tokens, smart_chunk_prompt
 from assistants.models.assistant import Assistant
 
@@ -195,6 +201,8 @@ def document_progress_view(request, pk):
     return Response(data)
 
 
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def create_document_set(request):
@@ -221,15 +229,25 @@ def create_document_set(request):
         except Exception:
             tags = [t.strip() for t in tags.split(",") if t.strip()]
 
-    document_set = DocumentService.create_document_set(
+    session_id = request.data.get("session_id") or str(uuid.uuid4())
+    job = JobStatus.objects.create(status="queued", session_id=session_id)
+
+    file_paths = []
+    for f in files:
+        path = default_storage.save(f.name, f)
+        file_paths.append(os.path.join(settings.MEDIA_ROOT, path))
+
+    create_document_set_task.delay(
         title=title,
         urls=urls,
         videos=videos,
-        files=files,
+        file_paths=file_paths,
         tags=tags,
+        session_id=session_id,
+        job_id=str(job.job_id),
     )
 
-    return Response(DocumentSetSerializer(document_set).data, status=201)
+    return Response({"session_id": session_id}, status=202)
 
 
 @api_view(["GET"])

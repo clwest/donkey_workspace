@@ -20,5 +20,6 @@ class DocumentImportAPITest(APITestCase):
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         self.assertIn("job_id", data)
+        self.assertIn("session_id", data)
         mock_task.assert_called()
         self.assertTrue(JobStatus.objects.filter(job_id=data["job_id"]).exists())
