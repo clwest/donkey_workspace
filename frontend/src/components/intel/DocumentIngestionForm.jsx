@@ -3,6 +3,10 @@ import apiFetch, { API_URL } from "../../utils/apiClient";
 import { toast } from "react-toastify";
 import DocumentUploadProgressBar from "./DocumentUploadProgressBar";
 
+import SymbolicChunkLogViewer from "./SymbolicChunkLogViewer";
+import RitualIngestStatusToast from "./RitualIngestStatusToast";
+
+
 export default function DocumentIngestionForm({ onSuccess }) {
   const [urlInput, setUrlInput] = useState("");
   const [videoInput, setVideoInput] = useState("");
@@ -11,6 +15,7 @@ export default function DocumentIngestionForm({ onSuccess }) {
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(null);
+  const [log, setLog] = useState([]);
   const pollRef = useRef(null);
 
   useEffect(() => {
@@ -30,15 +35,10 @@ export default function DocumentIngestionForm({ onSuccess }) {
 
     const sessionId = crypto.randomUUID();
 
-    const payload = {
-      title,
-      session_id: sessionId,
-      tags: parsedTags,
-    };
-
     try {
       const formData = new FormData();
       formData.append("title", title);
+      formData.append("session_id", sessionId);
       parsedTags.forEach((t) => formData.append("tags", t));
       if (urlInput.trim()) formData.append("urls", urlInput);
       if (videoInput.trim()) formData.append("videos", videoInput);
@@ -49,10 +49,23 @@ export default function DocumentIngestionForm({ onSuccess }) {
         credentials: "include",
       });
       if (!uploadRes.ok) throw new Error("API Error");
-      const res = await uploadRes.json();
-      toast.success("✅ Document set created!");
-      if (onSuccess) await onSuccess();
-      console.log(res);
+      await uploadRes.json();
+      setProgress({ stage: "parsing", percent_complete: 0 });
+      pollRef.current = setInterval(async () => {
+        try {
+          const stat = await apiFetch(
+            `/documents/upload-status/${sessionId}/`
+          );
+          setProgress(stat);
+          setLog((l) => [...l.slice(-10), `${stat.stage} ${stat.percent_complete}%`]);
+          if (stat.stage === "completed") {
+            clearInterval(pollRef.current);
+            if (onSuccess) await onSuccess();
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }, 3000);
       setUrlInput("");
       setVideoInput("");
       setTags("");
@@ -125,7 +138,15 @@ export default function DocumentIngestionForm({ onSuccess }) {
         {loading ? "Uploading..." : "📥 Ingest Sources"}
       </button>
 
-      <DocumentUploadProgressBar progress={progress} />
+
+      {progress && (
+        <>
+          <DocumentUploadProgressBar progress={progress} />
+          <SymbolicChunkLogViewer log={log} />
+          <RitualIngestStatusToast progress={progress} />
+        </>
+      )}
+
     </form>
   );
 }

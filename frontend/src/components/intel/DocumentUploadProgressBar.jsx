@@ -1,47 +1,26 @@
-import { useEffect, useState } from "react";
+
+import React from "react";
 
 export default function DocumentUploadProgressBar({ progress }) {
-  const [visible, setVisible] = useState(true);
-
-  useEffect(() => {
-    if (progress && progress.status === "completed") {
-      const t = setTimeout(() => setVisible(false), 2000);
-      return () => clearTimeout(t);
-    }
-    setVisible(true);
-  }, [progress]);
-
-  if (!progress || !visible) return null;
-
-  const percent = (progress.processed / progress.total_chunks) * 100;
-  let label = `📄 Processing ${progress.processed}/${progress.total_chunks}`;
-  let icon = "📄";
-
-  if (progress.status === "retrying") {
-    icon = "🔄";
-    label = "Attempting Codex-Aligned Rephrase";
-  } else if (progress.status === "error") {
-    icon = "⚠️";
-    label = "Symbolic Drift Detected";
-  } else if (progress.status === "completed") {
-    icon = "✅";
-    label = "Upload complete";
-  }
-
+  if (!progress) return null;
+  const percent = progress.percent_complete || 0;
   return (
-    <div className="mt-3">
+    <div className="my-3">
+
       <div className="progress">
         <div
           className="progress-bar"
           role="progressbar"
           style={{ width: `${percent}%` }}
-          aria-valuenow={progress.processed}
+
+          aria-valuenow={percent}
           aria-valuemin="0"
-          aria-valuemax={progress.total_chunks}
-        ></div>
+          aria-valuemax="100"
+        />
       </div>
       <small className="text-muted">
-        {icon} {label}
+        {progress.stage} – {percent}%
+
       </small>
     </div>
   );

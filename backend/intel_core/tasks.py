@@ -28,10 +28,11 @@ def process_url_upload(
         int: Number of documents processed
     """
     try:
-        # Update job status to processing
         job = JobStatus.objects.get(job_id=job_id)
         job.status = "processing"
+        job.stage = "chunking"
         job.progress = 10
+        job.total_chunks = len(urls)
         job.save()
 
         # Process URLs
@@ -39,9 +40,8 @@ def process_url_upload(
         processed_docs = []
 
         for i, url in enumerate(urls):
-            # Update progress for each URL
-            progress = int(10 + (i / total_urls) * 80)  # Progress from 10% to 90%
-            job.progress = progress
+            job.current_chunk = i + 1
+            job.progress = int(10 + (i / total_urls) * 80)
             job.message = f"Processing URL {i+1}/{total_urls}: {url}"
             job.save()
 
@@ -56,6 +56,7 @@ def process_url_upload(
 
         # Update final job status
         job.status = "completed"
+        job.stage = "completed"
         job.progress = 100
         job.message = f"Successfully processed {len(urls)} URLs"
         job.result = {
@@ -68,6 +69,87 @@ def process_url_upload(
         return len(processed_docs)
     except Exception as e:
         logger.error(f"Error in URL processing task: {str(e)}")
+        if job_id:
+            try:
+                job = JobStatus.objects.get(job_id=job_id)
+                job.status = "failed"
+                job.message = str(e)
+                job.save()
+            except Exception:
+                pass
+        raise
+
+
+@shared_task(bind=True, name="create_document_set_task")
+def create_document_set_task(
+    self,
+    *,
+    title,
+    urls=None,
+    videos=None,
+    file_paths=None,
+    tags=None,
+    session_id=None,
+    job_id=None,
+):
+    """Background task to ingest multiple sources into a DocumentSet."""
+    urls = urls or []
+    videos = videos or []
+    file_paths = file_paths or []
+    tags = tags or []
+    try:
+        job = JobStatus.objects.get(job_id=job_id)
+        job.status = "processing"
+        job.stage = "parsing"
+        job.progress = 5
+        job.total_chunks = len(urls) + len(videos) + len(file_paths)
+        job.save()
+
+        docs = []
+        for i, url in enumerate(urls):
+            job.current_chunk = i + 1
+            job.stage = "chunking"
+            job.progress = int(5 + (i / job.total_chunks) * 70)
+            job.message = f"Loading URL {i+1}/{job.total_chunks}"
+            job.save()
+            docs.extend(ingest_urls([url], title, "General", session_id))
+
+        offset = len(urls)
+        for j, vid in enumerate(videos):
+            job.current_chunk = offset + j + 1
+            job.stage = "chunking"
+            job.progress = int(5 + ((offset + j) / job.total_chunks) * 70)
+            job.message = f"Loading video {j+1}/{len(videos)}"
+            job.save()
+            docs.extend(ingest_videos([vid], title, "General", session_id))
+
+        offset += len(videos)
+        for k, path in enumerate(file_paths):
+            job.current_chunk = offset + k + 1
+            job.stage = "chunking"
+            job.progress = int(5 + ((offset + k) / job.total_chunks) * 70)
+            job.message = f"Loading PDF {k+1}/{len(file_paths)}"
+            job.save()
+            docs.extend(ingest_pdfs([path], title, "General", session_id))
+
+        job.stage = "embedding"
+        job.progress = 90
+        job.save()
+
+        document_set = DocumentSet.objects.create(title=title, urls=urls, videos=videos, tags=tags)
+        for doc in docs:
+            if isinstance(doc, Document):
+                document_set.documents.add(doc)
+
+        job.stage = "completed"
+        job.progress = 100
+        job.status = "completed"
+        job.message = "Document set ingestion complete"
+        job.save()
+
+        return document_set.id
+    except Exception as e:
+        logger.error(f"Error in document set task: {str(e)}")
         if job_id:
             try:
                 job = JobStatus.objects.get(job_id=job_id)
@@ -100,7 +182,9 @@ def process_video_upload(
         # Update job status to processing
         job = JobStatus.objects.get(job_id=job_id)
         job.status = "processing"
+        job.stage = "chunking"
         job.progress = 10
+        job.total_chunks = len(video_urls)
         job.save()
 
         # Process videos
@@ -108,9 +192,8 @@ def process_video_upload(
         processed_docs = []
 
         for i, url in enumerate(video_urls):
-            # Update progress for each video
-            progress = int(10 + (i / total_videos) * 80)
-            job.progress = progress
+            job.current_chunk = i + 1
+            job.progress = int(10 + (i / total_videos) * 80)
             job.message = f"Processing video {i+1}/{total_videos}: {url}"
             job.save()
 
@@ -125,6 +208,7 @@ def process_video_upload(
 
         # Update final job status
         job.status = "completed"
+        job.stage = "completed"
         job.progress = 100
         job.message = f"Successfully processed {len(video_urls)} videos"
         job.result = {
@@ -169,7 +253,9 @@ def process_pdf_upload(
         # Update job status to processing
         job = JobStatus.objects.get(job_id=job_id)
         job.status = "processing"
+        job.stage = "chunking"
         job.progress = 10
+        job.total_chunks = len(file_paths)
         job.save()
 
         # Process PDFs
@@ -177,9 +263,8 @@ def process_pdf_upload(
         processed_docs = []
 
         for i, file_path in enumerate(file_paths):
-            # Update progress for each PDF
-            progress = int(10 + (i / total_pdfs) * 80)
-            job.progress = progress
+            job.current_chunk = i + 1
+            job.progress = int(10 + (i / total_pdfs) * 80)
             job.message = f"Processing PDF {i+1}/{total_pdfs}"
             job.save()
 
@@ -195,6 +280,7 @@ def process_pdf_upload(
 
         # Update final job status
         job.status = "completed"
+        job.stage = "completed"
         job.progress = 100
         job.message = f"Successfully processed {len(file_paths)} PDFs"
         job.result = {

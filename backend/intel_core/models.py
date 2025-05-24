@@ -145,7 +145,12 @@ class JobStatus(models.Model):
     job_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     status = models.CharField(max_length=50)
     progress = models.IntegerField(default=0)
+    stage = models.CharField(max_length=50, default="queued")
+    session_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    current_chunk = models.IntegerField(default=0)
+    total_chunks = models.IntegerField(default=0)
     message = models.TextField(blank=True)
+    result = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

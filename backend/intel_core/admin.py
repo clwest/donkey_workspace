@@ -18,7 +18,14 @@ class DocumentInteractionAdmin(admin.ModelAdmin):
 
 @admin.register(JobStatus)
 class JobStatusAdmin(admin.ModelAdmin):
-    list_display = ("job_id", "status", "progress", "created_at")
+    list_display = (
+        "job_id",
+        "session_id",
+        "status",
+        "stage",
+        "progress",
+        "created_at",
+    )
     readonly_fields = ("job_id", "created_at", "updated_at")
     search_fields = ("job_id", "status")
     list_filter = ("status", "created_at")
