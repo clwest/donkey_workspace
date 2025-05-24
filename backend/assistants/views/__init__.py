@@ -116,6 +116,7 @@ from .sensory import (
     assistant_sensory_profile,
     haptic_ritual,
 )
+from .onboarding import onboarding_create_assistant, create_assistant_from_mythpath
 from .symbolic import (
     get_codex_anchors,
     get_belief_history,
@@ -267,4 +268,6 @@ __all__ = [
     "assistant_deploy",
     "assistant_toolchain",
     "arena_active",
+    "onboarding_create_assistant",
+    "create_assistant_from_mythpath",
 ]

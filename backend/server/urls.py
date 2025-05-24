@@ -17,6 +17,7 @@ from django.urls import get_resolver
 from story.views import storyboard_list
 from mcp_core.views import threading as thread_views
 from agents.views import agents as agent_views
+from assistants.views import onboarding as onboarding_views
 
 from tts.urls import router as tts_router
 from story.urls import router as story_router
@@ -50,6 +51,7 @@ urlpatterns = [
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
+    path("onboarding/", onboarding_views.onboarding_create_assistant),
     path("api/dj-rest-auth/", include("dj_rest_auth.urls")),
     path("api/dj-rest-auth/registration/", include("dj_rest_auth.registration.urls")),
     path("api/tts/", include("tts.urls")),
