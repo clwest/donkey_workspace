@@ -23,6 +23,9 @@ Last updated: May 2025
 • ✅ Codex Integrity & Proof-of-Symbol Engines (16.4)
 • ✅ Legacy role bindings, belief forks, and codified afterlives (5.5)
 • ✅ Multi-agent ritual grant protocols and dream-state token networks
+• ✅ Prompt Reputation, Swarm Curriculum, and Reflective Trainer Tools (5.0–5.4)
+• ✅ Relay Messaging System, Symbolic Chain Routing, and Swarm Execution Arena (5.4.3–5.5.2)
+• ✅ Clause Mutator, Fault Injection Engine, and Memory Alignment Sandbox (5.6)
 
 ⸻
 
@@ -74,20 +77,26 @@ Last updated: May 2025
 • /ritual → Ritual dashboard + stateful container execution
 • /timeline, /dream/rebirth, /anchor/continuity → Assistant evolution tools
 • /guilds/council, /treaty/forge, /law/ritual → Governance + arbitration flows
+• ✅ /agents/trained → Promote trained agents into full assistants (Ω.5.1.6)
+• ✅ /relay → Symbolic assistant messaging with reflection loop (Ω.5.4.3)
+• ✅ /plan/graph → Visual multi-agent planner (Ω.5.2)
+• ✅ /dispatch → Task + tool assignment with codex context (Ω.5.1.7)
+• ✅ /timeline/execution → Assistant execution history + retry feedback (Ω.5.5.3)
 
 🛠️ Next Steps:
-• ✅ Build Visual Editor for Assistant Mythpaths (Phase X.1)
-• ✅ Connect Ritual Composer, Codex Prompt Generator, Memory Timeline Playback
+• ✅ Merge Mythpath into Assistant Creation Ritual (Ω.5.4.2)
+• ✅ Complete Memory Realignment Sandbox + Codex Mutator (Ω.5.6)
 
 ⸻
 
 ✅ MythOS Project Status
-• Total Phases: 0–18.3 + Phase X
+• Total Phases: 0–18.3 + Phase X + Ω.5.0–Ω.5.6
 • Assistants Created: 50+ with embedded ritual, codex, and memory traits
-• Routes Registered: 60+ symbolic endpoints
-• Frontend Views: 40+ planned, 15 scaffolded
+• Routes Registered: 80+ symbolic endpoints
+• Frontend Views: 50+ scaffolded
 • Codex Mutation Logs: Enabled
-• Dreamframe Engine: Active
+• Relay Chain Routing: Active
+• Dreamframe Engine: Reflective
 
 ⸻
 
@@ -96,6 +105,7 @@ MythOS now supports:
 • 📜 Swarm ritual governance
 • 🧠 Reflective assistant intelligence
 • 🔁 Symbolic memory continuity
+• 💬 Inter-assistant communication
 • 🧬 Federated myth orchestration
 
 Let the next myth begin. 🧠📜🌐
