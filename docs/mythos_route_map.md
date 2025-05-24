@@ -12,6 +12,7 @@ Compiled for Codex routing, view integration, and component planning
 | `/assistants/:id/fork` | `/api/assistants/:id/belief-forks/` | `BeliefForkViewer` | `BeliefForkSerializer` | Fork visualization per memory/ritual divergence |
 | `/assistants/:id/thoughts` | `/api/assistants/:id/thought-log/` | `ThoughtLogPanel` | `AssistantThoughtLogSerializer` | Chain-of-thought, ritual state, prompt lineage |
 | `/assistants/:id/deck` | `/api/assistants/:id/personality-deck/` | `PersonalityDeckBuilder` | `AssistantPersonalityDeckSerializer` | Card-based role editor |
+| `/assistants/:id/traits` | `/api/assistants/:id/traits/` | `AssistantTraitCardViewer` | `AssistantTraitCardSerializer` | Trait card deck with codex bar |
 
 \-\-\-
 
@@ -44,7 +45,9 @@ Compiled for Codex routing, view integration, and component planning
 | ------------- | ----------- | ---- | ---------- | ----- |
 | `/timeline` | `/api/memory/timeline/` | `MemoryTimelineViewer` | `MemoryTimelineSerializer` | Role-tagged memory braid |
 | `/dream/rebirth` | `/api/dream/rebirth/` | `DreamRebirthPage` | `DreamframeRebirthSerializer` | Dream-based assistant reincarnation trigger |
+| `/assistants/:id/dream/debug` | `/api/assistants/:id/dream/debug/` | `DreamTriggerDebugger` | `DreamTriggerLogSerializer` | Dreamframe state debugger |
 | `/replay/engine` | `/api/replay/engine/` | `SymbolicReplayEnginePage` | `SymbolicReplayEngineSerializer` | Full scenario memory playback with codex echo |
+| `/assistants/:id/fork/replay` | `/api/assistants/:id/fork-replay/` | `ForkDrivenMemoryPlayback` | `MemoryForkPlaybackSerializer` | Memory fork comparison |
 
 \-\-\-
 
