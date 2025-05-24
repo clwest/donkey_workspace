@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { fetchTrainedAgents, promoteTrainedAgent } from "../../api/agents";
 import TrainedAgentCard from "../../components/agents/TrainedAgentCard";
 
 export default function TrainedAgentsPage() {
   const [logs, setLogs] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchTrainedAgents()
@@ -13,10 +16,15 @@ export default function TrainedAgentsPage() {
 
   const handlePromote = async (id) => {
     try {
-      await promoteTrainedAgent(id);
+      const assistant = await promoteTrainedAgent(id);
       setLogs((prev) => prev.filter((l) => l.id !== id));
+      toast.success("✅ Assistant successfully promoted.");
+      if (assistant && assistant.id) {
+        navigate(`/assistants/${assistant.id}/interface`);
+      }
     } catch (err) {
       console.error("Promotion failed", err);
+      toast.error("❌ Promotion failed. Check backend logs.");
     }
   };
 
