@@ -1,7 +1,7 @@
 import React from "react";
 import { MemoryRouter } from "react-router-dom";
 import { renderToStaticMarkup } from "react-dom/server";
-import AssistantMythpathPage from "./mythpath";
+import AssistantMythpathPage from "./AssistantMythpathPage";
 
 const html = renderToStaticMarkup(
   <MemoryRouter initialEntries={["/assistants/1/mythpath"]}>
