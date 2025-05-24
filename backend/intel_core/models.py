@@ -176,3 +176,27 @@ class DocumentProgress(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.processed}/{self.total_chunks}"
+
+
+class DocumentSet(models.Model):
+    """Group multiple documents for assistant creation."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    documents = models.ManyToManyField(Document, related_name="document_sets", blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="document_sets",
+    )
+    embedding_index = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return self.title

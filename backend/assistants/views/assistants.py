@@ -42,7 +42,7 @@ from assistants.utils.delegation import spawn_delegated_assistant, should_delega
 from assistants.helpers.memory_helpers import create_memory_from_chat
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from memory.utils.context_helpers import get_or_create_context_from_memory
-from embeddings.helpers.helpers_io import save_embedding
+from embeddings.helpers.helpers_io import save_embedding, get_embedding_for_text
 from embeddings.helpers.helper_tagging import generate_tags_for_memory
 from tools.utils import call_tool, reflect_on_tool_output
 from tools.utils.tool_registry import execute_tool
@@ -50,7 +50,10 @@ from tools.models import Tool, ToolUsageLog
 from prompts.models import Prompt
 from django.db import models
 
-from intel_core.models import Document
+from intel_core.models import Document, DocumentSet
+from mcp_core.models import Tag
+from agents.models.lore import SwarmMemoryEntry
+from mcp_core.utils.log_prompt import log_prompt_usage
 import warnings
 
 
@@ -358,6 +361,91 @@ def create_assistant_from_thought(request):
         },
         status=201,
     )
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def assistant_from_document_set(request):
+    """Create an assistant from a DocumentSet."""
+    data = request.data
+    set_id = data.get("document_set_id")
+    if not set_id:
+        return Response({"error": "document_set_id required"}, status=400)
+
+    try:
+        doc_set = DocumentSet.objects.get(id=set_id)
+    except DocumentSet.DoesNotExist:
+        return Response({"error": "DocumentSet not found"}, status=404)
+
+    name = data.get("name") or f"{doc_set.title} Assistant"
+    personality = data.get("personality", "")
+    tone = data.get("tone", "neutral")
+    model = data.get("preferred_model", "gpt-4o")
+
+    titles = ", ".join(doc_set.documents.values_list("title", flat=True))
+    intro = f"You are {name}. Personality: {personality}. Tone: {tone}. Specialty: {titles}."
+    codex_prompt = Prompt.objects.create(
+        title=f"{name} Codex",
+        content=intro,
+        type="system",
+        tone=tone,
+        source="auto",
+    )
+    summary_prompt = Prompt.objects.create(
+        title=f"{name} Summary Seed",
+        content="Summarize recent interactions and update memory.",
+        type="assistant",
+        tone=tone,
+        source="auto",
+    )
+
+    combined = " ".join(
+        (d.summary or d.content[:500]) for d in doc_set.documents.all()
+    )
+    vector = get_embedding_for_text(combined)
+
+    assistant = Assistant.objects.create(
+        name=name,
+        specialty=titles[:255],
+        personality=personality,
+        tone=tone,
+        preferred_model=model,
+        system_prompt=codex_prompt,
+        document_set=doc_set,
+        embedding_index={"vector": vector},
+    )
+    assistant.documents.set(doc_set.documents.all())
+
+    ritual_tags = []
+    for slug in ["ritual", "memory-ingestion", "summon"]:
+        tag, _ = Tag.objects.get_or_create(slug=slug, defaults={"name": slug})
+        ritual_tags.append(tag)
+
+    mem = SwarmMemoryEntry.objects.create(
+        title=f"Summon {name}",
+        content=f"Assistant created from DocumentSet {doc_set.title}",
+        origin="summon",
+    )
+    mem.tags.set(ritual_tags)
+
+    thought = AssistantThoughtLog.objects.create(
+        assistant=assistant,
+        thought_type="meta",
+        category="meta",
+        thought=f"Assistant summoned from document set {doc_set.title}.",
+    )
+    thought.tags.set(ritual_tags)
+
+    log_prompt_usage(
+        prompt_slug=codex_prompt.slug,
+        prompt_title=codex_prompt.title,
+        used_by="assistant_from_document_set",
+        rendered_prompt=codex_prompt.content,
+        assistant_id=str(assistant.id),
+        extra_data={"document_set": str(doc_set.id)},
+    )
+
+    return Response({"assistant_id": str(assistant.id)})
 
 
 @api_view(["POST"])

@@ -974,6 +974,8 @@ class AssistantSerializer(serializers.ModelSerializer):
             "collaboration_style",
             "preferred_conflict_resolution",
             "current_project",
+            "document_set",
+            "embedding_index",
             "avg_empathy_score",
             "trust",
             "delegation_events_count",
