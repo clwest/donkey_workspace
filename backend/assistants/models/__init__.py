@@ -7,6 +7,8 @@ from .tasks import *
 from .interface import *
 from .dashboard import *
 from .personality import *
+from .identity import *
+from .mythpath import *
 
 
 

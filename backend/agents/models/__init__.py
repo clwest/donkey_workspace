@@ -19,6 +19,7 @@ from .forecast import *
 from .trend import *
 from .deployment import *
 from .recovery import *
+from .inheritance import *
 
 from .temporal import *
 
