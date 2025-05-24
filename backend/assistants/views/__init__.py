@@ -115,6 +115,11 @@ from .sensory import (
     assistant_sensory_profile,
     haptic_ritual,
 )
+from .symbolic import (
+    get_codex_anchors,
+    get_belief_history,
+    get_belief_forks,
+)
 
 from .bootstrap import prompt_to_assistant
 from .signals import (
@@ -254,4 +259,7 @@ __all__ = [
     "codex_voice_command",
     "assistant_sensory_profile",
     "haptic_ritual",
+    "get_codex_anchors",
+    "get_belief_history",
+    "get_belief_forks",
 ]
