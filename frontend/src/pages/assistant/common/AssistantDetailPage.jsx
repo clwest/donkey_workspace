@@ -235,7 +235,7 @@ export default function AssistantDetailPage() {
           🧠 Thought Log
         </Link>
         <Link
-          to={`/assistants/${slug}/projects`}
+          to={`/assistants/projects`}
           className="btn btn-outline-success"
         >
           📂 Projects
