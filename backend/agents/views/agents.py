@@ -1,12 +1,15 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
 
 from agents.models.core import (
     Agent,
     AgentFeedbackLog,
     AgentCluster,
+    AgentTrainingAssignment,
 )
 from agents.models.lore import (
     SwarmMemoryEntry,
@@ -288,7 +291,9 @@ from agents.serializers import (
     MythPatternClusterSerializer,
     IntentHarmonizationSessionSerializer,
     AgentPlotlineCurationSerializer,
- 
+    AgentTrainingEventSerializer,
+    CodexAnchorSerializer,
+
 )
 
 from assistants.serializers import (
@@ -2081,6 +2086,15 @@ def federated_summon(request):
     serializer.is_valid(raise_exception=True)
     summoner = serializer.save()
     return Response(FederatedMythicIntelligenceSummonerSerializer(summoner).data, status=201)
+
+
+class AgentTrainingTimelineView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        events = AgentTrainingAssignment.objects.all().order_by("-assigned_at")
+        serializer = AgentTrainingEventSerializer(events, many=True)
+        return Response(serializer.data)
 
 
 

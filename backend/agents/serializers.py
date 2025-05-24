@@ -3,6 +3,7 @@ from agents.models.core import (
     Agent,
     AgentFeedbackLog,
     AgentCluster,
+    AgentTrainingAssignment,
 )
 from agents.models.lore import (
     SwarmMemoryEntry,
@@ -145,6 +146,7 @@ from agents.models.identity import (
     SymbolicIdentityCard,
     PersonaTemplate,
     PersonaFusionEvent,
+    PersonalCodexAnchor,
 )
 from agents.models.prophecy import (
     SymbolicProphecyEngine,
@@ -511,6 +513,20 @@ class BeliefForkEventSerializer(serializers.ModelSerializer):
         model = BeliefForkEvent
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
+
+class CodexAnchorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PersonalCodexAnchor
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class AgentTrainingEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AgentTrainingAssignment
+        fields = "__all__"
+        read_only_fields = ["id", "assigned_at", "completed_at"]
 
 
 class MythCollapseLogSerializer(serializers.ModelSerializer):

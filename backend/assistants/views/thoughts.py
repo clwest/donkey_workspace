@@ -1,5 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
 import logging
 
 from rest_framework import status, viewsets
@@ -550,3 +552,16 @@ def assistant_thought_map(request, slug):
     ]
 
     return Response({"thoughts": data})
+
+
+class AssistantThoughtLogListView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, slug):
+        assistant = get_object_or_404(Assistant, slug=slug)
+        logs = (
+            AssistantThoughtLog.objects.filter(assistant=assistant)
+            .order_by("-created_at")
+        )
+        serializer = AssistantThoughtLogSerializer(logs, many=True)
+        return Response(serializer.data)

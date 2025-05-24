@@ -484,6 +484,11 @@ urlpatterns = [
         name="assistant_thoughts_by_slug",
     ),
     path(
+        "<slug:slug>/thought-log/",
+        thoughts.AssistantThoughtLogListView.as_view(),
+        name="assistant-thought-log",
+    ),
+    path(
         "<slug:slug>/thought-map/",
         thoughts.assistant_thought_map,
         name="assistant-thought-map",
@@ -706,6 +711,11 @@ urlpatterns = [
         name="assistant-codex-anchors",
     ),
     path(
+        "<slug:slug>/codex-anchors/",
+        symbolic.CodexAnchorListView.as_view(),
+        name="codex-anchors",
+    ),
+    path(
         "<uuid:assistant_id>/belief-history/",
         symbolic.get_belief_history,
         name="assistant-belief-history",
@@ -714,6 +724,11 @@ urlpatterns = [
         "<uuid:assistant_id>/belief-forks/",
         symbolic.get_belief_forks,
         name="assistant-belief-forks",
+    ),
+    path(
+        "<slug:slug>/belief-forks/",
+        symbolic.BeliefForkListView.as_view(),
+        name="belief-forks",
     ),
     # ===== DEBATE ENDPOINTS =====
     # path("debate/start/", debate.start_debate, name="start-debate"),
