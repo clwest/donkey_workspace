@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import apiFetch, { API_URL } from "../../utils/apiClient";
 import { toast } from "react-toastify";
-import DocumentUploadProgressBar from "./DocumentUploadProgressBar";
+import DocumentIngestAggregateProgressBar from "./DocumentIngestAggregateProgressBar";
 
-import SymbolicChunkLogViewer from "./SymbolicChunkLogViewer";
+import IngestSessionLogConsole from "./IngestSessionLogConsole";
 import RitualIngestStatusToast from "./RitualIngestStatusToast";
 
 
@@ -14,13 +14,13 @@ export default function DocumentIngestionForm({ onSuccess }) {
   const [tags, setTags] = useState("");
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState(null);
+  const [jobs, setJobs] = useState([]);
   const [log, setLog] = useState([]);
-  const pollRef = useRef(null);
+  const pollRef = useRef({});
 
   useEffect(() => {
     return () => {
-      if (pollRef.current) clearInterval(pollRef.current);
+      Object.values(pollRef.current).forEach(clearInterval);
     };
   }, []);
 
@@ -34,6 +34,7 @@ export default function DocumentIngestionForm({ onSuccess }) {
       .filter((t) => t.length > 0);
 
     const sessionId = crypto.randomUUID();
+    const jobLabel = title || urlInput || videoInput || (pdfFiles[0]?.name || "Upload");
 
     try {
       const formData = new FormData();
@@ -50,16 +51,30 @@ export default function DocumentIngestionForm({ onSuccess }) {
       });
       if (!uploadRes.ok) throw new Error("API Error");
       await uploadRes.json();
-      setProgress({ stage: "parsing", percent_complete: 0 });
-      pollRef.current = setInterval(async () => {
+      const newJob = {
+        session_id: sessionId,
+        title: jobLabel,
+        stage: "parsing",
+        percent_complete: 0,
+      };
+      setJobs((prev) => [...prev, newJob]);
+      pollRef.current[sessionId] = setInterval(async () => {
         try {
-          const stat = await apiFetch(
-            `/documents/upload-status/${sessionId}/`
+          const stat = await apiFetch(`/documents/upload-status/${sessionId}/`);
+          setJobs((prev) =>
+            prev.map((j) =>
+              j.session_id === sessionId
+                ? { ...j, ...stat }
+                : j
+            )
           );
-          setProgress(stat);
-          setLog((l) => [...l.slice(-10), `${stat.stage} ${stat.percent_complete}%`]);
+          setLog((l) => [
+            ...l.slice(-50),
+            `📄 ${stat.stage} — ${jobLabel} — ${stat.percent_complete}%`,
+          ]);
           if (stat.stage === "completed") {
-            clearInterval(pollRef.current);
+            clearInterval(pollRef.current[sessionId]);
+            delete pollRef.current[sessionId];
             if (onSuccess) await onSuccess();
           }
         } catch (e) {
@@ -139,11 +154,18 @@ export default function DocumentIngestionForm({ onSuccess }) {
       </button>
 
 
-      {progress && (
+      {jobs.length > 0 && (
         <>
-          <DocumentUploadProgressBar progress={progress} />
-          <SymbolicChunkLogViewer log={log} />
-          <RitualIngestStatusToast progress={progress} />
+          <DocumentIngestAggregateProgressBar jobs={jobs} />
+          <ul className="list-unstyled small mt-2">
+            {jobs.map((job) => (
+              <li key={job.session_id}>
+                📄 {job.stage} — {job.title} — {job.percent_complete}%
+              </li>
+            ))}
+          </ul>
+          <IngestSessionLogConsole log={log} />
+          <RitualIngestStatusToast progress={jobs[jobs.length - 1]} />
         </>
       )}
 
