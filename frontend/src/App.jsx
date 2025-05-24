@@ -53,6 +53,7 @@ import MemoryChainViewerPage from "./pages/memories/chains/MemoryChainViewerPage
 import MemoryChainsListPage from "./pages/memories/chains/MemoryChainsListPage";
 import MemoryChainDetailPage from "./pages/memories/chains/MemoryChainDetailPage"; // 👈 ADD THIS
 import MemoryEntryCreatePage from "./pages/memories/entries/MemoryEntryCreatePage";
+import RelayChainViewerPage from "./pages/relay/chains/RelayChainViewerPage";
 
 {
   /** Assistant */
@@ -232,6 +233,10 @@ export default function App() {
             element={<MemoryChainDetailPage />}
           />{" "}
           {/* 🔗 Chain Viewer */}
+          <Route
+            path="/relay/chains/:id"
+            element={<RelayChainViewerPage />}
+          />
           {/* Assistant & Projects */}
           <Route path="/assistants" element={<AssistantList />} />
           <Route
