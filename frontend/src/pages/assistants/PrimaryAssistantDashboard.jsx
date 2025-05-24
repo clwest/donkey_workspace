@@ -69,9 +69,9 @@ export default function PrimaryAssistantDashboard() {
           });
           setMemoryCoverage(total ? Math.round((embedded / total) * 100) : 0);
         }
-        const inboxData = await apiFetch(`/assistants/messages/inbox/${res.slug}`);
+        const inboxData = await apiFetch(`/assistants/relay/inbox/${res.slug}`);
         setInbox(inboxData || []);
-        const outData = await apiFetch(`/assistants/messages/outbox/${res.slug}`);
+        const outData = await apiFetch(`/assistants/relay/outbox/${res.slug}`);
         setOutbox(outData || []);
         const all = await apiFetch("/assistants/");
         setAllAssistants(all);
@@ -139,12 +139,12 @@ export default function PrimaryAssistantDashboard() {
   const handleSendRelay = async () => {
     if (!newMessage || !recipient) return;
     try {
-      await apiFetch("/assistants/messages/send/", {
+      await apiFetch(`/assistants/${assistant.slug}/relay/`, {
         method: "POST",
-        body: { sender: assistant.slug, recipient, content: newMessage },
+        body: { recipient_slug: recipient, message: newMessage },
       });
-      const inboxData = await apiFetch(`/assistants/messages/inbox/${assistant.slug}`);
-      const outData = await apiFetch(`/assistants/messages/outbox/${assistant.slug}`);
+      const inboxData = await apiFetch(`/assistants/relay/inbox/${assistant.slug}`);
+      const outData = await apiFetch(`/assistants/relay/outbox/${assistant.slug}`);
       setInbox(inboxData || []);
       setOutbox(outData || []);
       setNewMessage("");
@@ -340,21 +340,62 @@ export default function PrimaryAssistantDashboard() {
             </button>
           </div>
           <h5>Outgoing</h5>
-          <ul className="list-group mb-4">
-            {outbox.map((m) => (
-              <li key={m.id} className="list-group-item">
-                to {m.recipient} - {m.content} ({m.status})
-              </li>
-            ))}
-          </ul>
+          <table className="table table-sm mb-4">
+            <thead>
+              <tr>
+                <th>Recipient</th>
+                <th>Preview</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {outbox.map((m) => (
+                <tr key={m.id}>
+                  <td>{m.recipient}</td>
+                  <td>{m.content.slice(0, 30)}...</td>
+                  <td>
+                    {m.responded ? (
+                      <>
+                        ✨ Responded{' '}
+                        {m.thought_log && (
+                          <a href={`/thoughts/${m.thought_log}`}>Open</a>
+                        )}
+                      </>
+                    ) : m.delivered ? (
+                      <>✅ Delivered ({new Date(m.delivered_at).toLocaleString()})</>
+                    ) : (
+                      '🕓 Pending'
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
           <h5>Incoming</h5>
-          <ul className="list-group">
-            {inbox.map((m) => (
-              <li key={m.id} className="list-group-item">
-                from {m.sender} - {m.content} ({m.status})
-              </li>
-            ))}
-          </ul>
+          <table className="table table-sm">
+            <thead>
+              <tr>
+                <th>Sender</th>
+                <th>Preview</th>
+                <th>Status</th>
+                <th>Thought</th>
+              </tr>
+            </thead>
+            <tbody>
+              {inbox.map((m) => (
+                <tr key={m.id}>
+                  <td>{m.sender}</td>
+                  <td>{m.content.slice(0, 30)}...</td>
+                  <td>{m.responded ? '✨ Responded' : m.delivered ? '✅ Delivered' : '🕓 Pending'}</td>
+                  <td>
+                    {m.thought_log && (
+                      <a href={`/thoughts/${m.thought_log}`}>Open</a>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

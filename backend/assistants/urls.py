@@ -347,6 +347,16 @@ urlpatterns = [
         messages.outbox,
         name="assistant-message-outbox",
     ),
+    path(
+        "relay/inbox/<slug:slug>/",
+        messages.relay_inbox,
+        name="assistant-relay-inbox",
+    ),
+    path(
+        "relay/outbox/<slug:slug>/",
+        messages.relay_outbox,
+        name="assistant-relay-outbox",
+    ),
     # Council
     # <<<<<<< codex/implement-mood-driven-collaboration-styles
     #     path("council/start/", council.start_session, name="council-start"),

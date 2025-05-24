@@ -945,6 +945,7 @@ class AssistantMessageSerializer(serializers.ModelSerializer):
 class AssistantRelayMessageSerializer(serializers.ModelSerializer):
     sender = serializers.SlugRelatedField(read_only=True, slug_field="slug")
     recipient = serializers.SlugRelatedField(read_only=True, slug_field="slug")
+    thought_log = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = AssistantRelayMessage
@@ -954,11 +955,23 @@ class AssistantRelayMessageSerializer(serializers.ModelSerializer):
             "recipient",
             "content",
             "status",
-            "sent_at",
+            "delivered",
             "delivered_at",
+            "responded",
+            "sent_at",
             "responded_at",
+            "thought_log",
         ]
-        read_only_fields = ["id", "sent_at", "delivered_at", "responded_at", "status"]
+        read_only_fields = [
+            "id",
+            "sent_at",
+            "delivered",
+            "delivered_at",
+            "responded",
+            "responded_at",
+            "status",
+            "thought_log",
+        ]
 
 
 class AssistantSerializer(serializers.ModelSerializer):
