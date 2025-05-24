@@ -50,7 +50,6 @@ router.register(r"", views.AssistantViewSet, basename="assistant")
 
 
 urlpatterns = [
-    path("", include(router.urls)),
     # Basics
     path("reflection/", assistants.reflect_on_assistant),
     path("create_from_thought/", assistants.create_assistant_from_thought),
