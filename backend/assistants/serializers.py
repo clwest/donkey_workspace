@@ -4,6 +4,7 @@ from .models.assistant import (
    
     AssistantChatMessage,
     AssistantMessage,
+    AssistantRelayMessage,
     ChatSession,
     SpecializationDriftLog,
     
@@ -939,6 +940,25 @@ class AssistantMessageSerializer(serializers.ModelSerializer):
             "related_memory",
         ]
         read_only_fields = ["id", "created_at"]
+
+
+class AssistantRelayMessageSerializer(serializers.ModelSerializer):
+    sender = serializers.SlugRelatedField(read_only=True, slug_field="slug")
+    recipient = serializers.SlugRelatedField(read_only=True, slug_field="slug")
+
+    class Meta:
+        model = AssistantRelayMessage
+        fields = [
+            "id",
+            "sender",
+            "recipient",
+            "content",
+            "status",
+            "sent_at",
+            "delivered_at",
+            "responded_at",
+        ]
+        read_only_fields = ["id", "sent_at", "delivered_at", "responded_at", "status"]
 
 
 class AssistantSerializer(serializers.ModelSerializer):

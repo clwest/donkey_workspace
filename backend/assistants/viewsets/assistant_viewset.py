@@ -4,9 +4,12 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
 
-from assistants.models.assistant import Assistant
+from assistants.models.assistant import Assistant, AssistantRelayMessage
 from assistants.models.thoughts import AssistantThoughtLog
-from assistants.serializers import AssistantSerializer
+from assistants.serializers import (
+    AssistantSerializer,
+    AssistantRelayMessageSerializer,
+)
 from assistants.utils.session_utils import (
     get_cached_thoughts,
     save_message_to_session,
@@ -116,3 +119,29 @@ class AssistantViewSet(viewsets.ViewSet):
             return Response({"error": "session_id required"}, status=400)
         count = flush_session_to_db(session_id, assistant)
         return Response({"flushed": count})
+
+    @action(detail=True, methods=["post"], url_path="relay")
+    def relay(self, request, pk=None):
+        sender = get_object_or_404(Assistant, slug=pk)
+        recipient_slug = request.data.get("recipient_slug")
+        message = request.data.get("message")
+        if not (recipient_slug and message):
+            return Response(
+                {"error": "recipient_slug and message required"}, status=400
+            )
+        recipient = get_object_or_404(Assistant, slug=recipient_slug)
+        relay_msg = AssistantRelayMessage.objects.create(
+            sender=sender,
+            recipient=recipient,
+            content=message,
+        )
+        relay_msg.mark_delivered()
+        if recipient.auto_reflect_on_message:
+            AssistantThoughtLog.objects.create(
+                assistant=recipient,
+                thought=message,
+                role="relay",
+                thought_type="generated",
+            )
+        serializer = AssistantRelayMessageSerializer(relay_msg)
+        return Response(serializer.data, status=201)
