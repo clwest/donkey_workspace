@@ -26,6 +26,7 @@ Last updated: May 2025
 • ✅ Prompt Reputation, Swarm Curriculum, and Reflective Trainer Tools (5.0–5.4)
 • ✅ Relay Messaging System, Symbolic Chain Routing, and Swarm Execution Arena (5.4.3–5.5.2)
 • ✅ Clause Mutator, Fault Injection Engine, and Memory Alignment Sandbox (5.6)
+• ✅ Codex Fragmentation Engine, Ritual Decomposition Planner & Swarm-Based Codification Strategies (5.8)
 
 ⸻
 
@@ -82,11 +83,15 @@ Last updated: May 2025
 • ✅ /plan/graph → Visual multi-agent planner (Ω.5.2)
 • ✅ /dispatch → Task + tool assignment with codex context (Ω.5.1.7)
 • ✅ /timeline/execution → Assistant execution history + retry feedback (Ω.5.5.3)
+• ✅ /codex/vote → Symbolic clause approval and mutation triggers (Ω.5.7)
+• ✅ /ritual/reputation → Ritual effectiveness metrics and swarm feedback (Ω.5.7)
+• ✅ /swarm/alignment → Live swarm alignment pulse and belief stability index (Ω.5.7)
 
 🛠️ Next Steps:
 • ✅ Merge Mythpath into Assistant Creation Ritual (Ω.5.4.2)
 • ✅ Complete Memory Realignment Sandbox + Codex Mutator (Ω.5.6)
-• ⏳ Codex Fragmentation Engine, Ritual Decomposition Planner & Swarm-Based Codification Strategies (Ω.5.8)
+• ✅ Scaffold Codex Fragmentation + Ritual Decomposition + Swarm Pattern Miner (Ω.5.8)
+• ⏳ Activate Identity Anchors, Codex Inheritance + Temporal Mythpath Recorder (Ω.5.9)
 
 ⸻
 
