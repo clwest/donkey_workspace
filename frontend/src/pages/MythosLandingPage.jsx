@@ -25,7 +25,7 @@ export default function MythosLandingPage() {
         <Link to="/ritual" className="btn btn-outline-warning shadow-md">
           🧂 Ritual Dashboard
         </Link>
-        <Link to="/timeline" className="btn btn-outline-secondary shadow-md">
+        <Link to="/timeline/memory" className="btn btn-outline-secondary shadow-md">
           ⏳ Memory Timeline
         </Link>
       </div>

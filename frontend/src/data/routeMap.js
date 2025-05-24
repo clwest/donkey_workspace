@@ -213,7 +213,7 @@ export const routeMap = [
     notes: "Ritual fork replay",
   },
   {
-    frontend: "/timeline",
+    frontend: "/timeline/memory",
     backend: "/api/memory/timeline/",
     view: "MemoryTimelineViewer",
     serializer: "-",

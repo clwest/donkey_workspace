@@ -125,6 +125,7 @@ import AgentDetailPage from "./pages/agents/AgentDetailPage";
 import AgentArchivePage from "./pages/agents/AgentArchivePage";
 import TrainedAgentsPage from "./pages/agents/TrainedAgentsPage";
 import SwarmTimelinePage from "./pages/agents/SwarmTimelinePage";
+import MemoryTimelinePage from "./pages/timeline/MemoryTimelinePage";
 import RoutingHistoryPage from "./pages/assistants/RoutingHistoryPage";
 import StoryboardEditorPage from "./pages/storyboard/StoryboardEditorPage";
 import NarrativeEventDetailPage from "./pages/storyboard/NarrativeEventDetailPage";
@@ -479,6 +480,7 @@ export default function App() {
           <Route path="/agents/trained" element={<TrainedAgentsPage />} />
           <Route path="/swarm/timeline" element={<SwarmTimelinePage />} />
           <Route path="/timeline" element={<WorldTimelinePage />} />
+          <Route path="/timeline/memory" element={<MemoryTimelinePage />} />
           <Route path="/agents/:slug" element={<AgentDetailPage />} />
           <Route path="/intel/documents" element={<DocumentBrowserPage />} />
           <Route path="/intel/documents/:id" element={<DocumentDetailPage />} />
