@@ -60,3 +60,5 @@ button {
 button:hover {
   background-color: #343a40;
 }
+.recent-memory { background-color: #f1f3f5; border: 1px solid #dee2e6; }
+
