@@ -304,3 +304,15 @@ export async function fetchRecentReflections(slug) {
   }
   return res.json();
 }
+
+export const fetchDeploymentReadiness = (id) =>
+  apiFetch(`/assistants/${id}/deploy/`);
+
+export const triggerDeployment = (id, body) =>
+  apiFetch(`/assistants/${id}/deploy/`, { method: "POST", body });
+
+export const fetchToolAssignments = (id) =>
+  apiFetch(`/assistants/${id}/tools/`);
+
+export const saveToolAssignments = (id, body) =>
+  apiFetch(`/assistants/${id}/tools/`, { method: "POST", body });

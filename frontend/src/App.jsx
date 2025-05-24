@@ -138,6 +138,9 @@ import MemoryPredictionPage from "./pages/memory/MemoryPredictionPage";
 import RitualForecastPage from "./pages/ritual/RitualForecastPage";
 import RitualRewardsPage from "./pages/ritual/RitualRewardsPage";
 import AssistantEconomyPage from "./pages/assistants/AssistantEconomyPage";
+import AssistantDeployPage from "./pages/assistants/AssistantDeployPage";
+import AssistantToolsPage from "./pages/assistants/AssistantToolsPage";
+import ArenaActivePage from "./pages/arena/ArenaActivePage";
 import GuildFundingPage from "./pages/guilds/GuildFundingPage";
 import GuildExchangePage from "./pages/guilds/GuildExchangePage";
 import TokenMarketPage from "./pages/market/TokenMarketPage";
@@ -496,6 +499,9 @@ export default function App() {
           <Route path="/summon/federated" element={<FederatedSummonPage />} />
           <Route path="/anchor/continuity" element={<ContinuityAnchorPage />} />
           <Route path="/assistants/:id/economy" element={<AssistantEconomyPage />} />
+          <Route path="/assistants/:id/deploy" element={<AssistantDeployPage />} />
+          <Route path="/assistants/:id/tools" element={<AssistantToolsPage />} />
+          <Route path="/arena/active" element={<ArenaActivePage />} />
           <Route path="/guilds/council" element={<ArbitrationCouncilPage />} />
           <Route path="/guilds/:id/funding" element={<GuildFundingPage />} />
           <Route path="/guilds/:id/exchange" element={<GuildExchangePage />} />
