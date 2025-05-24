@@ -1071,6 +1071,23 @@ def record_swarm_memory(sender, instance, created, **kwargs):
         entry.linked_agents.add(*instance.assistant.assigned_agents.all())
 
 
+@receiver(post_save, sender="assistants.AssistantReflectionLog")
+def track_prompt_cascade(sender, instance, created, **kwargs):
+    """Create a PromptCascadeLog for new reflections."""
+    if not created or not instance.raw_prompt:
+        return
+    from simulation.models import PromptCascadeLog, CascadeNodeLink
+    cascade = PromptCascadeLog.objects.create(
+        prompt_id=str(instance.id),
+        triggered_by=instance.assistant,
+        cascade_path=[{"reflection": instance.title}],
+    )
+    CascadeNodeLink.objects.create(
+        cascade=cascade,
+        assistant=instance.assistant,
+    )
+
+
 class CouncilSession(models.Model):
     """Group of assistants debating or collaborating on a topic."""
 

@@ -20,6 +20,12 @@ from .views.playback import (
     MythflowPlaybackSessionViewSet,
     SymbolicMilestoneLogViewSet,
     PersonalRitualGuideViewSet,
+    SwarmReflectionThreadViewSet,
+    SwarmReflectionPlaybackLogViewSet,
+    PromptCascadeLogViewSet,
+    CascadeNodeLinkViewSet,
+    SimulationClusterStatusViewSet,
+    SimulationGridNodeViewSet,
 )
 from .views.dreamframe import (
     DreamframeStoryGeneratorViewSet,
@@ -53,6 +59,12 @@ router.register(r"ritual-guide", PersonalRitualGuideViewSet, basename="ritual-gu
 router.register(r"dreamframes", DreamframeStoryGeneratorViewSet, basename="dreamframe-generator")
 router.register(r"scenario-engine", SimScenarioEngineViewSet, basename="scenario-engine")
 router.register(r"narrative-labs", MultiUserNarrativeLabViewSet, basename="narrative-lab")
+router.register(r"swarm-reflection-threads", SwarmReflectionThreadViewSet, basename="swarm-reflection-thread")
+router.register(r"swarm-reflection-playback", SwarmReflectionPlaybackLogViewSet, basename="swarm-reflection-playback")
+router.register(r"prompt-cascades", PromptCascadeLogViewSet, basename="prompt-cascade")
+router.register(r"cascade-nodes", CascadeNodeLinkViewSet, basename="cascade-node")
+router.register(r"simulation-grid", SimulationClusterStatusViewSet, basename="simulation-grid")
+router.register(r"simulation-grid-nodes", SimulationGridNodeViewSet, basename="simulation-grid-node")
 
 
 urlpatterns = router.urls + [

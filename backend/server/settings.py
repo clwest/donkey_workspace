@@ -83,6 +83,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "mcp_core.middleware.APIVersionDeprecationMiddleware",
+    "assistants.middleware.ReflectionCascadeMiddleware",
 ]
 
 # === 🧠 Templates ===

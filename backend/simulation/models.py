@@ -241,3 +241,47 @@ class MultiUserNarrativeLab(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+
+class SwarmReflectionThread(models.Model):
+    """Thread grouping assistant reflections for swarm playback."""
+    title = models.CharField(max_length=150)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class SwarmReflectionPlaybackLog(models.Model):
+    thread = models.ForeignKey(SwarmReflectionThread, on_delete=models.CASCADE, related_name="logs")
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    timeline = models.JSONField()
+    tag = models.CharField(max_length=50, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class PromptCascadeLog(models.Model):
+    prompt_id = models.CharField(max_length=100)
+    triggered_by = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE, null=True, blank=True)
+    cascade_path = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class CascadeNodeLink(models.Model):
+    cascade = models.ForeignKey(PromptCascadeLog, on_delete=models.CASCADE, related_name="nodes")
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    tool_invoked = models.CharField(max_length=100, blank=True)
+    thought_log = models.ForeignKey("assistants.AssistantThoughtLog", on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class SimulationClusterStatus(models.Model):
+    cluster_name = models.CharField(max_length=150)
+    phase = models.CharField(max_length=50)
+    entropy_level = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class SimulationGridNode(models.Model):
+    cluster = models.ForeignKey(SimulationClusterStatus, on_delete=models.CASCADE, related_name="nodes")
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    alignment_drift = models.FloatField(default=0.0)
+    progress = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
