@@ -1,5 +1,6 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+import logging
 
 from rest_framework import status, viewsets
 from rest_framework.pagination import PageNumberPagination
@@ -15,6 +16,8 @@ from assistants.serializers import AssistantThoughtLogSerializer
 from mcp_core.serializers_tags import TagSerializer
 from django.shortcuts import get_object_or_404
 from django.core.cache import cache
+
+logger = logging.getLogger(__name__)
 from assistants.utils.session_utils import (
     get_cached_reflection,
     set_cached_reflection,
@@ -280,16 +283,21 @@ def assistant_reflect_now(request, slug):
     engine = AssistantThoughtEngine(assistant=assistant)
     force_flag = request.data.get("force") or request.query_params.get("force")
     force = str(force_flag).lower() in ["1", "true", "yes"]
-    result = engine.reflect_on_thoughts(force=force)
-
-    return Response(
-        {
-            "assistant": assistant.name,
-            "reflection": result["summary"],
-            "source_count": result["source_count"],
-            "trace": result["trace"],
-        }
-    )
+    try:
+        result = engine.reflect_on_thoughts(force=force)
+        return Response(
+            {
+                "status": "ok",
+                "log_id": result.get("log_id"),
+                "message": "Reflection stored",
+            }
+        )
+    except Exception:
+        logger.exception("Failed to store reflection")
+        return Response(
+            {"status": "error", "message": "Failed to store reflection"},
+            status=500,
+        )
 
 
 @api_view(["POST"])

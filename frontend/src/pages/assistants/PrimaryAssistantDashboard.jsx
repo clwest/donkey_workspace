@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
-import { fetchFailureLog, runSelfAssessment, regeneratePlan } from "../../api/assistants";
+import {
+  fetchFailureLog,
+  runSelfAssessment,
+  regeneratePlan,
+  fetchRecentReflections,
+} from "../../api/assistants";
+import ReflectionToastStatus from "../../components/assistant/ReflectionToastStatus";
 import AssistantThoughtCard from "../../components/assistant/thoughts/AssistantThoughtCard";
 import AssistantMemoryPanel from "../../components/assistant/memory/AssistantMemoryPanel";
 import PrioritizedMemoryPanel from "../../components/assistant/memory/PrioritizedMemoryPanel";
@@ -29,6 +35,8 @@ export default function PrimaryAssistantDashboard() {
   const [recipient, setRecipient] = useState("");
   const [assessment, setAssessment] = useState(null);
   const [showAssess, setShowAssess] = useState(false);
+  const [reflectionComplete, setReflectionComplete] = useState(false);
+  const [toastStatus, setToastStatus] = useState(null);
 
   useEffect(() => {
     async function load() {
@@ -80,6 +88,20 @@ export default function PrimaryAssistantDashboard() {
     load();
   }, []);
 
+  useEffect(() => {
+    if (reflectionComplete && assistant) {
+      fetchRecentReflections(assistant.slug)
+        .then((data) => {
+          setAssistant((prev) => ({
+            ...prev,
+            recent_thoughts: data.thoughts || [],
+          }));
+        })
+        .catch((err) => console.error("Failed to refresh reflections", err));
+      setReflectionComplete(false);
+    }
+  }, [reflectionComplete, assistant]);
+
   const handleReflect = async () => {
     if (!assistant) return;
     try {
@@ -97,26 +119,20 @@ export default function PrimaryAssistantDashboard() {
         return;
       }
 
+      setToastStatus("retry");
       const res = await apiFetch("/assistants/primary/reflect-now/", {
         method: "POST",
         body: { memory_id: memoryId },
       });
-      // Push a new reflection entry matching AssistantThoughtCard shape
-      setAssistant((prev) => ({
-        ...prev,
-        recent_thoughts: [
-          {
-            summary: res.summary,
-            thought_type: "reflection",
-            role: "assistant",
-            created_at: new Date().toISOString(),
-          },
-          ...(prev.recent_thoughts || []),
-        ],
-      }));
+      if (res.status === "ok") {
+        setToastStatus("success");
+        setReflectionComplete(true);
+      } else {
+        setToastStatus("error");
+      }
     } catch (err) {
       console.error("Reflection failed", err);
-      alert("Failed to trigger reflection");
+      setToastStatus("error");
     }
   };
 
@@ -347,6 +363,7 @@ export default function PrimaryAssistantDashboard() {
       onClose={() => setShowAssess(false)}
       result={assessment}
     />
+    <ReflectionToastStatus status={toastStatus} />
     </>
   );
 }

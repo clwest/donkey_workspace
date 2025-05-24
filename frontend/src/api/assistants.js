@@ -296,3 +296,11 @@ export async function evaluateAgentTraining(slug, agentId) {
   }
   return res.json();
 }
+
+export async function fetchRecentReflections(slug) {
+  const res = await fetch(`${ASSISTANTS_API}/${slug}/reflections/recent/`);
+  if (!res.ok) {
+    throw new Error("Failed to load recent reflections");
+  }
+  return res.json();
+}

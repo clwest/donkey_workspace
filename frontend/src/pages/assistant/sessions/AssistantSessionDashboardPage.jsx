@@ -44,7 +44,12 @@ export default function AssistantSessionDashboardPage({ slug: slugProp }) {
       const res = await apiFetch(`/assistants/${slug}/reflect-now/`, {
         method: "POST",
       });
-      setReflection(res.summary || res);
+      if (res.status === "ok") {
+        const latest = await apiFetch(`/assistants/${slug}/reflections/recent/`);
+        setReflection(latest.thoughts?.[0]?.content || "");
+      } else {
+        setReflection("Reflection failed.");
+      }
     } catch (err) {
       console.error("Reflection failed", err);
     } finally {
