@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function ArchetypeSelectionChamber() {
   const [tone, setTone] = useState("");
   const [tag, setTag] = useState("");
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const path = searchParams.get("path") || "custom";
 
   const submit = () => {
-    navigate("/onboarding/summon", { state: { tone, tag } });
+    navigate("/onboarding/summon", { state: { tone, tag, path } });
   };
 
   return (

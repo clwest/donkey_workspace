@@ -1,27 +1,16 @@
-import { useLocation } from "react-router-dom";
-import usePostSummonRouter from "../../onboarding/summon";
-import apiFetch from "../../utils/apiClient";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function SummoningRitualConsole() {
   const location = useLocation();
-  const postSummon = usePostSummonRouter();
+  const navigate = useNavigate();
   const tone = location.state?.tone || "";
   const tag = location.state?.tag || "";
+  const path = location.state?.path || "custom";
 
-  const summon = async () => {
-    try {
-      const assistant = await apiFetch("/assistants/", {
-        method: "POST",
-        body: {
-          name: tag || "Summoned Assistant",
-          specialty: tag || "general",
-          tone,
-        },
-      });
-      postSummon(assistant);
-    } catch (err) {
-      console.error(err);
-    }
+  const proceed = () => {
+    navigate("/assistants/create", {
+      state: { tone, tag, mythpath: path },
+    });
   };
 
   return (
@@ -30,8 +19,8 @@ export default function SummoningRitualConsole() {
       <p>
         Summoning <strong>{tag}</strong> with tone <em>{tone}</em>
       </p>
-      <button className="btn btn-success" onClick={summon}>
-        Summon Assistant
+      <button className="btn btn-success" onClick={proceed}>
+        Continue to Creation
       </button>
     </div>
   );
