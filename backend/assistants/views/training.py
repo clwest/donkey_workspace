@@ -3,8 +3,9 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from assistants.models.assistant import Assistant
-from agents.models.core import Agent
+from agents.models.core import Agent, TrainedAgentLog
 from intel_core.models import Document
+from assistants.serializers import AssistantSerializer
 from assistants.utils.assistant_reflection_engine import (
     assign_training_documents,
     evaluate_agent_training,
@@ -31,3 +32,27 @@ def evaluate_agent(request, slug, agent_id):
     agent = get_object_or_404(Agent, id=agent_id)
     report = evaluate_agent_training(assistant, agent)
     return Response(report)
+
+
+@api_view(["POST"])
+def promote_trained_agent(request):
+    log_id = request.data.get("log_id")
+    if not log_id:
+        return Response({"error": "log_id required"}, status=400)
+
+    log = get_object_or_404(TrainedAgentLog, id=log_id)
+    agent = log.agent
+
+    assistant = Assistant.objects.create(
+        name=log.label,
+        description=agent.description,
+        specialty=agent.specialty,
+        system_prompt=log.prompt,
+        document_set=log.document_set,
+        traits=list(agent.skills or []),
+    )
+    if log.document_set:
+        assistant.documents.set(log.document_set.documents.all())
+
+    serializer = AssistantSerializer(assistant)
+    return Response(serializer.data, status=201)

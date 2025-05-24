@@ -12,6 +12,7 @@ Frontend Path Backend URL View Serializer Notes
 /assistants/:id/thoughts /api/assistants/:id/thought-log/ ThoughtLogPanel AssistantThoughtLogSerializer Chain-of-thought, ritual state, prompt lineage
 /assistants/:id/deck /api/assistants/:id/personality-deck/ PersonalityDeckBuilder AssistantPersonalityDeckSerializer Card-based role editor
 /assistants/:id/traits /api/assistants/:id/traits/ AssistantTraitCardViewer AssistantTraitCardSerializer Trait card deck with codex bar
+/agents/trained /api/agents/trained/ TrainedAgentsPage TrainedAgentLogSerializer List symbolic training sessions
 
 ⸻
 

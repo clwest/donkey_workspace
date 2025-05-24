@@ -9,7 +9,9 @@ from agents.models.core import (
     Agent,
     AgentFeedbackLog,
     AgentCluster,
+
     AgentTrainingAssignment,
+
 )
 from agents.models.lore import (
     SwarmMemoryEntry,
@@ -178,6 +180,7 @@ from agents.serializers import (
     AgentSerializer,
     AgentFeedbackLogSerializer,
     AgentClusterSerializer,
+    TrainedAgentLogSerializer,
     SwarmMemoryEntrySerializer,
     LoreEntrySerializer,
     LoreEpochSerializer,
@@ -427,6 +430,13 @@ def list_clusters(request):
 def cluster_detail_view(request, id):
     cluster = get_object_or_404(AgentCluster, id=id)
     serializer = AgentClusterSerializer(cluster)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+def trained_agents(request):
+    logs = TrainedAgentLog.objects.all().order_by("-created_at")
+    serializer = TrainedAgentLogSerializer(logs, many=True)
     return Response(serializer.data)
 
 
