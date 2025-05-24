@@ -33,19 +33,24 @@ class ReflectionViewSet(viewsets.ModelViewSet):
             "Deprecated function endpoints; use this action instead",
             DeprecationWarning,
         )
-        return reflect_on_memories(request)
+        # `reflect_on_memories` is a function-based view decorated with
+        # `@api_view`, which expects a `django.http.HttpRequest`. When called
+        # directly from a DRF viewset action we receive a DRF `Request` object,
+        # which triggers an assertion inside the decorator. Passing the
+        # underlying HttpRequest avoids that issue.
+        return reflect_on_memories(request._request)
 
     @action(detail=True, methods=["post"])  # /reflections/<pk>/expand/
     def expand(self, request, pk=None):
-        return expand_reflection(request, pk)
+        return expand_reflection(request._request, pk)
 
     @action(detail=False, methods=["get"], url_path="recent")
     def recent(self, request):
-        return recent_reflections(request)
+        return recent_reflections(request._request)
 
     @action(detail=False, methods=["get"], url_path="grouped")
     def grouped(self, request):
-        return grouped_reflections_view(request)
+        return grouped_reflections_view(request._request)
 
 
 @api_view(["POST"])
