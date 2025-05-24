@@ -33,6 +33,8 @@ import CustomReflectionPage from "./pages/mcp_core/reflections/CustomReflectionP
 import PlanningPage from "./pages/dev/PlanningPage";
 import PlanningGraphPage from "./pages/plan/PlanningGraphPage";
 import TaskAssignmentPage from "./pages/plan/TaskAssignmentPage";
+import ExecutionChainPage from "./pages/plan/ExecutionChainPage";
+import BeliefForecastPage from "./pages/forecast/BeliefForecastPage";
 import ThreadDetailPage from "./pages/mcp_core/threads/ThreadDetailPage";
 import ThreadsOverviewPage from "./pages/mcp_core/threads/ThreadsOverviewPage";
 import ThreadEditorPage from "./pages/mcp_core/threads/ThreadEditorPage";
@@ -453,6 +455,7 @@ export default function App() {
           <Route path="/planning" element={<PlanningPage />} />
           <Route path="/plan/graph" element={<PlanningGraphPage />} />
           <Route path="/plan/assign" element={<TaskAssignmentPage />} />
+          <Route path="/plan/chains" element={<ExecutionChainPage />} />
           <Route
             path="/grouped-reflection"
             element={<GroupedReflectionPage />}
@@ -497,6 +500,7 @@ export default function App() {
           <Route path="/prophecy/engine" element={<ProphecyEnginePage />} />
           <Route path="/memory/predict" element={<MemoryPredictionPage />} />
           <Route path="/ritual/forecast" element={<RitualForecastPage />} />
+          <Route path="/forecast/belief" element={<BeliefForecastPage />} />
           <Route path="/ritual/rewards" element={<RitualRewardsPage />} />
           <Route path="/replay/engine" element={<ReplayEnginePage />} />
           <Route path="/deploy/standards" element={<DeployStandardsPage />} />

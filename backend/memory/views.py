@@ -31,6 +31,7 @@ from .serializers import (
     SharedMemoryEntrySerializer,
     BraidedMemoryStrandSerializer,
     ContinuityAnchorPointSerializer,
+    MemoryMergeSuggestionSerializer,
 )
 from prompts.serializers import PromptSerializer
 from prompts.models import Prompt
@@ -876,3 +877,14 @@ def symbolic_chunk_diff_view(request, document_set_id):
         for f in failures
     ]
     return Response({"document_set_id": str(document_set_id), "chunks": diff})
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def suggest_memory_merge(request):
+    """Create a merge suggestion for two memory entries."""
+    serializer = MemoryMergeSuggestionSerializer(data=request.data)
+    if serializer.is_valid():
+        suggestion = serializer.save()
+        return Response(MemoryMergeSuggestionSerializer(suggestion).data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

@@ -303,4 +303,18 @@ export const routeMap = [
     serializer: "TaskAssignmentRecommendationSerializer",
     notes: "Role-adaptive task assignment",
   },
+  {
+    frontend: "/plan/chains",
+    backend: "/api/plan/chains/",
+    view: "ExecutionChainPage",
+    serializer: "AssistantExecutionChainSerializer",
+    notes: "Assistant handoff chain planner",
+  },
+  {
+    frontend: "/forecast/belief",
+    backend: "/api/forecast/belief/",
+    view: "BeliefForecastPage",
+    serializer: "BeliefForecastSnapshotSerializer",
+    notes: "Belief resonance forecast heatmap",
+  },
 ];
