@@ -21,6 +21,12 @@ from .models import (
     MythflowPlaybackSession,
     SymbolicMilestoneLog,
     PersonalRitualGuide,
+    SwarmReflectionThread,
+    SwarmReflectionPlaybackLog,
+    PromptCascadeLog,
+    CascadeNodeLink,
+    SimulationClusterStatus,
+    SimulationGridNode
 )
 
 
