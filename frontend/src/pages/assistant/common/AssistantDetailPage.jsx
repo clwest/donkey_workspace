@@ -10,6 +10,7 @@ import SelfAssessmentModal from "../../../components/assistant/SelfAssessmentMod
 import { toast } from "react-toastify";
 import "./styles/AssistantDetail.css";
 import AssistantMemoryAuditPanel from "../../../components/assistant/memory/AssistantMemoryAuditPanel";
+import AssistantMemoryPanel from "../../../components/assistant/memory/AssistantMemoryPanel";
 import AgentTrainingManager from "../../../components/assistants/AgentTrainingManager";
 
 export default function AssistantDetailPage() {
@@ -420,6 +421,8 @@ export default function AssistantDetailPage() {
           <DriftScoreChart logs={assistant.drift_logs} />
         </div>
       )}
+
+      <AssistantMemoryPanel slug={slug} />
 
       <RecoveryPanel assistantSlug={slug} />
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import apiFetch from "../../../utils/apiClient";
 import ReflectNowButton from "../ReflectNowButton";
-import TagBadge from "../../TagBadge";
+import MemoryCard from "../../mcp_core/MemoryCard";
 
 export default function AssistantMemoryPanel({ slug }) {
   const [memories, setMemories] = useState([]);
@@ -16,8 +16,6 @@ export default function AssistantMemoryPanel({ slug }) {
           apiFetch(`/assistants/${slug}/memories/`),
           apiFetch(`/assistants/${slug}/`),
         ]);
-        console.log(memRes)
-        console.log(asst)
         setMemories(memRes || []);
         setProject(asst.current_project || null);
       } catch (err) {
@@ -40,37 +38,15 @@ export default function AssistantMemoryPanel({ slug }) {
       {memories.length === 0 ? (
         <div className="text-muted">No recent memories 📭</div>
       ) : (
-        <ul className="list-group">
-          {memories.map((m) => {
-            const summary =
-              m.summary || (m.event ? `${m.event.slice(0, 120)}…` : "(no content)");
-
-            return (
-              <li
-                key={m.id}
-                className="list-group-item d-flex justify-content-between align-items-start shadow-sm p-3"
-              >
-                <div className="me-2">
-
-                  <div className="memory-summary">
-                    <strong>{summary}</strong>
-                  </div>
-                  <div className="memory-meta small text-muted">
-
-                    {new Date(m.created_at).toLocaleString()} • {m.token_count} tokens
-                  </div>
-                  {m.tags && m.tags.length > 0 && (
-                    <div className="mt-1">
-                      {m.tags.map((t) => (
-                        <TagBadge key={t.id} tag={t} className="me-1" />
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <ReflectNowButton slug={slug} memoryId={m.id} />
-              </li>
-            );
-          })}
+        <ul className="list-group list-unstyled">
+          {memories.map((m) => (
+            <li key={m.id} className="mb-2">
+              <MemoryCard
+                memory={m}
+                action={<ReflectNowButton slug={slug} memoryId={m.id} />}
+              />
+            </li>
+          ))}
         </ul>
       )}
     </div>

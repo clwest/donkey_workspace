@@ -1,15 +1,44 @@
-export default function MemoryCard({ memory }) {
-  const summary =
-    memory.summary ||
-    (memory.event ? `${memory.event.slice(0, 120)}…` : "(no content)");
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import TagBadge from "../TagBadge";
+
+dayjs.extend(relativeTime);
+
+export default function MemoryCard({ memory, action }) {
+  const summaryRaw =
+    memory.summary || memory.event || memory.content || "";
+  const summary = summaryRaw
+    ? summaryRaw.slice(0, 150) + (summaryRaw.length > 150 ? "…" : "")
+    : "(No content available)";
+
+  const readSecs = Math.round((memory.token_count || 0) / 4);
+  const created = dayjs(memory.created_at);
+  const isRecent = dayjs().diff(created, "minute") < 10;
+  const tooltip = `${created.format("YYYY-MM-DD HH:mm:ss")} (${created.fromNow()})`;
+  const reflected =
+    memory.type === "reflection" ||
+    (memory.tags || []).some((t) => t.name.toLowerCase().includes("reflection"));
 
   return (
-    <div className="card mb-2">
-      <div className="card-body p-2">
-        <div className="memory-summary mb-1 small">{summary}</div>
-        <div className="memory-meta text-muted small">
-          {new Date(memory.created_at).toLocaleString()} • {memory.token_count} tokens
+    <div className={`card mb-2 ${isRecent ? "recent-memory" : ""}`}>
+      <div className="card-body p-2 d-flex justify-content-between">
+        <div>
+          <div className="memory-summary mb-1 small">
+            📄 {reflected && <span title="Used in reflection" className="me-1">🪞</span>}
+            {summary}
+          </div>
+          <div className="memory-meta text-muted small" title={tooltip}>
+            🧠 {memory.token_count || 0} tokens · ~{readSecs}s • {created.fromNow()}
+          </div>
+          {memory.tags && memory.tags.length > 0 && (
+            <div className="mt-1 text-truncate" style={{ maxWidth: 220 }}>
+              {memory.tags.slice(0, 3).map((t) => (
+                <TagBadge key={t.id || t.slug} tag={t} />
+              ))}
+            </div>
+          )}
         </div>
+        {action && <div className="ms-2">{action}</div>}
       </div>
     </div>
   );
