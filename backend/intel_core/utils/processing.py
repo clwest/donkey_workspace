@@ -4,6 +4,7 @@ import logging
 import numpy as np
 from openai import OpenAI
 from intel_core.models import Document
+from django.db import IntegrityError
 from intel_core.core import clean_text, lemmatize_text, detect_topic
 from mcp_core.models import Tag
 from embeddings.helpers.helpers_io import save_embedding
@@ -62,14 +63,20 @@ def _create_document_chunks(document: Document):
 
     chunks = generate_chunks(document.content)
     for i, chunk in enumerate(chunks):
-        DocumentChunk.objects.create(
-            document=document,
-            order=i,
-            text=chunk,
-            tokens=count_tokens(chunk),
-            chunk_type="body",
-            fingerprint=generate_chunk_fingerprint(chunk),
-        )
+        fingerprint = generate_chunk_fingerprint(chunk)
+        try:
+            DocumentChunk.objects.create(
+                document=document,
+                order=i,
+                text=chunk,
+                tokens=count_tokens(chunk),
+                chunk_type="body",
+                fingerprint=fingerprint,
+            )
+        except IntegrityError:
+            logger.warning(
+                f"Duplicate fingerprint for chunk {i} on document {document.id}, skipping"
+            )
 
 
 def save_document_to_db(content, metadata, session_id=None):
