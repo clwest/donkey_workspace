@@ -179,16 +179,25 @@ class DocumentProgress(models.Model):
 
 
 class DocumentSet(models.Model):
-    """Collection of related source documents used to train an assistant."""
+    """Group multiple documents for assistant creation."""
 
-    title = models.CharField(max_length=150)
-    tags = models.JSONField(default=list)
-    urls = models.JSONField(blank=True, null=True)
-    videos = models.JSONField(blank=True, null=True)
-    pdf_files = models.ManyToManyField(Document, blank=True, related_name="document_sets")
-    merged_embedding_vector = models.BinaryField(null=True)
-    symbolic_fingerprint = models.CharField(max_length=256, null=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    documents = models.ManyToManyField(Document, related_name="document_sets", blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="document_sets",
+    )
+    embedding_index = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+
         return self.title

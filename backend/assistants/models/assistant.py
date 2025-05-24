@@ -113,6 +113,14 @@ class Assistant(models.Model):
     documents = models.ManyToManyField(
         "intel_core.Document", blank=True, related_name="linked_assistants"
     )
+    document_set = models.ForeignKey(
+        "intel_core.DocumentSet",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="assistants",
+    )
+    embedding_index = models.JSONField(default=dict, blank=True)
     current_project = models.ForeignKey(
         "assistants.AssistantProject",
         null=True,

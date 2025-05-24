@@ -44,17 +44,18 @@ class DocumentSerializer(serializers.ModelSerializer):
 
 
 class DocumentSetSerializer(serializers.ModelSerializer):
-    pdf_files = DocumentSerializer(many=True, read_only=True)
+
+    documents = DocumentSerializer(many=True, read_only=True)
+
 
     class Meta:
         model = DocumentSet
         fields = [
             "id",
             "title",
-            "tags",
-            "urls",
-            "videos",
-            "pdf_files",
-            "symbolic_fingerprint",
+            "description",
+            "documents",
             "created_at",
+            "embedding_index",
+
         ]
