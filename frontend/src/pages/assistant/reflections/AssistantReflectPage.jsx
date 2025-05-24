@@ -131,7 +131,8 @@ export default function AssistantReflectPage() {
           </div>
         ))
       )}
+      <ReflectionToastStatus status={toastStatus} />
     </div>
-    <ReflectionToastStatus status={toastStatus} />
+    
   );
 }
