@@ -185,6 +185,13 @@ export const routeMap = [
     notes: "Assistant prompt editor",
   },
   {
+    frontend: "/codex/mutator/:clauseId",
+    backend: "/api/codex/mutator/<clauseId>/",
+    view: "CodexClauseMutatorPage",
+    serializer: "-",
+    notes: "Edit & mutate codex clause",
+  },
+  {
     frontend: "/ritual",
     backend: "/api/ritual/launchpads/",
     view: "RitualDashboardPage",
@@ -218,6 +225,13 @@ export const routeMap = [
     view: "MemoryTimelineViewer",
     serializer: "-",
     notes: "Role-tagged memory braid",
+  },
+  {
+    frontend: "/memory/sandbox/:assistantId",
+    backend: "/api/memory/sandbox/<assistantId>/",
+    view: "MemorySandboxPage",
+    serializer: "-",
+    notes: "Memory alignment sandbox",
   },
   {
     frontend: "/dream/rebirth",
@@ -267,6 +281,13 @@ export const routeMap = [
     view: "SymbolicReplayEnginePage",
     serializer: "-",
     notes: "Replay engine",
+  },
+  {
+    frontend: "/fault/injector",
+    backend: "/api/fault/injector/",
+    view: "FaultInjectorPage",
+    serializer: "-",
+    notes: "Fault injection engine",
   },
   {
     frontend: "/deploy/standards",

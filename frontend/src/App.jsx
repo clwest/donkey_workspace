@@ -162,8 +162,10 @@ import AssistantForkPage from "./pages/assistants/AssistantForkPage";
 import CodexConvergePage from "./pages/codex/CodexConvergePage";
 import CodexProofPage from "./pages/codex/CodexProofPage";
 import CodexContractPage from "./pages/codex/CodexContractPage";
+import CodexClauseMutatorPage from "./pages/codex/CodexClauseMutatorPage";
 import RitualContainersPage from "./pages/ritual/RitualContainersPage";
 import ReplayEnginePage from "./pages/replay/ReplayEnginePage";
+import FaultInjectorPage from "./pages/fault/FaultInjectorPage";
 import DreamRebirthPage from "./pages/agents/DreamRebirthPage";
 import ContinuityAnchorPage from "./pages/anchor/ContinuityAnchorPage";
 import ArbitrationCouncilPage from "./pages/guilds/ArbitrationCouncilPage";
@@ -172,6 +174,7 @@ import FederationCodicesPage from "./pages/federation/FederationCodicesPage";
 import RitualLawPage from "./pages/law/RitualLawPage";
 import DeployStandardsPage from "./pages/deploy/DeployStandardsPage";
 import FederatedSummonPage from "./pages/summon/FederatedSummonPage";
+import MemorySandboxPage from "./pages/memory/MemorySandboxPage";
 
 
 import { ToastContainer } from "react-toastify";
@@ -481,6 +484,7 @@ export default function App() {
           <Route path="/swarm/timeline" element={<SwarmTimelinePage />} />
           <Route path="/timeline" element={<WorldTimelinePage />} />
           <Route path="/timeline/memory" element={<MemoryTimelinePage />} />
+          <Route path="/memory/sandbox/:assistantId" element={<MemorySandboxPage />} />
           <Route path="/agents/:slug" element={<AgentDetailPage />} />
           <Route path="/intel/documents" element={<DocumentBrowserPage />} />
           <Route path="/intel/documents/:id" element={<DocumentDetailPage />} />
@@ -503,6 +507,7 @@ export default function App() {
           <Route path="/codex/converge" element={<CodexConvergePage />} />
           <Route path="/codex/proof" element={<CodexProofPage />} />
           <Route path="/codex/contracts/:promptId" element={<CodexContractPage />} />
+          <Route path="/codex/mutator/:clauseId" element={<CodexClauseMutatorPage />} />
           <Route path="/dream" element={<DreamframePage />} />
           <Route path="/dream/rebirth" element={<DreamRebirthPage />} />
           <Route path="/ritual" element={<MythOSRitualsPage />} />
@@ -515,6 +520,7 @@ export default function App() {
           <Route path="/forecast/belief" element={<BeliefForecastPage />} />
           <Route path="/ritual/rewards" element={<RitualRewardsPage />} />
           <Route path="/replay/engine" element={<ReplayEnginePage />} />
+          <Route path="/fault/injector" element={<FaultInjectorPage />} />
           <Route path="/deploy/standards" element={<DeployStandardsPage />} />
           <Route path="/summon/federated" element={<FederatedSummonPage />} />
           <Route path="/anchor/continuity" element={<ContinuityAnchorPage />} />

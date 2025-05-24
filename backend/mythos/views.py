@@ -28,3 +28,27 @@ class SwarmCodexRootView(APIView):
         codices = SwarmCodex.objects.all().order_by("-created_at")
         serializer = SwarmCodexSerializer(codices, many=True)
         return Response(serializer.data)
+
+
+class CodexClauseMutatorView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, clause_id):
+        """Preview or save a mutated codex clause."""
+        return Response({"clause": str(clause_id), "status": "preview"})
+
+
+class FaultInjectorView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        """Inject a symbolic fault for testing."""
+        return Response({"status": "fault injected"})
+
+
+class MemoryAlignmentSandboxView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, assistant_id):
+        """Return placeholder memory cluster data."""
+        return Response({"assistant": str(assistant_id), "clusters": []})
