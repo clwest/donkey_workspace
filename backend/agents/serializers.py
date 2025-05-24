@@ -3,6 +3,7 @@ from agents.models.core import (
     Agent,
     AgentFeedbackLog,
     AgentCluster,
+    TrainedAgentLog,
 )
 from agents.models.lore import (
     SwarmMemoryEntry,
@@ -263,6 +264,23 @@ class AgentClusterSerializer(serializers.ModelSerializer):
         for a in obj.agents.all():
             skills.update(a.skills or [])
         return len(skills)
+
+
+class TrainedAgentLogSerializer(serializers.ModelSerializer):
+    agent_name = serializers.CharField(source="agent.name", read_only=True)
+
+    class Meta:
+        model = TrainedAgentLog
+        fields = [
+            "id",
+            "agent",
+            "agent_name",
+            "label",
+            "document_count",
+            "skill_matrix",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
 
 
 class SwarmMemoryEntrySerializer(serializers.ModelSerializer):

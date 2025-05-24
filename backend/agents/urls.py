@@ -143,6 +143,7 @@ urlpatterns = [
 
     path("clusters/", agents.list_clusters),
     path("clusters/<uuid:id>/", agents.cluster_detail_view),
+    path("trained/", agents.trained_agents),
     path("", agents.list_agents),
     path("<uuid:id>/feedback/", agents.create_agent_feedback),
     path("<uuid:id>/feedback/logs/", agents.agent_feedback_logs),

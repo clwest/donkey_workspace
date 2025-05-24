@@ -102,7 +102,7 @@ from .routing import routing_history
 from .scene import replay_scene_view, chat_with_scene
 from .recovery import regenerate_plan
 from .intelligence import plan_from_thread
-from .training import assign_training, evaluate_agent
+from .training import assign_training, evaluate_agent, promote_trained_agent
 from .myth import assistant_myth_layer, assistant_journals
 from .reputation import assistant_reputation
 from .conscience import (
@@ -250,6 +250,7 @@ __all__ = [
     "plan_from_thread",
     "assign_training",
     "evaluate_agent",
+    "promote_trained_agent",
     "assistant_myth_layer",
     "assistant_journals",
     "assistant_reputation",
