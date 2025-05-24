@@ -2,7 +2,10 @@ import logging
 from assistants.models.assistant import Assistant
 from assistants.models.project import AssistantProject
 from assistants.models.thoughts import AssistantThoughtLog
-from assistants.models.reflection import AssistantReflectionLog, AssistantReflectionInsight
+from assistants.models.reflection import (
+    AssistantReflectionLog,
+    AssistantReflectionInsight,
+)
 from mcp_core.models import MemoryContext, DevDoc, NarrativeThread
 from intel_core.models import Document
 from memory.models import MemoryEntry
@@ -211,14 +214,17 @@ class AssistantReflectionEngine:
 
     @staticmethod
     def get_or_create_project(assistant):
-        project, _ = AssistantProject.objects.get_or_create(
+        """Return the assistant's reflection project, creating one if needed."""
+        project = AssistantProject.objects.filter(
+            assistant=assistant, title="System Reflection"
+        ).first()
+        if project:
+            return project
+        return AssistantProject.objects.create(
             assistant=assistant,
-            defaults={
-                "title": "System Reflection",
-                "description": "Ongoing reflections on code and architecture evolution.",
-            },
+            title="System Reflection",
+            description="Ongoing reflections on code and architecture evolution.",
         )
-        return project
 
     def reflect_on_document(self, document):
         """Reflect on a Document or DevDoc instance and save insights."""
@@ -546,13 +552,13 @@ def reflect_on_agent_swarm(assistant: Assistant) -> AssistantReflectionLog:
     # 2) Build mentoring/swarm context
     agents = list(assistant.assigned_agents.all())
     if agents:
-        mentoring_entries = (
-            MemoryEntry.objects
-            .filter(linked_agents__in=agents, tags__name__iexact="mentoring")
-            .order_by("-created_at")[:20]
-        )
+        mentoring_entries = MemoryEntry.objects.filter(
+            linked_agents__in=agents, tags__name__iexact="mentoring"
+        ).order_by("-created_at")[:20]
         # Interaction bullet points
-        interaction_lines = [f"- {m.event}" for m in mentoring_entries] or ["- No mentoring interactions."]
+        interaction_lines = [f"- {m.event}" for m in mentoring_entries] or [
+            "- No mentoring interactions."
+        ]
         # Per-agent metrics
         agent_metrics = []
         for a in agents:
@@ -584,6 +590,7 @@ def reflect_on_agent_swarm(assistant: Assistant) -> AssistantReflectionLog:
         temperature=0.4,
     )
 
+
 def reflect_on_agent_swarm(assistant: Assistant) -> AssistantReflectionLog:
     """
     Reflects on both agent‐cluster evolution and mentoring/swarm dynamics,
@@ -601,12 +608,12 @@ def reflect_on_agent_swarm(assistant: Assistant) -> AssistantReflectionLog:
     # 2) Mentoring/swarm context
     agents = list(assistant.assigned_agents.all())
     if agents:
-        mentoring_entries = (
-            MemoryEntry.objects
-            .filter(linked_agents__in=agents, tags__name__iexact="mentoring")
-            .order_by("-created_at")[:20]
-        )
-        interaction_lines = [f"- {m.event}" for m in mentoring_entries] or ["- No mentoring interactions."]
+        mentoring_entries = MemoryEntry.objects.filter(
+            linked_agents__in=agents, tags__name__iexact="mentoring"
+        ).order_by("-created_at")[:20]
+        interaction_lines = [f"- {m.event}" for m in mentoring_entries] or [
+            "- No mentoring interactions."
+        ]
         agent_metrics = []
         for a in agents:
             taught = sum(1 for m in mentoring_entries if m.event.startswith(a.name))
@@ -650,17 +657,14 @@ def suggest_agent_resurrections(assistant: Assistant) -> list[str]:
       - **AgentName** – skill **SkillName** (0.85)
     """
     thirty_days_ago = timezone.now() - timedelta(days=30)
-    archived = (
-        Agent.objects
-        .filter(parent_assistant=assistant, is_active=False)
-        .exclude(reactivated_at__gte=thirty_days_ago)
-    )
+    archived = Agent.objects.filter(
+        parent_assistant=assistant, is_active=False
+    ).exclude(reactivated_at__gte=thirty_days_ago)
 
     bullets: list[str] = []
     for agent in archived:
         link = (
-            AgentSkillLink.objects
-            .filter(agent=agent, strength__gte=0.6)
+            AgentSkillLink.objects.filter(agent=agent, strength__gte=0.6)
             .order_by("-strength")
             .first()
         )
@@ -724,7 +728,8 @@ def reflect_on_dissent_signals(assistant: Assistant) -> str:
     )
     if logs:
         lines = [
-            f"- {log.agent.name}: {log.dissent_reason or log.feedback_text}" for log in logs
+            f"- {log.agent.name}: {log.dissent_reason or log.feedback_text}"
+            for log in logs
         ]
         summary = "\n".join(lines)
     else:
@@ -751,5 +756,3 @@ def reflect_on_dissent_signals(assistant: Assistant) -> str:
     entry.tags.set(tags)
 
     return summary
-
-   
