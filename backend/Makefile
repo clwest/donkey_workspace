@@ -139,6 +139,7 @@ post-seed-dashboard:
 
 run-all-scripts:
 	@echo "🚀 Running all management commands and dev scripts..."
+	@bash seed_all.sh
 	@bash run_all_seeders.sh
 	@bash run_all_devdoc_scripts.sh
 
