@@ -31,6 +31,8 @@ import HotTagsPage from "./pages/mcp_core/reflections/HotTagsPage";
 import RecentReflectionsPage from "./pages/mcp_core/recent/RecentReflectionsPage";
 import CustomReflectionPage from "./pages/mcp_core/reflections/CustomReflectionPage";
 import PlanningPage from "./pages/dev/PlanningPage";
+import PlanningGraphPage from "./pages/plan/PlanningGraphPage";
+import TaskAssignmentPage from "./pages/plan/TaskAssignmentPage";
 import ThreadDetailPage from "./pages/mcp_core/threads/ThreadDetailPage";
 import ThreadsOverviewPage from "./pages/mcp_core/threads/ThreadsOverviewPage";
 import ThreadEditorPage from "./pages/mcp_core/threads/ThreadEditorPage";
@@ -449,6 +451,8 @@ export default function App() {
           <Route path="/threads/:id" element={<ThreadDetailPage />} />
           <Route path="/dev-dashboard" element={<DevDashboard />} />
           <Route path="/planning" element={<PlanningPage />} />
+          <Route path="/plan/graph" element={<PlanningGraphPage />} />
+          <Route path="/plan/assign" element={<TaskAssignmentPage />} />
           <Route
             path="/grouped-reflection"
             element={<GroupedReflectionPage />}
