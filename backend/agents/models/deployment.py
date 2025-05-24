@@ -266,3 +266,19 @@ class ToolOutcomeLedger(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return f"{self.tool.slug} ({'ok' if self.success else 'fail'})"
+
+
+# === Recovery Hook ===
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+
+def trigger_recovery_handler(trace):
+    """Placeholder recovery handler for failed executions."""
+    print(f"Recovery triggered for trace {trace.id}")
+
+
+@receiver(post_save, sender=PromptExecutionTrace)
+def handle_failed_prompt(sender, instance, created, **kwargs):
+    if created and not instance.success:
+        trigger_recovery_handler(instance)
