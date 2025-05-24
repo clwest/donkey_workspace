@@ -38,6 +38,7 @@ from .views import (
     check_in,
     subassistant,
     interface as interface_views,
+    symbolic,
 )
 from tasks.views.delegate import TaskDelegateView
 from insights.views.plan import InsightPlanView
@@ -697,6 +698,21 @@ urlpatterns = [
         "ritual/intuition/",
         interface_views.ritual_intuition_panel,
         name="ritual-intuition",
+    ),
+    path(
+        "<uuid:assistant_id>/codex-anchors/",
+        symbolic.get_codex_anchors,
+        name="assistant-codex-anchors",
+    ),
+    path(
+        "<uuid:assistant_id>/belief-history/",
+        symbolic.get_belief_history,
+        name="assistant-belief-history",
+    ),
+    path(
+        "<uuid:assistant_id>/belief-forks/",
+        symbolic.get_belief_forks,
+        name="assistant-belief-forks",
     ),
     # ===== DEBATE ENDPOINTS =====
     # path("debate/start/", debate.start_debate, name="start-debate"),
