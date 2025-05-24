@@ -11,7 +11,7 @@ import ArchetypeSelectionChamberPage from "./pages/onboarding/ArchetypeSelection
 import SummoningRitualConsolePage from "./pages/onboarding/SummoningRitualConsolePage";
 import UserMythpathInitializerPage from "./pages/onboarding/UserMythpathInitializerPage";
 import WorldTimelinePage from "./pages/WorldTimelinePage";
-import AssistantMythRebirthPage from "./pages/assistants/AssistantMythRebirthPage";
+import AssistantMythRebirthPage from "./pages/assistant/myth/AssistantMythRebirthPage";
 import CodexBriefingPage from "./pages/codex/CodexBriefingPage";
 import AssistantTutorialPage from "./pages/assistant/tutorial/AssistantTutorialPage";
 import MythosLandingPage from "./pages/MythosLandingPage";
@@ -66,8 +66,8 @@ import AssistantThoughtDetailPage from "./pages/assistant/common/AssistantThough
 import AssistantDemoPage from "./pages/assistant/common/AssistantDemoPage";
 import ChatWithAssistantPage from "./pages/assistant/common/ChatWithAssistantPage";
 import CreateNewAssistantPage from "./pages/assistant/common/CreateNewAssistantPage";
-import AssistantInterfacePage from "./pages/assistants/[id]/interface";
-import AssistantRelayPage from "./pages/assistants/[id]/relay";
+import AssistantInterfacePage from "./pages/assistant/interface/AssistantInterfacePage";
+import AssistantRelayPage from "./pages/assistant/relay/AssistantRelayPage";
 
 import ProjectDetailPage from "./pages/assistant/projects/ProjectDetailPage";
 import ProjectCreateFromMemoryPage from "./pages/assistant/projects/ProjectCreateFromMemoryPage";
@@ -98,7 +98,7 @@ import BeliefEvolutionPage from "./pages/assistant/analysis/BeliefEvolutionPage"
 
 import NextActionsPage from "./pages/assistant/objectives/NextActionsPage";
 import ObjectivesPage from "./pages/assistant/objectives/ObjectivesPage";
-import PrimaryAssistantDashboard from "./pages/assistants/PrimaryAssistantDashboard";
+import PrimaryAssistantDashboard from "./pages/assistant/dashboard/PrimaryAssistantDashboard";
 
 import AssistantSessionDashboardPage from "./pages/assistant/sessions/AssistantSessionDashboardPage";
 import GroupedReflectionsPage from "./pages/mcp_core/reflections/GroupedReflectionsPage";
@@ -126,7 +126,7 @@ import AgentArchivePage from "./pages/agents/AgentArchivePage";
 import TrainedAgentsPage from "./pages/agents/TrainedAgentsPage";
 import SwarmTimelinePage from "./pages/agents/SwarmTimelinePage";
 import MemoryTimelinePage from "./pages/timeline/MemoryTimelinePage";
-import RoutingHistoryPage from "./pages/assistants/RoutingHistoryPage";
+import RoutingHistoryPage from "./pages/assistant/routing/RoutingHistoryPage";
 import StoryboardEditorPage from "./pages/storyboard/StoryboardEditorPage";
 import NarrativeEventDetailPage from "./pages/storyboard/NarrativeEventDetailPage";
 import RealityShaperDashboard from "./pages/lore/RealityShaperDashboard";
@@ -144,23 +144,23 @@ import ProphecyEnginePage from "./pages/prophecy/ProphecyEnginePage";
 import MemoryPredictionPage from "./pages/memory/MemoryPredictionPage";
 import RitualForecastPage from "./pages/ritual/RitualForecastPage";
 import RitualRewardsPage from "./pages/ritual/RitualRewardsPage";
-import AssistantEconomyPage from "./pages/assistants/AssistantEconomyPage";
-import AssistantDeployPage from "./pages/assistants/AssistantDeployPage";
-import AssistantToolsPage from "./pages/assistants/AssistantToolsPage";
+import AssistantEconomyPage from "./pages/assistant/economy/AssistantEconomyPage";
+import AssistantDeployPage from "./pages/assistant/deploy/AssistantDeployPage";
+import AssistantToolsPage from "./pages/assistant/tools/AssistantToolsPage";
 import ArenaActivePage from "./pages/arena/ArenaActivePage";
 import GuildFundingPage from "./pages/guilds/GuildFundingPage";
 import GuildExchangePage from "./pages/guilds/GuildExchangePage";
 import TokenMarketPage from "./pages/market/TokenMarketPage";
 import RitualMarketPage from "./pages/market/RitualMarketPage";
-import TrendReactivityPage from "./pages/assistants/TrendReactivityPage";
+import TrendReactivityPage from "./pages/assistant/trends/TrendReactivityPage";
 import SystemStabilityPage from "./pages/system/SystemStabilityPage";
 import RitualGrantPage from "./pages/ritual/RitualGrantPage";
 import MythOSCodexPage from "./pages/mythos/MythOSCodexPage";
 import DreamframePage from "./pages/agents/DreamframePage";
 import MythOSRitualsPage from "./pages/mythos/MythOSRitualsPage";
-import AssistantForkPage from "./pages/assistants/AssistantForkPage";
-import AssistantIdentityPage from "./pages/assistants/[id]/identity";
-import AssistantMythpathPage from "./pages/assistants/[id]/mythpath";
+import AssistantForkPage from "./pages/assistant/common/AssistantForkPage";
+import AssistantIdentityPage from "./pages/assistant/identity/AssistantIdentityPage";
+import AssistantMythpathPage from "./pages/assistant/mythpath/AssistantMythpathPage";
 import CodexConvergePage from "./pages/codex/CodexConvergePage";
 import CodexProofPage from "./pages/codex/CodexProofPage";
 import CodexContractPage from "./pages/codex/CodexContractPage";
