@@ -37,3 +37,28 @@ class AssistantSentimentModelEngine(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return f"SentimentEngine {self.assistant.name}"
+
+class BeliefForecastSnapshot(models.Model):
+    """Forecast of assistant belief alignment over time."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    prompt = models.ForeignKey("prompts.Prompt", on_delete=models.SET_NULL, null=True, blank=True)
+    belief_alignment_score = models.FloatField()
+    drift_probability = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class CodexResonanceIndex(models.Model):
+    """Measure resonance between an assistant and codex over time."""
+
+    codex = models.ForeignKey(SwarmCodex, on_delete=models.CASCADE)
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE, null=True, blank=True)
+    resonance_score = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+

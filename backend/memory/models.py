@@ -378,3 +378,41 @@ class MemoryEmbeddingFailureLog(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+class MemoryEntropyAudit(models.Model):
+    """Record entropy metrics for an assistant's memory chain."""
+
+    chain = models.ForeignKey(
+        "assistants.AssistantMemoryChain",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="entropy_audits",
+    )
+    entropy_score = models.FloatField()
+    tags = models.JSONField(default=list, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class MemoryMergeSuggestion(models.Model):
+    """Suggest merging two memories to reduce symbolic drift."""
+
+    entry_a = models.ForeignKey(
+        MemoryEntry, on_delete=models.CASCADE, related_name="merge_a"
+    )
+    entry_b = models.ForeignKey(
+        MemoryEntry, on_delete=models.CASCADE, related_name="merge_b"
+    )
+    merge_reason = models.TextField()
+    suggested_by = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    resolved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+

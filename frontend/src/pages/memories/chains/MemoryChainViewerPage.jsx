@@ -5,6 +5,7 @@ import apiFetch from "../../../utils/apiClient";
 import ChainSummaryPanel from "../../../components/memory/ChainSummaryPanel";
 import MemoryFlowVisualizer from "../../../components/memory/MemoryFlowVisualizer";
 import CrossThreadRecallPanel from "../../../components/memory/CrossThreadRecallPanel";
+import EntropyTagPanel from "../../../components/memory/EntropyTagPanel";
 
 export default function MemoryChainViewerPage() {
   const { id } = useParams();
@@ -12,6 +13,7 @@ export default function MemoryChainViewerPage() {
   const [summary, setSummary] = useState("");
   const [flowmap, setFlowmap] = useState(null);
   const [recallEntries, setRecallEntries] = useState(null);
+  const [entropyTags, setEntropyTags] = useState([]);
 
   useEffect(() => {
     apiFetch(`/memory/chains/${id}/`).then(setChain).catch(() => {});
@@ -20,6 +22,10 @@ export default function MemoryChainViewerPage() {
   useEffect(() => {
     if (!chain) return;
     apiFetch(`/memory/chains/${id}/flowmap/`).then(setFlowmap).catch(() => {});
+    const tags = (chain.context_tags || []).filter((t) =>
+      ["overlap", "decay", "loop"].some((k) => t.includes(k))
+    );
+    setEntropyTags(tags);
   }, [chain, id]);
 
   const handleSummarize = async () => {
@@ -52,6 +58,7 @@ export default function MemoryChainViewerPage() {
         🔎 Recall from Linked Chains
       </button>
       {summary && <ChainSummaryPanel summary={summary} />}
+      <EntropyTagPanel tags={entropyTags} />
       {recallEntries && <CrossThreadRecallPanel entries={recallEntries} />}
 
       <Tabs defaultActiveKey="memories" className="mt-3">

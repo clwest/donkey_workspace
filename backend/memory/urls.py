@@ -75,4 +75,5 @@ urlpatterns = router.urls + [
         views.symbolic_chunk_diff_view,
         name="symbolic-chunk-diff",
     ),
+    path("merge-suggestions/", views.suggest_memory_merge, name="memory-merge-suggest"),
 ]

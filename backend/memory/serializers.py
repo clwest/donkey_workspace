@@ -8,6 +8,7 @@ from .models import (
     SharedMemoryEntry,
     BraidedMemoryStrand,
     ContinuityAnchorPoint,
+    MemoryMergeSuggestion,
 )
 
 from assistants.models.thoughts import AssistantThoughtLog
@@ -207,3 +208,10 @@ class ContinuityAnchorPointSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContinuityAnchorPoint
         fields = "__all__"
+
+class MemoryMergeSuggestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemoryMergeSuggestion
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
