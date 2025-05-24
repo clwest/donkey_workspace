@@ -563,5 +563,14 @@ class AssistantThoughtLogListView(APIView):
             AssistantThoughtLog.objects.filter(assistant=assistant)
             .order_by("-created_at")
         )
-        serializer = AssistantThoughtLogSerializer(logs, many=True)
-        return Response(serializer.data)
+        if logs.exists():
+            serializer = AssistantThoughtLogSerializer(logs, many=True)
+            return Response(serializer.data)
+        return Response([
+            {
+                "id": 0,
+                "assistant": assistant.id,
+                "thought": "\U0001faa9 No reflections yet. Tap ‘Reflect’ to begin",
+                "thought_type": "meta",
+            }
+        ])

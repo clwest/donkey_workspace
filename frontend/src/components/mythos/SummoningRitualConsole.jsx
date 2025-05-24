@@ -5,8 +5,18 @@ import apiFetch from "../../utils/apiClient";
 export default function SummoningRitualConsole() {
   const location = useLocation();
   const postSummon = usePostSummonRouter();
-  const tone = location.state?.tone || "";
-  const tag = location.state?.tag || "";
+  const toneParam = location.state?.tone || "";
+  const tagParam = location.state?.tag || "";
+  const path = location.state?.path || "";
+
+  const defaults = {
+    memory: { tone: "reflective", tag: "memory" },
+    codex: { tone: "precise", tag: "codex" },
+    ritual: { tone: "observant", tag: "ritual" },
+  }[path] || { tone: "neutral", tag: "general" };
+
+  const tone = toneParam || defaults.tone;
+  const tag = tagParam || defaults.tag;
 
   const summon = async () => {
     try {
@@ -16,6 +26,7 @@ export default function SummoningRitualConsole() {
           name: tag || "Summoned Assistant",
           specialty: tag || "general",
           tone,
+          path,
         },
       });
       postSummon(assistant);
@@ -28,7 +39,7 @@ export default function SummoningRitualConsole() {
     <div className="container my-4">
       <h2>Summoning Ritual</h2>
       <p>
-        Summoning <strong>{tag}</strong> with tone <em>{tone}</em>
+        Summoning <strong>{tag}</strong> with tone <em>{tone}</em> via path {path}
       </p>
       <button className="btn btn-success" onClick={summon}>
         Summon Assistant

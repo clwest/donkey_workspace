@@ -31,7 +31,7 @@ export default function AssistantThoughtStream({ assistantId }) {
       {loading && <div>Loading thoughts...</div>}
       {error && <div className="text-red-500 text-sm">{error}</div>}
       {thoughts.length === 0 && !loading ? (
-        <div className="text-muted">Awaiting assistant thoughts</div>
+        <div className="text-muted">{error ? "Failed to load" : "Awaiting assistant thoughts"}</div>
       ) : (
         <div className="space-y-2">
           {thoughts.map((t) => (

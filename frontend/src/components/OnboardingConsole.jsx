@@ -1,15 +1,19 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import apiFetch from "../utils/apiClient";
 
 export default function OnboardingConsole() {
   const [name, setName] = useState("");
   const [archetype, setArchetype] = useState("");
   const [created, setCreated] = useState(null);
+  const [params] = useSearchParams();
+  const path = params.get("path") || "";
 
   const submit = async () => {
     const body = {
       assistant: { name, specialty: "" },
-      identity_card: { archetype, symbolic_tags: [], myth_path: "", purpose_signature: "" },
+      identity_card: { archetype, symbolic_tags: [], myth_path: path, purpose_signature: "" },
+      path,
     };
     const res = await apiFetch("/onboarding/", { method: "POST", body });
     setCreated(res.identity_card);
