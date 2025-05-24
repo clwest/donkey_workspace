@@ -4,4 +4,5 @@ from . import views
 urlpatterns = [
     path("assistants/<uuid:assistant_id>/archetype-card/", views.get_archetype_card),
     path("ritual-launchpads/", views.get_ritual_launchpads),
+    path("codex/", views.SwarmCodexRootView.as_view(), name="codex-root"),
 ]
