@@ -52,7 +52,10 @@ python manage.py runserver
 ```
 
 Whenever new models are added—such as the `MythchainOutputGenerator`,
-`NarrativeArtifactExporter`, and `SymbolicPatternBroadcastEngine`—run
+`NarrativeArtifactExporter`, `SymbolicPatternBroadcastEngine`,
+`CodexClauseFragment`, `FragmentTraceLog`, `RitualDecompositionPlan`,
+`DecomposedStepTrace`, `CodexExpansionSuggestion`, and
+`SwarmCodificationPattern`—run
 `python manage.py makemigrations` followed by `python manage.py migrate`
 before running tests or deploying the backend. This ensures all tables are
 created and up to date.
@@ -124,6 +127,20 @@ Additional planning and deep-dive instructions live in `backend/AGENTS.md` and `
 
 ---
 
+## Phase Ω.5.8 Highlights
+
+Phase Ω.5.8 expands the codex with modular tools:
+
+- **Codex Fragmentation Engine** (`/codex/fragment/:clauseId`)
+- **Ritual Decomposition Planner** (`/ritual/decompose/:ritualId`)
+- **Swarm-Based Codification Strategies** (`/codex/strategy`)
+
+New backend models include `CodexClauseFragment`, `FragmentTraceLog`,
+`RitualDecompositionPlan`, `DecomposedStepTrace`, `CodexExpansionSuggestion`,
+and `SwarmCodificationPattern`.
+
+---
+
 ## Further Reading
 
 - [API & Model Overview](docs/api_overview.md)
@@ -146,6 +163,8 @@ Additional planning and deep-dive instructions live in `backend/AGENTS.md` and `
 - [Phase Ω.5.5 Features](docs/phase_omega_5_5.md)
 - [Phase Ω.5.5.2 Features](docs/phase_omega_5_5_2.md)
 - [Phase Ω.5.5.2b Features](docs/phase_omega_5_5_2b.md)
+- [Phase Ω.5.7 Features](docs/phase_omega_5_7.md)
+- [Phase Ω.5.8 Features](docs/phase_omega_5_8.md)
 
 
 - Other domain docs are under `backend/docs/` and `frontend/docs/`.

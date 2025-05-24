@@ -86,11 +86,12 @@ Last updated: May 2025
 🛠️ Next Steps:
 • ✅ Merge Mythpath into Assistant Creation Ritual (Ω.5.4.2)
 • ✅ Complete Memory Realignment Sandbox + Codex Mutator (Ω.5.6)
+• ⏳ Codex Fragmentation Engine, Ritual Decomposition Planner & Swarm-Based Codification Strategies (Ω.5.8)
 
 ⸻
 
 ✅ MythOS Project Status
-• Total Phases: 0–18.3 + Phase X + Ω.5.0–Ω.5.6
+• Total Phases: 0–18.3 + Phase X + Ω.5.0–Ω.5.8
 • Assistants Created: 50+ with embedded ritual, codex, and memory traits
 • Routes Registered: 80+ symbolic endpoints
 • Frontend Views: 50+ scaffolded
