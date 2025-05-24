@@ -145,6 +145,7 @@ Additional planning and deep-dive instructions live in `backend/AGENTS.md` and `
 - [Phase Ω.5.4.3 Features](docs/phase_omega_5_4_3.md)
 - [Phase Ω.5.5 Features](docs/phase_omega_5_5.md)
 - [Phase Ω.5.5.2 Features](docs/phase_omega_5_5_2.md)
+- [Phase Ω.5.5.2b Features](docs/phase_omega_5_5_2b.md)
 
 
 - Other domain docs are under `backend/docs/` and `frontend/docs/`.
