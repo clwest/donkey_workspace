@@ -14,6 +14,7 @@ from assistants.models.thoughts import AssistantThoughtLog
 from assistants.serializers import AssistantThoughtLogSerializer
 from mcp_core.serializers_tags import TagSerializer
 from django.shortcuts import get_object_or_404
+from django.core.cache import cache
 from assistants.utils.session_utils import (
     get_cached_reflection,
     set_cached_reflection,
