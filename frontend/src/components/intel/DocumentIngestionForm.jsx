@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import apiFetch, { API_URL } from "../../utils/apiClient";
 import { toast } from "react-toastify";
+import DocumentUploadProgressBar from "./DocumentUploadProgressBar";
 
 export default function DocumentIngestionForm({ onSuccess }) {
   const [urlInput, setUrlInput] = useState("");
@@ -124,25 +125,7 @@ export default function DocumentIngestionForm({ onSuccess }) {
         {loading ? "Uploading..." : "📥 Ingest Sources"}
       </button>
 
-      {progress && (
-        <div className="mt-3">
-          <div className="progress">
-            <div
-              className="progress-bar"
-              role="progressbar"
-              style={{ width: `${(progress.processed / progress.total_chunks) * 100}%` }}
-              aria-valuenow={progress.processed}
-              aria-valuemin="0"
-              aria-valuemax={progress.total_chunks}
-            ></div>
-          </div>
-          <small className="text-muted">
-            {progress.status === "completed"
-              ? `✅ ${progress.processed}/${progress.total_chunks} complete`
-              : `📄 Processing chunk ${progress.processed}/${progress.total_chunks}...`}
-          </small>
-        </div>
-      )}
+      <DocumentUploadProgressBar progress={progress} />
     </form>
   );
 }

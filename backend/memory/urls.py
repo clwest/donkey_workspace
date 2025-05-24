@@ -70,4 +70,9 @@ urlpatterns = router.urls + [
     path("continuity-anchors/", views.continuity_anchors, name="continuity-anchors"),
     path("anamnesis/", views.anamnesis, name="anamnesis"),
     path("grove/public/", views.public_memory_grove, name="public-memory-grove"),
+    path(
+        "diff/<uuid:document_set_id>/",
+        views.symbolic_chunk_diff_view,
+        name="symbolic-chunk-diff",
+    ),
 ]
