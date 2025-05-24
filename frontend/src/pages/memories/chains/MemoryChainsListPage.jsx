@@ -6,9 +6,18 @@ export default function MemoryChainsListPage() {
 
   useEffect(() => {
     async function fetchChains() {
-      const res = await fetch("http://localhost:8000/api/memory/chains/list/");
-      const data = await res.json();
-      setChains(data);
+      try {
+        const res = await fetch("http://localhost:8000/api/v1/memory/chains/list/");
+        const data = await res.json();
+        if (res.ok) {
+          setChains(data);
+        } else {
+          console.error("Failed to load memory chains", data);
+          setChains([]);
+        }
+      } catch (err) {
+        console.error("Error fetching memory chains:", err);
+      }
     }
     fetchChains();
   }, []);
