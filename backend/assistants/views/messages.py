@@ -2,9 +2,17 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
-from assistants.models.assistant import Assistant, AssistantMessage, ChatSession
+from assistants.models.assistant import (
+    Assistant,
+    AssistantMessage,
+    AssistantRelayMessage,
+    ChatSession,
+)
 from memory.services import MemoryService
-from assistants.serializers import AssistantMessageSerializer
+from assistants.serializers import (
+    AssistantMessageSerializer,
+    AssistantRelayMessageSerializer,
+)
 
 @api_view(["POST"])
 def send_message(request):
@@ -44,4 +52,26 @@ def outbox(request, slug):
     assistant = get_object_or_404(Assistant, slug=slug)
     msgs = AssistantMessage.objects.filter(sender=assistant).order_by("-created_at")
     return Response(AssistantMessageSerializer(msgs, many=True).data)
+
+
+@api_view(["GET"])
+def relay_inbox(request, slug):
+    """List incoming relay messages for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    msgs = (
+        AssistantRelayMessage.objects.filter(recipient=assistant)
+        .order_by("-sent_at")
+    )
+    return Response(AssistantRelayMessageSerializer(msgs, many=True).data)
+
+
+@api_view(["GET"])
+def relay_outbox(request, slug):
+    """List outgoing relay messages for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    msgs = (
+        AssistantRelayMessage.objects.filter(sender=assistant)
+        .order_by("-sent_at")
+    )
+    return Response(AssistantRelayMessageSerializer(msgs, many=True).data)
 

@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
 
+import logging
 from assistants.models.assistant import Assistant, AssistantRelayMessage
 from assistants.models.thoughts import AssistantThoughtLog
 from assistants.serializers import (
@@ -18,6 +19,9 @@ from assistants.utils.session_utils import (
 )
 from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 from assistants.utils.delegation import spawn_delegated_assistant
+from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
+
+logger = logging.getLogger(__name__)
 from memory.models import MemoryEntry
 from memory.utils.context_helpers import get_or_create_context_from_memory
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
@@ -130,18 +134,31 @@ class AssistantViewSet(viewsets.ViewSet):
                 {"error": "recipient_slug and message required"}, status=400
             )
         recipient = get_object_or_404(Assistant, slug=recipient_slug)
+        logger.debug("Creating relay message %s -> %s", sender.slug, recipient.slug)
         relay_msg = AssistantRelayMessage.objects.create(
             sender=sender,
             recipient=recipient,
             content=message,
         )
         relay_msg.mark_delivered()
+        logger.debug("Marked delivered %s", relay_msg.id)
         if recipient.auto_reflect_on_message:
-            AssistantThoughtLog.objects.create(
+            logger.debug("Auto reflecting for %s", recipient.slug)
+            engine = AssistantReflectionEngine(recipient)
+            try:
+                reflection = engine.generate_reflection(
+                    f"Incoming message from {sender.name}: {message}"
+                )
+            except Exception as e:
+                logger.warning("Reflection failed: %s", e)
+                reflection = message
+            log = AssistantThoughtLog.objects.create(
                 assistant=recipient,
-                thought=message,
+                thought=reflection,
                 role="relay",
-                thought_type="generated",
+                thought_type="reflection",
             )
+            relay_msg.mark_responded(thought_log=log)
+            logger.debug("Marked responded %s", relay_msg.id)
         serializer = AssistantRelayMessageSerializer(relay_msg)
         return Response(serializer.data, status=201)

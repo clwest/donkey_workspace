@@ -730,17 +730,47 @@ class AssistantRelayMessage(models.Model):
         ],
         default="pending",
     )
+    delivered = models.BooleanField(default=False)
+    responded = models.BooleanField(default=False)
     sent_at = models.DateTimeField(auto_now_add=True)
     delivered_at = models.DateTimeField(null=True, blank=True)
     responded_at = models.DateTimeField(null=True, blank=True)
+    thought_log = models.ForeignKey(
+        "assistants.AssistantThoughtLog",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="relay_messages",
+    )
 
     def mark_delivered(self):
         from django.utils import timezone
 
-        if not self.delivered_at:
+        if not self.delivered:
+            self.delivered = True
             self.delivered_at = timezone.now()
             self.status = "delivered"
-            self.save(update_fields=["delivered_at", "status"])
+            self.save(update_fields=["delivered", "delivered_at", "status"])
+
+    def mark_responded(self, thought_log=None):
+        from django.utils import timezone
+
+        if not self.responded:
+            self.responded = True
+            self.responded_at = timezone.now()
+            self.status = "responded"
+            if thought_log:
+                self.thought_log = thought_log
+                self.save(
+                    update_fields=[
+                        "responded",
+                        "responded_at",
+                        "status",
+                        "thought_log",
+                    ]
+                )
+            else:
+                self.save(update_fields=["responded", "responded_at", "status"])
 
 
 class RoutingSuggestionLog(models.Model):
