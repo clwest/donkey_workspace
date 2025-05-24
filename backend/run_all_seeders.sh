@@ -42,16 +42,6 @@ echo '🚀 Running: ingest_prompts'
 python manage.py ingest_prompts
 echo '🚀 Running: reflect_on_all_devdocs'
 python manage.py reflect_on_all_devdocs
-echo '🚀 Running: embed_devdoc_chunks'
-python manage.py embed_devdoc_chunks
-echo '🚀 Running: embed_unembedded_devdocs'
-python manage.py embed_unembedded_devdocs
-echo '🚀 Running: link_devdocs_to_documents'
-python manage.py link_devdocs_to_documents
-echo '🚀 Running: backfill_devdoc_uuid'
-python manage.py backfill_devdoc_uuid
-echo '🚀 Running: backfill_devdoc_source_file'
-python manage.py backfill_devdoc_source_file
 echo '🚀 Running: check_embedding_status'
 python manage.py check_embedding_status
 echo '🚀 Running: flush_chat_sessions'

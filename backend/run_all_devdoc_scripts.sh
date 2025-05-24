@@ -3,8 +3,8 @@
 echo "📚 Running all devdoc dev_scripts in order..."
 set -e
 
-# Directory containing the devdoc management scripts
-SCRIPT_DIR="mcp_core/management/commands"
+# Directory containing the devdoc helper scripts
+SCRIPT_DIR="mcp_core/dev_scripts"
 
 SCRIPTS=(
   create_documents_from_devdocs.py
