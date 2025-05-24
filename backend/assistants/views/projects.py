@@ -28,6 +28,7 @@ from assistants.services import AssistantService
 from project.models import ProjectMemoryLink, ProjectMilestone
 from assistants.helpers.mood import get_session_mood, map_mood_to_tone
 from assistants.utils.memory_project_planner import build_project_plan_from_memories
+from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 import uuid
 
 
