@@ -188,6 +188,9 @@ class DocumentSet(models.Model):
 
     id = models.BigAutoField(primary_key=True)
     title = models.CharField(max_length=255)
+    urls = models.JSONField(blank=True, null=True)
+    videos = models.JSONField(blank=True, null=True)
+    tags = models.JSONField(blank=True, null=True)
     description = models.TextField(blank=True)
     documents = models.ManyToManyField(Document, related_name="document_sets", blank=True)
     created_by = models.ForeignKey(
