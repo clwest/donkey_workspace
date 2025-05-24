@@ -4,12 +4,20 @@ import { fetchCodexAnchors } from "../../api/agents";
 export default function CodexAnchorPanel({ assistantId }) {
   const [anchors, setAnchors] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!assistantId) return;
     fetchCodexAnchors(assistantId)
-      .then((res) => setAnchors(res.results || res))
-      .catch(() => setAnchors([]))
+      .then((res) => {
+        setAnchors(res.results || res);
+        setError(null);
+      })
+      .catch((err) => {
+        console.error("Failed to load codex anchors", err);
+        setError("Awaiting Codex Guidance");
+        setAnchors([]);
+      })
       .finally(() => setLoading(false));
   }, [assistantId]);
 
@@ -17,6 +25,9 @@ export default function CodexAnchorPanel({ assistantId }) {
     <div className="p-2 border rounded">
       <h5>Codex Anchors</h5>
       {loading && <div>Loading anchors...</div>}
+      {error && !loading && (
+        <div className="text-sm text-muted">{error}</div>
+      )}
       <ul className="list-group">
         {anchors.map((a) => (
           <li key={a.id} className="list-group-item">

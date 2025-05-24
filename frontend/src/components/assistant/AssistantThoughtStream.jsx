@@ -1,30 +1,45 @@
 import { useEffect, useState } from "react";
-import { fetchAssistantThoughtLog } from "../../api/agents";
-import ThoughtLogCard from "./thoughts/ThoughtLogCard";
+
+import apiFetch from "@/utils/apiClient";
+import ThoughtLogCard from "@/components/assistant/thoughts/ThoughtLogCard";
 
 export default function AssistantThoughtStream({ assistantId }) {
-  const [logs, setLogs] = useState([]);
+  const [thoughts, setThoughts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
 
   useEffect(() => {
     if (!assistantId) return;
     setLoading(true);
-    fetchAssistantThoughtLog(assistantId)
-      .then((res) => setLogs(res.results || res))
-      .catch(() => setLogs([]))
+
+    apiFetch(`/assistants/${assistantId}/thought-log/`)
+      .then((res) => setThoughts(res.results || res))
+      .catch((err) => {
+        console.error("Failed to load thought stream", err);
+        setError("Failed to load thoughts");
+        setThoughts([]);
+      })
+
       .finally(() => setLoading(false));
   }, [assistantId]);
 
   return (
-    <div className="p-2 border rounded" style={{ maxHeight: "400px", overflowY: "auto" }}>
+
+    <div className="p-2 border rounded">
       <h5>Thought Stream</h5>
       {loading && <div>Loading thoughts...</div>}
-      {logs.length === 0 && !loading && (
-        <div className="text-muted">No thoughts logged.</div>
+      {error && <div className="text-red-500 text-sm">{error}</div>}
+      {thoughts.length === 0 && !loading ? (
+        <div className="text-muted">Awaiting assistant thoughts</div>
+      ) : (
+        <div className="space-y-2">
+          {thoughts.map((t) => (
+            <ThoughtLogCard key={t.id} thought={t} />
+          ))}
+        </div>
       )}
-      {logs.map((log) => (
-        <ThoughtLogCard key={log.id} thought={log} />
-      ))}
+
     </div>
   );
 }
