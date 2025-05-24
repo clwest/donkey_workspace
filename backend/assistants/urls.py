@@ -38,6 +38,7 @@ from .views import (
     check_in,
     subassistant,
     interface as interface_views,
+    identity,
     symbolic,
 )
 from tasks.views.delegate import TaskDelegateView
@@ -61,6 +62,8 @@ urlpatterns = [
     path("decision-frameworks/", conscience.decision_frameworks),
     path("codex/voice/", views.codex_voice_command, name="codex-voice"),
     path("rituals/haptic/", views.haptic_ritual, name="haptic-ritual"),
+    path("<uuid:id>/identity/", identity.assistant_identity, name="assistant-identity"),
+    path("<uuid:id>/mythpath/", identity.assistant_mythpath, name="assistant-mythpath"),
     path(
         "<uuid:assistant_id>/sensory/",
         views.assistant_sensory_profile,

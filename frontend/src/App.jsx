@@ -159,10 +159,13 @@ import MythOSCodexPage from "./pages/mythos/MythOSCodexPage";
 import DreamframePage from "./pages/agents/DreamframePage";
 import MythOSRitualsPage from "./pages/mythos/MythOSRitualsPage";
 import AssistantForkPage from "./pages/assistants/AssistantForkPage";
+import AssistantIdentityPage from "./pages/assistants/[id]/identity";
+import AssistantMythpathPage from "./pages/assistants/[id]/mythpath";
 import CodexConvergePage from "./pages/codex/CodexConvergePage";
 import CodexProofPage from "./pages/codex/CodexProofPage";
 import CodexContractPage from "./pages/codex/CodexContractPage";
 import CodexClauseMutatorPage from "./pages/codex/CodexClauseMutatorPage";
+import CodexInheritancePage from "./pages/codex/CodexInheritancePage";
 import RitualContainersPage from "./pages/ritual/RitualContainersPage";
 import ReplayEnginePage from "./pages/replay/ReplayEnginePage";
 import FaultInjectorPage from "./pages/fault/FaultInjectorPage";
@@ -437,6 +440,8 @@ export default function App() {
             element={<AssistantForkPage />}
           />
           <Route path="/assistants/:id/rebirth" element={<AssistantMythRebirthPage />} />
+          <Route path="/assistants/:id/identity" element={<AssistantIdentityPage />} />
+          <Route path="/assistants/:id/mythpath" element={<AssistantMythpathPage />} />
           <Route path="/assistants/:slug" element={<AssistantDetailPage />} />
           {/* MCP Core */}
           <Route path="/reflect" element={<ReflectionPage />} />
@@ -508,6 +513,7 @@ export default function App() {
           <Route path="/codex/proof" element={<CodexProofPage />} />
           <Route path="/codex/contracts/:promptId" element={<CodexContractPage />} />
           <Route path="/codex/mutator/:clauseId" element={<CodexClauseMutatorPage />} />
+          <Route path="/codex/inheritance/:assistantId" element={<CodexInheritancePage />} />
           <Route path="/dream" element={<DreamframePage />} />
           <Route path="/dream/rebirth" element={<DreamRebirthPage />} />
           <Route path="/ritual" element={<MythOSRitualsPage />} />
