@@ -2,8 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import apiFetch, { API_URL } from "../../utils/apiClient";
 import { toast } from "react-toastify";
 import DocumentUploadProgressBar from "./DocumentUploadProgressBar";
+
 import SymbolicChunkLogViewer from "./SymbolicChunkLogViewer";
 import RitualIngestStatusToast from "./RitualIngestStatusToast";
+
 
 export default function DocumentIngestionForm({ onSuccess }) {
   const [urlInput, setUrlInput] = useState("");
@@ -136,6 +138,7 @@ export default function DocumentIngestionForm({ onSuccess }) {
         {loading ? "Uploading..." : "📥 Ingest Sources"}
       </button>
 
+
       {progress && (
         <>
           <DocumentUploadProgressBar progress={progress} />
@@ -143,6 +146,7 @@ export default function DocumentIngestionForm({ onSuccess }) {
           <RitualIngestStatusToast progress={progress} />
         </>
       )}
+
     </form>
   );
 }
