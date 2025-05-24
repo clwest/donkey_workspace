@@ -29,6 +29,13 @@ export const routeMap = [
     notes: "Primary assistant dashboard",
   },
   {
+    frontend: "/assistants/primary/create",
+    backend: "/api/assistants/primary/create/",
+    view: "create_primary_assistant",
+    serializer: "AssistantSerializer",
+    notes: "Create the primary assistant",
+  },
+  {
     frontend: "/assistants/:slug",
     backend: "/api/assistants/<slug>/",
     view: "AssistantDetailView",

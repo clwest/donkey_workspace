@@ -6,6 +6,7 @@ import {
   runSelfAssessment,
   regeneratePlan,
   fetchRecentReflections,
+  createPrimaryAssistant,
 } from "../../api/assistants";
 import ReflectionToastStatus from "../../components/assistant/ReflectionToastStatus";
 import AssistantThoughtCard from "../../components/assistant/thoughts/AssistantThoughtCard";
@@ -176,8 +177,26 @@ export default function PrimaryAssistantDashboard() {
     }
   };
 
+  const handleCreatePrimary = async () => {
+    try {
+      const res = await createPrimaryAssistant();
+      setAssistant(res);
+    } catch (err) {
+      console.error("Failed to create primary", err);
+      alert("Failed to create primary assistant");
+    }
+  };
+
   if (loading) return <div className="container my-5">Loading...</div>;
-  if (!assistant) return <div className="container my-5">Primary assistant not found.</div>;
+  if (!assistant)
+    return (
+      <div className="container my-5 text-center">
+        <h4 className="mb-3">No Primary Assistant</h4>
+        <button className="btn btn-primary" onClick={handleCreatePrimary}>
+          Create Primary Assistant
+        </button>
+      </div>
+    );
 
   const thoughts = assistant.recent_thoughts ? assistant.recent_thoughts.slice(0, 5) : [];
 

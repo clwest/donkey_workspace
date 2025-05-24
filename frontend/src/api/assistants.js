@@ -316,3 +316,11 @@ export const fetchToolAssignments = (id) =>
 
 export const saveToolAssignments = (id, body) =>
   apiFetch(`/assistants/${id}/tools/`, { method: "POST", body });
+
+export async function createPrimaryAssistant() {
+  const res = await apiFetch("/assistants/primary/create/", { method: "POST" });
+  if (!res || res.error) {
+    throw new Error("Failed to create primary assistant");
+  }
+  return res;
+}
