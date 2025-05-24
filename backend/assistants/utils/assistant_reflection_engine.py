@@ -8,6 +8,7 @@ from intel_core.models import Document
 from memory.models import MemoryEntry
 from django.contrib.contenttypes.models import ContentType
 from django.utils.text import slugify
+from django.utils import timezone
 from assistants.models.project import AssistantProject
 from utils.llm_router import call_llm
 from agents.models.core import (
@@ -443,7 +444,7 @@ def assign_training_documents(
         result = train_agent_from_documents(agent, list(docs))
         AgentTrainingAssignment.objects.filter(
             id__in=[a.id for a in assignments]
-        ).update(status="complete")
+        ).update(completed=True, completed_at=timezone.now())
         logger.info(
             f"[Training] Agent {agent.name} trained on {len(docs)} documents: {result}"
         )
@@ -459,8 +460,8 @@ def evaluate_agent_training(assistant: Assistant, agent: "Agent") -> dict:
     assignments = AgentTrainingAssignment.objects.filter(
         agent=agent, assistant=assistant
     )
-    completed = assignments.filter(status="complete").count()
-    pending = assignments.filter(status="pending").count()
+    completed = assignments.filter(completed=True).count()
+    pending = assignments.filter(completed=False).count()
     feedback_scores = list(
         AgentFeedbackLog.objects.filter(agent=agent, score__isnull=False).values_list(
             "score", flat=True
