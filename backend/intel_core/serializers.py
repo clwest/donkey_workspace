@@ -44,7 +44,9 @@ class DocumentSerializer(serializers.ModelSerializer):
 
 
 class DocumentSetSerializer(serializers.ModelSerializer):
+
     documents = DocumentSerializer(many=True, read_only=True)
+
 
     class Meta:
         model = DocumentSet
@@ -55,4 +57,5 @@ class DocumentSetSerializer(serializers.ModelSerializer):
             "documents",
             "created_at",
             "embedding_index",
+
         ]

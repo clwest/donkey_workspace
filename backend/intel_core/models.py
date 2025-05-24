@@ -199,4 +199,5 @@ class DocumentSet(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self):  # pragma: no cover - display helper
+
         return self.title
