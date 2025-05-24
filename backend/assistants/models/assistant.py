@@ -161,6 +161,7 @@ class Assistant(models.Model):
 
     ideology = models.JSONField(default=dict, blank=True)
     is_alignment_flexible = models.BooleanField(default=True)
+    auto_reflect_on_message = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -704,6 +705,42 @@ class AssistantMessage(models.Model):
         default="pending",
     )
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class AssistantRelayMessage(models.Model):
+    """Message sent between assistants via the relay handler."""
+
+    sender = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="relay_messages_sent",
+    )
+    recipient = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="relay_messages_received",
+    )
+    content = models.TextField()
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ("pending", "Pending"),
+            ("delivered", "Delivered"),
+            ("responded", "Responded"),
+        ],
+        default="pending",
+    )
+    sent_at = models.DateTimeField(auto_now_add=True)
+    delivered_at = models.DateTimeField(null=True, blank=True)
+    responded_at = models.DateTimeField(null=True, blank=True)
+
+    def mark_delivered(self):
+        from django.utils import timezone
+
+        if not self.delivered_at:
+            self.delivered_at = timezone.now()
+            self.status = "delivered"
+            self.save(update_fields=["delivered_at", "status"])
 
 
 class RoutingSuggestionLog(models.Model):
