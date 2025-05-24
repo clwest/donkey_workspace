@@ -68,6 +68,24 @@ class AssistantViewSet(viewsets.ViewSet):
         data["recent_thoughts"] = recent
         return Response(data)
 
+    @action(detail=False, methods=["post"], url_path="primary/create")
+    def create_primary(self, request):
+        """Create the Primary Orchestrator if missing."""
+        assistant = Assistant.objects.filter(is_primary=True).first()
+        status_code = status.HTTP_200_OK
+        if not assistant:
+            from assistants.views.bootstrap import prompt_to_assistant
+
+            assistant = prompt_to_assistant(
+                name="Primary Orchestrator",
+                tone="strategic",
+                personality="intelligent, calm, curious",
+            )
+            status_code = status.HTTP_201_CREATED
+
+        serializer = AssistantSerializer(assistant)
+        return Response(serializer.data, status=status_code)
+
     @action(detail=False, methods=["post"], url_path="primary/reflect-now")
     def primary_reflect_now(self, request):
         assistant = Assistant.objects.filter(is_primary=True).first()
