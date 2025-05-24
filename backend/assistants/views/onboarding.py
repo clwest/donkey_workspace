@@ -1,0 +1,72 @@
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework import status
+
+from assistants.models.assistant import Assistant
+from agents.models.identity import SymbolicIdentityCard
+from assistants.models.thoughts import AssistantThoughtLog
+from assistants.serializers import AssistantSerializer
+from agents.serializers import SymbolicIdentityCardSerializer
+
+PATH_DEFAULTS = {
+    "memory": {"tone": "reflective", "tag": "memory"},
+    "codex": {"tone": "precise", "tag": "codex"},
+    "ritual": {"tone": "observant", "tag": "ritual"},
+}
+
+
+def create_assistant_from_mythpath(path, name, archetype, *, user=None):
+    defaults = PATH_DEFAULTS.get(path, {"tone": "neutral", "tag": "general"})
+    tone = defaults["tone"]
+    tag = defaults["tag"]
+
+    assistant = Assistant.objects.create(
+        name=name,
+        specialty=tag,
+        tone=tone,
+        created_by=user,
+    )
+
+    card = SymbolicIdentityCard.objects.create(
+        assistant=assistant,
+        archetype=archetype,
+        symbolic_tags=[tag],
+        myth_path=path,
+        purpose_signature="",
+    )
+
+    AssistantThoughtLog.objects.create(
+        assistant=assistant,
+        thought="\U0001faa9 No reflections yet. Tap ‘Reflect’ to begin",
+        thought_type="meta",
+    )
+
+    return assistant, card
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def onboarding_create_assistant(request):
+    data = request.data
+    assistant_info = data.get("assistant", {})
+    identity_info = data.get("identity_card", {})
+
+    name = assistant_info.get("name") or data.get("name")
+    path = data.get("path") or identity_info.get("myth_path")
+    archetype = identity_info.get("archetype", "")
+
+    if not name or not path:
+        return Response({"error": "name and path required"}, status=400)
+
+    assistant, card = create_assistant_from_mythpath(
+        path, name, archetype, user=request.user if request.user.is_authenticated else None
+    )
+
+    return Response(
+        {
+            "assistant": AssistantSerializer(assistant).data,
+            "identity_card": SymbolicIdentityCardSerializer(card).data,
+        },
+        status=status.HTTP_201_CREATED,
+    )
