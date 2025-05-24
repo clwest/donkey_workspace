@@ -53,43 +53,43 @@ class ThreadViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["post"])
     def merge(self, request, pk=None):
-        return merge_thread(request, id=pk)
+        return merge_thread(request._request, id=pk)
 
     @action(detail=True, methods=["post"])
     def split(self, request, pk=None):
-        return split_thread(request, id=pk)
+        return split_thread(request._request, id=pk)
 
     @action(detail=True, methods=["get"])
     def summary(self, request, pk=None):
-        return thread_summary(request, id=pk)
+        return thread_summary(request._request, id=pk)
 
     @action(detail=True, methods=["get"])
     def replay(self, request, pk=None):
-        return thread_replay(request, thread_id=pk)
+        return thread_replay(request._request, thread_id=pk)
 
     @action(detail=True, methods=["post"])
     def diagnose(self, request, pk=None):
-        return diagnose_thread(request, thread_id=pk)
+        return diagnose_thread(request._request, thread_id=pk)
 
     @action(detail=True, methods=["post"], url_path="suggest-continuity")
     def suggest_continuity(self, request, pk=None):
-        return suggest_continuity_view(request, thread_id=pk)
+        return suggest_continuity_view(request._request, thread_id=pk)
 
     @action(detail=True, methods=["post"])
     def realign(self, request, pk=None):
-        return realign_thread(request, thread_id=pk)
+        return realign_thread(request._request, thread_id=pk)
 
     @action(detail=True, methods=["get"])
     def progress(self, request, pk=None):
-        return thread_progress(request, id=pk)
+        return thread_progress(request._request, id=pk)
 
     @action(detail=True, methods=["post"])  # /threads/<id>/refocus/
     def refocus(self, request, pk=None):
-        return refocus_thread(request, thread_id=pk)
+        return refocus_thread(request._request, thread_id=pk)
 
     @action(detail=True, methods=["post"])  # /threads/<id>/reflect/
     def reflect(self, request, pk=None):
-        return reflect_on_thread_objective(request, thread_id=pk)
+        return reflect_on_thread_objective(request._request, thread_id=pk)
 
     @action(detail=True, methods=["post"], url_path="set_objective")
     def set_objective(self, request, pk=None):
