@@ -117,6 +117,7 @@ import StoryListPage from "./pages/media/StoryListPage";
 import AgentPage from "./pages/agents/AgentPage";
 import AgentDetailPage from "./pages/agents/AgentDetailPage";
 import AgentArchivePage from "./pages/agents/AgentArchivePage";
+import TrainedAgentsPage from "./pages/agents/TrainedAgentsPage";
 import SwarmTimelinePage from "./pages/agents/SwarmTimelinePage";
 import RoutingHistoryPage from "./pages/assistants/RoutingHistoryPage";
 import StoryboardEditorPage from "./pages/storyboard/StoryboardEditorPage";
@@ -455,6 +456,7 @@ export default function App() {
           />
           <Route path="/agents" element={<AgentPage />} />
           <Route path="/agents/archive" element={<AgentArchivePage />} />
+          <Route path="/agents/trained" element={<TrainedAgentsPage />} />
           <Route path="/swarm/timeline" element={<SwarmTimelinePage />} />
           <Route path="/timeline" element={<WorldTimelinePage />} />
           <Route path="/agents/:slug" element={<AgentDetailPage />} />

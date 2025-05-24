@@ -229,3 +229,31 @@ class FarewellTemplate(models.Model):
         return self.name
 
 
+class TrainedAgentLog(models.Model):
+    """Record symbolic training sessions for agents before promotion."""
+
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE)
+    label = models.CharField(max_length=150)
+    document_set = models.ForeignKey(
+        "intel_core.DocumentSet", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    prompt = models.ForeignKey(
+        "prompts.Prompt", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    project = models.ForeignKey(
+        "assistants.AssistantProject", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    memory_entry = models.ForeignKey(
+        "agents.SwarmMemoryEntry", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    skill_matrix = models.JSONField(default=list, blank=True)
+    document_count = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.label
+
+
