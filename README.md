@@ -110,6 +110,10 @@ cd frontend
 npm install
 npm run dev
 ```
+### API Environment
+
+Prompts are served at `/api/prompts/`. Set `VITE_API_URL` to your backend's `/api` base (e.g., `http://localhost:8000/api`) without a `/v1` suffix unless the backend routes change.
+
 
 ---
 
