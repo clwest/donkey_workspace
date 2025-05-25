@@ -1,24 +1,24 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import apiFetch from "../../utils/apiClient";
+import apiFetch from "../../../utils/apiClient";
 import {
   fetchFailureLog,
   runSelfAssessment,
   regeneratePlan,
   fetchRecentReflections,
   createPrimaryAssistant,
-} from "../../api/assistants";
-import ReflectionToastStatus from "../../components/assistant/ReflectionToastStatus";
-import AssistantThoughtCard from "../../components/assistant/thoughts/AssistantThoughtCard";
-import AssistantMemoryPanel from "../../components/assistant/memory/AssistantMemoryPanel";
-import PrioritizedMemoryPanel from "../../components/assistant/memory/PrioritizedMemoryPanel";
-import MemoryChainSettingsPanel from "../../components/assistant/memory/MemoryChainSettingsPanel";
-import PrimaryStar from "../../components/assistant/PrimaryStar";
-import ThoughtCloudPanel from "../../components/assistant/memory/ThoughtCloudPanel";
-import MemoryMoodChart from "../../components/assistant/memory/MemoryMoodChart";
+} from "../../../api/assistants";
+import ReflectionToastStatus from "../../../components/assistant/ReflectionToastStatus";
+import AssistantThoughtCard from "../../../components/assistant/thoughts/AssistantThoughtCard";
+import AssistantMemoryPanel from "../../../components/assistant/memory/AssistantMemoryPanel";
+import PrioritizedMemoryPanel from "../../../components/assistant/memory/PrioritizedMemoryPanel";
+import MemoryChainSettingsPanel from "../../../components/assistant/memory/MemoryChainSettingsPanel";
+import PrimaryStar from "../../../components/assistant/PrimaryStar";
+import ThoughtCloudPanel from "../../../components/assistant/memory/ThoughtCloudPanel";
+import MemoryMoodChart from "../../../components/assistant/memory/MemoryMoodChart";
 import AssistantDashboardHeader from "./AssistantDashboardHeader";
-import SelfAssessmentModal from "../../components/assistant/SelfAssessmentModal";
-import SceneMatchesPanel from "../../components/assistant/SceneMatchesPanel";
+import SelfAssessmentModal from "../../../components/assistant/SelfAssessmentModal";
+import SceneMatchesPanel from "../../../components/assistant/SceneMatchesPanel";
 
 export default function PrimaryAssistantDashboard() {
   const [assistant, setAssistant] = useState(null);
