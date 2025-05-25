@@ -113,6 +113,8 @@ import AssistantReflectPage from "./pages/assistant/reflections/AssistantReflect
 import AssistantReflectionLogsPage from "./pages/assistant/reflections/AssistantReflectionLogsPage";
 import FeedbackSummaryPage from "./pages/assistant/feedback/FeedbackSummaryPage";
 import DevDashboard from "./pages/dev/DevDashboard";
+import RouteHealthPage from "./pages/dev/RouteHealthPage";
+import PageNotFound from "./pages/PageNotFound";
 import GroupedReflectionPage from "./pages/dev/GroupedReflectionPage";
 import GroupedReflectionDetailPage from "./pages/dev/GroupedReflectionDetailPage";
 import DocumentBrowserPage from "./pages/intel_core/DocumentBrowserPage";
@@ -476,6 +478,7 @@ export default function App() {
           <Route path="/threads/editor" element={<ThreadEditorPage />} />
           <Route path="/threads/:id" element={<ThreadDetailPage />} />
           <Route path="/dev-dashboard" element={<DevDashboard />} />
+          <Route path="/dev/routes" element={<RouteHealthPage />} />
           <Route path="/planning" element={<PlanningPage />} />
           <Route path="/plan/graph" element={<PlanningGraphPage />} />
           <Route path="/plan/assign" element={<TaskAssignmentPage />} />
@@ -558,6 +561,7 @@ export default function App() {
           <Route path="/assistants/signals" element={<SignalCatchesPage />} />
           <Route path="/assistants/routing-history" element={<RoutingHistoryPage />} />
           <Route path="/assistants/council/:id" element={<CouncilDashboardPage />} />
+          <Route path="*" element={<PageNotFound />} />
         </Routes>
         </div>
       </div>

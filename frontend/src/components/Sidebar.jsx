@@ -55,6 +55,26 @@ export default function Sidebar() {
               📈 Activity
             </NavLink>
           </li>
+          <li>
+            <NavLink to="/dashboard/world" className="d-block">
+              🌍 World Dashboard
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/codex" className="d-block">
+              📜 Codex
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/ritual" className="d-block">
+              🔮 Rituals
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/dev/routes" className="d-block">
+              🛣 Route Health
+            </NavLink>
+          </li>
         </ul>
       </div>
     </div>

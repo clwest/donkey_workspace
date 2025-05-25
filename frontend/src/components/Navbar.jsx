@@ -199,6 +199,11 @@ export default function Navbar() {
                 🛠 Dev Dashboard
               </Link>
             </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/dev/routes">
+                🛣 Route Health
+              </Link>
+            </li>
 
             {/* Signal Intelligence */}
             <li className="nav-item dropdown">
