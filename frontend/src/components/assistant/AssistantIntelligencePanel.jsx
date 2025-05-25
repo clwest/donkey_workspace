@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import apiFetch from "../../utils/apiClient";
 
-export default function AssistantIntelligencePanel({ projectId }) {
+export default function AssistantIntelligencePanel({ projectId, assistant: propAssistant }) {
   const [activeTab, setActiveTab] = useState("thoughts");
   const [thoughts, setThoughts] = useState([]);
   const [reflections, setReflections] = useState([]);
@@ -10,6 +10,8 @@ export default function AssistantIntelligencePanel({ projectId }) {
   const [loading, setLoading] = useState(false);
   const [reflecting, setReflecting] = useState(false);
   const [loadingDocs, setLoadingDocs] = useState(false);
+  const [assistant, setAssistant] = useState(propAssistant || null);
+  const [devDocs, setDevDocs] = useState([]);
 
   const totalThoughts = thoughts.length;
   const totalReflections = reflections.length;
@@ -17,6 +19,12 @@ export default function AssistantIntelligencePanel({ projectId }) {
   useEffect(() => {
     if (!projectId) return;
     loadContent();
+    if (!propAssistant) {
+      apiFetch(`/assistants/projects/${projectId}/`).then((data) => {
+        setAssistant(data.assistant || null);
+        setDevDocs(data.dev_docs || []);
+      }).catch((err) => console.error("Failed to load project", err));
+    }
   }, [projectId]);
 
   async function loadContent() {
@@ -74,14 +82,22 @@ export default function AssistantIntelligencePanel({ projectId }) {
   }
 
   const generateSystemPrompt = async () => {
-    if (!assistant || !assistant.id) return;
+    if (!assistant || !devDocs.length) return;
+    const docId = devDocs[0].id;
+    if (!docId) return;
     setLoadingDocs(true);
     try {
-      const res = await apiFetch(`/assistants/${assistant.id}/generate-system-prompt-from-docs/`, {
+      const res = await apiFetch(`/intel/intelligence/bootstrap-agent/${docId}/`, {
         method: "POST",
       });
-      if (res?.system_prompt) {
-        setAssistant((prev) => ({ ...prev, system_prompt: res.system_prompt }));
+      if (res?.config) {
+        const cfg = JSON.parse(res.config);
+        if (cfg.system_prompt) {
+          setAssistant((prev) => ({
+            ...prev,
+            system_prompt: { ...(prev?.system_prompt || {}), content: cfg.system_prompt },
+          }));
+        }
       }
     } catch (err) {
       console.error("Failed to generate prompt from docs:", err);
@@ -212,3 +228,4 @@ export default function AssistantIntelligencePanel({ projectId }) {
     </div>
   );
 }
+
