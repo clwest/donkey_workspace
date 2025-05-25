@@ -1,6 +1,12 @@
 
 from rest_framework import serializers
-from prompts.models import Prompt, PromptPreferences, PromptUsageTemplate
+from prompts.models import (
+    Prompt,
+    PromptPreferences,
+    PromptUsageTemplate,
+    PromptCapsule,
+    CapsuleTransferLog,
+)
 from assistants.models.assistant import Assistant
 from mcp_core.models import Tag
 from mcp_core.serializers_tags import TagSerializer
@@ -128,3 +134,16 @@ class AssistantMinimalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assistant
         fields = ["id", "name", "slug"]
+
+class PromptCapsuleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PromptCapsule
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CapsuleTransferLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CapsuleTransferLog
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]

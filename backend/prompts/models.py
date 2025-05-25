@@ -169,3 +169,38 @@ class PromptMutationEffectTrace(models.Model):
     feedback_vector = models.ForeignKey(PromptFeedbackVector, null=True, blank=True, on_delete=models.SET_NULL)
     effect_notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class PromptCapsule(models.Model):
+    """Reusable prompt capsule for cross-assistant injection."""
+
+    title = models.CharField(max_length=255)
+    content = models.TextField()
+    context = models.TextField(blank=True)
+    tags = models.ManyToManyField("mcp_core.Tag", blank=True)
+    feedback_rating = models.FloatField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class CapsuleTransferLog(models.Model):
+    """Log propagation of a prompt capsule between assistants."""
+
+    capsule = models.ForeignKey(
+        PromptCapsule, on_delete=models.CASCADE, related_name="transfers"
+    )
+    from_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="capsule_transfers_out",
+    )
+    to_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="capsule_transfers_in",
+    )
+    tag_overwrite = models.JSONField(blank=True, default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)

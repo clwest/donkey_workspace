@@ -1,10 +1,17 @@
 import warnings
 warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
 from django.urls import path
+from rest_framework.routers import DefaultRouter
 from . import views
 from .feedback import PromptFeedbackRefinementView
 
-urlpatterns = [
+router = DefaultRouter()
+router.register(r"capsules", views.PromptCapsuleViewSet, basename="promptcapsule")
+router.register(
+    r"capsule-transfers", views.CapsuleTransferLogViewSet, basename="capsuletransfer"
+)
+
+urlpatterns = router.urls + [
     path("", views.list_prompts),
     path("tags/", views.list_prompt_tags),
     path("preferences/", views.get_my_prompt_preferences),

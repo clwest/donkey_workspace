@@ -26,6 +26,7 @@ from .views.playback import (
     CascadeNodeLinkViewSet,
     SimulationClusterStatusViewSet,
     SimulationGridNodeViewSet,
+    NarrativeMutationTraceViewSet,
 )
 from .views.dreamframe import (
     DreamframeStoryGeneratorViewSet,
@@ -65,6 +66,7 @@ router.register(r"prompt-cascades", PromptCascadeLogViewSet, basename="prompt-ca
 router.register(r"cascade-nodes", CascadeNodeLinkViewSet, basename="cascade-node")
 router.register(r"simulation-grid", SimulationClusterStatusViewSet, basename="simulation-grid")
 router.register(r"simulation-grid-nodes", SimulationGridNodeViewSet, basename="simulation-grid-node")
+router.register(r"narrative-traces", NarrativeMutationTraceViewSet, basename="narrative-trace")
 
 
 urlpatterns = router.urls + [

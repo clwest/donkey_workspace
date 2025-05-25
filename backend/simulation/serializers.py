@@ -26,7 +26,8 @@ from .models import (
     PromptCascadeLog,
     CascadeNodeLink,
     SimulationClusterStatus,
-    SimulationGridNode
+    SimulationGridNode,
+    NarrativeMutationTrace,
 )
 
 
@@ -221,3 +222,12 @@ class SimulationGridNodeSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
+
+class NarrativeMutationTraceSerializer(serializers.ModelSerializer):
+    assistant_name = serializers.CharField(source="assistant.name", read_only=True)
+
+    class Meta:
+        model = NarrativeMutationTrace
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
