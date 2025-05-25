@@ -345,4 +345,25 @@ export const routeMap = [
     serializer: "BeliefForecastSnapshotSerializer",
     notes: "Belief resonance forecast heatmap",
   },
+  {
+    frontend: "/evolve/swarm",
+    backend: "/api/evolve/swarm/",
+    view: "SwarmTaskEvolutionPage",
+    serializer: "TaskEvolutionSuggestionSerializer",
+    notes: "Swarm task evolution dashboard",
+  },
+  {
+    frontend: "/plan/skills/:id",
+    backend: "/api/plan/skills/",
+    view: "SkillPlannerPage",
+    serializer: "SkillTrainingMapSerializer",
+    notes: "Memory-optimized skill planner",
+  },
+  {
+    frontend: "/feedback/prompts/:id",
+    backend: "/api/feedback/prompts/",
+    view: "PromptFeedbackPage",
+    serializer: "PromptVersionTraceSerializer",
+    notes: "Prompt feedback refinement",
+  },
 ];

@@ -2,6 +2,7 @@ import warnings
 warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
 from django.urls import path
 from . import views
+from .feedback import PromptFeedbackRefinementView
 
 urlpatterns = [
     path("", views.list_prompts),
@@ -22,4 +23,9 @@ urlpatterns = [
     path("<slug:slug>/", views.prompt_detail),
     path("<slug:slug>/assign/", views.assign_prompt_to_assistant),
     path("<slug:slug>/usage-logs/", views.prompt_usage_logs_view),
+    path(
+        "feedback/prompts/<uuid:prompt_id>/",
+        PromptFeedbackRefinementView.as_view(),
+        name="prompt-feedback-refinement",
+    ),
 ]
