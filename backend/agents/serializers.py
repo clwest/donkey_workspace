@@ -155,6 +155,18 @@ from agents.models.coordination import (
 from agents.models.rewire import (
     RitualRewiringProposal
 )
+from agents.models.stabilization import (
+    BeliefCascadeGraph,
+    CascadeImpactNode,
+    CascadeEffectTrace,
+    RoleTensionMetric,
+    AssistantArchetypeConflict,
+    CollisionResolutionProposal,
+    StabilizationCampaign,
+    CodexClauseVoteLog,
+    CampaignSymbolicGainEstimate
+)
+
 from agents.models.rewire import SwarmAgentRoute, AgentSymbolicMap
 from agents.models.orchestration import (
     AssistantOrchestrationEvent,
