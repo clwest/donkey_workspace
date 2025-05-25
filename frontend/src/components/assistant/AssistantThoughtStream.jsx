@@ -13,7 +13,7 @@ export default function AssistantThoughtStream({ assistantId }) {
     if (!assistantId) return;
     setLoading(true);
 
-    apiFetch(`/assistants/${assistantId}/thought-log/`)
+    apiFetch(`/assistants/${assistantId}/thought-log/`, { params: { limit: 20 } })
       .then((res) => setThoughts(res.results || res))
       .catch((err) => {
         console.error("Failed to load thought stream", err);

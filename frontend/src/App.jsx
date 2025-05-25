@@ -38,6 +38,7 @@ import PlanningGraphPage from "./pages/plan/PlanningGraphPage";
 import TaskAssignmentPage from "./pages/plan/TaskAssignmentPage";
 import ExecutionChainPage from "./pages/plan/ExecutionChainPage";
 import BeliefForecastPage from "./pages/forecast/BeliefForecastPage";
+import { SHOW_INACTIVE_ROUTES } from "./config/ui";
 import ThreadDetailPage from "./pages/mcp_core/threads/ThreadDetailPage";
 import ThreadsOverviewPage from "./pages/mcp_core/threads/ThreadsOverviewPage";
 import ThreadEditorPage from "./pages/mcp_core/threads/ThreadEditorPage";
@@ -103,6 +104,7 @@ import BeliefEvolutionPage from "./pages/assistant/analysis/BeliefEvolutionPage"
 import NextActionsPage from "./pages/assistant/objectives/NextActionsPage";
 import ObjectivesPage from "./pages/assistant/objectives/ObjectivesPage";
 import PrimaryAssistantDashboard from "./pages/assistant/dashboard/PrimaryAssistantDashboard";
+import CreatePrimaryAssistantPage from "./pages/assistant/dashboard/CreatePrimaryAssistantPage";
 
 import AssistantSessionDashboardPage from "./pages/assistant/sessions/AssistantSessionDashboardPage";
 import GroupedReflectionsPage from "./pages/mcp_core/reflections/GroupedReflectionsPage";
@@ -281,6 +283,10 @@ export default function App() {
           <Route
             path="/assistants/primary"
             element={<PrimaryAssistantDashboard />}
+          />
+          <Route
+            path="/assistants/primary/create"
+            element={<CreatePrimaryAssistantPage />}
           />
           <Route
             path="/assistants/primary/dashboard"

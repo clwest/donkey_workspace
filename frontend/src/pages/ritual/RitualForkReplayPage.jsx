@@ -13,7 +13,11 @@ export default function RitualForkReplayPage() {
   return (
     <div className="container my-4">
       <h3>Ritual Fork Replay</h3>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
+      {data ? (
+        <pre>{JSON.stringify(data, null, 2)}</pre>
+      ) : (
+        <div className="text-muted">No fork replay data.</div>
+      )}
     </div>
   );
 }
