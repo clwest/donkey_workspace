@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import apiFetch from "../../../utils/apiClient";
 import ThoughtLogCard from "../../../components/assistant/thoughts/ThoughtLogCard";
 import ReflectionToastStatus from "../../../components/assistant/ReflectionToastStatus";
+import { toast } from "react-toastify";
 
 export default function AssistantReflectPage() {
   const { slug } = useParams();
@@ -15,14 +16,16 @@ export default function AssistantReflectPage() {
   const reflect = async (force = false) => {
     setLoading(true);
     try {
-      const res = await apiFetch(`/assistants/${slug}/reflect-now/`, {
+      const res = await apiFetch(`/assistants/${slug}/reflect_now/`, {
         method: "POST",
-        params: force ? { force: "true" } : undefined,
+        body: force ? { force: "true" } : {},
       });
       if (res.status === "ok") {
         await loadReflectionLogs();
+        toast.success("Reflection stored");
         setToastStatus("success");
       } else {
+        toast.error("Reflection failed");
         setToastStatus("error");
       }
     } catch (err) {
@@ -31,7 +34,7 @@ export default function AssistantReflectPage() {
       const msg = detail
         ? `Reflection request failed: ${detail}`
         : "Reflection request failed";
-      console.error(msg);
+      toast.error(msg);
       setToastStatus("error");
     } finally {
       setLoading(false);
