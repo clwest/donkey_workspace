@@ -366,4 +366,25 @@ export const routeMap = [
     serializer: "PromptVersionTraceSerializer",
     notes: "Prompt feedback refinement",
   },
+  {
+    frontend: "/orchestration/timeline",
+    backend: "/api/agents/orchestration/timeline/",
+    view: "OrchestrationTimelinePage",
+    serializer: "AssistantOrchestrationEventSerializer",
+    notes: "Assistant orchestration timeline",
+  },
+  {
+    frontend: "/ritual/rewire",
+    backend: "/api/swarm/proposals/",
+    view: "RitualRewirePage",
+    serializer: "RitualRewiringProposalSerializer",
+    notes: "Auto-ritual rewiring editor",
+  },
+  {
+    frontend: "/swarm/graph",
+    backend: "/api/swarm/graph/",
+    view: "SwarmGraphPage",
+    serializer: "SwarmGraphSnapshotSerializer",
+    notes: "Swarm graph visualization",
+  },
 ];

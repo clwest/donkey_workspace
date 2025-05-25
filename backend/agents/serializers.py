@@ -158,6 +158,11 @@ from agents.models.insight import (
     TimelineStitchLog,
 )
 from agents.models.rewire import SwarmAgentRoute, AgentSymbolicMap
+from agents.models.orchestration import (
+    AssistantOrchestrationEvent,
+    OrchestrationTimelineSnapshot,
+    RitualRewiringProposal,
+)
 from agents.models.identity import (
     SymbolicIdentityCard,
     PersonaTemplate,
@@ -1547,6 +1552,16 @@ class AgentSymbolicMapSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+class RitualRewiringProposalSerializer(serializers.ModelSerializer):
+    initiator_name = serializers.CharField(source="initiator.name", read_only=True)
+    receiver_name = serializers.CharField(source="receiver.name", read_only=True)
+
+    class Meta:
+        model = RitualRewiringProposal
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
 class DeploymentEventTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeploymentEventTag
@@ -1599,5 +1614,24 @@ class AssistantFeedbackLoopVectorSerializer(serializers.ModelSerializer):
 class DeploymentIterationSuggestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeploymentIterationSuggestion
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+class AssistantOrchestrationEventSerializer(serializers.ModelSerializer):
+    assistant_name = serializers.CharField(source="assistant.name", read_only=True)
+    assistant_id = serializers.SerializerMethodField()
+
+    class Meta:
+        model = AssistantOrchestrationEvent
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+    def get_assistant_id(self, obj):
+        return str(obj.assistant_id)
+
+
+class OrchestrationTimelineSnapshotSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrchestrationTimelineSnapshot
         fields = "__all__"
         read_only_fields = ["id", "created_at"]

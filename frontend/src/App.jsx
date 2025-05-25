@@ -133,6 +133,9 @@ import AgentDetailPage from "./pages/agents/AgentDetailPage";
 import AgentArchivePage from "./pages/agents/AgentArchivePage";
 import TrainedAgentsPage from "./pages/agents/TrainedAgentsPage";
 import SwarmTimelinePage from "./pages/agents/SwarmTimelinePage";
+import SwarmGraphPage from "./pages/swarm/SwarmGraphPage";
+import OrchestrationTimelinePage from "./pages/orchestration/OrchestrationTimelinePage";
+import RitualRewirePage from "./pages/ritual/RitualRewirePage";
 import MemoryTimelinePage from "./pages/timeline/MemoryTimelinePage";
 import RoutingHistoryPage from "./pages/assistant/routing/RoutingHistoryPage";
 import StoryboardEditorPage from "./pages/storyboard/StoryboardEditorPage";
@@ -525,6 +528,9 @@ export default function App() {
           <Route path="/agents/archive" element={<AgentArchivePage />} />
           <Route path="/agents/trained" element={<TrainedAgentsPage />} />
           <Route path="/swarm/timeline" element={<SwarmTimelinePage />} />
+          <Route path="/swarm/graph" element={<SwarmGraphPage />} />
+          <Route path="/ritual/rewire" element={<RitualRewirePage />} />
+          <Route path="/orchestration/timeline" element={<OrchestrationTimelinePage />} />
           <Route path="/swarm/rewire" element={<SwarmAgentRewirePage />} />
           <Route path="/timeline" element={<WorldTimelinePage />} />
           <Route path="/timeline/memory" element={<MemoryTimelinePage />} />
