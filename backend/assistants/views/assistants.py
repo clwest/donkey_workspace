@@ -306,7 +306,6 @@ def create_assistant_from_thought(request):
         "description",
         "specialty",
         "prompt_id",
-        "created_by",
         "project_id",
         # thread_id optional
     ]
@@ -314,9 +313,16 @@ def create_assistant_from_thought(request):
         if field not in data:
             return Response({"error": f"{field} is required"}, status=400)
 
-    prompt = Prompt.objects.get(id=data["prompt_id"])
 
-    creator_id = data.get("created_by")
+    try:
+        prompt = Prompt.objects.get(id=data["prompt_id"])
+    except (ValueError, Prompt.DoesNotExist):
+        return Response({"error": "Invalid prompt_id"}, status=400)
+
+    creator_id = data.get("created_by") or (
+        request.user.id if request.user and request.user.is_authenticated else None
+    )
+
     if not creator_id:
         return Response({"error": "created_by is required"}, status=400)
     try:
