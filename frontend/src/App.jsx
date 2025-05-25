@@ -184,6 +184,17 @@ import RitualLawPage from "./pages/law/RitualLawPage";
 import DeployStandardsPage from "./pages/deploy/DeployStandardsPage";
 import FederatedSummonPage from "./pages/summon/FederatedSummonPage";
 import MemorySandboxPage from "./pages/memory/MemorySandboxPage";
+import ThoughtLogPanel from "./pages/assistant/thoughts/ThoughtLogPanel";
+import PersonalityDeckBuilder from "./pages/assistant/deck/PersonalityDeckBuilder";
+import CodexPromptOrchestrator from "./pages/codex/CodexPromptOrchestrator";
+import PromptMutationExplorer from "./pages/codex/PromptMutationExplorer";
+import RitualComposerPage from "./pages/ritual/RitualComposerPage";
+import RitualForkReplayPage from "./pages/ritual/RitualForkReplayPage";
+import MythOSProjectComposerPage from "./pages/project/MythOSProjectComposerPage";
+import PromptDebuggerPage from "./pages/debug/PromptDebuggerPage";
+import SwarmTaskEvolutionPage from "./pages/evolve/SwarmTaskEvolutionPage";
+import SkillPlannerPage from "./pages/plan/SkillPlannerPage";
+import PromptFeedbackPage from "./pages/feedback/PromptFeedbackPage";
 
 
 import { ToastContainer } from "react-toastify";
@@ -219,6 +230,7 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/prompts" element={<PromptsPage />} />
           <Route path="/prompts/capsules" element={<PromptCapsuleManagerPage />} />
+          <Route path="/feedback/prompts/:id" element={<PromptFeedbackPage />} />
           <Route path="/prompts/:slug/remix" element={<PromptRemixPage />} />
           <Route path="/prompts/:slug" element={<PromptDetailView />} />
           <Route path="/prompts/create" element={<CreatePromptPage />} />
@@ -434,6 +446,8 @@ export default function App() {
             path="/assistants/:slug/chat"
             element={<ChatWithAssistantPage />}
           />
+          <Route path="/assistants/:id/thoughts" element={<ThoughtLogPanel />} />
+          <Route path="/assistants/:id/deck" element={<PersonalityDeckBuilder />} />
           <Route
             path="/assistants/:id/interface"
             element={<AssistantInterfacePage />}
@@ -483,10 +497,12 @@ export default function App() {
           <Route path="/threads/:id" element={<ThreadDetailPage />} />
           <Route path="/dev-dashboard" element={<DevDashboard />} />
           <Route path="/dev/routes" element={<RouteHealthPage />} />
+          <Route path="/debug/prompts" element={<PromptDebuggerPage />} />
           <Route path="/planning" element={<PlanningPage />} />
           <Route path="/plan/graph" element={<PlanningGraphPage />} />
           <Route path="/plan/assign" element={<TaskAssignmentPage />} />
           <Route path="/plan/chains" element={<ExecutionChainPage />} />
+          <Route path="/plan/skills/:id" element={<SkillPlannerPage />} />
           <Route
             path="/grouped-reflection"
             element={<GroupedReflectionPage />}
@@ -522,6 +538,8 @@ export default function App() {
 
           {/* MythOS symbolic gateways */}
           <Route path="/codex" element={<MythOSCodexPage />} />
+          <Route path="/codex/evolve" element={<PromptMutationExplorer />} />
+          <Route path="/codex/orchestrator/:assistantId" element={<CodexPromptOrchestrator />} />
           <Route path="/codex/converge" element={<CodexConvergePage />} />
           <Route path="/codex/proof" element={<CodexProofPage />} />
           <Route path="/codex/contracts/:promptId" element={<CodexContractPage />} />
@@ -531,17 +549,21 @@ export default function App() {
           <Route path="/dream/rebirth" element={<DreamRebirthPage />} />
           <Route path="/ritual" element={<MythOSRitualsPage />} />
           <Route path="/ritual/containers" element={<RitualContainersPage />} />
+          <Route path="/ritual/composer" element={<RitualComposerPage />} />
+          <Route path="/ritual/fork/replay" element={<RitualForkReplayPage />} />
           <Route path="/reflection" element={<ReflectionPage />} />
 
           <Route path="/prophecy/engine" element={<ProphecyEnginePage />} />
           <Route path="/memory/predict" element={<MemoryPredictionPage />} />
           <Route path="/ritual/forecast" element={<RitualForecastPage />} />
           <Route path="/forecast/belief" element={<BeliefForecastPage />} />
+          <Route path="/evolve/swarm" element={<SwarmTaskEvolutionPage />} />
           <Route path="/ritual/rewards" element={<RitualRewardsPage />} />
           <Route path="/replay/engine" element={<ReplayEnginePage />} />
           <Route path="/simulate/narrative" element={<NarrativeMutationSimulatorPage />} />
           <Route path="/fault/injector" element={<FaultInjectorPage />} />
           <Route path="/deploy/standards" element={<DeployStandardsPage />} />
+          <Route path="/project/composer" element={<MythOSProjectComposerPage />} />
           <Route path="/summon/federated" element={<FederatedSummonPage />} />
           <Route path="/anchor/continuity" element={<ContinuityAnchorPage />} />
           <Route path="/assistants/:id/economy" element={<AssistantEconomyPage />} />

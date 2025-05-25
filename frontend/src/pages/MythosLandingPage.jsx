@@ -28,6 +28,9 @@ export default function MythosLandingPage() {
         <Link to="/timeline/memory" className="btn btn-outline-secondary shadow-md">
           ⏳ Memory Timeline
         </Link>
+        <Link to="/project/composer" className="btn btn-outline-success shadow-md">
+          🛠 Project Composer
+        </Link>
       </div>
     </div>
   );

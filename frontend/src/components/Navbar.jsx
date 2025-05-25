@@ -204,6 +204,21 @@ export default function Navbar() {
                 🛣 Route Health
               </Link>
             </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/project/composer">
+                🛠️ Project Composer
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/debug/prompts">
+                🔍 Prompt Debugger
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/evolve/swarm">
+                🧪 Swarm Evolution
+              </Link>
+            </li>
 
             {/* Signal Intelligence */}
             <li className="nav-item dropdown">
