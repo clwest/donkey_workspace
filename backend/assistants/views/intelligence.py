@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
 from prompts.utils.token_helpers import count_tokens
 from memory.memory_service import get_memory_service
@@ -50,13 +51,16 @@ def run_task(request, slug):
         return Response({"error": "task required"}, status=400)
 
     engine = CoreAssistant(assistant)
+    start = timezone.now()
     result = engine.run_task(task)
+    duration = timezone.now() - start
 
     run_log = AssistantTaskRunLog.objects.create(
         assistant=assistant,
         task_text=task,
         result_text=result.get("result", ""),
         success="error" not in result,
+        duration_ms=int(duration.total_seconds() * 1000),
     )
 
     prompt_tokens = count_tokens(f"You are {assistant.name}. Complete this task:\n{task}")
@@ -88,7 +92,18 @@ def run_task(request, slug):
             new_output=result.get("result", ""),
         )
 
-    return Response({"result": result.get("result"), "log_id": str(run_log.id)})
+    return Response(
+        {
+            "result": result.get("result"),
+            "log_id": str(run_log.id),
+            "token_usage": {
+                "prompt": prompt_tokens,
+                "completion": completion_tokens,
+                "total": prompt_tokens + completion_tokens,
+            },
+            "duration_ms": int(duration.total_seconds() * 1000),
+        }
+    )
 
 
 @api_view(["GET"])

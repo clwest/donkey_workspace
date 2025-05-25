@@ -12,6 +12,7 @@ class AssistantTaskRunLog(models.Model):
     task_text = models.TextField()
     result_text = models.TextField()
     success = models.BooleanField(default=True)
+    duration_ms = models.PositiveIntegerField(default=0)
     reflection = models.ForeignKey(
         "assistants.AssistantReflectionLog",
         on_delete=models.SET_NULL,

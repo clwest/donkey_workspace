@@ -13,6 +13,8 @@ class RunTaskAPITest(BaseAPITestCase):
         data = resp.json()
         self.assertIn("result", data)
         self.assertIn("log_id", data)
+        self.assertIn("token_usage", data)
+        self.assertIn("duration_ms", data)
         log = AssistantTaskRunLog.objects.get(id=data["log_id"])
         self.assertEqual(log.task_text, "test")
         self.assertTrue(TokenUsageSummary.objects.filter(run_log=log).exists())
