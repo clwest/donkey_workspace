@@ -11,9 +11,11 @@ export default function AssistantPromptPanel({ projectId }) {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [linkedData, availableData] = await Promise.all([
-          apiFetch(`/assistants/projects/${projectId}/linked_prompts/`),
-          apiFetch(`/prompts/`, { params: { show_all: true } }),
+
+        const [linkedRes, availableRes] = await Promise.all([
+          fetch(`http://localhost:8000/api/assistants/projects/${projectId}/linked_prompts/`),
+          fetch(`http://localhost:8000/api/assistants/prompts/recent/`),
+
         ]);
 
         setLinkedPrompts(linkedData);
@@ -45,6 +47,20 @@ export default function AssistantPromptPanel({ projectId }) {
     }
   }
 
+  async function handleUnlinkPrompt(linkId) {
+    try {
+      await fetch(
+        `http://localhost:8000/api/assistants/projects/unlink_prompt/${linkId}/`,
+        {
+          method: "DELETE",
+        }
+      );
+      setLinkedPrompts((prev) => prev.filter((l) => l.id !== linkId));
+    } catch (error) {
+      console.error("Error unlinking prompt:", error);
+    }
+  }
+
   if (loading) return <div>Loading prompt links...</div>;
 
   return (
@@ -56,8 +72,23 @@ export default function AssistantPromptPanel({ projectId }) {
       ) : (
         <ul className="list-group mb-4">
           {linkedPrompts.map((link, idx) => (
-            <li key={link.id ? `link-${link.id}` : `fallback-${idx}`} className="list-group-item">
-              {link.prompt?.title || <em>Unnamed Prompt</em>}
+            <li
+              key={link.id ? `link-${link.id}` : `fallback-${idx}`}
+              className="list-group-item d-flex justify-content-between align-items-center"
+            >
+              <span>
+                {link.prompt?.title || <em>Unnamed Prompt</em>}
+                {" "}
+                <small className="text-muted ms-2">
+                  {link.prompt?.token_count || 0} tokens
+                </small>
+              </span>
+              <button
+                className="btn btn-sm btn-outline-danger"
+                onClick={() => handleUnlinkPrompt(link.id)}
+              >
+                Unlink
+              </button>
             </li>
           ))}
         </ul>

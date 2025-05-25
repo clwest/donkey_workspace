@@ -468,6 +468,28 @@ paths:
       responses:
         '200':
           description: No response body
+  /api/assistants/projects/unlink_prompt/{link_id}/:
+    delete:
+      operationId: assistants_projects_unlink_prompt_destroy
+      parameters:
+      - in: path
+        name: link_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - assistants
+      security:
+      - jwtAuth: []
+      - Bearer:
+          type: http
+          scheme: bearer
+          bearerFormat: JWT
+      - {}
+      responses:
+        '200':
+          description: No response body
   /api/assistants/projects/{project_id}/memory-chains/:
     get:
       operationId: assistants_projects_memory_chains_retrieve
@@ -739,6 +761,21 @@ paths:
   /api/assistants/projects/link_prompt/:
     post:
       operationId: assistants_projects_link_prompt_create
+      tags:
+      - assistants
+      security:
+      - jwtAuth: []
+      - Bearer:
+          type: http
+          scheme: bearer
+          bearerFormat: JWT
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/assistants/prompts/recent/:
+    get:
+      operationId: assistants_prompts_recent_list
       tags:
       - assistants
       security:
