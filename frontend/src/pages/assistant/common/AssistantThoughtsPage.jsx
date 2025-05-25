@@ -2,22 +2,23 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import AssistantThinkButton from "../../../components/assistant/thoughts/AssistantThinkButton";
 import AssistantThoughtCard from "../../../components/assistant/thoughts/AssistantThoughtCard";
+import apiFetch from "../../../utils/apiClient";
 
 // import "./styles/AssistantThought.css"
 
 export default function AssistantThoughtsPage() {
   const [thoughts, setThoughts] = useState([]);
-  const [viewAll, setViewAll] = useState({})  
-  const { slug } = useParams();
+  const [viewAll, setViewAll] = useState({});
+  const { slug, id } = useParams();
+  const assistantKey = slug || id;
 
   useEffect(() => {
-    if (!slug) return;
+    if (!assistantKey) return;
 
     const fetchThoughts = async () => {
       try {
-        const data = await fetch(`/api/assistants/${slug}/thoughts/`);
-        // const data = await res.json();
-        console.log(data)
+        const data = await apiFetch(`/assistants/${assistantKey}/thoughts/`);
+        console.log(data);
         const thoughtsList = Array.isArray(data) ? data : data.results;
         if (Array.isArray(thoughtsList)) {
           setThoughts(thoughtsList.reverse());
@@ -28,7 +29,7 @@ export default function AssistantThoughtsPage() {
     };
 
     fetchThoughts();
-  }, [slug]);
+  }, [assistantKey]);
 
   const getThoughtsByType = (type) =>
     thoughts.filter((t) => t.thought_type === type || (type === "cot" && t.thought_trace?.includes("🧩")));
