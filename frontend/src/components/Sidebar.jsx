@@ -3,7 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 import apiFetch from "../utils/apiClient";
 import "./styles/Sidebar.css";
 
-export default function Sidebar() {
+export default function Sidebar({ collapsed }) {
   const [assistants, setAssistants] = useState([]);
 
   useEffect(() => {
@@ -16,24 +16,26 @@ export default function Sidebar() {
   const others = assistants.filter((a) => !a.is_primary);
 
   return (
-    <div className="sidebar bg-light border-end">
+    <div className={`sidebar bg-light border-end${collapsed ? " collapsed" : ""}`}>
       <div className="p-3">
         <Link to="/" className="navbar-brand mb-3 d-block">
-          🏠 Donkey
+          <span role="img" aria-label="Home">🏠</span>
+          <span className="link-text ms-1">Donkey</span>
         </Link>
         <div className="mb-2 fw-bold">My Assistants</div>
         <ul className="list-unstyled mb-3">
           {primary && (
             <li key={primary.id}>
               <NavLink to={`/assistants/${primary.slug}`} className="d-block">
-                ⭐ {primary.name}
+                <span role="img" aria-label="Primary">⭐</span>
+                <span className="link-text ms-1">{primary.name}</span>
               </NavLink>
             </li>
           )}
           {others.map((a) => (
             <li key={a.id}>
               <NavLink to={`/assistants/${a.slug}`} className="d-block">
-                {a.name}
+                <span className="link-text">{a.name}</span>
               </NavLink>
             </li>
           ))}
@@ -42,37 +44,44 @@ export default function Sidebar() {
         <ul className="list-unstyled mb-3">
           <li>
             <NavLink to="/intel/documents" className="d-block">
-              📚 Documents
+              <span role="img" aria-label="Documents">📚</span>
+              <span className="link-text ms-1">Documents</span>
             </NavLink>
           </li>
           <li>
             <NavLink to="/prompts" className="d-block">
-              📄 Prompts
+              <span role="img" aria-label="Prompts">📄</span>
+              <span className="link-text ms-1">Prompts</span>
             </NavLink>
           </li>
           <li>
             <NavLink to="/activity" className="d-block">
-              📈 Activity
+              <span role="img" aria-label="Activity">📈</span>
+              <span className="link-text ms-1">Activity</span>
             </NavLink>
           </li>
           <li>
             <NavLink to="/dashboard/world" className="d-block">
-              🌍 World Dashboard
+              <span role="img" aria-label="World">🌍</span>
+              <span className="link-text ms-1">World Dashboard</span>
             </NavLink>
           </li>
           <li>
             <NavLink to="/codex" className="d-block">
-              📜 Codex
+              <span role="img" aria-label="Codex">📜</span>
+              <span className="link-text ms-1">Codex</span>
             </NavLink>
           </li>
           <li>
             <NavLink to="/ritual" className="d-block">
-              🔮 Rituals
+              <span role="img" aria-label="Rituals">🔮</span>
+              <span className="link-text ms-1">Rituals</span>
             </NavLink>
           </li>
           <li>
             <NavLink to="/dev/routes" className="d-block">
-              🛣 Route Health
+              <span role="img" aria-label="Route">🛣</span>
+              <span className="link-text ms-1">Route Health</span>
             </NavLink>
           </li>
         </ul>
