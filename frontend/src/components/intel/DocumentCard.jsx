@@ -17,7 +17,7 @@ const sourceColors = {
   text: "secondary",
 };
 
-export default function DocumentCard({ group, onToggleFavorite }) {
+export default function DocumentCard({ group, onToggleFavorite, onDelete }) {
   if (!group) return null;
 
   const {
@@ -47,6 +47,14 @@ export default function DocumentCard({ group, onToggleFavorite }) {
     if (onToggleFavorite) onToggleFavorite(id, newFavorite);
   };
 
+  const handleDelete = (e) => {
+    e.preventDefault();
+    if (!onDelete) return;
+    if (window.confirm("Delete this document?")) {
+      onDelete(id);
+    }
+  };
+
   return (
     <div className="card mb-3 shadow-sm p-3 position-relative h-100">
       <div className="d-flex justify-content-between align-items-start">
@@ -56,13 +64,24 @@ export default function DocumentCard({ group, onToggleFavorite }) {
             {domain} • {dayjs(created_at).fromNow()}
           </small>
         </div>
-        <button
-          onClick={handleToggleFavorite}
-          className="btn btn-sm btn-outline-warning border-0"
-          title={favorite ? "Unpin" : "Pin to favorites"}
-        >
-          {favorite ? <StarFill /> : <Star />}
-        </button>
+        <div className="btn-group">
+          <button
+            onClick={handleToggleFavorite}
+            className="btn btn-sm btn-outline-warning border-0"
+            title={favorite ? "Unpin" : "Pin to favorites"}
+          >
+            {favorite ? <StarFill /> : <Star />}
+          </button>
+          {onDelete && (
+            <button
+              onClick={handleDelete}
+              className="btn btn-sm btn-outline-danger border-0"
+              title="Delete document"
+            >
+              🗑️
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="mt-2 text-muted small">

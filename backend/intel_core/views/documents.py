@@ -52,7 +52,7 @@ def list_documents(request):
     return Response(serializer.data)
 
 
-@api_view(["GET"])
+@api_view(["GET", "DELETE"])
 @permission_classes([AllowAny])
 def document_detail_view(request, pk):
     try:
@@ -61,6 +61,10 @@ def document_detail_view(request, pk):
         return Response(
             {"error": "Document not found"}, status=status.HTTP_404_NOT_FOUND
         )
+
+    if request.method == "DELETE":
+        document.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     chunks = document.chunks.order_by("order")
     chunk_data = [
