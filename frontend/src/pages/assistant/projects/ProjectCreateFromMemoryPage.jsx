@@ -7,7 +7,7 @@ export default function ProjectDetailPage() {
 
   useEffect(() => {
     async function fetchProject() {
-      const res = await fetch(`http://localhost:8000/api/assistants/projects/${id}/`);
+      const res = await fetch(`/api/assistants/projects/${id}/`);
       const data = await res.json();
       setProject(data);
     }

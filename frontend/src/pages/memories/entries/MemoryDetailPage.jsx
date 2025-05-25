@@ -17,7 +17,7 @@ export default function MemoryDetailPage() {
   const navigate = useNavigate();
 
   async function fetchMemory() {
-    const res = await fetch(`http://localhost:8000/api/memory/${id}/`);
+    const res = await fetch(`/api/memory/${id}/`);
     const data = await res.json();
     setMemory(data);
     setFormData({
@@ -27,7 +27,8 @@ export default function MemoryDetailPage() {
       importance: data.importance || 5,
     });
     if (data.voice_clip) {
-      setAudioUrl(`http://localhost:8000${data.voice_clip}`);
+      const base = window.location.origin.replace(/\/$/, "");
+      setAudioUrl(`${base}${data.voice_clip}`);
     }
   }
 
@@ -41,7 +42,7 @@ export default function MemoryDetailPage() {
       console.warn("MemoryDetailPage: missing assistant slug for project creation");
       return;
     }
-    const res = await fetch(`http://localhost:8000/api/assistants/${slug}/projects/from-memory/`, {
+    const res = await fetch(`/api/assistants/${slug}/projects/from-memory/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ memory_id: id }),
@@ -74,7 +75,7 @@ export default function MemoryDetailPage() {
   }
 
   async function handleSaveEdit() {
-    const res = await fetch(`http://localhost:8000/api/memory/${id}`, {
+    const res = await fetch(`/api/memory/${id}`, {
       method: "PATCH",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify(formData),

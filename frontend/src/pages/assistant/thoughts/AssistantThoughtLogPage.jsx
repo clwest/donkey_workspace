@@ -13,7 +13,7 @@ export default function AssistantThoughtLogPage() {
   useEffect(() => {
     async function fetchEvents() {
       try {
-        const res = await fetch("http://localhost:8000/api/storyboard/");
+        const res = await fetch("/api/storyboard/");
         const data = await res.json();
         setEvents(data);
       } catch (err) {
@@ -28,7 +28,7 @@ export default function AssistantThoughtLogPage() {
 
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/assistants/${slug}/log_thought/`, {
+      const res = await fetch(`/api/assistants/${slug}/log_thought/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ thought, narrative_event_id: eventId }),

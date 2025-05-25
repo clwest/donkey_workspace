@@ -12,12 +12,12 @@ export default function MemoryToTaskPage() {
 
   useEffect(() => {
     async function fetchMemory() {
-      const res = await fetch(`http://localhost:8000/api/memory/${memoryId}/`);
+      const res = await fetch(`/api/memory/${memoryId}/`);
       const data = await res.json();
       setMemory(data);
     }
     async function fetchProjects() {
-      const res = await fetch(`http://localhost:8000/api/assistants/projects/`);
+      const res = await fetch(`/api/assistants/projects/`);
       const data = await res.json();
       setProjects(data);
     }
@@ -31,7 +31,7 @@ export default function MemoryToTaskPage() {
       return;
     }
 
-    const res = await fetch(`http://localhost:8000/api/assistants/projects/${selectedProjectId}/tasks/`, {
+    const res = await fetch(`/api/assistants/projects/${selectedProjectId}/tasks/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

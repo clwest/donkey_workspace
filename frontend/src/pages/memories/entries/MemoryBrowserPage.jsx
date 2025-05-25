@@ -12,7 +12,7 @@ export default function MemoryBrowserPage() {
     async function fetchMemories() {
       try {
         const res = await fetch(
-          `http://localhost:8000/api/memory/list/?scope=${scope}`
+          `/api/memory/list/?scope=${scope}`
         );
         const data = await res.json();
         console.log(data)

@@ -21,7 +21,7 @@ export default function CustomReflectionPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/mcp/memories/')
+    fetch('/api/mcp/memories/')
       .then(res => res.json())
       .then(data => {
         // API returns paginated results under `results`
@@ -45,7 +45,7 @@ export default function CustomReflectionPage() {
     setReflecting(true);
 
     try {
-      const response = await fetch('http://localhost:8000/api/mcp/reflect/custom/', {
+      const response = await fetch('/api/mcp/reflect/custom/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

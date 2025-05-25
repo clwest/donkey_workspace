@@ -10,7 +10,7 @@ export default function TrainPromptsFromMemoriesPage() {
 
   useEffect(() => {
     async function fetchMemories() {
-      const res = await fetch("http://localhost:8000/api/memory/list/");
+      const res = await fetch("/api/memory/list/");
       const data = await res.json();
       setMemories(data);
     }
@@ -29,7 +29,7 @@ export default function TrainPromptsFromMemoriesPage() {
     if (!selectedMemories.length) return;
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8000/api/memory/train-prompts/", {
+      const res = await fetch("/api/memory/train-prompts/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ memory_ids: selectedMemories }),

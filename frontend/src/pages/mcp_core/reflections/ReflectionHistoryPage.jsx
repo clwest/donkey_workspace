@@ -24,7 +24,7 @@ export default function ReflectionHistoryPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/mcp/reflections/")
+    fetch("/api/mcp/reflections/")
       .then(res => res.json())
       .then(data => {
         setReflections(data);

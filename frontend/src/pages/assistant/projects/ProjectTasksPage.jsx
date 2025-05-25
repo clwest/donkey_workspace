@@ -12,12 +12,12 @@ export default function ProjectTasksPage() {
 
   useEffect(() => {
     async function fetchProject() {
-      const res = await fetch(`http://localhost:8000/api/assistants/projects/${id}/`);
+      const res = await fetch(`/api/assistants/projects/${id}/`);
       const data = await res.json();
       setProject(data);
     }
     async function fetchTasks() {
-      const res = await fetch(`http://localhost:8000/api/assistants/projects/${id}/tasks/`);
+      const res = await fetch(`/api/assistants/projects/${id}/tasks/`);
       const data = await res.json();
       setTasks(data);
     }
@@ -27,7 +27,7 @@ export default function ProjectTasksPage() {
 
   async function handlePlan() {
     setPlanning(true);
-    const res = await fetch(`http://localhost:8000/api/assistants/projects/${id}/ai_plan/`, {
+    const res = await fetch(`/api/assistants/projects/${id}/ai_plan/`, {
       method: "POST",
     });
     const data = await res.json();
@@ -46,7 +46,7 @@ export default function ProjectTasksPage() {
   }
 
   async function saveTask(taskId) {
-    await fetch(`http://localhost:8000/api/assistants/tasks/${taskId}/`, {
+    await fetch(`/api/assistants/tasks/${taskId}/`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title: editedTitle }),
@@ -60,7 +60,7 @@ export default function ProjectTasksPage() {
   async function deleteTask(taskId) {
     if (!window.confirm("Are you sure you want to delete this task?")) return;
 
-    await fetch(`http://localhost:8000/api/assistants/tasks/${taskId}/`, {
+    await fetch(`/api/assistants/tasks/${taskId}/`, {
       method: "DELETE",
     });
     setTasks(prev => prev.filter(t => t.id !== taskId));

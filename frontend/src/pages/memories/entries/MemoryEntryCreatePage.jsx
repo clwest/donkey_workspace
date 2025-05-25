@@ -6,7 +6,7 @@ export default function MemoryEntryCreatePage() {
   const [memoryId, setMemoryId] = useState(null);
 
   async function handleSaveMemory() {
-    const res = await fetch("http://localhost:8000/api/memory/save/", {
+    const res = await fetch("/api/memory/save/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ event }),
@@ -27,7 +27,7 @@ export default function MemoryEntryCreatePage() {
     formData.append("memory_id", memoryId);
 
     try {
-      const res = await fetch("http://localhost:8000/api/memory/upload-voice/", {
+      const res = await fetch("/api/memory/upload-voice/", {
         method: "POST",
         body: formData,
       });

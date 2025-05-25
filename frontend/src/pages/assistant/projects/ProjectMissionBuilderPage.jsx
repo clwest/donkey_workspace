@@ -15,7 +15,7 @@ export default function ProjectMissionBuilderPage() {
     }
     async function fetchProject() {
       try {
-        const res = await fetch(`http://localhost:8000/api/assistants/projects/${id}/`);
+        const res = await fetch(`/api/assistants/projects/${id}/`);
         const data = await res.json();
         setProject(data);
       } catch (err) {
@@ -28,7 +28,7 @@ export default function ProjectMissionBuilderPage() {
   async function handleGenerateMission() {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/assistants/projects/generate-mission/`, {
+      const res = await fetch(`/api/assistants/projects/generate-mission/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ project_id: id }),

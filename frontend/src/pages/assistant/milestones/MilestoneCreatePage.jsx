@@ -13,7 +13,7 @@ export default function MilestoneCreatePage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const res = await fetch(`http://localhost:8000/api/assistants/projects/${projectId}/milestones/`, {
+    const res = await fetch(`/api/assistants/projects/${projectId}/milestones/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),

@@ -12,7 +12,7 @@ export default function MemoryReflectionPage() {
 
   useEffect(() => {
     async function fetchMemories() {
-      const res = await fetch("http://localhost:8000/api/memory/list/");
+      const res = await fetch("/api/memory/list/");
       const data = await res.json();
       setMemories(data.filter(m => m.is_conversation)); // Only show convo memories
     }
@@ -27,7 +27,7 @@ export default function MemoryReflectionPage() {
 
   async function generateReflection() {
     if (selected.length === 0) return alert("Select at least one memory.");
-    const res = await fetch("http://localhost:8000/api/memory/reflect/", {
+    const res = await fetch("/api/memory/reflect/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ memory_ids: selected }),
@@ -39,7 +39,7 @@ export default function MemoryReflectionPage() {
 
   async function saveReflection() {
     if (!title || !reflection) return alert("Please enter title and summary.");
-    const res = await fetch("http://localhost:8000/api/memory/reflection/", {
+    const res = await fetch("/api/memory/reflection/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -14,7 +14,7 @@ export default function ProjectTaskBuilderPage() {
     setError("");
 
     try {
-      const res = await fetch(`http://localhost:8000/api/assistants/projects/${id}/generate_tasks/`, {
+      const res = await fetch(`/api/assistants/projects/${id}/generate_tasks/`, {
         method: "POST",
       });
 

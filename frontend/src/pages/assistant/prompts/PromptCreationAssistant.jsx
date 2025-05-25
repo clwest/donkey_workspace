@@ -21,7 +21,7 @@ export default function PromptCreationAssistant() {
     setResult(null);
 
     try {
-      const res = await fetch("http://localhost:8000/api/prompts/generate-from-idea/", {
+      const res = await fetch("/api/prompts/generate-from-idea/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

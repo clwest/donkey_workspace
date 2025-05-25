@@ -7,7 +7,7 @@ export default function MemoryChainsListPage() {
   useEffect(() => {
     async function fetchChains() {
       try {
-        const res = await fetch("http://localhost:8000/api/v1/memory/chains/list/");
+        const res = await fetch("/api/v1/memory/chains/list/");
         const data = await res.json();
         if (res.ok) {
           setChains(data);

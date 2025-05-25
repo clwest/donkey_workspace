@@ -5,7 +5,7 @@ export default function SignalCatchesPage() {
 
   useEffect(() => {
     async function fetchCatches() {
-      const res = await fetch("http://localhost:8000/api/assistants/signals/");
+      const res = await fetch("/api/assistants/signals/");
       const data = await res.json();
       setCatches(data);
     }
