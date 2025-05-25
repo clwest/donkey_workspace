@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import apiFetch from "../../utils/apiClient";
 import { toast } from "react-toastify";
+import { getUserIdFromToken } from "../../utils/auth";
 
-export default function AssistantSpawnForm({ creatorId, projectId }) {
+export default function AssistantSpawnForm({ projectId }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [specialty, setSpecialty] = useState("");
@@ -45,6 +46,7 @@ export default function AssistantSpawnForm({ creatorId, projectId }) {
     }
 
     try {
+      const userId = getUserIdFromToken();
       const res = await apiFetch("/assistants/create_from_thought/", {
         method: "POST",
         body: {
@@ -55,7 +57,7 @@ export default function AssistantSpawnForm({ creatorId, projectId }) {
           tone,
           preferred_model: preferredModel,
           prompt_id: promptId,
-          created_by: creatorId,
+          created_by: userId,
           project_id: projectId,
         },
       });
