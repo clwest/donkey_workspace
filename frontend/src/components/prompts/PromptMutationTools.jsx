@@ -1,4 +1,5 @@
 import { useState } from "react";
+import apiFetch from "../../utils/apiClient";
 
 export default function PromptMutationTools({ original, onApply, reanalyze }) {
   const [mode, setMode] = useState("clarify");
@@ -19,10 +20,9 @@ export default function PromptMutationTools({ original, onApply, reanalyze }) {
     setPreview("");
 
     try {
-      const res = await fetch("http://localhost:8000/api/prompts/mutate-prompt/", {
+      const res = await apiFetch(`/prompts/mutate-prompt/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: original, mode }),
+        body: { text: original, mode },
       });
 
       const data = await res.json();

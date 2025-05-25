@@ -1,6 +1,7 @@
 // src/components/thoughts/ThoughtsPanel.jsx
 
 import { useState, useEffect } from "react";
+import apiFetch from "../../../utils/apiClient";
 import AssistantThoughtCard from "./AssistantThoughtCard";
 import { toast } from "react-toastify";
 
@@ -14,8 +15,7 @@ export default function ThoughtsPanel({ projectId }) {
     const fetchThoughts = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`http://localhost:8000/api/assistants/projects/${projectId}/thoughts/`);
-        const data = await res.json();
+        const data = await apiFetch(`/assistants/projects/${projectId}/thoughts/`);
         console.log("🧠 Fetched thoughts", data);
         if (Array.isArray(data)) {
           setThoughts(data);
@@ -37,12 +37,10 @@ export default function ThoughtsPanel({ projectId }) {
     if (!newThought.trim()) return;
     setSaving(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/assistants/projects/${projectId}/thoughts/`, {
+      const data = await apiFetch(`/assistants/projects/${projectId}/thoughts/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ thought: newThought }),
+        body: { thought: newThought },
       });
-      const data = await res.json();
       setThoughts(prev => [data, ...prev]);
       setNewThought("");
       toast.success("🧠 Thought added!");
@@ -55,12 +53,10 @@ export default function ThoughtsPanel({ projectId }) {
 
   const handleUpdateThought = async (thoughtId, updatedText) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/assistants/projects/${projectId}/thoughts/${thoughtId}/`, {
+      const data = await apiFetch(`/assistants/projects/${projectId}/thoughts/${thoughtId}/`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ thought: updatedText }),
+        body: { thought: updatedText },
       });
-      const data = await res.json();
       setThoughts(prev => prev.map(t => (t.id === thoughtId ? { ...t, thought: data.updated_text } : t)));
     } catch (err) {
       toast.error("❌ Failed to update thought.");

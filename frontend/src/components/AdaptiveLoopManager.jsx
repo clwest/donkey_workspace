@@ -1,27 +1,24 @@
 import { useState } from "react";
+import apiFetch from "../utils/apiClient";
 
 export default function AdaptiveLoopManager({ assistantId, onTrigger }) {
   const [frequency, setFrequency] = useState(7);
   const handleSave = () => {
-    fetch("http://localhost:8000/api/adaptive-loops/configs/", {
+    apiFetch(`/adaptive-loops/configs/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+      body: {
         assistant: assistantId,
         trigger_conditions: {},
         reflection_frequency_days: frequency,
         learning_targets: {},
-      }),
+      },
     })
-      .then((res) => res.json())
+      .then((res) => res)
       .catch((e) => console.error("config", e));
   };
   const handleTrigger = () => {
-    fetch(
-      `http://localhost:8000/api/learning-loops/trigger/${assistantId}/`,
-      { method: "POST" }
-    )
-      .then((res) => res.json())
+    apiFetch(`/learning-loops/trigger/${assistantId}/`, { method: "POST" })
+      .then((res) => res)
       .then((data) => onTrigger && onTrigger(data))
       .catch((e) => console.error("trigger", e));
   };

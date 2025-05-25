@@ -12,9 +12,9 @@ export default function AssistantPromptPanel({ projectId }) {
     async function fetchData() {
       try {
 
-        const [linkedRes, availableRes] = await Promise.all([
-          fetch(`http://localhost:8000/api/assistants/projects/${projectId}/linked_prompts/`),
-          fetch(`http://localhost:8000/api/assistants/prompts/recent/`),
+        const [linkedData, availableData] = await Promise.all([
+          apiFetch(`/assistants/projects/${projectId}/linked_prompts/`),
+          apiFetch(`/assistants/prompts/recent/`),
 
         ]);
 
@@ -49,12 +49,9 @@ export default function AssistantPromptPanel({ projectId }) {
 
   async function handleUnlinkPrompt(linkId) {
     try {
-      await fetch(
-        `http://localhost:8000/api/assistants/projects/unlink_prompt/${linkId}/`,
-        {
-          method: "DELETE",
-        }
-      );
+      await apiFetch(`/assistants/projects/unlink_prompt/${linkId}/`, {
+        method: "DELETE",
+      });
       setLinkedPrompts((prev) => prev.filter((l) => l.id !== linkId));
     } catch (error) {
       console.error("Error unlinking prompt:", error);

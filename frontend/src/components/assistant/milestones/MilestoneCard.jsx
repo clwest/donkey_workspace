@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "react-toastify";
+import apiFetch from "../../../utils/apiClient";
 import MilestoneStatusSelector from "./MilestoneStatusSelector";
 import MilestoneStatusBadge from "./MilestoneStatusBadge";
 
@@ -13,10 +14,9 @@ export default function MilestoneCard({ milestone, projectId, onUpdate, onUpdate
   const [descriptionDraft, setDescriptionDraft] = useState(milestone.description || "");
 
   async function updateTitle(newTitle) {
-    const res = await fetch(`http://localhost:8000/api/assistants/milestones/${milestone.id}/`, {
+    const res = await apiFetch(`/assistants/milestones/${milestone.id}/`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: newTitle }),
+      body: { title: newTitle },
     });
     if (res.ok) {
       const updated = await res.json();

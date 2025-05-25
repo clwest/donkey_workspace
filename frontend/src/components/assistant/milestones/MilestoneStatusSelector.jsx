@@ -1,4 +1,5 @@
 import { useState } from "react";
+import apiFetch from "../../../utils/apiClient";
 
 export default function MilestoneStatusSelector({ milestone, onStatusChange }) {
   const [updating, setUpdating] = useState(false);
@@ -9,10 +10,9 @@ export default function MilestoneStatusSelector({ milestone, onStatusChange }) {
     const newStatus = e.target.value;
     setUpdating(true);
 
-    const res = await fetch(`http://localhost:8000/api/assistants/milestones/${milestone.id}/`, {
+    const res = await apiFetch(`/assistants/milestones/${milestone.id}/`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus }),
+      body: { status: newStatus },
     });
 
     if (res.ok) {

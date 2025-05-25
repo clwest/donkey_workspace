@@ -1,4 +1,5 @@
 import { useState } from "react";
+import apiFetch from "../../../utils/apiClient";
 
 export default function MilestoneQuickCreate({ projectId, onCreated }) {
   const [showForm, setShowForm] = useState(false);
@@ -13,10 +14,9 @@ export default function MilestoneQuickCreate({ projectId, onCreated }) {
     e.preventDefault();
     setLoading(true);
 
-    const res = await fetch(`http://localhost:8000/api/assistants/projects/${projectId}/milestones/`, {
+    const res = await apiFetch(`/assistants/projects/${projectId}/milestones/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
+      body: formData,
     });
 
     if (res.ok) {

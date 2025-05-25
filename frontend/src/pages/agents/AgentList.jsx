@@ -1,12 +1,12 @@
 // frontend/components/agents/AssistantList.jsx
 import { useEffect, useState } from "react";
+import apiFetch from "../../utils/apiClient";
 
 export default function AgentList() {
   const [agents, setAgents] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/mcp/agents/")
-      .then((res) => res.json())
+    apiFetch(`/mcp/agents/`)
       .then(setAgents)
       .catch((err) => console.error("Failed to fetch agents:", err));
   }, []);

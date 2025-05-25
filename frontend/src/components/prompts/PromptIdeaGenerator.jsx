@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
+import apiFetch from "../../utils/apiClient";
 
 export default function PromptIdeaGenerator({ onGenerate }) {
   const [idea, setIdea] = useState("");
@@ -12,15 +13,14 @@ export default function PromptIdeaGenerator({ onGenerate }) {
     if (!idea.trim()) return;
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8000/api/prompts/generate-from-idea/", {
+      const res = await apiFetch(`/prompts/generate-from-idea/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           goal: idea,
           audience,
           tone,
-          key_points: keyPoints
-        }),
+          key_points: keyPoints,
+        },
       });
 
       const data = await res.json();

@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import apiFetch from "../../utils/apiClient";
 
 export default function MemoryRecordingButton({ onSave }) {
   const [recording, setRecording] = useState(false);
@@ -35,7 +36,7 @@ export default function MemoryRecordingButton({ onSave }) {
     formData.append("voice_clip", blob);
     formData.append("memory_id", memoryId);
   
-    const res = await fetch("http://localhost:8000/api/memory/upload-voice/", {
+    const res = await apiFetch(`/memory/upload-voice/`, {
       method: "POST",
       body: formData,
     });

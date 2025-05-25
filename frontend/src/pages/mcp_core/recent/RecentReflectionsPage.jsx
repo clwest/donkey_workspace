@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import apiFetch from "../../../utils/apiClient";
 import ReflectionMoodChart from "../../../components/mcp_core/ReflectionMoodChart";
 import ReflectionMoodFilterBar from "../../../components/mcp_core/ReflectionMoodFilterBar";
 
@@ -11,12 +12,10 @@ export default function RecentReflectionsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/mcp/reflections/recent/')
-      .then(res => res.json())
-      .then(data => {
-        setReflections(data);
-        setLoading(false);
-      });
+    apiFetch(`/mcp/reflections/recent/`).then((data) => {
+      setReflections(data);
+      setLoading(false);
+    });
   }, []);
 
   const uniqueMoods = [...new Set(reflections.map(r => r.mood || "Unknown"))];
