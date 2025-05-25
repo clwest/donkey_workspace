@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./styles/PromptsPage.css";
 import { toast } from "react-toastify";
+import apiFetch from "../../utils/apiClient";
 
 export default function PromptsPage() {
   const [prompts, setPrompts] = useState([]);
@@ -18,30 +19,29 @@ export default function PromptsPage() {
   useEffect(() => {
     const fetchPrompts = async () => {
       setLoading(true);
-      const params = new URLSearchParams();
-      params.append("show_all", "true");
-      if (sortByTokens) params.append("sort", "tokens");
-      if (search) params.append("q", search);
-      if (typeFilter) params.append("type", typeFilter);
-      if (sourceFilter) params.append("source", sourceFilter);
-
-      const url = useSimilarity
-        ? "http://localhost:8000/api/embeddings/search/"
-        : `http://localhost:8000/api/prompts/?${params.toString()}`;
-
       try {
-        const res = await fetch(url, {
-          method: useSimilarity ? "POST" : "GET",
-          headers: { "Content-Type": "application/json" },
-          body: useSimilarity
-            ? JSON.stringify({ text: search || "assistant", target: "prompt", top_k: 20 })
-            : null,
-        });
-
-        const data = await res.json();
-        console.log(data)
-        const promptList = useSimilarity ? data.results : data;
-        setPrompts(Array.isArray(promptList) ? promptList : []);
+        if (useSimilarity) {
+          const body = {
+            text: search || "assistant",
+            target: "prompt",
+            top_k: 20,
+          };
+          const data = await apiFetch("/embeddings/search/", {
+            method: "POST",
+            body,
+          });
+          const promptList = data.results || data;
+          setPrompts(Array.isArray(promptList) ? promptList : []);
+        } else {
+          const params = { show_all: true };
+          if (sortByTokens) params.sort = "tokens";
+          if (search) params.q = search;
+          if (typeFilter) params.type = typeFilter;
+          if (sourceFilter) params.source = sourceFilter;
+          const data = await apiFetch("/prompts/", { params });
+          const promptList = data.results || data;
+          setPrompts(Array.isArray(promptList) ? promptList : []);
+        }
       } catch (err) {
         console.error("Error loading prompts:", err);
       } finally {
