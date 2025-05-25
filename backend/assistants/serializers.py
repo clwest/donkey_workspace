@@ -553,6 +553,7 @@ class AssistantProjectRoleSerializer(serializers.ModelSerializer):
     assistant_name = serializers.CharField(source="assistant.name", read_only=True)
     assistant_slug = serializers.CharField(source="assistant.slug", read_only=True)
     avatar = serializers.CharField(source="assistant.avatar", read_only=True)
+    project = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = AssistantProjectRole
@@ -568,8 +569,7 @@ class AssistantProjectRoleSerializer(serializers.ModelSerializer):
             "is_primary",
             "created_at",
         ]
-        read_only_fields = ["id", "created_at"]
-        extra_kwargs = {"project": {"required": False}}
+        read_only_fields = ["id", "created_at", "project"]
 
 
 # assistants/serializers.py
