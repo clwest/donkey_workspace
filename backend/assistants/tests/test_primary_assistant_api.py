@@ -1,5 +1,4 @@
 
-from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from assistants.tests import BaseAPITestCase
 from assistants.models import Assistant
@@ -25,7 +24,21 @@ class PrimaryAssistantAPITest(BaseAPITestCase):
         resp = self.client.get("/api/v1/assistants/primary/")
         self.assertEqual(resp.status_code, 404)
 
-    def test_unique_primary_validation(self):
-        Assistant.objects.create(name="A1", specialty="x", is_primary=True)
-        with self.assertRaises(ValidationError):
-            Assistant(name="A2", specialty="y", is_primary=True).save()
+    def test_auto_unset_existing_primary_on_create(self):
+        first = Assistant.objects.create(name="A1", specialty="x", is_primary=True)
+        second = Assistant.objects.create(name="A2", specialty="y", is_primary=True)
+        first.refresh_from_db()
+        second.refresh_from_db()
+        self.assertFalse(first.is_primary)
+        self.assertTrue(second.is_primary)
+
+    def test_assign_primary_endpoint(self):
+        a1 = Assistant.objects.create(name="A1", specialty="x", is_primary=True)
+        a2 = Assistant.objects.create(name="A2", specialty="y")
+        url = f"/api/v1/assistants/{a2.slug}/assign-primary/"
+        resp = self.client.patch(url)
+        self.assertEqual(resp.status_code, 200)
+        a1.refresh_from_db()
+        a2.refresh_from_db()
+        self.assertFalse(a1.is_primary)
+        self.assertTrue(a2.is_primary)

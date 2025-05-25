@@ -5,7 +5,11 @@ import PrimaryStar from "../../../components/assistant/PrimaryStar";
 import MoodStabilityGauge from "../../../components/assistant/MoodStabilityGauge";
 import DriftScoreChart from "../../../components/assistant/DriftScoreChart";
 import RecoveryPanel from "../../../components/assistant/RecoveryPanel";
-import { runDriftCheck, runSelfAssessment } from "../../../api/assistants";
+import {
+  runDriftCheck,
+  runSelfAssessment,
+  assignPrimaryAssistant,
+} from "../../../api/assistants";
 import SelfAssessmentModal from "../../../components/assistant/SelfAssessmentModal";
 import { toast } from "react-toastify";
 import "./styles/AssistantDetail.css";
@@ -139,6 +143,23 @@ export default function AssistantDetailPage() {
         {assistant.name}
         <PrimaryStar isPrimary={assistant.is_primary} />
         <MoodStabilityGauge msi={assistant.mood_stability_index} />
+        {!assistant.is_primary && (
+          <button
+            className="btn btn-sm btn-outline-warning ms-3"
+            onClick={async () => {
+              try {
+                await assignPrimaryAssistant(slug);
+                const data = await apiFetch(`/assistants/${slug}/`);
+                setAssistant(data);
+                toast.success("Assigned as Primary");
+              } catch (err) {
+                toast.error("Failed to assign primary");
+              }
+            }}
+          >
+            ⭐ Assign as Primary
+          </button>
+        )}
       </h1>
       <p className="text-muted">Assistant Details Page</p>
       <div className="mb-3">

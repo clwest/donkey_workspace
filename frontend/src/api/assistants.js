@@ -324,3 +324,7 @@ export async function createPrimaryAssistant() {
   }
   return res;
 }
+
+export async function assignPrimaryAssistant(slug) {
+  return apiFetch(`/assistants/${slug}/assign-primary/`, { method: "PATCH" });
+}

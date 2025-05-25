@@ -231,6 +231,15 @@ class AssistantViewSet(viewsets.ModelViewSet):
             status=201,
         )
 
+    @action(detail=True, methods=["patch"], url_path="assign-primary")
+    def assign_primary(self, request, slug=None):
+        """Assign this assistant as the system primary."""
+        assistant = get_object_or_404(Assistant, slug=slug)
+        assistant.is_primary = True
+        assistant.save(update_fields=["is_primary"])
+        serializer = AssistantSerializer(assistant)
+        return Response(serializer.data)
+
 @api_view(["GET", "POST"])
 @permission_classes([AllowAny])
 def assistants_view(request):
