@@ -13,7 +13,11 @@ export default function PromptDebuggerPage() {
   return (
     <div className="container my-4">
       <h3>Prompt Debugger</h3>
-      <pre>{JSON.stringify(logs, null, 2)}</pre>
+      {logs && logs.length > 0 ? (
+        <pre>{JSON.stringify(logs, null, 2)}</pre>
+      ) : (
+        <div className="text-muted">No prompt debug data found.</div>
+      )}
     </div>
   );
 }

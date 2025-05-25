@@ -13,7 +13,11 @@ export default function MythOSProjectComposerPage() {
   return (
     <div className="container my-4">
       <h3>Project Composer</h3>
-      <pre>{JSON.stringify(project, null, 2)}</pre>
+      {project ? (
+        <pre>{JSON.stringify(project, null, 2)}</pre>
+      ) : (
+        <div className="text-muted">No composer data available.</div>
+      )}
     </div>
   );
 }
