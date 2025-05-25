@@ -76,7 +76,7 @@ Compiled for Codex routing, view integration, and component planning
 | `/deploy/standards` | `/api/deploy/standards/` | `DeploymentStandardsPage` | `BeliefAlignedDeploymentStandardSerializer` | Symbolic check for launch environments |
 | `/summon/federated` | `/api/summon/federated/` | `FederatedSummonPage` | `FederatedMythicIntelligenceSummonerSerializer` | Multi-assistant swarm summoning logic |
 | `/project/composer` | `/api/project/composer/` | `MythOSProjectComposerPage` | `AssistantProjectSerializer` | Task milestone planner |
-| `/debug/prompts` | `/api/debug/prompts/` | `PromptDebuggerPage` | `PromptMutationLogSerializer` | Prompt diff + codex trace map |
+| `/debug/prompts` | `/api/images/debug/prompts/` | `PromptDebuggerPage` | `PromptMutationLogSerializer` | Prompt diff + codex trace map |
 | `/prompts/capsules` | `/api/prompts/capsules/` | `PromptCapsuleManagerPage` | `PromptCapsuleSerializer` | Shared prompt capsules |
 
 \-\-\-

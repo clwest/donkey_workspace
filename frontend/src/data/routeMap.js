@@ -312,7 +312,7 @@ export const routeMap = [
   },
   {
     frontend: "/debug/prompts",
-    backend: "/api/debug/prompts/",
+    backend: "/api/images/debug/prompts/",
     view: "PromptDebuggerPage",
     serializer: "PromptMutationLogSerializer",
     notes: "Prompt diff + codex trace map",
