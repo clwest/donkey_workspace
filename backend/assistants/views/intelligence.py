@@ -3,6 +3,14 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
+from prompts.utils.token_helpers import count_tokens
+from memory.memory_service import get_memory_service
+from assistants.models.benchmark import (
+    AssistantTaskRunLog,
+    TokenUsageSummary,
+    TaskRetryAuditLog,
+)
+
 from assistants.models.assistant import Assistant
 from assistants.models.project import AssistantProject
 from intel_core.models import Document
@@ -37,11 +45,50 @@ def run_task(request, slug):
     """Execute a natural language task with the assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
     task = request.data.get("task")
+    retry_of = request.data.get("retry_of")
     if not task:
         return Response({"error": "task required"}, status=400)
+
     engine = CoreAssistant(assistant)
     result = engine.run_task(task)
-    return Response(result)
+
+    run_log = AssistantTaskRunLog.objects.create(
+        assistant=assistant,
+        task_text=task,
+        result_text=result.get("result", ""),
+        success="error" not in result,
+    )
+
+    prompt_tokens = count_tokens(f"You are {assistant.name}. Complete this task:\n{task}")
+    completion_tokens = count_tokens(result.get("result", ""))
+    TokenUsageSummary.objects.create(
+        run_log=run_log,
+        prompt_tokens=prompt_tokens,
+        completion_tokens=completion_tokens,
+        total_tokens=prompt_tokens + completion_tokens,
+    )
+
+    if result.get("log_id"):
+        from assistants.models import AssistantThoughtLog
+
+        thought = AssistantThoughtLog.objects.filter(id=result["log_id"]).first()
+        if thought and thought.linked_memory:
+            reflection = get_memory_service().log_reflection(
+                result.get("result", ""), [thought.linked_memory]
+            )
+            run_log.reflection = reflection
+            run_log.save()
+
+    if retry_of:
+        prev = get_object_or_404(AssistantTaskRunLog, id=retry_of)
+        TaskRetryAuditLog.objects.create(
+            run_log=prev,
+            reason="manual_retry",
+            previous_output=prev.result_text,
+            new_output=result.get("result", ""),
+        )
+
+    return Response({"result": result.get("result"), "log_id": str(run_log.id)})
 
 
 @api_view(["GET"])

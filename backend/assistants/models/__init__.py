@@ -9,6 +9,7 @@ from .dashboard import *
 from .personality import *
 from .identity import *
 from .mythpath import *
+from .benchmark import *
 
 
 
