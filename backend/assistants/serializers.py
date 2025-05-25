@@ -86,6 +86,7 @@ from story.models import NarrativeEvent
 from memory.models import MemoryEntry
 from memory.serializers import MemoryEntrySerializer
 from assistants.utils.bootstrap_helpers import generate_objectives_from_prompt
+from prompts.serializers import PromptSerializer
 
 
 class DelegationEventSerializer(serializers.ModelSerializer):
@@ -721,10 +722,21 @@ class AssistantThoughtLogSerializer(serializers.ModelSerializer):
 
 
 class AssistantPromptLinkSerializer(serializers.ModelSerializer):
+    """Represents the relationship between a project and a prompt."""
+
+    prompt = PromptSerializer(read_only=True)
+    prompt_id = serializers.UUIDField(write_only=True, required=False)
+
     class Meta:
         model = AssistantPromptLink
-        fields = ["id", "project", "prompt", "reason", "linked_at"]
-        read_only_fields = ["id", "linked_at"]
+        fields = ["id", "project", "prompt", "prompt_id", "reason", "linked_at"]
+        read_only_fields = ["id", "linked_at", "prompt"]
+
+    def create(self, validated_data):
+        prompt_id = validated_data.pop("prompt_id", None)
+        if prompt_id:
+            validated_data["prompt_id"] = prompt_id
+        return super().create(validated_data)
 
 
 class AssistantMemoryChainSerializer(serializers.ModelSerializer):

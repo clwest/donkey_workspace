@@ -255,6 +255,16 @@ urlpatterns = [
         prompts.linked_prompts,
         name="linked-prompts",
     ),
+    path(
+        "projects/unlink_prompt/<uuid:link_id>/",
+        prompts.unlink_prompt_from_project,
+        name="unlink-prompt-from-project",
+    ),
+    path(
+        "prompts/recent/",
+        prompts.recent_prompts,
+        name="recent-prompts",
+    ),
     path("prompts/bootstrap-from-prompt/", projects.bootstrap_assistant_from_prompt),
     path("assistants/<slug:slug>/projects/", views.projects_for_assistant),
     path(
