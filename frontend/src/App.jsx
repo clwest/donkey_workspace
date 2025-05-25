@@ -68,6 +68,7 @@ import ChatWithAssistantPage from "./pages/assistant/common/ChatWithAssistantPag
 import CreateNewAssistantPage from "./pages/assistant/common/CreateNewAssistantPage";
 import AssistantInterfacePage from "./pages/assistant/interface/AssistantInterfacePage";
 import AssistantRelayPage from "./pages/assistant/relay/AssistantRelayPage";
+import RunTaskPage from "./pages/assistant/run_task/RunTaskPage";
 
 import ProjectDetailPage from "./pages/assistant/projects/ProjectDetailPage";
 import ProjectCreateFromMemoryPage from "./pages/assistant/projects/ProjectCreateFromMemoryPage";
@@ -430,6 +431,10 @@ export default function App() {
           <Route
             path="/assistants/:id/interface"
             element={<AssistantInterfacePage />}
+          />
+          <Route
+            path="/assistants/:id/run-task"
+            element={<RunTaskPage />}
           />
           <Route
             path="/assistants/:id/relay"
