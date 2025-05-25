@@ -152,16 +152,14 @@ from agents.models.coordination import (
     SymbolicCoordinationEngine,
     SymbolicPlanningLattice,
 )
-from agents.models.insight import (
-    InsightHub,
-    PerspectiveMergeEvent,
-    TimelineStitchLog,
+from agents.models.rewire import (
+    RitualRewiringProposal
 )
 from agents.models.rewire import SwarmAgentRoute, AgentSymbolicMap
 from agents.models.orchestration import (
     AssistantOrchestrationEvent,
     OrchestrationTimelineSnapshot,
-    RitualRewiringProposal,
+   
 )
 from agents.models.identity import (
     SymbolicIdentityCard,
