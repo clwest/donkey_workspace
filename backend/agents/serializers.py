@@ -974,6 +974,20 @@ class GuildDeploymentKitSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
+class BeliefAlignedDeploymentStandardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BeliefAlignedDeploymentStandard
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class DeploymentVectorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeploymentVector
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
 
 class AssistantNetworkTransferProtocolSerializer(serializers.ModelSerializer):
     class Meta:

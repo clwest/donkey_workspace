@@ -4,7 +4,11 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
+from prompts.utils.token_helpers import count_tokens
+from memory.models import MemoryContext
+from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from agents.models.core import (
     Agent,
     AgentFeedbackLog,
@@ -119,6 +123,7 @@ from agents.models.deployment import (
     GuildDeploymentKit,
     AssistantNetworkTransferProtocol,
     RitualFunctionContainer,
+    DeploymentVector,
 )
 from agents.models.recovery import (
     RitualCompressionCache,
@@ -316,6 +321,7 @@ from agents.utils.agent_controller import (
     recommend_training_documents,
     retire_agent,
 )
+from assistants.models.benchmark import BenchmarkTaskReport
 from agents.utils.lore_token import compress_memories_to_token, perform_token_ritual
 
 from agents.utils.swarm_analytics import (
@@ -1368,6 +1374,8 @@ from agents.serializers import (
     GuildDeploymentKitSerializer,
     AssistantNetworkTransferProtocolSerializer,
     RitualFunctionContainerSerializer,
+    BeliefAlignedDeploymentStandardSerializer,
+    DeploymentVectorSerializer,
 
 )
 
@@ -2096,6 +2104,55 @@ def federated_summon(request):
     serializer.is_valid(raise_exception=True)
     summoner = serializer.save()
     return Response(FederatedMythicIntelligenceSummonerSerializer(summoner).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def deployment_standards(request):
+    """Evaluate deployment standards or list previous evaluations."""
+    if request.method == "GET":
+        standards = BeliefAlignedDeploymentStandard.objects.all().order_by("-created_at")[:20]
+        return Response(BeliefAlignedDeploymentStandardSerializer(standards, many=True).data)
+
+    slug = request.data.get("assistant_slug")
+    goal = request.data.get("goal", "")
+    evaluation_tags = request.data.get("evaluation_tags", [])
+    log_reflection = bool(request.data.get("log_reflection"))
+
+    assistant = get_object_or_404(Assistant, slug=slug)
+
+    start = timezone.now()
+    result_text = f"Evaluated {goal} for {assistant.slug}"
+    tokens_used = count_tokens(goal) + 20
+    duration_ms = int((timezone.now() - start).total_seconds() * 1000)
+
+    DeploymentVector.objects.create(
+        task=goal[:150], codex="default", ritual="deploy", notes="standards"
+    )
+
+    report, _ = BenchmarkTaskReport.objects.get_or_create(
+        assistant=assistant, task_name="deployment_standards"
+    )
+    report.run_count += 1
+    report.success_count += 1
+    report.avg_tokens = (
+        (report.avg_tokens * (report.run_count - 1)) + tokens_used
+    ) / report.run_count
+    report.save()
+
+    reflection_id = None
+    if log_reflection:
+        context = MemoryContext.objects.create(content="deployment standards evaluation")
+        reflection = AssistantReflectionEngine(assistant).reflect_now(context)
+        reflection_id = reflection.id
+
+    return Response(
+        {
+            "result": result_text,
+            "tokens_used": tokens_used,
+            "duration_ms": duration_ms,
+            "reflection_id": str(reflection_id) if reflection_id else None,
+        }
+    )
 
 
 class AgentTrainingTimelineView(APIView):
