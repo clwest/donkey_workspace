@@ -20,11 +20,11 @@ export default function AssistantSessionDetailPage() {
   useEffect(() => {
     async function fetchSessionDetail() {
       try {
-        const res = await fetch(`http://localhost:8000/api/assistants/sessions/detail/${sessionId}/`);
+        const res = await fetch(`/api/assistants/sessions/detail/${sessionId}/`);
         if (!res.ok) throw new Error("Failed to fetch session details");
         const data = await res.json();
         setSession(data);
-        const hres = await fetch(`http://localhost:8000/api/assistants/handoff/${sessionId}/`);
+        const hres = await fetch(`/api/assistants/handoff/${sessionId}/`);
         if (hres.ok) setHandoffs(await hres.json());
       } catch (err) {
         setError(err.message);
@@ -37,7 +37,7 @@ export default function AssistantSessionDetailPage() {
   
   function handleFeedback(uuid, value) {
     if (!uuid) return;
-    fetch(`http://localhost:8000/api/assistants/messages/${uuid}/update/`, {
+    fetch(`/api/assistants/messages/${uuid}/update/`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ feedback: value }),
@@ -51,7 +51,7 @@ export default function AssistantSessionDetailPage() {
         };
         if (prev.token_usage) {
           fetch(
-            `http://localhost:8000/api/assistants/${prev.assistant_slug}/evaluate-delegation/`,
+            `/api/assistants/${prev.assistant_slug}/evaluate-delegation/`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -77,7 +77,7 @@ export default function AssistantSessionDetailPage() {
   async function handleTopicChange(uuid, topic) {
     if (!uuid) return;
     try {
-      await fetch(`http://localhost:8000/api/assistants/messages/${uuid}/update/`, {
+      await fetch(`/api/assistants/messages/${uuid}/update/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ topic }),
@@ -97,7 +97,7 @@ export default function AssistantSessionDetailPage() {
   
   function handleTopicSubmit(uuid, value) {
     if (!uuid) return;
-    fetch(`http://localhost:8000/api/assistants/messages/${uuid}/update/`, {
+    fetch(`/api/assistants/messages/${uuid}/update/`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ topic: value }),
@@ -141,7 +141,7 @@ export default function AssistantSessionDetailPage() {
     if (!session) return;
     try {
       const data = await fetch(
-        `http://localhost:8000/api/assistants/${session.assistant_slug}/session-summary/${sessionId}/`
+        `/api/assistants/${session.assistant_slug}/session-summary/${sessionId}/`
       ).then((r) => r.json());
       setSummary(data.entries || []);
       setShowSummary(true);
@@ -157,7 +157,7 @@ export default function AssistantSessionDetailPage() {
     const reason = prompt("Reason for handoff?", "deep reasoning required") || "";
     try {
       await fetch(
-        `http://localhost:8000/api/assistants/${session.assistant_slug}/handoff/`,
+        `/api/assistants/${session.assistant_slug}/handoff/`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -170,7 +170,7 @@ export default function AssistantSessionDetailPage() {
       );
       alert(`Session handed off to ${target}`);
       const res = await fetch(
-        `http://localhost:8000/api/assistants/sessions/detail/${sessionId}/`
+        `/api/assistants/sessions/detail/${sessionId}/`
       ).then((r) => r.json());
       setSession(res);
     } catch (err) {
@@ -306,7 +306,7 @@ export default function AssistantSessionDetailPage() {
         onClose={(didCreate) => {
           setShowHandoff(false);
           if (didCreate) {
-            fetch(`http://localhost:8000/api/assistants/handoff/${sessionId}/`).then((r) => r.json()).then(setHandoffs);
+            fetch(`/api/assistants/handoff/${sessionId}/`).then((r) => r.json()).then(setHandoffs);
           }
         }}
       />

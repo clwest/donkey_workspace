@@ -32,7 +32,7 @@ export default function ObjectivesPage() {
     fetchObjectives();
     async function fetchEvents() {
       try {
-        const res = await fetch("http://localhost:8000/api/storyboard/");
+        const res = await fetch("/api/storyboard/");
         setEvents(await res.json());
       } catch (err) {
         console.error("Failed to load events", err);

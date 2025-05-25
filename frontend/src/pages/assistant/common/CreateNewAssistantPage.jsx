@@ -52,7 +52,7 @@ export default function CreateNewAssistantPage() {
   useEffect(() => {
     async function fetchPrompts() {
       try {
-        const res = await fetch("http://localhost:8000/api/prompts/?type=system&show_all=true");
+        const res = await fetch("/api/prompts/?type=system&show_all=true");
         const data = await res.json();
         setPrompts(data);
       } catch (err) {
@@ -78,7 +78,7 @@ export default function CreateNewAssistantPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await fetch("http://localhost:8000/api/assistants/create/", {
+      const res = await fetch("/api/assistants/create/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

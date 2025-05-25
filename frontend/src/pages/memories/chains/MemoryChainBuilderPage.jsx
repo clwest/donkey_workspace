@@ -9,7 +9,7 @@ export default function MemoryChainBuilderPage() {
 
   useEffect(() => {
     async function fetchMemories() {
-      const res = await fetch("http://localhost:8000/api/memory/list/");
+      const res = await fetch("/api/memory/list/");
       const data = await res.json();
       setMemories(data);
     }
@@ -27,7 +27,7 @@ export default function MemoryChainBuilderPage() {
       alert("Please enter a title and select memories.");
       return;
     }
-    const res = await fetch("http://localhost:8000/api/memory/chains/create/", {
+    const res = await fetch("/api/memory/chains/create/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title, memory_ids: selected }),

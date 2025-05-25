@@ -14,7 +14,7 @@ export default function ReflectionDetailPage() {
       console.warn("ReflectionDetailPage: missing reflection id");
       return;
     }
-    fetch(`http://localhost:8000/api/mcp/reflections/${id}/`)
+    fetch(`/api/mcp/reflections/${id}/`)
       .then(res => res.json())
       .then(data => {
         setReflection(data);

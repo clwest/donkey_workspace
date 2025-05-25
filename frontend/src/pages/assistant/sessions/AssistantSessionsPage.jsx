@@ -13,8 +13,8 @@ export default function AssistantSessionsPage() {
     async function fetchSessions() {
       try {
         const url = assistantSlug
-          ? `http://localhost:8000/api/assistants/sessions/list/?assistant=${assistantSlug}`
-          : `http://localhost:8000/api/assistants/sessions/list/`;
+          ? `/api/assistants/sessions/list/?assistant=${assistantSlug}`
+          : `/api/assistants/sessions/list/`;
     
         const res = await fetch(url);
         const data = await res.json();

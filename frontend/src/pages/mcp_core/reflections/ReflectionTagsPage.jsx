@@ -7,7 +7,7 @@ export default function ReflectionTagsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/mcp/reflection-tags/${tag}/`)
+    fetch(`/api/mcp/reflection-tags/${tag}/`)
       .then(res => res.json())
       .then(data => {
         setReflections(data);

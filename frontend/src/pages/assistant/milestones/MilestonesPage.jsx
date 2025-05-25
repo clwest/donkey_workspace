@@ -11,7 +11,7 @@ export default function MilestonesPage() {
 
   useEffect(() => {
     async function fetchMilestones() {
-      const res = await fetch(`http://localhost:8000/api/assistants/projects/${projectId}/milestones/`);
+      const res = await fetch(`/api/assistants/projects/${projectId}/milestones/`);
       const data = await res.json();
       setMilestones(data);
     }
@@ -19,7 +19,7 @@ export default function MilestonesPage() {
   }, [projectId]);
 
   async function updateMilestoneDescription(id, newDescription) {
-    const res = await fetch(`http://localhost:8000/api/assistants/milestones/${id}/`, {
+    const res = await fetch(`/api/assistants/milestones/${id}/`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ description: newDescription }),

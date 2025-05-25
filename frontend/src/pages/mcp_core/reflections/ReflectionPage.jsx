@@ -13,7 +13,7 @@ export default function ReflectionPage() {
     setError("");
 
     try {
-      const response = await fetch('http://localhost:8000/api/mcp/reflect/', {
+      const response = await fetch('/api/mcp/reflect/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -48,7 +48,7 @@ export default function ReflectionPage() {
   
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/mcp/reflections/${reflectionId}/expand/`, {
+      const res = await fetch(`/api/mcp/reflections/${reflectionId}/expand/`, {
         method: 'POST',
       });
   
@@ -76,7 +76,7 @@ export default function ReflectionPage() {
 
     setIsSaving(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/mcp/reflections/${reflectionId}/save/`, {
+      const res = await fetch(`/api/mcp/reflections/${reflectionId}/save/`, {
         method: 'POST',
       });
 

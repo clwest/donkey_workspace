@@ -9,7 +9,7 @@ export default function ProjectTaskEditorPage() {
 
   useEffect(() => {
     async function fetchTasks() {
-      const res = await fetch(`http://localhost:8000/api/assistants/projects/${id}/tasks/`);
+      const res = await fetch(`/api/assistants/projects/${id}/tasks/`);
       if (res.ok) {
         const data = await res.json();
         setTasks(data);
@@ -19,14 +19,14 @@ export default function ProjectTaskEditorPage() {
   }, [id]);
 
   async function handleDelete(taskId) {
-    await fetch(`http://localhost:8000/api/assistants/projects/tasks/${taskId}/`, {
+    await fetch(`/api/assistants/projects/tasks/${taskId}/`, {
       method: "DELETE",
     });
     setTasks(prev => prev.filter(task => task.id !== taskId));
   }
 
   async function handleSave(taskId, newContent) {
-    const res = await fetch(`http://localhost:8000/api/assistants/projects/tasks/${taskId}/`, {
+    const res = await fetch(`/api/assistants/projects/tasks/${taskId}/`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title: newContent }),
@@ -44,7 +44,7 @@ export default function ProjectTaskEditorPage() {
   async function handleAddNewTask() {
     if (!newTaskContent.trim()) return;
 
-    const res = await fetch(`http://localhost:8000/api/assistants/projects/${id}/tasks/`, {
+    const res = await fetch(`/api/assistants/projects/${id}/tasks/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title: newTaskContent }),

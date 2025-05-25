@@ -13,8 +13,8 @@ export default function ProjectObjectivesPage() {
   useEffect(() => {
     async function fetchData() {
       const [projRes, objRes] = await Promise.all([
-        fetch(`http://localhost:8000/api/assistants/projects/${projectId}/`),
-        fetch(`http://localhost:8000/api/assistants/projects/${projectId}/objectives/`)
+        fetch(`/api/assistants/projects/${projectId}/`),
+        fetch(`/api/assistants/projects/${projectId}/objectives/`)
       ]);
       const projData = await projRes.json();
       const objData = await objRes.json();
@@ -27,7 +27,7 @@ export default function ProjectObjectivesPage() {
   async function createObjective() {
     if (!newTitle.trim()) return;
 
-    const res = await fetch(`http://localhost:8000/api/assistants/projects/${projectId}/objectives/`, {
+    const res = await fetch(`/api/assistants/projects/${projectId}/objectives/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title: newTitle, description: newDescription }),
@@ -42,7 +42,7 @@ export default function ProjectObjectivesPage() {
   }
 
   async function toggleComplete(id, isCompleted) {
-    await fetch(`http://localhost:8000/api/assistants/projects/${projectId}/objectives/`, {
+    await fetch(`/api/assistants/projects/${projectId}/objectives/`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id, is_completed: !isCompleted }),
@@ -58,7 +58,7 @@ export default function ProjectObjectivesPage() {
   async function deleteObjective(id) {
     if (!window.confirm("Delete this objective?")) return;
 
-    await fetch(`http://localhost:8000/api/assistants/projects/${projectId}/objectives/${id}/`, {
+    await fetch(`/api/assistants/projects/${projectId}/objectives/${id}/`, {
       method: "DELETE",
     });
 
@@ -68,7 +68,7 @@ export default function ProjectObjectivesPage() {
   async function inferObjectives() {
     if (!project?.assistant?.slug) return;
     const res = await fetch(
-      `http://localhost:8000/api/assistants/${project.assistant.slug}/reflect-to-objectives/`,
+      `/api/assistants/${project.assistant.slug}/reflect-to-objectives/`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

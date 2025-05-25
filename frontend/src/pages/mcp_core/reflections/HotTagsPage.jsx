@@ -6,7 +6,7 @@ export default function HotTagsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/mcp/top-tags/`)
+    fetch(`/api/mcp/top-tags/`)
       .then(res => res.json())
       .then(data => {
         setTags(data);

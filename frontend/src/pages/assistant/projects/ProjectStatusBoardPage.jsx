@@ -8,7 +8,7 @@ export default function ProjectStatusBoardPage() {
 
   useEffect(() => {
     async function fetchTasks() {
-      const res = await fetch(`http://localhost:8000/api/assistants/projects/${id}/tasks/`);
+      const res = await fetch(`/api/assistants/projects/${id}/tasks/`);
       const data = await res.json();
       setTasks(data);
     }
@@ -16,7 +16,7 @@ export default function ProjectStatusBoardPage() {
   }, [id]);
 
   async function updateTaskStatus(taskId, newStatus) {
-    await fetch(`http://localhost:8000/api/assistants/tasks/${taskId}/update_status/`, {
+    await fetch(`/api/assistants/tasks/${taskId}/update_status/`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: newStatus }),

@@ -9,7 +9,7 @@ export default function ProjectTimelinePage() {
 
   useEffect(() => {
     async function fetchMilestones() {
-      const res = await fetch(`http://localhost:8000/api/assistants/projects/${projectId}/milestones/`);
+      const res = await fetch(`/api/assistants/projects/${projectId}/milestones/`);
       const data = await res.json();
       setMilestones(
         data

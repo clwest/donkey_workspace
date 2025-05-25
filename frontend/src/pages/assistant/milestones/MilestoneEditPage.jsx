@@ -9,7 +9,7 @@ export default function MilestoneEditPage() {
 
   useEffect(() => {
     async function fetchMilestone() {
-      const res = await fetch(`http://localhost:8000/api/assistants/projects/${projectId}/milestones/${milestoneId}/`);
+      const res = await fetch(`/api/assistants/projects/${projectId}/milestones/${milestoneId}/`);
       const data = await res.json();
       setFormData({ title: data.title, description: data.description, due_date: data.due_date?.split("T")[0] || "" });
     }
@@ -22,7 +22,7 @@ export default function MilestoneEditPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const res = await fetch(`http://localhost:8000/api/assistants/projects/${projectId}/milestones/${milestoneId}/`, {
+    const res = await fetch(`/api/assistants/projects/${projectId}/milestones/${milestoneId}/`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),

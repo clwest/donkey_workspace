@@ -13,7 +13,7 @@ export default function ProjectTaskManagerPage() {
       try {
         let url = `/assistants/projects/${projectId}/assistant-tasks/`;
         if (filterAssistant) url += `?assistant_id=${filterAssistant}`;
-        const res = await fetch(`http://localhost:8000/api${url}`);
+        const res = await fetch(`/api${url}`);
         if (!res.ok) throw new Error("Task fetch failed");
         const data = await res.json();
         setTasks(data);
@@ -25,14 +25,14 @@ export default function ProjectTaskManagerPage() {
     }
 
     fetchTasks();
-    fetch(`http://localhost:8000/api/assistants/projects/${projectId}/roles/`)
+    fetch(`/api/assistants/projects/${projectId}/roles/`)
       .then((r) => r.json())
       .then(setRoles);
   }, [projectId, filterAssistant]);
 
   async function handleStatusChange(taskId, newStatus) {
     try {
-      await fetch(`http://localhost:8000/api/assistants/tasks/${taskId}/`, {
+      await fetch(`/api/assistants/tasks/${taskId}/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
