@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import PromptIdeaGenerator from "../../components/prompts/PromptIdeaGenerator";
+import apiFetch from "../../utils/apiClient";
 export default function CreatePromptPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -36,18 +37,11 @@ export default function CreatePromptPage() {
     if (!text || !text.trim()) return; // 💡 guard clause
 
     try {
-      const res = await fetch("http://localhost:8000/api/prompts/analyze/", {
+      const data = await apiFetch("/prompts/analyze/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: { text },
       });
-
-      if (res.ok) {
-        const data = await res.json();
-        setTokens(data.tokens || 0);
-      } else {
-        console.warn("❌ Token analysis failed");
-      }
+      setTokens(data.tokens || 0);
     } catch (err) {
       console.error("❌ Error analyzing prompt tokens:", err);
     }
@@ -57,10 +51,9 @@ export default function CreatePromptPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      const response = await fetch("http://localhost:8000/api/prompts/create/", {
+      const data = await apiFetch("/prompts/create/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           title,
           content,
           type,
@@ -68,10 +61,9 @@ export default function CreatePromptPage() {
           tags: tags.split(",").map((t) => t.trim()),
           token_count: tokens,
           is_draft: isDraft,
-        }),
+        },
       });
-      const data = await response.json();
-      if (response.ok) {
+      if (data && data.slug) {
         toast.success("✅ Prompt saved!");
         navigate(`/prompts/${data.slug}`);
       } else {
