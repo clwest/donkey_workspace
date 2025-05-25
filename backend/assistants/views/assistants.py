@@ -315,7 +315,21 @@ def create_assistant_from_thought(request):
             return Response({"error": f"{field} is required"}, status=400)
 
     prompt = Prompt.objects.get(id=data["prompt_id"])
-    creator = get_user_model().objects.get(id=data["created_by"])
+
+    creator_id = data.get("created_by")
+    if not creator_id:
+        return Response({"error": "created_by is required"}, status=400)
+    try:
+        creator = get_user_model().objects.get(id=creator_id)
+    except (ValueError, get_user_model().DoesNotExist):
+        return Response({"error": "Invalid created_by"}, status=400)
+
+    project = AssistantService.get_project_or_404(data["project_id"])
+    parent_assistant = project.assistant
+    thread = project.thread or project.narrative_thread
+    thread_id = data.get("thread_id")
+    if thread_id:
+        thread = AssistantService.get_thread(thread_id) or thread
 
     new_assistant = Assistant.objects.create(
         name=data["name"],
@@ -328,7 +342,7 @@ def create_assistant_from_thought(request):
     )
 
     AssistantThoughtLog.objects.create(
-        assistant_id=data["created_by"],
+        assistant=new_assistant,
         project_id=data["project_id"],
         thought_type="planning",
         thought=f"I created a new assistant: {new_assistant.name}, focused on {new_assistant.specialty}.",
