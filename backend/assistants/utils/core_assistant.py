@@ -105,3 +105,20 @@ class CoreAssistant:
             reason=reason,
             summary=summary,
         )
+
+    def run_task(self, task: str) -> dict:
+        """Execute a simple natural language task."""
+        logger.info(f"[CoreAssistant] Running task: {task}")
+        prompt = f"You are {self.assistant.name}. Complete this task:\n{task}"
+        try:
+            result_text = self.thought_engine.generate_thought(prompt)
+            log_info = self.thought_engine.log_thought(
+                result_text, thought_type="task"
+            )
+            return {
+                "result": result_text,
+                "log_id": str(log_info.get("log").id) if log_info.get("log") else None,
+            }
+        except Exception as e:  # pragma: no cover - safeguard
+            logger.error("[CoreAssistant] run_task failed: %s", e)
+            return {"result": "Task failed.", "error": str(e)}

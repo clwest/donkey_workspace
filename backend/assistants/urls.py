@@ -764,6 +764,16 @@ urlpatterns = [
         views.assistant_toolchain,
         name="assistant-toolchain",
     ),
+    path(
+        "<slug:slug>/run-task/",
+        intelligence.run_task,
+        name="assistant-run-task",
+    ),
+    path(
+        "<slug:slug>/search-docs/",
+        intelligence.search_docs,
+        name="assistant-search-docs",
+    ),
     # ===== DEBATE ENDPOINTS =====
     # path("debate/start/", debate.start_debate, name="start-debate"),
     # path("debate/<uuid:debate_id>/", debate.get_debate, name="debate-detail"),
