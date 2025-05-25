@@ -6,7 +6,6 @@ from project.models import ProjectTask, ProjectMilestone
 from agents.models.lore import SwarmMemoryEntry, GlobalMissionNode
 from assistants.models.project import ProjectPlanningLog
 from django.utils.text import slugify
-from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
@@ -174,6 +173,14 @@ class Assistant(models.Model):
             self.slug = slug
 
         self.full_clean()
+
+        if self.is_primary:
+            (
+                Assistant.objects.filter(is_primary=True)
+                .exclude(pk=self.pk)
+                .update(is_primary=False)
+            )
+
         super().save(*args, **kwargs)
 
         if not self.initial_embedding and self.embedding is not None:
@@ -198,10 +205,8 @@ class Assistant(models.Model):
         return self.name
 
     def clean(self):
-        if self.is_primary:
-            existing = Assistant.objects.filter(is_primary=True).exclude(pk=self.pk)
-            if existing.exists():
-                raise ValidationError("Only one assistant can be primary.")
+        """Ensure fields are valid but allow reassignment of primary role."""
+        pass
 
     def get_identity_prompt(self) -> str:
         parts = []
