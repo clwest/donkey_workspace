@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import apiFetch from "../../utils/apiClient";
+import apiFetch, { API_URL } from "../../utils/apiClient";
 import DocumentCard from "../../components/intel/DocumentCard";
 import DocumentIngestionForm from "../../components/intel/DocumentIngestionForm";
 import { Badge } from "react-bootstrap";
@@ -18,6 +18,21 @@ export default function DocumentBrowserPage() {
       console.error("Failed to load grouped documents", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteDocument = async (docId) => {
+    if (!window.confirm("Delete this document?")) return;
+    try {
+      const res = await fetch(`${API_URL}/intel/documents/${docId}/`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Delete failed");
+      await loadDocuments();
+    } catch (err) {
+      console.error("Failed to delete document", err);
+      alert("Failed to delete document");
     }
   };
 
@@ -49,7 +64,10 @@ export default function DocumentBrowserPage() {
                   to={`/intel/documents/${firstDoc.id}`}
                   className="text-decoration-none"
                 >
-                  <DocumentCard group={group} />
+                  <DocumentCard
+                    group={group}
+                    onDelete={() => handleDeleteDocument(firstDoc.id)}
+                  />
                 </Link>
               </div>
             );
