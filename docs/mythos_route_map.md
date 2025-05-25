@@ -52,8 +52,10 @@ Compiled for Codex routing, view integration, and component planning
 | `/assistants/:id/fork/replay` | `/api/assistants/:id/fork-replay/` | `ForkDrivenMemoryPlayback` | `MemoryForkPlaybackSerializer` | Memory fork comparison |
 | `/swarm/playback` | `/api/simulation/swarm-reflection-playback/` | `SwarmReflectionPlaybackPage` | `SwarmReflectionPlaybackLogSerializer` | Multi-assistant reflection timeline |
 | `/swarm/alignment` | `/api/metrics/swarm/alignment/` | `SwarmAlignmentPage` | `SwarmAlignmentIndexSerializer` | Swarm belief stability index |
+| `/swarm/rewire` | `/api/swarm/rewire/` | `SwarmAgentRewirePage` | `SwarmAgentRouteSerializer` | Swarm relationship map |
 | `/cascade/:id` | `/api/simulation/prompt-cascades/:id/` | `PromptCascadeWatcherPage` | `PromptCascadeLogSerializer` | View prompt chain cascade |
 | `/simulation/grid` | `/api/simulation/simulation-grid/` | `SimulationGridPage` | `SimulationClusterStatusSerializer` | Live simulation status grid |
+| `/simulate/narrative` | `/api/simulate/narrative/` | `NarrativeMutationSimulatorPage` | `NarrativeMutationTraceSerializer` | Narrative rewrite sandbox |
 
 \-\-\-
 
@@ -75,6 +77,7 @@ Compiled for Codex routing, view integration, and component planning
 | `/summon/federated` | `/api/summon/federated/` | `FederatedSummonPage` | `FederatedMythicIntelligenceSummonerSerializer` | Multi-assistant swarm summoning logic |
 | `/project/composer` | `/api/project/composer/` | `MythOSProjectComposerPage` | `AssistantProjectSerializer` | Task milestone planner |
 | `/debug/prompts` | `/api/debug/prompts/` | `PromptDebuggerPage` | `PromptMutationLogSerializer` | Prompt diff + codex trace map |
+| `/prompts/capsules` | `/api/prompts/capsules/` | `PromptCapsuleManagerPage` | `PromptCapsuleSerializer` | Shared prompt capsules |
 
 \-\-\-
 
