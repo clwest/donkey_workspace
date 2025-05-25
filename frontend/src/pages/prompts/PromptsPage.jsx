@@ -1,7 +1,7 @@
 // frontend/pages/prompts/PromptsPage.jsx
 
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./styles/PromptsPage.css";
 import { toast } from "react-toastify";
 import apiFetch from "../../utils/apiClient";
@@ -29,10 +29,12 @@ export default function PromptsPage() {
             top_k: 20,
           };
           const data = await apiFetch("/embeddings/search/", {
+            
             method: "POST",
             body,
           });
           const promptList = data.results || data;
+          console.log(promptList)
           setPrompts(Array.isArray(promptList) ? promptList : []);
         } else {
           const params = { show_all: true };
@@ -41,7 +43,9 @@ export default function PromptsPage() {
           if (typeFilter) params.type = typeFilter;
           if (sourceFilter) params.source = sourceFilter;
           const data = await apiFetch("/prompts/", { params });
+          console.log(data)
           const promptList = data.results || data;
+          console.log(params)
           setPrompts(Array.isArray(promptList) ? promptList : []);
         }
         } catch (err) {
@@ -94,6 +98,7 @@ export default function PromptsPage() {
     }
   
     const blob = new Blob([content], { type: mime });
+    console.log(blob)
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;

@@ -34,7 +34,7 @@ def list_prompts(request):
     type_filter = request.query_params.get("type")
 
     prompts = Prompt.objects.none()
-
+    
     if query:
         vector = get_prompt_embedding(query)
         with connection.cursor() as cursor:
