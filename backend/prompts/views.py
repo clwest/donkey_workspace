@@ -319,3 +319,34 @@ def prompt_usage_logs_view(request, slug):
     logs = PromptUsageLog.objects.filter(prompt__slug=slug).order_by("-created_at")
     serializer = PromptUsageLogSerializer(logs, many=True)
     return Response(serializer.data)
+
+from rest_framework import viewsets
+from .models import PromptCapsule, CapsuleTransferLog
+from .serializers import PromptCapsuleSerializer, CapsuleTransferLogSerializer
+
+
+class PromptCapsuleViewSet(viewsets.ModelViewSet):
+    queryset = PromptCapsule.objects.all().order_by("-created_at")
+    serializer_class = PromptCapsuleSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        assistant = self.request.GET.get("assistant")
+        tag = self.request.GET.get("tag")
+        if assistant:
+            qs = qs.filter(transfers__to_assistant_id=assistant).distinct()
+        if tag:
+            qs = qs.filter(tags__slug=tag).distinct()
+        return qs
+
+
+class CapsuleTransferLogViewSet(viewsets.ModelViewSet):
+    queryset = CapsuleTransferLog.objects.all().order_by("-created_at")
+    serializer_class = CapsuleTransferLogSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        assistant = self.request.GET.get("assistant")
+        if assistant:
+            qs = qs.filter(to_assistant_id=assistant)
+        return qs

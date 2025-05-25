@@ -285,3 +285,13 @@ class SimulationGridNode(models.Model):
     progress = models.FloatField(default=0.0)
     created_at = models.DateTimeField(auto_now_add=True)
 
+
+
+class NarrativeMutationTrace(models.Model):
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    mutation_input = models.JSONField()
+    divergence_output = models.JSONField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]

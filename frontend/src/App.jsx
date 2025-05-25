@@ -21,6 +21,9 @@ import PromptDetailView from "./pages/prompts/PromptDetailView";
 import PromptRemixPage from "./pages/prompts/PromptRemixPage";
 import CreatePromptPage from "./pages/prompts/CreatePromptPage";
 import PromptCreationAssistant from "./pages/assistant/prompts/PromptCreationAssistant";
+import PromptCapsuleManagerPage from "./pages/prompts/PromptCapsuleManagerPage";
+import SwarmAgentRewirePage from "./pages/swarm/SwarmAgentRewirePage";
+import NarrativeMutationSimulatorPage from "./pages/simulation/NarrativeMutationSimulatorPage";
 
 // MCP_CORE
 import ReflectionPage from "./pages/mcp_core/reflections/ReflectionPage";
@@ -215,6 +218,7 @@ export default function App() {
           {/* Prompts */}
           <Route path="/" element={<HomePage />} />
           <Route path="/prompts" element={<PromptsPage />} />
+          <Route path="/prompts/capsules" element={<PromptCapsuleManagerPage />} />
           <Route path="/prompts/:slug/remix" element={<PromptRemixPage />} />
           <Route path="/prompts/:slug" element={<PromptDetailView />} />
           <Route path="/prompts/create" element={<CreatePromptPage />} />
@@ -495,6 +499,7 @@ export default function App() {
           <Route path="/agents/archive" element={<AgentArchivePage />} />
           <Route path="/agents/trained" element={<TrainedAgentsPage />} />
           <Route path="/swarm/timeline" element={<SwarmTimelinePage />} />
+          <Route path="/swarm/rewire" element={<SwarmAgentRewirePage />} />
           <Route path="/timeline" element={<WorldTimelinePage />} />
           <Route path="/timeline/memory" element={<MemoryTimelinePage />} />
           <Route path="/memory/sandbox/:assistantId" element={<MemorySandboxPage />} />
@@ -534,6 +539,7 @@ export default function App() {
           <Route path="/forecast/belief" element={<BeliefForecastPage />} />
           <Route path="/ritual/rewards" element={<RitualRewardsPage />} />
           <Route path="/replay/engine" element={<ReplayEnginePage />} />
+          <Route path="/simulate/narrative" element={<NarrativeMutationSimulatorPage />} />
           <Route path="/fault/injector" element={<FaultInjectorPage />} />
           <Route path="/deploy/standards" element={<DeployStandardsPage />} />
           <Route path="/summon/federated" element={<FederatedSummonPage />} />

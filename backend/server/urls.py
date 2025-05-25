@@ -77,6 +77,7 @@ urlpatterns = [
     path("api/shared-memory-pools/", include("memory.shared_urls")),
     path("api/assistants/", include("assistants.urls")),
     path("api/agents/", include("agents.urls")),
+    path("api/swarm/", include("agents.rewire_urls")),
     path("api/lore-tokens/", agent_views.lore_tokens),
     path("api/codexes/", agent_views.codexes),
     path("api/agent-codices/", agent_views.agent_codices),

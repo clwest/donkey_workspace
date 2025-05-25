@@ -145,6 +145,7 @@ from agents.models.insight import (
     PerspectiveMergeEvent,
     TimelineStitchLog,
 )
+from agents.models.rewire import SwarmAgentRoute, AgentSymbolicMap
 from agents.models.identity import (
     SymbolicIdentityCard,
     PersonaTemplate,
@@ -1501,3 +1502,20 @@ class LegislativeRitualSimulationSystemSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
+
+
+class SwarmAgentRouteSerializer(serializers.ModelSerializer):
+    from_assistant_name = serializers.CharField(source="from_assistant.name", read_only=True)
+    to_assistant_name = serializers.CharField(source="to_assistant.name", read_only=True)
+
+    class Meta:
+        model = SwarmAgentRoute
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class AgentSymbolicMapSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AgentSymbolicMap
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]

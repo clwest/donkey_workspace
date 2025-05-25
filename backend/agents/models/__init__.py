@@ -22,6 +22,7 @@ from .recovery import *
 from .inheritance import *
 
 from .temporal import *
+from .rewire import *
 
 
 __all__ = []
