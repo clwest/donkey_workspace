@@ -5,7 +5,7 @@ export default function PromptDebuggerPage() {
   const [logs, setLogs] = useState([]);
 
   useEffect(() => {
-    apiFetch("/debug/prompts/")
+    apiFetch("/images/debug/prompts/")
       .then((res) => setLogs(res.results || res))
       .catch((err) => console.error("Failed to load prompt logs", err));
   }, []);
