@@ -5,7 +5,7 @@ from django.urls import path
 from . import views
 from assistants.views.deployment_planner import arena_active
 
-from .views import agents, inheritance
+from .views import agents, inheritance, timeline
 
 urlpatterns = [
     path("swarm-temporal-report/", agents.swarm_temporal_report),
@@ -159,4 +159,5 @@ urlpatterns = [
     path("<uuid:id>/train/", agents.train_agent),
     path("<uuid:id>/recommend-training-docs/", agents.recommend_training_docs),
     path("<slug:slug>/", agents.agent_detail_view),
+    path("orchestration/timeline/", timeline.orchestration_timeline),
 ]
