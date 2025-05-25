@@ -23,6 +23,7 @@ import CreatePromptPage from "./pages/prompts/CreatePromptPage";
 import PromptCreationAssistant from "./pages/assistant/prompts/PromptCreationAssistant";
 import PromptCapsuleManagerPage from "./pages/prompts/PromptCapsuleManagerPage";
 import SwarmAgentRewirePage from "./pages/swarm/SwarmAgentRewirePage";
+import RoleCollisionPage from "./pages/swarm/RoleCollisionPage";
 import NarrativeMutationSimulatorPage from "./pages/simulation/NarrativeMutationSimulatorPage";
 import MythgraphViewerPage from "./pages/mythgraph/MythgraphViewerPage";
 
@@ -177,6 +178,8 @@ import CodexConvergePage from "./pages/codex/CodexConvergePage";
 import CodexProofPage from "./pages/codex/CodexProofPage";
 import CodexContractPage from "./pages/codex/CodexContractPage";
 import CodexClauseMutatorPage from "./pages/codex/CodexClauseMutatorPage";
+import BeliefCascadePage from "./pages/codex/BeliefCascadePage";
+import StabilizationCampaignPage from "./pages/codex/StabilizationCampaignPage";
 import CodexInheritancePage from "./pages/codex/CodexInheritancePage";
 import RitualContainersPage from "./pages/ritual/RitualContainersPage";
 import ReplayEnginePage from "./pages/replay/ReplayEnginePage";
@@ -530,6 +533,7 @@ export default function App() {
           <Route path="/agents/trained" element={<TrainedAgentsPage />} />
           <Route path="/swarm/timeline" element={<SwarmTimelinePage />} />
           <Route path="/swarm/graph" element={<SwarmGraphPage />} />
+          <Route path="/swarm/collisions" element={<RoleCollisionPage />} />
           <Route path="/ritual/rewire" element={<RitualRewirePage />} />
           <Route path="/orchestration/timeline" element={<OrchestrationTimelinePage />} />
           <Route path="/swarm/rewire" element={<SwarmAgentRewirePage />} />
@@ -561,6 +565,8 @@ export default function App() {
           <Route path="/codex/proof" element={<CodexProofPage />} />
           <Route path="/codex/contracts/:promptId" element={<CodexContractPage />} />
           <Route path="/codex/mutator/:clauseId" element={<CodexClauseMutatorPage />} />
+          <Route path="/codex/cascade/:clauseId" element={<BeliefCascadePage />} />
+          <Route path="/codex/stabilize" element={<StabilizationCampaignPage />} />
           <Route path="/codex/inheritance/:assistantId" element={<CodexInheritancePage />} />
           <Route path="/dream" element={<DreamframePage />} />
           <Route path="/dream/rebirth" element={<DreamRebirthPage />} />
