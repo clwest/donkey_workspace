@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
+import apiFetch from "../../utils/apiClient";
 import "./styles/PromptRemixPage.css";
 
 export default function PromptRemixPage() {
@@ -22,14 +23,18 @@ export default function PromptRemixPage() {
 
   useEffect(() => {
     async function fetchPrompt() {
-      const res = await fetch(`http://localhost:8000/api/prompts/${slug}/`);
-      const data = await res.json();
-      setOriginalPrompt(data);
-      setCustomTitle(`Remix: ${data.title}`);
-      
-      // Set remixedContent explicitly if not already set
-      if (!preloadedMutation) {
-        setRemixedContent(data.content || "");  // Fallback to empty string
+      try {
+        const data = await apiFetch(`/prompts/${slug}/`);
+        setOriginalPrompt(data);
+        setCustomTitle(`Remix: ${data.title}`);
+
+        // Set remixedContent explicitly if not already set
+        if (!preloadedMutation) {
+          setRemixedContent(data.content || ""); // Fallback to empty string
+        }
+      } catch (err) {
+        console.error("Failed to load prompt:", err);
+        toast.error("❌ Failed to load prompt");
       }
     }
     fetchPrompt();
@@ -43,23 +48,17 @@ export default function PromptRemixPage() {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8000/api/prompts/mutate-prompt/", {
+      const data = await apiFetch("/prompts/mutate-prompt/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           text: remixedContent,
           mode: remixMode,
           prompt_id: originalPrompt?.id,
-        }),
+        },
       });
 
-      const data = await res.json();
-      if (res.ok) {
-        setRemixedContent(data.result);
-        toast.success("✅ Remix mutation complete!");
-      } else {
-        toast.error(`❌ Remix failed: ${data.error || "unknown error"}`);
-      }
+      setRemixedContent(data.result);
+      toast.success("✅ Remix mutation complete!");
     } catch (error) {
       console.error("Error mutating prompt:", error);
       toast.error("❌ Remix failed. Try again!");
@@ -70,27 +69,21 @@ export default function PromptRemixPage() {
 
   async function handleSave() {
     try {
-      const response = await fetch("http://localhost:8000/api/prompts/create/", {
+      const data = await apiFetch("/prompts/create/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           title: customTitle,
           content: remixedContent,
           source: `remix-of-${originalPrompt.source}`,
           type: "system",
           tags: [],
           token_count: remixedContent.length,
-        }),
+        },
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        toast.success("✅ Remix saved!");
-        await saveMemoryEntry(customTitle, remixedContent);
-        navigate(`/prompts/${data.slug}`);
-      } else {
-        toast.error("❌ Failed to save remix");
-      }
+      toast.success("✅ Remix saved!");
+      await saveMemoryEntry(customTitle, remixedContent);
+      navigate(`/prompts/${data.slug}`);
     } catch (error) {
       console.error(error);
       toast.error("❌ Failed to save remix");
@@ -99,22 +92,17 @@ export default function PromptRemixPage() {
 
   async function saveMemoryEntry(title, content) {
     try {
-      const memoryRes = await fetch("http://localhost:8000/api/memory/save/", {
+      await apiFetch("/memory/save/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           event: "Remix Saved",
           memory_type: "reflection",
           title,
           content,
-        }),
+        },
       });
 
-      if (memoryRes.ok) {
-        toast.info("🧠 Memory saved!");
-      } else {
-        console.warn("Failed to save memory");
-      }
+      toast.info("🧠 Memory saved!");
     } catch (error) {
       console.error("Error saving memory:", error);
     }
