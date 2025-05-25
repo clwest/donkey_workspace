@@ -295,3 +295,78 @@ class NarrativeMutationTrace(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+
+class CodexSimulationScenario(models.Model):
+    """Defines a scenario for codex clause mutation experiments."""
+
+    name = models.CharField(max_length=150)
+    baseline_codex = models.ForeignKey(
+        "agents.SwarmCodex", on_delete=models.CASCADE, related_name="simulation_scenarios"
+    )
+    mutated_clauses = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class SwarmClauseDriftMetric(models.Model):
+    """Tracks drift metrics for a clause during simulation."""
+
+    scenario = models.ForeignKey(CodexSimulationScenario, on_delete=models.CASCADE, related_name="drift_metrics")
+    clause_index = models.IntegerField()
+    drift_score = models.FloatField(default=0.0)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class SimulatedBeliefFork(models.Model):
+    """Represents a belief fork resulting from codex mutation."""
+
+    scenario = models.ForeignKey(CodexSimulationScenario, on_delete=models.CASCADE, related_name="belief_forks")
+    originating_assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    divergence_summary = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class RitualDriftObservation(models.Model):
+    """Record long-term ritual drift metrics."""
+
+    ritual_blueprint = models.ForeignKey("agents.EncodedRitualBlueprint", on_delete=models.CASCADE)
+    entropy_score = models.FloatField(default=0.0)
+    clause_mismatch = models.FloatField(default=0.0)
+    observed_at = models.DateTimeField(auto_now_add=True)
+
+
+class DriftCorrectionProposal(models.Model):
+    """Suggested fix for ritual drift."""
+
+    observation = models.ForeignKey(RitualDriftObservation, on_delete=models.CASCADE, related_name="proposals")
+    suggested_update = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class MythgraphNode(models.Model):
+    """Node in an assistant's mythgraph."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    node_type = models.CharField(max_length=50)
+    label = models.CharField(max_length=150)
+    metadata = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class MythgraphEdge(models.Model):
+    """Edge linking mythgraph nodes."""
+
+    source = models.ForeignKey(MythgraphNode, on_delete=models.CASCADE, related_name="outgoing_edges")
+    target = models.ForeignKey(MythgraphNode, on_delete=models.CASCADE, related_name="incoming_edges")
+    relation = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class AssistantMythgraphDraft(models.Model):
+    """Draft mythgraph container for an assistant."""
+
+    assistant = models.OneToOneField("assistants.Assistant", on_delete=models.CASCADE)
+    nodes = models.ManyToManyField(MythgraphNode, related_name="drafts")
+    edges = models.ManyToManyField(MythgraphEdge, related_name="drafts")
+    created_at = models.DateTimeField(auto_now_add=True)

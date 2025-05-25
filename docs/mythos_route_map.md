@@ -26,6 +26,7 @@ Compiled for Codex routing, view integration, and component planning
 | `/codex/evolve` | `/api/codex/evolve/` | `PromptMutationExplorer` | `CodexPromptMutationSerializer` | Prompt + role mutation lineage |
 | `/codex/orchestrator/:assistantId` | `/api/codex/orchestrator/` | `CodexPromptOrchestrator` | `PromptUsageLogSerializer` | Assistant prompt editor/previewer |
 | `/codex/vote` | `/api/metrics/codex/vote/` | `CodexVotePage` | `CodexClauseVoteSerializer` | Clause mutation ballots |
+| `/codex/simulate` | `/api/simulation/codex/simulate/` | `CodexSimulationPage` | `CodexSimulationScenarioSerializer` | Clause mutation sandbox |
 
 \-\-\-
 
@@ -38,6 +39,7 @@ Compiled for Codex routing, view integration, and component planning
 | `/ritual/containers` | `/api/ritual/containers/` | `RitualContainerPanel` | `RitualFunctionContainerSerializer` | Persistent execution state viewer |
 | `/ritual/fork/replay` | `/api/ritual/fork-replay/` | `RitualForkReplayPage` | `RitualForkReplaySerializer` | Side-by-side ritual replays with divergence tagging |
 | `/ritual/reputation` | `/api/metrics/ritual/reputation/` | `RitualReputationPage` | `RitualReputationScoreSerializer` | Ritual rating tracker |
+| `/ritual/drift` | `/api/simulation/ritual/drift/` | `RitualDriftPage` | `RitualDriftObservationSerializer` | Long-term ritual drift metrics |
 
 \-\-\-
 
@@ -56,6 +58,7 @@ Compiled for Codex routing, view integration, and component planning
 | `/cascade/:id` | `/api/simulation/prompt-cascades/:id/` | `PromptCascadeWatcherPage` | `PromptCascadeLogSerializer` | View prompt chain cascade |
 | `/simulation/grid` | `/api/simulation/simulation-grid/` | `SimulationGridPage` | `SimulationClusterStatusSerializer` | Live simulation status grid |
 | `/simulate/narrative` | `/api/simulate/narrative/` | `NarrativeMutationSimulatorPage` | `NarrativeMutationTraceSerializer` | Narrative rewrite sandbox |
+| `/mythgraph/:id` | `/api/simulation/mythgraph/assistant/:id/` | `MythgraphViewerPage` | `AssistantMythgraphDraftSerializer` | Assistant mythgraph nodes |
 
 \-\-\-
 

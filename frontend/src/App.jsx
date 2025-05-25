@@ -24,6 +24,7 @@ import PromptCreationAssistant from "./pages/assistant/prompts/PromptCreationAss
 import PromptCapsuleManagerPage from "./pages/prompts/PromptCapsuleManagerPage";
 import SwarmAgentRewirePage from "./pages/swarm/SwarmAgentRewirePage";
 import NarrativeMutationSimulatorPage from "./pages/simulation/NarrativeMutationSimulatorPage";
+import MythgraphViewerPage from "./pages/mythgraph/MythgraphViewerPage";
 
 // MCP_CORE
 import ReflectionPage from "./pages/mcp_core/reflections/ReflectionPage";
@@ -577,6 +578,7 @@ export default function App() {
           <Route path="/ritual/rewards" element={<RitualRewardsPage />} />
           <Route path="/replay/engine" element={<ReplayEnginePage />} />
           <Route path="/simulate/narrative" element={<NarrativeMutationSimulatorPage />} />
+          <Route path="/mythgraph/:id" element={<MythgraphViewerPage />} />
           <Route path="/fault/injector" element={<FaultInjectorPage />} />
           <Route path="/deploy/standards" element={<DeployStandardsPage />} />
           <Route path="/project/composer" element={<MythOSProjectComposerPage />} />
