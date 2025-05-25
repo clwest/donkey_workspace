@@ -122,7 +122,19 @@ from agents.models.governance import (
     RitualNegotiationEngine,
     NarrativeGovernanceModel,
 )
-from agents.models.deployment import BeliefAlignedDeploymentStandard, DeploymentVector
+from agents.models.deployment import (
+    BeliefAlignedDeploymentStandard, 
+    DeploymentVector,
+    DeploymentEventTag,
+    DeploymentNarrativeLog,
+    CodexAlignmentSnapshot,
+    DeploymentReplayTrace,
+    EvaluationMutationFork,
+    PromptDeltaReport,
+    AssistantFeedbackLoopVector,
+    DeploymentIterationSuggestion
+
+)
 from agents.models.federation import (
     CodexFederationArchitecture,
     SymbolicTreatyProtocol,
@@ -1533,7 +1545,7 @@ class AgentSymbolicMapSerializer(serializers.ModelSerializer):
         model = AgentSymbolicMap
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
-\n
+
 
 class DeploymentEventTagSerializer(serializers.ModelSerializer):
     class Meta:
