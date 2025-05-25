@@ -38,6 +38,9 @@ from .views.dreamframe import (
 )
 
 from .views.sandbox import SimulationRunView
+from .views.codex_simulation import CodexSimulationScenarioViewSet
+from .views.ritual_drift import RitualDriftObservationViewSet
+from .views.mythgraph import MythgraphNodeViewSet
 
 router = DefaultRouter()
 router.register(r"simulators", MythScenarioSimulatorViewSet, basename="myth-simulator")
@@ -66,6 +69,9 @@ router.register(r"prompt-cascades", PromptCascadeLogViewSet, basename="prompt-ca
 router.register(r"cascade-nodes", CascadeNodeLinkViewSet, basename="cascade-node")
 router.register(r"simulation-grid", SimulationClusterStatusViewSet, basename="simulation-grid")
 router.register(r"simulation-grid-nodes", SimulationGridNodeViewSet, basename="simulation-grid-node")
+router.register(r"codex/simulate", CodexSimulationScenarioViewSet, basename="codex-simulate")
+router.register(r"ritual/drift", RitualDriftObservationViewSet, basename="ritual-drift")
+router.register(r"mythgraph", MythgraphNodeViewSet, basename="mythgraph")
 
 
 
@@ -75,5 +81,10 @@ urlpatterns = router.urls + [
     path("dreamframe/generate", dreamframe_generate, name="dreamframe-generate"),
     path("scenario/play", scenario_play, name="scenario-play"),
     path("lab/narrative", narrative_lab, name="narrative-lab"),
+    path(
+        "mythgraph/<uuid:assistant_id>/",
+        MythgraphNodeViewSet.as_view({"get": "by_assistant"}),
+        name="mythgraph-assistant",
+    ),
 
 ]

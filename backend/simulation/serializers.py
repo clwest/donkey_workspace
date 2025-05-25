@@ -231,3 +231,59 @@ class NarrativeMutationTraceSerializer(serializers.ModelSerializer):
         model = NarrativeMutationTrace
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
+
+class CodexSimulationScenarioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CodexSimulationScenario
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SwarmClauseDriftMetricSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SwarmClauseDriftMetric
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class SimulatedBeliefForkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SimulatedBeliefFork
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class RitualDriftObservationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RitualDriftObservation
+        fields = "__all__"
+        read_only_fields = ["id", "observed_at"]
+
+
+class DriftCorrectionProposalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DriftCorrectionProposal
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MythgraphNodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythgraphNode
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class MythgraphEdgeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MythgraphEdge
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class AssistantMythgraphDraftSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantMythgraphDraft
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
