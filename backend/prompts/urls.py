@@ -11,7 +11,8 @@ router.register(
     r"capsule-transfers", views.CapsuleTransferLogViewSet, basename="capsuletransfer"
 )
 
-urlpatterns = router.urls + [
+urlpatterns = [
+    # Main prompt list endpoint
     path("", views.list_prompts),
     path("tags/", views.list_prompt_tags),
     path("preferences/", views.get_my_prompt_preferences),
@@ -35,4 +36,4 @@ urlpatterns = router.urls + [
         PromptFeedbackRefinementView.as_view(),
         name="prompt-feedback-refinement",
     ),
-]
+] + router.urls
