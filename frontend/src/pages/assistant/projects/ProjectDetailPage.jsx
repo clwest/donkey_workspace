@@ -263,7 +263,7 @@ export default function ProjectDetailPage() {
         )}
       </div>
 
-      <AssistantSpawnForm creatorId={selectedAssistantId} projectId={project.id} />
+      <AssistantSpawnForm projectId={project.id} />
 
 
       <AutoModeToggle enabled={autoMode} onToggle={setAutoMode} />
