@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import apiFetch from "../../utils/apiClient";
 
 export default function AssistantPromptPanel({ projectId }) {
   const [linkedPrompts, setLinkedPrompts] = useState([]);
@@ -10,13 +11,10 @@ export default function AssistantPromptPanel({ projectId }) {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [linkedRes, availableRes] = await Promise.all([
-          fetch(`http://localhost:8000/api/assistants/projects/${projectId}/linked_prompts/`),
-          fetch(`http://localhost:8000/api/prompts/?show_all=true`),
+        const [linkedData, availableData] = await Promise.all([
+          apiFetch(`/assistants/projects/${projectId}/linked_prompts/`),
+          apiFetch(`/prompts/`, { params: { show_all: true } }),
         ]);
-
-        const linkedData = await linkedRes.json();
-        const availableData = await availableRes.json();
 
         setLinkedPrompts(linkedData);
         setAvailablePrompts(availableData);
@@ -33,15 +31,15 @@ export default function AssistantPromptPanel({ projectId }) {
     if (!selectedPromptId) return;
 
     try {
-      await fetch(`http://localhost:8000/api/assistants/projects/link_prompt/`, {
+      const newLink = await apiFetch(`/assistants/projects/link_prompt/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           project_id: projectId,
           prompt_id: selectedPromptId,
-        }),
+        },
       });
-      window.location.reload(); // simple reload for now
+      setLinkedPrompts((prev) => [...prev, newLink]);
+      setSelectedPromptId("");
     } catch (error) {
       console.error("Error linking prompt:", error);
     }
