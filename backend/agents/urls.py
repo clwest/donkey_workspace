@@ -5,7 +5,7 @@ from django.urls import path
 from . import views
 from assistants.views.deployment_planner import arena_active
 
-from .views import agents, inheritance, timeline
+from .views import agents, inheritance, timeline, stabilization
 
 urlpatterns = [
     path("swarm-temporal-report/", agents.swarm_temporal_report),
@@ -52,6 +52,9 @@ urlpatterns = [
     path("oscillation/map/", agents.oscillation_map),
     path("memory/regenerate/", agents.memory_regenerate),
     path("codex/stabilize/", agents.codex_stabilize),
+    path("codex/cascade/<str:clause_id>/", stabilization.belief_cascade),
+    path("swarm/collisions/", stabilization.swarm_collisions),
+    path("codex/stabilize/campaigns/", stabilization.stabilization_campaigns),
     path("codex/crystallize/", agents.codex_crystallize),
     path("codex/inheritance/<uuid:assistant_id>/", inheritance.codex_inheritance),
     path("dream/rebirth/", agents.dream_rebirth),

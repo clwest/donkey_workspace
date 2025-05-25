@@ -1633,3 +1633,66 @@ class OrchestrationTimelineSnapshotSerializer(serializers.ModelSerializer):
         model = OrchestrationTimelineSnapshot
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
+
+class BeliefCascadeGraphSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BeliefCascadeGraph
+        fields = "__all__"
+        read_only_fields = ["id", "generated_at"]
+
+
+class CascadeImpactNodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CascadeImpactNode
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CascadeEffectTraceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CascadeEffectTrace
+        fields = "__all__"
+        read_only_fields = ["id", "timestamp"]
+
+
+class RoleTensionMetricSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RoleTensionMetric
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class AssistantArchetypeConflictSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantArchetypeConflict
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CollisionResolutionProposalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CollisionResolutionProposal
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class StabilizationCampaignSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StabilizationCampaign
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CodexClauseVoteLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CodexClauseVoteLog
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CampaignSymbolicGainEstimateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CampaignSymbolicGainEstimate
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
