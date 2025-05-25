@@ -1,37 +1,30 @@
 import { useState } from "react";
 import WorkflowDesigner from "./WorkflowDesigner";
 import WorkflowExecutionLog from "./WorkflowExecutionLog";
+import apiFetch from "../utils/apiClient";
 
 export default function WorkflowOrchestrator() {
   const [definition, setDefinition] = useState(null);
   const [log, setLog] = useState(null);
 
   const saveDefinition = (data) => {
-    fetch("http://localhost:8000/api/workflows/definitions/", {
+    apiFetch(`/workflows/definitions/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
-      .then((res) => res.json())
-      .then((d) => setDefinition(d));
+      body: data,
+    }).then((d) => setDefinition(d));
   };
 
   const execute = () => {
     if (!definition) return;
-    fetch("http://localhost:8000/api/workflows/execute/", {
+    apiFetch(`/workflows/execute/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+      body: {
         workflow_definition_id: definition.id,
         triggered_by_id: definition.created_by,
-      }),
-    })
-      .then((res) => res.json())
-      .then((d) => {
-        fetch("http://localhost:8000/api/execution-logs/")
-          .then((r) => r.json())
-          .then((logs) => setLog(logs[0] || null));
-      });
+      },
+    }).then(() => {
+      apiFetch(`/execution-logs/`).then((logs) => setLog(logs[0] || null));
+    });
   };
 
   return (

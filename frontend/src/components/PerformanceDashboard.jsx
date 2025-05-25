@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
+import apiFetch from "../utils/apiClient";
 
 export default function PerformanceDashboard({ assistantId }) {
   const [logs, setLogs] = useState([]);
 
   useEffect(() => {
     if (!assistantId) return;
-    fetch(`http://localhost:8000/api/execution-logs/`)
-      .then((res) => res.json())
+    apiFetch(`/execution-logs/`)
       .then((data) => setLogs(data))
       .catch((e) => console.error("logs", e));
   }, [assistantId]);

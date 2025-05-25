@@ -1,16 +1,17 @@
+import apiFetch from "./apiClient";
+
 export async function logPromptUsage({ slug, title, context, input, output }) {
   try {
-    const res = await fetch("http://localhost:8000/api/mcp/prompt-usage/", {
+    const res = await apiFetch(`/mcp/prompt-usage/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+      body: {
         prompt_slug: slug,
         prompt_title: title,
         used_by: context,
         input_context: input, // ← now a proper string
         rendered_prompt: output,
         result_output: "",
-      }),
+      },
     });
 
     if (!res.ok) {

@@ -1,21 +1,21 @@
 // frontend/components/PromptResultCard.jsx
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import apiFetch from "../../utils/apiClient";
 
 export default function PromptResultCard({ promptText, title = "Untitled Prompt" }) {
   const navigate = useNavigate();
 
   async function handleUsePrompt() {
     try {
-      const res = await fetch("http://localhost:8000/api/memory/save/", {
+      const res = await apiFetch(`/memory/save/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           event: "Prompt Created via Assistant",
           memory_type: "reflection",
           title,
           content: promptText,
-        }),
+        },
       });
 
       if (res.ok) {

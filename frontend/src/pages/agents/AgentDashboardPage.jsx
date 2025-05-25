@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import apiFetch from "../../utils/apiClient";
 
 export default function AgentDashboardPage() {
   const [agents, setAgents] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/mcp/agent/")
-      .then((res) => res.json())
+    apiFetch(`/mcp/agent/`)
       .then(setAgents)
       .catch((err) => console.error("Error fetching agents:", err));
   }, []);

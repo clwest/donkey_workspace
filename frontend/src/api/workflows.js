@@ -1,11 +1,9 @@
+import apiFetch from "../utils/apiClient";
+
 export async function executeWorkflow(definitionId) {
-  const res = await fetch("http://localhost:8000/api/workflows/execute/", {
+  const res = await apiFetch(`/workflows/execute/`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ workflow_definition_id: definitionId }),
+    body: { workflow_definition_id: definitionId },
   });
-  if (!res.ok) {
-    throw new Error("Failed to execute workflow");
-  }
-  return res.json();
+  return res;
 }
