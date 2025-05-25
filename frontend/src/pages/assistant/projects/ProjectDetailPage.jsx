@@ -277,7 +277,7 @@ export default function ProjectDetailPage() {
         </button>
       </div>
       <AssistantPromptPanel projectId={project.id} />
-      <AssistantIntelligencePanel projectId={id} />
+      <AssistantIntelligencePanel projectId={id} assistant={project.assistant} />
       <ProjectTaskManager />
       <ProjectHistoryPanel projectId={id} />
       <SwarmMemoryViewer />
