@@ -34,13 +34,14 @@ export default function PromptsPage() {
           method: useSimilarity ? "POST" : "GET",
           headers: { "Content-Type": "application/json" },
           body: useSimilarity
-            ? JSON.stringify({ query: search || "assistant", target: "prompt", top_k: 20 })
+            ? JSON.stringify({ text: search || "assistant", target: "prompt", top_k: 20 })
             : null,
         });
 
         const data = await res.json();
         console.log(data)
-        setPrompts(useSimilarity ? data.results || [] : data);
+        const promptList = useSimilarity ? data.results : data;
+        setPrompts(Array.isArray(promptList) ? promptList : []);
       } catch (err) {
         console.error("Error loading prompts:", err);
       } finally {
