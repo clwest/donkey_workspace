@@ -43,5 +43,5 @@ Use standard `<img>` tags for `output_url` fields. For stories with linked image
 
 ## 6. Keep routes synced
 
-Run through `docs/route_sync_checklist.md` after wiring the new pages to ensure API and React routes stay aligned.
+Run through `../../docs/route_sync_checklist.md` after wiring the new pages to ensure API and React routes stay aligned.
 
