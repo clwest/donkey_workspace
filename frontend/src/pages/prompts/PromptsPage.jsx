@@ -14,12 +14,14 @@ export default function PromptsPage() {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [sourceFilter, setSourceFilter] = useState("");
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchPrompts = async () => {
-      setLoading(true);
-      try {
+      const fetchPrompts = async () => {
+        setLoading(true);
+        setError(null);
+        try {
         if (useSimilarity) {
           const body = {
             text: search || "assistant",
@@ -42,12 +44,14 @@ export default function PromptsPage() {
           const promptList = data.results || data;
           setPrompts(Array.isArray(promptList) ? promptList : []);
         }
-      } catch (err) {
-        console.error("Error loading prompts:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+        } catch (err) {
+          console.error("Error loading prompts:", err);
+          toast.error("❌ Failed to load prompts.");
+          setError("Failed to load prompts.");
+        } finally {
+          setLoading(false);
+        }
+      };
 
     fetchPrompts();
   }, [search, sortByTokens, typeFilter, sourceFilter, useSimilarity]);
@@ -167,6 +171,12 @@ export default function PromptsPage() {
           />
         </div>
       </div>
+
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
+      )}
 
       {loading ? (
         <div className="text-center my-5">
