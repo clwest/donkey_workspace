@@ -476,11 +476,11 @@ urlpatterns = [
         thoughts.recent_feedback,
         name="assistant-feedback",
     ),
-    path(
-        "<slug:slug>/skills/",
-        skills.assistant_skills,
-        name="assistant-skills",
-    ),
+    # path(
+    #     "<slug:slug>/skills/",
+    #     skills.assistant_skills,
+    #     name="assistant-skills",
+    # ),
     path(
         "<slug:slug>/empathy/",
         empathy.assistant_empathy,

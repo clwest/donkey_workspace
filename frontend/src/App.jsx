@@ -211,7 +211,7 @@ export default function App() {
           <Route path="/codex/briefing" element={<CodexBriefingPage />} />
           <Route path="/assistant/:id/tutorial" element={<AssistantTutorialPage />} />
           {/* Prompts */}
-          <Route path="/" element={<MythosLandingPage />} />
+          <Route path="/" element={<HomePage />} />
           <Route path="/prompts" element={<PromptsPage />} />
           <Route path="/prompts/:slug/remix" element={<PromptRemixPage />} />
           <Route path="/prompts/:slug" element={<PromptDetailView />} />
