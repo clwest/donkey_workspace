@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import AssistantAlignmentToolset from "../../components/assistants/AssistantAlignmentToolset";
+import AssistantAlignmentToolset from "../../../components/assistants/AssistantAlignmentToolset";
 
 export default function AssistantEconomyPage() {
   const { id } = useParams();

@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import BeliefForkViewer from "../../components/agents/BeliefForkViewer";
+import BeliefForkViewer from "../../../components/agents/BeliefForkViewer"
 
 export default function AssistantForkPage() {
   const { id } = useParams();

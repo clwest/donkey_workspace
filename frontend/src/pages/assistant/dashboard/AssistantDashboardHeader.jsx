@@ -1,4 +1,4 @@
-import PrimaryStar from "../../components/assistant/PrimaryStar";
+import PrimaryStar from "../../../components/assistant/PrimaryStar";
 import PropTypes from "prop-types";
 
 export default function AssistantDashboardHeader({

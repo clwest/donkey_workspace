@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import apiFetch from "../../utils/apiClient";
 
-export default function AssistantIntelligencePanel({ projectId }) {
+export default function AssistantIntelligencePanel({ projectId, assistant: propAssistant }) {
   const [activeTab, setActiveTab] = useState("thoughts");
   const [thoughts, setThoughts] = useState([]);
   const [reflections, setReflections] = useState([]);
@@ -10,10 +10,21 @@ export default function AssistantIntelligencePanel({ projectId }) {
   const [loading, setLoading] = useState(false);
   const [reflecting, setReflecting] = useState(false);
   const [loadingDocs, setLoadingDocs] = useState(false);
+  const [assistant, setAssistant] = useState(propAssistant || null);
+  const [devDocs, setDevDocs] = useState([]);
+
+  const totalThoughts = thoughts.length;
+  const totalReflections = reflections.length;
 
   useEffect(() => {
     if (!projectId) return;
     loadContent();
+    if (!propAssistant) {
+      apiFetch(`/assistants/projects/${projectId}/`).then((data) => {
+        setAssistant(data.assistant || null);
+        setDevDocs(data.dev_docs || []);
+      }).catch((err) => console.error("Failed to load project", err));
+    }
   }, [projectId]);
 
   async function loadContent() {
@@ -71,14 +82,22 @@ export default function AssistantIntelligencePanel({ projectId }) {
   }
 
   const generateSystemPrompt = async () => {
-    if (!assistant || !assistant.id) return;
+    if (!assistant || !devDocs.length) return;
+    const docId = devDocs[0].id;
+    if (!docId) return;
     setLoadingDocs(true);
     try {
-      const res = await apiFetch(`/assistants/${assistant.id}/generate-system-prompt-from-docs/`, {
+      const res = await apiFetch(`/intel/intelligence/bootstrap-agent/${docId}/`, {
         method: "POST",
       });
-      if (res?.system_prompt) {
-        setAssistant((prev) => ({ ...prev, system_prompt: res.system_prompt }));
+      if (res?.config) {
+        const cfg = JSON.parse(res.config);
+        if (cfg.system_prompt) {
+          setAssistant((prev) => ({
+            ...prev,
+            system_prompt: { ...(prev?.system_prompt || {}), content: cfg.system_prompt },
+          }));
+        }
       }
     } catch (err) {
       console.error("Failed to generate prompt from docs:", err);
@@ -90,15 +109,33 @@ export default function AssistantIntelligencePanel({ projectId }) {
   return (
     <div className="my-5">
       <h3>🧠 Assistant Intelligence Panel</h3>
+      <div className="text-muted small mb-2">
+        {totalThoughts} thoughts · {totalReflections} reflections
+      </div>
 
       <div className="d-flex gap-3 align-items-center mb-3">
         <div className="btn-group">
           <button className={`btn btn-sm ${activeTab === "thoughts" ? "btn-primary" : "btn-outline-primary"}`} onClick={() => setActiveTab("thoughts")}>Thoughts</button>
           <button className={`btn btn-sm ${activeTab === "reflections" ? "btn-primary" : "btn-outline-primary"}`} onClick={() => setActiveTab("reflections")}>Reflections</button>
         </div>
-        <div className="form-check form-switch">
-          <input className="form-check-input" type="checkbox" checked={autoMode} onChange={() => setAutoMode(!autoMode)} />
-          <label className="form-check-label">Auto-Reflect</label>
+      </div>
+
+      <button
+        className="btn btn-sm btn-outline-secondary mb-2"
+        data-bs-toggle="collapse"
+        data-bs-target="#intelControls"
+      >
+        ⚙️ Intelligence Controls
+      </button>
+      <div className="collapse mb-3" id="intelControls">
+        <div className="d-flex gap-3 align-items-center">
+          <div className="form-check form-switch">
+            <input className="form-check-input" type="checkbox" checked={autoMode} onChange={() => setAutoMode(!autoMode)} />
+            <label className="form-check-label">Auto-Reflect</label>
+          </div>
+          <button className="btn btn-sm btn-outline-primary" onClick={handleCreateThought} disabled={loading}>
+            {loading ? "Thinking..." : "🧠 Generate Thought"}
+          </button>
         </div>
       </div>
       <div className="mt-4">
@@ -119,9 +156,6 @@ export default function AssistantIntelligencePanel({ projectId }) {
           />
           <div className="mb-3 d-flex gap-2">
             <button className="btn btn-sm btn-success" onClick={handleSaveThought}>💾 Save Thought</button>
-            <button className="btn btn-sm btn-outline-primary" onClick={handleCreateThought} disabled={loading}>
-              {loading ? "Thinking..." : "🧠 Generate Thought"}
-            </button>
             <button className="btn btn-sm btn-outline-info" onClick={handleReflectNow} disabled={reflecting}>
               {reflecting ? "Reflecting..." : "📘 Reflect"}
             </button>
@@ -194,3 +228,4 @@ export default function AssistantIntelligencePanel({ projectId }) {
     </div>
   );
 }
+
