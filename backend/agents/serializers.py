@@ -122,7 +122,7 @@ from agents.models.governance import (
     RitualNegotiationEngine,
     NarrativeGovernanceModel,
 )
-
+from agents.models.deployment import BeliefAlignedDeploymentStandard, DeploymentVector
 from agents.models.federation import (
     CodexFederationArchitecture,
     SymbolicTreatyProtocol,
