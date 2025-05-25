@@ -43,7 +43,7 @@ def ingest_pdfs(
 
             loader = PDFPlumberLoader(file_path=file_path)
             text_splitter = RecursiveCharacterTextSplitter(
-                chunk_size=1000, chunk_overlap=200
+                chunk_size=512, chunk_overlap=64, separators=["\n\n", "\n", ".", " "],
             )
             pdf_list = loader.load_and_split(text_splitter)
 
