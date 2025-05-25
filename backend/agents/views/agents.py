@@ -124,6 +124,13 @@ from agents.models.deployment import (
     AssistantNetworkTransferProtocol,
     RitualFunctionContainer,
     DeploymentVector,
+    DeploymentNarrativeLog,
+    CodexAlignmentSnapshot,
+    DeploymentReplayTrace,
+    EvaluationMutationFork,
+    PromptDeltaReport,
+    AssistantFeedbackLoopVector,
+    DeploymentIterationSuggestion,
 )
 from agents.models.recovery import (
     RitualCompressionCache,
@@ -1376,7 +1383,13 @@ from agents.serializers import (
     RitualFunctionContainerSerializer,
     BeliefAlignedDeploymentStandardSerializer,
     DeploymentVectorSerializer,
-
+    DeploymentNarrativeLogSerializer,
+    CodexAlignmentSnapshotSerializer,
+    DeploymentReplayTraceSerializer,
+    EvaluationMutationForkSerializer,
+    PromptDeltaReportSerializer,
+    AssistantFeedbackLoopVectorSerializer,
+    DeploymentIterationSuggestionSerializer,
 )
 
 
@@ -2165,3 +2178,42 @@ class AgentTrainingTimelineView(APIView):
 
 
 
+\n
+
+@api_view(["GET", "POST"])
+def deployment_narratives(request):
+    """List or create deployment narrative logs."""
+    if request.method == "GET":
+        logs = DeploymentNarrativeLog.objects.all().order_by("-created_at")[:20]
+        return Response(DeploymentNarrativeLogSerializer(logs, many=True).data)
+
+    serializer = DeploymentNarrativeLogSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    log = serializer.save()
+    return Response(DeploymentNarrativeLogSerializer(log).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def deployment_replay(request, vector_id):
+    """Record or fetch replay traces for a deployment vector."""
+    if request.method == "GET":
+        traces = DeploymentReplayTrace.objects.filter(vector_id=vector_id).order_by("-created_at")
+        return Response(DeploymentReplayTraceSerializer(traces, many=True).data)
+
+    serializer = DeploymentReplayTraceSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    trace = serializer.save(vector_id=vector_id)
+    return Response(DeploymentReplayTraceSerializer(trace).data, status=201)
+
+
+@api_view(["GET", "POST"])
+def deployment_feedback(request):
+    """List or create iteration suggestions."""
+    if request.method == "GET":
+        suggestions = DeploymentIterationSuggestion.objects.all().order_by("-created_at")[:20]
+        return Response(DeploymentIterationSuggestionSerializer(suggestions, many=True).data)
+
+    serializer = DeploymentIterationSuggestionSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    suggestion = serializer.save()
+    return Response(DeploymentIterationSuggestionSerializer(suggestion).data, status=201)

@@ -1533,3 +1533,59 @@ class AgentSymbolicMapSerializer(serializers.ModelSerializer):
         model = AgentSymbolicMap
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+\n
+
+class DeploymentEventTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeploymentEventTag
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class DeploymentNarrativeLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeploymentNarrativeLog
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class CodexAlignmentSnapshotSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CodexAlignmentSnapshot
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class DeploymentReplayTraceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeploymentReplayTrace
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class EvaluationMutationForkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EvaluationMutationFork
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class PromptDeltaReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PromptDeltaReport
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class AssistantFeedbackLoopVectorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantFeedbackLoopVector
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class DeploymentIterationSuggestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeploymentIterationSuggestion
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]

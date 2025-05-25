@@ -137,6 +137,9 @@ urlpatterns = [
     path("system/resilience/", agents.resilience_monitors),
     path("deploy/packet/", agents.deployment_packets),
     path("deploy/strategy/", agents.deployment_strategies),
+    path("deploy/narrative/", agents.deployment_narratives),
+    path("deploy/replay/<uuid:vector_id>/", agents.deployment_replay),
+    path("deploy/feedback/", agents.deployment_feedback),
 
     path("arena/active/", arena_active, name="arena-active"),
 
