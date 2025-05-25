@@ -282,3 +282,136 @@ def trigger_recovery_handler(trace):
 def handle_failed_prompt(sender, instance, created, **kwargs):
     if created and not instance.success:
         trigger_recovery_handler(instance)
+class DeploymentEventTag(models.Model):
+    """Tag for deployment narrative events."""
+
+    name = models.CharField(max_length=50, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return self.name
+
+
+class DeploymentNarrativeLog(models.Model):
+    """Narrative record of a deployment evaluation."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    project = models.CharField(max_length=150, blank=True)
+    ritual_type = models.CharField(max_length=150, blank=True)
+    belief_tags = models.JSONField(default=list, blank=True)
+    narrative = models.TextField(blank=True)
+    events = models.ManyToManyField(DeploymentEventTag, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"{self.assistant.slug} narrative"
+
+
+class CodexAlignmentSnapshot(models.Model):
+    """Alignment snapshot for a codex clause during deployment."""
+
+    deployment_log = models.ForeignKey(
+        DeploymentNarrativeLog, on_delete=models.CASCADE, related_name="snapshots"
+    )
+    codex_clause = models.CharField(max_length=150)
+    alignment_score = models.FloatField(default=0.0)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return self.codex_clause
+
+
+class DeploymentReplayTrace(models.Model):
+    """Replay a deployment vector for analysis."""
+
+    vector = models.ForeignKey(DeploymentVector, on_delete=models.CASCADE)
+    original_log = models.ForeignKey(
+        DeploymentNarrativeLog, null=True, blank=True, on_delete=models.SET_NULL
+    )
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    output = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Replay {self.vector_id}"
+
+
+class EvaluationMutationFork(models.Model):
+    """Track mutations when replaying an evaluation."""
+
+    replay_trace = models.ForeignKey(
+        DeploymentReplayTrace, on_delete=models.CASCADE, related_name="mutations"
+    )
+    new_assistant = models.ForeignKey(
+        "assistants.Assistant", null=True, blank=True, on_delete=models.SET_NULL
+    )
+    modified_clause = models.TextField(blank=True)
+    output_diff = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Mutation {self.id}"
+
+
+class PromptDeltaReport(models.Model):
+    """Diff report for prompt mutations in a replay."""
+
+    mutation_fork = models.ForeignKey(
+        EvaluationMutationFork, on_delete=models.CASCADE, related_name="deltas"
+    )
+    delta_text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Delta {self.id}"
+
+
+class AssistantFeedbackLoopVector(models.Model):
+    """Stats driving iteration suggestions."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    retry_failures = models.IntegerField(default=0)
+    misalignment_count = models.IntegerField(default=0)
+    token_cost = models.FloatField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Feedback vector for {self.assistant.slug}"
+
+
+class DeploymentIterationSuggestion(models.Model):
+    """Suggested improvements for a deployment."""
+
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    suggestion = models.TextField()
+    confidence = models.FloatField(default=0.0)
+    symbolic_gain = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return self.suggestion[:50]
