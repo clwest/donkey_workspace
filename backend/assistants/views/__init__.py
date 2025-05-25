@@ -272,4 +272,6 @@ __all__ = [
     "arena_active",
     "onboarding_create_assistant",
     "create_assistant_from_mythpath",
+    "SkillPlanView",
 ]
+from .skills import SkillPlanView

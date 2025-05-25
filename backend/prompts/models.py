@@ -155,3 +155,17 @@ class PromptMutationLog(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return f"Mutation of {self.original_prompt.slug} via {self.mode}"
+
+
+class PromptFeedbackVector(models.Model):
+    prompt = models.ForeignKey(Prompt, on_delete=models.CASCADE)
+    feedback_score = models.FloatField()
+    source = models.CharField(max_length=100, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class PromptMutationEffectTrace(models.Model):
+    mutation = models.ForeignKey(PromptMutationLog, on_delete=models.CASCADE)
+    feedback_vector = models.ForeignKey(PromptFeedbackVector, null=True, blank=True, on_delete=models.SET_NULL)
+    effect_notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)

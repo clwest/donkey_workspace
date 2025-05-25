@@ -10,6 +10,7 @@ from .views import (
     RitualReputationScoreListView,
     CodexClauseVoteListView,
     SwarmAlignmentIndexView,
+    SwarmTaskEvolutionView,
 )
 
 urlpatterns = [
@@ -52,5 +53,10 @@ urlpatterns = [
         "swarm/alignment/",
         SwarmAlignmentIndexView.as_view(),
         name="swarm-alignment-index",
+    ),
+    path(
+        "evolve/swarm/",
+        SwarmTaskEvolutionView.as_view(),
+        name="swarm-task-evolution",
     ),
 ]

@@ -765,6 +765,11 @@ urlpatterns = [
         name="assistant-toolchain",
     ),
     path(
+        "plan/skills/<uuid:assistant_id>/",
+        skills.SkillPlanView.as_view(),
+        name="assistant-skill-plan",
+    ),
+    path(
         "<slug:slug>/run-task/",
         intelligence.run_task,
         name="assistant-run-task",
