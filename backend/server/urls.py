@@ -16,6 +16,7 @@ from drf_spectacular.views import (
 from django.urls import get_resolver
 from story.views import storyboard_list
 from mcp_core.views import threading as thread_views
+from mcp_core.views import ontology as ontology_views
 from agents.views import agents as agent_views
 from assistants.views import onboarding as onboarding_views
 
@@ -118,6 +119,9 @@ urlpatterns = [
     path("api/adaptive-loops/", include("learning_loops.config_urls")),
     path("api/simulation/", include("simulation.urls")),
     path("api/resources/", include("resources.urls")),
+    path("api/cascade/<str:clause_id>/", ontology_views.cascade_graph),
+    path("api/collisions/", ontology_views.swarm_collisions),
+    path("api/stabilize/", ontology_views.start_stabilization),
     path(
         "api/threads/<uuid:thread_id>/replay/",
         thread_views.thread_replay,

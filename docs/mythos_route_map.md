@@ -27,6 +27,9 @@ Compiled for Codex routing, view integration, and component planning
 | `/codex/orchestrator/:assistantId` | `/api/codex/orchestrator/` | `CodexPromptOrchestrator` | `PromptUsageLogSerializer` | Assistant prompt editor/previewer |
 | `/codex/vote` | `/api/metrics/codex/vote/` | `CodexVotePage` | `CodexClauseVoteSerializer` | Clause mutation ballots |
 | `/codex/simulate` | `/api/simulation/codex/simulate/` | `CodexSimulationPage` | `CodexSimulationScenarioSerializer` | Clause mutation sandbox |
+| `/codex/cascade/:clauseId` | `/api/cascade/:clause_id/` | `BeliefCascadePage` | `BeliefCascadeGraphSerializer` | View codex clause impact |
+| `/swarm/collisions` | `/api/collisions/` | `RoleCollisionPage` | `RoleCollisionSerializer` | Detect assistant role tension |
+| `/codex/stabilize` | `/api/stabilize/` | `StabilizationCampaignPage` | `StabilizationCampaignSerializer` | Launch clause stabilization |
 
 \-\-\-
 
