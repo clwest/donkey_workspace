@@ -3,13 +3,20 @@
 import { Link, NavLink } from "react-router-dom";
 import "./styles/Navbar.css";
 
-export default function Navbar() {
+export default function Navbar({ onToggleSidebar }) {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light mb-4">
       <div className="container-fluid">
-        <Link className="navbar-brand" to="/">
-          🏠 Donkey Assistant
+        <Link className="navbar-brand me-2" to="/">
+          🏠 Donkey
         </Link>
+        <button
+          className="btn btn-outline-secondary btn-sm me-2"
+          type="button"
+          onClick={onToggleSidebar}
+        >
+          ☰
+        </button>
 
         <button
           className="navbar-toggler"

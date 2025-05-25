@@ -200,17 +200,21 @@ import PromptFeedbackPage from "./pages/feedback/PromptFeedbackPage";
 import { ToastContainer } from "react-toastify";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
+import { useState } from "react";
 import ActivityPage from "./pages/ActivityPage";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function App() {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const toggleSidebar = () => setSidebarCollapsed((c) => !c);
+
   return (
     <Router>
       <div className="d-flex">
-        <Sidebar />
+        <Sidebar collapsed={sidebarCollapsed} />
         <div className="flex-grow-1">
           <ToastContainer position="bottom-right" autoClose={3000} />
-          <Navbar />
+          <Navbar onToggleSidebar={toggleSidebar} />
 
           <Routes>
           {/* Auth */}

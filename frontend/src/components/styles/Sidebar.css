@@ -1,4 +1,17 @@
+/* src/components/styles/Sidebar.css */
+
 .sidebar {
   width: 220px;
   min-height: 100vh;
+  overflow-x: hidden;
+  transition: width 0.2s ease;
+}
+
+.sidebar.collapsed {
+  width: 60px;
+}
+
+.sidebar.collapsed .link-text,
+.sidebar.collapsed .fw-bold {
+  display: none;
 }
