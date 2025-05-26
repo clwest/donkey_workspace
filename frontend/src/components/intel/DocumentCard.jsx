@@ -20,19 +20,28 @@ const sourceColors = {
 export default function DocumentCard({ group, onToggleFavorite, onDelete }) {
   if (!group) return null;
 
+  // Allow the component to handle both a single Document object or
+  // a grouped response from the `list_grouped_documents` API.
+  const baseDoc = Array.isArray(group.documents) && group.documents.length > 0
+    ? group.documents[0]
+    : group;
+
   const {
     id,
     title,
-    source_url,
-    source_type,
-    created_at,
+    source_url = group.source_url,
+    source_type = group.source_type,
+    created_at = group.latest_created,
     metadata,
     content,
     is_favorited = false,
-  } = group;
+  } = baseDoc;
 
   const tokenCount =
-    metadata?.token_count || (content ? countTokens(content) : 0);
+    group.total_tokens ??
+    baseDoc.token_count ??
+    metadata?.token_count ??
+    (content ? countTokens(content) : 0);
 
   const domain = source_url
     ? new URL(source_url).hostname.replace("www.", "")
@@ -61,7 +70,20 @@ export default function DocumentCard({ group, onToggleFavorite, onDelete }) {
         <div>
           <h5 className="mb-1">{title || "Untitled Document"}</h5>
           <small className="text-muted">
-            {domain} • {dayjs(created_at).fromNow()}
+            {source_url ? (
+              <a
+                href={source_url}
+                onClick={(e) => e.stopPropagation()}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {domain}
+              </a>
+            ) : (
+              domain
+            )}
+            {" • "}
+            {dayjs(created_at).fromNow()}
           </small>
         </div>
         <div className="btn-group">
