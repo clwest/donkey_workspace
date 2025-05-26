@@ -5,6 +5,8 @@ export const fetchCascadeGraph = (clauseId) =>
 
 export const fetchRoleCollisions = () => apiFetch(`/collisions/`);
 
+export const fetchCodexClauses = () => apiFetch(`/codex/clauses/`);
+
 export const startStabilizationCampaign = (clauseId) =>
   apiFetch(`/stabilize/`, { method: "POST", body: { clause_id: clauseId } });
 

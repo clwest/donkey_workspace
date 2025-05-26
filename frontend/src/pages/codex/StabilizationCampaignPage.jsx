@@ -1,11 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { startStabilizationCampaign } from "../../api/ontology";
+import {
+  startStabilizationCampaign,
+  fetchCodexClauses,
+} from "../../api/ontology";
 
 export default function StabilizationCampaignPage() {
   const [clauseId, setClauseId] = useState("");
+  const [clauses, setClauses] = useState([]);
   const navigate = useNavigate();
   const [result, setResult] = useState(null);
+
+  useEffect(() => {
+    fetchCodexClauses().then(setClauses).catch(() => {});
+  }, []);
 
   const launch = () => {
     if (!clauseId) return;
@@ -23,13 +31,21 @@ export default function StabilizationCampaignPage() {
     <div className="container my-4">
       <h1 className="mb-3">Clause Stabilization Campaign</h1>
       <div className="input-group mb-3" style={{ maxWidth: "400px" }}>
-        <input
-          className="form-control"
-          placeholder="Clause ID"
+        <select
+          className="form-select"
           value={clauseId}
           onChange={(e) => setClauseId(e.target.value)}
-        />
-        <button className="btn btn-primary" onClick={launch}>
+        >
+          <option disabled value="">
+            Select a clause
+          </option>
+          {clauses.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.text}
+            </option>
+          ))}
+        </select>
+        <button className="btn btn-primary" disabled={!clauseId} onClick={launch}>
           Launch
         </button>
       </div>
