@@ -15,6 +15,7 @@ urlpatterns = [
     # Main prompt list endpoint
     path("", views.list_prompts),
     path("tags/", views.list_prompt_tags),
+    path("mutation-styles/", views.list_mutation_styles),
     path("preferences/", views.get_my_prompt_preferences),
     path("preferences/update/", views.update_my_prompt_preferences),
     path("reduce/", views.reduce_prompt),

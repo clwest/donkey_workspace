@@ -18,6 +18,7 @@ export default function PromptRemixPage() {
   const [remixMode, setRemixMode] = useState(preloadedMode);
   const [tone, setTone] = useState("neutral");
   const [loading, setLoading] = useState(false);
+  const [styles, setStyles] = useState([]);
   const [customTitle, setCustomTitle] = useState("");
   const [editingTitle, setEditingTitle] = useState(false);
   
@@ -38,7 +39,16 @@ export default function PromptRemixPage() {
         toast.error("❌ Failed to load prompt");
       }
     }
+    async function fetchStyles() {
+      try {
+        const data = await apiFetch(`/prompts/mutation-styles/`);
+        setStyles(data);
+      } catch (err) {
+        console.error("Failed to load mutation styles", err);
+      }
+    }
     fetchPrompt();
+    fetchStyles();
   }, [slug]);
 
   async function handleMutate() {
@@ -166,12 +176,11 @@ export default function PromptRemixPage() {
             onChange={(e) => setRemixMode(e.target.value)}
             disabled={loading}
           >
-            <option value="clarify">Clarify</option>
-            <option value="expand">Expand</option>
-            <option value="shorten">Shorten</option>
-            <option value="formalize">Formalize</option>
-            <option value="casualize">Casualize</option>
-            <option value="convertToBulletPoints">Bullet Points</option>
+            {styles.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.id.charAt(0).toUpperCase() + s.id.slice(1)}
+              </option>
+            ))}
           </select>
           <select
             className="form-select"

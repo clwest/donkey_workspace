@@ -37,7 +37,7 @@ def list_prompts(request):
     type_filter = request.query_params.get("type")
 
     prompts = Prompt.objects.none()
-    
+
     if query:
         vector = get_prompt_embedding(query)
         with connection.cursor() as cursor:
@@ -186,6 +186,14 @@ def list_prompt_tags(request):
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
+def list_mutation_styles(request):
+    from prompts.mutation_styles import list_styles
+
+    return Response(list_styles())
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
 def get_my_prompt_preferences(request):
     pref, _ = PromptPreferences.objects.get_or_create(user=request.user)
     serializer = PromptPreferencesSerializer(pref)
@@ -255,25 +263,23 @@ def mutate_prompt_view(request):
         logger.warning("mutate_prompt_view called with empty text")
         return Response({"error": "Missing text"}, status=400)
 
+    missing_fields = []
     if not mutation_type:
-        logger.warning("mutate_prompt_view called without mutation_type; defaulting to clarify")
-        mutation_type = "clarify"
+        missing_fields.append("mutation_type")
+    if not prompt_id:
+        missing_fields.append("prompt_id")
+    if not tone:
+        missing_fields.append("tone")
+    if missing_fields:
+        return Response(
+            {"error": f"Missing fields: {', '.join(missing_fields)}"}, status=400
+        )
 
     result = run_mutation(text, mutation_type, prompt_id=prompt_id, tone=tone)
 
     if prompt_id:
         try:
             prompt_obj = Prompt.objects.get(id=prompt_id)
-            vector = get_prompt_embedding(result)
-
-            if vector:
-                prompt_obj.embedding = vector
-                prompt_obj.save()
-            else:
-                # You may still want to save or track that embedding failed
-                print(f"❌ Embedding failed for mutated prompt: {prompt_obj.slug}")
-
-            # ✅ Always log usage — embedding is nice but not required
             log_prompt_usage(
                 prompt=prompt_obj,
                 used_by="mutation_tool",
@@ -283,7 +289,6 @@ def mutate_prompt_view(request):
                 rendered_prompt=result,
                 result_output=result,
             )
-
         except Prompt.DoesNotExist:
             print(f"⚠️ Prompt not found for ID: {prompt_id}")
 
@@ -328,6 +333,7 @@ def prompt_usage_logs_view(request, slug):
     logs = PromptUsageLog.objects.filter(prompt__slug=slug).order_by("-created_at")
     serializer = PromptUsageLogSerializer(logs, many=True)
     return Response(serializer.data)
+
 
 from rest_framework import viewsets
 from .models import PromptCapsule, CapsuleTransferLog

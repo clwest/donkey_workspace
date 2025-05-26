@@ -1,23 +1,16 @@
 # prompts/utils/mutation.py
 
 from typing import Optional
-from prompts.models import Prompt
+from prompts.models import Prompt, PromptMutationLog
 from prompts.utils.embeddings import get_prompt_embedding
 from embeddings.helpers.helpers_io import save_embedding
+from prompts.utils.token_helpers import count_tokens
+from . import mutation_styles
 import logging
 from utils.llm_router import call_llm
 
 logger = logging.getLogger("prompts")
 
-
-MUTATION_MODES = {
-    "clarify": "Rewrite this prompt to be clearer and easier to understand, but keep the meaning the same.",
-    "expand": "Add helpful context, clarification, or examples to this prompt without changing the original meaning.",
-    "shorten": "Make this prompt shorter and more concise, while keeping the core idea.",
-    "formalize": "Rewrite this prompt in a more formal and professional tone.",
-    "casualize": "Rewrite this prompt to sound more casual and relaxed.",
-    "convertToBulletPoints": "Reformat this prompt into clear, concise bullet points while keeping all the key information.",
-}
 
 MAX_MUTATION_TOKENS = 8000  # Keep a small safety margin
 
@@ -51,13 +44,13 @@ def mutate_prompt(
         logger.warning("mutate_prompt called with empty text or missing mode")
         return text
 
-    instruction = MUTATION_MODES.get(mode)
-    if instruction is None:
-        logger.warning("Unknown mutation mode '%s'; falling back to 'clarify'", mode)
-        instruction = MUTATION_MODES["clarify"]
+    style = mutation_styles.get_style(mode)
+    if style is None:
+        logger.warning("Unknown mutation style '%s'; falling back to 'clarify'", mode)
+        style = mutation_styles.get_style("clarify")
         mode = "clarify"
 
-    system_prompt = f"You are a prompt mutation engine. Mutation type: {mode}. {instruction}"
+    system_prompt = style["system_prompt_template"].format(mutation_type=mode)
     if tone:
         system_prompt += f" Respond in a {tone} tone."
 
@@ -70,6 +63,7 @@ def mutate_prompt(
         temperature=0.7,
         max_tokens=1024,
     )
+    tokens = count_tokens(result)
 
     if prompt_id:
         try:
@@ -81,6 +75,14 @@ def mutate_prompt(
                 logger.warning(
                     f"❌ Skipping embedding for {prompt_obj.title} — empty or null vector"
                 )
+
+            PromptMutationLog.objects.create(
+                original_prompt=prompt_obj,
+                mutated_text=result,
+                mode=mode,
+                tone=tone or "",
+                response_tokens=tokens,
+            )
         except Prompt.DoesNotExist:
             logger.warning(f"❌ Prompt ID not found for embedding: {prompt_id}")
 
