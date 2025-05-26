@@ -24,6 +24,15 @@ from mcp_core.models import NarrativeThread, Tag
 client = OpenAI()
 
 
+def is_valid_uuid(value: str) -> bool:
+    """Return True if the given value is a valid UUID string."""
+    try:
+        uuid.UUID(str(value))
+        return True
+    except (ValueError, TypeError):
+        return False
+
+
 @api_view(["GET", "POST"])
 @permission_classes([AllowAny])
 def summarize_with_context(request, pk):
@@ -350,8 +359,11 @@ def rag_check_source(request):
 
     assistant = None
     if assistant_id:
-        assistant = Assistant.objects.filter(id=assistant_id).first()
-        if not assistant:
+        if is_valid_uuid(assistant_id):
+            assistant = Assistant.objects.filter(id=assistant_id).first()
+            if not assistant:
+                assistant = Assistant.objects.filter(slug=assistant_id).first()
+        else:
             assistant = Assistant.objects.filter(slug=assistant_id).first()
 
     if not content:
