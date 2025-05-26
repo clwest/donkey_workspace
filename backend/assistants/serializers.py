@@ -1028,6 +1028,10 @@ class AssistantSerializer(serializers.ModelSerializer):
         child=serializers.CharField(), read_only=True
     )
     system_prompt_id = serializers.UUIDField(read_only=True)
+    system_prompt_slug = serializers.CharField(
+        source="system_prompt.slug",
+        read_only=True,
+    )
 
     class Meta:
         model = Assistant
@@ -1045,6 +1049,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "ideology",
             "is_alignment_flexible",
             "system_prompt_id",
+            "system_prompt_slug",
             "specialty",
             "preferred_model",
             "mood_stability_index",
