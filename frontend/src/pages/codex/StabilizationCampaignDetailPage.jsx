@@ -4,11 +4,13 @@ import {
   fetchStabilizationCampaigns,
   finalizeStabilizationCampaign,
 } from "../../api/ontology";
+import { fetchSymbolicReflections } from "../../api/memories";
 
 export default function StabilizationCampaignDetailPage() {
   const { campaignId } = useParams();
   const [campaign, setCampaign] = useState(null);
   const [finalized, setFinalized] = useState(null);
+  const [reflections, setReflections] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,6 +25,7 @@ export default function StabilizationCampaignDetailPage() {
         setCampaign(null);
         setLoading(false);
       });
+    fetchSymbolicReflections({ campaignId }).then(setReflections).catch(() => {});
   }, [campaignId]);
 
   const finalize = () => {
@@ -31,6 +34,7 @@ export default function StabilizationCampaignDetailPage() {
         setFinalized(res);
         if (res.updated) {
           setCampaign((prev) => ({ ...prev, status: "closed" }));
+          fetchSymbolicReflections({ campaignId }).then(setReflections).catch(() => {});
         }
       })
       .catch(() => {});
@@ -66,6 +70,29 @@ export default function StabilizationCampaignDetailPage() {
       <button className="btn btn-primary" onClick={finalize}>
         Finalize Campaign
       </button>
+
+      {reflections.length > 0 && (
+        <div className="alert alert-info mt-4">
+          🪞 Reflections Logged – {reflections.length} assistants reflected.
+        </div>
+      )}
+
+      {reflections.length > 0 && (
+        <div className="mt-3" id="reflections">
+          <h5>Assistant Reflections</h5>
+          <ul className="list-group">
+            {reflections.map((r) => (
+              <li key={r.id} className="list-group-item">
+                <strong>{r.assistant_name || "Assistant"}</strong>
+                <div className="small text-muted">
+                  {new Date(r.created_at).toLocaleString()}
+                </div>
+                <p className="mb-0">{r.event}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
