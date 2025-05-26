@@ -10,14 +10,17 @@ router.register("entries", views.MemoryEntryViewSet, basename="memory-entry")
 router.register("chains", views.MemoryChainViewSet, basename="memory-chain")
 from assistants.views import empathy
 
-urlpatterns = router.urls + [
+# Place custom chain routes before the router patterns to avoid
+# "list" or "create" being captured as a pk for the ViewSet.
+urlpatterns = [
+    path("chains/list/", views.list_memory_chains, name="list_memory_chains"),
+    path("chains/create/", views.create_memory_chain, name="create_memory_chain"),
+] + router.urls + [
     path("save/", views.save_memory, name="save_memory"),
     path("recent/", views.recent_memories, name="recent_memories"),
     path("list/", views.list_memories, name="list_memories"),
     path("reflect/", views.reflect_on_memory, name="reflect-on-memory"),
-    path("chains/create/", views.create_memory_chain, name="create_memory_chain"),
     path("chains/<uuid:pk>/", views.get_memory_chain, name="get_memory_chain"),
-    path("chains/list/", views.list_memory_chains, name="list_memory_chains"),
     path(
         "chains/<uuid:chain_id>/summarize/",
         views.summarize_chain_view,
