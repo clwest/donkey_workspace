@@ -5,7 +5,8 @@ import { Link } from "react-router-dom";
 
 export default function AgentDashboard() {
   const [agents, setAgents] = useState([]);
-  const [executionFilter, setExecutionFilter] = useState("all");
+  // filter state for execution style and LLM
+  const [styleFilter, setStyleFilter] = useState("all");
   const [llmFilter, setLlmFilter] = useState("all");
 
   useEffect(() => {
@@ -14,11 +15,13 @@ export default function AgentDashboard() {
       .catch((err) => console.error("Failed to load agents", err));
   }, []);
 
-  const filtered = agents.filter(
-    (a) =>
-      (executionFilter === "all" || a.execution_mode === executionFilter) &&
-      (llmFilter === "all" || a.preferred_llm === llmFilter),
-  );
+  const filtered = agents.filter((a) => {
+    const style = a.execution_style || a.execution_mode;
+    return (
+      (styleFilter === "all" || style === styleFilter) &&
+      (llmFilter === "all" || a.preferred_llm === llmFilter)
+    );
+  });
 
   return (
     <div>
@@ -26,11 +29,11 @@ export default function AgentDashboard() {
         <div className="col-md-3">
           <select
             className="form-select"
-            value={executionFilter}
-            onChange={(e) => setExecutionFilter(e.target.value)}
+            value={styleFilter}
+            onChange={(e) => setStyleFilter(e.target.value)}
           >
-            <option value="all">All Execution Modes</option>
-            {[...new Set(agents.map((a) => a.execution_mode))].map((m) => (
+            <option value="all">All Execution Styles</option>
+            {[...new Set(agents.map((a) => a.execution_style || a.execution_mode))].map((m) => (
               <option key={m} value={m}>
                 {m}
               </option>
