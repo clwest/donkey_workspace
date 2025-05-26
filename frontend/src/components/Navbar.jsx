@@ -221,6 +221,26 @@ export default function Navbar({ onToggleSidebar }) {
                 🔍 Prompt Debugger
               </Link>
             </li>
+            <li className="nav-item dropdown">
+              <button
+                className="nav-link dropdown-toggle btn btn-link"
+                data-bs-toggle="dropdown"
+              >
+                📜 Codex
+              </button>
+              <ul className="dropdown-menu">
+                <li>
+                  <Link className="dropdown-item" to="/codex">
+                    📚 Codex Home
+                  </Link>
+                </li>
+                <li>
+                  <Link className="dropdown-item" to="/codex/stabilize">
+                    🛠 Stabilization
+                  </Link>
+                </li>
+              </ul>
+            </li>
             <li className="nav-item">
               <Link className="nav-link" to="/evolve/swarm">
                 🧪 Swarm Evolution
