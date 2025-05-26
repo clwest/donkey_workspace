@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { createPrimaryAssistant } from "../../../api/assistants";
 import ComingSoon from "../../../components/common/ComingSoon";
 import { SHOW_INACTIVE_ROUTES } from "../../../config/ui";
+import apiFetch from "../../../utils/apiClient";
+
 
 export default function CreatePrimaryAssistantPage() {
   const [loading, setLoading] = useState(false);
