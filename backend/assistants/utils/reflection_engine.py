@@ -1,6 +1,8 @@
 import logging
 from django.utils.text import slugify
 from utils.llm_router import call_llm
+from assistants.helpers.realtime_helper import stream_chat
+from utils.prompt_helpers import generate_codex_reflection_prompt
 from memory.models import MemoryEntry
 from mcp_core.models import Tag
 
@@ -47,3 +49,24 @@ def log_symbolic_reflection(
         entry.tags.add(tag)
 
     return entry
+
+
+async def stream_symbolic_reflection(
+    assistant,
+    clause_text: str,
+    campaign_outcome: str,
+    assistant_vote: str,
+    assistant_archetype: str,
+    tone_model: str,
+) -> object:
+    """Yield reflection tokens using the OpenAI Realtime API."""
+    prompt = generate_codex_reflection_prompt(
+        clause_text,
+        campaign_outcome,
+        assistant_vote,
+        assistant_archetype,
+        tone_model,
+    )
+    messages = [{"role": "user", "content": prompt}]
+    return stream_chat(messages, model=getattr(assistant, "preferred_model", "gpt-4o"))
+
