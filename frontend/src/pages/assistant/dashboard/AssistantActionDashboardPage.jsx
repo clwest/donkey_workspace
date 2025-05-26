@@ -29,9 +29,9 @@ export default function AssistantActionDashboardPage() {
   return (
     <div className="container my-5">
       <h1 className="mb-4">{assistant.name} Dashboard</h1>
-      {assistant.system_prompt_id && (
+      {(assistant.system_prompt_slug || assistant.system_prompt_id) && (
         <Link
-          to={`/prompts/${assistant.system_prompt_id}`}
+          to={`/prompts/${assistant.system_prompt_slug || assistant.system_prompt_id}`}
           className="btn btn-sm btn-outline-secondary mb-3"
         >
           Edit System Prompt
