@@ -11,12 +11,14 @@ This document describes the text chunking strategies used in the `intel_core` ap
 
 ## Configuration
 
-- Default chunk size: TODO
-- Default overlap size: TODO
+- Default chunk size: **1500 characters**.
+- Default overlap size: **300 characters**.
 
 ## Usage Examples
 
 ```python
-from intel_core.helpers.chunking import chunk_document_text
-chunks = chunk_document_text(text, chunk_size=1000, overlap=200)
+from intel_core.utils.enhanced_chunking import semantic_chunk_document
+
+# Uses the default chunk size (1500) and overlap (300)
+chunks = semantic_chunk_document(text)
 ```
