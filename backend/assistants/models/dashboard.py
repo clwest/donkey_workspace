@@ -11,13 +11,19 @@ class AssistantDashboardNotification(models.Model):
         "agents.SwarmMemoryEntry", on_delete=models.SET_NULL, null=True, blank=True
     )
     related_ceremony = models.ForeignKey(
-        "agents.CodexContributionCeremony", on_delete=models.SET_NULL, null=True, blank=True
+        "agents.CodexContributionCeremony",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
     related_directive = models.ForeignKey(
         "agents.DirectiveMemoryNode", on_delete=models.SET_NULL, null=True, blank=True
     )
     related_metric = models.ForeignKey(
-        "metrics.RitualPerformanceMetric", on_delete=models.SET_NULL, null=True, blank=True
+        "metrics.RitualPerformanceMetric",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -48,7 +54,9 @@ class RitualStatusBeacon(models.Model):
     """Live ritual status indicator tied to an assistant."""
 
     assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
-    ritual_blueprint = models.ForeignKey("agents.EncodedRitualBlueprint", on_delete=models.CASCADE)
+    ritual_blueprint = models.ForeignKey(
+        "agents.EncodedRitualBlueprint", on_delete=models.CASCADE
+    )
     availability_state = models.CharField(max_length=20)
     entropy_level = models.FloatField()
     alignment_readiness = models.FloatField()
@@ -59,3 +67,22 @@ class RitualStatusBeacon(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return f"Beacon {self.ritual_blueprint.name} ({self.availability_state})"
+
+
+class AssistantStatusTracker(models.Model):
+    """Track lifecycle status updates for an assistant."""
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="status_logs",
+    )
+    status = models.CharField(max_length=30)
+    detail = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"{self.assistant.name}: {self.status}"

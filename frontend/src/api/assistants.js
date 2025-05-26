@@ -328,3 +328,11 @@ export async function createPrimaryAssistant() {
 export async function assignPrimaryAssistant(slug) {
   return apiFetch(`/assistants/${slug}/assign-primary/`, { method: "PATCH" });
 }
+
+export async function fetchAssistantDashboard(slug) {
+  const res = await apiFetch(`/assistants/${slug}/dashboard/`);
+  if (!res || res.error) {
+    throw new Error("Failed to load dashboard");
+  }
+  return res;
+}

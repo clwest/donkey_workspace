@@ -69,6 +69,19 @@ from project.models import (
 )
 from mcp_core.serializers_tags import TagSerializer
 from intel_core.serializers import DocumentSerializer
+
+
+class DocumentChunkInfoSerializer(serializers.Serializer):
+    """Summarize document chunk embedding status."""
+
+    id = serializers.UUIDField()
+    title = serializers.CharField()
+    source_type = serializers.CharField()
+    embedded_percent = serializers.FloatField()
+    embedded_chunks = serializers.IntegerField()
+    total_chunks = serializers.IntegerField()
+
+
 from tools.models import Tool
 
 from project.serializers import (
@@ -397,6 +410,28 @@ class AssistantNextActionSerializer(serializers.ModelSerializer):
             "importance_score",
         ]
         read_only_fields = ["id", "created_at"]
+
+
+class AssistantNextActionSummarySerializer(serializers.ModelSerializer):
+    """Lightweight serializer for dashboard actions."""
+
+    assigned_agent_name = serializers.CharField(
+        source="assigned_agent.name", read_only=True
+    )
+    status = serializers.SerializerMethodField()
+
+    class Meta:
+        model = AssistantNextAction
+        fields = [
+            "id",
+            "content",
+            "assigned_agent_name",
+            "completed",
+            "status",
+        ]
+
+    def get_status(self, obj):
+        return "Completed" if obj.completed else "Planned"
 
 
 class AssistantObjectiveSerializer(serializers.ModelSerializer):
