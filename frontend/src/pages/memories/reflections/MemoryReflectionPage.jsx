@@ -1,6 +1,6 @@
 // src/pages/memory/MemoryReflectionPage.jsx
 import { useEffect, useState } from "react";
-import useRealtimeAssistant from "../../hooks/useRealtimeAssistant";
+import useRealtimeAssistant from "../../../hooks/useRealtimeAssistant";
 import { Link, useNavigate } from "react-router-dom";
 import '../styles/MemoryReflectionPage.css'
 
