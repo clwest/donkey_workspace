@@ -11,8 +11,6 @@ django.setup()
 from embeddings.helpers.helpers_similarity import get_similar_documents
 from embeddings.helpers.helper_tagging import generate_tags_for_memory
 from memory.models import MemoryEntry
-from mcp_core.models import Tag
-from django.utils import timezone
 
 
 def test_vector_query(query_text="How does the assistant handle memory reflection?"):
@@ -31,13 +29,12 @@ def test_vector_query(query_text="How does the assistant handle memory reflectio
             memory_log["results"][domain] = []
 
             for score, obj in results:
-                title = getattr(obj, 'title', getattr(obj, 'name', str(obj)))
-                content = getattr(obj, 'content', '')[:120]
+                title = getattr(obj, "title", getattr(obj, "name", str(obj)))
+                content = getattr(obj, "content", "")[:120]
                 preview = content.replace("\n", " ")
 
-                # Generate tags for each result
-                tags = generate_tags_for_memory(content)
-                tag_names = [tag.name for tag in tags]
+                # Generate tags for each result (strings)
+                tag_names = [t.lower().strip() for t in generate_tags_for_memory(content)]
 
                 print(f"- {title} ({score:.4f}): {preview}... [Tags: {', '.join(tag_names)}]")
 

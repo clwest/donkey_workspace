@@ -14,7 +14,7 @@ from embeddings.helpers.helper_tagging import generate_tags_for_memory
 from memory.models import MemoryEntry
 from mcp_core.models import Tag
 from django.contrib.contenttypes.models import ContentType
-from django.utils import timezone
+from django.utils.text import slugify
 
 def test_vector_query(query_text="How does the assistant handle memory reflection?"):
     print(f"🔍 Query: {query_text}\n")
@@ -35,14 +35,20 @@ def test_vector_query(query_text="How does the assistant handle memory reflectio
             memory_log["results"][domain] = []
 
             for idx, (score, obj) in enumerate(results):
-                title = getattr(obj, 'title', getattr(obj, 'name', str(obj)))
-                content = getattr(obj, 'content', '')[:120]
+                title = getattr(obj, "title", getattr(obj, "name", str(obj)))
+                content = getattr(obj, "content", "")[:120]
                 preview = content.replace("\n", " ")
 
                 # Generate tags for each result
-                tags = generate_tags_for_memory(content)
-                tag_names = [tag.name for tag in tags]
-                collected_tags.update(tags)
+                raw_tags = generate_tags_for_memory(content)
+                tag_objs = []
+                for t in raw_tags:
+                    name = t.lower().strip()
+                    slug = slugify(name)
+                    tag_obj, _ = Tag.objects.get_or_create(slug=slug, defaults={"name": name})
+                    tag_objs.append(tag_obj)
+                tag_names = [t.name for t in tag_objs]
+                collected_tags.update(tag_objs)
 
                 print(f"- {title} ({score:.4f}): {preview}... [Tags: {', '.join(tag_names)}]")
 
