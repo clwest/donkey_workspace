@@ -215,16 +215,14 @@ class AssistantReflectionEngine:
     @staticmethod
     def get_or_create_project(assistant):
         """Return the assistant's reflection project, creating one if needed."""
-        project = AssistantProject.objects.filter(
-            assistant=assistant, title="System Reflection"
-        ).first()
-        if project:
-            return project
-        return AssistantProject.objects.create(
+        project, _ = AssistantProject.objects.get_or_create(
             assistant=assistant,
             title="System Reflection",
-            description="Ongoing reflections on code and architecture evolution.",
+            defaults={
+                "description": "Ongoing reflections on code and architecture evolution.",
+            },
         )
+        return project
 
     def reflect_on_document(self, document):
         """Reflect on a Document or DevDoc instance and save insights."""
