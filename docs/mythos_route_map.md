@@ -30,6 +30,7 @@ Compiled for Codex routing, view integration, and component planning
 | `/codex/cascade/:clauseId` | `/api/cascade/:clause_id/` | `BeliefCascadePage` | `BeliefCascadeGraphSerializer` | View codex clause impact |
 | `/swarm/collisions` | `/api/collisions/` | `RoleCollisionPage` | `RoleCollisionSerializer` | Detect assistant role tension |
 | `/codex/stabilize` | `/api/stabilize/` | `StabilizationCampaignPage` | `StabilizationCampaignSerializer` | Launch clause stabilization |
+| `/codex/stabilize/:campaignId` | `/api/stabilize/:campaignId/finalize/` | `StabilizationCampaignDetailPage` | `finalize_stabilization_campaign` | Finalize campaign |
 
 \-\-\-
 

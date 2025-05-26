@@ -7,3 +7,9 @@ export const fetchRoleCollisions = () => apiFetch(`/collisions/`);
 
 export const startStabilizationCampaign = (clauseId) =>
   apiFetch(`/stabilize/`, { method: "POST", body: { clause_id: clauseId } });
+
+export const fetchStabilizationCampaigns = () =>
+  apiFetch(`/stabilize/campaigns/`);
+
+export const finalizeStabilizationCampaign = (id) =>
+  apiFetch(`/stabilize/${id}/finalize/`, { method: "POST" });

@@ -164,7 +164,8 @@ from agents.models.stabilization import (
     CollisionResolutionProposal,
     StabilizationCampaign,
     CodexClauseVoteLog,
-    CampaignSymbolicGainEstimate
+    CampaignSymbolicGainEstimate,
+    CodexClauseUpdateLog,
 )
 
 from agents.models.rewire import SwarmAgentRoute, AgentSymbolicMap
@@ -1706,5 +1707,11 @@ class CodexClauseVoteLogSerializer(serializers.ModelSerializer):
 class CampaignSymbolicGainEstimateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CampaignSymbolicGainEstimate
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+class CodexClauseUpdateLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CodexClauseUpdateLog
         fields = "__all__"
         read_only_fields = ["id", "created_at"]

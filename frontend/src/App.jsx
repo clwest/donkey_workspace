@@ -182,6 +182,7 @@ import CodexContractPage from "./pages/codex/CodexContractPage";
 import CodexClauseMutatorPage from "./pages/codex/CodexClauseMutatorPage";
 import CascadeGraphPage from "./pages/codex/CascadeGraphPage";
 import StabilizationCampaignPage from "./pages/codex/StabilizationCampaignPage";
+import StabilizationCampaignDetailPage from "./pages/codex/StabilizationCampaignDetailPage";
 import CodexInheritancePage from "./pages/codex/CodexInheritancePage";
 import RitualContainersPage from "./pages/ritual/RitualContainersPage";
 import ReplayEnginePage from "./pages/replay/ReplayEnginePage";
@@ -571,6 +572,7 @@ export default function App() {
           <Route path="/codex/mutator/:clauseId" element={<CodexClauseMutatorPage />} />
           <Route path="/codex/cascade/:clauseId" element={<CascadeGraphPage />} />
           <Route path="/codex/stabilize" element={<StabilizationCampaignPage />} />
+          <Route path="/codex/stabilize/:campaignId" element={<StabilizationCampaignDetailPage />} />
           <Route path="/codex/inheritance/:assistantId" element={<CodexInheritancePage />} />
           <Route path="/dream" element={<DreamframePage />} />
           <Route path="/dream/rebirth" element={<DreamRebirthPage />} />

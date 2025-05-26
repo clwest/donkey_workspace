@@ -140,6 +140,7 @@ urlpatterns = [
     path("api/cascade/<str:clause_id>/", ontology_views.cascade_graph),
     path("api/collisions/", ontology_views.swarm_collisions),
     path("api/stabilize/", ontology_views.start_stabilization),
+    path("api/stabilize/<uuid:campaign_id>/finalize/", ontology_views.finalize_stabilization_campaign),
     path(
         "api/threads/<uuid:thread_id>/replay/",
         thread_views.thread_replay,

@@ -94,3 +94,16 @@ class CampaignSymbolicGainEstimate(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+class CodexClauseUpdateLog(models.Model):
+    """Record of the clause text before and after a campaign."""
+
+    campaign = models.ForeignKey(StabilizationCampaign, on_delete=models.CASCADE, related_name="updates")
+    clause_before = models.TextField(blank=True)
+    clause_after = models.TextField(blank=True)
+    symbolic_gain = models.FloatField(default=0.0)
+    symbolic_loss = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
