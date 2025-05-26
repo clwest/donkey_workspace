@@ -583,6 +583,7 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
     source_document_url = serializers.SerializerMethodField()
     drift_logs = SpecializationDriftLogSerializer(many=True, read_only=True)
     recent_drift = serializers.SerializerMethodField()
+    system_prompt_id = serializers.UUIDField(source="system_prompt_id", read_only=True)
 
     class Meta:
         model = Assistant
@@ -605,6 +606,7 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             "collaboration_style",
             "preferred_conflict_resolution",
             "system_prompt",
+            "system_prompt_id",
             "personality",
             "tone",
             "persona_summary",
@@ -996,6 +998,7 @@ class AssistantSerializer(serializers.ModelSerializer):
     preferred_scene_tags = serializers.ListField(
         child=serializers.CharField(), read_only=True
     )
+    system_prompt_id = serializers.UUIDField(source="system_prompt_id", read_only=True)
 
     class Meta:
         model = Assistant
@@ -1012,6 +1015,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "values",
             "ideology",
             "is_alignment_flexible",
+            "system_prompt_id",
             "specialty",
             "preferred_model",
             "mood_stability_index",
