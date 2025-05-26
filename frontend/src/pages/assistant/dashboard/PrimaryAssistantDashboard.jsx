@@ -121,7 +121,7 @@ export default function PrimaryAssistantDashboard() {
       }
 
       setToastStatus("retry");
-      const res = await apiFetch("/assistants/primary/reflect-now/", {
+      const res = await apiFetch(`/assistants/${assistant.slug}/reflect-now/`, {
         method: "POST",
         body: { memory_id: memoryId },
       });
