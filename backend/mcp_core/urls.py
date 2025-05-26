@@ -4,7 +4,8 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from uuid import UUID
-from .views import threading, reflection, tags, memories, prompts, narrative_events
+from .views import threading, reflection, tags, memories, prompts, narrative_events, dev_docs
+
 
 router = DefaultRouter()
 router.register("threads", threading.ThreadViewSet, basename="thread")
