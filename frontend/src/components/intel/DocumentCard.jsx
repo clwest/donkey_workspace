@@ -38,10 +38,12 @@ export default function DocumentCard({ group, onToggleFavorite, onDelete }) {
   } = baseDoc;
 
   const tokenCount =
+
     group.total_tokens ??
     baseDoc.token_count ??
     metadata?.token_count ??
     (content ? countTokens(content) : 0);
+
 
   const domain = source_url
     ? new URL(source_url).hostname.replace("www.", "")
