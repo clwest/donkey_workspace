@@ -124,6 +124,7 @@ import RouteHealthPage from "./pages/dev/RouteHealthPage";
 import PageNotFound from "./pages/PageNotFound";
 import GroupedReflectionPage from "./pages/dev/GroupedReflectionPage";
 import GroupedReflectionDetailPage from "./pages/dev/GroupedReflectionDetailPage";
+import DevDocReflectionDetailPage from "./pages/dev/DevDocReflectionDetailPage";
 import DocumentBrowserPage from "./pages/intel_core/DocumentBrowserPage";
 import DocumentDetailPage from "./pages/intel_core/DocumentDetailPage";
 import ImageGalleryPage from "./pages/media/ImageGalleryPage";
@@ -513,6 +514,7 @@ export default function App() {
           <Route path="/threads/editor" element={<ThreadEditorPage />} />
           <Route path="/threads/:id" element={<ThreadDetailPage />} />
           <Route path="/dev-dashboard" element={<DevDashboard />} />
+          <Route path="/dev-docs/:slug" element={<DevDocReflectionDetailPage />} />
           <Route path="/dev/routes" element={<RouteHealthPage />} />
           <Route path="/debug/prompts" element={<PromptDebuggerPage />} />
           <Route path="/planning" element={<PlanningPage />} />
