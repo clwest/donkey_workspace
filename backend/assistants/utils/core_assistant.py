@@ -22,11 +22,17 @@ class CoreAssistant:
         self.thought_engine = AssistantThoughtEngine(assistant)
         self.reflection_engine = AssistantReflectionEngine(assistant)
 
-    def think(self, user_input: str) -> Optional[AssistantThoughtLog]:
-        """
-        Trigger a reasoning trace from the assistant using the ThoughtEngine.
-        """
+    def think(self, user_input: str, *, stream: bool = False):
+        """Generate a thought. If ``stream`` is True return an async token generator."""
         logger.info(f"[CoreAssistant] Thinking on: {user_input}")
+        if stream:
+            from assistants.helpers.realtime_helper import stream_chat
+
+            messages = [{"role": "user", "content": user_input}]
+            return stream_chat(
+                messages, model=self.assistant.preferred_model or "gpt-4o"
+            )
+
         return self.thought_engine.generate_thought(user_input)
 
     def reflect_now(self) -> Optional[AssistantReflectionLog]:
@@ -112,9 +118,7 @@ class CoreAssistant:
         prompt = f"You are {self.assistant.name}. Complete this task:\n{task}"
         try:
             result_text = self.thought_engine.generate_thought(prompt)
-            log_info = self.thought_engine.log_thought(
-                result_text, thought_type="task"
-            )
+            log_info = self.thought_engine.log_thought(result_text, thought_type="task")
             return {
                 "result": result_text,
                 "log_id": str(log_info.get("log").id) if log_info.get("log") else None,

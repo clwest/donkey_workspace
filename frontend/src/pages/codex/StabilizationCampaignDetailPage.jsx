@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import useRealtimeAssistant from "../../hooks/useRealtimeAssistant";
 import { useParams } from "react-router-dom";
 import {
   fetchStabilizationCampaigns,
@@ -12,6 +13,7 @@ export default function StabilizationCampaignDetailPage() {
   const [finalized, setFinalized] = useState(null);
   const [reflections, setReflections] = useState([]);
   const [loading, setLoading] = useState(true);
+  const realtime = useRealtimeAssistant();
 
   useEffect(() => {
     setLoading(true);
@@ -29,6 +31,7 @@ export default function StabilizationCampaignDetailPage() {
   }, [campaignId]);
 
   const finalize = () => {
+    realtime.start([{ role: "user", content: `finalize:${campaignId}` }]);
     finalizeStabilizationCampaign(campaignId)
       .then((res) => {
         setFinalized(res);
@@ -70,6 +73,18 @@ export default function StabilizationCampaignDetailPage() {
       <button className="btn btn-primary" onClick={finalize}>
         Finalize Campaign
       </button>
+
+      {realtime.streaming && (
+        <div className="alert alert-warning mt-3">
+          {realtime.output}
+          <button
+            className="btn btn-sm btn-secondary ms-2"
+            onClick={realtime.interrupt}
+          >
+            Interrupt
+          </button>
+        </div>
+      )}
 
       {reflections.length > 0 && (
         <div className="alert alert-info mt-4">

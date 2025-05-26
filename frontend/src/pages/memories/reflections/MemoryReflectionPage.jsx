@@ -1,5 +1,6 @@
 // src/pages/memory/MemoryReflectionPage.jsx
 import { useEffect, useState } from "react";
+import useRealtimeAssistant from "../../hooks/useRealtimeAssistant";
 import { Link, useNavigate } from "react-router-dom";
 import '../styles/MemoryReflectionPage.css'
 
@@ -9,6 +10,7 @@ export default function MemoryReflectionPage() {
   const [reflection, setReflection] = useState("");
   const [title, setTitle] = useState("");
   const navigate = useNavigate();
+  const realtime = useRealtimeAssistant();
 
   useEffect(() => {
     async function fetchMemories() {
@@ -27,14 +29,9 @@ export default function MemoryReflectionPage() {
 
   async function generateReflection() {
     if (selected.length === 0) return alert("Select at least one memory.");
-    const res = await fetch("/api/memory/reflect/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ memory_ids: selected }),
-    });
-    const data = await res.json();
-    setReflection(data.summary);
+    realtime.start([{ role: "user", content: selected.join(",") }]);
     setTitle("Reflection on " + new Date().toLocaleDateString());
+    setReflection("");
   }
 
   async function saveReflection() {
@@ -102,7 +99,7 @@ export default function MemoryReflectionPage() {
         </Link>
       </div>
 
-      {reflection && (
+      {(reflection || realtime.streaming) && (
         <>
           <div className="mb-3">
             <label className="form-label fw-bold">📝 Reflection Title</label>
@@ -118,10 +115,16 @@ export default function MemoryReflectionPage() {
             <textarea
               className="form-control"
               style={{ height: "200px" }}
-              value={reflection}
+              value={realtime.streaming ? realtime.output : reflection}
               onChange={(e) => setReflection(e.target.value)}
             />
           </div>
+
+          {realtime.streaming && (
+            <button className="btn btn-warning me-2" onClick={realtime.interrupt}>
+              ⏹ Interrupt
+            </button>
+          )}
 
           <button className="btn btn-success" onClick={saveReflection}>
             💾 Save Reflection
