@@ -16,6 +16,7 @@ export default function PromptRemixPage() {
   const [originalPrompt, setOriginalPrompt] = useState(null);
   const [remixedContent, setRemixedContent] = useState(preloadedMutation || "");
   const [remixMode, setRemixMode] = useState(preloadedMode);
+  const [tone, setTone] = useState("neutral");
   const [loading, setLoading] = useState(false);
   const [customTitle, setCustomTitle] = useState("");
   const [editingTitle, setEditingTitle] = useState(false);
@@ -52,7 +53,8 @@ export default function PromptRemixPage() {
         method: "POST",
         body: {
           text: remixedContent,
-          mode: remixMode,
+          mutation_type: remixMode,
+          tone,
           prompt_id: originalPrompt?.id,
         },
       });
@@ -170,6 +172,18 @@ export default function PromptRemixPage() {
             <option value="formalize">Formalize</option>
             <option value="casualize">Casualize</option>
             <option value="convertToBulletPoints">Bullet Points</option>
+          </select>
+          <select
+            className="form-select"
+            style={{ width: "160px" }}
+            value={tone}
+            onChange={(e) => setTone(e.target.value)}
+            disabled={loading}
+          >
+            <option value="neutral">Neutral</option>
+            <option value="professional">Professional</option>
+            <option value="casual">Casual</option>
+            <option value="playful">Playful</option>
           </select>
 
           <button onClick={handleMutate} disabled={loading} className="btn btn-secondary">
