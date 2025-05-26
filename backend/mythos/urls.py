@@ -8,4 +8,6 @@ urlpatterns = [
     path("codex/mutator/<uuid:clause_id>/", views.CodexClauseMutatorView.as_view()),
     path("fault/injector/", views.FaultInjectorView.as_view()),
     path("memory/sandbox/<uuid:assistant_id>/", views.MemoryAlignmentSandboxView.as_view()),
+    path("codex/fragment/<int:id>/", views.CodexFragmentDetailView.as_view()),
+    path("ritual/decompose/<int:id>/", views.RitualDecompositionDetailView.as_view()),
 ]
