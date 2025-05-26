@@ -15,7 +15,10 @@ function extractPaths(src) {
 }
 
 export default function RoutesDebugPage() {
-  const frontendRoutes = useMemo(() => extractPaths(appSource), []);
+  const frontendRoutes = useMemo(
+    () => Array.from(new Set(extractPaths(appSource))),
+    []
+  );
   const [backendRoutes, setBackendRoutes] = useState([]);
   const [status, setStatus] = useState({});
 
@@ -23,7 +26,8 @@ export default function RoutesDebugPage() {
     const loadRoutes = async () => {
       try {
         const res = await apiFetch("/routes/");
-        setBackendRoutes(res.routes || []);
+        const unique = Array.from(new Set(res.routes || []));
+        setBackendRoutes(unique);
       } catch (err) {
         console.error("Failed to fetch backend routes", err);
       }
@@ -51,8 +55,8 @@ export default function RoutesDebugPage() {
         <div className="col-md-6">
           <h4>Frontend Routes</h4>
           <ul className="list-group">
-            {frontendRoutes.map((p) => (
-              <li key={p} className="list-group-item">
+            {frontendRoutes.map((p, idx) => (
+              <li key={`${p}-${idx}`} className="list-group-item">
                 <Link to={p}>{p}</Link>
               </li>
             ))}
@@ -69,8 +73,8 @@ export default function RoutesDebugPage() {
               </tr>
             </thead>
             <tbody>
-              {backendRoutes.map((r) => (
-                <tr key={r}>
+              {backendRoutes.map((r, idx) => (
+                <tr key={`${r}-${idx}`}>
                   <td><code>{r}</code></td>
                   <td>{status[r] || ""}</td>
                   <td>
