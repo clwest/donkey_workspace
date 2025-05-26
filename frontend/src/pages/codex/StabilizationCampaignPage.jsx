@@ -1,14 +1,21 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { startStabilizationCampaign } from "../../api/ontology";
 
 export default function StabilizationCampaignPage() {
   const [clauseId, setClauseId] = useState("");
+  const navigate = useNavigate();
   const [result, setResult] = useState(null);
 
   const launch = () => {
     if (!clauseId) return;
     startStabilizationCampaign(clauseId)
-      .then(setResult)
+      .then((res) => {
+        setResult(res);
+        if (res.campaign_id) {
+          navigate(`/codex/stabilize/${res.campaign_id}`);
+        }
+      })
       .catch((e) => console.error(e));
   };
 
