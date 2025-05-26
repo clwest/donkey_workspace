@@ -163,7 +163,7 @@ def reflect_now(request, slug):
 
     engine = AssistantReflectionEngine(assistant)
     ref_log = engine.reflect_now(context)
-    return Response({"summary": ref_log.summary})
+    return Response({"status": "ok", "summary": ref_log.summary})
 
 
 @api_view(["POST"])
