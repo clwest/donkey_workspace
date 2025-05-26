@@ -1,5 +1,5 @@
 from ...views.dev_docs import (
-    
+    DevDocListView,
     get_dev_doc,
     reflect_on_devdoc_view,
     devdoc_reflection_by_slug,
@@ -10,6 +10,7 @@ from ...views.dev_docs import (
 )
 __all__ = [
     
+    'DevDocListView',
     'get_dev_doc',
     'reflect_on_devdoc_view',
     'devdoc_reflection_by_slug',
