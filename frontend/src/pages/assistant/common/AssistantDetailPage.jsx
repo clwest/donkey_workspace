@@ -292,7 +292,7 @@ export default function AssistantDetailPage() {
           🧬 Delegation Trace
         </Link>
         <Link
-          to={`/assistants/${assistant.slug}/dashboard`}
+          to={`/assistants/${slug}/dashboard`}
           className="btn btn-outline-primary"
         >
           🧠 View Dashboard
