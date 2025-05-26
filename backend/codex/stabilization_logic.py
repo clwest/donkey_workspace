@@ -41,7 +41,9 @@ def finalize_campaign(campaign_id: str) -> Dict:
     campaign.status = "closed"
     campaign.save(update_fields=["status"])
 
-    tag, _ = Tag.objects.get_or_create(slug="symbolic_change", defaults={"name": "symbolic_change"})
+    tag, _ = Tag.objects.get_or_create(
+        slug="symbolic_change", defaults={"name": "symbolic_change"}
+    )
     if changed:
         entry = SwarmMemoryEntry.objects.create(
             title=f"Codex clause {campaign.target_clause_id} updated",
