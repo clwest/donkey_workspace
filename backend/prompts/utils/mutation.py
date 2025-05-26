@@ -5,7 +5,7 @@ from prompts.models import Prompt, PromptMutationLog
 from prompts.utils.embeddings import get_prompt_embedding
 from embeddings.helpers.helpers_io import save_embedding
 from prompts.utils.token_helpers import count_tokens
-from . import mutation_styles
+from prompts.mutation_styles import MUTATION_STYLES 
 import logging
 from utils.llm_router import call_llm
 
@@ -13,7 +13,7 @@ logger = logging.getLogger("prompts")
 
 
 MAX_MUTATION_TOKENS = 8000  # Keep a small safety margin
-
+mutation_styles = MUTATION_STYLES
 
 def mutate_prompt(
     text: str,
