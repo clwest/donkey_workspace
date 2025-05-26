@@ -18,7 +18,7 @@ class ObjectiveTaskPlanningAPITest(BaseAPITestCase):
         )
 
     def test_plan_tasks_for_objective(self):
-        url = f"/api/v1/assistants/{self.assistant.slug}/plan-tasks/{self.objective.id}/"
+        url = f"/api/v1/assistants/{self.assistant.slug}/objectives/{self.objective.id}/plan-tasks/"
         resp = self.client.post(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()

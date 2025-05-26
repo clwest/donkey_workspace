@@ -10,9 +10,8 @@ from openai import OpenAI
 from intel_core.models import Document
 from intel_core.models import DocumentSet
 from prompts.models import Prompt
-from assistants.models.assistant import (
-    Assistant,
-)
+from assistants.models.assistant import Assistant
+from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 from assistants.models.project import AssistantProject, AssistantObjective
 from assistants.models.thoughts import AssistantThoughtLog
 from prompts.utils.token_helpers import count_tokens, smart_chunk_prompt
@@ -282,6 +281,12 @@ Return only JSON in this format:
         thread.documents.add(document)
         thread.memories.add(memory)
         thread.save()
+
+        # Auto-plan tasks for the first objective
+        engine = AssistantThoughtEngine(
+            assistant=assistant, project=assistant_project
+        )
+        engine.plan_tasks_from_objective(objective)
 
         AssistantThoughtLog.objects.create(
             assistant=assistant,

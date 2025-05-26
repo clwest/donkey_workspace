@@ -578,6 +578,11 @@ urlpatterns = [
         name="plan-tasks-objective",
     ),
     path(
+        "<slug:slug>/objectives/<uuid:objective_id>/plan-tasks/",
+        tasks.plan_tasks_for_objective,
+        name="objective-plan-tasks",
+    ),
+    path(
         "<slug:slug>/tasks/propose/",
         tasks.propose_task,
         name="assistant-propose-task",
