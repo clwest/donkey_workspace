@@ -31,7 +31,6 @@ export default function StabilizationCampaignDetailPage() {
   }, [campaignId]);
 
   const finalize = () => {
-    realtime.start([{ role: "user", content: `finalize:${campaignId}` }]);
     finalizeStabilizationCampaign(campaignId)
       .then((res) => {
         setFinalized(res);
@@ -39,6 +38,10 @@ export default function StabilizationCampaignDetailPage() {
           setCampaign((prev) => ({ ...prev, status: "closed" }));
           fetchSymbolicReflections({ campaignId }).then(setReflections).catch(() => {});
         }
+
+        const outcome = `approved by consensus (${res.approve}\u2013${res.reject} vote)`;
+        const prompt = `Clause:\n"${res.clause_after || res.clause_before}"\nCampaign outcome: ${outcome}\nAssistant vote: supported\n\nReflect aloud in the tone of a philosophical Codex Strategist:\n1. How does this clause resonate with your current beliefs?\n2. Should the clause evolve, fork, or be archived?\n3. Does it match your memory and mythic alignment?`;
+        realtime.start([{ role: "user", content: prompt }]);
       })
       .catch(() => {});
   };
