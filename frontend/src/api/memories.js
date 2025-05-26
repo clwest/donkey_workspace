@@ -16,3 +16,10 @@ export async function toggleBookmark(id, isBookmarked, label = "Important") {
   });
   return res;
 }
+
+export const fetchSymbolicReflections = ({ assistantId, campaignId } = {}) => {
+  let url = "/memory/list/?symbolic_change=true";
+  if (assistantId) url += `&assistant_id=${assistantId}`;
+  if (campaignId) url += `&campaign_id=${campaignId}`;
+  return apiFetch(url);
+};

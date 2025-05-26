@@ -108,6 +108,14 @@ def assistant_memories(request, slug):
     entries = MemoryService.filter_entries(assistant=assistant)
     if assistant.current_project_id:
         entries = entries.filter(related_project_id=assistant.current_project_id)
+
+    symbolic_change = request.GET.get("symbolic_change")
+    campaign_id = request.GET.get("campaign_id")
+
+    if symbolic_change in ["true", "1", "yes"]:
+        entries = entries.filter(symbolic_change=True)
+    if campaign_id:
+        entries = entries.filter(related_campaign_id=campaign_id)
     entries = entries.order_by("-created_at")
     serializer = MemoryEntrySlimSerializer(entries, many=True)
     return Response(serializer.data)

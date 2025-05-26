@@ -418,14 +418,8 @@ export default function App() {
             path="/assistants/:slug/belief"
             element={<BeliefEvolutionPage />}
           />
-          <Route
-            path="/assistants/:slug/memories"
-            element={<AssistantMemoriesPage />}
-          />
-          <Route
-            path="/assistants/:slug/memories"
-            element={<AssistantMemoryPage />}
-          />
+          <Route path="/assistants/:slug/memory" element={<AssistantMemoryPage />} />
+          <Route path="/assistants/:slug/memories" element={<AssistantMemoriesPage />} />
           <Route
             path="/assistants/:slug/objectives"
             element={<ObjectivesPage />}

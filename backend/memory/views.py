@@ -448,12 +448,17 @@ def list_memories(request):
 
     # Optional filters
     assistant_slug = request.GET.get("assistant_slug")
+    assistant_id = request.GET.get("assistant_id")
     is_conversation = request.GET.get("is_conversation")
     project_id = request.GET.get("project_id")
     emotion = request.GET.get("emotion")
+    symbolic_change = request.GET.get("symbolic_change")
+    campaign_id = request.GET.get("campaign_id")
 
     if assistant_slug:
         queryset = queryset.filter(linked_thought__assistant__slug=assistant_slug)
+    if assistant_id:
+        queryset = queryset.filter(assistant_id=assistant_id)
 
     if is_conversation in ["true", "1", "yes"]:
         queryset = queryset.filter(is_conversation=True)
@@ -463,6 +468,12 @@ def list_memories(request):
 
     if emotion:
         queryset = queryset.filter(emotion=emotion)
+
+    if symbolic_change in ["true", "1", "yes"]:
+        queryset = queryset.filter(symbolic_change=True)
+
+    if campaign_id:
+        queryset = queryset.filter(related_campaign_id=campaign_id)
 
     serializer = MemoryEntrySerializer(queryset, many=True)
     return Response(serializer.data)
