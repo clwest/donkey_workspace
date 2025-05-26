@@ -1,5 +1,5 @@
 import logging
-from typing import Iterable
+from typing import Iterable, Iterator, Union
 
 from embeddings.helpers.helpers_io import save_embedding
 from mcp_core.utils.auto_tag_from_embedding import auto_tag_from_embedding
@@ -11,13 +11,18 @@ logger = logging.getLogger("django")
 class MemoryService:
     """Service layer for common memory operations."""
 
-    def log_reflection(self, summary: str, memories: Iterable[MemoryEntry]):
+    def log_reflection(
+        self, summary: Union[str, Iterator[str]], memories: Iterable[MemoryEntry]
+    ):
         """Create an AssistantReflectionLog linked to the given memories."""
         from assistants.models import AssistantReflectionLog
 
         memories = list(memories)
         if not memories:
             raise ValueError("No memories provided")
+
+        if not isinstance(summary, str):
+            summary = "".join(list(summary))
 
         reflection = AssistantReflectionLog.objects.create(
             summary=summary,
@@ -82,4 +87,3 @@ def get_memory_service() -> MemoryService:
     if _memory_service is None:
         _memory_service = MemoryService()
     return _memory_service
-
