@@ -40,8 +40,16 @@ class PromptAPITest(APITestCase):
 
     @patch("prompts.utils.mutation.call_llm", return_value="mutated text")
     def test_mutate_prompt(self, mock_call):
-        payload = {"text": "sample", "mode": "clarify"}
+        payload = {"text": "sample", "mutation_type": "clarify", "tone": "neutral"}
         resp = self.client.post("/api/prompts/mutate/", payload, format="json")
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json().get("result"), "mutated text")
         mock_call.assert_called()
+
+    def test_mutate_prompt_missing_text_or_mode(self):
+        resp = self.client.post(
+            "/api/prompts/mutate/",
+            {"text": "", "mutation_type": "clarify"},
+            format="json",
+        )
+        self.assertEqual(resp.status_code, 400)

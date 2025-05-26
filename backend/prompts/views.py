@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+import logging
 from prompts.models import Prompt, PromptPreferences
 from prompts.serializers import PromptSerializer, PromptPreferencesSerializer
 from mcp_core.models import Tag
@@ -17,6 +18,8 @@ from prompts.utils.openai_utils import (
     extract_title_from_prompt,
 )
 from mcp_core.utils.log_prompt import log_prompt_usage
+
+logger = logging.getLogger("prompts")
 from assistants.models.assistant import Assistant
 from django.db import connection
 import textstat
@@ -244,13 +247,19 @@ def analyze_prompt(request):
 @permission_classes([AllowAny])
 def mutate_prompt_view(request):
     text = request.data.get("text")
-    mode = request.data.get("mode", "clarify")
+    mutation_type = request.data.get("mutation_type") or request.data.get("mode")
+    tone = request.data.get("tone")
     prompt_id = request.data.get("prompt_id")
 
     if not text:
+        logger.warning("mutate_prompt_view called with empty text")
         return Response({"error": "Missing text"}, status=400)
 
-    result = run_mutation(text, mode)
+    if not mutation_type:
+        logger.warning("mutate_prompt_view called without mutation_type; defaulting to clarify")
+        mutation_type = "clarify"
+
+    result = run_mutation(text, mutation_type, prompt_id=prompt_id, tone=tone)
 
     if prompt_id:
         try:

@@ -1,8 +1,9 @@
 import { useState } from "react";
 import apiFetch from "../../utils/apiClient";
 
-export default function PromptMutationTools({ original, onApply, reanalyze }) {
-  const [mode, setMode] = useState("clarify");
+export default function PromptMutationTools({ original, promptId, onApply, reanalyze }) {
+  const [mutationType, setMutationType] = useState("clarify");
+  const [tone, setTone] = useState("neutral");
   const [preview, setPreview] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -22,14 +23,19 @@ export default function PromptMutationTools({ original, onApply, reanalyze }) {
     try {
       const res = await apiFetch(`/prompts/mutate-prompt/`, {
         method: "POST",
-        body: { text: original, mode },
+        body: {
+          text: original,
+          mutation_type: mutationType,
+          tone,
+          prompt_id: promptId,
+        },
       });
 
       const data = await res.json();
       if (res.ok) {
         setPreview(data.result);
       } else {
-        alert(`Mutation failed: ${data.error || "Try another mode"}`);
+        alert(`Mutation failed: ${data.error || "Try another mutation type"}`);
       }
     } catch (err) {
       console.error("Mutation error:", err);
@@ -46,14 +52,24 @@ export default function PromptMutationTools({ original, onApply, reanalyze }) {
       <div className="d-flex gap-2 align-items-center mb-3">
         <select
           className="form-select w-auto"
-          value={mode}
-          onChange={(e) => setMode(e.target.value)}
+          value={mutationType}
+          onChange={(e) => setMutationType(e.target.value)}
         >
           {MODES.map((m) => (
             <option key={m} value={m}>
               {m.charAt(0).toUpperCase() + m.slice(1)}
             </option>
           ))}
+        </select>
+        <select
+          className="form-select w-auto"
+          value={tone}
+          onChange={(e) => setTone(e.target.value)}
+        >
+          <option value="neutral">Neutral</option>
+          <option value="professional">Professional</option>
+          <option value="casual">Casual</option>
+          <option value="playful">Playful</option>
         </select>
         <button
           className="btn btn-dark"
