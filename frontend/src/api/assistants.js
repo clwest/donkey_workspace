@@ -1,5 +1,6 @@
 // frontend/api/assistants.js
 import { ASSISTANTS_API } from "../config/api";
+import apiFetch from "../utils/apiClient";
 
 export async function generateAssistantThought(slug) {
   const res = await fetch(
