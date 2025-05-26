@@ -134,6 +134,7 @@ import StoryListPage from "./pages/media/StoryListPage";
 import AgentPage from "./pages/agents/AgentPage";
 import AgentDetailPage from "./pages/agents/AgentDetailPage";
 import AgentArchivePage from "./pages/agents/AgentArchivePage";
+import AgentDashboardPage from "./pages/agents/AgentDashboardPage";
 import TrainedAgentsPage from "./pages/agents/TrainedAgentsPage";
 import SwarmTimelinePage from "./pages/agents/SwarmTimelinePage";
 import SwarmGraphPage from "./pages/swarm/SwarmGraphPage";
@@ -179,7 +180,7 @@ import CodexConvergePage from "./pages/codex/CodexConvergePage";
 import CodexProofPage from "./pages/codex/CodexProofPage";
 import CodexContractPage from "./pages/codex/CodexContractPage";
 import CodexClauseMutatorPage from "./pages/codex/CodexClauseMutatorPage";
-import BeliefCascadePage from "./pages/codex/BeliefCascadePage";
+import CascadeGraphPage from "./pages/codex/CascadeGraphPage";
 import StabilizationCampaignPage from "./pages/codex/StabilizationCampaignPage";
 import CodexInheritancePage from "./pages/codex/CodexInheritancePage";
 import RitualContainersPage from "./pages/ritual/RitualContainersPage";
@@ -531,6 +532,7 @@ export default function App() {
             element={<GroupedReflectionDetailPage />}
           />
           <Route path="/agents" element={<AgentPage />} />
+          <Route path="/agents/dashboard" element={<AgentDashboardPage />} />
           <Route path="/agents/archive" element={<AgentArchivePage />} />
           <Route path="/agents/trained" element={<TrainedAgentsPage />} />
           <Route path="/swarm/timeline" element={<SwarmTimelinePage />} />
@@ -567,7 +569,7 @@ export default function App() {
           <Route path="/codex/proof" element={<CodexProofPage />} />
           <Route path="/codex/contracts/:promptId" element={<CodexContractPage />} />
           <Route path="/codex/mutator/:clauseId" element={<CodexClauseMutatorPage />} />
-          <Route path="/codex/cascade/:clauseId" element={<BeliefCascadePage />} />
+          <Route path="/codex/cascade/:clauseId" element={<CascadeGraphPage />} />
           <Route path="/codex/stabilize" element={<StabilizationCampaignPage />} />
           <Route path="/codex/inheritance/:assistantId" element={<CodexInheritancePage />} />
           <Route path="/dream" element={<DreamframePage />} />
