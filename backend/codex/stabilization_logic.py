@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Dict
 
 from django.apps import apps
+from assistants.utils.reflection_engine import log_symbolic_reflection
 
 
 def finalize_campaign(campaign_id: str) -> Dict:
@@ -12,6 +13,7 @@ def finalize_campaign(campaign_id: str) -> Dict:
     CodexClauseUpdateLog = apps.get_model("agents", "CodexClauseUpdateLog")
     SwarmMemoryEntry = apps.get_model("agents", "SwarmMemoryEntry")
     Tag = apps.get_model("mcp_core", "Tag")
+    Assistant = apps.get_model("assistants", "Assistant")
 
     campaign = StabilizationCampaign.objects.filter(id=campaign_id).first()
     if not campaign:
@@ -44,6 +46,7 @@ def finalize_campaign(campaign_id: str) -> Dict:
     tag, _ = Tag.objects.get_or_create(
         slug="symbolic_change", defaults={"name": "symbolic_change"}
     )
+    assistant_ids = list(votes.values_list("assistant", flat=True).distinct())
     if changed:
         entry = SwarmMemoryEntry.objects.create(
             title=f"Codex clause {campaign.target_clause_id} updated",
@@ -51,9 +54,17 @@ def finalize_campaign(campaign_id: str) -> Dict:
             origin="stabilization_finalize",
         )
         entry.tags.add(tag)
-        assistants = votes.values_list("assistant", flat=True).distinct()
-        for assistant_id in assistants:
+        for assistant_id in assistant_ids:
             entry.linked_agents.add(assistant_id)
+
+    for assistant in Assistant.objects.filter(id__in=assistant_ids):
+        log_symbolic_reflection(
+            assistant=assistant,
+            clause_before=clause_before,
+            clause_after=clause_after,
+            symbolic_gain=gain,
+            campaign_id=campaign.id,
+        )
 
     return {
         "campaign_id": campaign_id,

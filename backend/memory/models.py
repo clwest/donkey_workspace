@@ -41,6 +41,15 @@ class MemoryEntry(models.Model):
     is_bookmarked = models.BooleanField(default=False)
     bookmark_label = models.CharField(max_length=100, blank=True, null=True)
 
+    symbolic_change = models.BooleanField(default=False)
+    related_campaign = models.ForeignKey(
+        "agents.StabilizationCampaign",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="memory_entries",
+    )
+
     # 🔗 Relations (project, assistant, chat session)
     related_project = models.ForeignKey(
         "project.Project",
