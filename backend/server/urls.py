@@ -139,6 +139,7 @@ urlpatterns = [
     path("api/simulation/", include("simulation.urls")),
     path("api/resources/", include("resources.urls")),
     path("api/cascade/<str:clause_id>/", ontology_views.cascade_graph),
+    path("api/codex/clauses/", ontology_views.codex_clauses),
     path("api/collisions/", ontology_views.swarm_collisions),
     path("api/stabilize/", ontology_views.start_stabilization),
     path(

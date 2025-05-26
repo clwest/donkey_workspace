@@ -32,6 +32,8 @@ echo '🚀 Running: seed_assistant_projects'
 python manage.py seed_assistant_projects
 echo '🚀 Running: seed_signals'
 python manage.py seed_signals
+echo '🚀 Running: seed_codex_clauses'
+python manage.py seed_codex_clauses
 echo '🚀 Running: seed_thoughts'
 python manage.py seed_thoughts
 echo '🚀 Running: backfill_token_counts'
