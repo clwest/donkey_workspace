@@ -12,6 +12,7 @@ export default function ChatWithAssistantPage() {
   const [switchSuggestion, setSwitchSuggestion] = useState(null);
   const [sessionId] = useState(() => crypto.randomUUID());
   const messagesEndRef = useRef(null);
+  const [sourceInfo, setSourceInfo] = useState(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -96,6 +97,25 @@ export default function ChatWithAssistantPage() {
     }
   };
 
+  const handleCheckSource = async (text) => {
+    try {
+      const res = await fetch("/api/rag/check-source/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assistant_id: slug, content: text, mode: "response" }),
+      });
+      const data = await res.json();
+      if (data.results && data.results.length > 0) {
+        const top = data.results[0];
+        alert(`Top match ${Math.round(top.similarity_score * 100)}%\n${top.text.slice(0, 120)}...`);
+      } else {
+        alert("No matching source chunk found.");
+      }
+    } catch (err) {
+      alert("Failed to check source");
+    }
+  };
+
   return (
     <div className="container my-5">
       <h1>💬 Chat with Assistant: <span className="text-primary">{slug}</span></h1>
@@ -125,6 +145,13 @@ export default function ChatWithAssistantPage() {
                 ))}
               </div>
             )}
+
+            <button
+              className="btn btn-sm btn-outline-info mt-1"
+              onClick={() => handleCheckSource(msg.content)}
+            >
+              📄 Check Source
+            </button>
 
             {msg.memory_id && (
               <div className="mt-2">

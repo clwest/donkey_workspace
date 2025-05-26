@@ -21,6 +21,7 @@ from mcp_core.views import ontology as ontology_views
 from agents.views import agents as agent_views
 from agents.views import stabilization as stabilization_views
 from assistants.views import onboarding as onboarding_views
+from intel_core.views import intelligence as intel_views
 
 from tts.urls import router as tts_router
 from story.urls import router as story_router
@@ -122,6 +123,7 @@ urlpatterns = [
     path("api/myth-patterns/", agent_views.myth_patterns),
     path("api/intent-harmony/", agent_views.intent_harmony),
     path("api/intel/", include("intel_core.urls")),
+    path("api/rag/check-source/", intel_views.rag_check_source),
     path("api/signal-artifacts/", agent_views.signal_artifacts),
     path("api/navigation-vectors/", agent_views.navigation_vectors),
     path("api/flux-index/", agent_views.flux_index),
