@@ -31,6 +31,13 @@ from rest_framework.decorators import action
 # Scene generation: use core image generation tied to a character
 from images.models import Image as SceneImage, PromptHelper as ScenePromptHelper
 from images.tasks import process_sd_image_request
+from images.utils.editing import (
+    get_edit_endpoint,
+    save_edited_image,
+    HEADERS as EDIT_HEADERS,
+)
+from images.helpers.image_urls import generate_absolute_urls
+import requests
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
 
@@ -101,9 +108,72 @@ class CharacterProfileViewSet(viewsets.ModelViewSet):
                 return Response(
                     {"error": "Invalid style_id"}, status=status.HTTP_400_BAD_REQUEST
                 )
-        # Base image handling (optional)
-        # TODO: implement use of base_image_id for inpainting background
-        # Create image generation request
+        base_image_id = data.get("base_image_id")
+        if base_image_id:
+            try:
+                base_img = CharacterReferenceImage.objects.get(id=base_image_id)
+            except CharacterReferenceImage.DoesNotExist:
+                return Response(
+                    {"error": "Invalid base_image_id"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if base_img.character_id != character.id:
+                return Response(
+                    {"error": "Base image does not belong to this character"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            try:
+                endpoint = get_edit_endpoint("inpaint")
+                with open(base_img.image.path, "rb") as img_file:
+                    files = {"image": img_file}
+                    data_payload = {"prompt": prompt, "output_format": "webp"}
+                    if neg_prompt:
+                        data_payload["negative_prompt"] = neg_prompt
+                    resp = requests.post(
+                        endpoint, headers=EDIT_HEADERS, files=files, data=data_payload
+                    )
+                if resp.status_code != 200:
+                    raise ValueError("Inpainting failed")
+                from types import SimpleNamespace
+
+                rel_path = save_edited_image(
+                    resp.content, SimpleNamespace(edit_type="inpaint")
+                )
+                abs_url = generate_absolute_urls([rel_path])[0]
+                img_req = SceneImage.objects.create(
+                    user=request.user,
+                    character=character,
+                    prompt=prompt,
+                    description=prompt,
+                    negative_prompt=neg_prompt,
+                    width=512,
+                    height=512,
+                    order=0,
+                    steps=50,
+                    style=style,
+                    engine_used="stable-diffusion",
+                    status="completed",
+                    generation_type="scene",
+                    file_path=rel_path,
+                    output_url=abs_url,
+                    output_urls=[abs_url],
+                )
+                return Response(
+                    {
+                        "message": "Scene generated.",
+                        "request_id": img_req.id,
+                        "status": img_req.status,
+                        "output_url": img_req.output_url,
+                    },
+                    status=status.HTTP_201_CREATED,
+                )
+            except Exception as e:
+                logging.getLogger(__name__).error("Scene inpainting failed", exc_info=e)
+                return Response(
+                    {"error": "Failed to generate scene with base image."},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+
         img_req = SceneImage.objects.create(
             user=request.user,
             character=character,
@@ -119,7 +189,6 @@ class CharacterProfileViewSet(viewsets.ModelViewSet):
             status="queued",
             generation_type="scene",
         )
-        # Queue generation task
         process_sd_image_request.delay(img_req.id)
         return Response(
             {
@@ -136,7 +205,6 @@ class CharacterStyleViewSet(viewsets.ModelViewSet):
     serializer_class = CharacterStyleSerializer
 
 
-import requests
 import time
 from django.core.files.base import ContentFile
 from django.utils.text import slugify
