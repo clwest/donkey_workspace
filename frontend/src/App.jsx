@@ -516,10 +516,6 @@ export default function App() {
           <Route path="/dev-dashboard" element={<DevDashboard />} />
 
           <Route path="/dev/routes" element={<RoutesDebugPage />} />
-// =======
-//           <Route path="/dev-docs/:slug" element={<DevDocReflectionDetailPage />} />
-//           <Route path="/dev/routes" element={<RouteHealthPage />} />
-// >>>>>>> main
           <Route path="/debug/prompts" element={<PromptDebuggerPage />} />
           <Route path="/planning" element={<PlanningPage />} />
           <Route path="/plan/graph" element={<PlanningGraphPage />} />
