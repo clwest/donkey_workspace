@@ -9,9 +9,14 @@ from agents.models.stabilization import (
     CodexClauseUpdateLog,
 )
 from codex.stabilization_logic import finalize_campaign
+from memory.models import MemoryEntry
+
+from unittest.mock import patch
 
 
-def test_finalize_campaign(db):
+@patch("assistants.utils.reflection_engine.call_llm")
+def test_finalize_campaign(mock_call, db):
+    mock_call.return_value = "- shift"
     assistant = Assistant.objects.create(name="A", specialty="seer")
     campaign = StabilizationCampaign.objects.create(
         title="c", target_clause_id="c1", description="orig"
@@ -25,3 +30,5 @@ def test_finalize_campaign(db):
     log = CodexClauseUpdateLog.objects.get(campaign=campaign)
     assert result["clause_before"] == "orig"
     assert result["clause_after"] == log.clause_after
+    mem = MemoryEntry.objects.filter(assistant=assistant, related_campaign=campaign).first()
+    assert mem is not None and mem.symbolic_change is True
