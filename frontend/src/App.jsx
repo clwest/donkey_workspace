@@ -120,7 +120,7 @@ import AssistantReflectPage from "./pages/assistant/reflections/AssistantReflect
 import AssistantReflectionLogsPage from "./pages/assistant/reflections/AssistantReflectionLogsPage";
 import FeedbackSummaryPage from "./pages/assistant/feedback/FeedbackSummaryPage";
 import DevDashboard from "./pages/dev/DevDashboard";
-import RouteHealthPage from "./pages/dev/RouteHealthPage";
+import RoutesDebugPage from "./pages/dev/RoutesDebugPage";
 import PageNotFound from "./pages/PageNotFound";
 import GroupedReflectionPage from "./pages/dev/GroupedReflectionPage";
 import GroupedReflectionDetailPage from "./pages/dev/GroupedReflectionDetailPage";
@@ -514,8 +514,12 @@ export default function App() {
           <Route path="/threads/editor" element={<ThreadEditorPage />} />
           <Route path="/threads/:id" element={<ThreadDetailPage />} />
           <Route path="/dev-dashboard" element={<DevDashboard />} />
-          <Route path="/dev-docs/:slug" element={<DevDocReflectionDetailPage />} />
-          <Route path="/dev/routes" element={<RouteHealthPage />} />
+
+          <Route path="/dev/routes" element={<RoutesDebugPage />} />
+// =======
+//           <Route path="/dev-docs/:slug" element={<DevDocReflectionDetailPage />} />
+//           <Route path="/dev/routes" element={<RouteHealthPage />} />
+// >>>>>>> main
           <Route path="/debug/prompts" element={<PromptDebuggerPage />} />
           <Route path="/planning" element={<PlanningPage />} />
           <Route path="/plan/graph" element={<PlanningGraphPage />} />

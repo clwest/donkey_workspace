@@ -3,6 +3,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import JsonResponse
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -46,9 +47,26 @@ extend_router("storyboard", storyboard_router)
 extend_router("simulation", simulation_router)
 
 
+def _collect_routes(patterns, prefix=""):
+    urls = []
+    for p in patterns:
+        if hasattr(p, "url_patterns"):
+            urls.extend(_collect_routes(p.url_patterns, prefix + str(p.pattern)))
+        else:
+            urls.append(prefix + str(p.pattern))
+    return urls
+
+
+def routes_list(request):
+    resolver = get_resolver()
+    routes = [r for r in _collect_routes(resolver.url_patterns) if str(r).startswith("api")]
+    return JsonResponse({"routes": routes})
+
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include(api_router.urls)),
+    path("api/routes/", routes_list),
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
