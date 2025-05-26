@@ -62,4 +62,6 @@ def finalize_campaign(campaign_id: str) -> Dict:
         "symbolic_gain": gain,
         "updated": changed,
         "update_log": update_log.id,
+        "clause_before": clause_before,
+        "clause_after": clause_after,
     }

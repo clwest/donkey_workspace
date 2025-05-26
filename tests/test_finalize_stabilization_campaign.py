@@ -22,3 +22,6 @@ def test_finalize_campaign(db):
     result = finalize_campaign(str(campaign.id))
     assert result["updated"] is True
     assert CodexClauseUpdateLog.objects.filter(campaign=campaign).exists()
+    log = CodexClauseUpdateLog.objects.get(campaign=campaign)
+    assert result["clause_before"] == "orig"
+    assert result["clause_after"] == log.clause_after
