@@ -1,13 +1,11 @@
 from rest_framework import serializers
 from .models.assistant import (
     Assistant,
-   
     AssistantChatMessage,
     AssistantMessage,
     AssistantRelayMessage,
     ChatSession,
     SpecializationDriftLog,
-    
     DebateSession,
     DebateThoughtLog,
     DebateSummary,
@@ -31,7 +29,6 @@ from .models.assistant import (
     DecisionFramework,
     PurposeRouteMap,
     AutonomyNarrativeModel,
-   
 )
 from .models.project import (
     AssistantProject,
@@ -60,7 +57,7 @@ from .models.extensions import (
     AssistantSensoryExtensionProfile,
 )
 from .models.project import AssistantNextAction, ProjectPlanningLog
-from .models.core import  AssistantMythLayer
+from .models.core import AssistantMythLayer
 
 from project.models import (
     Project,
@@ -519,10 +516,7 @@ class AssistantProjectSerializer(serializers.ModelSerializer):
         return project.id if project else None
 
     def get_reflections(self, obj):
-        return [
-            {"id": r.id, "summary": r.summary}
-            for r in obj.reflections.all()[:5]
-        ]
+        return [{"id": r.id, "summary": r.summary} for r in obj.reflections.all()[:5]]
 
 
 class ProjectOverviewSerializer(serializers.ModelSerializer):
@@ -583,7 +577,7 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
     source_document_url = serializers.SerializerMethodField()
     drift_logs = SpecializationDriftLogSerializer(many=True, read_only=True)
     recent_drift = serializers.SerializerMethodField()
-    system_prompt_id = serializers.UUIDField(source="system_prompt_id", read_only=True)
+    system_prompt_id = serializers.UUIDField(read_only=True)
 
     class Meta:
         model = Assistant
@@ -998,7 +992,7 @@ class AssistantSerializer(serializers.ModelSerializer):
     preferred_scene_tags = serializers.ListField(
         child=serializers.CharField(), read_only=True
     )
-    system_prompt_id = serializers.UUIDField(source="system_prompt_id", read_only=True)
+    system_prompt_id = serializers.UUIDField(read_only=True)
 
     class Meta:
         model = Assistant
@@ -1244,6 +1238,7 @@ class CollaborationLogSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "created_at"]
 
+
 class OracleLayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = OracleLayer
@@ -1257,7 +1252,6 @@ class OracleLayerSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]
-
 
 
 class ProphecyNodeSerializer(serializers.ModelSerializer):
@@ -1348,7 +1342,6 @@ class AutonomyNarrativeModelSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "created_at"]
 
 
-
 class SymbolicUXPlaybookSerializer(serializers.ModelSerializer):
     class Meta:
         model = SymbolicUXPlaybook
@@ -1369,5 +1362,3 @@ class SymbolicToolkitRegistrySerializer(serializers.ModelSerializer):
         model = SymbolicToolkitRegistry
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
-
-
