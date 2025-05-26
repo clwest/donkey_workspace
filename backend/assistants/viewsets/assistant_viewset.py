@@ -105,7 +105,7 @@ class AssistantViewSet(viewsets.ViewSet):
             linked_memory=memory,
             linked_reflection=ref_log,
         )
-        return Response({"summary": ref_log.summary})
+        return Response({"status": "ok", "summary": ref_log.summary})
 
     @action(detail=False, methods=["post"], url_path="primary/spawn-agent")
     def primary_spawn_agent(self, request):
