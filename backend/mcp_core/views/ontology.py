@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from mcp_core.utils.belief_cascade import generate_belief_cascade_graph
 from mcp_core.utils.role_collision import detect_role_collisions
 from mcp_core.utils.stabilization_campaigns import launch_stabilization_campaign
+from codex.stabilization_logic import finalize_campaign
 
 
 @api_view(["GET"])
@@ -29,3 +30,10 @@ def start_stabilization(request):
     """Launch a clause stabilization campaign."""
     clause_id = request.data.get("clause_id")
     return Response(launch_stabilization_campaign(clause_id))
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def finalize_stabilization_campaign(request, campaign_id):
+    """Finalize the clause stabilization campaign."""
+    return Response(finalize_campaign(campaign_id))
