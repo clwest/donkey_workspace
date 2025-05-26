@@ -3,7 +3,18 @@
 // page origin.  This prevents "Failed to fetch" errors when the env variable is
 // missing a hostname.
 let API_URL = import.meta.env.VITE_API_URL;
-if (!API_URL || API_URL.startsWith(":")) {
+
+function isMissingHost(url) {
+  if (!url) return true;
+  try {
+    const parsed = new URL(url, window.location.origin);
+    return !parsed.hostname;
+  } catch {
+    return true;
+  }
+}
+
+if (isMissingHost(API_URL)) {
   const base = window.location.origin.replace(/\/$/, "");
   API_URL = `${base}/api`;
 }
