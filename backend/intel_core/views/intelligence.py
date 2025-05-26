@@ -8,13 +8,15 @@ from rest_framework.permissions import AllowAny
 from rest_framework import status
 from openai import OpenAI
 from intel_core.models import Document
-from intel_core.models import DocumentSet
+from intel_core.models import DocumentSet, DocumentChunk
 from prompts.models import Prompt
 from assistants.models.assistant import Assistant
 from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 from assistants.models.project import AssistantProject, AssistantObjective
 from assistants.models.thoughts import AssistantThoughtLog
 from prompts.utils.token_helpers import count_tokens, smart_chunk_prompt
+from embeddings.helpers.helpers_processing import generate_embedding
+from embeddings.vector_utils import compute_similarity
 from memory.models import MemoryEntry
 from mcp_core.models import NarrativeThread, Tag
 
@@ -335,3 +337,48 @@ def create_assistant_from_document_set(request, pk):
         return Response({"error": "DocumentSet has no documents"}, status=400)
 
     return create_bootstrapped_assistant_from_document(request, first_doc.id)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def rag_check_source(request):
+    """Return top matching document chunks for the provided text."""
+
+    assistant_id = request.data.get("assistant_id")
+    content = request.data.get("content")
+    mode = request.data.get("mode", "response")
+
+    assistant = None
+    if assistant_id:
+        assistant = Assistant.objects.filter(id=assistant_id).first()
+        if not assistant:
+            assistant = Assistant.objects.filter(slug=assistant_id).first()
+
+    if not content:
+        return Response({"error": "content is required"}, status=400)
+
+    vector = generate_embedding(content)
+    if not vector:
+        return Response({"error": "Failed to generate embedding"}, status=500)
+
+    chunks = DocumentChunk.objects.filter(embedding__isnull=False)
+    if assistant:
+        chunks = chunks.filter(document__linked_assistants=assistant)
+
+    results = []
+    for chunk in chunks.select_related("document", "embedding"):
+        vec = chunk.embedding.vector if chunk.embedding else None
+        if not vec:
+            continue
+        score = compute_similarity(vector, vec)
+        results.append(
+            {
+                "document_id": str(chunk.document_id),
+                "chunk_id": str(chunk.id),
+                "similarity_score": round(score, 4),
+                "text": chunk.text,
+            }
+        )
+
+    results.sort(key=lambda x: x["similarity_score"], reverse=True)
+    return Response({"results": results[:3], "mode": mode})

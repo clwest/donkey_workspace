@@ -74,6 +74,29 @@ export default function MemoryDetailPage() {
     }
   }
 
+  async function handleCheckSource() {
+    try {
+      const res = await fetch("/api/rag/check-source/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          assistant_id: memory.linked_thought?.assistant_slug || "", 
+          content: memory.event,
+          mode: "memory",
+        }),
+      });
+      const data = await res.json();
+      if (data.results && data.results.length > 0) {
+        const top = data.results[0];
+        alert(`Top match ${Math.round(top.similarity_score * 100)}%\n${top.text.slice(0,120)}...`);
+      } else {
+        alert("No matching source chunk found.");
+      }
+    } catch (err) {
+      alert("Failed to check source");
+    }
+  }
+
   async function handleSaveEdit() {
     const res = await fetch(`/api/memory/${id}`, {
       method: "PATCH",
@@ -174,6 +197,9 @@ export default function MemoryDetailPage() {
         </button>
         <button className="btn btn-outline-primary" onClick={handleSuggestAgent}>
           🤖 Suggest Agent
+        </button>
+        <button className="btn btn-outline-info" onClick={handleCheckSource}>
+          📄 Check Source
         </button>
         <MemoryForkButton
           memoryId={memory.id}
