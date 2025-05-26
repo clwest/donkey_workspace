@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import apiFetch from "../../utils/apiClient";
 
 export default function PromptMutationTools({ original, promptId, onApply, reanalyze }) {
@@ -6,22 +6,27 @@ export default function PromptMutationTools({ original, promptId, onApply, reana
   const [tone, setTone] = useState("neutral");
   const [preview, setPreview] = useState("");
   const [loading, setLoading] = useState(false);
+  const [styles, setStyles] = useState([]);
 
-  const MODES = [
-    "clarify",
-    "expand",
-    "shorten",
-    "formalize",
-    "casualize",
-    "convertToBulletPoints",
-  ];
+  useEffect(() => {
+    async function fetchStyles() {
+      try {
+        const data = await apiFetch(`/prompts/mutation-styles/`);
+        setStyles(data);
+      } catch (err) {
+        console.error("Failed to load mutation styles", err);
+      }
+    }
+    fetchStyles();
+  }, []);
+
 
   async function mutatePrompt() {
     setLoading(true);
     setPreview("");
 
     try {
-      const res = await apiFetch(`/prompts/mutate-prompt/`, {
+      const data = await apiFetch(`/prompts/mutate-prompt/`, {
         method: "POST",
         body: {
           text: original,
@@ -30,13 +35,7 @@ export default function PromptMutationTools({ original, promptId, onApply, reana
           prompt_id: promptId,
         },
       });
-
-      const data = await res.json();
-      if (res.ok) {
-        setPreview(data.result);
-      } else {
-        alert(`Mutation failed: ${data.error || "Try another mutation type"}`);
-      }
+      setPreview(data.result);
     } catch (err) {
       console.error("Mutation error:", err);
       alert("Could not reach mutation API");
@@ -55,9 +54,9 @@ export default function PromptMutationTools({ original, promptId, onApply, reana
           value={mutationType}
           onChange={(e) => setMutationType(e.target.value)}
         >
-          {MODES.map((m) => (
-            <option key={m} value={m}>
-              {m.charAt(0).toUpperCase() + m.slice(1)}
+          {styles.map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.id.charAt(0).toUpperCase() + s.id.slice(1)}
             </option>
           ))}
         </select>

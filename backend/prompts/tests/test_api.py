@@ -1,6 +1,8 @@
 import os
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 import django
+
 django.setup()
 
 from rest_framework.test import APITestCase
@@ -27,7 +29,10 @@ class PromptAPITest(APITestCase):
 
     def test_create_and_fetch_prompt(self):
         payload = {
-            "title": "Created", "content": "Hello", "source": "api", "type": "system"
+            "title": "Created",
+            "content": "Hello",
+            "source": "api",
+            "type": "system",
         }
         resp = self.client.post("/api/prompts/create/", payload, format="json")
         self.assertEqual(resp.status_code, 201)
@@ -40,16 +45,27 @@ class PromptAPITest(APITestCase):
 
     @patch("prompts.utils.mutation.call_llm", return_value="mutated text")
     def test_mutate_prompt(self, mock_call):
-        payload = {"text": "sample", "mutation_type": "clarify", "tone": "neutral"}
+        payload = {
+            "text": "sample",
+            "mutation_type": "clarify",
+            "tone": "neutral",
+            "prompt_id": str(self.prompt1.id),
+        }
         resp = self.client.post("/api/prompts/mutate/", payload, format="json")
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json().get("result"), "mutated text")
         mock_call.assert_called()
 
-    def test_mutate_prompt_missing_text_or_mode(self):
+    def test_mutate_prompt_missing_required_fields(self):
         resp = self.client.post(
             "/api/prompts/mutate/",
-            {"text": "", "mutation_type": "clarify"},
+            {"text": "sample", "mutation_type": "clarify"},
             format="json",
         )
         self.assertEqual(resp.status_code, 400)
+
+    def test_list_mutation_styles(self):
+        resp = self.client.get("/api/prompts/mutation-styles/")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertTrue(any(s["id"] == "clarify" for s in data))

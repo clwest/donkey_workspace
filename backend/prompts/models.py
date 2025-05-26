@@ -145,8 +145,14 @@ class PromptMutationLog(models.Model):
     )
     mutated_text = models.TextField()
     mode = models.CharField(max_length=50)
+    tone = models.CharField(max_length=50, null=True, blank=True)
+    response_tokens = models.IntegerField(null=True, blank=True)
     parent = models.ForeignKey(
-        "self", null=True, blank=True, on_delete=models.SET_NULL, related_name="children"
+        "self",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="children",
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -166,7 +172,9 @@ class PromptFeedbackVector(models.Model):
 
 class PromptMutationEffectTrace(models.Model):
     mutation = models.ForeignKey(PromptMutationLog, on_delete=models.CASCADE)
-    feedback_vector = models.ForeignKey(PromptFeedbackVector, null=True, blank=True, on_delete=models.SET_NULL)
+    feedback_vector = models.ForeignKey(
+        PromptFeedbackVector, null=True, blank=True, on_delete=models.SET_NULL
+    )
     effect_notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
