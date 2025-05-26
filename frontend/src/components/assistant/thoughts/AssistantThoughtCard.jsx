@@ -109,7 +109,7 @@ export default function AssistantThoughtCard({
     );
   }
 
-  if (!thought.summary && !thought.thought) {
+  if (!thought.summary && !thought.thought && !thought.content) {
     console.warn("Invalid thought object", thought);
     return (
       <div className="alert alert-warning">⚠️ Invalid thought object.</div>
@@ -119,7 +119,7 @@ export default function AssistantThoughtCard({
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(
-    thought.thought || thought.summary || "",
+    thought.thought || thought.summary || thought.content || "",
   );
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -212,7 +212,7 @@ export default function AssistantThoughtCard({
   };
   // -----------------------------------------------------
 
-  const baseText = thought.summary || thought.thought || "";
+  const baseText = thought.summary || thought.thought || thought.content || "";
   const preview =
     baseText.length > 120 ? baseText.slice(0, 120) + "..." : baseText;
   const moodClash = thought.mood === "frustrated" || thought.mood === "angry";
@@ -236,7 +236,10 @@ export default function AssistantThoughtCard({
               <span className="text-warning ms-2">⚠️ Mood clash</span>
             )}
             <small className="text-muted">
-              🕒 {new Date(thought.created_at).toLocaleString()}
+              🕒{' '}
+              {new Date(
+                thought.created_at || thought.timestamp || Date.now(),
+              ).toLocaleString()}
             </small>
             {thought.thought_type === "prompt_clarification" && (
               <span className="badge bg-warning text-dark ms-2">
