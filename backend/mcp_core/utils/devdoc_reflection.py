@@ -74,10 +74,19 @@ Title: {doc.title}
                 f"🔗 Auto-linked DevDoc '{doc.title}' to Document '{match.title}'"
             )
         else:
-            logger.warning(
-                f"❌ No linked Document found for DevDoc '{doc.title}'. Skipping"
+            logger.info(
+                f"📄 No existing Document for DevDoc '{doc.title}'. Creating one"
             )
-            return None
+            match = Document.objects.create(
+                title=doc.title,
+                content=doc.content,
+                source="devdoc",
+            )
+            doc.linked_document = match
+            doc.save(update_fields=["linked_document"])
+            logger.info(
+                f"✅ Created Document '{match.title}' for DevDoc '{doc.title}'"
+            )
 
     memory = MemoryEntry.objects.create(
         event=response.strip(),
