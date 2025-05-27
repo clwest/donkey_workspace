@@ -12,5 +12,7 @@ Date: 2025-05-26
    - `/api/cascade/<clause_id>/`
    - `/api/collisions/`
    - `/api/stabilize/`
+   - `/api/intel/` and `/api/v1/intel/` (documents, chunks, embeddings)
+     - New aliases added: `document-chunks/` and `embedding-metadata/`
 3. Checked `frontend/src/App.jsx` routes for matching paths.
 4. No stale or missing routes found during manual audit.
