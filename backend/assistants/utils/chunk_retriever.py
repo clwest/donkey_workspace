@@ -79,16 +79,20 @@ def get_relevant_chunks(
     reason = None
     fallback = False
 
-    pairs = filtered[:3]
-    if not pairs and scored:
+    strong_matches = filtered[:3]
+    if strong_matches:
+        pairs = strong_matches
+    elif scored:
         fallback = True
         reason = "low score"
         logger.warning("\u26a0\ufe0f RAG fallback: using low-score chunks")
         # take top ``fallback_limit`` above ``fallback_min`` if any
-        candidates = [p for p in scored if p[0] >= fallback_min]
-        if not candidates:
-            candidates = scored
-        pairs = candidates[:fallback_limit]
+        candidates = [p for p in scored if p[0] >= fallback_min] or scored
+        pairs = candidates[: max(1, fallback_limit)]
+        for i, (s, c) in enumerate(pairs, 1):
+            logger.info("Fallback chunk %s score %.4f", i, s)
+    else:
+        return [], None, False
 
     result = []
     for score, chunk in pairs:

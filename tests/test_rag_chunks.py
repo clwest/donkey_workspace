@@ -56,3 +56,33 @@ def test_get_relevant_chunks_fallback(mock_sim, mock_chunk_model, mock_embed, db
     assert fallback is True
     assert reason == "low score"
     assert len(chunks) >= 1
+
+
+@patch("assistants.utils.chunk_retriever.get_embedding_for_text")
+@patch("assistants.utils.chunk_retriever.DocumentChunk")
+@patch("assistants.utils.chunk_retriever.compute_similarity")
+def test_get_relevant_chunks_lowest_scores(mock_sim, mock_chunk_model, mock_embed, db):
+    assistant = Assistant.objects.create(name="A")
+    doc = Document.objects.create(title="D", content="txt")
+    assistant.documents.add(doc)
+
+    chunk = type(
+        "C",
+        (),
+        {
+            "id": 1,
+            "document_id": doc.id,
+            "document": doc,
+            "text": "c1",
+            "embedding": type("E", (), {"vector": [0.1]})(),
+        },
+    )
+    manager = DummyManager([chunk])
+    mock_chunk_model.objects.filter.return_value = manager
+
+    mock_embed.return_value = [0.5]
+    mock_sim.return_value = 0.2
+
+    chunks, reason, fallback = get_relevant_chunks(str(assistant.id), "q", score_threshold=0.75)
+    assert fallback is True
+    assert len(chunks) >= 1
