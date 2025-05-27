@@ -86,3 +86,42 @@ def test_get_relevant_chunks_lowest_scores(mock_sim, mock_chunk_model, mock_embe
     chunks, reason, fallback = get_relevant_chunks(str(assistant.id), "q", score_threshold=0.75)
     assert fallback is True
     assert len(chunks) >= 1
+
+
+@patch("assistants.utils.chunk_retriever.get_embedding_for_text")
+@patch("assistants.utils.chunk_retriever.DocumentChunk")
+@patch("assistants.utils.chunk_retriever.compute_similarity")
+def test_get_relevant_chunks_project_filter(mock_sim, mock_chunk_model, mock_embed, db):
+    assistant = Assistant.objects.create(name="A")
+    doc = Document.objects.create(title="D", content="txt")
+    project = assistant.projects.create(title="P")
+    project.documents.add(doc)
+
+    chunk = type("C", (), {"id": 1, "document_id": doc.id, "document": doc, "text": "c", "embedding": type("E", (), {"vector": [0.2]})()})
+    manager = DummyManager([chunk])
+    mock_chunk_model.objects.filter.return_value = manager
+
+    mock_embed.return_value = [0.5]
+    mock_sim.return_value = 0.9
+
+    chunks, _, _ = get_relevant_chunks(None, "q", project_id=str(project.id))
+    assert len(chunks) == 1
+    assert chunks[0]["document_id"] == str(doc.id)
+
+
+@patch("assistants.utils.chunk_retriever.get_embedding_for_text")
+@patch("assistants.utils.chunk_retriever.DocumentChunk")
+@patch("assistants.utils.chunk_retriever.compute_similarity")
+def test_get_relevant_chunks_document_filter(mock_sim, mock_chunk_model, mock_embed, db):
+    doc = Document.objects.create(title="D", content="txt")
+    chunk = type("C", (), {"id": 1, "document_id": doc.id, "document": doc, "text": "c", "embedding": type("E", (), {"vector": [0.2]})()})
+    manager = DummyManager([chunk])
+    mock_chunk_model.objects.filter.return_value = manager
+
+    mock_embed.return_value = [0.5]
+    mock_sim.return_value = 0.9
+
+    chunks, _, _ = get_relevant_chunks(None, "q", document_id=str(doc.id))
+    assert len(chunks) == 1
+    assert chunks[0]["document_id"] == str(doc.id)
+

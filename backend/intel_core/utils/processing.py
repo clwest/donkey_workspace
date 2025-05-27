@@ -9,6 +9,7 @@ from intel_core.core import clean_text, lemmatize_text, detect_topic
 from mcp_core.models import Tag
 from embeddings.helpers.helpers_io import save_embedding
 from embeddings.helpers.helpers_processing import generate_embedding
+from intel_core.models import EmbeddingMetadata
 
 logger = logging.getLogger("django")
 client = OpenAI()
@@ -77,6 +78,36 @@ def _create_document_chunks(document: Document):
             logger.warning(
                 f"Duplicate fingerprint for chunk {i} on document {document.id}, skipping"
             )
+
+
+def _embed_document_chunks(document: Document):
+    """Generate embeddings for chunks lacking vectors."""
+    unembedded = DocumentChunk.objects.filter(document=document, embedding__isnull=True)
+    for chunk in unembedded:
+        try:
+            vector = generate_embedding(chunk.text)
+        except Exception as e:  # pragma: no cover - network or OpenAI errors
+            logger.warning(f"Failed to embed chunk {chunk.id}: {e}")
+            continue
+
+        if not vector:
+            continue
+        if hasattr(vector, "tolist"):
+            vector = vector.tolist()
+
+        meta = EmbeddingMetadata.objects.create(
+            model_used=EMBEDDING_MODEL,
+            num_tokens=chunk.tokens,
+            vector=vector,
+            status="completed",
+            source=document.source_type,
+        )
+        chunk.embedding = meta
+        chunk.save(update_fields=["embedding"])
+        try:
+            save_embedding(chunk, vector)
+        except Exception as e:
+            logger.warning(f"Failed to register embedding for chunk {chunk.id}: {e}")
 
 
 def save_document_to_db(content, metadata, session_id=None):
@@ -174,6 +205,7 @@ def save_document_to_db(content, metadata, session_id=None):
             logger.info(f"✅ Saved embedding: {embedding_id} for document: {document.title}")
 
         _create_document_chunks(document)
+        _embed_document_chunks(document)
 
         return document
 
