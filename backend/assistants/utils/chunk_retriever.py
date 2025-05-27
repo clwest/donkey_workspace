@@ -91,3 +91,15 @@ def get_relevant_chunks(
         )
 
     return result, reason
+
+
+def format_chunks(chunks: List[Dict[str, object]]) -> str:
+    """Return a user-facing block for LLM prompting."""
+    if not chunks:
+        return ""
+    lines = ["MEMORY CHUNKS", "=================="]
+    for i, info in enumerate(chunks, 1):
+        text = info.get("text", "").strip()
+        lines.append(f"[{i}] {text}")
+    lines.append("==================")
+    return "\n".join(lines)
