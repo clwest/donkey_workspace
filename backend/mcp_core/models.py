@@ -21,7 +21,8 @@ class MemoryContext(models.Model):
     target_content_type = models.ForeignKey(
         ContentType, on_delete=models.CASCADE, null=True
     )
-    target_object_id = models.UUIDField(null=True)
+    # Store as string to support both UUID and integer IDs
+    target_object_id = models.CharField(max_length=64, null=True)
     target = GenericForeignKey("target_content_type", "target_object_id")
 
     content = models.TextField()

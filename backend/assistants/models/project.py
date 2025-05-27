@@ -372,7 +372,8 @@ class ProjectPlanningLog(models.Model):
         null=True,
         blank=True,
     )
-    object_id = models.UUIDField(null=True, blank=True)
+    # Allow linking to objects that use either integer or UUID primary keys
+    object_id = models.CharField(max_length=64, null=True, blank=True)
     related_object = GenericForeignKey("content_type", "object_id")
 
     class Meta:

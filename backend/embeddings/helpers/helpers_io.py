@@ -124,7 +124,7 @@ def save_embedding(obj: Any, embedding: List[float]) -> Optional[Embedding]:
 
         emb = Embedding.objects.create(
             content_type=content_type,
-            object_id=object_id,
+            object_id=str(object_id) if object_id is not None else None,
             content_id=str(object_id),
             content=content,
             embedding=embedding,

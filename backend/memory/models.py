@@ -139,7 +139,12 @@ class MemoryEntry(models.Model):
     linked_content_type = models.ForeignKey(
         ContentType, on_delete=models.SET_NULL, null=True, blank=True
     )
-    linked_object_id = models.UUIDField(null=True, blank=True)
+    # CharField allows linking to objects with either UUID or integer primary keys
+    linked_object_id = models.CharField(
+        max_length=64,
+        null=True,
+        blank=True,
+    )
     linked_object = GenericForeignKey("linked_content_type", "linked_object_id")
     tool_response = models.JSONField(null=True, blank=True)
 
