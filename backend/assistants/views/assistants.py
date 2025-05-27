@@ -23,7 +23,7 @@ from assistants.models.assistant import (
     TokenUsage,
     ChatSession,
     AssistantMessage,
-    AssistantSkill
+    AssistantSkill,
 )
 from assistants.models.reflection import AssistantReflectionLog
 from assistants.models.thoughts import AssistantThoughtLog
@@ -61,6 +61,12 @@ logger = logging.getLogger("django")
 client = OpenAI()
 
 
+def extract_speaker_names(text: str):
+    """Return a list of potential speaker names found in text."""
+    # Optional: Add NLP-based name detection or heuristics
+    return []
+
+
 def _maybe_log_self_doubt(assistant: Assistant, reply: str) -> None:
     """Detect low-confidence replies and log a self-doubt thought."""
     if not reply:
@@ -93,9 +99,7 @@ class AssistantViewSet(viewsets.ModelViewSet):
         min_msi = request.GET.get("min_msi")
         if min_msi is not None:
             try:
-                assistants = assistants.filter(
-                    mood_stability_index__gte=float(min_msi)
-                )
+                assistants = assistants.filter(mood_stability_index__gte=float(min_msi))
             except ValueError:
                 pass
         serializer = self.get_serializer(assistants, many=True)
@@ -121,8 +125,8 @@ class AssistantViewSet(viewsets.ModelViewSet):
                 related_tags=item.get("tags", []),
             )
             tools = Tool.objects.filter(
-                models.Q(name__icontains=item["name"]) |
-                models.Q(description__icontains=item["name"])
+                models.Q(name__icontains=item["name"])
+                | models.Q(description__icontains=item["name"])
             )
             if tools.exists():
                 skill.related_tools.set(tools)
@@ -136,7 +140,10 @@ class AssistantViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, slug=None, *args, **kwargs):
         assistant = get_object_or_404(Assistant, slug=slug)
-        from assistants.serializers import AssistantDetailSerializer, ProjectOverviewSerializer
+        from assistants.serializers import (
+            AssistantDetailSerializer,
+            ProjectOverviewSerializer,
+        )
 
         serializer = AssistantDetailSerializer(assistant)
         data = serializer.data
@@ -240,6 +247,7 @@ class AssistantViewSet(viewsets.ModelViewSet):
         serializer = AssistantSerializer(assistant)
         return Response(serializer.data)
 
+
 @api_view(["GET", "POST"])
 @permission_classes([AllowAny])
 def assistants_view(request):
@@ -287,7 +295,6 @@ def primary_reflect_now(request):
     warnings.warn(
         "primary_reflect_now is deprecated; use AssistantViewSet.primary_reflect_now",
         DeprecationWarning,
-
     )
     view = AssistantViewSet.as_view({"post": "primary_reflect_now"})
     return view(request)
@@ -300,7 +307,6 @@ def primary_spawn_agent(request):
     warnings.warn(
         "primary_spawn_agent is deprecated; use AssistantViewSet.primary_spawn_agent",
         DeprecationWarning,
-
     )
     view = AssistantViewSet.as_view({"post": "primary_spawn_agent"})
     return view(request)
@@ -321,7 +327,6 @@ def create_assistant_from_thought(request):
     for field in required:
         if field not in data:
             return Response({"error": f"{field} is required"}, status=400)
-
 
     try:
         prompt = Prompt.objects.get(id=data["prompt_id"])
@@ -412,13 +417,21 @@ def assistant_from_document_set(request):
     model = data.get("preferred_model", "gpt-4o")
 
     titles = ", ".join(doc_set.documents.values_list("title", flat=True))
+
+    speaker_names = set()
+    for doc in doc_set.documents.all():
+        speaker_names.update(extract_speaker_names(doc.content))
+
     intro = (
         f"You are {name}. Personality: {personality}. Tone: {tone}. "
         f"Specialty: {titles}. "
         "You are allowed to quote from any transcript-based memory if relevant. "
         "When answering questions about speakers, introductions, or source identity, use named context from the memory if available. "
-        "You are referencing memory, not accessing video content."
+        "You are referencing memory, not accessing video content. "
+        "Avoid hallucinated refusals such as 'I can’t access videos' — instead, explain what you find in the transcript memory."
     )
+    if speaker_names:
+        intro += f" Known speakers include: {', '.join(speaker_names)}."
     codex_prompt = Prompt.objects.create(
         title=f"{name} Codex",
         content=intro,
@@ -436,9 +449,7 @@ def assistant_from_document_set(request):
     print("-------------START_SUMMARY_PROMPT-----------------")
     print(summary_prompt)
     print("-------------END_SUMMARY_PROMPT-----------------")
-    combined = " ".join(
-        (d.summary or d.content[:500]) for d in doc_set.documents.all()
-    )
+    combined = " ".join((d.summary or d.content[:500]) for d in doc_set.documents.all())
     vector = get_embedding_for_text(combined)
 
     assistant = Assistant.objects.create(
@@ -717,10 +728,12 @@ def chat_with_assistant_view(request, slug):
         memory.tags = generate_tags_for_memory(full_transcript)
         memory.save()
 
-    return Response({
-        "messages": load_session_messages(session_id),
-        "rag_meta": rag_meta,
-    })
+    return Response(
+        {
+            "messages": load_session_messages(session_id),
+            "rag_meta": rag_meta,
+        }
+    )
 
 
 @api_view(["POST"])
