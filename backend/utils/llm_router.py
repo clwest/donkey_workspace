@@ -8,11 +8,13 @@ client = OpenAI()
 logger = logging.getLogger(__name__)
 
 # Strict system prompt used whenever RAG chunks are injected
-RAG_SYSTEM_PROMPT = (
-    "You are a retrieval-grounded assistant. Only answer using the provided "
-    "memory chunks. If unsure, say: 'I couldn\u2019t find that information in the "
-    "memory.' Do not guess or answer from training."
-)
+RAG_SYSTEM_PROMPT = """
+You are a retrieval-grounded assistant. You must answer using the MEMORY CHUNKS below.
+
+These chunks may come from a video transcript, PDF, or webpage. If a chunk contains the answer, summarize or quote it. You are allowed to provide direct information from these chunks.
+
+If you don’t find an answer in memory, say: “I couldn’t find that information in the provided memory.”
+"""
 
 
 def _call_openai(messages: list[dict], model: str, **kwargs) -> str:
@@ -140,4 +142,8 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
     reply = call_llm(
         msgs, model=getattr(assistant, "preferred_model", DEFAULT_MODEL), **kwargs
     )
+    if "I can’t access" in reply or "I can't provide" in reply:
+        logger.warning(
+            "⚠️ Assistant hallucinated access refusal. RAG was likely not respected."
+        )
     return reply, summoned, rag_meta
