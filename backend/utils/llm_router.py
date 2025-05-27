@@ -146,4 +146,22 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
         logger.warning(
             "⚠️ Assistant hallucinated access refusal. RAG was likely not respected."
         )
+
+    if (not rag_meta.get("rag_used") or rag_meta.get("rag_fallback")) and (
+        "couldn't" in reply.lower() or "could not" in reply.lower()
+    ):
+        from assistants.models.reflection import AssistantReflectionLog
+        from prompts.utils.mutation import mutate_prompt_from_reflection
+
+        reflection = AssistantReflectionLog.objects.create(
+            assistant=assistant,
+            title="Prompt Restriction",
+            summary="Assistant was unable to answer due to prompt restriction.",
+        )
+        mutate_prompt_from_reflection(
+            assistant,
+            reflection_log=reflection,
+            reason="rag_fallback" if rag_meta.get("rag_fallback") else "rag_unused",
+        )
+
     return reply, summoned, rag_meta

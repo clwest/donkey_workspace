@@ -86,3 +86,43 @@ def mutate_prompt(
             logger.warning(f"❌ Prompt ID not found for embedding: {prompt_id}")
 
     return result
+
+
+def mutate_prompt_from_reflection(
+    assistant,
+    reflection_log=None,
+    reason: str = "",
+) -> Prompt:
+    """Generate a new system prompt for an assistant based on a reflection.
+
+    This simplified implementation clones the assistant's existing prompt and
+    appends a short note. It stores a ``PromptMutationLog`` linking the
+    reflection and mutated prompt for lineage tracking.
+    """
+
+    source_prompt: Prompt | None = getattr(assistant, "system_prompt", None)
+    if not source_prompt:
+        return None
+
+    mutated_text = f"{source_prompt.content}\n\n[Reflected mutation]"
+    mutated_prompt = Prompt.objects.create(
+        title=f"{source_prompt.title} (mutated)",
+        content=mutated_text,
+        source="reflection",
+        parent=source_prompt,
+    )
+
+    PromptMutationLog.objects.create(
+        original_prompt=source_prompt,
+        mutated_text=mutated_text,
+        mode="reflection",
+        assistant=assistant,
+        source_prompt=source_prompt,
+        mutated_prompt=mutated_prompt,
+        mutation_reason=reason,
+        triggered_by_reflection=reflection_log,
+    )
+
+    assistant.system_prompt = mutated_prompt
+    assistant.save(update_fields=["system_prompt"])
+    return mutated_prompt

@@ -542,6 +542,11 @@ urlpatterns = [
         name="assistant-failure-log",
     ),
     path(
+        "<slug:slug>/lineage/",
+        assistants.assistant_lineage,
+        name="assistant-lineage",
+    ),
+    path(
         "<slug:slug>/submit-thought/",
         thoughts.submit_assistant_thought,
         name="submit-assistant-thought",
