@@ -16,6 +16,7 @@ class UploadStatusAPITest(APITestCase):
             stage="embedding",
             current_chunk=2,
             total_chunks=4,
+            message="processing",
             session_id=uuid.uuid4(),
         )
 
@@ -28,3 +29,4 @@ class UploadStatusAPITest(APITestCase):
         self.assertEqual(data["percent_complete"], 50)
         self.assertEqual(data["current_chunk"], 2)
         self.assertEqual(data["total_chunks"], 4)
+        self.assertEqual(data["message"], "processing")

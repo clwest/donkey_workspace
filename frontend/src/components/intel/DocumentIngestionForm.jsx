@@ -56,6 +56,7 @@ export default function DocumentIngestionForm({ onSuccess }) {
         title: jobLabel,
         stage: "parsing",
         percent_complete: 0,
+        message: "",
       };
       setJobs((prev) => [...prev, newJob]);
       pollRef.current[sessionId] = setInterval(async () => {
@@ -70,7 +71,9 @@ export default function DocumentIngestionForm({ onSuccess }) {
           );
           setLog((l) => [
             ...l.slice(-50),
-            `📄 ${stat.stage} — ${jobLabel} — ${stat.percent_complete}%`,
+            stat.message
+              ? `📄 ${stat.message}`
+              : `📄 ${stat.stage} — ${jobLabel} — ${stat.percent_complete}%`,
           ]);
           if (stat.stage === "completed") {
             clearInterval(pollRef.current[sessionId]);
@@ -160,7 +163,7 @@ export default function DocumentIngestionForm({ onSuccess }) {
           <ul className="list-unstyled small mt-2">
             {jobs.map((job) => (
               <li key={job.session_id}>
-                📄 {job.stage} — {job.title} — {job.percent_complete}%
+                📄 {job.message || job.stage} — {job.title} — {job.percent_complete}%
               </li>
             ))}
           </ul>
