@@ -55,6 +55,7 @@ def generate_unique_slug(title):
 from embeddings.document_services.chunking import (
     generate_chunks,
     generate_chunk_fingerprint,
+    clean_and_score_chunk,
 )
 from prompts.utils.token_helpers import count_tokens, EMBEDDING_MODEL
 from intel_core.models import DocumentChunk
@@ -67,21 +68,30 @@ def _create_document_chunks(document: Document):
 
     chunks = generate_chunks(document.content)
     for i, chunk in enumerate(chunks):
-        fingerprint = generate_chunk_fingerprint(chunk)
+        info = clean_and_score_chunk(chunk)
+        if not info["keep"]:
+            continue
+        fingerprint = generate_chunk_fingerprint(info["text"])
         try:
             new_chunk = DocumentChunk.objects.create(
                 document=document,
                 order=i,
-                text=chunk,
-                tokens=count_tokens(chunk),
+                text=info["text"],
+                tokens=count_tokens(info["text"]),
                 chunk_type="body",
                 fingerprint=fingerprint,
             )
             # Schedule embedding generation for the created chunk
             try:
-                embed_and_store.delay(new_chunk.text, "document_chunk", str(new_chunk.id))
+                embed_and_store.delay(
+                    new_chunk.text,
+                    "document_chunk",
+                    str(new_chunk.id),
+                )
             except Exception as e:
-                logger.warning(f"Failed to queue embedding task for chunk {new_chunk.id}: {e}")
+                logger.warning(
+                    f"Failed to queue embedding task for chunk {new_chunk.id}: {e}"
+                )
         except IntegrityError:
             logger.warning(
                 f"Duplicate fingerprint for chunk {i} on document {document.id}, skipping"

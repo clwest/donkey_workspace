@@ -44,6 +44,7 @@ export default function ChatWithAssistantPage() {
           last.rag_used = data.rag_meta.rag_used;
           last.used_chunks = data.rag_meta.used_chunks || [];
           last.rag_ignored_reason = data.rag_meta.rag_ignored_reason;
+          last.rag_fallback = data.rag_meta.rag_fallback;
         }
         setSourceInfo(data.rag_meta);
       }
@@ -156,6 +157,20 @@ export default function ChatWithAssistantPage() {
               </div>
             )}
 
+            {msg.role === "assistant" && (
+              <div className="mt-1">
+                {msg.rag_fallback && (msg.used_chunks?.[0]?.score || 0) < 0.6 ? (
+                  <span className="badge bg-warning text-dark">⚠️ Weak Context</span>
+                ) : msg.rag_used ? (
+                  (msg.used_chunks?.[0]?.score || 0) >= 0.75 ? (
+                    <span className="badge bg-success">🔗 Good Source</span>
+                  ) : null
+                ) : (
+                  <span className="badge bg-danger">🚫 No Source Used</span>
+                )}
+              </div>
+            )}
+
             <button
               className="btn btn-sm btn-outline-info mt-1"
               onClick={() => handleCheckSource(msg.content)}
@@ -190,20 +205,15 @@ export default function ChatWithAssistantPage() {
       </form>
       {sourceInfo && (
         <div className="mt-2">
-          {sourceInfo.rag_used ? (
-            <span
-              className="badge bg-success"
-              title="Assistant response based on document content embedded during project creation"
-            >
-              🧠 Grounded
-            </span>
+          {sourceInfo.rag_fallback &&
+          (sourceInfo.used_chunks?.[0]?.score || 0) < 0.6 ? (
+            <span className="badge bg-warning text-dark">⚠️ Weak Context</span>
+          ) : sourceInfo.rag_used ? (
+            (sourceInfo.used_chunks?.[0]?.score || 0) >= 0.75 ? (
+              <span className="badge bg-success">🔗 Good Source</span>
+            ) : null
           ) : (
-            <span
-              className="badge bg-warning text-dark"
-              title="Assistant response based on document content embedded during project creation"
-            >
-              ⚠️ No Source Used
-            </span>
+            <span className="badge bg-danger">🚫 No Source Used</span>
           )}
         </div>
       )}

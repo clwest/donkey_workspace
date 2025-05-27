@@ -15,9 +15,19 @@ class DocumentChunkEmbeddingTests(TestCase):
     def test_tasks_scheduled_for_chunks(self):
         doc = Document.objects.create(title="T", content="a" * 120)
         with patch("intel_core.utils.processing.embed_and_store.delay") as mock_delay:
-            with patch("intel_core.utils.processing.generate_chunks", return_value=["a" * 50, "b" * 50]):
-                with patch("intel_core.utils.processing.generate_chunk_fingerprint", side_effect=["fp1", "fp2"]):
-                    processing._create_document_chunks(doc)
+            with patch(
+                "intel_core.utils.processing.generate_chunks",
+                return_value=["a" * 50, "b" * 50],
+            ):
+                with patch(
+                    "intel_core.utils.processing.generate_chunk_fingerprint",
+                    side_effect=["fp1", "fp2"],
+                ):
+                    with patch(
+                        "intel_core.utils.processing.clean_and_score_chunk",
+                        side_effect=lambda t: {"text": t, "score": 1.0, "keep": True},
+                    ):
+                        processing._create_document_chunks(doc)
         self.assertEqual(mock_delay.call_count, 2)
         self.assertEqual(DocumentChunk.objects.filter(document=doc).count(), 2)
 

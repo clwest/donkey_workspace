@@ -52,20 +52,14 @@ export default function MessageCard({ message, onFeedback, onTopicSave }) {
         )}
         {message.role === "assistant" && (
           <div className="mt-1">
-            {message.rag_used ? (
-              <span
-                className="badge bg-success"
-                title="Assistant response based on document content embedded during project creation"
-              >
-                🧠 Grounded
-              </span>
+            {message.rag_fallback && (message.used_chunks?.[0]?.score || 0) < 0.6 ? (
+              <span className="badge bg-warning text-dark">⚠️ Weak Context</span>
+            ) : message.rag_used ? (
+              (message.used_chunks?.[0]?.score || 0) >= 0.75 ? (
+                <span className="badge bg-success">🔗 Good Source</span>
+              ) : null
             ) : (
-              <span
-                className="badge bg-warning text-dark"
-                title="Assistant response based on document content embedded during project creation"
-              >
-                ⚠️ No Source Used
-              </span>
+              <span className="badge bg-danger">🚫 No Source Used</span>
             )}
           </div>
         )}

@@ -28,7 +28,35 @@ __all__ = [
     "fingerprint",
     "summarize_chunks",
     "merge_and_score_chunks",
+    "clean_and_score_chunk",
 ]
+
+
+def clean_and_score_chunk(text: str) -> dict:
+    """Clean and score a text chunk for relevance."""
+    cleaned = text.strip()
+    score = 0.0
+    if len(cleaned.split()) < 15:
+        return {"text": cleaned, "score": 0.0, "keep": False}
+
+    filler_phrases = [
+        "hey guys",
+        "thanks for watching",
+        "subscribe",
+        "welcome back",
+    ]
+    lowered = cleaned.lower()
+    if any(p in lowered for p in filler_phrases):
+        return {"text": cleaned, "score": 0.0, "keep": False}
+
+    keywords = ["setup", "install", "workflow", "step by step", "codex"]
+    if any(k in lowered for k in keywords):
+        score += 0.4
+
+    if cleaned.endswith("."):
+        score += 0.3
+
+    return {"text": cleaned, "score": score, "keep": score > 0.4}
 
 
 def generate_chunks(text: str, chunk_size: int = 1000) -> List[str]:
