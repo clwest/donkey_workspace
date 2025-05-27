@@ -139,7 +139,6 @@ class PromptUsageTemplate(models.Model):
 
 class PromptMutationLog(models.Model):
     """Track changes to prompts and their lineage."""
-
     original_prompt = models.ForeignKey(
         Prompt, on_delete=models.CASCADE, related_name="mutation_logs"
     )
@@ -153,6 +152,35 @@ class PromptMutationLog(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="children",
+    )
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="prompt_mutations",
+    )
+    source_prompt = models.ForeignKey(
+        Prompt,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="original_mutations",
+    )
+    mutated_prompt = models.ForeignKey(
+        Prompt,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="mutated_versions",
+    )
+    mutation_reason = models.TextField(blank=True)
+    triggered_by_reflection = models.ForeignKey(
+        "assistants.AssistantReflectionLog",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
     )
     created_at = models.DateTimeField(auto_now_add=True)
 

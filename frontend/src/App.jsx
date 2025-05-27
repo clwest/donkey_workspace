@@ -175,6 +175,7 @@ import MythOSCodexPage from "./pages/mythos/MythOSCodexPage";
 import DreamframePage from "./pages/agents/DreamframePage";
 import MythOSRitualsPage from "./pages/mythos/MythOSRitualsPage";
 import AssistantForkPage from "./pages/assistant/common/AssistantForkPage";
+import AssistantLineagePage from "./pages/assistant/common/AssistantLineagePage";
 import AssistantIdentityPage from "./pages/assistant/identity/AssistantIdentityPage";
 import AssistantMythpathPage from "./pages/assistant/mythpath/AssistantMythpathPage";
 import CodexConvergePage from "./pages/codex/CodexConvergePage";
@@ -478,6 +479,10 @@ export default function App() {
           <Route
             path="/assistants/:id/fork"
             element={<AssistantForkPage />}
+          />
+          <Route
+            path="/assistants/:id/lineage"
+            element={<AssistantLineagePage />}
           />
           <Route path="/assistants/:id/rebirth" element={<AssistantMythRebirthPage />} />
           <Route path="/assistants/:id/identity" element={<AssistantIdentityPage />} />

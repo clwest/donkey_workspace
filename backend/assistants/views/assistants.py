@@ -1042,3 +1042,18 @@ def failure_log(request, slug):
         for l in logs
     ]
     return Response(data)
+
+
+@api_view(["GET"])
+def assistant_lineage(request, slug):
+    """Return a recursive lineage tree for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+
+    def build_tree(node):
+        return {
+            "id": str(node.id),
+            "name": node.name,
+            "children": [build_tree(c) for c in node.sub_assistants.all()],
+        }
+
+    return Response(build_tree(assistant))
