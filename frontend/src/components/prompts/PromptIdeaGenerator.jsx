@@ -13,7 +13,7 @@ export default function PromptIdeaGenerator({ onGenerate }) {
     if (!idea.trim()) return;
     setLoading(true);
     try {
-      const res = await apiFetch(`/prompts/generate-from-idea/`, {
+      const data = await apiFetch(`/prompts/generate-from-idea/`, {
         method: "POST",
         body: {
           goal: idea,
@@ -23,8 +23,7 @@ export default function PromptIdeaGenerator({ onGenerate }) {
         },
       });
 
-      const data = await res.json();
-      if (res.ok && data.slug) {
+      if (data && data.slug) {
         onGenerate?.(data); // Pass the full prompt object directly
         toast.success("✅ Prompt generated!");
       } else {

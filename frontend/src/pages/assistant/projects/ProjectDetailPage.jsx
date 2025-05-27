@@ -40,7 +40,7 @@ export default function ProjectDetailPage() {
       }
 
       try {
-        const data = await apiFetch(`/projects/${project.core_project_id}/team_memory/`);
+        const data = await apiFetch(`/v1/projects/${project.core_project_id}/team_memory/`);
         setTeamMemory(data);
       } catch (err) {
         console.error("Failed to load team memory", err);
