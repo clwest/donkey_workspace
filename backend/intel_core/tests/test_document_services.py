@@ -12,6 +12,12 @@ spacy_stub = types.ModuleType("spacy")
 spacy_stub.load = lambda name: None
 sys.modules.setdefault("spacy", spacy_stub)
 
+numpy_stub = types.ModuleType("numpy")
+class FakeNdArray(list):
+    pass
+numpy_stub.ndarray = FakeNdArray
+sys.modules.setdefault("numpy", numpy_stub)
+
 
 import intel_core.utils.ingestion as ingestion
 import intel_core.utils.processing as processing
@@ -42,10 +48,11 @@ def test_save_document_assigns_embedding_and_tag(monkeypatch):
     Topic.objects.create(name="sports", keywords="sport,game")
     tag = Tag.objects.create(name="sports", slug="sports")
 
-    emb_mock = MagicMock(return_value=[0.1, 0.2])
+    emb_mock = MagicMock()
+    emb_mock.encode.return_value = [0.1, 0.2]
     save_mock = MagicMock(return_value="emb123")
 
-    monkeypatch.setattr(processing, "generate_embedding", emb_mock)
+    monkeypatch.setattr(processing, "sentence_transformer", emb_mock)
     monkeypatch.setattr(processing, "save_embedding", save_mock)
     monkeypatch.setattr(processing, "generate_summary", lambda text: "summary")
     monkeypatch.setattr(processing, "clean_text", lambda text: text)
@@ -55,6 +62,6 @@ def test_save_document_assigns_embedding_and_tag(monkeypatch):
     doc = processing.save_document_to_db("sport game content", {"title": "test", "source_type": "url"})
 
     assert doc is not None
-    emb_mock.assert_called()
+    emb_mock.encode.assert_called()
     save_mock.assert_called_once()
     assert doc.tags.filter(id=tag.id).exists()
