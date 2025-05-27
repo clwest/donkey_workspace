@@ -64,6 +64,7 @@ def call_llm(messages: list[dict], model: str = DEFAULT_MODEL, **kwargs) -> str:
 def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str]]:
     """High-level chat call that can summon memories."""
     from assistants.utils.memory_summoner import summon_relevant_memories
+    from assistants.utils.chunk_retriever import get_relevant_chunks
 
     msgs = list(messages)
     summoned: list[str] = []
@@ -73,6 +74,17 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str]]:
         injection, summoned = summon_relevant_memories(prompt_text, assistant)
         if injection:
             msgs.append({"role": "system", "content": injection})
+
+    # RAG chunk retrieval
+    user_parts = [m.get("content", "") for m in msgs if m.get("role") == "user"]
+    query_text = user_parts[-1] if user_parts else ""
+    chunks = get_relevant_chunks(str(assistant.id), query_text)
+    if chunks:
+        lines = ["Relevant Memory:"]
+        for i, text in enumerate(chunks, 1):
+            snippet = text[:200]
+            lines.append(f"- Chunk {i}: \"{snippet}\"")
+        msgs.append({"role": "system", "content": "\n".join(lines)})
 
     reply = call_llm(
         msgs, model=getattr(assistant, "preferred_model", DEFAULT_MODEL), **kwargs
