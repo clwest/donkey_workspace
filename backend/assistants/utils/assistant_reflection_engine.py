@@ -137,6 +137,16 @@ class AssistantReflectionEngine:
             limit=30,
         )
         texts = [e.event.strip() for e in entries if e.event.strip()]
+        from assistants.utils.chunk_retriever import get_relevant_chunks
+
+        query_text = texts[0] if texts else context.content or ""
+        chunk_texts = get_relevant_chunks(str(self.assistant.id), query_text)
+        if chunk_texts:
+            chunk_lines = ["Relevant Memory:"]
+            for i, text in enumerate(chunk_texts, 1):
+                snippet = text[:200]
+                chunk_lines.append(f"- Chunk {i}: \"{snippet}\"")
+            texts = chunk_lines + texts
         if scene or location_context:
             loc_parts = []
             if scene:
