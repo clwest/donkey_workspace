@@ -151,17 +151,25 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
         "couldn't" in reply.lower() or "could not" in reply.lower()
     ):
         from assistants.models.reflection import AssistantReflectionLog
-        from prompts.utils.mutation import mutate_prompt_from_reflection
+        from prompts.utils.mutation import (
+            mutate_prompt_from_reflection,
+            fork_assistant_from_prompt,
+        )
 
         reflection = AssistantReflectionLog.objects.create(
             assistant=assistant,
             title="Prompt Restriction",
             summary="Assistant was unable to answer due to prompt restriction.",
         )
-        mutate_prompt_from_reflection(
+        mutated_prompt = mutate_prompt_from_reflection(
             assistant,
             reflection_log=reflection,
             reason="rag_fallback" if rag_meta.get("rag_fallback") else "rag_unused",
+        )
+        fork_assistant_from_prompt(
+            assistant,
+            mutated_prompt.content,
+            reflection=reflection,
         )
 
     return reply, summoned, rag_meta

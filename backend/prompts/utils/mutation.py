@@ -2,6 +2,8 @@
 
 from typing import Optional
 from prompts.models import Prompt, PromptMutationLog
+from assistants.models import Assistant
+from assistants.models.reflection import AssistantReflectionLog
 from prompts.utils.embeddings import get_prompt_embedding
 from embeddings.helpers.helpers_io import save_embedding
 from prompts.utils.token_helpers import count_tokens
@@ -126,3 +128,34 @@ def mutate_prompt_from_reflection(
     assistant.system_prompt = mutated_prompt
     assistant.save(update_fields=["system_prompt"])
     return mutated_prompt
+
+
+def fork_assistant_from_prompt(
+    original: Assistant,
+    new_prompt_text: str,
+    *,
+    reflection: AssistantReflectionLog | None = None,
+) -> Assistant:
+    """Fork ``original`` using ``new_prompt_text`` as the system prompt."""
+
+    mutated_prompt = Prompt.objects.create(
+        content=new_prompt_text,
+        tone="directive",
+    )
+
+    child = Assistant.objects.create(
+        name=f"{original.name} Fork",
+        system_prompt=mutated_prompt,
+        parent_assistant=original,
+        specialty=original.specialty or "General AI Support",
+    )
+
+    PromptMutationLog.objects.create(
+        assistant=original,
+        source_prompt=original.system_prompt,
+        mutated_prompt=mutated_prompt,
+        mutation_reason="Hallucinated fallback during RAG query",
+        triggered_by_reflection=reflection,
+    )
+
+    return child
