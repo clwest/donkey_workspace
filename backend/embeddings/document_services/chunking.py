@@ -32,10 +32,17 @@ __all__ = [
 ]
 
 
-def clean_and_score_chunk(text: str) -> dict:
+def clean_and_score_chunk(text: str, chunk_index: int | None = None) -> dict:
     """Clean and score a text chunk for relevance."""
     cleaned = text.strip()
     score = 0.0
+    if chunk_index in (0, 1):
+        return {
+            "text": cleaned,
+            "score": score,
+            "keep": True,
+            "origin": "forced",
+        }
     if len(cleaned.split()) < 15:
         return {"text": cleaned, "score": 0.0, "keep": False}
 
@@ -56,7 +63,7 @@ def clean_and_score_chunk(text: str) -> dict:
     if cleaned.endswith("."):
         score += 0.3
 
-    return {"text": cleaned, "score": score, "keep": score > 0.4}
+    return {"text": cleaned, "score": score, "keep": score > 0.3}
 
 
 def generate_chunks(text: str, chunk_size: int = 1000) -> List[str]:
