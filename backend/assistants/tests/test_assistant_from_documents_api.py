@@ -31,8 +31,11 @@ class AssistantFromDocumentsAPITest(BaseAPITestCase):
             format="json",
         )
         self.assertEqual(resp.status_code, 200)
-        assistant_id = resp.json()["assistant_id"]
+        payload = resp.json()
+        assistant_id = payload["assistant_id"]
+        self.assertIn("slug", payload)
         assistant = Assistant.objects.get(id=assistant_id)
+        self.assertEqual(payload["slug"], assistant.slug)
         self.assertEqual(assistant.documents.count(), 2)
         self.assertIsNotNone(assistant.document_set)
         self.assertEqual(
