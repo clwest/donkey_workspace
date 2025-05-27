@@ -4,7 +4,8 @@ from typing import List
 from django.shortcuts import get_object_or_404
 from assistants.models.assistant import Assistant
 from intel_core.models import DocumentChunk
-from embeddings.helpers import get_embedding_for_text
+# Import directly from helpers_io to avoid __init__ fallbacks
+from embeddings.helpers.helpers_io import get_embedding_for_text
 from embeddings.vector_utils import compute_similarity
 
 logger = logging.getLogger(__name__)
@@ -18,6 +19,12 @@ def get_relevant_chunks(assistant_id: str, query_text: str) -> List[str]:
     """
     if not query_text:
         return []
+
+    logger.info(
+        "🔍 Searching document embeddings for assistant %s with query: %s",
+        assistant_id,
+        query_text[:80],
+    )
 
     assistant = (
         Assistant.objects.filter(id=assistant_id).first()
