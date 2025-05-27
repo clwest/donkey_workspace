@@ -98,7 +98,9 @@ def _embed_document_chunks(document: Document):
             logger.warning(f"Failed to embed chunk {chunk.id}: {e}")
             continue
 
-        if not vector:
+        if vector is None or (
+            hasattr(vector, "__len__") and len(vector) == 0
+        ):
             continue
         if hasattr(vector, "tolist"):
             vector = vector.tolist()

@@ -370,7 +370,9 @@ def rag_check_source(request):
         return Response({"error": "content is required"}, status=400)
 
     vector = generate_embedding(content)
-    if not vector:
+    if vector is None or (
+        hasattr(vector, "__len__") and len(vector) == 0
+    ):
         return Response({"error": "Failed to generate embedding"}, status=500)
 
     chunks = DocumentChunk.objects.filter(embedding__isnull=False)
@@ -380,7 +382,9 @@ def rag_check_source(request):
     results = []
     for chunk in chunks.select_related("document", "embedding"):
         vec = chunk.embedding.vector if chunk.embedding else None
-        if not vec:
+        if vec is None or (
+            hasattr(vec, "__len__") and len(vec) == 0
+        ):
             continue
         score = compute_similarity(vector, vec)
         results.append(

@@ -27,7 +27,9 @@ def auto_chunk_and_embed_devdocs():
         for chunk in chunks:
             try:
                 vector = generate_embedding(chunk)
-                if not vector:
+                if vector is None or (
+                    hasattr(vector, "__len__") and len(vector) == 0
+                ):
                     print("  ❌ Failed to generate embedding for chunk")
                     continue
 
