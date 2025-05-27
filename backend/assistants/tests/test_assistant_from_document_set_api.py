@@ -16,7 +16,7 @@ class AssistantFromDocumentSetAPITest(BaseAPITestCase):
         )
         self.doc_set = DocumentSet.objects.create(title="Set1")
         self.doc_set.documents.set([self.doc1, self.doc2])
-        self.url = "/api/v1/assistants/from-document-set/"
+        self.url = "/assistants/from-document-set/"
 
     @patch("assistants.views.assistants.get_embedding_for_text")
     def test_create_assistant(self, mock_embed):

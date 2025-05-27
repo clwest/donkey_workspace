@@ -4,6 +4,7 @@ import { Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { suggestAssistant } from "../../api/assistants";
+import { USE_PROMPT_MODE } from "../../config/ui";
 
 export default function DocumentIntelligencePanel({ docId }) {
   const [summary, setSummary] = useState(null);
@@ -32,9 +33,20 @@ export default function DocumentIntelligencePanel({ docId }) {
   const handleBootstrapAgent = async () => {
     setBootstrapping(true);
     try {
-      const res = await apiFetch(`/intel/intelligence/bootstrap-assistant/${docId}/`, {
-        method: "POST",
-      });
+      const res = await apiFetch(
+        USE_PROMPT_MODE === "legacy"
+          ? `/intel/intelligence/bootstrap-assistant/${docId}/`
+          : "/assistants/from-document-set/",
+        {
+          method: "POST",
+          body:
+            USE_PROMPT_MODE === "legacy"
+              ? undefined
+              : {
+                  document_set_id: docId,
+                },
+        }
+      );
 
       const { slug, thread_id, project_id, memory_id, objective_id } = res;
 

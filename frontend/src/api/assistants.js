@@ -337,3 +337,10 @@ export async function fetchAssistantDashboard(slug) {
   }
   return res;
 }
+
+export async function createAssistantFromDocumentSet(body) {
+  return apiFetch("/assistants/from-document-set/", {
+    method: "POST",
+    body,
+  });
+}

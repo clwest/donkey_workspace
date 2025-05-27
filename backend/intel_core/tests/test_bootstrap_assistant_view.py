@@ -21,7 +21,7 @@ class BootstrapAssistantViewTest(APITestCase):
         )
         self.doc_set = DocumentSet.objects.create(title="MCP Docs")
         self.doc_set.documents.add(self.doc)
-        self.url = f"/api/v1/intel/document-sets/{self.doc_set.id}/bootstrap-assistant/"
+        self.url = "/assistants/from-document-set/"
 
     def _fake_completion(self):
         class Msg:
@@ -41,7 +41,7 @@ class BootstrapAssistantViewTest(APITestCase):
     @patch("intel_core.views.intelligence.client.chat.completions.create")
     def test_reuse_existing_assistant(self, mock_create):
         mock_create.return_value = self._fake_completion()
-        resp1 = self.client.post(self.url)
+        resp1 = self.client.post(self.url, {"document_set_id": str(self.doc_set.id)})
         self.assertEqual(resp1.status_code, 200)
         slug = resp1.data["slug"]
         self.assertEqual(Assistant.objects.count(), 1)
@@ -50,7 +50,7 @@ class BootstrapAssistantViewTest(APITestCase):
         )
 
         mock_create.return_value = self._fake_completion()
-        resp2 = self.client.post(self.url)
+        resp2 = self.client.post(self.url, {"document_set_id": str(self.doc_set.id)})
         self.assertEqual(resp2.status_code, 200)
         self.assertEqual(Assistant.objects.count(), 1)
         self.assertEqual(resp2.data["slug"], slug)
@@ -58,7 +58,7 @@ class BootstrapAssistantViewTest(APITestCase):
     @patch("intel_core.views.intelligence.client.chat.completions.create")
     def test_detail_includes_document_info(self, mock_create):
         mock_create.return_value = self._fake_completion()
-        resp = self.client.post(self.url)
+        resp = self.client.post(self.url, {"document_set_id": str(self.doc_set.id)})
         slug = resp.data["slug"]
 
         detail = self.client.get(f"/api/v1/assistants/{slug}/")

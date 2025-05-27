@@ -21,6 +21,7 @@ from mcp_core.views import ontology as ontology_views
 from agents.views import agents as agent_views
 from agents.views import stabilization as stabilization_views
 from assistants.views import onboarding as onboarding_views
+from assistants.views import assistants as assistant_views
 from intel_core.views import intelligence as intel_views
 
 from tts.urls import router as tts_router
@@ -61,7 +62,9 @@ def _collect_routes(patterns, prefix=""):
 
 def routes_list(request):
     resolver = get_resolver()
-    routes = [r for r in _collect_routes(resolver.url_patterns) if str(r).startswith("api")]
+    routes = [
+        r for r in _collect_routes(resolver.url_patterns) if str(r).startswith("api")
+    ]
     return JsonResponse({"routes": routes})
 
 
@@ -73,6 +76,10 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
     path("onboarding/", onboarding_views.onboarding_create_assistant),
+    path(
+        "assistants/from-document-set/",
+        assistant_views.assistant_from_document_set,
+    ),
     path("api/dj-rest-auth/", include("dj_rest_auth.urls")),
     path("api/dj-rest-auth/registration/", include("dj_rest_auth.registration.urls")),
     path("api/tts/", include("tts.urls")),
