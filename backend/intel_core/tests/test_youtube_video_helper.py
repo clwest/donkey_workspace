@@ -37,3 +37,28 @@ def test_process_youtube_video_returns_empty_on_failure(monkeypatch):
         "https://www.youtube.com/watch?v=f0-t_jIW9yY&t=849s"
     )
     assert chunks == []
+
+
+def test_process_youtube_video_falls_back_to_any_language(monkeypatch):
+    class DummyTranscript:
+        def fetch(self):
+            return [
+                {"text": "Hello"},
+            ]
+
+    def fail_get_transcript(*args, **kwargs):
+        raise Exception("fail")
+
+    monkeypatch.setattr(
+        helper.YouTubeTranscriptApi, "get_transcript", staticmethod(fail_get_transcript)
+    )
+
+    monkeypatch.setattr(
+        helper.YouTubeTranscriptApi,
+        "list_transcripts",
+        staticmethod(lambda *args, **kwargs: [DummyTranscript()]),
+    )
+    monkeypatch.setattr(helper, "RecursiveCharacterTextSplitter", DummySplitter)
+
+    chunks = helper.process_youtube_video("https://www.youtube.com/watch?v=abcdEFGhijk")
+    assert chunks == ["Hello"]
