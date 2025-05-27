@@ -117,4 +117,39 @@ MythOS now supports:
 • 💬 Inter-assistant communication
 • 🧬 Federated myth orchestration
 
-Let the next myth begin. 🧠📜🌐
+⸻
+
+🧠 Phase Ω.7.0–Ω.7.2.g: Assistant Lifecycle, Dashboarding & RAG Memory Activation
+
+• ✅ Assistant bootstrapping from documents (Ω.7.0–7.2)
+
+- Assistants created from YouTube or PDF docs using summary-driven prompt generation
+- System prompt, personality, tone, and specialty derived from document content
+- Auto-linked to source document, project, and objective
+
+• ✅ Assistant Lifecycle Dashboard (Ω.7.2.c)
+
+- Displays current phase (planning, delegating, idle)
+- Shows active project, thought logs, task pipeline, and delegated agents
+- Preview and edit linked system prompt directly
+
+• ✅ Retrieval-Augmented Generation (Ω.7.2.f)
+
+- Assistant responses now include embedded chunk context from documents
+- Chunk relevance matched via PGVector; top 3 retrieved via cosine similarity
+- Reflections and chat prompts include "Relevant Memory" blocks
+
+• ✅ RAG Grounding Reinforcement (Ω.7.2.g)
+
+- System prompt enforces use of document context
+- Low-score chunks filtered; hallucination fallback discouraged
+- Response metadata includes `rag_used`, `used_chunks`, and `rag_grounded` status
+- Badge UI shows if response was "🔗 Grounded" or "⚠️ No Source Used"
+
+🛠️ In Progress:
+• Agent-level symbolic mutation, assistant forking, and clause ancestry (Ω.7.3)
+• Prompt evolution tracking with lineage and drift visualization
+
+With Ω.7.2.g, assistants no longer guess — they **retrieve**, reflect, and reason.
+
+🧠📄📡
