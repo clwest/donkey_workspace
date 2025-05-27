@@ -1,6 +1,6 @@
 from __future__ import annotations
 import logging
-from typing import List
+from typing import List, Dict, Tuple, Optional
 from django.shortcuts import get_object_or_404
 from assistants.models.assistant import Assistant
 from intel_core.models import DocumentChunk
@@ -11,14 +11,22 @@ from embeddings.vector_utils import compute_similarity
 logger = logging.getLogger(__name__)
 
 
-def get_relevant_chunks(assistant_id: str, query_text: str) -> List[str]:
-    """Return up to three document chunks most similar to ``query_text``.
+def get_relevant_chunks(
+    assistant_id: str,
+    query_text: str,
+    *,
+    score_threshold: float = 0.75,
+    keywords: Optional[List[str]] = None,
+) -> Tuple[List[Dict[str, object]], Optional[str]]:
+    """Return top matching chunks and an optional ignore reason.
 
-    The search is limited to documents linked to the assistant or its current
-    project.  Results are ordered by vector similarity.
+    Results are filtered by ``score_threshold`` and optionally reranked if
+    ``keywords`` are provided.  The return value is ``(chunks, reason)`` where
+    ``reason`` is ``"low score"`` when matches exist but all fall below the
+    threshold.
     """
     if not query_text:
-        return []
+        return [], None
 
     logger.info(
         "🔍 Searching document embeddings for assistant %s with query: %s",
@@ -32,7 +40,7 @@ def get_relevant_chunks(assistant_id: str, query_text: str) -> List[str]:
     )
     if not assistant:
         logger.warning("Assistant %s not found", assistant_id)
-        return []
+        return [], None
 
     doc_ids = list(assistant.documents.values_list("id", flat=True))
     if assistant.current_project_id:
@@ -40,15 +48,15 @@ def get_relevant_chunks(assistant_id: str, query_text: str) -> List[str]:
             assistant.current_project.documents.values_list("id", flat=True)
         )
     if not doc_ids:
-        return []
+        return [], None
 
     try:
         query_vec = get_embedding_for_text(query_text)
     except Exception as exc:  # pragma: no cover - network
         logger.error("Embedding generation failed: %s", exc)
-        return []
+        return [], None
     if not query_vec:
-        return []
+        return [], None
 
     chunks = (
         DocumentChunk.objects.filter(document_id__in=doc_ids, embedding__isnull=False)
@@ -60,6 +68,26 @@ def get_relevant_chunks(assistant_id: str, query_text: str) -> List[str]:
         if vec is None:
             continue
         score = compute_similarity(query_vec, vec)
-        scored.append((score, chunk.text))
+        if keywords and any(k.lower() in chunk.text.lower() for k in keywords):
+            score += 0.05
+        scored.append((score, chunk))
+
     scored.sort(key=lambda x: x[0], reverse=True)
-    return [text for _, text in scored[:3]]
+    filtered = [(s, c) for s, c in scored if s >= score_threshold]
+    reason = None
+    if scored and not filtered:
+        reason = "low score"
+
+    result = []
+    for score, chunk in filtered[:3]:
+        result.append(
+            {
+                "chunk_id": str(chunk.id),
+                "document_id": str(chunk.document_id),
+                "score": round(score, 4),
+                "text": chunk.text,
+                "source_doc": chunk.document.title,
+            }
+        )
+
+    return result, reason
