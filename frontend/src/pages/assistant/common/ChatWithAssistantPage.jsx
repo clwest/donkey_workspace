@@ -37,8 +37,18 @@ export default function ChatWithAssistantPage() {
 
       if (!res.ok) throw new Error("Failed to send message");
       const data = await res.json();
-      setMessages(data.messages || []);
-      console.log(data)
+      const msgs = data.messages || [];
+      if (msgs.length && data.rag_meta) {
+        const last = msgs[msgs.length - 1];
+        if (last.role === "assistant") {
+          last.rag_used = data.rag_meta.rag_used;
+          last.used_chunks = data.rag_meta.used_chunks || [];
+          last.rag_ignored_reason = data.rag_meta.rag_ignored_reason;
+        }
+        setSourceInfo(data.rag_meta);
+      }
+      setMessages(msgs);
+      console.log(data);
       setInput("");
     } catch (err) {
       setError("⚠️ Failed to send message.");
@@ -178,6 +188,25 @@ export default function ChatWithAssistantPage() {
           {loading ? "Thinking..." : "Send"}
         </button>
       </form>
+      {sourceInfo && (
+        <div className="mt-2">
+          {sourceInfo.rag_used ? (
+            <span
+              className="badge bg-success"
+              title="Assistant response based on document content embedded during project creation"
+            >
+              🧠 Grounded
+            </span>
+          ) : (
+            <span
+              className="badge bg-warning text-dark"
+              title="Assistant response based on document content embedded during project creation"
+            >
+              ⚠️ No Source Used
+            </span>
+          )}
+        </div>
+      )}
       <button className="btn btn-outline-primary mt-2" onClick={handleSuggest}>
         🤖 Suggest Assistant
       </button>

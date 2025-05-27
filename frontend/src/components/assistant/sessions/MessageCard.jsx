@@ -50,6 +50,25 @@ export default function MessageCard({ message, onFeedback, onTopicSave }) {
             {message.style && message.style}
           </span>
         )}
+        {message.role === "assistant" && (
+          <div className="mt-1">
+            {message.rag_used ? (
+              <span
+                className="badge bg-success"
+                title="Assistant response based on document content embedded during project creation"
+              >
+                🧠 Grounded
+              </span>
+            ) : (
+              <span
+                className="badge bg-warning text-dark"
+                title="Assistant response based on document content embedded during project creation"
+              >
+                ⚠️ No Source Used
+              </span>
+            )}
+          </div>
+        )}
 
         {/* Feedback */}
         <div className="d-flex align-items-center gap-2 my-2">

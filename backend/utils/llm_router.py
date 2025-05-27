@@ -61,8 +61,8 @@ def call_llm(messages: list[dict], model: str = DEFAULT_MODEL, **kwargs) -> str:
         return _call_openai(messages, model, **kwargs)
 
 
-def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str]]:
-    """High-level chat call that can summon memories."""
+def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dict]:
+    """High-level chat call that can summon memories and RAG context."""
     from assistants.utils.memory_summoner import summon_relevant_memories
     from assistants.utils.chunk_retriever import get_relevant_chunks
 
@@ -78,15 +78,36 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str]]:
     # RAG chunk retrieval
     user_parts = [m.get("content", "") for m in msgs if m.get("role") == "user"]
     query_text = user_parts[-1] if user_parts else ""
-    chunks = get_relevant_chunks(str(assistant.id), query_text)
+    chunks, reason = get_relevant_chunks(str(assistant.id), query_text)
+    rag_meta = {"rag_used": False, "used_chunks": [], "rag_ignored_reason": None}
     if chunks:
-        lines = ["Relevant Memory:"]
-        for i, text in enumerate(chunks, 1):
-            snippet = text[:200]
-            lines.append(f"- Chunk {i}: \"{snippet}\"")
+        rag_meta["rag_used"] = True
+        rag_meta["used_chunks"] = [
+            {
+                "chunk_id": c["chunk_id"],
+                "score": c["score"],
+                "source_doc": c["source_doc"],
+            }
+            for c in chunks
+        ]
+        msgs.insert(
+            0,
+            {
+                "role": "system",
+                "content": "You are a retrieval-aware assistant. Always use the provided document context. Do not guess or hallucinate.",
+            },
+        )
+        lines = ["You must use only the following context to answer:", ""]
+        for i, info in enumerate(chunks, 1):
+            snippet = info["text"][:200]
+            lines.append(f"[Chunk {i}] \"{snippet}\"")
         msgs.append({"role": "system", "content": "\n".join(lines)})
+    elif reason:
+        rag_meta["rag_ignored_reason"] = reason
+    else:
+        rag_meta["rag_ignored_reason"] = "fallback to default knowledge"
 
     reply = call_llm(
         msgs, model=getattr(assistant, "preferred_model", DEFAULT_MODEL), **kwargs
     )
-    return reply, summoned
+    return reply, summoned, rag_meta

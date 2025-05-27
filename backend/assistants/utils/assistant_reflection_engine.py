@@ -110,9 +110,27 @@ class AssistantReflectionEngine:
     Would a different emotional state have produced better results?
     """
 
-    def generate_reflection(self, prompt: str, temperature: float = 0.5) -> str:
+    def generate_reflection(
+        self,
+        prompt: str,
+        temperature: float = 0.5,
+        rag_chunks: Optional[List[str]] = None,
+    ) -> str:
+        messages = []
+        if rag_chunks:
+            messages.append(
+                {
+                    "role": "system",
+                    "content": "You are a retrieval-aware assistant. Always use the provided document context. Do not guess or hallucinate.",
+                }
+            )
+            lines = ["You must use only the following context to answer:", ""]
+            for i, text in enumerate(rag_chunks, 1):
+                lines.append(f"[Chunk {i}] \"{text[:200]}\"")
+            messages.append({"role": "system", "content": "\n".join(lines)})
+        messages.append({"role": "user", "content": prompt})
         return call_llm(
-            [{"role": "user", "content": prompt}],
+            messages,
             model=self.assistant.preferred_model or "gpt-4o",
             temperature=temperature,
             max_tokens=400,
@@ -140,13 +158,8 @@ class AssistantReflectionEngine:
         from assistants.utils.chunk_retriever import get_relevant_chunks
 
         query_text = texts[0] if texts else context.content or ""
-        chunk_texts = get_relevant_chunks(str(self.assistant.id), query_text)
-        if chunk_texts:
-            chunk_lines = ["Relevant Memory:"]
-            for i, text in enumerate(chunk_texts, 1):
-                snippet = text[:200]
-                chunk_lines.append(f"- Chunk {i}: \"{snippet}\"")
-            texts = chunk_lines + texts
+        chunk_info, _ = get_relevant_chunks(str(self.assistant.id), query_text)
+        rag_chunks = [c["text"] for c in chunk_info]
         if scene or location_context:
             loc_parts = []
             if scene:
@@ -161,7 +174,9 @@ class AssistantReflectionEngine:
 
         try:
             reflection_text = (
-                self.generate_reflection(prompt) if prompt else "No meaningful content."
+                self.generate_reflection(prompt, rag_chunks=rag_chunks)
+                if prompt
+                else "No meaningful content."
             )
 
             log = AssistantReflectionLog.objects.create(

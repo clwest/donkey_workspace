@@ -582,7 +582,7 @@ def chat_with_assistant_view(request, slug):
         return Response({"delegate_slug": delegate.slug})
 
     # Run LLM chat with optional memory summon
-    reply, summoned_ids = llm_router.chat(
+    reply, summoned_ids, rag_meta = llm_router.chat(
         messages,
         assistant,
         temperature=0.7,
@@ -709,7 +709,10 @@ def chat_with_assistant_view(request, slug):
         memory.tags = generate_tags_for_memory(full_transcript)
         memory.save()
 
-    return Response({"messages": load_session_messages(session_id)})
+    return Response({
+        "messages": load_session_messages(session_id),
+        "rag_meta": rag_meta,
+    })
 
 
 @api_view(["POST"])
