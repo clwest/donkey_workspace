@@ -7,6 +7,13 @@ DEFAULT_MODEL = "gpt-4o"
 client = OpenAI()
 logger = logging.getLogger(__name__)
 
+# Strict system prompt used whenever RAG chunks are injected
+RAG_SYSTEM_PROMPT = (
+    "You are a retrieval-grounded assistant. You must only answer using the "
+    "following memory chunks. If the answer is not in the chunks, say: 'I could "
+    "not find that in the provided memory.' Do not guess or answer from training."
+)
+
 
 def _call_openai(messages: list[dict], model: str, **kwargs) -> str:
     logger.info("Calling OpenAI with model %s", model)
@@ -96,25 +103,26 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
         ]
         for i, c in enumerate(chunks, 1):
             logger.info("Chunk %s score %.4f: %s", i, c["score"], c["text"][:200])
-        msgs.insert(
-            0,
-            {
-                "role": "system",
-                "content": (
-                    "You are a retrieval-aware assistant. Only use the context below to answer. "
-                    "If the context does not contain the answer, say you do not know."
-                ),
-            },
-        )
-        lines = ["Only use the context below to answer:", ""]
+
+        replaced = False
+        for idx, m in enumerate(msgs):
+            if m.get("role") == "system":
+                msgs[idx] = {"role": "system", "content": RAG_SYSTEM_PROMPT}
+                replaced = True
+                break
+        if not replaced:
+            msgs.insert(0, {"role": "system", "content": RAG_SYSTEM_PROMPT})
+
+        lines = ["MEMORY CHUNKS", "=================="]
         for i, info in enumerate(chunks, 1):
-            snippet = info["text"][:200]
-            lines.append(f"[Chunk {i}] \"{snippet}\"")
-        msgs.append({"role": "system", "content": "\n".join(lines)})
-    elif reason:
-        rag_meta["rag_ignored_reason"] = reason
+            lines.append(f"[{i}] {info['text']}")
+        lines.append("==================")
+        chunk_block = "\n".join(lines)
+        last_user_idx = max(i for i, m in enumerate(msgs) if m.get("role") == "user")
+        msgs.insert(last_user_idx, {"role": "user", "content": chunk_block})
     else:
-        rag_meta["rag_ignored_reason"] = "fallback to default knowledge"
+        rag_meta["rag_used"] = False
+        rag_meta["rag_ignored_reason"] = reason or "no matching chunks found"
 
     reply = call_llm(
         msgs, model=getattr(assistant, "preferred_model", DEFAULT_MODEL), **kwargs
