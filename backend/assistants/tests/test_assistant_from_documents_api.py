@@ -2,10 +2,10 @@ from unittest.mock import patch
 from assistants.tests import BaseAPITestCase
 from assistants.models import Assistant, AssistantThoughtLog
 from agents.models.lore import SwarmMemoryEntry
-from intel_core.models import Document, DocumentSet
+from intel_core.models import Document
 
 
-class AssistantFromDocumentSetAPITest(BaseAPITestCase):
+class AssistantFromDocumentsAPITest(BaseAPITestCase):
     def setUp(self):
         self.authenticate()
         self.doc1 = Document.objects.create(
@@ -14,9 +14,7 @@ class AssistantFromDocumentSetAPITest(BaseAPITestCase):
         self.doc2 = Document.objects.create(
             title="Doc2", content="t2", source_type="url"
         )
-        self.doc_set = DocumentSet.objects.create(title="Set1")
-        self.doc_set.documents.set([self.doc1, self.doc2])
-        self.url = "/assistants/from-document-set/"
+        self.url = "/assistants/from-documents/"
 
     @patch("assistants.views.assistants.get_embedding_for_text")
     def test_create_assistant(self, mock_embed):
@@ -24,7 +22,7 @@ class AssistantFromDocumentSetAPITest(BaseAPITestCase):
         resp = self.client.post(
             self.url,
             {
-                "document_set_id": str(self.doc_set.id),
+                "document_ids": [str(self.doc1.id), str(self.doc2.id)],
                 "name": "Helper",
                 "personality": "supportive",
                 "tone": "empathetic",
@@ -35,7 +33,8 @@ class AssistantFromDocumentSetAPITest(BaseAPITestCase):
         self.assertEqual(resp.status_code, 200)
         assistant_id = resp.json()["assistant_id"]
         assistant = Assistant.objects.get(id=assistant_id)
-        self.assertEqual(assistant.document_set, self.doc_set)
+        self.assertEqual(assistant.documents.count(), 2)
+        self.assertIsNotNone(assistant.document_set)
         self.assertEqual(
             AssistantThoughtLog.objects.filter(assistant=assistant).count(), 1
         )

@@ -1,10 +1,10 @@
 [
   {
     "module": "assistants/views/assistants.py",
-    "function": "assistant_from_document_set",
+    "function": "assistant_from_documents",
     "url_mapped": true,
-    "frontend_used": false,
-    "recommendation": "Expose at /assistants/from-document-set/, link to UI creation flow"
+    "frontend_used": true,
+    "recommendation": "Expose at /assistants/from-documents/, link to UI creation flow"
   },
   {
     "module": "intel_core/views/intelligence.py",

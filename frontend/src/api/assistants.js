@@ -338,8 +338,8 @@ export async function fetchAssistantDashboard(slug) {
   return res;
 }
 
-export async function createAssistantFromDocumentSet(body) {
-  return apiFetch("/assistants/from-document-set/", {
+export async function createAssistantFromDocuments(body) {
+  return apiFetch("/assistants/from-documents/", {
     method: "POST",
     body,
   });

@@ -31,14 +31,14 @@ export default function DocumentAutoBuilder({ docId }) {
       const res = await apiFetch(
         USE_PROMPT_MODE === "legacy"
           ? `/intel/intelligence/bootstrap-assistant/${docId}/`
-          : "/assistants/from-document-set/",
+          : "/assistants/from-documents/",
         {
           method: "POST",
           body:
             USE_PROMPT_MODE === "legacy"
               ? undefined
               : {
-                  document_set_id: docId,
+                  document_ids: [docId],
                 },
         }
       );
