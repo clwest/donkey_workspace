@@ -23,13 +23,15 @@ def log_prompt_usage(
     created_by: Optional[User] = None,
     prompt: Optional[Prompt] = None,
     template: Optional[PromptUsageTemplate] = None,
+    extra_data: Optional[dict] = None,
     verbose: bool = False,
 ) -> Optional[PromptUsageLog]:
     """Record usage of a prompt and create a ``PromptUsageLog`` entry.
 
     When ``verbose`` is ``True`` a short summary dictionary of the log is
     returned instead of the model instance. Any exception is logged and
-    ``None`` is returned.
+    ``None`` is returned. Arbitrary ``extra_data`` can be stored on the
+    ``PromptUsageLog`` for later analysis.
     """
     
     if not prompt and not prompt_slug:
@@ -62,6 +64,7 @@ def log_prompt_usage(
             created_by=created_by,
             prompt=prompt,
             template=template,
+            extra_data=extra_data or {},
         )
 
         if verbose:
