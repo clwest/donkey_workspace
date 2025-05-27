@@ -1,7 +1,13 @@
 # intel_core/serializers.py
 
 from rest_framework import serializers
-from intel_core.models import Document, DocumentFavorite, DocumentSet
+from intel_core.models import (
+    Document,
+    DocumentFavorite,
+    DocumentSet,
+    DocumentChunk,
+    EmbeddingMetadata,
+)
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -47,7 +53,6 @@ class DocumentSetSerializer(serializers.ModelSerializer):
 
     documents = DocumentSerializer(many=True, read_only=True)
 
-
     class Meta:
         model = DocumentSet
         fields = [
@@ -57,5 +62,16 @@ class DocumentSetSerializer(serializers.ModelSerializer):
             "documents",
             "created_at",
             "embedding_index",
-
         ]
+
+
+class DocumentChunkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DocumentChunk
+        fields = "__all__"
+
+
+class EmbeddingMetadataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmbeddingMetadata
+        fields = "__all__"

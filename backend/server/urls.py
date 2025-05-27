@@ -130,6 +130,7 @@ urlpatterns = [
     path("api/myth-patterns/", agent_views.myth_patterns),
     path("api/intent-harmony/", agent_views.intent_harmony),
     path("api/intel/", include("intel_core.urls")),
+    path("api/v1/intel/", include("intel_core.api_urls")),
     path("api/rag/check-source/", intel_views.rag_check_source),
     path("api/signal-artifacts/", agent_views.signal_artifacts),
     path("api/navigation-vectors/", agent_views.navigation_vectors),

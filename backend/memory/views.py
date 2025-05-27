@@ -96,6 +96,12 @@ class MemoryChainViewSet(viewsets.ModelViewSet):
         return cross_project_recall_view(request, chain_id=pk)
 
 
+class MemoryFeedbackViewSet(viewsets.ModelViewSet):
+    queryset = MemoryFeedback.objects.all().order_by("-created_at")
+    serializer_class = MemoryFeedbackSerializer
+    permission_classes = [AllowAny]
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def create_memory_chain(request):
@@ -845,8 +851,6 @@ def anamnesis(request):
 def public_memory_grove(request):
     """Query public memory groves by codex or tags."""
 
-    
-
     codex = request.GET.get("codex")
     if codex:
         queryset = queryset.filter(codex_reference__id=codex)
@@ -889,6 +893,7 @@ def symbolic_chunk_diff_view(request, document_set_id):
     ]
     return Response({"document_set_id": str(document_set_id), "chunks": diff})
 
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def suggest_memory_merge(request):
@@ -896,6 +901,8 @@ def suggest_memory_merge(request):
     serializer = MemoryMergeSuggestionSerializer(data=request.data)
     if serializer.is_valid():
         suggestion = serializer.save()
-        return Response(MemoryMergeSuggestionSerializer(suggestion).data, status=status.HTTP_201_CREATED)
+        return Response(
+            MemoryMergeSuggestionSerializer(suggestion).data,
+            status=status.HTTP_201_CREATED,
+        )
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
