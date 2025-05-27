@@ -1,12 +1,16 @@
 import os
+import logging
 import requests
 from openai import OpenAI
 
 DEFAULT_MODEL = "gpt-4o"
 client = OpenAI()
+logger = logging.getLogger(__name__)
 
 
 def _call_openai(messages: list[dict], model: str, **kwargs) -> str:
+    logger.info("Calling OpenAI with model %s", model)
+    logger.debug("OpenAI payload: %s", {"model": model, "messages": messages})
     response = client.chat.completions.create(
         model=model,
         messages=messages,
@@ -90,14 +94,19 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
             }
             for c in chunks
         ]
+        for i, c in enumerate(chunks, 1):
+            logger.info("Chunk %s score %.4f: %s", i, c["score"], c["text"][:200])
         msgs.insert(
             0,
             {
                 "role": "system",
-                "content": "You are a retrieval-aware assistant. Always use the provided document context. Do not guess or hallucinate.",
+                "content": (
+                    "You are a retrieval-aware assistant. Only use the context below to answer. "
+                    "If the context does not contain the answer, say you do not know."
+                ),
             },
         )
-        lines = ["You must use only the following context to answer:", ""]
+        lines = ["Only use the context below to answer:", ""]
         for i, info in enumerate(chunks, 1):
             snippet = info["text"][:200]
             lines.append(f"[Chunk {i}] \"{snippet}\"")
