@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 import re
 import logging
+from urllib.parse import urlparse, parse_qs
 from youtube_transcript_api import (
     YouTubeTranscriptApi,
     NoTranscriptFound,
@@ -20,16 +21,56 @@ load_dotenv()
 api_key = os.getenv("YOUTUBE_API")
 
 
-def extract_video_id(youtube_url):
-    """
-    Extract the video ID from a YouTube URL.
-    """
-    pattern = r"(?:v=|\/)([0-9A-Za-z_-]{11})"
+def extract_video_id(youtube_url: str) -> str:
+    """Return the video ID portion of a YouTube URL."""
+
+    parsed = urlparse(youtube_url)
+    query_params = parse_qs(parsed.query)
+    if "v" in query_params:
+        return query_params["v"][0]
+
+    if parsed.hostname and parsed.hostname.endswith("youtu.be"):
+        return parsed.path.lstrip("/")
+
+    pattern = r"([0-9A-Za-z_-]{11})"
     match = re.search(pattern, youtube_url)
     if match:
         return match.group(1)
-    else:
-        raise ValueError("Invalid YouTube URL. Could not extract video ID.")
+
+    raise ValueError("Invalid YouTube URL. Could not extract video ID.")
+
+
+def _fetch_transcript(video_id: str):
+    """Return a transcript list for the given video ID if available."""
+
+    fetch_attempts = []
+
+    if api_key:
+        fetch_attempts.append(
+            lambda: YouTubeTranscriptApi.get_transcript(video_id, youtube_api_key=api_key)
+        )
+
+    fetch_attempts.append(lambda: YouTubeTranscriptApi.get_transcript(video_id))
+
+    def _list_transcripts():
+        transcripts = YouTubeTranscriptApi.list_transcripts(video_id)
+        try:
+            return transcripts.find_transcript(["en"]).fetch()
+        except Exception:
+            return transcripts.find_generated_transcript(["en"]).fetch()
+
+    fetch_attempts.append(_list_transcripts)
+
+    for attempt in fetch_attempts:
+        try:
+            return attempt()
+        except (NoTranscriptFound, TranscriptsDisabled, VideoUnavailable, TooManyRequests) as exc:
+            logger.error(f"Transcript unavailable for video {video_id}: {exc}")
+            return None
+        except Exception as exc:  # noqa: PERF203
+            logger.debug(f"Transcript fetch attempt failed for {video_id}: {exc}")
+
+    return None
 
 
 def process_youtube_video(youtube_url):
@@ -48,33 +89,10 @@ def process_youtube_video(youtube_url):
         logger.error(str(exc))
         return []
 
-    try:
-        transcript = (
-            YouTubeTranscriptApi.get_transcript(
-                video_id, youtube_api_key=api_key
-            )
-            if api_key
-            else YouTubeTranscriptApi.get_transcript(video_id)
-        )
-    except NoTranscriptFound:
-        logger.warning(f"No subtitles found for video {youtube_url}.")
+    transcript = _fetch_transcript(video_id)
+    if not transcript:
+        logger.warning(f"Could not fetch content for video: {youtube_url}")
         return []
-    except (TranscriptsDisabled, VideoUnavailable, TooManyRequests) as exc:
-        logger.error(f"Transcript unavailable for {youtube_url}: {exc}")
-        return []
-    except Exception as exc:
-        # Retry without API key if first attempt failed and a key was used
-        if api_key:
-            try:
-                transcript = YouTubeTranscriptApi.get_transcript(video_id)
-            except Exception as inner_exc:
-                logger.error(
-                    f"Error fetching transcript for {youtube_url}: {inner_exc}"
-                )
-                return []
-        else:
-            logger.error(f"Error fetching transcript for {youtube_url}: {exc}")
-            return []
 
     try:
         transcript_text = " ".join(item.get("text", "") for item in transcript)
