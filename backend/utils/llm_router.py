@@ -9,9 +9,9 @@ logger = logging.getLogger(__name__)
 
 # Strict system prompt used whenever RAG chunks are injected
 RAG_SYSTEM_PROMPT = (
-    "You are a retrieval-grounded assistant. You must only answer using the "
-    "following memory chunks. If the answer is not in the chunks, say: 'I could "
-    "not find that in the provided memory.' Do not guess or answer from training."
+    "You are a retrieval-grounded assistant. Only answer using the provided "
+    "memory chunks. If unsure, say: 'I couldn\u2019t find that information in the "
+    "memory.' Do not guess or answer from training."
 )
 
 
@@ -118,12 +118,15 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
             lines.append(f"[{i}] {info['text']}")
         lines.append("==================")
         chunk_block = "\n".join(lines)
+        logger.debug("Injecting chunk block: %s", chunk_block)
         last_user_idx = max(i for i, m in enumerate(msgs) if m.get("role") == "user")
         msgs.insert(last_user_idx, {"role": "user", "content": chunk_block})
     else:
         rag_meta["rag_used"] = False
         rag_meta["rag_ignored_reason"] = reason or "no matching chunks found"
+        logger.warning("\u26a0\ufe0f No relevant chunks found — skipping memory injection")
 
+    logger.debug("Final messages array: %s", msgs)
     reply = call_llm(
         msgs, model=getattr(assistant, "preferred_model", DEFAULT_MODEL), **kwargs
     )
