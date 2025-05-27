@@ -14,14 +14,20 @@ import time
 import random
 import logging
 import math
-import tiktoken
+try:
+    import tiktoken
+except Exception:  # pragma: no cover - optional dependency may be absent
+    tiktoken = None
 
 # OpenAI client for v1.x SDK
-from openai import OpenAI
+try:
+    from openai import OpenAI
+except Exception:  # pragma: no cover - optional dependency may be absent
+    OpenAI = None
 from prompts.utils.token_helpers import EMBEDDING_MODEL
 
 MAX_TOKENS = 8192
-tokenizer = tiktoken.encoding_for_model(EMBEDDING_MODEL)
+tokenizer = tiktoken.encoding_for_model(EMBEDDING_MODEL) if tiktoken else None
 
 __all__ = [
     "retry_with_backoff",
@@ -43,7 +49,7 @@ from embeddings.vector_utils import compute_similarity
 logger = logging.getLogger("embeddings")
 
 # Initialize OpenAI client (expects OPENAI_API_KEY in env)
-client = OpenAI()
+client = OpenAI() if OpenAI else None
 
 
 def retry_with_backoff(
@@ -94,11 +100,16 @@ def generate_embedding(
     if not text or not text.strip():
         logger.warning("Empty or blank text provided to generate_embedding.")
         return None
+
+    if client is None:
+        logger.error("OpenAI library not available; cannot generate embedding.")
+        return []
     
-    tokens = tokenizer.encode(text)
-    if len(tokens) > MAX_TOKENS:
-        tokens = tokens[:MAX_TOKENS]
-        text = tokenizer.decode(tokens)
+    if tokenizer:
+        tokens = tokenizer.encode(text)
+        if len(tokens) > MAX_TOKENS:
+            tokens = tokens[:MAX_TOKENS]
+            text = tokenizer.decode(tokens)
     try:
         # Generate embedding via OpenAI v1.x SDK
         response = retry_with_backoff(
