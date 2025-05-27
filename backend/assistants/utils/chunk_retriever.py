@@ -3,6 +3,7 @@ import logging
 from typing import List, Dict, Tuple, Optional
 from django.shortcuts import get_object_or_404
 from assistants.models.assistant import Assistant
+from assistants.models.project import AssistantProject
 from intel_core.models import DocumentChunk
 # Import directly from helpers_io to avoid __init__ fallbacks
 from embeddings.helpers.helpers_io import get_embedding_for_text
@@ -12,9 +13,11 @@ logger = logging.getLogger(__name__)
 
 
 def get_relevant_chunks(
-    assistant_id: str,
+    assistant_id: Optional[str],
     query_text: str,
     *,
+    project_id: Optional[str] = None,
+    document_id: Optional[str] = None,
     score_threshold: float = 0.75,
     keywords: Optional[List[str]] = None,
     fallback_min: float = 0.5,
@@ -31,24 +34,34 @@ def get_relevant_chunks(
         return [], None, False
 
     logger.info(
-        "🔍 Searching document embeddings for assistant %s with query: %s",
-        assistant_id,
-        query_text[:80],
+        "🔍 Searching document embeddings for query: %s", query_text[:80]
     )
 
-    assistant = (
-        Assistant.objects.filter(id=assistant_id).first()
-        or Assistant.objects.filter(slug=assistant_id).first()
-    )
-    if not assistant:
-        logger.warning("Assistant %s not found", assistant_id)
-        return [], None, False
-
-    doc_ids = list(assistant.documents.values_list("id", flat=True))
-    if assistant.current_project_id:
-        doc_ids += list(
-            assistant.current_project.documents.values_list("id", flat=True)
+    assistant = None
+    if assistant_id:
+        assistant = (
+            Assistant.objects.filter(id=assistant_id).first()
+            or Assistant.objects.filter(slug=assistant_id).first()
         )
+        if not assistant:
+            logger.warning("Assistant %s not found", assistant_id)
+    doc_ids: List[str] = []
+
+    if document_id:
+        doc_ids = [document_id]
+    elif project_id:
+        project = (
+            AssistantProject.objects.filter(id=project_id).first()
+            or AssistantProject.objects.filter(slug=project_id).first()
+        )
+        if project:
+            doc_ids = list(project.documents.values_list("id", flat=True))
+    elif assistant:
+        doc_ids = list(assistant.documents.values_list("id", flat=True))
+        if assistant.current_project_id:
+            doc_ids += list(
+                assistant.current_project.documents.values_list("id", flat=True)
+            )
     if not doc_ids:
         return [], None, False
 
