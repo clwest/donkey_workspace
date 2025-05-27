@@ -94,14 +94,35 @@ def save_embedding(obj: Any, embedding: List[float]) -> Optional[Embedding]:
             logger.warning(f"❌ Skipping embedding for {obj} — empty or invalid vector")
             return None
 
-        # Get actual ContentType instance for GFK
-        content_type = ContentType.objects.get_for_model(obj.__class__)
+        if hasattr(obj, "_meta"):
+            # Standard Django model instance
+            content_type = ContentType.objects.get_for_model(obj.__class__)
+            object_id = obj.id
+            content = getattr(obj, "event", None) or str(obj)
+        else:
+            # Support lightweight objects (e.g., SimpleNamespace) with
+            # `content_type` and `id` attributes.
+            ct_name = getattr(obj, "content_type", None)
+            object_id = getattr(obj, "id", None)
+
+            if not ct_name or object_id is None:
+                logger.error(
+                    "save_embedding requires `content_type` and `id` attributes when a non-model object is provided"
+                )
+                return None
+
+            content_type = ContentType.objects.filter(model=ct_name.lower()).first()
+            if not content_type:
+                logger.error(f"Unknown content_type '{ct_name}' for {obj}")
+                return None
+
+            content = str(obj)
 
         emb = Embedding.objects.create(
-            content_type=content_type,  # ✅ not a string!
-            object_id=obj.id,  # ✅ this is your GFK key
-            content_id=str(obj.id),  # ✅ legacy tracking
-            content=getattr(obj, "event", None) or str(obj),
+            content_type=content_type,
+            object_id=object_id,
+            content_id=str(object_id),
+            content=content,
             embedding=embedding,
         )
         return emb
