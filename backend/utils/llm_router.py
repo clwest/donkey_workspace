@@ -75,7 +75,7 @@ def call_llm(messages: list[dict], model: str = DEFAULT_MODEL, **kwargs) -> str:
 def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dict]:
     """High-level chat call that can summon memories and RAG context."""
     from assistants.utils.memory_summoner import summon_relevant_memories
-    from assistants.utils.chunk_retriever import get_relevant_chunks
+    from assistants.utils.chunk_retriever import get_relevant_chunks, format_chunks
 
     msgs = list(messages)
     summoned: list[str] = []
@@ -113,16 +113,15 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
         if not replaced:
             msgs.insert(0, {"role": "system", "content": RAG_SYSTEM_PROMPT})
 
-        lines = ["MEMORY CHUNKS", "=================="]
-        for i, info in enumerate(chunks, 1):
-            lines.append(f"[{i}] {info['text']}")
-        lines.append("==================")
-        chunk_block = "\n".join(lines)
+        chunk_block = format_chunks(chunks)
         last_user_idx = max(i for i, m in enumerate(msgs) if m.get("role") == "user")
         msgs.insert(last_user_idx, {"role": "user", "content": chunk_block})
     else:
         rag_meta["rag_used"] = False
         rag_meta["rag_ignored_reason"] = reason or "no matching chunks found"
+        logger.info("RAG disabled: %s", rag_meta["rag_ignored_reason"])
+
+    logger.debug("LLM messages: %s", msgs)
 
     reply = call_llm(
         msgs, model=getattr(assistant, "preferred_model", DEFAULT_MODEL), **kwargs
