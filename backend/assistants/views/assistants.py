@@ -497,7 +497,7 @@ def assistant_from_documents(request):
         extra_data={"document_set": str(doc_set.id)},
     )
 
-    return Response({"assistant_id": str(assistant.id)})
+    return Response({"assistant_id": str(assistant.id), "slug": assistant.slug})
 
 
 @api_view(["POST"])
