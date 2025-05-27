@@ -151,6 +151,9 @@ def fork_assistant_from_prompt(
     )
 
     PromptMutationLog.objects.create(
+        original_prompt=original.system_prompt,
+        mutated_text=new_prompt_text,
+        mode="fork",
         assistant=original,
         source_prompt=original.system_prompt,
         mutated_prompt=mutated_prompt,
