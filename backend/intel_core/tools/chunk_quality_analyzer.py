@@ -16,6 +16,9 @@ def run_chunk_quality_report():
         )
 
     results.sort(key=lambda r: r["score"], reverse=True)
-    print("\ud83d\udcca Chunk Quality Report:")
+    # The emoji was previously expressed using surrogate pair escapes which can
+    # raise UnicodeEncodeError in some environments. Using the actual emoji
+    # character ensures proper encoding on UTF-8 terminals.
+    print("📊 Chunk Quality Report:")
     for r in results:
         print(f"{r['score']:.2f} | keep={r['keep']} | {r['preview']}...")
