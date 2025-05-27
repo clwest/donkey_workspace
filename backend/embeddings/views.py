@@ -145,7 +145,9 @@ def search_similar_characters(request):
         )
 
     vector = generate_embedding(text)
-    if not vector:
+    if vector is None or (
+        hasattr(vector, "__len__") and len(vector) == 0
+    ):
         return Response(
             {"error": "Failed to generate embedding."},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -197,7 +199,9 @@ def search_embeddings(request):
             )
 
         vector = generate_embedding(text)
-        if not vector:
+        if vector is None or (
+            hasattr(vector, "__len__") and len(vector) == 0
+        ):
             return Response(
                 {"error": "Failed to generate embedding for query."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -241,7 +245,9 @@ def search_embeddings(request):
         )
 
     vector = generate_embedding(text)
-    if not vector:
+    if vector is None or (
+        hasattr(vector, "__len__") and len(vector) == 0
+    ):
         return Response({"error": "Failed to generate embedding."}, status=500)
 
     results = search_similar_embeddings_for_model(

@@ -109,7 +109,9 @@ def embed_and_tag_memory(self, memory_id: int):
             return
 
         vector = embedding_response.data[0].embedding
-        if not vector or not any(vector):
+        if vector is None or (
+            hasattr(vector, "__len__") and len(vector) == 0
+        ) or not any(vector):
             logger.warning(f"❌ Skipping memory {memory.id} — empty or invalid vector")
             return
 
