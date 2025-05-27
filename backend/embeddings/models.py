@@ -58,7 +58,13 @@ class Embedding(models.Model, EmbeddingMixin):
         on_delete=models.CASCADE,
         null=True,  # TEMPORARY for migration safety
     )
-    object_id = models.UUIDField(null=True, blank=True)  # assuming most use UUID
+    # Use CharField to accommodate both UUID and integer primary keys
+    object_id = models.CharField(
+        max_length=64,
+        null=True,
+        blank=True,
+        help_text="Primary key of the related object as a string",
+    )
     content_object = GenericForeignKey("content_type", "object_id")
 
     content_id = models.CharField(

@@ -37,11 +37,12 @@ def search_related_memories(
     if not mem_ids:
         return []
 
-    embeddings = Embedding.objects.filter(content_type=ct, object_id__in=mem_ids)
+    mem_id_strs = [str(mid) for mid in mem_ids]
+    embeddings = Embedding.objects.filter(content_type=ct, object_id__in=mem_id_strs)
     scored: List[Tuple[float, MemoryEntry]] = []
-    mem_map = {m.id: m for m in MemoryEntry.objects.filter(id__in=mem_ids)}
+    mem_map = {str(m.id): m for m in MemoryEntry.objects.filter(id__in=mem_ids)}
     for emb in embeddings:
-        mem = mem_map.get(emb.object_id)
+        mem = mem_map.get(str(emb.object_id))
         if not mem:
             continue
         score = compute_similarity(query_vec, emb.embedding)
