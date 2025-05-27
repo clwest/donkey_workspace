@@ -38,6 +38,29 @@ def prompt_template_detail(request, pk):
     return Response(serializer.data)
 
 
+@api_view(["PATCH"])
+def update_prompt_template(request, pk):
+    try:
+        template = PromptUsageTemplate.objects.get(pk=pk)
+    except PromptUsageTemplate.DoesNotExist:
+        return Response({"error": "Template not found"}, status=status.HTTP_404_NOT_FOUND)
+    serializer = PromptUsageTemplateSerializer(template, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=400)
+
+
+@api_view(["DELETE"])
+def delete_prompt_template(request, pk):
+    try:
+        template = PromptUsageTemplate.objects.get(pk=pk)
+    except PromptUsageTemplate.DoesNotExist:
+        return Response({"error": "Template not found"}, status=status.HTTP_404_NOT_FOUND)
+    template.delete()
+    return Response(status=204)
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 @throttle_classes([UserRateThrottle])
