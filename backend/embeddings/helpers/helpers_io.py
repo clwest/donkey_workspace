@@ -16,12 +16,23 @@ Public helper functions:
 - ``get_embedding_for_text``
 """
 
-from embeddings.models import Embedding
-from django.contrib.contenttypes.models import ContentType
-from prompts.utils.token_helpers import EMBEDDING_MODEL
-from openai import OpenAI
+try:
+    from embeddings.models import Embedding
+    from django.contrib.contenttypes.models import ContentType
+    from prompts.utils.token_helpers import EMBEDDING_MODEL
+except Exception:  # pragma: no cover - likely missing Django
+    Embedding = None
+    ContentType = None
+    EMBEDDING_MODEL = "text-embedding-3-small"
+try:
+    from openai import OpenAI
+except Exception:  # pragma: no cover - optional dependency may be absent
+    OpenAI = None
 from django.db.models import Q
-from embeddings.vector_utils import compute_similarity
+try:
+    from embeddings.vector_utils import compute_similarity
+except Exception:  # pragma: no cover - optional dependency
+    compute_similarity = None
 import logging
 from typing import Any, Optional, List, Tuple, Union, Dict
 import uuid
@@ -49,7 +60,7 @@ from django.core.cache import cache
 
 logger = logging.getLogger("embeddings")
 
-client = OpenAI()
+client = OpenAI() if OpenAI else None
 
 
 # Caching utilities
@@ -182,7 +193,7 @@ def search_similar_embeddings_for_model(
             try:
                 vector = getattr(obj, vector_field_name)
                 content = getattr(obj, content_field_name, str(obj))
-                score = compute_similarity(query_vector, vector)
+                score = compute_similarity(query_vector, vector) if compute_similarity else 0.0
                 results.append(
                     {
                         "id": str(obj.id),
@@ -201,6 +212,9 @@ def search_similar_embeddings_for_model(
 
 
 def get_embedding_for_text(text: str) -> list[float]:
+    if client is None:
+        logger.error("OpenAI library not available; cannot fetch embedding.")
+        return []
 
     response = client.embeddings.create(model=EMBEDDING_MODEL, input=[text])
     return response.data[0].embedding

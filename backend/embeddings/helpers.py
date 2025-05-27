@@ -1,5 +1,8 @@
 import logging
-from openai import OpenAI
+try:
+    from openai import OpenAI
+except Exception:  # pragma: no cover - optional dependency
+    OpenAI = None
 from dotenv import load_dotenv
 from pgvector.django import L2Distance
 from uuid import UUID
@@ -33,7 +36,7 @@ from utils.error_reporting import (
 from .sentence_transformer_service import get_sentence_transformer
 
 load_dotenv()
-client = OpenAI()
+client = OpenAI() if OpenAI else None
 logger = logging.getLogger("django")
 
 EMBEDDING_MODEL = getattr(

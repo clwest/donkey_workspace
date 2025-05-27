@@ -1,13 +1,24 @@
-import tiktoken
+"""Token helper utilities with optional ``tiktoken`` support."""
+
+try:
+    import tiktoken
+except Exception:  # pragma: no cover - optional dependency may be absent
+    tiktoken = None
 
 EMBEDDING_MODEL = "text-embedding-3-small"
 MAX_TOKENS = 8000
-encoding = tiktoken.encoding_for_model(EMBEDDING_MODEL)
+if tiktoken:
+    encoding = tiktoken.encoding_for_model(EMBEDDING_MODEL)
+else:  # simple whitespace-based fallback
+    encoding = None
 
 
 def count_tokens(text: str) -> int:
-    """Return the number of tokens in ``text`` using the configured encoder."""
-    return len(encoding.encode(text))
+    """Return the number of tokens in ``text`` using ``tiktoken`` if available."""
+    if encoding:
+        return len(encoding.encode(text))
+    # crude fallback when tiktoken isn't installed
+    return len(text.split())
 
 
 def smart_chunk_prompt(text: str, max_tokens: int = MAX_TOKENS) -> list[dict]:

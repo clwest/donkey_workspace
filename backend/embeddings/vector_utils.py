@@ -29,7 +29,10 @@ results = vector_search(query_embedding, "document", limit=5, min_similarity=0.7
 ```
 """
 
-import numpy as np
+try:
+    import numpy as np
+except Exception:  # pragma: no cover - optional dependency
+    np = None
 import logging
 from typing import List, Dict, Any, Union, Optional, Tuple
 from django.db.models import Q
@@ -106,6 +109,10 @@ def normalize_vector(vec: Union[List[float], np.ndarray]) -> np.ndarray:
     if vec is None:
         raise ValueError("Cannot normalize None vector")
 
+    if np is None:
+        # Fallback: return vector unchanged as list
+        return vec if isinstance(vec, list) else list(vec)
+
     try:
         # Convert to numpy array if needed
         if isinstance(vec, list):
@@ -175,6 +182,15 @@ def cosine_similarity(
         # Normalize vectors (ensures consistent results)
         vec1_norm = normalize_vector(vec1)
         vec2_norm = normalize_vector(vec2)
+
+        if np is None:
+            # Manual dot product fallback
+            dot = sum(a * b for a, b in zip(vec1_norm, vec2_norm))
+            norm1 = sum(a * a for a in vec1_norm) ** 0.5
+            norm2 = sum(b * b for b in vec2_norm) ** 0.5
+            if norm1 == 0 or norm2 == 0:
+                return 0.0
+            return float(dot / (norm1 * norm2))
 
         # Calculate dot product of normalized vectors
         # (for normalized vectors, this equals cosine similarity)
@@ -684,7 +700,8 @@ def apply_maximum_marginal_relevance(
         return results
 
     from embeddings.models import Embedding
-    import numpy as np
+    if np is None:
+        return results[:limit]
 
     # Initialize lists for selected and remaining results
     selected = []
