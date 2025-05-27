@@ -8,7 +8,7 @@ django.setup()
 from rest_framework.test import APITestCase
 from unittest.mock import patch
 
-from intel_core.models import Document, DocumentSet
+from intel_core.models import Document
 from assistants.models import Assistant, AssistantThoughtLog
 
 
@@ -19,9 +19,7 @@ class BootstrapAssistantViewTest(APITestCase):
             content="Some content",
             source_url="http://example.com",
         )
-        self.doc_set = DocumentSet.objects.create(title="MCP Docs")
-        self.doc_set.documents.add(self.doc)
-        self.url = "/assistants/from-document-set/"
+        self.url = "/assistants/from-documents/"
 
     def _fake_completion(self):
         class Msg:
@@ -39,26 +37,20 @@ class BootstrapAssistantViewTest(APITestCase):
         return Resp()
 
     @patch("intel_core.views.intelligence.client.chat.completions.create")
-    def test_reuse_existing_assistant(self, mock_create):
+    def test_bootstrap_single_document(self, mock_create):
         mock_create.return_value = self._fake_completion()
-        resp1 = self.client.post(self.url, {"document_set_id": str(self.doc_set.id)})
-        self.assertEqual(resp1.status_code, 200)
-        slug = resp1.data["slug"]
+        resp = self.client.post(self.url, {"document_ids": [str(self.doc.id)]})
+        self.assertEqual(resp.status_code, 200)
+        slug = resp.data["slug"]
         self.assertEqual(Assistant.objects.count(), 1)
         self.assertEqual(
             AssistantThoughtLog.objects.filter(assistant__slug=slug).count(), 1
         )
 
-        mock_create.return_value = self._fake_completion()
-        resp2 = self.client.post(self.url, {"document_set_id": str(self.doc_set.id)})
-        self.assertEqual(resp2.status_code, 200)
-        self.assertEqual(Assistant.objects.count(), 1)
-        self.assertEqual(resp2.data["slug"], slug)
-
     @patch("intel_core.views.intelligence.client.chat.completions.create")
     def test_detail_includes_document_info(self, mock_create):
         mock_create.return_value = self._fake_completion()
-        resp = self.client.post(self.url, {"document_set_id": str(self.doc_set.id)})
+        resp = self.client.post(self.url, {"document_ids": [str(self.doc.id)]})
         slug = resp.data["slug"]
 
         detail = self.client.get(f"/api/v1/assistants/{slug}/")

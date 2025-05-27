@@ -399,17 +399,21 @@ def create_assistant_from_thought(request):
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
-def assistant_from_document_set(request):
-    """Create an assistant from a DocumentSet."""
+def assistant_from_documents(request):
+    """Create an assistant from one or more Documents."""
     data = request.data
-    set_id = data.get("document_set_id")
-    if not set_id:
-        return Response({"error": "document_set_id required"}, status=400)
+    doc_ids = data.get("document_ids") or []
+    if not isinstance(doc_ids, list) or len(doc_ids) == 0:
+        return Response({"error": "document_ids required"}, status=400)
 
-    try:
-        doc_set = DocumentSet.objects.get(id=set_id)
-    except DocumentSet.DoesNotExist:
-        return Response({"error": "DocumentSet not found"}, status=404)
+    documents = list(Document.objects.filter(id__in=doc_ids))
+    if not documents:
+        return Response({"error": "Documents not found"}, status=404)
+
+    doc_set = DocumentSet.objects.create(
+        title=f"Ad Hoc Set: {datetime.now().date()}"
+    )
+    doc_set.documents.set(documents)
 
     name = data.get("name") or f"{doc_set.title} Assistant"
     personality = data.get("personality", "")
@@ -449,7 +453,7 @@ def assistant_from_document_set(request):
     print("-------------START_SUMMARY_PROMPT-----------------")
     print(summary_prompt)
     print("-------------END_SUMMARY_PROMPT-----------------")
-    combined = " ".join((d.summary or d.content[:500]) for d in doc_set.documents.all())
+    combined = " ".join((d.summary or d.content[:500]) for d in documents)
     vector = get_embedding_for_text(combined)
 
     assistant = Assistant.objects.create(
@@ -487,7 +491,7 @@ def assistant_from_document_set(request):
     log_prompt_usage(
         prompt_slug=codex_prompt.slug,
         prompt_title=codex_prompt.title,
-        used_by="assistant_from_document_set",
+        used_by="assistant_from_documents",
         rendered_prompt=codex_prompt.content,
         assistant_id=str(assistant.id),
         extra_data={"document_set": str(doc_set.id)},

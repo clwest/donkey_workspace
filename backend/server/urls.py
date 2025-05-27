@@ -77,8 +77,8 @@ urlpatterns = [
     path("api/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
     path("onboarding/", onboarding_views.onboarding_create_assistant),
     path(
-        "assistants/from-document-set/",
-        assistant_views.assistant_from_document_set,
+        "assistants/from-documents/",
+        assistant_views.assistant_from_documents,
     ),
     path("api/dj-rest-auth/", include("dj_rest_auth.urls")),
     path("api/dj-rest-auth/registration/", include("dj_rest_auth.registration.urls")),
