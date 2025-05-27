@@ -17,16 +17,18 @@ def get_relevant_chunks(
     *,
     score_threshold: float = 0.75,
     keywords: Optional[List[str]] = None,
-) -> Tuple[List[Dict[str, object]], Optional[str]]:
+    fallback_min: float = 0.5,
+    fallback_limit: int = 2,
+) -> Tuple[List[Dict[str, object]], Optional[str], bool]:
     """Return top matching chunks and an optional ignore reason.
 
     Results are filtered by ``score_threshold`` and optionally reranked if
-    ``keywords`` are provided.  The return value is ``(chunks, reason)`` where
-    ``reason`` is ``"low score"`` when matches exist but all fall below the
-    threshold.
+    ``keywords`` are provided.  The return value is ``(chunks, reason, fallback)``
+    where ``reason`` is ``"low score"`` when matches exist but all fall below the
+    threshold. ``fallback`` indicates that low-score chunks were returned.
     """
     if not query_text:
-        return [], None
+        return [], None, False
 
     logger.info(
         "🔍 Searching document embeddings for assistant %s with query: %s",
@@ -40,7 +42,7 @@ def get_relevant_chunks(
     )
     if not assistant:
         logger.warning("Assistant %s not found", assistant_id)
-        return [], None
+        return [], None, False
 
     doc_ids = list(assistant.documents.values_list("id", flat=True))
     if assistant.current_project_id:
@@ -48,15 +50,15 @@ def get_relevant_chunks(
             assistant.current_project.documents.values_list("id", flat=True)
         )
     if not doc_ids:
-        return [], None
+        return [], None, False
 
     try:
         query_vec = get_embedding_for_text(query_text)
     except Exception as exc:  # pragma: no cover - network
         logger.error("Embedding generation failed: %s", exc)
-        return [], None
+        return [], None, False
     if not query_vec:
-        return [], None
+        return [], None, False
 
     chunks = (
         DocumentChunk.objects.filter(document_id__in=doc_ids, embedding__isnull=False)
@@ -75,11 +77,21 @@ def get_relevant_chunks(
     scored.sort(key=lambda x: x[0], reverse=True)
     filtered = [(s, c) for s, c in scored if s >= score_threshold]
     reason = None
-    if scored and not filtered:
+    fallback = False
+
+    pairs = filtered[:3]
+    if not pairs and scored:
+        fallback = True
         reason = "low score"
+        logger.warning("\u26a0\ufe0f RAG fallback: using low-score chunks")
+        # take top ``fallback_limit`` above ``fallback_min`` if any
+        candidates = [p for p in scored if p[0] >= fallback_min]
+        if not candidates:
+            candidates = scored
+        pairs = candidates[:fallback_limit]
 
     result = []
-    for score, chunk in filtered[:3]:
+    for score, chunk in pairs:
         result.append(
             {
                 "chunk_id": str(chunk.id),
@@ -90,7 +102,7 @@ def get_relevant_chunks(
             }
         )
 
-    return result, reason
+    return result, reason, fallback
 
 
 def format_chunks(chunks: List[Dict[str, object]]) -> str:

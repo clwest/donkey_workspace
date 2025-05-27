@@ -89,10 +89,16 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
     # RAG chunk retrieval
     user_parts = [m.get("content", "") for m in msgs if m.get("role") == "user"]
     query_text = user_parts[-1] if user_parts else ""
-    chunks, reason = get_relevant_chunks(str(assistant.id), query_text)
-    rag_meta = {"rag_used": False, "used_chunks": [], "rag_ignored_reason": None}
+    chunks, reason, fallback = get_relevant_chunks(str(assistant.id), query_text)
+    rag_meta = {
+        "rag_used": False,
+        "used_chunks": [],
+        "rag_ignored_reason": None,
+        "rag_fallback": False,
+    }
     if chunks:
         rag_meta["rag_used"] = True
+        rag_meta["rag_fallback"] = fallback
         rag_meta["used_chunks"] = [
             {
                 "chunk_id": c["chunk_id"],
