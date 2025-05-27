@@ -7,7 +7,7 @@ from .viewsets import (
 
 router = DefaultRouter()
 router.register(r"documents", DocumentViewSet)
-router.register(r"chunks", DocumentChunkViewSet)
+router.register(r"chunks", DocumentChunkViewSet, basename="chunk")
 router.register(r"document-chunks", DocumentChunkViewSet, basename="documentchunk")
 router.register(r"embeddings", EmbeddingMetadataViewSet)
 router.register(r"embedding-metadata", EmbeddingMetadataViewSet, basename="embeddingmetadata")
