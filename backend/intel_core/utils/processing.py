@@ -10,6 +10,7 @@ from mcp_core.models import Tag
 from embeddings.helpers.helpers_io import save_embedding
 from embeddings.helpers.helpers_processing import generate_embedding
 from intel_core.models import EmbeddingMetadata
+from embeddings.tasks import embed_and_store
 
 logger = logging.getLogger("django")
 client = OpenAI()
@@ -66,7 +67,7 @@ def _create_document_chunks(document: Document):
     for i, chunk in enumerate(chunks):
         fingerprint = generate_chunk_fingerprint(chunk)
         try:
-            DocumentChunk.objects.create(
+            new_chunk = DocumentChunk.objects.create(
                 document=document,
                 order=i,
                 text=chunk,
@@ -74,6 +75,11 @@ def _create_document_chunks(document: Document):
                 chunk_type="body",
                 fingerprint=fingerprint,
             )
+            # Schedule embedding generation for the created chunk
+            try:
+                embed_and_store.delay(new_chunk.text, "document_chunk", str(new_chunk.id))
+            except Exception as e:
+                logger.warning(f"Failed to queue embedding task for chunk {new_chunk.id}: {e}")
         except IntegrityError:
             logger.warning(
                 f"Duplicate fingerprint for chunk {i} on document {document.id}, skipping"

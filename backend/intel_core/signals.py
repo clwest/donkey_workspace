@@ -15,7 +15,10 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
 from memory.models import MemoryEntry
-from .models import DocumentChunk
+from .models import DocumentChunk, EmbeddingMetadata
+from embeddings.models import Embedding
+from prompts.utils.token_helpers import EMBEDDING_MODEL
+import logging
 
 
 @receiver(post_save, sender=DocumentChunk)
@@ -29,4 +32,31 @@ def create_memory_from_chunk(sender, instance, created, **kwargs):
             linked_object_id=instance.id,
             type="document_chunk",
         )
+
+
+@receiver(post_save, sender=Embedding)
+def link_embedding_metadata(sender, instance, created, **kwargs):
+    """Create EmbeddingMetadata and link to DocumentChunk when embedding saved."""
+    if not created:
+        return
+
+    logger = logging.getLogger("intel_core")
+    try:
+        if not instance.content_type or instance.content_type.model != "documentchunk":
+            return
+        chunk = DocumentChunk.objects.filter(id=instance.object_id).first()
+        if not chunk or chunk.embedding_id:
+            return
+        vector = list(instance.embedding) if instance.embedding is not None else []
+        meta = EmbeddingMetadata.objects.create(
+            model_used=EMBEDDING_MODEL,
+            num_tokens=getattr(chunk, "tokens", 0),
+            vector=vector,
+            status="completed",
+            source=getattr(chunk.document, "source_type", ""),
+        )
+        chunk.embedding = meta
+        chunk.save(update_fields=["embedding"])
+    except Exception as e:
+        logger.warning(f"Failed linking embedding to chunk: {e}")
 
