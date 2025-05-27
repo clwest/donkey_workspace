@@ -129,6 +129,7 @@ class AssistantReflectionEngine:
                 lines.append(f"[Chunk {i}] \"{text[:200]}\"")
             messages.append({"role": "system", "content": "\n".join(lines)})
         messages.append({"role": "user", "content": prompt})
+        logger.debug("Reflection messages: %s", messages)
         return call_llm(
             messages,
             model=self.assistant.preferred_model or "gpt-4o",
