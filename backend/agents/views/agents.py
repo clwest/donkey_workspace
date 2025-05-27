@@ -15,6 +15,7 @@ from agents.models.core import (
     AgentCluster,
     MemoryContext,
     AgentTrainingAssignment,
+    TrainedAgentLog,
 
 )
 from agents.models.lore import (
