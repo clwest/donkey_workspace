@@ -412,7 +412,13 @@ def assistant_from_document_set(request):
     model = data.get("preferred_model", "gpt-4o")
 
     titles = ", ".join(doc_set.documents.values_list("title", flat=True))
-    intro = f"You are {name}. Personality: {personality}. Tone: {tone}. Specialty: {titles}."
+    intro = (
+        f"You are {name}. Personality: {personality}. Tone: {tone}. "
+        f"Specialty: {titles}. "
+        "You are allowed to quote from any transcript-based memory if relevant. "
+        "When answering questions about speakers, introductions, or source identity, use named context from the memory if available. "
+        "You are referencing memory, not accessing video content."
+    )
     codex_prompt = Prompt.objects.create(
         title=f"{name} Codex",
         content=intro,
@@ -427,7 +433,9 @@ def assistant_from_document_set(request):
         tone=tone,
         source="auto",
     )
-
+    print("-------------START_SUMMARY_PROMPT-----------------")
+    print(summary_prompt)
+    print("-------------END_SUMMARY_PROMPT-----------------")
     combined = " ".join(
         (d.summary or d.content[:500]) for d in doc_set.documents.all()
     )
