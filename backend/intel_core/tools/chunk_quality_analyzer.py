@@ -4,8 +4,8 @@ from embeddings.document_services.chunking import clean_and_score_chunk
 
 def run_chunk_quality_report():
     results = []
-    for chunk in DocumentChunk.objects.all():
-        result = clean_and_score_chunk(chunk.text)
+    for idx, chunk in enumerate(DocumentChunk.objects.all()):
+        result = clean_and_score_chunk(chunk.text, chunk_index=idx)
         results.append(
             {
                 "chunk_id": str(chunk.id),

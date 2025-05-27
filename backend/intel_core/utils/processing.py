@@ -68,7 +68,7 @@ def _create_document_chunks(document: Document):
 
     chunks = generate_chunks(document.content)
     for i, chunk in enumerate(chunks):
-        info = clean_and_score_chunk(chunk)
+        info = clean_and_score_chunk(chunk, chunk_index=i)
         if not info["keep"]:
             continue
         fingerprint = generate_chunk_fingerprint(info["text"])
