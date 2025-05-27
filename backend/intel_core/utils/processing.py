@@ -7,12 +7,12 @@ from intel_core.models import Document
 from django.db import IntegrityError
 from intel_core.core import clean_text, lemmatize_text, detect_topic
 from mcp_core.models import Tag
-from embeddings.helpers.helpers_io import save_embedding
-from embeddings.sentence_transformer_service import get_sentence_transformer
+from embeddings.helpers.helpers_io import (
+    save_embedding,
+    get_embedding_for_text,
+)
 from intel_core.models import EmbeddingMetadata
 from embeddings.tasks import embed_and_store
-
-sentence_transformer = get_sentence_transformer()
 
 logger = logging.getLogger("django")
 client = OpenAI()
@@ -93,7 +93,7 @@ def _embed_document_chunks(document: Document):
     unembedded = DocumentChunk.objects.filter(document=document, embedding__isnull=True)
     for chunk in unembedded:
         try:
-            vector = sentence_transformer.encode(chunk.text)
+            vector = get_embedding_for_text(chunk.text)
         except Exception as e:  # pragma: no cover - embedding errors
             logger.warning(f"Failed to embed chunk {chunk.id}: {e}")
             continue
@@ -128,12 +128,12 @@ def save_document_to_db(content, metadata, session_id=None):
             logger.error("❌ Document content is empty or too short")
             return None
 
-        embedding = sentence_transformer.encode(content)
-        if embedding is None:
+        embedding = get_embedding_for_text(content)
+        if not embedding:
             logger.warning("🔄 Retrying with content sample")
             sample_content = content[:5000]
-            embedding = sentence_transformer.encode(sample_content)
-            if embedding is None:
+            embedding = get_embedding_for_text(sample_content)
+            if not embedding:
                 logger.error("❌ Failed to embed even short content")
                 return None
 
