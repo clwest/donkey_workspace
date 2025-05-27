@@ -52,5 +52,6 @@ class UploadStatusView(APIView):
             "percent_complete": job.progress,
             "current_chunk": job.current_chunk,
             "total_chunks": job.total_chunks,
+            "message": job.message,
         }
         return Response(data)
