@@ -16,6 +16,11 @@ def search_related_memories(
     text: str, assistant: Assistant, top_n: int = 5
 ) -> List[MemoryEntry]:
     """Return top-N memories from this assistant most similar to the text."""
+    logger.info(
+        "🔍 Searching memory embeddings for assistant %s with query: %s",
+        assistant.id,
+        text[:80],
+    )
     try:
         query_vec = get_embedding_for_text(text)
     except Exception as e:  # pragma: no cover - network failure
