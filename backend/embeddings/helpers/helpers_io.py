@@ -111,7 +111,11 @@ def save_embedding(obj: Any, embedding: List[float]) -> Optional[Embedding]:
                 )
                 return None
 
-            content_type = ContentType.objects.filter(model=ct_name.lower()).first()
+            # Support content_type names using underscores by stripping them for
+            # comparison against Django's ``ContentType.model`` which does not
+            # include underscores (e.g. ``DocumentChunk`` -> ``documentchunk``).
+            normalized = ct_name.replace("_", "").lower() if ct_name else None
+            content_type = ContentType.objects.filter(model=normalized).first()
             if not content_type:
                 logger.error(f"Unknown content_type '{ct_name}' for {obj}")
                 return None
