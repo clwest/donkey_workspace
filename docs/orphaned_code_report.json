@@ -1,0 +1,231 @@
+[
+  {
+    "module": "assistants/views/assistants.py",
+    "function": "assistant_from_document_set",
+    "url_mapped": true,
+    "frontend_used": false,
+    "recommendation": "Expose at /assistants/from-document-set/, link to UI creation flow"
+  },
+  {
+    "module": "intel_core/views/intelligence.py",
+    "function": "rag_check_source",
+    "url_mapped": true,
+    "triggered": true,
+    "recommendation": "Confirm usage in RAG fallback"
+  },
+  {
+    "module": "mcp_core/views/prompts.py",
+    "function": "create_prompt_template",
+    "url_mapped": false,
+    "frontend_used": false,
+    "recommendation": "Wire CRUD endpoints or remove"
+  },
+  {
+    "module": "mcp_core/views/prompts.py",
+    "function": "list_prompt_templates",
+    "url_mapped": false,
+    "frontend_used": false,
+    "recommendation": "Wire to /mcp/prompt-templates/"
+  },
+  {
+    "module": "mcp_core/views/prompts.py",
+    "function": "prompt_template_detail",
+    "url_mapped": false,
+    "frontend_used": false,
+    "recommendation": "Add detail route or delete"
+  },
+  {
+    "module": "mcp_core/views/threading.py",
+    "function": "reflect_on_thread_objective",
+    "url_mapped": false,
+    "frontend_used": false,
+    "recommendation": "Remove deprecated function"
+  },
+  {
+    "module": "mcp_core/views/threading.py",
+    "function": "refocus_thread",
+    "url_mapped": false,
+    "frontend_used": false,
+    "recommendation": "Remove deprecated function"
+  },
+  {
+    "module": "assistants/views/assistants.py",
+    "function": "assistants_view",
+    "url_mapped": false,
+    "frontend_used": false,
+    "recommendation": "Delete old wrapper"
+  },
+  {
+    "module": "assistants/views/assistants.py",
+    "function": "assistant_detail_view",
+    "url_mapped": false,
+    "frontend_used": false,
+    "recommendation": "Delete old wrapper"
+  },
+  {
+    "module": "assistants/views/assistants.py",
+    "function": "primary_assistant_view",
+    "url_mapped": false,
+    "frontend_used": false,
+    "recommendation": "Delete old wrapper"
+  },
+  {
+    "module": "assistants/views/assistants.py",
+    "function": "primary_reflect_now",
+    "url_mapped": false,
+    "frontend_used": false,
+    "recommendation": "Delete old wrapper"
+  },
+  {
+    "module": "assistants/views/assistants.py",
+    "function": "primary_spawn_agent",
+    "url_mapped": false,
+    "frontend_used": false,
+    "recommendation": "Delete old wrapper"
+  },
+  {
+    "module": "assistants/views/delegation.py",
+    "function": "delegate_from_objective",
+    "url_mapped": false,
+    "frontend_used": false,
+    "recommendation": "Add route /assistants/<slug>/delegate/<objective_id>/"
+  },
+  {
+    "module": "agents/views/agents.py",
+    "function": "lore_token_exchange",
+    "url_mapped": false,
+    "frontend_used": false,
+    "recommendation": "Add /agents/lore-token-exchange/ endpoint"
+  },
+  {
+    "module": "agents/views/agents.py",
+    "function": "token_market",
+    "url_mapped": false,
+    "frontend_used": false,
+    "recommendation": "Add /agents/token-market/"
+  },
+  {
+    "module": "agents/views/agents.py",
+    "function": "mythflow_insights",
+    "url_mapped": false,
+    "frontend_used": false,
+    "recommendation": "Wire or remove"
+  },
+  {
+    "module": "agents/views/agents.py",
+    "function": "ritual_contracts",
+    "url_mapped": false,
+    "frontend_used": false,
+    "recommendation": "Wire or remove"
+  },
+  {
+    "module": "agents/views/agents.py",
+    "function": "myth_engines",
+    "url_mapped": false,
+    "frontend_used": false,
+    "recommendation": "Wire or remove"
+  },
+  {
+    "module": "agents/views/agents.py",
+    "function": "belief_feedback",
+    "url_mapped": false,
+    "frontend_used": false,
+    "recommendation": "Wire or remove"
+  },
+  {
+    "module": "agents/views/rewire.py",
+    "function": "swarm_graph",
+    "url_mapped": false,
+    "frontend_used": false,
+    "recommendation": "Expose at /agents/swarm-graph/"
+  },
+  {
+    "module": "core/services/memory_service.py",
+    "function": "reflect_on_memory",
+    "url_mapped": null,
+    "frontend_used": false,
+    "recommendation": "Delete or integrate into reflection engine"
+  },
+  {
+    "module": "story/services/story_generator.py",
+    "function": "run_story_generation",
+    "url_mapped": null,
+    "frontend_used": false,
+    "recommendation": "Hook into story creation pipeline"
+  },
+  {
+    "module": "utils/belief_cascade.py",
+    "function": "generate_belief_cascade_graph",
+    "url_mapped": null,
+    "frontend_used": false,
+    "recommendation": "Use mcp_core.utils version and remove duplicate"
+  },
+  {
+    "module": "utils/cache_utils.py",
+    "function": "AIResponseCache",
+    "url_mapped": null,
+    "frontend_used": false,
+    "recommendation": "Currently unused; consider integrating for LLM caching"
+  },
+  {
+    "module": "utils/cache_utils.py",
+    "function": "MemoryCache",
+    "url_mapped": null,
+    "frontend_used": false,
+    "recommendation": "Unused; wire into session handling or remove"
+  },
+  {
+    "module": "tasks/codex_tasks.py",
+    "function": "reflect_on_project_memory",
+    "triggered": false,
+    "recommendation": "Task never dispatched; schedule on ProjectMemoryLink post_save"
+  },
+  {
+    "module": "tasks/codex_tasks.py",
+    "function": "bootstrap_assistant_from_doc",
+    "triggered": false,
+    "recommendation": "Dispatch after document ingestion"
+  },
+  {
+    "module": "tasks/codex_tasks.py",
+    "function": "fragment_codex_clause",
+    "triggered": false,
+    "recommendation": "Call from codex clause creation"
+  },
+  {
+    "module": "tasks/codex_tasks.py",
+    "function": "decompose_ritual",
+    "triggered": false,
+    "recommendation": "Wire to ritual planner"
+  },
+  {
+    "module": "tasks/codex_tasks.py",
+    "function": "mine_swarm_codification_patterns",
+    "triggered": false,
+    "recommendation": "Schedule nightly"
+  },
+  {
+    "module": "assistants/tasks.py",
+    "function": "delegation_health_check",
+    "triggered": false,
+    "recommendation": "Schedule weekly"
+  },
+  {
+    "module": "assistants/tasks.py",
+    "function": "run_specialization_drift_checks",
+    "triggered": false,
+    "recommendation": "Hook to drift monitor"
+  },
+  {
+    "module": "assistants/tasks.py",
+    "function": "run_drift_check_for_assistant",
+    "triggered": false,
+    "recommendation": "Expose as management command"
+  },
+  {
+    "module": "assistants/tasks.py",
+    "function": "evaluate_team_alignment_task",
+    "triggered": false,
+    "recommendation": "Call from collaboration dashboard"
+  }
+]
