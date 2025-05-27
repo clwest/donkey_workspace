@@ -25,7 +25,7 @@ from agents.models.core import (
 from agents.models.lore import SwarmMemoryEntry
 from agents.utils.swarm_analytics import generate_temporal_swarm_report
 import json
-
+from typing import Optional, List
 logger = logging.getLogger(__name__)
 
 
