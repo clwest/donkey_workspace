@@ -57,7 +57,15 @@ def _fetch_transcript(video_id: str):
         try:
             return transcripts.find_transcript(["en"]).fetch()
         except Exception:
-            return transcripts.find_generated_transcript(["en"]).fetch()
+            try:
+                return transcripts.find_generated_transcript(["en"]).fetch()
+            except Exception:
+                for t in transcripts:
+                    try:
+                        return t.fetch()
+                    except Exception:
+                        continue
+                return None
 
     fetch_attempts.append(_list_transcripts)
 
