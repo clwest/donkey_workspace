@@ -77,6 +77,15 @@ def get_relevant_chunks(
         DocumentChunk.objects.filter(document_id__in=doc_ids, embedding__isnull=False)
         .select_related("embedding", "document")
     )
+    force_keywords = [
+        "opening line",
+        "first sentence",
+        "beginning of the video",
+        "speaker said",
+        "quote",
+    ]
+    force_inject = any(k in query_text.lower() for k in force_keywords)
+
     scored = []
     for chunk in chunks:
         vec = chunk.embedding.vector if chunk.embedding else None
@@ -93,7 +102,11 @@ def get_relevant_chunks(
     fallback = False
 
     strong_matches = filtered[:3]
-    if strong_matches:
+    if force_inject and scored:
+        reason = reason or "forced"
+        fallback = True
+        pairs = scored[: max(1, fallback_limit)]
+    elif strong_matches:
         pairs = strong_matches
     elif scored:
         fallback = True
