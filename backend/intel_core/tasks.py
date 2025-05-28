@@ -46,7 +46,7 @@ def process_url_upload(
             job.save()
 
             # Process in smaller batches
-            batch_result = ingest_urls([url], title, project_name, session_id)
+            batch_result = ingest_urls([url], title, project_name, session_id, job_id)
             processed_docs.extend(batch_result)
 
             # Log progress
@@ -112,7 +112,7 @@ def create_document_set_task(
             job.progress = int(5 + (i / job.total_chunks) * 70)
             job.message = f"Loading URL {i+1}/{job.total_chunks}"
             job.save()
-            docs.extend(ingest_urls([url], title, "General", session_id))
+            docs.extend(ingest_urls([url], title, "General", session_id, job_id))
 
         offset = len(urls)
         for j, vid in enumerate(videos):
@@ -121,7 +121,7 @@ def create_document_set_task(
             job.progress = int(5 + ((offset + j) / job.total_chunks) * 70)
             job.message = f"Loading video {j+1}/{len(videos)}"
             job.save()
-            docs.extend(ingest_videos([vid], title, "General", session_id))
+            docs.extend(ingest_videos([vid], title, "General", session_id, job_id))
 
         offset += len(videos)
         for k, path in enumerate(file_paths):
@@ -130,7 +130,7 @@ def create_document_set_task(
             job.progress = int(5 + ((offset + k) / job.total_chunks) * 70)
             job.message = f"Loading PDF {k+1}/{len(file_paths)}"
             job.save()
-            docs.extend(ingest_pdfs([path], title, "General", session_id))
+            docs.extend(ingest_pdfs([path], title, "General", session_id, job_id))
 
         job.stage = "embedding"
         job.progress = 90
@@ -198,7 +198,7 @@ def process_video_upload(
             job.save()
 
             # Videos take longer to process
-            batch_result = ingest_videos([url], title, project_name, session_id)
+            batch_result = ingest_videos([url], title, project_name, session_id, job_id)
             processed_docs.extend(batch_result)
 
             # Log progress
@@ -270,7 +270,7 @@ def process_pdf_upload(
 
             # PDFs process differently than URLs and videos
             # We'd need to modify this based on how your ingest_pdfs function works
-            batch_result = ingest_pdfs([file_path], title, project_name, session_id)
+            batch_result = ingest_pdfs([file_path], title, project_name, session_id, job_id)
             processed_docs.extend(batch_result)
 
             # Log progress

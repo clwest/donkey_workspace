@@ -57,6 +57,8 @@ export default function DocumentIngestionForm({ onSuccess }) {
         stage: "parsing",
         percent_complete: 0,
         message: "",
+        current_chunk: 0,
+        total_chunks: 0,
       };
       setJobs((prev) => [...prev, newJob]);
       pollRef.current[sessionId] = setInterval(async () => {
@@ -69,12 +71,17 @@ export default function DocumentIngestionForm({ onSuccess }) {
                 : j
             )
           );
-          setLog((l) => [
-            ...l.slice(-50),
-            stat.message
-              ? `📄 ${stat.message}`
-              : `📄 ${stat.stage} — ${jobLabel} — ${stat.percent_complete}%`,
-          ]);
+          setLog((l) => {
+            const defaultLine = `📄 ${stat.stage} — ${jobLabel} — ${stat.percent_complete}%`;
+            const chunkLine =
+              stat.current_chunk && stat.total_chunks
+                ? `📄 ${jobLabel} chunk ${stat.current_chunk}/${stat.total_chunks} — ${stat.percent_complete}%`
+                : defaultLine;
+            return [
+              ...l.slice(-50),
+              stat.message ? `📄 ${stat.message}` : chunkLine,
+            ];
+          });
           if (stat.stage === "completed") {
             clearInterval(pollRef.current[sessionId]);
             delete pollRef.current[sessionId];
