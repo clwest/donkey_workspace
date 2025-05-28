@@ -7,7 +7,7 @@ from intel_core.services.acronym_glossary_service import AcronymGlossaryService
 from memory.models import SymbolicMemoryAnchor
 from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 
-DEFAULT_MODEL = "gpt-4o"
+DEFAULT_MODEL = "gpt-4o-mini"
 client = OpenAI()
 logger = logging.getLogger(__name__)
 
