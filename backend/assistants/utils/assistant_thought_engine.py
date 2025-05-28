@@ -383,20 +383,25 @@ Memories:
             logger.error(f"[dream()] failed: {e}", exc_info=True)
             return {"text": "Dream failed."}
 
-    def reflect_on_rag_failure(self, query: str, glossary_chunk: str) -> str:
+    def reflect_on_rag_failure(self, query: str, glossary_chunk: str) -> AssistantReflectionLog:
         """Generate a short reflection when glossary context was missed."""
         prompt = (
             f"The query '{query}' did not use the available glossary chunk:\n{glossary_chunk}\n"
             "Suggest a clarifying question the user could ask."
         )
         reflection = self.generate_thought(prompt, temperature=0.3)
-        AssistantReflectionLog.objects.create(
+        log = AssistantReflectionLog.objects.create(
             assistant=self.assistant,
             title="Glossary RAG Miss",
             summary=reflection,
             raw_prompt=prompt,
         )
-        return reflection
+        from mcp_core.models import Tag
+        tag, _ = Tag.objects.get_or_create(
+            slug="missed:glossary", defaults={"name": "missed:glossary"}
+        )
+        log.tags.add(tag)
+        return log
 
     def delegate_objective(
         self,

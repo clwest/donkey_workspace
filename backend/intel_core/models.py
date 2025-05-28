@@ -88,6 +88,8 @@ class DocumentChunk(models.Model):
     text = models.TextField()
     tokens = models.IntegerField()
     chunk_type = models.CharField(max_length=30, default="body")
+    is_glossary = models.BooleanField(default=False)
+    tags = ArrayField(models.CharField(max_length=64), default=list, blank=True)
     fingerprint = models.CharField(max_length=64, unique=True)
     score = models.FloatField(default=1.0)
     quality_notes = models.TextField(blank=True)

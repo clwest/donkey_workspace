@@ -135,6 +135,7 @@ def fork_assistant_from_prompt(
     new_prompt_text: str,
     *,
     reflection: AssistantReflectionLog | None = None,
+    reason: str = "Hallucinated fallback during RAG query",
 ) -> Assistant:
     """Fork ``original`` using ``new_prompt_text`` as the system prompt."""
 
@@ -157,7 +158,7 @@ def fork_assistant_from_prompt(
         assistant=original,
         source_prompt=original.system_prompt,
         mutated_prompt=mutated_prompt,
-        mutation_reason="Hallucinated fallback during RAG query",
+        mutation_reason=reason,
         triggered_by_reflection=reflection,
     )
 
