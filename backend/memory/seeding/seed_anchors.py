@@ -10,11 +10,11 @@ django.setup()
 from memory.models import SymbolicMemoryAnchor
 
 ANCHORS = [
-    {"slug": "smart-contract", "label": "Smart Contract", "description": "Self-executing code on the blockchain"},
+    {"slug": "smart-contract", "label": "Smart Contract", "description": "Self-executing code on the blockchain", "is_focus_term": True},
     {"slug": "solidity", "label": "Solidity", "description": "Primary language for Ethereum smart contracts"},
     {"slug": "bytecode", "label": "Bytecode", "description": "Low level representation of compiled smart contracts"},
-    {"slug": "evm", "label": "Ethereum Virtual Machine", "description": "Runtime environment for smart contracts"},
-    {"slug": "zk-rollup", "label": "ZK-Rollup", "description": "Layer 2 scaling technique leveraging zero-knowledge proofs"},
+    {"slug": "evm", "label": "Ethereum Virtual Machine", "description": "Runtime environment for smart contracts", "is_focus_term": True},
+    {"slug": "zk-rollup", "label": "ZK-Rollup", "description": "Layer 2 scaling technique leveraging zero-knowledge proofs", "is_focus_term": True},
     {"slug": "abi", "label": "Application Binary Interface (ABI)", "description": "Interface for interacting with compiled contracts"},
     {"slug": "compiler", "label": "Solidity Compiler", "description": "Tool that converts Solidity into bytecode"},
     {"slug": "deployment", "label": "Contract Deployment", "description": "Process of publishing compiled bytecode to the blockchain"},
@@ -29,6 +29,7 @@ def run():
             defaults={
                 "label": data.get("label", data["slug"]),
                 "description": data.get("description", ""),
+                "is_focus_term": data.get("is_focus_term", False),
             },
         )
         if was_created:

@@ -14,6 +14,7 @@ export default function ChatWithAssistantPage() {
   const messagesEndRef = useRef(null);
   const [sourceInfo, setSourceInfo] = useState(null);
   const [glossarySuggestion, setGlossarySuggestion] = useState(null);
+  const [focusOnly, setFocusOnly] = useState(true);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -33,7 +34,7 @@ export default function ChatWithAssistantPage() {
       const res = await fetch(`/api/assistants/${slug}/chat/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input, session_id: sessionId }),
+        body: JSON.stringify({ message: input, session_id: sessionId, focus_only: focusOnly }),
       });
 
       if (!res.ok) throw new Error("Failed to send message");
@@ -213,6 +214,18 @@ export default function ChatWithAssistantPage() {
           {loading ? "Thinking..." : "Send"}
         </button>
       </form>
+      <div className="form-check form-switch mt-2">
+        <input
+          className="form-check-input"
+          type="checkbox"
+          id="focusOnlyToggle"
+          checked={focusOnly}
+          onChange={(e) => setFocusOnly(e.target.checked)}
+        />
+        <label className="form-check-label" htmlFor="focusOnlyToggle">
+          Focus Anchors Only
+        </label>
+      </div>
       {sourceInfo && (
         <div className="mt-2">
           {sourceInfo.rag_fallback &&
@@ -253,10 +266,19 @@ export default function ChatWithAssistantPage() {
             <li>🧠 Glossary Present: {sourceInfo.glossary_present ? "✅" : "❌"}</li>
             <li>🧷 Symbolic Anchors: {JSON.stringify(sourceInfo.anchors || [])}</li>
             <li>📎 Chunk Match Scores: {JSON.stringify(sourceInfo.chunk_scores || [])}</li>
+            <li>🔍 Filtered Anchors: {JSON.stringify(sourceInfo.filtered_anchor_terms || [])}</li>
             <li>📓 Glossary Chunk IDs: {JSON.stringify(sourceInfo.glossary_chunk_ids || [])}</li>
             <li>
               📄 Used Chunks:
-              <pre className="mb-0">{JSON.stringify(sourceInfo.used_chunks || [], null, 2)}</pre>
+              {sourceInfo.used_chunks?.map((c) => (
+                <div key={c.chunk_id}>
+                  <span className="badge bg-secondary me-1">{c.chunk_id}</span>
+                  {c.is_glossary && c.anchor_slug && (
+                    <span className="badge bg-info text-dark me-1">{c.anchor_slug}</span>
+                  )}
+                  {c.text.slice(0, 30)}
+                </div>
+              ))}
             </li>
           </ul>
         </div>

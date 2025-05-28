@@ -49,7 +49,7 @@ def test_get_relevant_chunks_filters(mock_sim, mock_chunk_model, mock_embed, db)
     mock_embed.return_value = [0.5]
     mock_sim.side_effect = [0.8, 0.6]
 
-    chunks, reason, fallback, _, _, _, _ = get_relevant_chunks(
+    chunks, reason, fallback, _, _, _, _, _, _ = get_relevant_chunks(
         str(assistant.id), "q", score_threshold=0.75
     )
     assert reason is None
@@ -94,7 +94,7 @@ def test_get_relevant_chunks_fallback(mock_sim, mock_chunk_model, mock_embed, db
     mock_embed.return_value = [0.5]
     mock_sim.side_effect = [0.6, 0.55]
 
-    chunks, reason, fallback, _, _, _, _ = get_relevant_chunks(
+    chunks, reason, fallback, _, _, _, _, _, _ = get_relevant_chunks(
         str(assistant.id), "q", score_threshold=0.75
     )
     assert fallback is True
@@ -127,7 +127,7 @@ def test_get_relevant_chunks_lowest_scores(mock_sim, mock_chunk_model, mock_embe
     mock_embed.return_value = [0.5]
     mock_sim.return_value = 0.2
 
-    chunks, reason, fallback, _, _, _, _ = get_relevant_chunks(
+    chunks, reason, fallback, _, _, _, _, _, _ = get_relevant_chunks(
         str(assistant.id), "q", score_threshold=0.75
     )
     assert fallback is True
@@ -220,7 +220,7 @@ def test_get_relevant_chunks_force_keyword(mock_sim, mock_chunk_model, mock_embe
     mock_sim.return_value = 0.2
 
     query = "What was the opening line?"
-    chunks, reason, fallback, _, _, _, _ = get_relevant_chunks(
+    chunks, reason, fallback, _, _, _, _, _, _ = get_relevant_chunks(
         str(assistant.id), query, score_threshold=0.75
     )
     assert len(chunks) == 1
@@ -236,7 +236,7 @@ def test_anchor_boost(mock_sim, mock_chunk_model, mock_embed, db):
     assistant = Assistant.objects.create(name="A")
     doc = Document.objects.create(title="D", content="txt")
     assistant.documents.add(doc)
-    anchor = SymbolicMemoryAnchor.objects.create(slug="rag", label="RAG")
+    anchor = SymbolicMemoryAnchor.objects.create(slug="rag", label="RAG", is_focus_term=True)
 
     anchor_chunk = type(
         "C",
@@ -269,3 +269,37 @@ def test_anchor_boost(mock_sim, mock_chunk_model, mock_embed, db):
 
     chunks, *_ = get_relevant_chunks(str(assistant.id), "tell me about rag")
     assert chunks[0]["chunk_id"] == "1"
+
+
+@patch("assistants.utils.chunk_retriever.get_embedding_for_text")
+@patch("assistants.utils.chunk_retriever.DocumentChunk")
+@patch("assistants.utils.chunk_retriever.compute_similarity")
+def test_non_focus_anchor_ignored(mock_sim, mock_chunk_model, mock_embed, db):
+    from memory.models import SymbolicMemoryAnchor
+
+    assistant = Assistant.objects.create(name="A")
+    doc = Document.objects.create(title="D", content="txt")
+    assistant.documents.add(doc)
+    anchor = SymbolicMemoryAnchor.objects.create(slug="sdk", label="SDK")
+
+    chunk = type(
+        "C",
+        (),
+        {
+            "id": 1,
+            "document_id": doc.id,
+            "document": doc,
+            "text": "SDK refers to Software Development Kit",
+            "embedding": type("E", (), {"vector": [0.1]})(),
+            "is_glossary": True,
+            "anchor": anchor,
+        },
+    )
+    manager = DummyManager([chunk])
+    mock_chunk_model.objects.filter.return_value = manager
+
+    mock_embed.return_value = [0.5]
+    mock_sim.return_value = 0.3
+
+    chunks, *_ = get_relevant_chunks(str(assistant.id), "what is sdk")
+    assert chunks == []
