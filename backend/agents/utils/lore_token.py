@@ -8,12 +8,14 @@ from agents.models.lore import (
 )
 from assistants.models.assistant import Assistant, AssistantReputation
 from embeddings.helpers.helpers_io import get_embedding_for_text
-from utils.llm_router import call_llm
+
 
 
 def compress_memories_to_token(
+        
     memories: List[SwarmMemoryEntry], created_by: Assistant, token_type: str = "insight"
 ) -> LoreToken:
+    from utils.llm_router import call_llm
     """Summarize memories and package into a LoreToken."""
     text = "\n".join(m.content for m in memories)
     prompt = (

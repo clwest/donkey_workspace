@@ -28,7 +28,7 @@ from assistants.helpers.mood import detect_mood, update_mood_stability
 from assistants.helpers.delegation import spawn_delegated_assistant
 from mcp_core.utils.auto_tag_from_embedding import auto_tag_from_embedding
 from embeddings.helpers.helpers_io import save_embedding, get_embedding_for_text
-from utils.llm_router import call_llm
+
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +68,7 @@ Memories:
 """
 
     def generate_thought(self, prompt: str, temperature: float = 0.4) -> str:
+        from utils.llm_router import call_llm
         return call_llm(
             [{"role": "user", "content": prompt}],
             model=self.assistant.preferred_model or "gpt-4o",
@@ -171,6 +172,7 @@ Memories:
         }
 
     def run_reflection_guard(self, content: str, memory: MemoryEntry):
+        from utils.llm_router import call_llm
         output = call_llm(
             [
                 {
