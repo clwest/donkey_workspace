@@ -83,6 +83,8 @@ def _create_document_chunks(document: Document):
                 text=info["text"],
                 tokens=count_tokens(info["text"]),
                 chunk_type="body",
+                is_glossary=(i == 0 and "refers to" in info["text"].lower()),
+                tags=["glossary"] if (i == 0 and "refers to" in info["text"].lower()) else [],
                 fingerprint=fingerprint,
             )
             # Schedule embedding generation for the created chunk

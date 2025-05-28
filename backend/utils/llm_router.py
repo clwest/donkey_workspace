@@ -112,6 +112,7 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
         assistant=assistant,
         linked_chunk_id=top_chunk_id,
     )
+    gloss_reflection = None
     if chunks:
         rag_meta["rag_used"] = True
         rag_meta["rag_fallback"] = fallback
@@ -175,11 +176,12 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
             mem.tags.add(tag)
             engine = AssistantThoughtEngine(assistant=assistant)
             try:
-                engine.reflect_on_rag_failure(query_text, str(top_chunk_id))
+                gloss_reflection = engine.reflect_on_rag_failure(query_text, str(top_chunk_id))
                 gloss_log.reflected_on = True
                 gloss_log.save(update_fields=["reflected_on"])
             except Exception:
                 logger.exception("Failed to reflect on glossary miss")
+                gloss_reflection = None
 
     logger.debug("Final messages array: %s", msgs)
     reply = call_llm(
@@ -190,7 +192,24 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
             "⚠️ Assistant hallucinated access refusal. RAG was likely not respected."
         )
 
-    if (not rag_meta.get("rag_used") or rag_meta.get("rag_fallback")) and (
+    if gloss_reflection:
+        from prompts.utils.mutation import (
+            mutate_prompt_from_reflection,
+            fork_assistant_from_prompt,
+        )
+
+        mutated = mutate_prompt_from_reflection(
+            assistant,
+            reflection_log=gloss_reflection,
+            reason="Glossary recall failure",
+        )
+        fork_assistant_from_prompt(
+            assistant,
+            mutated.content + "\nIf glossary definitions are included in memory, use them verbatim.",
+            reflection=gloss_reflection,
+            reason="Glossary recall failure",
+        )
+    elif (not rag_meta.get("rag_used") or rag_meta.get("rag_fallback")) and (
         "couldn't" in reply.lower() or "could not" in reply.lower()
     ):
         from assistants.models.reflection import AssistantReflectionLog

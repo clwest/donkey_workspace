@@ -75,6 +75,8 @@ def document_detail_view(request, pk):
             "score": chunk.score,
             "quality_notes": chunk.quality_notes,
             "chunk_type": chunk.chunk_type,
+            "is_glossary": chunk.is_glossary,
+            "tags": chunk.tags,
             "text": chunk.text,
         }
         for chunk in chunks

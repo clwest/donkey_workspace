@@ -62,3 +62,46 @@ def test_get_relevant_chunks_prefers_longform(
     chunks, _, _, _, _, _ = get_relevant_chunks(str(assistant.id), "What is MCP?")
     assert chunks[0]["chunk_id"] == "1"
     assert "Model Context Protocol" in chunks[0]["text"]
+
+
+@patch("assistants.utils.chunk_retriever.get_embedding_for_text")
+@patch("assistants.utils.chunk_retriever.DocumentChunk")
+@patch("assistants.utils.chunk_retriever.compute_similarity")
+def test_glossary_score_boost(mock_sim, mock_chunk_model, mock_embed, db):
+    assistant = Assistant.objects.create(name="A")
+    doc = Document.objects.create(title="D", content="text")
+    assistant.documents.add(doc)
+
+    glossary_chunk = type(
+        "C",
+        (),
+        {
+            "id": 1,
+            "document_id": doc.id,
+            "document": doc,
+            "text": "SDK refers to Software Development Kit",
+            "embedding": type("E", (), {"vector": [0.1]})(),
+            "is_glossary": True,
+            "tags": ["glossary"],
+        },
+    )
+    other_chunk = type(
+        "C",
+        (),
+        {
+            "id": 2,
+            "document_id": doc.id,
+            "document": doc,
+            "text": "random text",
+            "embedding": type("E", (), {"vector": [0.1]})(),
+        },
+    )
+    manager = DummyManager([other_chunk, glossary_chunk])
+    mock_chunk_model.objects.filter.return_value = manager
+
+    mock_embed.return_value = [0.5]
+    mock_sim.side_effect = [0.5, 0.5]
+
+    chunks, _, _, _, _, _ = get_relevant_chunks(str(assistant.id), "What is SDK?")
+    assert chunks[0]["chunk_id"] == "1"
+

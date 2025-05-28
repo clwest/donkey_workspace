@@ -99,6 +99,7 @@ def get_relevant_chunks(
 
     scored = []
     glossary_present = False
+    query_terms = AcronymGlossaryService.extract(query_text)
     for chunk in chunks:
         vec = chunk.embedding.vector if chunk.embedding else None
         if vec is None:
@@ -119,6 +120,11 @@ def get_relevant_chunks(
             score += 0.05
             contains_glossary = True
             glossary_present = True
+        if query_terms and (
+            getattr(chunk, "is_glossary", False)
+            or "glossary" in getattr(chunk, "tags", [])
+        ):
+            score += 0.15
         logger.debug(
             "Retrieved chunk score: %.4f | contains_glossary=%s",
             score,
