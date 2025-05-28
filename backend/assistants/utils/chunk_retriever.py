@@ -18,8 +18,25 @@ from django.conf import settings
 # Minimum score required to bypass normal filtering when forcing
 # glossary chunks for an anchor match
 GLOSSARY_MIN_SCORE_OVERRIDE = 0.15
+# Minimum similarity score for a chunk to be considered at all.
+MIN_SCORE = 0.05
+
+# Score boost applied when a chunk's anchor matches the query.
+ANCHOR_BOOST = getattr(settings, "RAG_ANCHOR_BOOST", 0.1)
 
 logger = logging.getLogger(__name__)
+
+
+def _anchor_in_query(anchor: SymbolicMemoryAnchor, text: str) -> bool:
+    """Return True if ``text`` mentions ``anchor`` via slug, label or tags."""
+    q = text.lower()
+    if anchor.slug.lower() in q or anchor.label.lower() in q:
+        return True
+    if anchor.tags.filter(slug__in=q.split()).exists():
+        return True
+    if anchor.tags.filter(name__in=q.split()).exists():
+        return True
+    return False
 
 
 def get_relevant_chunks(
@@ -125,22 +142,31 @@ def get_relevant_chunks(
         anchor_qs = SymbolicMemoryAnchor.objects.all()
         focus_fallback = True
 
-    all_anchors = list(anchor_qs.values_list("slug", flat=True))
-    anchor_matches = [s for s in all_anchors if s.lower() in query_text.lower()]
+    anchor_qs = anchor_qs.prefetch_related("tags")
+    all_anchors = list(anchor_qs)
+    anchor_matches = [
+        a.slug for a in all_anchors if _anchor_in_query(a, query_text)
+    ]
     if not (auto_expand or settings.DEBUG) and focus_qs.exists():
         all_slugs = list(SymbolicMemoryAnchor.objects.values_list("slug", flat=True))
         filtered_anchor_terms = [
             s
             for s in all_slugs
-            if s.lower() in query_text.lower() and s not in all_anchors
+            if s.lower() in query_text.lower() and s not in [a.slug for a in all_anchors]
         ]
     else:
         filtered_anchor_terms = []
     for chunk in chunks:
         vec = chunk.embedding.vector if chunk.embedding else None
         if vec is None:
+            logger.debug("Skipping chunk %s due to missing embedding", chunk.id)
             continue
         score = compute_similarity(query_vec, vec)
+        if score < MIN_SCORE:
+            logger.debug(
+                "Skipping chunk %s due to low score %.3f", chunk.id, score
+            )
+            continue
         if keywords and any(k.lower() in chunk.text.lower() for k in keywords):
             score += 0.05
         contains_glossary = False
@@ -167,7 +193,7 @@ def get_relevant_chunks(
         anchor_confidence = 0.0
         if chunk.anchor:
             if chunk.anchor.slug in anchor_matches:
-                score += 0.1
+                score += ANCHOR_BOOST
                 anchor_confidence = 1.0
             else:
                 anchor_confidence = 0.5
@@ -193,11 +219,20 @@ def get_relevant_chunks(
     anchor_pairs = [
         p for p in scored if p[1].anchor and p[1].anchor.slug in anchor_matches
     ]
-    glossary_anchor_pairs = [
-        p
-        for p in anchor_pairs
-        if getattr(p[1], "is_glossary", False) and p[0] >= GLOSSARY_MIN_SCORE_OVERRIDE
-    ]
+    glossary_anchor_pairs = []
+    for p in scored:
+        ch = p[1]
+        if not getattr(ch, "is_glossary", False):
+            continue
+        match = False
+        if ch.anchor and ch.anchor.slug in anchor_matches:
+            match = True
+        if any(t.lower() in query_text.lower() for t in query_terms.keys()):
+            match = True
+        if match and p[0] >= GLOSSARY_MIN_SCORE_OVERRIDE:
+            glossary_anchor_pairs.append(p)
+    if query_terms and anchor_matches and not glossary_anchor_pairs:
+        reason = reason or "glossary missing"
     glossary_forced = False
     if force_inject and scored:
         reason = reason or "forced"
@@ -255,6 +290,8 @@ def get_relevant_chunks(
                 "is_glossary": getattr(chunk, "is_glossary", False),
                 "anchor_slug": getattr(getattr(chunk, "anchor", None), "slug", None),
                 "anchor_confidence": anchor_conf,
+                "fingerprint": getattr(chunk, "fingerprint", ""),
+                "anchor_boost": ANCHOR_BOOST if (getattr(chunk, "anchor", None) and getattr(chunk.anchor, "slug", None) in anchor_matches) else 0,
             }
         )
 
