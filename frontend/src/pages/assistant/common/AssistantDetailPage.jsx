@@ -32,6 +32,8 @@ export default function AssistantDetailPage() {
   const [showAssess, setShowAssess] = useState(false);
   const [reflecting, setReflecting] = useState(false);
   const [assessing, setAssessing] = useState(false);
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState("");
   const threadId = query.get("thread");
   const projectId = query.get("project");
   const memoryId = query.get("memory");
@@ -42,6 +44,7 @@ export default function AssistantDetailPage() {
       try {
         const data = await apiFetch(`/assistants/${slug}/`);
         setAssistant(data);
+        setNameInput(data.name);
       } catch (err) {
         console.error("Error fetching assistant:", err);
       }
@@ -140,7 +143,55 @@ export default function AssistantDetailPage() {
   return (
     <div className="container my-5">
       <h1 className="display-4 d-flex align-items-center">
-        {assistant.name}
+        {editingName ? (
+          <>
+            <input
+              type="text"
+              className="form-control form-control-sm me-2"
+              value={nameInput}
+              onChange={(e) => setNameInput(e.target.value)}
+              style={{ maxWidth: "300px" }}
+            />
+            <button
+              className="btn btn-sm btn-primary me-2"
+              onClick={async () => {
+                try {
+                  const data = await apiFetch(`/assistants/${slug}/`, {
+                    method: "PATCH",
+                    body: { name: nameInput },
+                  });
+                  setAssistant(data);
+                  setEditingName(false);
+                  toast.success("Name updated");
+                } catch (err) {
+                  toast.error("Failed to update name");
+                }
+              }}
+            >
+              Save
+            </button>
+            <button
+              className="btn btn-sm btn-secondary"
+              onClick={() => {
+                setEditingName(false);
+                setNameInput(assistant.name);
+              }}
+            >
+              Cancel
+            </button>
+          </>
+        ) : (
+          <>
+            {assistant.name}
+            <button
+              className="btn btn-link btn-sm ms-2"
+              onClick={() => setEditingName(true)}
+              title="Edit name"
+            >
+              ✏️
+            </button>
+          </>
+        )}
         <PrimaryStar isPrimary={assistant.is_primary} />
         <MoodStabilityGauge msi={assistant.mood_stability_index} />
         {!assistant.is_primary && (
