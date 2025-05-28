@@ -14,7 +14,7 @@ from intel_core.utils.processing import (
     process_urls,
     process_videos,
 )
-from intel_core.models import DocumentProgress
+from intel_core.models import DocumentProgress, JobStatus
 from intel_core.core import clean_text
 from intel_core.helpers.document_helpers import fetch_url, extract_visible_text
 from intel_core.helpers.youtube_video_helper import process_youtube_video
@@ -23,11 +23,28 @@ logger = logging.getLogger("document_service")
 warnings.filterwarnings("ignore", category=Warning)
 
 
+def _update_job(job_id: str | None, *, current: int, total: int, message: str):
+    """Helper to update JobStatus progress if job_id provided."""
+    if not job_id:
+        return
+    try:
+        job = JobStatus.objects.get(job_id=job_id)
+        job.current_chunk = current
+        job.total_chunks = total
+        job.progress = int(current / total * 100) if total else 0
+        job.stage = "chunking"
+        job.message = message
+        job.save()
+    except JobStatus.DoesNotExist:
+        pass
+
+
 def ingest_pdfs(
     file_paths: List[str],
     user_provided_title: str | None = None,
     project_name: str = "General",
     session_id: str | None = None,
+    job_id: str | None = None,
 ):
     logger.info(f"Loading {len(file_paths)} PDFs for project '{project_name}'")
     if session_id:
@@ -100,6 +117,12 @@ def ingest_pdfs(
                     processed_documents.append(processed_document)
                     progress.processed += 1
                     logger.info(f"Successfully processed chunk {i+1}/{len(pdf_list)}")
+                    _update_job(
+                        job_id,
+                        current=progress.processed,
+                        total=progress.total_chunks,
+                        message=f"Successfully processed chunk {i+1}/{len(pdf_list)}",
+                    )
                 else:
                     logger.error(
                         f"Failed to process chunk {i+1}/{len(pdf_list)} for '{pdf_title}'",
@@ -112,6 +135,12 @@ def ingest_pdfs(
 
             progress.status = "completed" if not failed_chunks else "failed"
             progress.save()
+            _update_job(
+                job_id,
+                current=progress.total_chunks,
+                total=progress.total_chunks,
+                message="PDF processing complete",
+            )
 
         except Exception as e:
             logger.error(f"Failed to process PDF {file_path}: {e}")
@@ -140,6 +169,7 @@ def ingest_urls(
     user_provided_title: str | None = None,
     project_name: str = "General",
     session_id: str | None = None,
+    job_id: str | None = None,
 ):
     logger.info(f"Loading {len(urls)} URLs for project '{project_name}'")
     if session_id:
@@ -200,6 +230,12 @@ def ingest_urls(
                 if processed_doc:
                     processed_documents.append(processed_doc)
                     logger.info(f"Successfully processed chunk {i+1}/{len(chunks)}")
+                    _update_job(
+                        job_id,
+                        current=i + 1,
+                        total=len(chunks),
+                        message=f"Successfully processed chunk {i+1}/{len(chunks)}",
+                    )
                 else:
                     logger.warning(f"Failed to process chunk {i+1}/{len(chunks)}")
         except Exception as e:
@@ -214,6 +250,7 @@ def ingest_videos(
     user_provided_title: str | None = None,
     project_name: str = "General",
     session_id: str | None = None,
+    job_id: str | None = None,
 ):
     processed_documents = []
     for url in video_urls:
@@ -223,7 +260,7 @@ def ingest_videos(
                 logger.warning(f"Could not fetch content for video: {url}")
                 continue
             video_title = user_provided_title or "Uploaded Video"
-            for chunk in chunks:
+            for i, chunk in enumerate(chunks):
                 document = {
                     "page_content": chunk,
                     "metadata": {
@@ -241,6 +278,12 @@ def ingest_videos(
                     session_id=session_id,
                 )
                 processed_documents.append(processed_document)
+                _update_job(
+                    job_id,
+                    current=i + 1,
+                    total=len(chunks),
+                    message=f"Successfully processed chunk {i+1}/{len(chunks)}",
+                )
         except Exception as e:
             logger.error(f"Failed to process YouTube video {url}: {e}")
 

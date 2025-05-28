@@ -4,7 +4,13 @@ import logging
 logger = logging.getLogger("ingestion")
 
 
-def ingest_pdfs(file_paths, title=None, project_name="General", session_id=None):
+def ingest_pdfs(
+    file_paths,
+    title=None,
+    project_name="General",
+    session_id=None,
+    job_id=None,
+):
     """
     Ingest a batch of PDFs.
 
@@ -27,6 +33,7 @@ def ingest_pdfs(file_paths, title=None, project_name="General", session_id=None)
             user_provided_title=title,
             project_name=project_name,
             session_id=session_id,
+            job_id=job_id,
         )
         logger.info(
             f"Ingested {len(processed_documents)} PDF chunks for project '{project_name}'"
@@ -37,7 +44,7 @@ def ingest_pdfs(file_paths, title=None, project_name="General", session_id=None)
         return []
 
 
-def ingest_urls(urls, title=None, project_name="General", session_id=None):
+def ingest_urls(urls, title=None, project_name="General", session_id=None, job_id=None):
     """
     Ingest content from URLs.
 
@@ -60,6 +67,7 @@ def ingest_urls(urls, title=None, project_name="General", session_id=None):
             user_provided_title=title,
             project_name=project_name,
             session_id=session_id,
+            job_id=job_id,
         )
         logger.info(
             f"Ingested {len(processed_documents)} URL chunks for project '{project_name}'"
@@ -70,7 +78,7 @@ def ingest_urls(urls, title=None, project_name="General", session_id=None):
         return []
 
 
-def ingest_videos(video_urls, title=None, project_name="General", session_id=None):
+def ingest_videos(video_urls, title=None, project_name="General", session_id=None, job_id=None):
     """
     Ingest YouTube videos.
 
@@ -93,6 +101,7 @@ def ingest_videos(video_urls, title=None, project_name="General", session_id=Non
             user_provided_title=title,
             project_name=project_name,
             session_id=session_id,
+            job_id=job_id,
         )
         logger.info(
             f"Ingested {len(processed_documents)} video chunks for project '{project_name}'"
