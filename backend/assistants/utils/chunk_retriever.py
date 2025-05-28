@@ -5,8 +5,10 @@ from django.shortcuts import get_object_or_404
 from assistants.models.assistant import Assistant
 from assistants.models.project import AssistantProject
 from intel_core.models import DocumentChunk
+
 # Boost acronym chunks
 from intel_core.services import AcronymGlossaryService
+
 # Import directly from helpers_io to avoid __init__ fallbacks
 from embeddings.helpers.helpers_io import get_embedding_for_text
 from embeddings.vector_utils import compute_similarity
@@ -24,20 +26,28 @@ def get_relevant_chunks(
     keywords: Optional[List[str]] = None,
     fallback_min: float = 0.5,
     fallback_limit: int = 2,
-) -> Tuple[List[Dict[str, object]], Optional[str], bool]:
+) -> Tuple[
+    List[Dict[str, object]],
+    Optional[str],
+    bool,
+    bool,
+    float,
+    Optional[str],
+]:
     """Return top matching chunks and an optional ignore reason.
 
     Results are filtered by ``score_threshold`` and optionally reranked if
-    ``keywords`` are provided.  The return value is ``(chunks, reason, fallback)``
-    where ``reason`` is ``"low score"`` when matches exist but all fall below the
-    threshold. ``fallback`` indicates that low-score chunks were returned.
+    ``keywords`` are provided.  The return value is ``(chunks, reason, fallback,
+    glossary_present, top_score, top_chunk_id)`` where ``reason`` is ``"low
+    score"`` when matches exist but all fall below the threshold. ``fallback``
+    indicates that low-score chunks were returned. ``glossary_present`` is ``True``
+    if any candidate chunk contains glossary hints. ``top_score`` and
+    ``top_chunk_id`` reflect the best scoring chunk before filtering.
     """
     if not query_text:
-        return [], None, False
+        return [], None, False, False, 0.0, None
 
-    logger.info(
-        "🔍 Searching document embeddings for query: %s", query_text[:80]
-    )
+    logger.info("🔍 Searching document embeddings for query: %s", query_text[:80])
 
     assistant = None
     if assistant_id:
@@ -65,20 +75,19 @@ def get_relevant_chunks(
                 assistant.current_project.documents.values_list("id", flat=True)
             )
     if not doc_ids:
-        return [], None, False
+        return [], None, False, False, 0.0, None
 
     try:
         query_vec = get_embedding_for_text(query_text)
     except Exception as exc:  # pragma: no cover - network
         logger.error("Embedding generation failed: %s", exc)
-        return [], None, False
+        return [], None, False, False, 0.0, None
     if not query_vec:
-        return [], None, False
+        return [], None, False, False, 0.0, None
 
-    chunks = (
-        DocumentChunk.objects.filter(document_id__in=doc_ids, embedding__isnull=False)
-        .select_related("embedding", "document")
-    )
+    chunks = DocumentChunk.objects.filter(
+        document_id__in=doc_ids, embedding__isnull=False
+    ).select_related("embedding", "document")
     force_keywords = [
         "opening line",
         "first sentence",
@@ -89,6 +98,7 @@ def get_relevant_chunks(
     force_inject = any(k in query_text.lower() for k in force_keywords)
 
     scored = []
+    glossary_present = False
     for chunk in chunks:
         vec = chunk.embedding.vector if chunk.embedding else None
         if vec is None:
@@ -98,18 +108,27 @@ def get_relevant_chunks(
             score += 0.05
         contains_glossary = False
         for acro, longform in AcronymGlossaryService.KNOWN.items():
-            if acro.lower() in chunk.text.lower() and longform.lower() in chunk.text.lower():
+            if (
+                acro.lower() in chunk.text.lower()
+                and longform.lower() in chunk.text.lower()
+            ):
                 score += 0.1
                 contains_glossary = True
+                glossary_present = True
         if chunk.order == 0 and "refers to" in chunk.text.lower():
             score += 0.05
             contains_glossary = True
+            glossary_present = True
         logger.debug(
-            "Retrieved chunk score: %.4f | contains_glossary=%s", score, contains_glossary
+            "Retrieved chunk score: %.4f | contains_glossary=%s",
+            score,
+            contains_glossary,
         )
         scored.append((score, chunk))
 
     scored.sort(key=lambda x: x[0], reverse=True)
+    top_score = scored[0][0] if scored else 0.0
+    top_chunk_id = str(scored[0][1].id) if scored else None
     filtered = [(s, c) for s, c in scored if s >= score_threshold]
     reason = None
     fallback = False
@@ -131,7 +150,7 @@ def get_relevant_chunks(
         for i, (s, c) in enumerate(pairs, 1):
             logger.info("Fallback chunk %s score %.4f", i, s)
     else:
-        return [], None, False
+        return [], None, False, glossary_present, top_score, top_chunk_id
 
     result = []
     for score, chunk in pairs:
@@ -145,7 +164,7 @@ def get_relevant_chunks(
             }
         )
 
-    return result, reason, fallback
+    return result, reason, fallback, glossary_present, top_score, top_chunk_id
 
 
 def format_chunks(chunks: List[Dict[str, object]]) -> str:

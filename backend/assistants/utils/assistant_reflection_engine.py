@@ -26,6 +26,7 @@ from agents.models.lore import SwarmMemoryEntry
 from agents.utils.swarm_analytics import generate_temporal_swarm_report
 import json
 from typing import Optional, List
+
 logger = logging.getLogger(__name__)
 
 
@@ -126,7 +127,7 @@ class AssistantReflectionEngine:
             )
             lines = ["You must use only the following context to answer:", ""]
             for i, text in enumerate(rag_chunks, 1):
-                lines.append(f"[Chunk {i}] \"{text[:200]}\"")
+                lines.append(f'[Chunk {i}] "{text[:200]}"')
             messages.append({"role": "system", "content": "\n".join(lines)})
         messages.append({"role": "user", "content": prompt})
         logger.debug("Reflection messages: %s", messages)
@@ -159,7 +160,9 @@ class AssistantReflectionEngine:
         from assistants.utils.chunk_retriever import get_relevant_chunks
 
         query_text = texts[0] if texts else context.content or ""
-        chunk_info, _, _ = get_relevant_chunks(str(self.assistant.id), query_text)
+        chunk_info, _, _, _, _, _ = get_relevant_chunks(
+            str(self.assistant.id), query_text
+        )
         rag_chunks = [c["text"] for c in chunk_info]
         if scene or location_context:
             loc_parts = []

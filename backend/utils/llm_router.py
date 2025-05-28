@@ -2,6 +2,8 @@ import os
 import logging
 import requests
 from openai import OpenAI
+from intel_core.models import GlossaryUsageLog
+from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 
 DEFAULT_MODEL = "gpt-4o"
 client = OpenAI()
@@ -91,13 +93,25 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
     # RAG chunk retrieval
     user_parts = [m.get("content", "") for m in msgs if m.get("role") == "user"]
     query_text = user_parts[-1] if user_parts else ""
-    chunks, reason, fallback = get_relevant_chunks(str(assistant.id), query_text)
+    chunks, reason, fallback, glossary_present, top_score, top_chunk_id = (
+        get_relevant_chunks(str(assistant.id), query_text)
+    )
     rag_meta = {
         "rag_used": False,
         "used_chunks": [],
         "rag_ignored_reason": None,
         "rag_fallback": False,
+        "glossary_present": glossary_present,
+        "retrieval_score": top_score,
     }
+    gloss_log = GlossaryUsageLog.objects.create(
+        query=query_text,
+        rag_used=bool(chunks),
+        glossary_present=glossary_present,
+        retrieval_score=top_score,
+        assistant=assistant,
+        linked_chunk_id=top_chunk_id,
+    )
     if chunks:
         rag_meta["rag_used"] = True
         rag_meta["rag_fallback"] = fallback
@@ -128,7 +142,6 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
         if not replaced:
             msgs.insert(0, {"role": "system", "content": RAG_SYSTEM_PROMPT})
 
-
         lines = ["MEMORY CHUNKS", "=================="]
         for i, info in enumerate(chunks, 1):
             lines.append(f"[{i}] {info['text']}")
@@ -142,8 +155,31 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
         rag_meta["rag_used"] = False
         rag_meta["rag_ignored_reason"] = reason or "no matching chunks found"
 
-        logger.warning("\u26a0\ufe0f No relevant chunks found — skipping memory injection")
+        logger.warning(
+            "\u26a0\ufe0f No relevant chunks found — skipping memory injection"
+        )
+        if glossary_present:
+            logger.info("Glossary present but unused")
+            from memory.services import MemoryService
+            from mcp_core.models import Tag
 
+            tag, _ = Tag.objects.get_or_create(
+                slug="missed_glossary_context",
+                defaults={"name": "missed_glossary_context"},
+            )
+            mem = MemoryService.create_entry(
+                event=f"Glossary unused for query: {query_text}\nChunk: {top_chunk_id}",
+                assistant=assistant,
+                source_role="system",
+            )
+            mem.tags.add(tag)
+            engine = AssistantThoughtEngine(assistant=assistant)
+            try:
+                engine.reflect_on_rag_failure(query_text, str(top_chunk_id))
+                gloss_log.reflected_on = True
+                gloss_log.save(update_fields=["reflected_on"])
+            except Exception:
+                logger.exception("Failed to reflect on glossary miss")
 
     logger.debug("Final messages array: %s", msgs)
     reply = call_llm(

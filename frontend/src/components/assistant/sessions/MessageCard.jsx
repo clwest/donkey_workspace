@@ -61,6 +61,14 @@ export default function MessageCard({ message, onFeedback, onTopicSave }) {
             ) : (
               <span className="badge bg-danger">🚫 No Source Used</span>
             )}
+            {" "}
+            {message.glossary_present && !message.rag_used ? (
+              <span className="badge bg-warning text-dark">⚠️ Ignored Glossary</span>
+            ) : (
+              <span className="badge bg-secondary">
+                📘 Glossary Present: {message.glossary_present ? "✅" : "❌"}
+              </span>
+            )}
           </div>
         )}
 
