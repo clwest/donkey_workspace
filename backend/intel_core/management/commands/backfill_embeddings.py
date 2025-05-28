@@ -5,6 +5,8 @@ from prompts.utils.token_helpers import EMBEDDING_MODEL
 
 
 class Command(BaseCommand):
+    """Generate embeddings for chunks that lack them."""
+
     help = "Backfill embeddings for document chunks without embeddings."
 
     def handle(self, *args, **kwargs):
@@ -12,9 +14,11 @@ class Command(BaseCommand):
         for chunk in chunks:
             vector = generate_embedding(chunk.text)
             if vector is None:
-                self.stdout.write(self.style.WARNING(
-                    f"Failed to generate embedding for chunk {chunk.id}"
-                ))
+                self.stdout.write(
+                    self.style.WARNING(
+                        f"Failed to generate embedding for chunk {chunk.id}"
+                    )
+                )
                 continue
 
             if hasattr(vector, "tolist"):
