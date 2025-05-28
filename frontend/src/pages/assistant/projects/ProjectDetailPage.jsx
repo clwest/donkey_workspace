@@ -33,6 +33,23 @@ export default function ProjectDetailPage() {
   const [teamMemory, setTeamMemory] = useState([]);
   const [showContinuity, setShowContinuity] = useState(false);
 
+  // Reset local state whenever the project id changes
+  useEffect(() => {
+    setProject(null);
+    setLinkedMemories([]);
+    setAvailableMemories([]);
+    setSelectedMemoryId("");
+    setSaving(false);
+    setAiPlan("");
+    setThoughts([]);
+    setLoading(true);
+    setAssistants([]);
+    setSelectedAssistantId("");
+    setChangeMode(false);
+    setTeamMemory([]);
+    setShowContinuity(false);
+  }, [id]);
+
   useEffect(() => {
     async function loadTeamMemory() {
       if (!project || !project.core_project_id) {
