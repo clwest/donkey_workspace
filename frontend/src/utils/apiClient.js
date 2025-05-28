@@ -62,6 +62,11 @@ export default async function apiFetch(url, options = {}) {
     throw new Error(errorMsg);
   }
 
+  if (res.status === 204 || res.status === 205) {
+    // No content to parse
+    return null;
+  }
+
   return res.json();
 }
 
