@@ -24,3 +24,10 @@ class AssistantDeleteAPITest(BaseAPITestCase):
         self.assertEqual(ChatSession.objects.filter(assistant=self.assistant).count(), 0)
         self.assertEqual(Project.objects.filter(assistant=self.assistant).count(), 0)
 
+    def test_delete_cascade_children(self):
+        child = Assistant.objects.create(name="Child", specialty="c", parent_assistant=self.assistant)
+        resp = self.client.delete(self.url + "?cascade=true")
+        self.assertEqual(resp.status_code, 204)
+        self.assertFalse(Assistant.objects.filter(id=self.assistant.id).exists())
+        self.assertFalse(Assistant.objects.filter(id=child.id).exists())
+

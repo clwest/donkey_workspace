@@ -16,6 +16,13 @@
 - **View**: `assistant_detail_view`
 - **Frontend**: `/assistants/:slug`
 
+### Delete Assistant
+
+- **URL**: `/api/assistants/<slug>/`
+- **Method**: `DELETE`
+- **View**: `AssistantViewSet.destroy`
+- **Params**: `force=true` to ignore active projects, `cascade=true` to delete sub-assistants.
+
 ### Create from Thought
 
 - **URL**: `/api/assistants/from_thought/`

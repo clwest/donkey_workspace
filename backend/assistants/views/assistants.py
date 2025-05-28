@@ -37,6 +37,7 @@ from assistants.utils.session_utils import (
     load_session_messages,
 )
 from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
+from assistants.helpers.deletion import cascade_delete_assistant
 
 from assistants.helpers.chat_helper import get_or_create_chat_session, save_chat_message
 from assistants.utils.delegation import spawn_delegated_assistant, should_delegate
@@ -203,7 +204,11 @@ class AssistantViewSet(viewsets.ModelViewSet):
             logger.info("Assistant %s already deleted", slug)
             return Response(status=204)
 
-        force = request.query_params.get("force") == "true" or request.data.get("force")
+        qp = request.query_params
+        force = qp.get("force") == "true" or request.data.get("force")
+        cascade = qp.get("cascade") == "true" or request.data.get("cascade")
+        if cascade:
+            force = True
 
         from project.models import Project
         from assistants.models.assistant import ChatSession
@@ -212,7 +217,12 @@ class AssistantViewSet(viewsets.ModelViewSet):
         has_live_projects = Project.objects.filter(assistant=assistant, status="active").exists()
         has_children = assistant.sub_assistants.exists()
         if (has_live_projects or has_children) and not force:
-            return Response({"error": "Assistant in use"}, status=400)
+            return Response({"error": "Assistant in use", "hint": "Pass force=true or cascade=true"}, status=400)
+
+        if cascade:
+            cascade_delete_assistant(assistant)
+            logger.info("Assistant %s and children deleted", slug)
+            return Response(status=204)
 
         ChatSession.objects.filter(assistant=assistant).delete()
         Project.objects.filter(assistant=assistant).delete()
