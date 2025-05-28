@@ -72,6 +72,8 @@ def document_detail_view(request, pk):
             "id": str(chunk.id),
             "order": chunk.order,
             "tokens": chunk.tokens,
+            "score": chunk.score,
+            "quality_notes": chunk.quality_notes,
             "chunk_type": chunk.chunk_type,
             "text": chunk.text,
         }

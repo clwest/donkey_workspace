@@ -96,9 +96,17 @@ def get_relevant_chunks(
         score = compute_similarity(query_vec, vec)
         if keywords and any(k.lower() in chunk.text.lower() for k in keywords):
             score += 0.05
+        contains_glossary = False
         for acro, longform in AcronymGlossaryService.KNOWN.items():
             if acro.lower() in chunk.text.lower() and longform.lower() in chunk.text.lower():
                 score += 0.1
+                contains_glossary = True
+        if chunk.order == 0 and "refers to" in chunk.text.lower():
+            score += 0.05
+            contains_glossary = True
+        logger.debug(
+            "Retrieved chunk score: %.4f | contains_glossary=%s", score, contains_glossary
+        )
         scored.append((score, chunk))
 
     scored.sort(key=lambda x: x[0], reverse=True)

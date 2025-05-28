@@ -68,7 +68,7 @@ def _create_document_chunks(document: Document):
         return
 
     chunks = generate_chunks(document.content)
-    chunks = AcronymGlossaryService.prepend_glossary(chunks)
+    chunks = AcronymGlossaryService.insert_glossary_chunk(chunks)
     for i, chunk in enumerate(chunks):
         info = clean_and_score_chunk(chunk, chunk_index=i)
         if not info["keep"]:

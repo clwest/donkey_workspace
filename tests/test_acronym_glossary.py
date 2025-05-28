@@ -5,7 +5,7 @@ from intel_core.services.acronym_glossary_service import AcronymGlossaryService
 
 def test_glossary_injection():
     chunks = ["MCP powers our stack"]
-    result = AcronymGlossaryService.prepend_glossary(chunks.copy())
+    result = AcronymGlossaryService.insert_glossary_chunk(chunks.copy())
     assert result[0].startswith("MCP refers to Model Context Protocol")
     assert len(result) == 2
 from unittest.mock import patch
