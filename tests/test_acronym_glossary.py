@@ -105,3 +105,40 @@ def test_glossary_score_boost(mock_sim, mock_chunk_model, mock_embed, db):
     chunks, _, _, _, _, _ = get_relevant_chunks(str(assistant.id), "What is SDK?")
     assert chunks[0]["chunk_id"] == "1"
 
+
+@patch("assistants.utils.chunk_retriever.get_embedding_for_text")
+@patch("assistants.utils.chunk_retriever.DocumentChunk")
+@patch("assistants.utils.chunk_retriever.compute_similarity")
+def test_anchor_forces_injection(mock_sim, mock_chunk_model, mock_embed, db):
+    from memory.models import SymbolicMemoryAnchor
+
+    assistant = Assistant.objects.create(name="A")
+    doc = Document.objects.create(title="D", content="text")
+    assistant.documents.add(doc)
+    anchor = SymbolicMemoryAnchor.objects.create(slug="sdk", label="SDK")
+
+    glossary_chunk = type(
+        "C",
+        (),
+        {
+            "id": 1,
+            "document_id": doc.id,
+            "document": doc,
+            "text": "SDK refers to Software Development Kit",
+            "embedding": type("E", (), {"vector": [0.1]})(),
+            "is_glossary": True,
+            "anchor": anchor,
+        },
+    )
+    manager = DummyManager([glossary_chunk])
+    mock_chunk_model.objects.filter.return_value = manager
+
+    mock_embed.return_value = [0.5]
+    mock_sim.return_value = 0.3
+
+    chunks, reason, fallback, _, _, _ = get_relevant_chunks(
+        str(assistant.id), "explain sdk"
+    )
+    assert chunks[0]["chunk_id"] == "1"
+    assert fallback is True
+    assert reason == "forced anchor"

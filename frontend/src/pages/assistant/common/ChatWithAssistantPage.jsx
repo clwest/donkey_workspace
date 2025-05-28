@@ -47,6 +47,7 @@ export default function ChatWithAssistantPage() {
           last.rag_ignored_reason = data.rag_meta.rag_ignored_reason;
           last.rag_fallback = data.rag_meta.rag_fallback;
           last.glossary_present = data.rag_meta.glossary_present;
+          last.glossary_used = data.rag_meta.glossary_used;
         }
         setSourceInfo(data.rag_meta);
         if (data.rag_meta.glossary_present && !data.rag_meta.rag_used) {
@@ -242,6 +243,19 @@ export default function ChatWithAssistantPage() {
       </button>
       {glossarySuggestion && (
         <div className="alert alert-info mt-3">{glossarySuggestion}</div>
+      )}
+
+      {sourceInfo && (
+        <div className="mt-3 small border-top pt-2">
+          <h6>Debug</h6>
+          <ul className="list-unstyled">
+            <li>📚 Source Used: {sourceInfo.rag_used ? "✅" : "❌"}</li>
+            <li>🧠 Glossary Present: {sourceInfo.glossary_present ? "✅" : "❌"}</li>
+            <li>🧷 Symbolic Anchors: {JSON.stringify(sourceInfo.anchors || [])}</li>
+            <li>📎 Chunk Match Scores: {JSON.stringify(sourceInfo.chunk_scores || [])}</li>
+            <li>📓 Glossary Chunk IDs: {JSON.stringify(sourceInfo.glossary_chunk_ids || [])}</li>
+          </ul>
+        </div>
       )}
 
       {error && <div className="alert alert-danger mt-3">{error}</div>}
