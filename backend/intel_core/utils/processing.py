@@ -13,7 +13,7 @@ from embeddings.helpers.helpers_io import (
     get_embedding_for_text,
 )
 from intel_core.models import EmbeddingMetadata
-from embeddings.tasks import embed_and_store
+
 
 logger = logging.getLogger("django")
 client = OpenAI()
@@ -70,6 +70,7 @@ from intel_core.models import DocumentChunk
 
 
 def _create_document_chunks(document: Document):
+    from embeddings.tasks import embed_and_store
     """Create DocumentChunk objects for ``document`` if none exist."""
     if DocumentChunk.objects.filter(document=document).exists():
         return
