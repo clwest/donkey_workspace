@@ -13,6 +13,7 @@ from memory.models import SymbolicMemoryAnchor
 # Import directly from helpers_io to avoid __init__ fallbacks
 from embeddings.helpers.helpers_io import get_embedding_for_text
 from embeddings.vector_utils import compute_similarity
+from django.conf import settings
 
 # Minimum score required to bypass normal filtering when forcing
 # glossary chunks for an anchor match
@@ -31,6 +32,7 @@ def get_relevant_chunks(
     keywords: Optional[List[str]] = None,
     fallback_min: float = 0.5,
     fallback_limit: int = 2,
+    auto_expand: bool = False,
 ) -> Tuple[
     List[Dict[str, object]],
     Optional[str],
@@ -39,20 +41,25 @@ def get_relevant_chunks(
     float,
     Optional[str],
     bool,
+    bool,
 ]:
     """Return top matching chunks and an optional ignore reason.
 
     Results are filtered by ``score_threshold`` and optionally reranked if
     ``keywords`` are provided.  The return value is ``(chunks, reason, fallback,
-    glossary_present, top_score, top_chunk_id, glossary_forced)`` where ``reason`` is ``"low
-    score"`` when matches exist but all fall below the threshold. ``fallback``
-    indicates that low-score chunks were returned. ``glossary_present`` is ``True``
-    if any candidate chunk contains glossary hints. ``top_score`` and
-    ``top_chunk_id`` reflect the best scoring chunk before filtering. ``glossary_forced``
-    is ``True`` when glossary chunks were injected due to an anchor match regardless of score.
+    glossary_present, top_score, top_chunk_id, glossary_forced, focus_fallback,
+    filtered_anchor_terms)`` where ``reason`` is ``"low score"`` when matches
+    exist but all fall below the threshold. ``fallback`` indicates that
+    low-score chunks were returned. ``glossary_present`` is ``True`` if any
+    candidate chunk contains glossary hints. ``top_score`` and ``top_chunk_id``
+    reflect the best scoring chunk before filtering. ``glossary_forced`` is
+    ``True`` when glossary chunks were injected due to an anchor match regardless
+    of score. ``focus_fallback`` indicates that no focus anchors were found and
+    all anchors were considered, while ``filtered_anchor_terms`` lists query terms
+    filtered out due to focus restrictions.
     """
     if not query_text:
-        return [], None, False, False, 0.0, None, False
+        return [], None, False, False, 0.0, None, False, False, []
 
     logger.info("🔍 Searching document embeddings for query: %s", query_text[:80])
 
@@ -82,15 +89,15 @@ def get_relevant_chunks(
                 assistant.current_project.documents.values_list("id", flat=True)
             )
     if not doc_ids:
-        return [], None, False, False, 0.0, None, False
+        return [], None, False, False, 0.0, None, False, False, []
 
     try:
         query_vec = get_embedding_for_text(query_text)
     except Exception as exc:  # pragma: no cover - network
         logger.error("Embedding generation failed: %s", exc)
-        return [], None, False, False, 0.0, None, False
+        return [], None, False, False, 0.0, None, False, False, []
     if not query_vec:
-        return [], None, False, False, 0.0, None, False
+        return [], None, False, False, 0.0, None, False, False, []
 
     chunks = DocumentChunk.objects.filter(
         document_id__in=doc_ids, embedding__isnull=False
@@ -107,8 +114,26 @@ def get_relevant_chunks(
     scored = []
     glossary_present = False
     query_terms = AcronymGlossaryService.extract(query_text)
-    all_anchors = list(SymbolicMemoryAnchor.objects.values_list("slug", flat=True))
+
+    focus_qs = SymbolicMemoryAnchor.objects.filter(is_focus_term=True)
+    focus_fallback = False
+    if auto_expand or settings.DEBUG:
+        anchor_qs = SymbolicMemoryAnchor.objects.all()
+    elif focus_qs.exists():
+        anchor_qs = focus_qs
+    else:
+        anchor_qs = SymbolicMemoryAnchor.objects.all()
+        focus_fallback = True
+
+    all_anchors = list(anchor_qs.values_list("slug", flat=True))
     anchor_matches = [s for s in all_anchors if s.lower() in query_text.lower()]
+    if not (auto_expand or settings.DEBUG) and focus_qs.exists():
+        all_slugs = list(SymbolicMemoryAnchor.objects.values_list("slug", flat=True))
+        filtered_anchor_terms = [
+            s for s in all_slugs if s.lower() in query_text.lower() and s not in all_anchors
+        ]
+    else:
+        filtered_anchor_terms = []
     for chunk in chunks:
         vec = chunk.embedding.vector if chunk.embedding else None
         if vec is None:
@@ -179,7 +204,17 @@ def get_relevant_chunks(
         for i, (s, c) in enumerate(pairs, 1):
             logger.info("Fallback chunk %s score %.4f", i, s)
     else:
-        return [], None, False, glossary_present, top_score, top_chunk_id, False
+        return (
+            [],
+            None,
+            False,
+            glossary_present,
+            top_score,
+            top_chunk_id,
+            False,
+            focus_fallback,
+            filtered_anchor_terms,
+        )
 
     # Ensure anchor matched chunks are injected
     for pair in anchor_pairs:
@@ -219,6 +254,8 @@ def get_relevant_chunks(
         top_score,
         top_chunk_id,
         glossary_forced,
+        focus_fallback,
+        filtered_anchor_terms,
     )
 
 

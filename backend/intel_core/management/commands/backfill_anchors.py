@@ -9,26 +9,34 @@ class Command(BaseCommand):
     help = "Backfill glossary anchors onto document chunks based on slug match"
 
     def add_arguments(self, parser):
-        parser.add_argument("--slug", type=str, required=True)
+        parser.add_argument("--slug", type=str)
+        parser.add_argument("--only-focus", action="store_true")
 
     def handle(self, *args, **options):
-        slug = options["slug"]
-        try:
-            anchor = SymbolicMemoryAnchor.objects.get(slug=slug)
-        except SymbolicMemoryAnchor.DoesNotExist:
+        slug = options.get("slug")
+        qs = SymbolicMemoryAnchor.objects.all()
+        if options.get("only_focus"):
+            qs = qs.filter(is_focus_term=True)
+        if slug:
+            qs = qs.filter(slug=slug)
+        anchors = list(qs)
+        if slug and not anchors:
             self.stdout.write(self.style.ERROR(f"Anchor '{slug}' not found."))
             return
 
-        matches = DocumentChunk.objects.filter(text__icontains=slug.replace("-", " "))
-        updated = 0
-        for chunk in matches:
-            if not chunk.anchor:
-                chunk.anchor = anchor
-                chunk.save()
-                updated += 1
+        total = 0
+        for anchor in anchors:
+            matches = DocumentChunk.objects.filter(
+                text__icontains=anchor.slug.replace("-", " ")
+            )
+            for chunk in matches:
+                if not chunk.anchor:
+                    chunk.anchor = anchor
+                    chunk.save()
+                    total += 1
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"Backfilled {updated} chunks for anchor '{slug}'."
+                f"Backfilled {total} chunks for anchor '{slug or 'all'}'."
             )
         )

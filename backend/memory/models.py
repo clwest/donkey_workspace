@@ -388,6 +388,7 @@ class SymbolicMemoryAnchor(models.Model):
     slug = models.SlugField(unique=True)
     label = models.CharField(max_length=100)
     description = models.TextField(blank=True)
+    is_focus_term = models.BooleanField(default=False)
     tags = models.ManyToManyField("mcp_core.Tag", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

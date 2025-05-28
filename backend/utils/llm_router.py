@@ -103,7 +103,11 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
         top_score,
         top_chunk_id,
         glossary_forced,
-    ) = get_relevant_chunks(str(assistant.id), query_text)
+        focus_fallback,
+        filtered_anchor_terms,
+    ) = get_relevant_chunks(
+        str(assistant.id), query_text, auto_expand=kwargs.pop("auto_expand", False)
+    )
     query_terms = AcronymGlossaryService.extract(query_text)
     all_anchors = list(SymbolicMemoryAnchor.objects.values_list("slug", flat=True))
     anchor_matches = [s for s in all_anchors if s.lower() in query_text.lower()]
@@ -122,6 +126,8 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
         "chunk_scores": [],
         "glossary_forced": glossary_forced,
         "prompt_appended_glossary": False,
+        "focus_fallback": focus_fallback,
+        "filtered_anchor_terms": filtered_anchor_terms,
     }
     gloss_log = GlossaryUsageLog.objects.create(
         query=query_text,

@@ -115,7 +115,7 @@ def test_anchor_forces_injection(mock_sim, mock_chunk_model, mock_embed, db):
     assistant = Assistant.objects.create(name="A")
     doc = Document.objects.create(title="D", content="text")
     assistant.documents.add(doc)
-    anchor = SymbolicMemoryAnchor.objects.create(slug="sdk", label="SDK")
+    anchor = SymbolicMemoryAnchor.objects.create(slug="sdk", label="SDK", is_focus_term=True)
 
     glossary_chunk = type(
         "C",
@@ -136,7 +136,7 @@ def test_anchor_forces_injection(mock_sim, mock_chunk_model, mock_embed, db):
     mock_embed.return_value = [0.5]
     mock_sim.return_value = 0.3
 
-    chunks, reason, fallback, _, _, _, _ = get_relevant_chunks(
+    chunks, reason, fallback, _, _, _, _, _, _ = get_relevant_chunks(
         str(assistant.id), "explain sdk"
     )
     assert chunks[0]["chunk_id"] == "1"

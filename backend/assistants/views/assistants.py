@@ -609,6 +609,7 @@ def chat_with_assistant_view(request, slug):
         messages,
         assistant,
         temperature=0.7,
+        auto_expand=not request.data.get("focus_only", True),
     )
     usage = type(
         "U", (), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
