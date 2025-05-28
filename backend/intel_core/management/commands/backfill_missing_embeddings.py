@@ -4,6 +4,8 @@ from embeddings.tasks import embed_and_store
 
 
 class Command(BaseCommand):
+    """Queue embedding tasks for all chunks missing embeddings."""
+
     help = "Backfill embedding for all unembedded document chunks."
 
     def handle(self, *args, **kwargs):

@@ -2,7 +2,10 @@ from django.core.management.base import BaseCommand
 from intel_core.models import DocumentChunk
 from memory.models import SymbolicMemoryAnchor
 
+
 class Command(BaseCommand):
+    """Attach a SymbolicMemoryAnchor to matching document chunks."""
+
     help = "Backfill glossary anchors onto document chunks based on slug match"
 
     def add_arguments(self, parser):
@@ -25,5 +28,7 @@ class Command(BaseCommand):
                 updated += 1
 
         self.stdout.write(
-            self.style.SUCCESS(f"Backfilled {updated} chunks for anchor '{slug}'.")
+            self.style.SUCCESS(
+                f"Backfilled {updated} chunks for anchor '{slug}'."
+            )
         )

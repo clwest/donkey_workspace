@@ -11,6 +11,8 @@ DEFAULT_ANCHORS = [
     {"slug": "hallucination", "label": "Hallucination"},
     {"slug": "ritual", "label": "Ritual"},
     {"slug": "summon", "label": "Summon"},
+    {"slug": "zk-rollup", "label": "ZK-Rollup"},
+    {"slug": "evm", "label": "Ethereum Virtual Machine"},
 ]
 
 
