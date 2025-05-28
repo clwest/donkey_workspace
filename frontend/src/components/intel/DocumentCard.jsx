@@ -73,14 +73,16 @@ export default function DocumentCard({ group, onToggleFavorite, onDelete }) {
           <h5 className="mb-1">{title || "Untitled Document"}</h5>
           <small className="text-muted">
             {source_url ? (
-              <a
-                href={source_url}
-                onClick={(e) => e.stopPropagation()}
-                target="_blank"
-                rel="noopener noreferrer"
+              <span
+                role="button"
+                className="text-decoration-underline text-primary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(source_url, "_blank", "noopener,noreferrer");
+                }}
               >
                 {domain}
-              </a>
+              </span>
             ) : (
               domain
             )}
