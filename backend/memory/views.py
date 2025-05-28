@@ -644,7 +644,7 @@ def create_memory_with_tags(request):
     }
     """
     from mcp_core.models import Tag
-    from memory.utils import normalize_tag_name
+    from memory.utils.tag_utils import normalize_tag_name
 
     data = request.data
     tag_names = data.pop("tags", [])
@@ -691,7 +691,7 @@ def memories_by_tag(request, slug):
 @permission_classes([AllowAny])
 def update_memory_tags(request, id):
     from mcp_core.models import Tag
-    from memory.utils import normalize_tag_name
+    from memory.utils.tag_utils import normalize_tag_name
 
     memory = get_object_or_404(MemoryEntry, id=id)
     tag_names = request.data.get("tags", [])
@@ -716,7 +716,7 @@ def update_memory_tags(request, id):
 @permission_classes([AllowAny])
 def replace_memory(request, id):
     from mcp_core.models import Tag
-    from memory.utils import normalize_tag_name
+    from memory.utils.tag_utils import normalize_tag_name
 
     memory = get_object_or_404(MemoryEntry, id=id)
     data = request.data
