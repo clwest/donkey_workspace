@@ -132,6 +132,7 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
                 "chunk_id": c["chunk_id"],
                 "score": c["score"],
                 "source_doc": c["source_doc"],
+                "anchor_slug": c.get("anchor_slug"),
             }
             for c in chunks
         ]

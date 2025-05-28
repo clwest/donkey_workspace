@@ -24,16 +24,17 @@ class AcronymGlossaryService:
 
     @classmethod
     def prepend_glossary(cls, chunks: list[str]) -> list[str]:
-        """Insert an intro chunk resolving acronyms if needed."""
+        """Insert glossary definition chunks at the start of ``chunks``."""
         if not chunks:
             return chunks
         full_text = " ".join(chunks)
         mapping = cls.extract(full_text)
         if not mapping:
             return chunks
-        intro = " ".join(f"{a} refers to {b}" for a, b in mapping.items()) + "."
-        if intro not in chunks[0]:
-            chunks.insert(0, intro)
+        intros = [f"{a} refers to {b}." for a, b in mapping.items()]
+        for intro in reversed(intros):
+            if not chunks[0].startswith(intro):
+                chunks.insert(0, intro)
         return chunks
 
     # Backwards compatible alias

@@ -2,6 +2,7 @@ import spacy
 import uuid
 import logging
 import numpy as np
+import re
 from openai import OpenAI
 from intel_core.models import Document
 from django.db import IntegrityError
@@ -76,6 +77,16 @@ def _create_document_chunks(document: Document):
         if not info["keep"]:
             continue
         fingerprint = generate_chunk_fingerprint(info["text"])
+        anchor = None
+        if "refers to" in info["text"].lower():
+            match = re.match(r"([A-Z]{2,})\s+refers to", info["text"])
+            if match:
+                slug = match.group(1).lower()
+                from memory.models import SymbolicMemoryAnchor
+
+                anchor, _ = SymbolicMemoryAnchor.objects.get_or_create(
+                    slug=slug, defaults={"label": match.group(1)}
+                )
         try:
             new_chunk = DocumentChunk.objects.create(
                 document=document,
@@ -83,9 +94,10 @@ def _create_document_chunks(document: Document):
                 text=info["text"],
                 tokens=count_tokens(info["text"]),
                 chunk_type="body",
-                is_glossary=(i == 0 and "refers to" in info["text"].lower()),
-                tags=["glossary"] if (i == 0 and "refers to" in info["text"].lower()) else [],
+                is_glossary="refers to" in info["text"].lower(),
+                tags=["glossary"] if "refers to" in info["text"].lower() else [],
                 fingerprint=fingerprint,
+                anchor=anchor,
             )
             # Schedule embedding generation for the created chunk
             try:
