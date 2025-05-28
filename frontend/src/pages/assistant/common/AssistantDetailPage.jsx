@@ -151,6 +151,23 @@ export default function AssistantDetailPage() {
     }
   };
 
+  const handleEndUse = async () => {
+    if (!assistant?.current_project) return;
+    if (!window.confirm("Mark current project as completed?")) return;
+    try {
+      await apiFetch(`/assistants/projects/${assistant.current_project.id}/`, {
+        method: "PATCH",
+        body: { status: "completed" },
+      });
+      const data = await apiFetch(`/assistants/${slug}/`);
+      setAssistant(data);
+      toast.success("Project marked completed");
+    } catch (err) {
+      console.error("Failed to end use", err);
+      toast.error("Failed to complete project");
+    }
+  };
+
   if (!assistant)
     return <div className="container my-5">Loading assistant...</div>;
 
@@ -282,9 +299,14 @@ export default function AssistantDetailPage() {
       </div>
 
       {assistant.current_project ? (
-        <div className="alert alert-info">
-          Assigned Project: {assistant.current_project.title} (
-          {assistant.current_project.objective_count} objectives)
+        <div className="alert alert-info d-flex justify-content-between align-items-center">
+          <span>
+            Assigned Project: {assistant.current_project.title} (
+            {assistant.current_project.objective_count} objectives)
+          </span>
+          <button className="btn btn-sm btn-outline-danger" onClick={handleEndUse}>
+            End Use
+          </button>
         </div>
       ) : (
         <button
