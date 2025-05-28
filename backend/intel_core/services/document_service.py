@@ -3,17 +3,15 @@ import os
 import uuid
 from typing import List, Optional
 
+from assistants.models.assistant import Assistant, ChatSession
 from django.conf import settings
 from django.core.files.storage import default_storage
-
-from assistants.models.assistant import Assistant, ChatSession
-from project.models import Project
-from intel_core.models import Document
-from intel_core.models import DocumentSet
-from mcp_core.models import Tag
-from intel_core.processors.video_loader import load_videos
-from intel_core.processors.url_loader import load_urls
+from intel_core.models import Document, DocumentSet
 from intel_core.processors.pdf_loader import load_pdfs
+from intel_core.processors.url_loader import load_urls
+from intel_core.processors.video_loader import load_videos
+from mcp_core.models import Tag
+from project.models import Project
 
 
 class DocumentService:
@@ -106,12 +104,43 @@ class DocumentService:
         return documents
 
     @classmethod
+    def ingest_text(
+        cls,
+        text: str,
+        title: Optional[str],
+        project_name: str,
+        session_id: Optional[str],
+        tag_names: Optional[List[str]],
+        assistant: Optional[Assistant],
+        project: Optional[Project],
+    ) -> List[Document]:
+        session_id = cls._ensure_session(session_id, assistant, project)
+        from intel_core.utils.processing import process_raw_text
+
+        document = process_raw_text(
+            text, title or "Manual Upload", project_name, session_id
+        )
+        if document and tag_names:
+            tags = []
+            for name in tag_names:
+                cleaned = str(name).strip().lower()
+                if cleaned:
+                    tag, _ = Tag.objects.get_or_create(name=cleaned)
+                    tags.append(tag)
+            document.tags.set(tags)
+        if document:
+            cls._link_assistant(assistant, [document])
+            return [document]
+        return []
+
+    @classmethod
     def ingest(
         cls,
         *,
         source_type: str,
         urls: Optional[List[str]] = None,
         files=None,
+        text: Optional[str] = None,
         title: Optional[str] = None,
         project_name: str = "General",
         session_id: Optional[str] = None,
@@ -136,6 +165,10 @@ class DocumentService:
             uploaded_files = files or []
             return cls.ingest_pdfs(
                 uploaded_files, title, project_name, session_id, assistant, project
+            )
+        if source_type == "text":
+            return cls.ingest_text(
+                text or "", title, project_name, session_id, tags, assistant, project
             )
         raise ValueError("Invalid source_type")
 

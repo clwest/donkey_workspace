@@ -5,8 +5,12 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+import json
+import logging
 
 from prompts.utils.token_helpers import count_tokens
+from intel_core.services import DocumentService
+from utils.llm_router import call_llm
 
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from agents.models.core import (
@@ -16,6 +20,7 @@ from agents.models.core import (
     MemoryContext,
     AgentTrainingAssignment,
     TrainedAgentLog,
+    KnowledgeGrowthLog,
 
 )
 from agents.models.lore import (
@@ -422,6 +427,57 @@ def train_agent(request, id):
     result = train_agent_from_documents(agent, list(docs))
     serializer = AgentSerializer(agent)
     return Response({"agent": serializer.data, "result": result})
+
+
+@api_view(["POST"])
+def upload_knowledge(request, id):
+    agent = get_object_or_404(Agent, id=id)
+
+    url = request.data.get("url")
+    raw_text = request.data.get("raw_text")
+    tags = request.data.get("tags") or []
+    pdf_file = request.FILES.get("pdf_file")
+
+    if isinstance(tags, str):
+        try:
+            tags = json.loads(tags)
+        except Exception:
+            tags = [tags]
+
+    if not any([url, raw_text, pdf_file]):
+        return Response({"error": "No content"}, status=400)
+
+    origin = "manual"
+    docs = []
+    if url:
+        origin = "url"
+        docs = DocumentService.ingest(source_type="url", urls=[url], tags=tags)
+    elif pdf_file:
+        origin = "pdf"
+        docs = DocumentService.ingest(source_type="pdf", files=[pdf_file], tags=tags)
+    else:
+        docs = DocumentService.ingest_text(raw_text, "Manual Upload", "General", None, tags, None, None)
+
+    if not docs:
+        return Response({"error": "Ingestion failed"}, status=500)
+
+    document = docs[0]
+    agent.trained_documents.add(document)
+
+    summary = document.summary or ""
+    try:
+        joined = "\n\n".join(document.chunks.order_by("order").values_list("text", flat=True)[:5])
+        prompt = (
+            "You are an AI assistant learning new knowledge. Summarize the main points from the newly ingested document below:\n\n"
+            + joined
+        )
+        summary = call_llm([{"role": "user", "content": prompt}], model="gpt-4o", max_tokens=150)
+    except Exception as e:
+        logging.warning(f"Summary generation failed: {e}")
+
+    log = KnowledgeGrowthLog.objects.create(agent=agent, document=document, summary=summary, origin=origin)
+
+    return Response({"document_id": str(document.id), "log_id": log.id, "summary": log.summary}, status=201)
 
 
 @api_view(["GET"])

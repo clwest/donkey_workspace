@@ -1,19 +1,16 @@
-import spacy
-import uuid
 import logging
-import numpy as np
 import re
-from openai import OpenAI
-from intel_core.models import Document
-from django.db import IntegrityError
-from intel_core.core import clean_text, lemmatize_text, detect_topic
-from mcp_core.models import Tag
-from embeddings.helpers.helpers_io import (
-    save_embedding,
-    get_embedding_for_text,
-)
-from intel_core.models import EmbeddingMetadata
+import uuid
 
+import numpy as np
+import spacy
+from django.db import IntegrityError
+from embeddings.helpers.helpers_io import (get_embedding_for_text,
+                                           save_embedding)
+from intel_core.core import clean_text, detect_topic, lemmatize_text
+from intel_core.models import Document, EmbeddingMetadata
+from mcp_core.models import Tag
+from openai import OpenAI
 
 logger = logging.getLogger("django")
 client = OpenAI()
@@ -56,21 +53,19 @@ def generate_unique_slug(title):
     return slug
 
 
-from embeddings.document_services.chunking import (
-    generate_chunks,
-    generate_chunk_fingerprint,
-    clean_and_score_chunk,
-)
-
+from embeddings.document_services.chunking import (clean_and_score_chunk,
+                                                   generate_chunk_fingerprint,
+                                                   generate_chunks)
+from intel_core.models import DocumentChunk
 # Import directly to avoid circular dependency triggered via
 # ``intel_core.services.__init__`` which pulls in ``DocumentService``.
 from intel_core.services.acronym_glossary_service import AcronymGlossaryService
-from prompts.utils.token_helpers import count_tokens, EMBEDDING_MODEL
-from intel_core.models import DocumentChunk
+from prompts.utils.token_helpers import EMBEDDING_MODEL, count_tokens
 
 
 def _create_document_chunks(document: Document):
     from embeddings.tasks import embed_and_store
+
     """Create DocumentChunk objects for ``document`` if none exist."""
     if DocumentChunk.objects.filter(document=document).exists():
         return
@@ -376,3 +371,23 @@ def process_videos(video, video_title, project_name, session_id):
             content="Error processing video content",
             metadata={"title": video_title, "error": str(e)},
         )
+
+
+def process_raw_text(text, title, project_name, session_id):
+    logger = logging.getLogger("django")
+    try:
+        cleaned_text = clean_text(text)
+        lemmatized_text = lemmatize_text(cleaned_text, nlp)
+        metadata = {
+            "title": title,
+            "project": project_name,
+            "session_id": session_id,
+            "source_type": "text",
+            "summary": generate_summary(lemmatized_text),
+        }
+        document = save_document_to_db(lemmatized_text, metadata, session_id)
+        logger.info(f"✅ Text processed and saved: {title}")
+        return document
+    except Exception as e:
+        logger.error(f"❌ Error processing text: {str(e)}")
+        return None
