@@ -60,6 +60,14 @@ export default function DocumentDetailPage() {
       <p>
         <strong>Total Tokens:</strong> {doc.total_tokens}
       </p>
+      <p className="mb-1">
+        <strong>Chunks:</strong> {doc.num_chunks} | Embedded: {doc.num_embedded}
+      </p>
+      {doc.glossary_ids && doc.glossary_ids.length > 0 && (
+        <p className="mb-1 small text-muted">
+          Glossary IDs: {JSON.stringify(doc.glossary_ids)}
+        </p>
+      )}
 
       {doc.summary && (
         <div className="alert alert-info">

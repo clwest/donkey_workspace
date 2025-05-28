@@ -84,6 +84,10 @@ def document_detail_view(request, pk):
 
     smart_chunks = smart_chunk_prompt(document.content)
 
+    num_chunks = chunks.count()
+    num_embedded = chunks.filter(embedding__isnull=False).count()
+    glossary_ids = list(chunks.filter(is_glossary=True).values_list("id", flat=True))
+
     data = {
         "id": str(document.id),
         "title": document.title,
@@ -93,6 +97,9 @@ def document_detail_view(request, pk):
         "created_at": document.created_at,
         "metadata": document.metadata,
         "total_tokens": count_tokens(document.content),
+        "num_chunks": num_chunks,
+        "num_embedded": num_embedded,
+        "glossary_ids": [str(g) for g in glossary_ids],
         "content": document.content,
         "chunks": chunk_data,
         "smart_chunks": smart_chunks,

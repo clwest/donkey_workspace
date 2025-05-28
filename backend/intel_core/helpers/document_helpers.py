@@ -78,19 +78,33 @@ def fetch_webpage_metadata(url):
 
 
 def extract_visible_text(html_content):
-    """
-    Extracts visible text from HTML content, removing script and style elements.
+    """Return cleaned visible text using a richer extraction strategy."""
 
-    Args:
-        html_content (str): Raw HTML content.
-
-    Returns:
-        str: Visible text content.
-    """
     soup = Soup(html_content, "html.parser")
-    for script_or_style in soup(["script", "style", "meta", "link"]):
-        script_or_style.decompose()  # Remove these elements
-    return " ".join(soup.stripped_strings)  # Combine visible strings
+
+    # Strip undesirable elements
+    for tag in soup([
+        "script",
+        "style",
+        "meta",
+        "link",
+        "noscript",
+        "iframe",
+        "header",
+        "footer",
+        "nav",
+        "aside",
+    ]):
+        tag.decompose()
+
+    # Prefer <article> or <main> content if available
+    container = soup.find("article") or soup.find("main")
+    if container:
+        text = container.get_text(separator=" ", strip=True)
+    else:
+        text = soup.get_text(separator=" ", strip=True)
+
+    return " ".join(text.split())
 
 
 def get_documents(
