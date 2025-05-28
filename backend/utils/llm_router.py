@@ -95,9 +95,15 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
     # RAG chunk retrieval
     user_parts = [m.get("content", "") for m in msgs if m.get("role") == "user"]
     query_text = user_parts[-1] if user_parts else ""
-    chunks, reason, fallback, glossary_present, top_score, top_chunk_id = (
-        get_relevant_chunks(str(assistant.id), query_text)
-    )
+    (
+        chunks,
+        reason,
+        fallback,
+        glossary_present,
+        top_score,
+        top_chunk_id,
+        glossary_forced,
+    ) = get_relevant_chunks(str(assistant.id), query_text)
     query_terms = AcronymGlossaryService.extract(query_text)
     all_anchors = list(SymbolicMemoryAnchor.objects.values_list("slug", flat=True))
     anchor_matches = [s for s in all_anchors if s.lower() in query_text.lower()]
@@ -114,6 +120,8 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
         "glossary_fallback": False,
         "anchors": anchor_matches,
         "chunk_scores": [],
+        "glossary_forced": glossary_forced,
+        "prompt_appended_glossary": False,
     }
     gloss_log = GlossaryUsageLog.objects.create(
         query=query_text,
@@ -151,14 +159,28 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
                     c["text"][:80],
                 )
 
+        gloss_lines = []
+        for info in chunks:
+            if info.get("is_glossary"):
+                text = info["text"].strip()
+                if " refers to " in text:
+                    term, definition = text.split(" refers to ", 1)
+                    gloss_lines.append(f"- {term.strip()}: {definition.strip()}")
+                else:
+                    gloss_lines.append(f"- {text}")
+        system_content = RAG_SYSTEM_PROMPT
+        if gloss_lines:
+            rag_meta["prompt_appended_glossary"] = True
+            system_content += "\n\nGlossary Reference:\n" + "\n".join(gloss_lines)
+
         replaced = False
         for idx, m in enumerate(msgs):
             if m.get("role") == "system":
-                msgs[idx] = {"role": "system", "content": RAG_SYSTEM_PROMPT}
+                msgs[idx] = {"role": "system", "content": system_content}
                 replaced = True
                 break
         if not replaced:
-            msgs.insert(0, {"role": "system", "content": RAG_SYSTEM_PROMPT})
+            msgs.insert(0, {"role": "system", "content": system_content})
 
         lines = ["MEMORY CHUNKS", "=================="]
         for i, info in enumerate(chunks, 1):
@@ -202,6 +224,13 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
                 )
                 gloss_log.reflected_on = True
                 gloss_log.save(update_fields=["reflected_on"])
+                from assistants.models.glossary import AssistantGlossaryLog
+                AssistantGlossaryLog.objects.create(
+                    assistant=assistant,
+                    query=query_text,
+                    anchor=SymbolicMemoryAnchor.objects.filter(slug=missing_anchor).first(),
+                    ignored=True,
+                )
             except Exception:
                 logger.exception("Failed to reflect on glossary miss")
                 gloss_reflection = None
@@ -210,10 +239,29 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
     reply = call_llm(
         msgs, model=getattr(assistant, "preferred_model", DEFAULT_MODEL), **kwargs
     )
-    if "I can’t access" in reply or "I can't provide" in reply:
+    refusal_phrases = [
+        "can't access",
+        "not in memory",
+        "don't have access",
+    ]
+    if any(p in reply.lower() for p in refusal_phrases):
         logger.warning(
             "⚠️ Assistant hallucinated access refusal. RAG was likely not respected."
         )
+        if glossary_forced:
+            try:
+                from assistants.models.glossary import AssistantGlossaryLog
+
+                AssistantGlossaryLog.objects.create(
+                    assistant=assistant,
+                    query=query_text,
+                    anchor=SymbolicMemoryAnchor.objects.filter(slug=anchor_matches[0]).first()
+                    if anchor_matches
+                    else None,
+                    ignored=True,
+                )
+            except Exception:
+                logger.exception("Failed to log glossary refusal")
 
     if gloss_reflection:
         from prompts.utils.mutation import (
