@@ -410,6 +410,26 @@ Memories:
         log.tags.add(tag)
         return log
 
+    def reflect_on_anchor_miss(self, query: str, anchor_slug: str) -> AssistantReflectionLog:
+        """Log a reflection when an anchor was relevant but absent from the reply."""
+        prompt = (
+            f"Anchor '{anchor_slug}' was relevant to the user query '{query}' but was not mentioned in the reply.\n"
+            "Suggest a short clarifying instruction."
+        )
+        reflection = self.generate_thought(prompt, temperature=0.3)
+        log = AssistantReflectionLog.objects.create(
+            assistant=self.assistant,
+            title="Anchor Miss",
+            summary=reflection,
+            raw_prompt=prompt,
+            anchor=SymbolicMemoryAnchor.objects.filter(slug=anchor_slug).first(),
+        )
+        from mcp_core.models import Tag
+
+        tag, _ = Tag.objects.get_or_create(slug="anchor_miss", defaults={"name": "anchor_miss"})
+        log.tags.add(tag)
+        return log
+
     def delegate_objective(
         self,
         objective: "AssistantObjective",

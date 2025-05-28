@@ -265,6 +265,8 @@ export default function ChatWithAssistantPage() {
             <li>📚 Source Used: {sourceInfo.rag_used ? "✅" : "❌"}</li>
             <li>🧠 Glossary Present: {sourceInfo.glossary_present ? "✅" : "❌"}</li>
             <li>🧷 Symbolic Anchors: {JSON.stringify(sourceInfo.anchors || [])}</li>
+            <li>✅ Anchor Hits: {JSON.stringify(sourceInfo.anchor_hits || [])}</li>
+            <li>❌ Anchor Misses: {JSON.stringify(sourceInfo.anchor_misses || [])}</li>
             <li>📎 Chunk Match Scores: {JSON.stringify(sourceInfo.chunk_scores || [])}</li>
             <li>🔍 Filtered Anchors: {JSON.stringify(sourceInfo.filtered_anchor_terms || [])}</li>
             <li>📓 Glossary Chunk IDs: {JSON.stringify(sourceInfo.glossary_chunk_ids || [])}</li>
@@ -273,8 +275,13 @@ export default function ChatWithAssistantPage() {
               {sourceInfo.used_chunks?.map((c) => (
                 <div key={c.chunk_id}>
                   <span className="badge bg-secondary me-1">{c.chunk_id}</span>
-                  {c.is_glossary && c.anchor_slug && (
+                  {c.anchor_slug && (
                     <span className="badge bg-info text-dark me-1">{c.anchor_slug}</span>
+                  )}
+                  {c.anchor_confidence !== undefined && (
+                    <span className="badge bg-light text-dark me-1">
+                      {c.anchor_confidence.toFixed(1)}
+                    </span>
                   )}
                   {c.text ? c.text.slice(0, 30) : ""}
                 </div>

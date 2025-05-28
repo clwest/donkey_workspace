@@ -155,21 +155,26 @@ def get_relevant_chunks(
             contains_glossary = True
             glossary_present = True
         if getattr(chunk, "is_glossary", False):
-            score += 0.1
+            score += 0.2
             glossary_present = True
         if query_terms and (
             getattr(chunk, "is_glossary", False)
             or "glossary" in getattr(chunk, "tags", [])
         ):
             score += 0.15
-        if chunk.anchor and chunk.anchor.slug in anchor_matches:
-            score += 0.15
+        anchor_confidence = 0.0
+        if chunk.anchor:
+            if chunk.anchor.slug in anchor_matches:
+                score += 0.1
+                anchor_confidence = 1.0
+            else:
+                anchor_confidence = 0.5
         logger.debug(
             "Retrieved chunk score: %.4f | contains_glossary=%s",
             score,
             contains_glossary,
         )
-        scored.append((score, chunk))
+        scored.append((score, chunk, anchor_confidence))
 
     scored.sort(key=lambda x: x[0], reverse=True)
     top_score = scored[0][0] if scored else 0.0
@@ -201,7 +206,7 @@ def get_relevant_chunks(
         # take top ``fallback_limit`` above ``fallback_min`` if any
         candidates = [p for p in scored if p[0] >= fallback_min] or scored
         pairs = candidates[: max(1, fallback_limit)]
-        for i, (s, c) in enumerate(pairs, 1):
+        for i, (s, c, _conf) in enumerate(pairs, 1):
             logger.info("Fallback chunk %s score %.4f", i, s)
     else:
         return (
@@ -233,7 +238,7 @@ def get_relevant_chunks(
     pairs.sort(key=lambda x: x[0], reverse=True)
 
     result = []
-    for score, chunk in pairs:
+    for score, chunk, anchor_conf in pairs:
         result.append(
             {
                 "chunk_id": str(chunk.id),
@@ -243,6 +248,7 @@ def get_relevant_chunks(
                 "source_doc": chunk.document.title,
                 "is_glossary": getattr(chunk, "is_glossary", False),
                 "anchor_slug": getattr(getattr(chunk, "anchor", None), "slug", None),
+                "anchor_confidence": anchor_conf,
             }
         )
 
