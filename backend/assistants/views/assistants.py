@@ -146,6 +146,9 @@ class AssistantViewSet(viewsets.ModelViewSet):
         new_name = request.data.get("name")
         new_slug = request.data.get("slug")
         description = request.data.get("description")
+        tone = request.data.get("tone")
+        preferred_model = request.data.get("preferred_model")
+        system_prompt_id = request.data.get("system_prompt")
 
         if new_slug and Assistant.objects.filter(slug=new_slug).exclude(id=assistant.id).exists():
             return Response({"error": "Slug already exists"}, status=400)
@@ -167,6 +170,19 @@ class AssistantViewSet(viewsets.ModelViewSet):
         if description is not None:
             assistant.description = description
 
+        if tone is not None:
+            assistant.tone = tone
+
+        if preferred_model is not None:
+            assistant.preferred_model = preferred_model
+
+        if system_prompt_id is not None:
+            try:
+                prompt_obj = Prompt.objects.get(id=system_prompt_id)
+            except (ValueError, Prompt.DoesNotExist):
+                return Response({"error": "Invalid system_prompt"}, status=400)
+            assistant.system_prompt = prompt_obj
+
         assistant.save()
 
         if old_name != assistant.name:
@@ -178,6 +194,27 @@ class AssistantViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(assistant)
         return Response(serializer.data)
+
+    def destroy(self, request, slug=None, *args, **kwargs):
+        assistant = get_object_or_404(Assistant, slug=slug)
+        force = request.query_params.get("force") == "true" or request.data.get("force")
+
+        from project.models import Project
+        from assistants.models.assistant import ChatSession
+        from memory.models import MemoryEntry
+
+        has_live_projects = Project.objects.filter(assistant=assistant, status="active").exists()
+        has_children = assistant.sub_assistants.exists()
+        if (has_live_projects or has_children) and not force:
+            return Response({"error": "Assistant in use"}, status=400)
+
+        ChatSession.objects.filter(assistant=assistant).delete()
+        Project.objects.filter(assistant=assistant).delete()
+        MemoryEntry.objects.filter(assistant=assistant).update(assistant=None)
+        MemoryEntry.objects.filter(chat_session__assistant=assistant).update(chat_session=None)
+
+        assistant.delete()
+        return Response(status=204)
 
     def retrieve(self, request, slug=None, *args, **kwargs):
         assistant = get_object_or_404(Assistant, slug=slug)
