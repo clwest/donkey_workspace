@@ -94,17 +94,26 @@ export default function DocumentDetailPage() {
         </label>
       </div>
       <div className="mt-3">
-        {chunks.map((chunk, i) => (
-          <div key={i} className="card mb-3">
-            <div className="card-header">
-              Chunk {chunk.order !== undefined ? chunk.order : i + 1} —{" "}
-              {chunk.tokens} tokens
+        {chunks.map((chunk, i) => {
+          const isGlossary =
+            chunk.order === 0 && chunk.text.toLowerCase().includes("refers to");
+          return (
+            <div key={i} className="card mb-3">
+              <div className="card-header">
+                {isGlossary ? (
+                  <>🔠 Glossary (auto-injected)</>
+                ) : (
+                  <>Chunk {chunk.order !== undefined ? chunk.order : i + 1}</>
+                )}
+                {" — "}
+                {chunk.tokens} tokens | score {chunk.score?.toFixed(2)}
+              </div>
+              <div className="card-body">
+                <p className="card-text">{chunk.text}</p>
+              </div>
             </div>
-            <div className="card-body">
-              <p className="card-text">{chunk.text}</p>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

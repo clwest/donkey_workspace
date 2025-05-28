@@ -35,3 +35,6 @@ class AcronymGlossaryService:
         if intro not in chunks[0]:
             chunks.insert(0, intro)
         return chunks
+
+    # Backwards compatible alias
+    insert_glossary_chunk = prepend_glossary
