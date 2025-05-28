@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from intel_core.models import DocumentChunk
 from memory.models import SymbolicMemoryAnchor
+from utils.inspection_helpers import bool_icon, print_glossary_debug_table
 
 
 class Command(BaseCommand):
@@ -10,22 +11,28 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--slug", type=str, required=True)
+        parser.add_argument(
+            "--include-incomplete",
+            action="store_true",
+            help="Include chunks missing embeddings or scores",
+        )
 
     def handle(self, *args, **options):
         slug = options["slug"]
+        include_incomplete = options.get("include_incomplete", False)
+
         try:
             anchor = SymbolicMemoryAnchor.objects.get(slug=slug)
         except SymbolicMemoryAnchor.DoesNotExist:
             self.stdout.write(self.style.ERROR(f"Anchor '{slug}' not found."))
             return
 
-        all_chunks = DocumentChunk.objects.filter(text__icontains=slug.replace("-", " "))
-        linked = all_chunks.filter(anchor=anchor)
-        glossary = linked.filter(is_glossary=True)
-        embedded = linked.exclude(embedding__isnull=True)
+        chunks = (
+            DocumentChunk.objects.filter(anchor=anchor)
+            .select_related("document")
+            .order_by("order")
+        )
+        if not include_incomplete:
+            chunks = chunks.exclude(embedding__isnull=True).exclude(score__isnull=True)
 
-        self.stdout.write(self.style.MIGRATE_HEADING(f"📎 Anchor: {slug}"))
-        self.stdout.write(f"Total Matches: {all_chunks.count()}")
-        self.stdout.write(f"Linked to Anchor: {linked.count()}")
-        self.stdout.write(f"Marked is_glossary: {glossary.count()}")
-        self.stdout.write(f"Embedded: {embedded.count()}")
+        print_glossary_debug_table(self.stdout, slug, chunks)
