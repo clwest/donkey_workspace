@@ -8,15 +8,14 @@ from rest_framework.permissions import AllowAny
 from rest_framework import status
 from openai import OpenAI
 from intel_core.models import Document
-from intel_core.models import DocumentSet, DocumentChunk
+from intel_core.models import DocumentSet
 from prompts.models import Prompt
 from assistants.models.assistant import Assistant
 from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 from assistants.models.project import AssistantProject, AssistantObjective
 from assistants.models.thoughts import AssistantThoughtLog
 from prompts.utils.token_helpers import count_tokens, smart_chunk_prompt
-from embeddings.helpers.helpers_processing import generate_embedding
-from embeddings.vector_utils import compute_similarity
+from assistants.utils.chunk_retriever import get_relevant_chunks, ANCHOR_BOOST
 from memory.models import MemoryEntry
 from mcp_core.models import NarrativeThread, Tag
 
@@ -369,33 +368,15 @@ def rag_check_source(request):
     if not content:
         return Response({"error": "content is required"}, status=400)
 
-    vector = generate_embedding(content)
-    if vector is None or (
-        hasattr(vector, "__len__") and len(vector) == 0
-    ):
-        return Response({"error": "Failed to generate embedding"}, status=500)
-
-    chunks = DocumentChunk.objects.filter(embedding__isnull=False)
-    if assistant:
-        chunks = chunks.filter(document__linked_assistants=assistant)
-
-    results = []
-    for chunk in chunks.select_related("document", "embedding"):
-        vec = chunk.embedding.vector if chunk.embedding else None
-        if vec is None or (
-            hasattr(vec, "__len__") and len(vec) == 0
-        ):
-            continue
-        score = compute_similarity(vector, vec)
-        results.append(
-            {
-                "document_id": str(chunk.document_id),
-                "chunk_id": str(chunk.id),
-                "similarity_score": round(score, 4),
-                "text": chunk.text,
-                "is_glossary": chunk.is_glossary,
-            }
-        )
-
-    results.sort(key=lambda x: x["similarity_score"], reverse=True)
-    return Response({"results": results[:3], "mode": mode})
+    chunks, reason, fallback, glossary_present, top_score, _, glossary_forced, *_ = get_relevant_chunks(
+        assistant_id if assistant else None,
+        content,
+    )
+    debug = {
+        "fallback": fallback,
+        "reason": reason,
+        "glossary_present": glossary_present,
+        "retrieval_score": top_score,
+        "anchor_boost": ANCHOR_BOOST,
+    }
+    return Response({"results": chunks, "mode": mode, "debug": debug})
