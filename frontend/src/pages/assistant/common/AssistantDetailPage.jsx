@@ -9,6 +9,7 @@ import {
   runDriftCheck,
   runSelfAssessment,
   assignPrimaryAssistant,
+  setAssistantActive,
 } from "../../../api/assistants";
 import SelfAssessmentModal from "../../../components/assistant/SelfAssessmentModal";
 import { toast } from "react-toastify";
@@ -168,6 +169,22 @@ export default function AssistantDetailPage() {
     }
   };
 
+  const handleToggleActive = async () => {
+    const confirmMsg = assistant.is_active
+      ? "Deactivate this assistant?"
+      : "Reactivate this assistant?";
+    if (!window.confirm(confirmMsg)) return;
+    try {
+      const data = await setAssistantActive(slug, !assistant.is_active);
+      setAssistant(data);
+      toast.success(
+        assistant.is_active ? "Assistant deactivated" : "Assistant reactivated"
+      );
+    } catch (err) {
+      toast.error("Failed to update status");
+    }
+  };
+
   if (!assistant)
     return <div className="container my-5">Loading assistant...</div>;
 
@@ -291,6 +308,12 @@ export default function AssistantDetailPage() {
         </p>
         <p>
           <strong>Status:</strong> {assistant.is_active ? "Active" : "Inactive"}
+          <button
+            className={`btn btn-sm ms-2 ${assistant.is_active ? "btn-outline-danger" : "btn-outline-success"}`}
+            onClick={handleToggleActive}
+          >
+            {assistant.is_active ? "Deactivate" : "Reactivate"}
+          </button>
         </p>
         <p>
           <strong>Created:</strong>{" "}
