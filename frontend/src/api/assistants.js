@@ -330,6 +330,13 @@ export async function assignPrimaryAssistant(slug) {
   return apiFetch(`/assistants/${slug}/assign-primary/`, { method: "PATCH" });
 }
 
+export async function setAssistantActive(slug, active) {
+  return apiFetch(`/assistants/${slug}/`, {
+    method: "PATCH",
+    body: { is_active: active },
+  });
+}
+
 export async function fetchAssistantDashboard(slug) {
   const res = await apiFetch(`/assistants/${slug}/dashboard/`);
   if (!res || res.error) {
