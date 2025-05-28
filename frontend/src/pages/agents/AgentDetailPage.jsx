@@ -16,6 +16,15 @@ const AgentDetailPage = () => {
   const [mentoringEvents, setMentoringEvents] = useState([]);
   const [legacy, setLegacy] = useState(null);
 
+  // Reset view state on slug change
+  useEffect(() => {
+    setAgent(null);
+    setActiveTab("overview");
+    setShowSuggest(false);
+    setMentoringEvents([]);
+    setLegacy(null);
+  }, [slug]);
+
   useEffect(() => {
     apiFetch(`/agents/${slug}/`)
       .then(setAgent)

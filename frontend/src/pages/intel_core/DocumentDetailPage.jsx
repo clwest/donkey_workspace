@@ -12,6 +12,14 @@ export default function DocumentDetailPage() {
   const [loading, setLoading] = useState(true);
   const [showSmartChunks, setShowSmartChunks] = useState(false);
   const [summaryLoading, setSummaryLoading] = useState(false);
+
+  // Reset local state whenever the document id changes
+  useEffect(() => {
+    setDoc(null);
+    setLoading(true);
+    setShowSmartChunks(false);
+    setSummaryLoading(false);
+  }, [id]);
   
 
   useEffect(() => {

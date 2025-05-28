@@ -39,6 +39,20 @@ export default function AssistantDetailPage() {
   const memoryId = query.get("memory");
   const objectiveId = query.get("objective");
 
+  // Clear state when navigating between assistants so new data loads properly
+  useEffect(() => {
+    setAssistant(null);
+    setAvailableDocs([]);
+    setSelectedDoc("");
+    setActiveTab("overview");
+    setAssessment(null);
+    setShowAssess(false);
+    setReflecting(false);
+    setAssessing(false);
+    setEditingName(false);
+    setNameInput("");
+  }, [slug]);
+
   useEffect(() => {
     async function fetchAssistant() {
       try {

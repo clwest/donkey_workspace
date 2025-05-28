@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useParams } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
@@ -220,6 +220,27 @@ import { useState } from "react";
 import ActivityPage from "./pages/ActivityPage";
 import "react-toastify/dist/ReactToastify.css";
 
+// Route wrappers to force remount on param change
+const AssistantDetailRoute = () => {
+  const { slug } = useParams();
+  return <AssistantDetailPage key={slug} />;
+};
+
+const DocumentDetailRoute = () => {
+  const { id } = useParams();
+  return <DocumentDetailPage key={id} />;
+};
+
+const AgentDetailRoute = () => {
+  const { slug } = useParams();
+  return <AgentDetailPage key={slug} />;
+};
+
+const ProjectDetailRoute = () => {
+  const { id } = useParams();
+  return <ProjectDetailPage key={id} />;
+};
+
 export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const toggleSidebar = () => setSidebarCollapsed((c) => !c);
@@ -323,7 +344,7 @@ export default function App() {
           />
           <Route
             path="/assistants/projects/:id"
-            element={<ProjectDetailPage />}
+            element={<ProjectDetailRoute />}
           />
           <Route
             path="/assistants/projects/:id/build"
@@ -491,7 +512,7 @@ export default function App() {
           <Route path="/assistants/:id/identity" element={<AssistantIdentityPage />} />
           <Route path="/assistants/:id/mythpath" element={<AssistantMythpathPage />} />
           <Route path="/assistants/:slug/edit" element={<EditAssistantPage />} />
-          <Route path="/assistants/:slug" element={<AssistantDetailPage />} />
+          <Route path="/assistants/:slug" element={<AssistantDetailRoute />} />
           {/* MCP Core */}
           <Route path="/reflect" element={<ReflectionPage />} />
           <Route path="/reflections" element={<ReflectionHistoryPage />} />
@@ -549,9 +570,9 @@ export default function App() {
           <Route path="/timeline" element={<WorldTimelinePage />} />
           <Route path="/timeline/memory" element={<MemoryTimelinePage />} />
           <Route path="/memory/sandbox/:assistantId" element={<MemorySandboxPage />} />
-          <Route path="/agents/:slug" element={<AgentDetailPage />} />
+          <Route path="/agents/:slug" element={<AgentDetailRoute />} />
           <Route path="/intel/documents" element={<DocumentBrowserPage />} />
-          <Route path="/intel/documents/:id" element={<DocumentDetailPage />} />
+          <Route path="/intel/documents/:id" element={<DocumentDetailRoute />} />
           <Route path="/images" element={<ImageGalleryPage />} />
           <Route path="/images/new" element={<ImageCreatePage />} />
           <Route path="/characters" element={<CharacterListPage />} />
