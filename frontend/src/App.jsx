@@ -20,6 +20,7 @@ import PromptsPage from "./pages/prompts/PromptsPage";
 import PromptDetailView from "./pages/prompts/PromptDetailView";
 import PromptRemixPage from "./pages/prompts/PromptRemixPage";
 import CreatePromptPage from "./pages/prompts/CreatePromptPage";
+import EditPromptPage from "./pages/prompts/EditPromptPage";
 import PromptCreationAssistant from "./pages/assistant/prompts/PromptCreationAssistant";
 import PromptCapsuleManagerPage from "./pages/prompts/PromptCapsuleManagerPage";
 import SwarmAgentRewirePage from "./pages/swarm/SwarmAgentRewirePage";
@@ -72,6 +73,7 @@ import AssistantThoughtDetailPage from "./pages/assistant/common/AssistantThough
 import AssistantDemoPage from "./pages/assistant/common/AssistantDemoPage";
 import ChatWithAssistantPage from "./pages/assistant/common/ChatWithAssistantPage";
 import CreateNewAssistantPage from "./pages/assistant/common/CreateNewAssistantPage";
+import EditAssistantPage from "./pages/assistant/common/EditAssistantPage";
 import AssistantInterfacePage from "./pages/assistant/interface/AssistantInterfacePage";
 import AssistantRelayPage from "./pages/assistant/relay/AssistantRelayPage";
 import RunTaskPage from "./pages/assistant/run_task/RunTaskPage";
@@ -250,6 +252,7 @@ export default function App() {
           <Route path="/prompts/capsules" element={<PromptCapsuleManagerPage />} />
           <Route path="/feedback/prompts/:id" element={<PromptFeedbackPage />} />
           <Route path="/prompts/:slug/remix" element={<PromptRemixPage />} />
+          <Route path="/prompts/:slug/edit" element={<EditPromptPage />} />
           <Route path="/prompts/:slug" element={<PromptDetailView />} />
           <Route path="/prompts/create" element={<CreatePromptPage />} />
           <Route
@@ -487,6 +490,7 @@ export default function App() {
           <Route path="/assistants/:id/rebirth" element={<AssistantMythRebirthPage />} />
           <Route path="/assistants/:id/identity" element={<AssistantIdentityPage />} />
           <Route path="/assistants/:id/mythpath" element={<AssistantMythpathPage />} />
+          <Route path="/assistants/:slug/edit" element={<EditAssistantPage />} />
           <Route path="/assistants/:slug" element={<AssistantDetailPage />} />
           {/* MCP Core */}
           <Route path="/reflect" element={<ReflectionPage />} />

@@ -13,6 +13,16 @@ export default function DevDashboard() {
   const navigate = useNavigate();
   const markdownRef = useRef(null);
 
+  const cleanupUnused = async () => {
+    try {
+      const res = await apiFetch('/assistants/cleanup-unused/', { method: 'DELETE' });
+      toast.success(`🧹 Deleted ${res.deleted} assistants`);
+    } catch (err) {
+      console.error('Cleanup failed', err);
+      toast.error('Cleanup failed');
+    }
+  };
+
   useEffect(() => {
     const loadDocs = async () => {
       try {
@@ -69,9 +79,12 @@ export default function DevDashboard() {
     <div className="container-fluid mt-4 dev-dashboard" style={{ height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
       <div>
         <h2 className="mb-3">🧠 Dev Dashboard</h2>
-        <Link to="/grouped-reflection" className="btn btn-outline-secondary my-3">
+        <Link to="/grouped-reflection" className="btn btn-outline-secondary my-3 me-2">
           🧠 View Grouped Reflection
         </Link>
+        <button className="btn btn-outline-danger my-3" onClick={cleanupUnused}>
+          🧹 Delete Unused Assistants
+        </button>
       </div>
 
       <div className="row flex-grow-1" style={{ overflow: "hidden" }}>

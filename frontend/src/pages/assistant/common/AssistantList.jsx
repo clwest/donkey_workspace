@@ -7,6 +7,16 @@ import PrimaryStar from "../../../components/assistant/PrimaryStar";
 export default function AssistantList({ assistants: propAssistants }) {
   const [assistants, setAssistants] = useState(propAssistants || []);
 
+  const handleDelete = async (slug) => {
+    if (!window.confirm("Delete this assistant?")) return;
+    try {
+      await apiFetch(`/assistants/${slug}/`, { method: "DELETE" });
+      setAssistants((prev) => prev.filter((a) => a.slug !== slug));
+    } catch (err) {
+      console.error("Failed to delete", err);
+    }
+  };
+
   useEffect(() => {
     if (!propAssistants) {
       apiFetch("/assistants/")
@@ -44,6 +54,14 @@ export default function AssistantList({ assistants: propAssistants }) {
             <Link to={`/assistants/${parent.slug}`} className="fw-bold text-decoration-none">
               {parent.name} <PrimaryStar isPrimary={parent.is_primary} />
             </Link>
+            <div className="mt-1">
+              <Link to={`/assistants/${parent.slug}/edit`} className="btn btn-sm btn-outline-secondary me-2">
+                ✏️ Edit
+              </Link>
+              <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(parent.slug)}>
+                🗑️ Delete
+              </button>
+            </div>
             <p className="text-muted mb-1">
               {parent.description || `${parent.name} (${parent.slug})`}
             </p>

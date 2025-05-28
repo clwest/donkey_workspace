@@ -127,6 +127,7 @@ def update_prompt(request, slug):
     serializer = PromptSerializer(prompt, data=request.data, partial=True)
     serializer.is_valid(raise_exception=True)
     updated_prompt = serializer.save()
+    logger.info("Prompt %s updated", slug)
     return Response(PromptSerializer(updated_prompt).data)
 
 
@@ -151,6 +152,7 @@ def delete_prompt(request, slug):
         return Response({"error": "Prompt in use"}, status=400)
 
     prompt.delete()
+    logger.info("Prompt %s deleted", slug)
     return Response(status=204)
 
 
