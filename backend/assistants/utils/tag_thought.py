@@ -1,7 +1,7 @@
 from mcp_core.utils.tagging import infer_tags_from_text
 from mcp_core.utils.auto_tag_from_embedding import auto_tag_from_embedding
 from mcp_core.models import Tag
-from memory.utils import normalize_tag_name
+from memory.utils.tag_utils import normalize_tag_name
 
 
 def tag_thought_content(content: str, top_k=5) -> list[Tag]:
