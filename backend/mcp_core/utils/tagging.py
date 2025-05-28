@@ -1,11 +1,12 @@
 import logging
-from utils.llm_router import call_llm
 
 logger = logging.getLogger(__name__)
 
 
 def infer_tags_from_text(text: str, max_tags: int = 5) -> list[str]:
     """Generate up to `max_tags` relevant tags from a given text input."""
+    from utils.llm_router import call_llm
+
     prompt = f"""
 You are an AI tagger. Analyze the following text and return {max_tags} short tags (1-3 words max) that describe its main topics or intent.
 
