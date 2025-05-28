@@ -93,6 +93,13 @@ class DocumentChunk(models.Model):
     fingerprint = models.CharField(max_length=64, unique=True)
     score = models.FloatField(default=1.0)
     quality_notes = models.TextField(blank=True)
+    anchor = models.ForeignKey(
+        "memory.SymbolicMemoryAnchor",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="chunks",
+    )
     embedding = models.OneToOneField(
         "EmbeddingMetadata",
         null=True,

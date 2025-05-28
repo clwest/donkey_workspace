@@ -29,6 +29,13 @@ class AssistantReflectionLog(models.Model):
     mood = models.CharField(max_length=50, null=True, blank=True)
 
     tags = models.ManyToManyField("mcp_core.Tag", blank=True)
+    anchor = models.ForeignKey(
+        "memory.SymbolicMemoryAnchor",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reflection_logs",
+    )
     linked_memory = models.ForeignKey(
         "memory.MemoryEntry",
         on_delete=models.SET_NULL,
