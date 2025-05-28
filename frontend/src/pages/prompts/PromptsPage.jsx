@@ -239,6 +239,31 @@ export default function PromptsPage() {
               </button>
             </li>
           </ul>
+          <div className="mt-2">
+            <Link
+              to={`/prompts/${prompt.slug}/edit`}
+              className="btn btn-sm btn-outline-secondary me-2"
+              onClick={(e) => e.stopPropagation()}
+            >
+              ✏️ Edit
+            </Link>
+            <button
+              className="btn btn-sm btn-outline-danger"
+              onClick={async (e) => {
+                e.stopPropagation();
+                if (!window.confirm('Delete this prompt?')) return;
+                try {
+                  await apiFetch(`/prompts/${prompt.slug}/delete/`, { method: 'DELETE' });
+                  setPrompts((prev) => prev.filter((p) => p.slug !== prompt.slug));
+                  toast.success('Prompt deleted');
+                } catch (err) {
+                  toast.error('Delete failed');
+                }
+              }}
+            >
+              🗑️ Delete
+            </button>
+          </div>
           <button
               className="btn btn-info m-3"
               onClick={(e) => {

@@ -185,6 +185,8 @@ class AssistantViewSet(viewsets.ModelViewSet):
 
         assistant.save()
 
+        logger.info("Assistant %s edited", assistant.slug)
+
         if old_name != assistant.name:
             log_assistant_thought(
                 assistant,
@@ -214,6 +216,7 @@ class AssistantViewSet(viewsets.ModelViewSet):
         MemoryEntry.objects.filter(chat_session__assistant=assistant).update(chat_session=None)
 
         assistant.delete()
+        logger.info("Assistant %s deleted", slug)
         return Response(status=204)
 
     def retrieve(self, request, slug=None, *args, **kwargs):
@@ -324,6 +327,23 @@ class AssistantViewSet(viewsets.ModelViewSet):
         assistant.save(update_fields=["is_primary"])
         serializer = AssistantSerializer(assistant)
         return Response(serializer.data)
+
+    @action(detail=False, methods=["delete"], url_path="cleanup-unused")
+    def cleanup_unused(self, request):
+        """Delete assistants with no sessions or projects."""
+        from project.models import Project
+        from assistants.models.assistant import ChatSession
+
+        qs = (
+            Assistant.objects.filter(is_primary=False)
+            .annotate(has_sessions=models.Exists(ChatSession.objects.filter(assistant=models.OuterRef("pk"))) )
+            .annotate(project_count=models.Count("project"))
+        )
+        unused = qs.filter(has_sessions=False, project_count=0)
+        count = unused.count()
+        unused.delete()
+        logger.info("cleanup_unused deleted %s assistants", count)
+        return Response({"deleted": count})
 
 
 @api_view(["GET", "POST"])
