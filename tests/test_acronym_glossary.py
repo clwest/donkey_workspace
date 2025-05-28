@@ -59,7 +59,7 @@ def test_get_relevant_chunks_prefers_longform(
     mock_embed.return_value = [0.5]
     mock_sim.side_effect = [0.6, 0.6]
 
-    chunks, _, _, _, _, _ = get_relevant_chunks(str(assistant.id), "What is MCP?")
+    chunks, *_ = get_relevant_chunks(str(assistant.id), "What is MCP?")
     assert chunks[0]["chunk_id"] == "1"
     assert "Model Context Protocol" in chunks[0]["text"]
 
@@ -102,7 +102,7 @@ def test_glossary_score_boost(mock_sim, mock_chunk_model, mock_embed, db):
     mock_embed.return_value = [0.5]
     mock_sim.side_effect = [0.5, 0.5]
 
-    chunks, _, _, _, _, _ = get_relevant_chunks(str(assistant.id), "What is SDK?")
+    chunks, *_ = get_relevant_chunks(str(assistant.id), "What is SDK?")
     assert chunks[0]["chunk_id"] == "1"
 
 
@@ -136,7 +136,7 @@ def test_anchor_forces_injection(mock_sim, mock_chunk_model, mock_embed, db):
     mock_embed.return_value = [0.5]
     mock_sim.return_value = 0.3
 
-    chunks, reason, fallback, _, _, _ = get_relevant_chunks(
+    chunks, reason, fallback, _, _, _, _ = get_relevant_chunks(
         str(assistant.id), "explain sdk"
     )
     assert chunks[0]["chunk_id"] == "1"

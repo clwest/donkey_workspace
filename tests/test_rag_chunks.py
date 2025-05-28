@@ -49,7 +49,7 @@ def test_get_relevant_chunks_filters(mock_sim, mock_chunk_model, mock_embed, db)
     mock_embed.return_value = [0.5]
     mock_sim.side_effect = [0.8, 0.6]
 
-    chunks, reason, fallback, _, _, _ = get_relevant_chunks(
+    chunks, reason, fallback, _, _, _, _ = get_relevant_chunks(
         str(assistant.id), "q", score_threshold=0.75
     )
     assert reason is None
@@ -94,7 +94,7 @@ def test_get_relevant_chunks_fallback(mock_sim, mock_chunk_model, mock_embed, db
     mock_embed.return_value = [0.5]
     mock_sim.side_effect = [0.6, 0.55]
 
-    chunks, reason, fallback, _, _, _ = get_relevant_chunks(
+    chunks, reason, fallback, _, _, _, _ = get_relevant_chunks(
         str(assistant.id), "q", score_threshold=0.75
     )
     assert fallback is True
@@ -127,7 +127,7 @@ def test_get_relevant_chunks_lowest_scores(mock_sim, mock_chunk_model, mock_embe
     mock_embed.return_value = [0.5]
     mock_sim.return_value = 0.2
 
-    chunks, reason, fallback, _, _, _ = get_relevant_chunks(
+    chunks, reason, fallback, _, _, _, _ = get_relevant_chunks(
         str(assistant.id), "q", score_threshold=0.75
     )
     assert fallback is True
@@ -160,7 +160,7 @@ def test_get_relevant_chunks_project_filter(mock_sim, mock_chunk_model, mock_emb
     mock_embed.return_value = [0.5]
     mock_sim.return_value = 0.9
 
-    chunks, _, _, _, _, _ = get_relevant_chunks(None, "q", project_id=str(project.id))
+    chunks, *_ = get_relevant_chunks(None, "q", project_id=str(project.id))
     assert len(chunks) == 1
     assert chunks[0]["document_id"] == str(doc.id)
 
@@ -189,7 +189,7 @@ def test_get_relevant_chunks_document_filter(
     mock_embed.return_value = [0.5]
     mock_sim.return_value = 0.9
 
-    chunks, _, _, _, _, _ = get_relevant_chunks(None, "q", document_id=str(doc.id))
+    chunks, *_ = get_relevant_chunks(None, "q", document_id=str(doc.id))
     assert len(chunks) == 1
     assert chunks[0]["document_id"] == str(doc.id)
 
@@ -220,7 +220,7 @@ def test_get_relevant_chunks_force_keyword(mock_sim, mock_chunk_model, mock_embe
     mock_sim.return_value = 0.2
 
     query = "What was the opening line?"
-    chunks, reason, fallback, _, _, _ = get_relevant_chunks(
+    chunks, reason, fallback, _, _, _, _ = get_relevant_chunks(
         str(assistant.id), query, score_threshold=0.75
     )
     assert len(chunks) == 1
@@ -267,5 +267,5 @@ def test_anchor_boost(mock_sim, mock_chunk_model, mock_embed, db):
     mock_embed.return_value = [0.5]
     mock_sim.side_effect = [0.4, 0.4]
 
-    chunks, _, _, _, _, _ = get_relevant_chunks(str(assistant.id), "tell me about rag")
+    chunks, *_ = get_relevant_chunks(str(assistant.id), "tell me about rag")
     assert chunks[0]["chunk_id"] == "1"

@@ -14,6 +14,10 @@ from memory.models import SymbolicMemoryAnchor
 from embeddings.helpers.helpers_io import get_embedding_for_text
 from embeddings.vector_utils import compute_similarity
 
+# Minimum score required to bypass normal filtering when forcing
+# glossary chunks for an anchor match
+GLOSSARY_MIN_SCORE_OVERRIDE = 0.15
+
 logger = logging.getLogger(__name__)
 
 
@@ -34,19 +38,21 @@ def get_relevant_chunks(
     bool,
     float,
     Optional[str],
+    bool,
 ]:
     """Return top matching chunks and an optional ignore reason.
 
     Results are filtered by ``score_threshold`` and optionally reranked if
     ``keywords`` are provided.  The return value is ``(chunks, reason, fallback,
-    glossary_present, top_score, top_chunk_id)`` where ``reason`` is ``"low
+    glossary_present, top_score, top_chunk_id, glossary_forced)`` where ``reason`` is ``"low
     score"`` when matches exist but all fall below the threshold. ``fallback``
     indicates that low-score chunks were returned. ``glossary_present`` is ``True``
     if any candidate chunk contains glossary hints. ``top_score`` and
-    ``top_chunk_id`` reflect the best scoring chunk before filtering.
+    ``top_chunk_id`` reflect the best scoring chunk before filtering. ``glossary_forced``
+    is ``True`` when glossary chunks were injected due to an anchor match regardless of score.
     """
     if not query_text:
-        return [], None, False, False, 0.0, None
+        return [], None, False, False, 0.0, None, False
 
     logger.info("🔍 Searching document embeddings for query: %s", query_text[:80])
 
@@ -76,15 +82,15 @@ def get_relevant_chunks(
                 assistant.current_project.documents.values_list("id", flat=True)
             )
     if not doc_ids:
-        return [], None, False, False, 0.0, None
+        return [], None, False, False, 0.0, None, False
 
     try:
         query_vec = get_embedding_for_text(query_text)
     except Exception as exc:  # pragma: no cover - network
         logger.error("Embedding generation failed: %s", exc)
-        return [], None, False, False, 0.0, None
+        return [], None, False, False, 0.0, None, False
     if not query_vec:
-        return [], None, False, False, 0.0, None
+        return [], None, False, False, 0.0, None, False
 
     chunks = DocumentChunk.objects.filter(
         document_id__in=doc_ids, embedding__isnull=False
@@ -151,6 +157,12 @@ def get_relevant_chunks(
     anchor_pairs = [
         p for p in scored if p[1].anchor and p[1].anchor.slug in anchor_matches
     ]
+    glossary_anchor_pairs = [
+        p
+        for p in anchor_pairs
+        if getattr(p[1], "is_glossary", False) and p[0] >= GLOSSARY_MIN_SCORE_OVERRIDE
+    ]
+    glossary_forced = False
     if force_inject and scored:
         reason = reason or "forced"
         fallback = True
@@ -167,13 +179,20 @@ def get_relevant_chunks(
         for i, (s, c) in enumerate(pairs, 1):
             logger.info("Fallback chunk %s score %.4f", i, s)
     else:
-        return [], None, False, glossary_present, top_score, top_chunk_id
+        return [], None, False, glossary_present, top_score, top_chunk_id, False
 
     # Ensure anchor matched chunks are injected
     for pair in anchor_pairs:
         if pair not in pairs:
             pairs.append(pair)
             reason = reason or "forced anchor"
+            fallback = True
+    # Force glossary chunks for matched anchors
+    for pair in glossary_anchor_pairs:
+        if pair not in pairs:
+            pairs.append(pair)
+            glossary_forced = True
+            reason = reason or "forced glossary"
             fallback = True
 
     pairs.sort(key=lambda x: x[0], reverse=True)
@@ -192,7 +211,15 @@ def get_relevant_chunks(
             }
         )
 
-    return result, reason, fallback, glossary_present, top_score, top_chunk_id
+    return (
+        result,
+        reason,
+        fallback,
+        glossary_present,
+        top_score,
+        top_chunk_id,
+        glossary_forced,
+    )
 
 
 def format_chunks(chunks: List[Dict[str, object]]) -> str:

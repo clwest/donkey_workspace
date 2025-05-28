@@ -163,7 +163,7 @@ class AssistantReflectionEngine:
         from assistants.utils.chunk_retriever import get_relevant_chunks
 
         query_text = texts[0] if texts else context.content or ""
-        chunk_info, _, _, _, _, _ = get_relevant_chunks(
+        chunk_info, *_ = get_relevant_chunks(
             str(self.assistant.id), query_text
         )
         rag_chunks = [c["text"] for c in chunk_info]
