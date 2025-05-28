@@ -130,7 +130,9 @@ def get_relevant_chunks(
     if not (auto_expand or settings.DEBUG) and focus_qs.exists():
         all_slugs = list(SymbolicMemoryAnchor.objects.values_list("slug", flat=True))
         filtered_anchor_terms = [
-            s for s in all_slugs if s.lower() in query_text.lower() and s not in all_anchors
+            s
+            for s in all_slugs
+            if s.lower() in query_text.lower() and s not in all_anchors
         ]
     else:
         filtered_anchor_terms = []
@@ -179,7 +181,11 @@ def get_relevant_chunks(
     scored.sort(key=lambda x: x[0], reverse=True)
     top_score = scored[0][0] if scored else 0.0
     top_chunk_id = str(scored[0][1].id) if scored else None
-    filtered = [(s, c) for s, c in scored if s >= score_threshold]
+    # ``scored`` contains tuples of ``(score, chunk, anchor_confidence)`` so we
+    # need to keep all three values when filtering. Previously this list
+    # comprehension only unpacked ``score`` and ``chunk`` which caused a
+    # ``ValueError`` when later code expected the anchor confidence value.
+    filtered = [(s, c, conf) for s, c, conf in scored if s >= score_threshold]
     reason = None
     fallback = False
 
