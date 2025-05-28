@@ -57,7 +57,9 @@ from embeddings.document_services.chunking import (
     generate_chunk_fingerprint,
     clean_and_score_chunk,
 )
-from intel_core.services import AcronymGlossaryService
+# Import directly to avoid circular dependency triggered via
+# ``intel_core.services.__init__`` which pulls in ``DocumentService``.
+from intel_core.services.acronym_glossary_service import AcronymGlossaryService
 from prompts.utils.token_helpers import count_tokens, EMBEDDING_MODEL
 from intel_core.models import DocumentChunk
 
