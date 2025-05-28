@@ -276,7 +276,7 @@ export default function ChatWithAssistantPage() {
                   {c.is_glossary && c.anchor_slug && (
                     <span className="badge bg-info text-dark me-1">{c.anchor_slug}</span>
                   )}
-                  {c.text.slice(0, 30)}
+                  {c.text ? c.text.slice(0, 30) : ""}
                 </div>
               ))}
             </li>
