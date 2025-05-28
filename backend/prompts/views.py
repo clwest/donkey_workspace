@@ -21,7 +21,7 @@ from mcp_core.utils.log_prompt import log_prompt_usage
 
 logger = logging.getLogger("prompts")
 from assistants.models.assistant import Assistant
-from django.db import connection
+from django.db import connection, models
 import textstat
 
 from mcp_core.models import PromptUsageLog
@@ -128,6 +128,30 @@ def update_prompt(request, slug):
     serializer.is_valid(raise_exception=True)
     updated_prompt = serializer.save()
     return Response(PromptSerializer(updated_prompt).data)
+
+
+@api_view(["DELETE"])
+def delete_prompt(request, slug):
+    try:
+        prompt = Prompt.objects.get(slug=slug)
+    except Prompt.DoesNotExist:
+        return Response({"error": "Prompt not found"}, status=404)
+
+    force = request.query_params.get("force") == "true" or request.data.get("force")
+
+    in_use = Assistant.objects.filter(system_prompt=prompt).exists()
+    from prompts.models import PromptMutationLog
+    history = PromptMutationLog.objects.filter(
+        models.Q(original_prompt=prompt)
+        | models.Q(mutated_prompt=prompt)
+        | models.Q(source_prompt=prompt)
+    ).exists()
+
+    if (in_use or history) and not force:
+        return Response({"error": "Prompt in use"}, status=400)
+
+    prompt.delete()
+    return Response(status=204)
 
 
 @api_view(["POST"])

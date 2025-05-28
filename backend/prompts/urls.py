@@ -56,6 +56,7 @@ urlpatterns = [
     path("search/", views.prompt_search, name="prompt-search"),
     path("reembed/", views.reembed_all_prompts),
     path("<slug:slug>/update/", views.update_prompt),
+    path("<slug:slug>/delete/", views.delete_prompt),
     path("<slug:slug>/", views.prompt_detail),
     path("<slug:slug>/assign/", views.assign_prompt_to_assistant),
     path("<slug:slug>/usage-logs/", views.prompt_usage_logs_view),
