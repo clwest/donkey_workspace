@@ -110,7 +110,14 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
             for c in chunks
         ]
         for i, c in enumerate(chunks, 1):
-            logger.info("Chunk %s score %.4f: %s", i, c["score"], c["text"][:200])
+            logger.info("Chunk %s chosen %.4f: %s", i, c["score"], c["text"][:80])
+            if c["score"] < 0.45:
+                logger.warning(
+                    "\u26a0\ufe0f Low RAG score %.2f for chunk %s: %s",
+                    c["score"],
+                    c["chunk_id"],
+                    c["text"][:80],
+                )
 
         replaced = False
         for idx, m in enumerate(msgs):

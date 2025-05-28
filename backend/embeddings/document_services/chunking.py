@@ -8,6 +8,9 @@ import re
 import hashlib
 from typing import List, Tuple
 
+from intel_core.core.filters import ALL_STOP_WORDS
+import spacy
+
 try:
     from nltk.tokenize import sent_tokenize
 
@@ -31,6 +34,11 @@ __all__ = [
     "clean_and_score_chunk",
 ]
 
+try:
+    nlp = spacy.load("en_core_web_sm")
+except Exception:  # pragma: no cover - fallback when model unavailable
+    nlp = spacy.blank("en")
+
 
 def clean_and_score_chunk(text: str, chunk_index: int | None = None) -> dict:
     """Clean and score a text chunk for relevance."""
@@ -43,7 +51,21 @@ def clean_and_score_chunk(text: str, chunk_index: int | None = None) -> dict:
             "keep": True,
             "origin": "forced",
         }
-    if len(cleaned.split()) < 15:
+    words = cleaned.split()
+    if len(words) < 5:
+        return {"text": cleaned, "score": 0.0, "keep": False}
+
+    if len(words) < 15:
+        return {"text": cleaned, "score": 0.0, "keep": False}
+
+    non_stop = [w for w in words if w.lower() not in ALL_STOP_WORDS]
+    if len(non_stop) / len(words) < 0.5:
+        return {"text": cleaned, "score": 0.0, "keep": False}
+
+    if HEADER_FOOTER_RE.search(cleaned):
+        return {"text": cleaned, "score": 0.0, "keep": False}
+
+    if not re.search(r"[.!?]", cleaned):
         return {"text": cleaned, "score": 0.0, "keep": False}
 
     filler_phrases = [
@@ -60,7 +82,15 @@ def clean_and_score_chunk(text: str, chunk_index: int | None = None) -> dict:
     if any(k in lowered for k in keywords):
         score += 0.4
 
-    if cleaned.endswith("."):
+    doc = nlp(cleaned)
+    if any(tok.pos_ == "VERB" for tok in doc):
+        score += 0.1
+    if doc.ents:
+        score += 0.1
+    if any(w[0].isupper() for w in words):
+        score += 0.05
+
+    if cleaned.endswith(('.', '?', '!')):
         score += 0.3
 
     return {"text": cleaned, "score": score, "keep": score > 0.3}
