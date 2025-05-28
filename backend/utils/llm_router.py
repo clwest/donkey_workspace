@@ -147,6 +147,7 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
                 "score": c["score"],
                 "source_doc": c["source_doc"],
                 "anchor_slug": c.get("anchor_slug"),
+                "anchor_confidence": c.get("anchor_confidence"),
             }
             for c in chunks
         ]
@@ -155,6 +156,14 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
             c["chunk_id"] for c in chunks if c.get("is_glossary")
         ]
         rag_meta["glossary_used"] = bool(rag_meta["glossary_chunk_ids"])
+        rag_meta["anchor_hits"] = [
+            slug
+            for slug in anchor_matches
+            if any(c.get("anchor_slug") == slug for c in chunks)
+        ]
+        rag_meta["anchor_misses"] = [
+            slug for slug in anchor_matches if slug not in rag_meta["anchor_hits"]
+        ]
         for i, c in enumerate(chunks, 1):
             logger.info("Chunk %s chosen %.4f: %s", i, c["score"], c["text"][:80])
             if c["score"] < 0.45:
@@ -200,6 +209,8 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
     else:
         rag_meta["rag_used"] = False
         rag_meta["rag_ignored_reason"] = reason or "no matching chunks found"
+        rag_meta["anchor_hits"] = []
+        rag_meta["anchor_misses"] = anchor_matches
         if anchor_matches and query_terms:
             rag_meta["glossary_fallback"] = True
             rag_meta["glossary_reason"] = "No glossary chunk matched known anchors"
@@ -245,6 +256,10 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
     reply = call_llm(
         msgs, model=getattr(assistant, "preferred_model", DEFAULT_MODEL), **kwargs
     )
+    if rag_meta.get("anchor_misses"):
+        rag_meta["anchor_misses"] = [
+            s for s in rag_meta["anchor_misses"] if s.lower() not in reply.lower()
+        ]
     refusal_phrases = [
         "can't access",
         "not in memory",
@@ -311,5 +326,33 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
             mutated_prompt.content,
             reflection=reflection,
         )
+    elif rag_meta.get("anchor_misses"):
+        engine = AssistantThoughtEngine(assistant=assistant)
+        miss_slug = rag_meta["anchor_misses"][0]
+        try:
+            anchor_reflection = engine.reflect_on_anchor_miss(query_text, miss_slug)
+            from prompts.utils.mutation import (
+                mutate_prompt_from_reflection,
+                fork_assistant_from_prompt,
+            )
+
+            mutated = mutate_prompt_from_reflection(
+                assistant,
+                reflection_log=anchor_reflection,
+                reason=f"anchor_miss:{miss_slug}",
+            )
+            label = (
+                SymbolicMemoryAnchor.objects.filter(slug=miss_slug).first().label
+                if miss_slug
+                else miss_slug
+            )
+            fork_assistant_from_prompt(
+                assistant,
+                mutated.content + f"\nAlways explain '{label}' when referenced or relevant.",
+                reflection=anchor_reflection,
+                reason=f"anchor_miss:{miss_slug}",
+            )
+        except Exception:
+            logger.exception("Failed to reflect on anchor miss")
 
     return reply, summoned, rag_meta
