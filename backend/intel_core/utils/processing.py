@@ -44,6 +44,8 @@ def generate_summary(text: str) -> str:
 
 
 from django.utils.text import slugify
+
+
 def generate_unique_slug(title):
     base_slug = slugify(title)
     slug = base_slug
@@ -53,11 +55,13 @@ def generate_unique_slug(title):
         counter += 1
     return slug
 
+
 from embeddings.document_services.chunking import (
     generate_chunks,
     generate_chunk_fingerprint,
     clean_and_score_chunk,
 )
+
 # Import directly to avoid circular dependency triggered via
 # ``intel_core.services.__init__`` which pulls in ``DocumentService``.
 from intel_core.services.acronym_glossary_service import AcronymGlossaryService
@@ -99,13 +103,12 @@ def _create_document_chunks(document: Document):
                 fingerprint=fingerprint,
                 anchor=anchor,
             )
-            # Schedule embedding generation for the created chunk
+            print(
+                f"🧠 Chunk created: {new_chunk.id} for Document {document.id} | text preview: {new_chunk.text[:60]}"
+            )
+            print(f"🚀 Scheduling embedding for chunk {new_chunk.id}")
             try:
-                embed_and_store.delay(
-                    new_chunk.text,
-                    "document_chunk",
-                    str(new_chunk.id),
-                )
+                embed_and_store.delay(str(new_chunk.id))
             except Exception as e:
                 logger.warning(
                     f"Failed to queue embedding task for chunk {new_chunk.id}: {e}"
@@ -126,9 +129,7 @@ def _embed_document_chunks(document: Document):
             logger.warning(f"Failed to embed chunk {chunk.id}: {e}")
             continue
 
-        if vector is None or (
-            hasattr(vector, "__len__") and len(vector) == 0
-        ):
+        if vector is None or (hasattr(vector, "__len__") and len(vector) == 0):
             continue
         if hasattr(vector, "tolist"):
             vector = vector.tolist()
@@ -174,9 +175,13 @@ def save_document_to_db(content, metadata, session_id=None):
         if not metadata.get("source_url"):
             file_hint = metadata.get("source_path") or title
             metadata["source_url"] = f"uploaded://{file_hint}"
-            logger.info(f"ℹ️ source_url missing, using placeholder {metadata['source_url']}")
+            logger.info(
+                f"ℹ️ source_url missing, using placeholder {metadata['source_url']}"
+            )
 
-        logger.info(f"Session ID before querying: {session_id} | Type: {type(session_id)}")
+        logger.info(
+            f"Session ID before querying: {session_id} | Type: {type(session_id)}"
+        )
 
         if isinstance(session_id, str):
             try:
@@ -190,9 +195,13 @@ def save_document_to_db(content, metadata, session_id=None):
 
         existing = None
         if metadata.get("source_url"):
-            existing = Document.objects.filter(source_url=metadata["source_url"]).first()
+            existing = Document.objects.filter(
+                source_url=metadata["source_url"]
+            ).first()
         if not existing and metadata.get("source_path"):
-            existing = Document.objects.filter(metadata__source_path=metadata["source_path"]).first()
+            existing = Document.objects.filter(
+                metadata__source_path=metadata["source_path"]
+            ).first()
 
         if existing:
             for field, value in {
@@ -240,7 +249,9 @@ def save_document_to_db(content, metadata, session_id=None):
                 embedding.tolist() if isinstance(embedding, np.ndarray) else embedding
             )
             embedding_id = save_embedding(document, embedding_list)
-            logger.info(f"✅ Saved embedding: {embedding_id} for document: {document.title}")
+            logger.info(
+                f"✅ Saved embedding: {embedding_id} for document: {document.title}"
+            )
 
         _create_document_chunks(document)
         _embed_document_chunks(document)
@@ -258,7 +269,9 @@ def process_pdfs(pdf, pdf_title, project_name, session_id):
     try:
         chunk_idx = pdf.metadata.get("chunk_index")
         total_chunks = pdf.metadata.get("total_chunks")
-        logger.info(f"📄 Processing PDF: {pdf_title} [chunk {chunk_idx}/{total_chunks}]")
+        logger.info(
+            f"📄 Processing PDF: {pdf_title} [chunk {chunk_idx}/{total_chunks}]"
+        )
         cleaned_text = clean_text(pdf.page_content)
         lemmatized_text = lemmatize_text(cleaned_text, nlp)
 
@@ -285,7 +298,9 @@ def process_pdfs(pdf, pdf_title, project_name, session_id):
             )
             return None
 
-        logger.info(f"✅ PDF processed and saved: {pdf_title} [chunk {chunk_idx}/{total_chunks}]")
+        logger.info(
+            f"✅ PDF processed and saved: {pdf_title} [chunk {chunk_idx}/{total_chunks}]"
+        )
 
         return document
     except Exception as e:

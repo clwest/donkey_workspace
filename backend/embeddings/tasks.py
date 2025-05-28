@@ -19,24 +19,40 @@ logger = logging.getLogger("embeddings")
 @shared_task(bind=True)
 def embed_and_store(
     self,
-    text: str,
-    content_type: str,
-    content_id: str,
+    text_or_id: str,
+    content_type: str | None = None,
+    content_id: str | None = None,
     model: str = EMBEDDING_MODEL,
-) -> str:
+) -> str | None:
     """
     Generate an embedding for the given text and store it in the database.
 
     Args:
-        text: The text to embed.
-        content_type: Type of content (e.g., 'document', 'chat_message').
-        content_id: Identifier of the content.
+        text_or_id: The text to embed, or a DocumentChunk ID when ``content_type``
+            and ``content_id`` are omitted.
+        content_type: Type of content (e.g., "document_chunk").
+        content_id: Identifier of the content. Optional if ``text_or_id`` is a
+            chunk ID.
         model: Embedding model to use.
 
     Returns:
         The ID of the stored embedding, or None on failure.
     """
     try:
+        if content_type is None and content_id is None:
+            # ``text_or_id`` is actually a DocumentChunk ID
+            from intel_core.models import DocumentChunk
+
+            chunk = DocumentChunk.objects.filter(id=text_or_id).first()
+            if not chunk:
+                logger.error(f"No DocumentChunk found with id {text_or_id}")
+                return None
+            text = chunk.text
+            content_type = "document_chunk"
+            content_id = str(chunk.id)
+        else:
+            text = text_or_id
+
         embedding = generate_embedding(text, model=model)
         if not embedding:
             logger.error(
