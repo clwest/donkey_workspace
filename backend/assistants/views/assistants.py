@@ -15,6 +15,7 @@ import logging
 import json
 import re
 from django.conf import settings
+from django.utils.text import slugify
 from assistants.services import AssistantService
 from memory.services import MemoryService
 from assistants.helpers.logging_helper import log_assistant_thought
@@ -137,6 +138,46 @@ class AssistantViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
             headers=headers,
         )
+
+    def partial_update(self, request, slug=None, *args, **kwargs):
+        assistant = get_object_or_404(Assistant, slug=slug)
+        old_name = assistant.name
+
+        new_name = request.data.get("name")
+        new_slug = request.data.get("slug")
+        description = request.data.get("description")
+
+        if new_slug and Assistant.objects.filter(slug=new_slug).exclude(id=assistant.id).exists():
+            return Response({"error": "Slug already exists"}, status=400)
+
+        if new_name is not None:
+            assistant.name = new_name
+            if not new_slug:
+                base_slug = slugify(new_name)
+                unique_slug = base_slug
+                i = 1
+                while Assistant.objects.filter(slug=unique_slug).exclude(id=assistant.id).exists():
+                    unique_slug = f"{base_slug}-{i}"
+                    i += 1
+                new_slug = unique_slug
+
+        if new_slug:
+            assistant.slug = new_slug
+
+        if description is not None:
+            assistant.description = description
+
+        assistant.save()
+
+        if old_name != assistant.name:
+            log_assistant_thought(
+                assistant,
+                f'Assistant renamed from "{old_name}" to "{assistant.name}"',
+                thought_type="meta",
+            )
+
+        serializer = self.get_serializer(assistant)
+        return Response(serializer.data)
 
     def retrieve(self, request, slug=None, *args, **kwargs):
         assistant = get_object_or_404(Assistant, slug=slug)
