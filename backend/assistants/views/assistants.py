@@ -198,7 +198,11 @@ class AssistantViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def destroy(self, request, slug=None, *args, **kwargs):
-        assistant = get_object_or_404(Assistant, slug=slug)
+        assistant = Assistant.objects.filter(slug=slug).first()
+        if not assistant:
+            logger.info("Assistant %s already deleted", slug)
+            return Response(status=204)
+
         force = request.query_params.get("force") == "true" or request.data.get("force")
 
         from project.models import Project
