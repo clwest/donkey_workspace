@@ -1,14 +1,12 @@
-from django.db import models
 import uuid
-from django.contrib.auth import get_user_model
+
 from django.conf import settings
-from mcp_core.models import MemoryContext, Tag
+from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import ArrayField
-from pgvector.django import VectorField
-
-
+from django.db import models
 from django.utils import timezone
-
+from mcp_core.models import MemoryContext, Tag
+from pgvector.django import VectorField
 
 User = settings.AUTH_USER_MODEL
 
@@ -257,3 +255,29 @@ class TrainedAgentLog(models.Model):
         return self.label
 
 
+class KnowledgeGrowthLog(models.Model):
+    """Track knowledge uploads for an agent."""
+
+    ORIGIN_CHOICES = [
+        ("url", "URL"),
+        ("pdf", "PDF"),
+        ("manual", "Manual"),
+    ]
+
+    agent = models.ForeignKey(
+        Agent, on_delete=models.CASCADE, related_name="knowledge_logs"
+    )
+    document = models.ForeignKey(
+        "intel_core.Document",
+        on_delete=models.CASCADE,
+        related_name="knowledge_logs",
+    )
+    summary = models.TextField(blank=True)
+    origin = models.CharField(max_length=20, choices=ORIGIN_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Growth log for {self.agent.name} -> {self.document.title}"
