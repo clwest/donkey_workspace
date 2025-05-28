@@ -13,13 +13,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.text import slugify
 from django.utils import timezone
 from assistants.models.project import AssistantProject
-from utils.llm_router import call_llm
+
 from agents.models.core import (
     Agent,
     AgentTrainingAssignment,
     AgentFeedbackLog,
     AgentSkill,
     AgentSkillLink,
+    AgentCluster
 )
 
 from agents.models.lore import SwarmMemoryEntry
@@ -90,10 +91,11 @@ def reflect_on_agent_training(assistant: Assistant, agent: Agent) -> str:
 
 
 class AssistantReflectionEngine:
+    
     def __init__(self, assistant):
         self.assistant = assistant
         self.project = self.get_or_create_project(assistant)
-
+    
     def build_reflection_prompt(self, memories: list[str]) -> str:
         joined_memories = "\n".join(memories)
         return f"""You are {self.assistant.name}, an AI assistant with reflective capabilities.
@@ -117,6 +119,7 @@ class AssistantReflectionEngine:
         temperature: float = 0.5,
         rag_chunks: Optional[List[str]] = None,
     ) -> str:
+        from utils.llm_router import call_llm
         messages = []
         if rag_chunks:
             messages.append(
@@ -357,7 +360,7 @@ def plan_from_thread_context(
     """Generate next actions from a narrative thread."""
     from agents.utils.agent_controller import AgentController
     from assistants.models import AssistantObjective, AssistantNextAction
-
+    from utils.llm_router import call_llm
     project = project or self.get_or_create_project(assistant)
     objective = (
         AssistantObjective.objects.filter(project=project, assistant=assistant)
@@ -525,6 +528,7 @@ def evaluate_agent_training(assistant: Assistant, agent: "Agent") -> dict:
 
 def reflect_on_agent_network(assistant: Assistant) -> str:
     """Generate a reflection on the assistant's agent network."""
+    from utils.llm_router import call_llm
     agents = list(assistant.assigned_agents.all())
     snapshot_lines = []
     for a in agents:
@@ -567,6 +571,7 @@ def reflect_on_agent_swarm(assistant: Assistant) -> AssistantReflectionLog:
     Reflects on both agent-cluster evolution and mentoring/swarm dynamics,
     then logs the insight as an AssistantReflectionLog.
     """
+    from utils.llm_router import call_llm
     # 1) Build cluster context
     clusters = AgentCluster.objects.filter(
         agents__parent_assistant=assistant
@@ -623,6 +628,7 @@ def reflect_on_agent_swarm(assistant: Assistant) -> AssistantReflectionLog:
     Reflects on both agent‐cluster evolution and mentoring/swarm dynamics,
     then logs the insight as an AssistantReflectionLog.
     """
+    from utils.llm_router import call_llm
     # 1) Cluster context
     clusters = AgentCluster.objects.filter(
         agents__parent_assistant=assistant
@@ -713,6 +719,7 @@ def suggest_agent_resurrections(assistant: Assistant) -> list[str]:
 
 def forecast_future_swarm_needs(assistant: Assistant) -> str:
     """Reflect on temporal analytics and recommend future swarm actions."""
+    from utils.llm_router import call_llm
     report = generate_temporal_swarm_report()
     prompt = (
         f"### Swarm Temporal Report\n{json.dumps(report, indent=2)}\n\n"
