@@ -3,6 +3,8 @@ import logging
 import requests
 from openai import OpenAI
 from intel_core.models import GlossaryUsageLog
+from intel_core.services.acronym_glossary_service import AcronymGlossaryService
+from memory.models import SymbolicMemoryAnchor
 from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 
 DEFAULT_MODEL = "gpt-4o"
@@ -96,6 +98,9 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
     chunks, reason, fallback, glossary_present, top_score, top_chunk_id = (
         get_relevant_chunks(str(assistant.id), query_text)
     )
+    query_terms = AcronymGlossaryService.extract(query_text)
+    all_anchors = list(SymbolicMemoryAnchor.objects.values_list("slug", flat=True))
+    anchor_matches = [s for s in all_anchors if s.lower() in query_text.lower()]
     rag_meta = {
         "rag_used": False,
         "used_chunks": [],
@@ -103,6 +108,12 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
         "rag_fallback": False,
         "glossary_present": glossary_present,
         "retrieval_score": top_score,
+        "glossary_used": False,
+        "glossary_terms": list(query_terms.keys()),
+        "glossary_chunk_ids": [],
+        "glossary_fallback": False,
+        "anchors": anchor_matches,
+        "chunk_scores": [],
     }
     gloss_log = GlossaryUsageLog.objects.create(
         query=query_text,
@@ -124,6 +135,11 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
             }
             for c in chunks
         ]
+        rag_meta["chunk_scores"] = [(c["chunk_id"], c["score"]) for c in chunks]
+        rag_meta["glossary_chunk_ids"] = [
+            c["chunk_id"] for c in chunks if c.get("is_glossary")
+        ]
+        rag_meta["glossary_used"] = bool(rag_meta["glossary_chunk_ids"])
         for i, c in enumerate(chunks, 1):
             logger.info("Chunk %s chosen %.4f: %s", i, c["score"], c["text"][:80])
             if c["score"] < 0.45:
@@ -155,6 +171,9 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
     else:
         rag_meta["rag_used"] = False
         rag_meta["rag_ignored_reason"] = reason or "no matching chunks found"
+        if anchor_matches and query_terms:
+            rag_meta["glossary_fallback"] = True
+            rag_meta["glossary_reason"] = "No glossary chunk matched known anchors"
 
         logger.warning(
             "\u26a0\ufe0f No relevant chunks found — skipping memory injection"
@@ -176,7 +195,10 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
             mem.tags.add(tag)
             engine = AssistantThoughtEngine(assistant=assistant)
             try:
-                gloss_reflection = engine.reflect_on_rag_failure(query_text, str(top_chunk_id))
+                missing_anchor = anchor_matches[0] if anchor_matches else ""
+                gloss_reflection = engine.reflect_on_rag_failure(
+                    query_text, missing_anchor
+                )
                 gloss_log.reflected_on = True
                 gloss_log.save(update_fields=["reflected_on"])
             except Exception:
@@ -205,7 +227,8 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
         )
         fork_assistant_from_prompt(
             assistant,
-            mutated.content + "\nIf glossary definitions are included in memory, use them verbatim.",
+            mutated.content
+            + "\nIf glossary definitions are included in memory, use them verbatim.",
             reflection=gloss_reflection,
             reason="Glossary recall failure",
         )

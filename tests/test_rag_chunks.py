@@ -225,3 +225,47 @@ def test_get_relevant_chunks_force_keyword(mock_sim, mock_chunk_model, mock_embe
     )
     assert len(chunks) == 1
     assert fallback is True
+
+
+@patch("assistants.utils.chunk_retriever.get_embedding_for_text")
+@patch("assistants.utils.chunk_retriever.DocumentChunk")
+@patch("assistants.utils.chunk_retriever.compute_similarity")
+def test_anchor_boost(mock_sim, mock_chunk_model, mock_embed, db):
+    from memory.models import SymbolicMemoryAnchor
+
+    assistant = Assistant.objects.create(name="A")
+    doc = Document.objects.create(title="D", content="txt")
+    assistant.documents.add(doc)
+    anchor = SymbolicMemoryAnchor.objects.create(slug="rag", label="RAG")
+
+    anchor_chunk = type(
+        "C",
+        (),
+        {
+            "id": 1,
+            "document_id": doc.id,
+            "document": doc,
+            "text": "retrieval augmented generation",
+            "embedding": type("E", (), {"vector": [0.1]})(),
+            "anchor": anchor,
+        },
+    )
+    other_chunk = type(
+        "C",
+        (),
+        {
+            "id": 2,
+            "document_id": doc.id,
+            "document": doc,
+            "text": "other",
+            "embedding": type("E", (), {"vector": [0.1]})(),
+        },
+    )
+    manager = DummyManager([other_chunk, anchor_chunk])
+    mock_chunk_model.objects.filter.return_value = manager
+
+    mock_embed.return_value = [0.5]
+    mock_sim.side_effect = [0.4, 0.4]
+
+    chunks, _, _, _, _, _ = get_relevant_chunks(str(assistant.id), "tell me about rag")
+    assert chunks[0]["chunk_id"] == "1"

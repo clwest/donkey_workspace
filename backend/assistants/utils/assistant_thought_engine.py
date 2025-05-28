@@ -21,6 +21,7 @@ from tools.models import Tool
 from assistants.utils.tag_thought import tag_thought_content
 from memory.models import MemoryEntry, ReflectionFlag
 from mcp_core.models import MemoryContext
+from memory.models import SymbolicMemoryAnchor
 from assistants.models.reflection import AssistantReflectionLog
 
 from assistants.helpers.logging_helper import log_assistant_thought
@@ -69,6 +70,7 @@ Memories:
 
     def generate_thought(self, prompt: str, temperature: float = 0.4) -> str:
         from utils.llm_router import call_llm
+
         return call_llm(
             [{"role": "user", "content": prompt}],
             model=self.assistant.preferred_model or "gpt-4o",
@@ -173,6 +175,7 @@ Memories:
 
     def run_reflection_guard(self, content: str, memory: MemoryEntry):
         from utils.llm_router import call_llm
+
         output = call_llm(
             [
                 {
@@ -383,22 +386,26 @@ Memories:
             logger.error(f"[dream()] failed: {e}", exc_info=True)
             return {"text": "Dream failed."}
 
-    def reflect_on_rag_failure(self, query: str, glossary_chunk: str) -> AssistantReflectionLog:
+    def reflect_on_rag_failure(
+        self, query: str, anchor_slug: str
+    ) -> AssistantReflectionLog:
         """Generate a short reflection when glossary context was missed."""
         prompt = (
-            f"The query '{query}' did not use the available glossary chunk:\n{glossary_chunk}\n"
+            f"Glossary anchor '{anchor_slug}' was not recalled during response to '{query}'.\n"
             "Suggest a clarifying question the user could ask."
         )
         reflection = self.generate_thought(prompt, temperature=0.3)
         log = AssistantReflectionLog.objects.create(
             assistant=self.assistant,
-            title="Glossary RAG Miss",
+            title="Glossary Anchor Not Found",
             summary=reflection,
             raw_prompt=prompt,
+            anchor=SymbolicMemoryAnchor.objects.filter(slug=anchor_slug).first(),
         )
         from mcp_core.models import Tag
+
         tag, _ = Tag.objects.get_or_create(
-            slug="missed:glossary", defaults={"name": "missed:glossary"}
+            slug="missed_glossary_anchor", defaults={"name": "missed_glossary_anchor"}
         )
         log.tags.add(tag)
         return log

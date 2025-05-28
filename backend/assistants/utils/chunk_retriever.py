@@ -8,6 +8,7 @@ from intel_core.models import DocumentChunk
 
 # Boost acronym chunks
 from intel_core.services import AcronymGlossaryService
+from memory.models import SymbolicMemoryAnchor
 
 # Import directly from helpers_io to avoid __init__ fallbacks
 from embeddings.helpers.helpers_io import get_embedding_for_text
@@ -100,6 +101,8 @@ def get_relevant_chunks(
     scored = []
     glossary_present = False
     query_terms = AcronymGlossaryService.extract(query_text)
+    all_anchors = list(SymbolicMemoryAnchor.objects.values_list("slug", flat=True))
+    anchor_matches = [s for s in all_anchors if s.lower() in query_text.lower()]
     for chunk in chunks:
         vec = chunk.embedding.vector if chunk.embedding else None
         if vec is None:
@@ -120,10 +123,15 @@ def get_relevant_chunks(
             score += 0.05
             contains_glossary = True
             glossary_present = True
+        if getattr(chunk, "is_glossary", False):
+            score += 0.1
+            glossary_present = True
         if query_terms and (
             getattr(chunk, "is_glossary", False)
             or "glossary" in getattr(chunk, "tags", [])
         ):
+            score += 0.15
+        if chunk.anchor and chunk.anchor.slug in anchor_matches:
             score += 0.15
         logger.debug(
             "Retrieved chunk score: %.4f | contains_glossary=%s",
@@ -140,6 +148,9 @@ def get_relevant_chunks(
     fallback = False
 
     strong_matches = filtered[:3]
+    anchor_pairs = [
+        p for p in scored if p[1].anchor and p[1].anchor.slug in anchor_matches
+    ]
     if force_inject and scored:
         reason = reason or "forced"
         fallback = True
@@ -158,6 +169,15 @@ def get_relevant_chunks(
     else:
         return [], None, False, glossary_present, top_score, top_chunk_id
 
+    # Ensure anchor matched chunks are injected
+    for pair in anchor_pairs:
+        if pair not in pairs:
+            pairs.append(pair)
+            reason = reason or "forced anchor"
+            fallback = True
+
+    pairs.sort(key=lambda x: x[0], reverse=True)
+
     result = []
     for score, chunk in pairs:
         result.append(
@@ -167,6 +187,8 @@ def get_relevant_chunks(
                 "score": round(score, 4),
                 "text": chunk.text,
                 "source_doc": chunk.document.title,
+                "is_glossary": getattr(chunk, "is_glossary", False),
+                "anchor_slug": getattr(getattr(chunk, "anchor", None), "slug", None),
             }
         )
 
