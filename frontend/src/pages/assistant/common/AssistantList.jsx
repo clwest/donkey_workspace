@@ -14,6 +14,24 @@ export default function AssistantList({ assistants: propAssistants }) {
       setAssistants((prev) => prev.filter((a) => a.slug !== slug));
     } catch (err) {
       console.error("Failed to delete", err);
+      alert(err.message);
+    }
+  };
+
+  const handleEndUse = async (projectId, slug) => {
+    if (!window.confirm("Mark assistant's project as completed?")) return;
+    try {
+      await apiFetch(`/assistants/projects/${projectId}/`, {
+        method: "PATCH",
+        body: { status: "completed" },
+      });
+      const updated = await apiFetch(`/assistants/${slug}/`);
+      setAssistants((prev) =>
+        prev.map((a) => (a.id === updated.id ? updated : a))
+      );
+    } catch (err) {
+      console.error("Failed to end use", err);
+      alert(err.message);
     }
   };
 
@@ -65,6 +83,20 @@ export default function AssistantList({ assistants: propAssistants }) {
             <p className="text-muted mb-1">
               {parent.description || `${parent.name} (${parent.slug})`}
             </p>
+
+            {parent.current_project && (
+              <div className="alert alert-warning p-2 d-flex justify-content-between align-items-center">
+                <span>
+                  🚧 In Use: {parent.current_project.title}
+                </span>
+                <button
+                  className="btn btn-sm btn-outline-danger"
+                  onClick={() => handleEndUse(parent.current_project.id, parent.slug)}
+                >
+                  End Use
+                </button>
+              </div>
+            )}
 
             {children.length > 0 && (
               <ul className="ps-3">
