@@ -245,6 +245,7 @@ class AssistantSkillSerializer(serializers.ModelSerializer):
 
 class AssistantReflectionLogSerializer(serializers.ModelSerializer):
     linked_event = serializers.SerializerMethodField()
+    anchor_slug = serializers.SlugField(source="anchor.slug", read_only=True)
 
     class Meta:
         model = AssistantReflectionLog
@@ -256,6 +257,7 @@ class AssistantReflectionLogSerializer(serializers.ModelSerializer):
             "summary",
             "llm_summary",
             "linked_event",
+            "anchor_slug",
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]
@@ -272,6 +274,7 @@ class AssistantReflectionLogSerializer(serializers.ModelSerializer):
 class AssistantReflectionLogListSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     linked_event = serializers.SerializerMethodField()
+    anchor_slug = serializers.SlugField(source="anchor.slug", read_only=True)
 
     class Meta:
         model = AssistantReflectionLog
@@ -282,6 +285,7 @@ class AssistantReflectionLogListSerializer(serializers.ModelSerializer):
             "summary",
             "linked_memory",
             "linked_event",
+            "anchor_slug",
             "tags",
         ]
         read_only_fields = ["id", "created_at"]
@@ -300,6 +304,7 @@ class AssistantReflectionLogDetailSerializer(serializers.ModelSerializer):
     linked_memory = MemoryEntrySerializer(read_only=True)
     project = ProjectSerializer(read_only=True)
     linked_event = serializers.SerializerMethodField()
+    anchor_slug = serializers.SlugField(source="anchor.slug", read_only=True)
     raw_summary = serializers.CharField(
         source="raw_prompt", allow_null=True, read_only=True
     )
@@ -317,6 +322,7 @@ class AssistantReflectionLogDetailSerializer(serializers.ModelSerializer):
             "insights",
             "linked_memory",
             "linked_event",
+            "anchor_slug",
             "tags",
             "mood",
             "created_at",

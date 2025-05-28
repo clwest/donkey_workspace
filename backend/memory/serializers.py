@@ -8,6 +8,7 @@ from .models import (
     SharedMemoryEntry,
     BraidedMemoryStrand,
     ContinuityAnchorPoint,
+    SymbolicMemoryAnchor,
     MemoryMergeSuggestion,
 )
 
@@ -34,6 +35,7 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
     is_delegated = serializers.SerializerMethodField()
     simulated_forks = SimulatedMemoryForkSerializer(many=True, read_only=True)
     linked_agents = AgentSerializer(many=True, read_only=True)
+    anchor_slug = serializers.SlugField(source="anchor.slug", read_only=True)
 
     class Meta:
         model = MemoryEntry
@@ -61,6 +63,7 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
             "bookmark_label",
             "symbolic_change",
             "related_campaign",
+            "anchor_slug",
             "delegation_event_id",
             "assistant_name",
             "assistant_id",
@@ -212,6 +215,13 @@ class ContinuityAnchorPointSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContinuityAnchorPoint
         fields = "__all__"
+
+
+class SymbolicMemoryAnchorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SymbolicMemoryAnchor
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
 
 class MemoryMergeSuggestionSerializer(serializers.ModelSerializer):
     class Meta:

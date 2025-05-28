@@ -49,6 +49,13 @@ class MemoryEntry(models.Model):
         blank=True,
         related_name="memory_entries",
     )
+    anchor = models.ForeignKey(
+        "memory.SymbolicMemoryAnchor",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="memories",
+    )
 
     # 🔗 Relations (project, assistant, chat session)
     related_project = models.ForeignKey(
@@ -372,6 +379,23 @@ class ContinuityAnchorPoint(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+
+class SymbolicMemoryAnchor(models.Model):
+    """Anchor term used for symbolic continuity across content."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    slug = models.SlugField(unique=True)
+    label = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    tags = models.ManyToManyField("mcp_core.Tag", blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["slug"]
+
+    def __str__(self):
+        return self.label
 
 
 class MemoryEmbeddingFailureLog(models.Model):
