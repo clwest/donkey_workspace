@@ -163,8 +163,14 @@ def ingest_urls(
                 logger.info(f"Using provided title: {page_title}")
 
             visible_text = extract_visible_text(content)
+            logger.info(
+                f"URL text length {len(visible_text)} from {url}"
+            )
+            print(f"URL text length {len(visible_text)} from {url}")
             if not visible_text or len(visible_text.strip()) < 50:
-                logger.warning(f"Insufficient text content extracted from URL: {url}")
+                logger.warning(
+                    f"Insufficient text content extracted from URL: {url}"
+                )
                 continue
 
             text_splitter = RecursiveCharacterTextSplitter(

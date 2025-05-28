@@ -393,6 +393,7 @@ def rag_check_source(request):
                 "chunk_id": str(chunk.id),
                 "similarity_score": round(score, 4),
                 "text": chunk.text,
+                "is_glossary": chunk.is_glossary,
             }
         )
 

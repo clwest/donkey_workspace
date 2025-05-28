@@ -254,6 +254,10 @@ export default function ChatWithAssistantPage() {
             <li>🧷 Symbolic Anchors: {JSON.stringify(sourceInfo.anchors || [])}</li>
             <li>📎 Chunk Match Scores: {JSON.stringify(sourceInfo.chunk_scores || [])}</li>
             <li>📓 Glossary Chunk IDs: {JSON.stringify(sourceInfo.glossary_chunk_ids || [])}</li>
+            <li>
+              📄 Used Chunks:
+              <pre className="mb-0">{JSON.stringify(sourceInfo.used_chunks || [], null, 2)}</pre>
+            </li>
           </ul>
         </div>
       )}
