@@ -192,7 +192,9 @@ class DocumentSet(models.Model):
     videos = models.JSONField(blank=True, null=True)
     tags = models.JSONField(blank=True, null=True)
     description = models.TextField(blank=True)
-    documents = models.ManyToManyField(Document, related_name="document_sets", blank=True)
+    documents = models.ManyToManyField(
+        Document, related_name="document_sets", blank=True
+    )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=True,
@@ -209,3 +211,30 @@ class DocumentSet(models.Model):
     def __str__(self):  # pragma: no cover - display helper
 
         return self.title
+
+
+class GlossaryUsageLog(models.Model):
+    """Record glossary detection events during RAG retrieval."""
+
+    query = models.TextField()
+    rag_used = models.BooleanField(default=False)
+    glossary_present = models.BooleanField(default=False)
+    retrieval_score = models.FloatField(default=0.0)
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    linked_chunk = models.ForeignKey(
+        DocumentChunk,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="glossary_logs",
+    )
+    reflected_on = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Glossary log for {self.assistant} - used: {self.rag_used}"

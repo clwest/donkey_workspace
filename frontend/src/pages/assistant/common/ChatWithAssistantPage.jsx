@@ -13,6 +13,7 @@ export default function ChatWithAssistantPage() {
   const [sessionId] = useState(() => crypto.randomUUID());
   const messagesEndRef = useRef(null);
   const [sourceInfo, setSourceInfo] = useState(null);
+  const [glossarySuggestion, setGlossarySuggestion] = useState(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -45,8 +46,16 @@ export default function ChatWithAssistantPage() {
           last.used_chunks = data.rag_meta.used_chunks || [];
           last.rag_ignored_reason = data.rag_meta.rag_ignored_reason;
           last.rag_fallback = data.rag_meta.rag_fallback;
+          last.glossary_present = data.rag_meta.glossary_present;
         }
         setSourceInfo(data.rag_meta);
+        if (data.rag_meta.glossary_present && !data.rag_meta.rag_used) {
+          setGlossarySuggestion(
+            "Try asking: 'What does MCP mean in this document?' or 'Summarize this glossary.'"
+          );
+        } else {
+          setGlossarySuggestion(null);
+        }
       }
       setMessages(msgs);
       console.log(data);
@@ -215,6 +224,14 @@ export default function ChatWithAssistantPage() {
           ) : (
             <span className="badge bg-danger">🚫 No Source Used</span>
           )}
+          {" "}
+          {sourceInfo.glossary_present && !sourceInfo.rag_used ? (
+            <span className="badge bg-warning text-dark">⚠️ Ignored Glossary</span>
+          ) : (
+            <span className="badge bg-secondary">
+              📘 Glossary Present: {sourceInfo.glossary_present ? "✅" : "❌"}
+            </span>
+          )}
         </div>
       )}
       <button className="btn btn-outline-primary mt-2" onClick={handleSuggest}>
@@ -223,6 +240,9 @@ export default function ChatWithAssistantPage() {
       <button className="btn btn-outline-warning mt-2 ms-2" onClick={handleSwitchSuggest}>
         🔄 Suggest Switch
       </button>
+      {glossarySuggestion && (
+        <div className="alert alert-info mt-3">{glossarySuggestion}</div>
+      )}
 
       {error && <div className="alert alert-danger mt-3">{error}</div>}
     </div>

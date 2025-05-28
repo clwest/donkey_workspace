@@ -21,15 +21,37 @@ def test_get_relevant_chunks_filters(mock_sim, mock_chunk_model, mock_embed, db)
     doc = Document.objects.create(title="D", content="txt")
     assistant.documents.add(doc)
 
-    chunk1 = type("C", (), {"id": 1, "document_id": doc.id, "document": doc, "text": "keep", "embedding": type("E", (), {"vector": [0.1]})()})
-    chunk2 = type("C", (), {"id": 2, "document_id": doc.id, "document": doc, "text": "drop", "embedding": type("E", (), {"vector": [0.2]})()})
+    chunk1 = type(
+        "C",
+        (),
+        {
+            "id": 1,
+            "document_id": doc.id,
+            "document": doc,
+            "text": "keep",
+            "embedding": type("E", (), {"vector": [0.1]})(),
+        },
+    )
+    chunk2 = type(
+        "C",
+        (),
+        {
+            "id": 2,
+            "document_id": doc.id,
+            "document": doc,
+            "text": "drop",
+            "embedding": type("E", (), {"vector": [0.2]})(),
+        },
+    )
     manager = DummyManager([chunk1, chunk2])
     mock_chunk_model.objects.filter.return_value = manager
 
     mock_embed.return_value = [0.5]
     mock_sim.side_effect = [0.8, 0.6]
 
-    chunks, reason, fallback = get_relevant_chunks(str(assistant.id), "q", score_threshold=0.75)
+    chunks, reason, fallback, _, _, _ = get_relevant_chunks(
+        str(assistant.id), "q", score_threshold=0.75
+    )
     assert reason is None
     assert fallback is False
     assert len(chunks) == 1
@@ -44,15 +66,37 @@ def test_get_relevant_chunks_fallback(mock_sim, mock_chunk_model, mock_embed, db
     doc = Document.objects.create(title="D", content="txt")
     assistant.documents.add(doc)
 
-    chunk1 = type("C", (), {"id": 1, "document_id": doc.id, "document": doc, "text": "c1", "embedding": type("E", (), {"vector": [0.1]})()})
-    chunk2 = type("C", (), {"id": 2, "document_id": doc.id, "document": doc, "text": "c2", "embedding": type("E", (), {"vector": [0.2]})()})
+    chunk1 = type(
+        "C",
+        (),
+        {
+            "id": 1,
+            "document_id": doc.id,
+            "document": doc,
+            "text": "c1",
+            "embedding": type("E", (), {"vector": [0.1]})(),
+        },
+    )
+    chunk2 = type(
+        "C",
+        (),
+        {
+            "id": 2,
+            "document_id": doc.id,
+            "document": doc,
+            "text": "c2",
+            "embedding": type("E", (), {"vector": [0.2]})(),
+        },
+    )
     manager = DummyManager([chunk1, chunk2])
     mock_chunk_model.objects.filter.return_value = manager
 
     mock_embed.return_value = [0.5]
     mock_sim.side_effect = [0.6, 0.55]
 
-    chunks, reason, fallback = get_relevant_chunks(str(assistant.id), "q", score_threshold=0.75)
+    chunks, reason, fallback, _, _, _ = get_relevant_chunks(
+        str(assistant.id), "q", score_threshold=0.75
+    )
     assert fallback is True
     assert reason == "low score"
     assert len(chunks) >= 1
@@ -83,7 +127,9 @@ def test_get_relevant_chunks_lowest_scores(mock_sim, mock_chunk_model, mock_embe
     mock_embed.return_value = [0.5]
     mock_sim.return_value = 0.2
 
-    chunks, reason, fallback = get_relevant_chunks(str(assistant.id), "q", score_threshold=0.75)
+    chunks, reason, fallback, _, _, _ = get_relevant_chunks(
+        str(assistant.id), "q", score_threshold=0.75
+    )
     assert fallback is True
     assert len(chunks) >= 1
 
@@ -97,14 +143,24 @@ def test_get_relevant_chunks_project_filter(mock_sim, mock_chunk_model, mock_emb
     project = assistant.projects.create(title="P")
     project.documents.add(doc)
 
-    chunk = type("C", (), {"id": 1, "document_id": doc.id, "document": doc, "text": "c", "embedding": type("E", (), {"vector": [0.2]})()})
+    chunk = type(
+        "C",
+        (),
+        {
+            "id": 1,
+            "document_id": doc.id,
+            "document": doc,
+            "text": "c",
+            "embedding": type("E", (), {"vector": [0.2]})(),
+        },
+    )
     manager = DummyManager([chunk])
     mock_chunk_model.objects.filter.return_value = manager
 
     mock_embed.return_value = [0.5]
     mock_sim.return_value = 0.9
 
-    chunks, _, _ = get_relevant_chunks(None, "q", project_id=str(project.id))
+    chunks, _, _, _, _, _ = get_relevant_chunks(None, "q", project_id=str(project.id))
     assert len(chunks) == 1
     assert chunks[0]["document_id"] == str(doc.id)
 
@@ -112,16 +168,28 @@ def test_get_relevant_chunks_project_filter(mock_sim, mock_chunk_model, mock_emb
 @patch("assistants.utils.chunk_retriever.get_embedding_for_text")
 @patch("assistants.utils.chunk_retriever.DocumentChunk")
 @patch("assistants.utils.chunk_retriever.compute_similarity")
-def test_get_relevant_chunks_document_filter(mock_sim, mock_chunk_model, mock_embed, db):
+def test_get_relevant_chunks_document_filter(
+    mock_sim, mock_chunk_model, mock_embed, db
+):
     doc = Document.objects.create(title="D", content="txt")
-    chunk = type("C", (), {"id": 1, "document_id": doc.id, "document": doc, "text": "c", "embedding": type("E", (), {"vector": [0.2]})()})
+    chunk = type(
+        "C",
+        (),
+        {
+            "id": 1,
+            "document_id": doc.id,
+            "document": doc,
+            "text": "c",
+            "embedding": type("E", (), {"vector": [0.2]})(),
+        },
+    )
     manager = DummyManager([chunk])
     mock_chunk_model.objects.filter.return_value = manager
 
     mock_embed.return_value = [0.5]
     mock_sim.return_value = 0.9
 
-    chunks, _, _ = get_relevant_chunks(None, "q", document_id=str(doc.id))
+    chunks, _, _, _, _, _ = get_relevant_chunks(None, "q", document_id=str(doc.id))
     assert len(chunks) == 1
     assert chunks[0]["document_id"] == str(doc.id)
 
@@ -137,7 +205,13 @@ def test_get_relevant_chunks_force_keyword(mock_sim, mock_chunk_model, mock_embe
     chunk = type(
         "C",
         (),
-        {"id": 1, "document_id": doc.id, "document": doc, "text": "intro", "embedding": type("E", (), {"vector": [0.1]})()},
+        {
+            "id": 1,
+            "document_id": doc.id,
+            "document": doc,
+            "text": "intro",
+            "embedding": type("E", (), {"vector": [0.1]})(),
+        },
     )
     manager = DummyManager([chunk])
     mock_chunk_model.objects.filter.return_value = manager
@@ -146,7 +220,8 @@ def test_get_relevant_chunks_force_keyword(mock_sim, mock_chunk_model, mock_embe
     mock_sim.return_value = 0.2
 
     query = "What was the opening line?"
-    chunks, reason, fallback = get_relevant_chunks(str(assistant.id), query, score_threshold=0.75)
+    chunks, reason, fallback, _, _, _ = get_relevant_chunks(
+        str(assistant.id), query, score_threshold=0.75
+    )
     assert len(chunks) == 1
     assert fallback is True
-

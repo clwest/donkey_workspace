@@ -8,11 +8,12 @@ from assistants.utils.session_utils import (
     get_cached_reflection,
     set_cached_reflection,
 )
-from assistants.models.assistant import (
-    Assistant,
-    ChatSession
+from assistants.models.assistant import Assistant, ChatSession
+from assistants.models.project import (
+    AssistantTask,
+    AssistantObjective,
+    AssistantProject,
 )
-from assistants.models.project import AssistantTask, AssistantObjective, AssistantProject
 from project.models import Project
 from assistants.models.thoughts import AssistantThoughtLog
 
@@ -20,6 +21,7 @@ from tools.models import Tool
 from assistants.utils.tag_thought import tag_thought_content
 from memory.models import MemoryEntry, ReflectionFlag
 from mcp_core.models import MemoryContext
+from assistants.models.reflection import AssistantReflectionLog
 
 from assistants.helpers.logging_helper import log_assistant_thought
 from assistants.helpers.mood import detect_mood, update_mood_stability
@@ -92,9 +94,10 @@ Memories:
         mood = detect_mood(content)
         core_project = self.project
         if isinstance(self.project, AssistantProject):
-            core_project = self.project.linked_projects.first() or Project.objects.filter(
-                assistant_project=self.project
-            ).first()
+            core_project = (
+                self.project.linked_projects.first()
+                or Project.objects.filter(assistant_project=self.project).first()
+            )
         log = AssistantThoughtLog.objects.create(
             assistant=self.assistant,
             project=core_project,
@@ -377,6 +380,21 @@ Memories:
         except Exception as e:
             logger.error(f"[dream()] failed: {e}", exc_info=True)
             return {"text": "Dream failed."}
+
+    def reflect_on_rag_failure(self, query: str, glossary_chunk: str) -> str:
+        """Generate a short reflection when glossary context was missed."""
+        prompt = (
+            f"The query '{query}' did not use the available glossary chunk:\n{glossary_chunk}\n"
+            "Suggest a clarifying question the user could ask."
+        )
+        reflection = self.generate_thought(prompt, temperature=0.3)
+        AssistantReflectionLog.objects.create(
+            assistant=self.assistant,
+            title="Glossary RAG Miss",
+            summary=reflection,
+            raw_prompt=prompt,
+        )
+        return reflection
 
     def delegate_objective(
         self,
