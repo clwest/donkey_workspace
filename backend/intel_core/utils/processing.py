@@ -57,6 +57,7 @@ from embeddings.document_services.chunking import (
     generate_chunk_fingerprint,
     clean_and_score_chunk,
 )
+from intel_core.services import AcronymGlossaryService
 from prompts.utils.token_helpers import count_tokens, EMBEDDING_MODEL
 from intel_core.models import DocumentChunk
 
@@ -67,6 +68,7 @@ def _create_document_chunks(document: Document):
         return
 
     chunks = generate_chunks(document.content)
+    chunks = AcronymGlossaryService.prepend_glossary(chunks)
     for i, chunk in enumerate(chunks):
         info = clean_and_score_chunk(chunk, chunk_index=i)
         if not info["keep"]:

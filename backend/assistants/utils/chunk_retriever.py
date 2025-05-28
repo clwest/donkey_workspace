@@ -5,6 +5,8 @@ from django.shortcuts import get_object_or_404
 from assistants.models.assistant import Assistant
 from assistants.models.project import AssistantProject
 from intel_core.models import DocumentChunk
+# Boost acronym chunks
+from intel_core.services import AcronymGlossaryService
 # Import directly from helpers_io to avoid __init__ fallbacks
 from embeddings.helpers.helpers_io import get_embedding_for_text
 from embeddings.vector_utils import compute_similarity
@@ -94,6 +96,9 @@ def get_relevant_chunks(
         score = compute_similarity(query_vec, vec)
         if keywords and any(k.lower() in chunk.text.lower() for k in keywords):
             score += 0.05
+        for acro, longform in AcronymGlossaryService.KNOWN.items():
+            if acro.lower() in chunk.text.lower() and longform.lower() in chunk.text.lower():
+                score += 0.1
         scored.append((score, chunk))
 
     scored.sort(key=lambda x: x[0], reverse=True)
