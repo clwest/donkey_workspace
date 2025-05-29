@@ -429,6 +429,7 @@ def save_memory(request):
         emotion=data.get("emotion"),
         importance=data.get("importance", 5),
         related_project=data.get("related_project"),
+        triggered_by=f"manual: {event[:40]}",
     )
 
     # ✅ Save embedding for this memory
@@ -551,6 +552,7 @@ def mutate_memory(request, id):
         "related_project": memory.related_project,
         "type": "mutation",
         "parent_memory": memory,
+        "triggered_by": "memory mutation",
     }
     if memory.summary:
         new_kwargs["event"] = memory.event
@@ -657,6 +659,7 @@ def create_memory_with_tags(request):
         emotion=data.get("emotion"),
         importance=data.get("importance", 5),
         related_project=data.get("related_project"),
+        triggered_by="api:create",
     )
 
     tag_objs = []

@@ -142,6 +142,7 @@ Memories:
             linked_content_type=ContentType.objects.get_for_model(Assistant),
             linked_object_id=self.assistant.id,
             tool_response=tool_result if tool_result else None,
+            triggered_by=f"{role} thought: {content[:50]}",
         )
 
         log.linked_memory = memory

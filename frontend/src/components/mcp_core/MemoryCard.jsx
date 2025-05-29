@@ -6,7 +6,7 @@ dayjs.extend(relativeTime);
 
 export default function MemoryCard({ memory, action }) {
   const summaryRaw =
-    memory.summary || memory.event || memory.content || "";
+    memory.content_preview || memory.summary || memory.event || memory.content || "";
   const summary = summaryRaw
     ? summaryRaw.slice(0, 150) + (summaryRaw.length > 150 ? "…" : "")
     : "(No content available)";
@@ -30,6 +30,20 @@ export default function MemoryCard({ memory, action }) {
           <div className="memory-meta text-muted small" title={tooltip}>
             🧠 {memory.token_count || 0} tokens · ~{readSecs}s • {created.fromNow()}
           </div>
+          {memory.triggered_by && (
+            <div className="memory-origin text-muted small">{memory.triggered_by}</div>
+          )}
+          {(memory.session_id || memory.anchor_slug) && (
+            <div className="memory-trace small">
+              <a
+                href={memory.session_id ? `/sessions/${memory.session_id}` : `/anchors/${memory.anchor_slug}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Origin
+              </a>
+            </div>
+          )}
           {memory.tags && memory.tags.length > 0 && (
             <div className="mt-1 text-truncate" style={{ maxWidth: 220 }}>
               {memory.tags.slice(0, 3).map((t) => (
