@@ -28,7 +28,7 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
     linked_thought = serializers.SerializerMethodField()
     narrative_thread = NarrativeThreadSerializer(read_only=True)
     tags = TagSerializer(many=True, read_only=True)
-    content_preview = serializers.CharField(source="content_preview", read_only=True)
+    content_preview = serializers.CharField(read_only=True)
     triggered_by = serializers.CharField(read_only=True)
     delegation_event_id = serializers.SerializerMethodField()
     assistant_name = serializers.SerializerMethodField()
@@ -136,7 +136,7 @@ class MemoryEntrySlimSerializer(serializers.ModelSerializer):
 
     tags = TagSerializer(many=True, read_only=True)
     token_count = serializers.SerializerMethodField()
-    content_preview = serializers.CharField(source="content_preview", read_only=True)
+    content_preview = serializers.CharField(read_only=True)
     triggered_by = serializers.CharField(read_only=True)
 
     class Meta:
