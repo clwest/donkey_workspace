@@ -373,23 +373,29 @@ def chat(
                 if anchor_slug
                 else None
             )
-            engine = AssistantThoughtEngine(assistant=assistant)
-            definition = rag_meta.get("glossary_definitions", [""])[0]
-            reflection_text = engine.reflect_on_glossary_gap(
-                query_text, anchor.slug if anchor else "", definition
-            )
-            miss_log = GlossaryMissReflectionLog.objects.create(
-                anchor=anchor,
-                user_question=query_text,
-                assistant_response=reply,
-                glossary_chunk_ids=rag_meta.get("glossary_chunk_ids", []),
-                score_snapshot=dict(rag_meta.get("chunk_scores", [])),
-                reflection=reflection_text,
-            )
-            used_ids = [c["chunk_id"] for c in rag_meta.get("used_chunks", [])]
-            matched = DocumentChunk.objects.filter(id__in=used_ids)
-            if matched:
-                miss_log.matched_chunks.add(*matched)
+            if anchor:
+                engine = AssistantThoughtEngine(assistant=assistant)
+                definition = rag_meta.get("glossary_definitions", [""])[0]
+                reflection_text = engine.reflect_on_glossary_gap(
+                    query_text, anchor.slug, definition
+                )
+                miss_log = GlossaryMissReflectionLog.objects.create(
+                    anchor=anchor,
+                    user_question=query_text,
+                    assistant_response=reply,
+                    glossary_chunk_ids=rag_meta.get("glossary_chunk_ids", []),
+                    score_snapshot=dict(rag_meta.get("chunk_scores", [])),
+                    reflection=reflection_text,
+                )
+                used_ids = [c["chunk_id"] for c in rag_meta.get("used_chunks", [])]
+                matched = DocumentChunk.objects.filter(id__in=used_ids)
+                if matched:
+                    miss_log.matched_chunks.add(*matched)
+            else:
+                logger.warning(
+                    "Glossary miss reflection skipped: no anchor found for %s",
+                    anchor_slug,
+                )
         except Exception:
             logger.exception("Failed to log glossary miss reflection")
 
