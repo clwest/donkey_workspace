@@ -16,7 +16,7 @@ from assistants.utils.session_utils import load_session_messages, flush_chat_ses
 from memory.utils.context_helpers import get_or_create_context_from_memory
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from embeddings.helpers.helpers_io import save_embedding
-from memory.models import MemoryEntry
+from memory.models import MemoryEntry, GlossaryRetryLog
 from mcp_core.models import MemoryContext, NarrativeThread
 from assistants.models.assistant import (
     Assistant,
@@ -166,6 +166,23 @@ def run_assistant_reflection(self, memory_id: int):
         context = get_or_create_context_from_memory(memory)
         engine = AssistantReflectionEngine(memory.assistant)
         ref_log = engine.reflect_now(context)
+
+        if memory.anchor:
+            try:
+                log = GlossaryRetryLog.objects.filter(anchor=memory.anchor).order_by("-created_at").first()
+                if log and log.retried:
+                    outcome = "succeeded" if log.score_diff > 0 else "failed"
+                    line = (
+                        f"User asked about {memory.anchor.label}; glossary was injected, but initial answer ignored context. Retry {outcome}."
+                    )
+                else:
+                    line = (
+                        f"User asked about {memory.anchor.label}; glossary definition used and reflected in answer."
+                    )
+                memory.summary = (memory.summary + "\n" if memory.summary else "") + line
+                memory.save(update_fields=["summary"])
+            except Exception:
+                logger.exception("Failed to update memory summary")
 
         return f"🧠 Reflection complete: {ref_log.summary[:80]}..."
 

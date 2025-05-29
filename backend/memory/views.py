@@ -23,6 +23,7 @@ from .models import (
     ContinuityAnchorPoint,
     MemoryEmbeddingFailureLog,
     SymbolicMemoryAnchor,
+    GlossaryRetryLog,
 )
 from .serializers import (
     MemoryEntrySerializer,
@@ -34,6 +35,7 @@ from .serializers import (
     ContinuityAnchorPointSerializer,
     MemoryMergeSuggestionSerializer,
     SymbolicMemoryAnchorSerializer,
+    GlossaryRetryLogSerializer,
 )
 from prompts.serializers import PromptSerializer
 from prompts.models import Prompt
@@ -932,3 +934,12 @@ def suggest_memory_merge(request):
             status=status.HTTP_201_CREATED,
         )
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def glossary_retry_logs(request):
+    """Return recent GlossaryRetryLog entries."""
+    logs = GlossaryRetryLog.objects.all().order_by("-created_at")[:20]
+    data = GlossaryRetryLogSerializer(logs, many=True).data
+    return Response({"results": data})

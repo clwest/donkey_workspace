@@ -10,6 +10,7 @@ from .models import (
     ContinuityAnchorPoint,
     SymbolicMemoryAnchor,
     MemoryMergeSuggestion,
+    GlossaryRetryLog,
 )
 
 from assistants.models.thoughts import AssistantThoughtLog
@@ -235,5 +236,25 @@ class MemoryMergeSuggestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = MemoryMergeSuggestion
         fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class GlossaryRetryLogSerializer(serializers.ModelSerializer):
+    anchor_label = serializers.CharField(source="anchor.label", read_only=True)
+    class Meta:
+        model = GlossaryRetryLog
+        fields = [
+            "id",
+            "anchor",
+            "question",
+            "first_response",
+            "retry_response",
+            "glossary_chunks",
+            "guidance_injected",
+            "retried",
+            "score_diff",
+            "created_at",
+            "anchor_label",
+        ]
         read_only_fields = ["id", "created_at"]
 

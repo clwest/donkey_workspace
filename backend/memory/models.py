@@ -480,3 +480,22 @@ class MemoryMergeSuggestion(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+
+class GlossaryRetryLog(models.Model):
+    """Record glossary retry attempts and their outcomes."""
+
+    anchor = models.ForeignKey(
+        SymbolicMemoryAnchor, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    question = models.TextField()
+    first_response = models.TextField()
+    retry_response = models.TextField(blank=True, null=True)
+    glossary_chunks = models.JSONField(default=list, blank=True)
+    guidance_injected = models.BooleanField(default=False)
+    retried = models.BooleanField(default=False)
+    score_diff = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]

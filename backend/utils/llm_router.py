@@ -4,7 +4,7 @@ import requests
 from openai import OpenAI
 from intel_core.models import GlossaryUsageLog, GlossaryMissReflectionLog, DocumentChunk
 from intel_core.services.acronym_glossary_service import AcronymGlossaryService
-from memory.models import SymbolicMemoryAnchor
+from memory.models import SymbolicMemoryAnchor, GlossaryRetryLog
 from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 
 DEFAULT_MODEL = "gpt-4o-mini"
@@ -84,6 +84,7 @@ def chat(
     *,
     focus_anchors_only: bool = False,
     retry_on_miss: bool = False,
+    enable_retry_logging: bool = False,
     **kwargs,
 ) -> tuple[str, list[str], dict]:
     """High-level chat call that can summon memories and RAG context."""
@@ -147,6 +148,8 @@ def chat(
         "glossary_definitions": [],
         "glossary_guidance": sum(guidance_map.values(), []),
     }
+    retried = False
+    retry_log = None
     gloss_log = GlossaryUsageLog.objects.create(
         query=query_text,
         rag_used=bool(chunks),
@@ -331,6 +334,7 @@ def chat(
     reply = call_llm(
         msgs, model=getattr(assistant, "preferred_model", DEFAULT_MODEL), **kwargs
     )
+    first_reply = reply
     if rag_meta.get("glossary_debug"):
         ignored = []
         for g in rag_meta["glossary_debug"]:
@@ -414,6 +418,7 @@ def chat(
                     glossary_injected=rag_meta.get("prompt_appended_glossary", False),
                 )
                 if retry_on_miss:
+                    retried = True
                     msgs.append(
                         {
                             "role": "user",
@@ -509,5 +514,27 @@ def chat(
             )
         except Exception:
             logger.exception("Failed to reflect on anchor miss")
+
+    if enable_retry_logging and (retried or rag_meta.get("glossary_ignored")):
+        anchor_obj = (
+            SymbolicMemoryAnchor.objects.filter(slug=anchor_matches[0]).first()
+            if anchor_matches
+            else None
+        )
+        before = 1.0 if anchor_matches and anchor_matches[0].lower() in first_reply.lower() else 0.0
+        after = 1.0 if anchor_matches and anchor_matches[0].lower() in reply.lower() else 0.0
+        retry_log = GlossaryRetryLog.objects.create(
+            anchor=anchor_obj,
+            question=query_text,
+            first_response=first_reply,
+            retry_response=reply if retried else None,
+            glossary_chunks=rag_meta.get("glossary_chunk_ids", []),
+            guidance_injected=rag_meta.get("prompt_appended_glossary", False),
+            retried=retried,
+            score_diff=after - before,
+        )
+
+        rag_meta["glossary_retry_id"] = str(retry_log.id)
+        rag_meta["score_diff"] = retry_log.score_diff
 
     return reply, summoned, rag_meta
