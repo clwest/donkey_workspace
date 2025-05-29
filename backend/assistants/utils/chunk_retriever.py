@@ -21,6 +21,7 @@ from django.conf import settings
 GLOSSARY_MIN_SCORE_OVERRIDE = 0.15
 # Minimum similarity score for a chunk to be considered at all.
 MIN_SCORE = 0.05
+ANCHOR_FORCE_MIN_SCORE = 0.1
 
 # Score boost applied when a chunk's anchor matches the query.
 ANCHOR_BOOST = getattr(settings, "RAG_ANCHOR_BOOST", 0.1)
@@ -175,22 +176,23 @@ def get_relevant_chunks(
             logger.debug("Skipping chunk %s due to missing embedding", chunk.id)
             continue
         score = compute_similarity(query_vec, vec)
+        raw_score = score
         if assistant and assistant.preferred_rag_vector is not None:
             try:
                 pref_score = compute_similarity(assistant.preferred_rag_vector, vec)
                 score += pref_score * 0.1
             except Exception as exc:  # pragma: no cover - log mismatch
                 logger.warning("Preference similarity failed: %s", exc)
+        anchor_weight = 0.0
         if assistant and assistant.anchor_weight_profile and chunk.anchor:
             weight = assistant.anchor_weight_profile.get(chunk.anchor.slug)
             if weight:
-                score += float(weight)
+                anchor_weight = float(weight)
+                score *= 1 + anchor_weight
         if score < MIN_SCORE and not (
             chunk.anchor and chunk.anchor.slug in anchor_matches
         ):
-            logger.debug(
-                "Skipping chunk %s due to low score %.3f", chunk.id, score
-            )
+            logger.debug("Skipping chunk %s due to low score %.3f", chunk.id, score)
             continue
         if keywords and any(k.lower() in chunk.text.lower() for k in keywords):
             score += 0.05
@@ -229,22 +231,26 @@ def get_relevant_chunks(
             score,
             contains_glossary,
         )
-        scored.append((score, chunk, anchor_confidence))
+        scored.append((score, chunk, anchor_confidence, raw_score, anchor_weight))
 
     scored.sort(key=lambda x: x[0], reverse=True)
     top_score = scored[0][0] if scored else 0.0
     top_chunk_id = str(scored[0][1].id) if scored else None
-    # ``scored`` contains tuples of ``(score, chunk, anchor_confidence)`` so we
-    # need to keep all three values when filtering. Previously this list
-    # comprehension only unpacked ``score`` and ``chunk`` which caused a
-    # ``ValueError`` when later code expected the anchor confidence value.
-    filtered = [(s, c, conf) for s, c, conf in scored if s >= score_threshold]
+    # ``scored`` contains tuples of ``(score, chunk, anchor_confidence, raw_score, anchor_weight)``
+    # so we keep all fields intact when filtering.
+    filtered = [
+        (s, c, conf, raw, aw) for s, c, conf, raw, aw in scored if s >= score_threshold
+    ]
     reason = None
     fallback = False
 
     strong_matches = filtered[:3]
     anchor_pairs = [
-        p for p in scored if p[1].anchor and p[1].anchor.slug in anchor_matches
+        p
+        for p in scored
+        if p[1].anchor
+        and p[1].anchor.slug in anchor_matches
+        and p[0] >= ANCHOR_FORCE_MIN_SCORE
     ]
     glossary_anchor_pairs = []
     for p in scored:
@@ -274,7 +280,7 @@ def get_relevant_chunks(
         # take top ``fallback_limit`` above ``fallback_min`` if any
         candidates = [p for p in scored if p[0] >= fallback_min] or scored
         pairs = candidates[: max(1, fallback_limit)]
-        for i, (s, c, _conf) in enumerate(pairs, 1):
+        for i, (s, c, _conf, _rs, _aw) in enumerate(pairs, 1):
             logger.info("Fallback chunk %s score %.4f", i, s)
     else:
         return (
@@ -307,7 +313,9 @@ def get_relevant_chunks(
             override_map[str(pair[1].id)] = "anchor-match"
 
     # Guarantee at least one anchor override
-    if anchor_pairs and not any(p[1].id in [c[1].id for c in pairs] for p in anchor_pairs):
+    if anchor_pairs and not any(
+        p[1].id in [c[1].id for c in pairs] for p in anchor_pairs
+    ):
         best = max(anchor_pairs, key=lambda x: x[0])
         if best not in pairs:
             pairs.append(best)
@@ -318,12 +326,14 @@ def get_relevant_chunks(
     pairs.sort(key=lambda x: x[0], reverse=True)
 
     result = []
-    for score, chunk, anchor_conf in pairs:
+    for score, chunk, anchor_conf, raw_score, anchor_weight in pairs:
         result.append(
             {
                 "chunk_id": str(chunk.id),
                 "document_id": str(chunk.document_id),
                 "score": round(score, 4),
+                "score_before_anchor_boost": round(raw_score, 4),
+                "score_after_anchor_boost": round(score, 4),
                 "text": chunk.text,
                 "source_doc": chunk.document.title,
                 "is_glossary": getattr(chunk, "is_glossary", False),
@@ -342,6 +352,7 @@ def get_relevant_chunks(
                     else 0
                 ),
                 "override_reason": override_map.get(str(chunk.id)),
+                "forced_included": str(chunk.id) in override_map,
             }
         )
 
