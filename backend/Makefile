@@ -1,5 +1,5 @@
 # ==== 🐴 Donkey Assistant Makefile ====
-.PHONY: install format setup run kill flush-redis reset-db migrate prompt dev celery redis-start django bootstrap_memory init-db reset_logs codex codex-dry help seed-all run-all-scripts
+.PHONY: install format setup run kill flush-redis reset-db flush-db migrate prompt dev celery redis-start django bootstrap_memory init-db reset_logs codex codex-dry help seed-all run-all-scripts reset-seed
 
 # ==== 📦 Setup & Environment ====
 install:
@@ -93,13 +93,22 @@ celery:
 #        @python manage.py migrate
 
 reset-db:
-	@echo "💣 Dropping and recreating DB..."
-	dropdb donkey_ai_assistant || true
-	createdb donkey_ai_assistant
-	find . -path "./.venv" -prune -o -path "*/migrations/*.py" -not -name "__init__.py" -delete
-	find . -path "./.venv" -prune -o -path "*/migrations/*.pyc" -delete
-	python manage.py makemigrations
-	python manage.py migrate
+        @echo "💣 Dropping and recreating DB..."
+        dropdb donkey_ai_assistant || true
+        createdb donkey_ai_assistant
+        find . -path "./.venv" -prune -o -path "*/migrations/*.py" -not -name "__init__.py" -delete
+        find . -path "./.venv" -prune -o -path "*/migrations/*.pyc" -delete
+        python manage.py makemigrations
+        python manage.py migrate
+
+flush-db:
+        @echo "🧹 Flushing database..."
+        @python manage.py flush --no-input
+        @python manage.py migrate
+
+reset-seed:
+        @echo "🔄 Resetting DB and reseeding..."
+        @make flush-db && make seed-all
 
 # ==== 🤖 Codex ====
 codex:
@@ -112,27 +121,14 @@ codex-dry:
 
 # ==== 🌱 Seeder Shortcut ====
 seed-all:
-	@echo "🌱 Running all seed scripts..."
-	@python manage.py ingest_prompts && \
-	python manage.py clear_thoughts && \
-	python manage.py seed_assistants && \
-	python manage.py seed_assistant_projects && \
-	python manage.py seed_signals && \
-	python manage.py seed_thoughts && \
-	python manage.py seed_memory_entries && \
-	python manage.py seed_memory_contexts && \
-	python manage.py seed_prompt_usage_templates && \
-	python manage.py seed_all_prompts && \
-	python manage.py seed_prompt_presets && \
-	python manage.py seed_prompt_placement && \
-	python manage.py seed_default_themes && \
-	python manage.py backfill_token_counts && \
-	python manage.py reembed_all_prompts && \
-	python manage.py reembed_mcp_core && \
-	python manage.py seed_embeddings && \
-	python manage.py check_embedding_status && \
-	python manage.py post_seed_dashboard && \
-	echo "🌾 All seeders executed successfully!"
+        @echo "🌱 Running all seed scripts..."
+        @python manage.py seed_core_assistants && echo "✅ Seeded Core Assistants"
+        @python manage.py seed_glossary_terms && echo "✅ Seeded Glossary Terms"
+        @python manage.py seed_documents && echo "✅ Seeded Documents"
+        @python manage.py seed_chunks && echo "✅ Seeded Chunks"
+        @python manage.py seed_assistant_memory && echo "✅ Seeded Assistant Memory"
+        @python manage.py seed_reflections && echo "✅ Seeded Reflections"
+        @python manage.py seed_rag_test_cases && echo "✅ Seeded RAG Test Cases"
 
 post-seed-dashboard:
 	@python manage.py check_post_seed_status
@@ -163,11 +159,13 @@ help:
 	@echo "  make ingest            📥 Ingest prompt_sets markdown"
 	@echo "  make run               🔄 Start Redis + Django + Celery"
 	@echo "  make restart           🔄 Kill + restart everything"
-	@echo "  make format            🧽 Run black formatter"
-	@echo "  make reset-db          💣 Drop + re-init DB"
-	@echo "  make flush-redis       🧨 Clear Redis tasks"
-	@echo "  make codex             ⚡ Run Codex script"
-	@echo "  make bootstrap_memory  🧠 Load core memory"
-	@echo "  make seed-all          🌱 Run all seeders"
-	@echo "  make run-all-scripts   🚀 Run all command and dev_script files"
+        @echo "  make format            🧽 Run black formatter"
+        @echo "  make reset-db          💣 Drop + re-init DB"
+        @echo "  make flush-db          ♻️  Flush + migrate DB"
+        @echo "  make flush-redis       🧨 Clear Redis tasks"
+        @echo "  make codex             ⚡ Run Codex script"
+        @echo "  make bootstrap_memory  🧠 Load core memory"
+        @echo "  make seed-all          🌱 Run all seeders"
+        @echo "  make reset-seed        🔄 Flush DB + reseed"
+        @echo "  make run-all-scripts   🚀 Run all command and dev_script files"
 	@echo ""
