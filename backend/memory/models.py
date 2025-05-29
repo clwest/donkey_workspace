@@ -158,6 +158,7 @@ class MemoryEntry(models.Model):
     # 📈 Scoring & Context
     relevance_score = models.FloatField(default=0.0)
     context_tags = models.JSONField(default=list, blank=True)
+    triggered_by = models.CharField(max_length=200, blank=True, null=True)
 
     class Meta:
         ordering = ["-created_at"]
@@ -190,6 +191,24 @@ class MemoryEntry(models.Model):
         elif self.source_role == "external":
             return "External Source"
         return "Unknown"
+
+    def get_content_preview(self) -> str:
+        """Return a short preview string for UI display."""
+        content = self.event or self.summary or self.full_transcript
+        if content:
+            return content[:200]
+
+        tags = list(self.tags.all()[:3])
+        if tags:
+            tag_str = ", ".join(f"#{t.slug}" for t in tags)
+            return f"\U0001F9E0 Tags: {tag_str}"
+        if self.session_id:
+            return f"\uD83D\uDD04 Created by reflection for session {self.session_id}"
+        return "(No content available)"
+
+    @property
+    def content_preview(self) -> str:
+        return self.get_content_preview()
 
 
 class MemoryChain(models.Model):
