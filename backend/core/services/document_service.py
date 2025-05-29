@@ -14,7 +14,12 @@ from intel_core.utils.processing import (
     process_urls,
     process_videos,
 )
-from intel_core.models import DocumentProgress, JobStatus
+from intel_core.models import (
+    Document,
+    DocumentChunk,
+    DocumentProgress,
+    JobStatus,
+)
 from intel_core.core import clean_text
 from intel_core.helpers.document_helpers import fetch_url, extract_visible_text
 from prompts.utils.token_helpers import count_tokens
@@ -180,6 +185,12 @@ def ingest_urls(
     for url in urls:
         try:
             logger.info(f"Processing URL: {url}")
+
+            existing_doc = Document.objects.filter(source_url=url).first()
+            if existing_doc and DocumentChunk.objects.filter(document=existing_doc).exists():
+                logger.warning(f"[Ingest] Skipping {url} — chunks already exist.")
+                processed_documents.append(existing_doc)
+                continue
 
             content = fetch_url(url)
             if not content:
