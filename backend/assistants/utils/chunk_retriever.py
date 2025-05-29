@@ -24,6 +24,8 @@ MIN_SCORE = 0.05
 
 # Score boost applied when a chunk's anchor matches the query.
 ANCHOR_BOOST = getattr(settings, "RAG_ANCHOR_BOOST", 0.1)
+# Boost factor applied when a chunk contains glossary matches
+GLOSSARY_BOOST_FACTOR = getattr(settings, "RAG_GLOSSARY_BOOST_FACTOR", 0.2)
 
 logger = logging.getLogger(__name__)
 
@@ -173,8 +175,12 @@ def get_relevant_chunks(
             logger.debug("Skipping chunk %s due to missing embedding", chunk.id)
             continue
         score = compute_similarity(query_vec, vec)
-        if score < MIN_SCORE:
-            logger.debug("Skipping chunk %s due to low score %.3f", chunk.id, score)
+        if score < MIN_SCORE and not (
+            chunk.anchor and chunk.anchor.slug in anchor_matches
+        ):
+            logger.debug(
+                "Skipping chunk %s due to low score %.3f", chunk.id, score
+            )
             continue
         if keywords and any(k.lower() in chunk.text.lower() for k in keywords):
             score += 0.05
@@ -199,6 +205,8 @@ def get_relevant_chunks(
             or "glossary" in getattr(chunk, "tags", [])
         ):
             score += 0.15
+        # Boost using precomputed glossary_score
+        score += getattr(chunk, "glossary_score", 0.0) * GLOSSARY_BOOST_FACTOR
         anchor_confidence = 0.0
         if chunk.anchor:
             if chunk.anchor.slug in anchor_matches:
@@ -271,12 +279,14 @@ def get_relevant_chunks(
             filtered_anchor_terms,
         )
 
+    override_map: dict[str, str] = {}
     # Ensure anchor matched chunks are injected
     for pair in anchor_pairs:
         if pair not in pairs:
             pairs.append(pair)
             reason = reason or "forced anchor"
             fallback = True
+            override_map[str(pair[1].id)] = "anchor-match"
     # Force glossary chunks for matched anchors
     for pair in glossary_anchor_pairs:
         if pair not in pairs:
@@ -284,6 +294,16 @@ def get_relevant_chunks(
             glossary_forced = True
             reason = reason or "forced glossary"
             fallback = True
+            override_map[str(pair[1].id)] = "anchor-match"
+
+    # Guarantee at least one anchor override
+    if anchor_pairs and not any(p[1].id in [c[1].id for c in pairs] for p in anchor_pairs):
+        best = max(anchor_pairs, key=lambda x: x[0])
+        if best not in pairs:
+            pairs.append(best)
+        reason = reason or "anchor override"
+        fallback = True
+        override_map[str(best[1].id)] = "anchor-match"
 
     pairs.sort(key=lambda x: x[0], reverse=True)
 
@@ -311,6 +331,7 @@ def get_relevant_chunks(
                     )
                     else 0
                 ),
+                "override_reason": override_map.get(str(chunk.id)),
             }
         )
 

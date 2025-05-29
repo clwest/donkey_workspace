@@ -142,3 +142,4 @@ def test_anchor_forces_injection(mock_sim, mock_chunk_model, mock_embed, db):
     assert chunks[0]["chunk_id"] == "1"
     assert fallback is True
     assert reason == "forced anchor"
+    assert chunks[0].get("override_reason") == "anchor-match"
