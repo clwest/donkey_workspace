@@ -4,7 +4,11 @@ import requests
 from openai import OpenAI
 from intel_core.models import GlossaryUsageLog, GlossaryMissReflectionLog, DocumentChunk
 from intel_core.services.acronym_glossary_service import AcronymGlossaryService
-from memory.models import SymbolicMemoryAnchor, GlossaryRetryLog
+from memory.models import (
+    SymbolicMemoryAnchor,
+    GlossaryRetryLog,
+    AnchorConvergenceLog,
+)
 from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 
 DEFAULT_MODEL = "gpt-4o-mini"
@@ -566,5 +570,24 @@ def chat(
         rag_meta["glossary_retry_id"] = str(retry_log.id)
         rag_meta["score_diff"] = retry_log.score_diff
         rag_meta["retry_type"] = retry_type
+
+    if rag_meta.get("glossary_used") and reply and not rag_meta.get("anchor_misses"):
+        anchor_slug = (rag_meta.get("anchor_hits") or rag_meta.get("anchors") or [None])[0]
+        anchor_obj = (
+            SymbolicMemoryAnchor.objects.filter(slug=anchor_slug).first()
+            if anchor_slug
+            else None
+        )
+        if anchor_obj:
+            conv_log = AnchorConvergenceLog.objects.create(
+                anchor=anchor_obj,
+                assistant=assistant,
+                guidance_used=rag_meta.get("guidance_appended", False),
+                retried=retried,
+                final_score=rag_meta.get("retrieval_score", 0.0),
+            )
+            rag_meta["convergence_log_id"] = str(conv_log.id)
+            if not anchor_obj.reinforced_by.filter(id=assistant.id).exists():
+                anchor_obj.reinforced_by.add(assistant)
 
     return reply, summoned, rag_meta

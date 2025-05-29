@@ -818,6 +818,11 @@ def chat_with_assistant_view(request, slug):
         tool_response=tool_result,
     )
 
+    if rag_meta.get("convergence_log_id"):
+        from memory.models import AnchorConvergenceLog
+
+        AnchorConvergenceLog.objects.filter(id=rag_meta["convergence_log_id"]).update(memory=memory)
+
     # Log thoughts
     log_assistant_thought(assistant, message, thought_type="user", linked_memory=memory)
     log_assistant_thought(
