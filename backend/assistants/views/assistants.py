@@ -151,19 +151,16 @@ class AssistantViewSet(viewsets.ModelViewSet):
         preferred_model = request.data.get("preferred_model")
         system_prompt_id = request.data.get("system_prompt")
 
-        if new_slug and Assistant.objects.filter(slug=new_slug).exclude(id=assistant.id).exists():
+        if (
+            new_slug
+            and Assistant.objects.filter(slug=new_slug)
+            .exclude(id=assistant.id)
+            .exists()
+        ):
             return Response({"error": "Slug already exists"}, status=400)
 
         if new_name is not None:
             assistant.name = new_name
-            if not new_slug:
-                base_slug = slugify(new_name)
-                unique_slug = base_slug
-                i = 1
-                while Assistant.objects.filter(slug=unique_slug).exclude(id=assistant.id).exists():
-                    unique_slug = f"{base_slug}-{i}"
-                    i += 1
-                new_slug = unique_slug
 
         if new_slug:
             assistant.slug = new_slug
@@ -214,10 +211,18 @@ class AssistantViewSet(viewsets.ModelViewSet):
         from assistants.models.assistant import ChatSession
         from memory.models import MemoryEntry
 
-        has_live_projects = Project.objects.filter(assistant=assistant, status="active").exists()
+        has_live_projects = Project.objects.filter(
+            assistant=assistant, status="active"
+        ).exists()
         has_children = assistant.sub_assistants.exists()
         if (has_live_projects or has_children) and not force:
-            return Response({"error": "Assistant in use", "hint": "Pass force=true or cascade=true"}, status=400)
+            return Response(
+                {
+                    "error": "Assistant in use",
+                    "hint": "Pass force=true or cascade=true",
+                },
+                status=400,
+            )
 
         if cascade:
             cascade_delete_assistant(assistant)
@@ -227,7 +232,9 @@ class AssistantViewSet(viewsets.ModelViewSet):
         ChatSession.objects.filter(assistant=assistant).delete()
         Project.objects.filter(assistant=assistant).delete()
         MemoryEntry.objects.filter(assistant=assistant).update(assistant=None)
-        MemoryEntry.objects.filter(chat_session__assistant=assistant).update(chat_session=None)
+        MemoryEntry.objects.filter(chat_session__assistant=assistant).update(
+            chat_session=None
+        )
 
         assistant.delete()
         logger.info("Assistant %s deleted", slug)
@@ -350,7 +357,11 @@ class AssistantViewSet(viewsets.ModelViewSet):
 
         qs = (
             Assistant.objects.filter(is_primary=False)
-            .annotate(has_sessions=models.Exists(ChatSession.objects.filter(assistant=models.OuterRef("pk"))) )
+            .annotate(
+                has_sessions=models.Exists(
+                    ChatSession.objects.filter(assistant=models.OuterRef("pk"))
+                )
+            )
             .annotate(project_count=models.Count("project"))
         )
         unused = qs.filter(has_sessions=False, project_count=0)
@@ -527,9 +538,7 @@ def assistant_from_documents(request):
     if not documents:
         return Response({"error": "Documents not found"}, status=404)
 
-    doc_set = DocumentSet.objects.create(
-        title=f"Ad Hoc Set: {datetime.now().date()}"
-    )
+    doc_set = DocumentSet.objects.create(title=f"Ad Hoc Set: {datetime.now().date()}")
     doc_set.documents.set(documents)
 
     name = data.get("name") or f"{doc_set.title} Assistant"
@@ -821,7 +830,9 @@ def chat_with_assistant_view(request, slug):
     if rag_meta.get("convergence_log_id"):
         from memory.models import AnchorConvergenceLog
 
-        AnchorConvergenceLog.objects.filter(id=rag_meta["convergence_log_id"]).update(memory=memory)
+        AnchorConvergenceLog.objects.filter(id=rag_meta["convergence_log_id"]).update(
+            memory=memory
+        )
 
     # Log thoughts
     log_assistant_thought(assistant, message, thought_type="user", linked_memory=memory)
