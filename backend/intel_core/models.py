@@ -92,6 +92,10 @@ class DocumentChunk(models.Model):
     tags = ArrayField(models.CharField(max_length=64), default=list, blank=True)
     fingerprint = models.CharField(max_length=64, unique=True)
     score = models.FloatField(default=1.0)
+    glossary_score = models.FloatField(default=0.0)
+    matched_anchors = ArrayField(
+        models.CharField(max_length=64), default=list, blank=True
+    )
     quality_notes = models.TextField(blank=True)
     anchor = models.ForeignKey(
         "memory.SymbolicMemoryAnchor",

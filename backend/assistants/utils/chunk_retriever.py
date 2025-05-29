@@ -300,6 +300,9 @@ def get_relevant_chunks(
                 "anchor_slug": getattr(getattr(chunk, "anchor", None), "slug", None),
                 "anchor_confidence": anchor_conf,
                 "fingerprint": getattr(chunk, "fingerprint", ""),
+                "tokens": getattr(chunk, "tokens", 0),
+                "glossary_score": getattr(chunk, "glossary_score", 0.0),
+                "matched_anchors": getattr(chunk, "matched_anchors", []),
                 "anchor_boost": (
                     ANCHOR_BOOST
                     if (

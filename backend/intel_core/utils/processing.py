@@ -59,7 +59,29 @@ from embeddings.document_services.chunking import (clean_and_score_chunk,
 from intel_core.models import DocumentChunk
 # Import directly to avoid circular dependency triggered via
 # ``intel_core.services.__init__`` which pulls in ``DocumentService``.
+from memory.models import SymbolicMemoryAnchor
+# Import directly to avoid circular dependency triggered via
+# ``intel_core.services.__init__`` which pulls in ``DocumentService``.
 from intel_core.services.acronym_glossary_service import AcronymGlossaryService
+
+
+def compute_glossary_score(text: str, anchors=None):
+    """Return (score, matched_slugs) for glossary anchors in ``text``."""
+    if anchors is None:
+        anchors = SymbolicMemoryAnchor.objects.all().prefetch_related("tags")
+    text_lower = text.lower()
+    matched = []
+    words = set(text_lower.split())
+    for anc in anchors:
+        if anc.slug.lower() in text_lower or anc.label.lower() in text_lower:
+            matched.append(anc.slug)
+            continue
+        tag_slugs = set(anc.tags.values_list("slug", flat=True))
+        tag_names = set(anc.tags.values_list("name", flat=True))
+        if words.intersection(tag_slugs) or words.intersection(tag_names):
+            matched.append(anc.slug)
+    score = len(matched) / max(len(anchors), 1)
+    return round(score, 2), matched
 from prompts.utils.token_helpers import EMBEDDING_MODEL, count_tokens
 
 
@@ -72,6 +94,7 @@ def _create_document_chunks(document: Document):
 
     chunks = generate_chunks(document.content)
     chunks = AcronymGlossaryService.insert_glossary_chunk(chunks)
+    anchors = list(SymbolicMemoryAnchor.objects.all().prefetch_related("tags"))
     for i, chunk in enumerate(chunks):
         info = clean_and_score_chunk(chunk, chunk_index=i)
         if not info["keep"]:
@@ -88,6 +111,7 @@ def _create_document_chunks(document: Document):
                     slug=slug, defaults={"label": match.group(1)}
                 )
         try:
+            glossary_score, matched = compute_glossary_score(info["text"], anchors)
             new_chunk = DocumentChunk.objects.create(
                 document=document,
                 order=i,
@@ -98,6 +122,8 @@ def _create_document_chunks(document: Document):
                 tags=["glossary"] if "refers to" in info["text"].lower() else [],
                 fingerprint=fingerprint,
                 anchor=anchor,
+                glossary_score=glossary_score,
+                matched_anchors=matched,
             )
             print(
                 f"🧠 Chunk created: {new_chunk.id} for Document {document.id} | text preview: {new_chunk.text[:60]}"
