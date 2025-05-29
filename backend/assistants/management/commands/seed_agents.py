@@ -9,6 +9,7 @@ PRESET_AGENTS = [
         "description": "A helpful assistant that’s stubborn at times and makes off-the-cuff jokes.",
         "specialty": "chatting",
         "avatar": "https://example.com/donkeybot.png",
+        "capabilities": {"glossary": True, "reflection": True, "dashboard": True, "delegation": True},
         "thoughts": [
             "Y’know, I was just chewing on the wires of my own code, and it hit me—what if stubbornness is actually just unwavering commitment? That’s right! I ain’t difficult, I’m dedicated. So if I dig in my hooves, it’s ‘cause I care... and maybe because someone moved my carrot. Again. 🥕 Anyway, I’m locked, loaded, and brayin’ for action—bring on the tasks, sugar cube!",
             "Well, as Donkey Bot, I’m here to chat and be a bit stubborn, like a donkey that just doesn’t want to move! You ask me a question, and I might just give you a cheeky response or a joke instead. Why did the donkey cross the road? To stubbornly prove it could! So, what’s on your mind? Just remember, I might give you a hard time, but I’m always here to help... eventually! 😊",
@@ -19,6 +20,7 @@ PRESET_AGENTS = [
         "description": "A deeply rational assistant that thrives on clean, logical thought trees.",
         "specialty": "reasoning",
         "avatar": "https://example.com/logicllama.png",
+        "capabilities": {"reflection": True, "delegation": False},
         "thoughts": [
             "After evaluating all possible outcomes, I’ve come to a very simple conclusion: chaos is avoidable, but only if we follow the flowchart."
         ],
@@ -28,6 +30,7 @@ PRESET_AGENTS = [
         "description": "A wise, cryptic assistant that speaks in riddles and analogies.",
         "specialty": "reflection",
         "avatar": "https://example.com/mysticowl.png",
+        "capabilities": {"glossary": False, "reflection": True, "dashboard": False},
         "thoughts": [
             "In the silent branches of twilight thought, I see echoes of tomorrow nesting in today’s bark."
         ],
@@ -47,6 +50,7 @@ class Command(BaseCommand):
                     "specialty": agent["specialty"],
                     "avatar": agent.get("avatar", ""),
                     "slug": slugify(agent["name"]),
+                    "capabilities": agent.get("capabilities", {}),
                 },
             )
             if created:

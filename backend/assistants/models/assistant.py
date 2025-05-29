@@ -86,7 +86,7 @@ class Assistant(models.Model):
         on_delete=models.SET_NULL,
         related_name="default_for_assistants",
     )
-    capabilities = models.TextField(blank=True)
+    capabilities = models.JSONField(default=dict, blank=True)
     capability_embedding = VectorField(dimensions=1536, null=True, blank=True)
     motto = models.CharField(max_length=200, blank=True)
     values = models.JSONField(default=list, blank=True)

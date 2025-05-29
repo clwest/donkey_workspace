@@ -208,8 +208,8 @@ export default function PrimaryAssistantDashboard() {
       <AssistantDashboardHeader
         assistant={assistant}
         memoryCoverage={memoryCoverage}
-        onReflect={handleReflect}
-        onSelfAssess={handleSelfAssess}
+        onReflect={assistant.capabilities?.reflection ? handleReflect : null}
+        onSelfAssess={assistant.capabilities?.reflection ? handleSelfAssess : null}
         onRegeneratePlan={handleRegeneratePlan}
       />
       <div className="mb-3">
@@ -230,14 +230,16 @@ export default function PrimaryAssistantDashboard() {
               🛰️ Relay
             </button>
           </li>
-          <li className="nav-item">
-            <button
-              className={`nav-link ${activeTab === "glossary" ? "active" : ""}`}
-              onClick={() => setActiveTab("glossary")}
-            >
-              📖 Glossary Training
-            </button>
-          </li>
+          {assistant.capabilities?.glossary && (
+            <li className="nav-item">
+              <button
+                className={`nav-link ${activeTab === "glossary" ? "active" : ""}`}
+                onClick={() => setActiveTab("glossary")}
+              >
+                📖 Glossary Training
+              </button>
+            </li>
+          )}
         </ul>
       </div>
 
@@ -428,7 +430,7 @@ export default function PrimaryAssistantDashboard() {
         </div>
       )}
     </div>
-  {activeTab === "glossary" && (
+  {assistant.capabilities?.glossary && activeTab === "glossary" && (
       <div className="mt-4">
         <GlossaryConvergencePanel assistantId={assistant.id} />
         <div className="mt-3">
