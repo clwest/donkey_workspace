@@ -1,6 +1,7 @@
 import logging
 from django.apps import apps
 from celery import shared_task
+from django.utils.text import slugify
 
 logger = logging.getLogger(__name__)
 
@@ -63,7 +64,16 @@ def bootstrap_assistant_from_doc(doc_id: str) -> str | None:
     if not doc:
         return None
     prompt = Prompt.objects.create(title=f"Summary of {doc.title}", content=doc.summary or doc.content[:200])
-    assistant = Assistant.objects.create(name=f"Draft {doc.title}", specialty="bootstrap", system_prompt=prompt)
+    base_slug = slugify(f"draft-{doc.title}")
+    assistant = Assistant.objects.filter(slug=base_slug).first()
+    if not assistant:
+        assistant = Assistant.objects.create(
+            name=f"Draft {doc.title}",
+            slug=base_slug,
+            specialty="bootstrap",
+            system_prompt=prompt,
+            spawned_by="bootstrap_task",
+        )
     return str(assistant.id)
 
 

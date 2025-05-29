@@ -156,6 +156,13 @@ class Assistant(models.Model):
         default="pause_and_reflect",
     )
 
+    spawned_by = models.CharField(
+        max_length=100,
+        blank=True,
+        default="manual",
+        help_text="Origin trigger for this assistant",
+    )
+
     belief_vector = models.JSONField(default=dict, blank=True)
 
     ideology = models.JSONField(default=dict, blank=True)

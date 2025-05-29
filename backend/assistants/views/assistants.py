@@ -463,15 +463,20 @@ def create_assistant_from_thought(request):
     if thread_id:
         thread = AssistantService.get_thread(thread_id) or thread
 
-    new_assistant = Assistant.objects.create(
-        name=data["name"],
-        description=data["description"],
-        specialty=data["specialty"],
-        system_prompt=prompt,
-        created_by=creator,
-        preferred_model="gpt-4o",
-        parent_assistant=parent_assistant,
-    )
+    base_slug = slugify(data["name"])
+    new_assistant = Assistant.objects.filter(slug=base_slug).first()
+    if not new_assistant:
+        new_assistant = Assistant.objects.create(
+            name=data["name"],
+            slug=base_slug,
+            description=data["description"],
+            specialty=data["specialty"],
+            system_prompt=prompt,
+            created_by=creator,
+            preferred_model="gpt-4o",
+            parent_assistant=parent_assistant,
+            spawned_by="manual",
+        )
 
     AssistantThoughtLog.objects.create(
         assistant=new_assistant,
@@ -568,16 +573,21 @@ def assistant_from_documents(request):
     combined = " ".join((d.summary or d.content[:500]) for d in documents)
     vector = get_embedding_for_text(combined)
 
-    assistant = Assistant.objects.create(
-        name=name,
-        specialty=titles[:255],
-        personality=personality,
-        tone=tone,
-        preferred_model=model,
-        system_prompt=codex_prompt,
-        document_set=doc_set,
-        embedding_index={"vector": vector},
-    )
+    slug_base = slugify(name)
+    assistant = Assistant.objects.filter(slug=slug_base).first()
+    if not assistant:
+        assistant = Assistant.objects.create(
+            name=name,
+            slug=slug_base,
+            specialty=titles[:255],
+            personality=personality,
+            tone=tone,
+            preferred_model=model,
+            system_prompt=codex_prompt,
+            document_set=doc_set,
+            embedding_index={"vector": vector},
+            spawned_by="manual",
+        )
     assistant.documents.set(doc_set.documents.all())
 
     ritual_tags = []

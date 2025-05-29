@@ -4,6 +4,7 @@ from typing import Optional
 from prompts.models import Prompt, PromptMutationLog
 from assistants.models import Assistant
 from assistants.models.reflection import AssistantReflectionLog
+from django.utils.text import slugify
 from prompts.utils.embeddings import get_prompt_embedding
 from embeddings.helpers.helpers_io import save_embedding
 from prompts.utils.token_helpers import count_tokens
@@ -136,8 +137,18 @@ def fork_assistant_from_prompt(
     *,
     reflection: AssistantReflectionLog | None = None,
     reason: str = "Hallucinated fallback during RAG query",
+    allow_fork: bool = True,
+    spawn_trigger: str = "manual",
 ) -> Assistant:
     """Fork ``original`` using ``new_prompt_text`` as the system prompt."""
+
+    if not allow_fork:
+        return original
+
+    base_slug = slugify(f"{original.slug}-fork")
+    existing = Assistant.objects.filter(slug=base_slug).first()
+    if existing:
+        return existing
 
     mutated_prompt = Prompt.objects.create(
         content=new_prompt_text,
@@ -146,10 +157,16 @@ def fork_assistant_from_prompt(
 
     child = Assistant.objects.create(
         name=f"{original.name} Fork",
+        slug=base_slug,
         system_prompt=mutated_prompt,
         parent_assistant=original,
         specialty=original.specialty or "General AI Support",
+        spawned_by=spawn_trigger,
     )
+
+    print("🧠 Assistant Created:", child.name)
+    print("🔗 Parent:", original.slug)
+    print(f"⚙️ Trigger: {spawn_trigger}")
 
     PromptMutationLog.objects.create(
         original_prompt=original.system_prompt,

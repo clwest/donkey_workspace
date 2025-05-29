@@ -9,6 +9,7 @@ from assistants.models.assistant import Assistant, ChatSession
 from assistants.models.thoughts import AssistantThoughtLog
 from project.models import Project
 from prompts.models import Prompt
+from django.utils.text import slugify
 from mcp_core.models import NarrativeThread
 from assistants.helpers.logging_helper import log_assistant_thought
 from assistants.helpers.reflection_helpers import reflect_on_delegation
@@ -28,6 +29,11 @@ def create_assistant(
     thread: Optional[NarrativeThread] = None,
 ) -> Assistant:
     """Create an assistant and bootstrap a project and session."""
+    base_slug = slugify(name)
+    existing = Assistant.objects.filter(slug=base_slug).first()
+    if existing:
+        return existing
+
     assistant = Assistant.objects.create(
         name=name,
         description=description,
@@ -36,7 +42,12 @@ def create_assistant(
         created_by=creator,
         preferred_model="gpt-4o",
         parent_assistant=parent_assistant,
+        spawned_by="bootstrap_ui",
     )
+
+    print("🧠 Assistant Created:", assistant.name)
+    print("🔗 Parent:", parent_assistant.slug if parent_assistant else "none")
+    print("⚙️ Trigger: bootstrap_ui")
 
     project = Project.objects.create(
         user=creator,
@@ -132,6 +143,11 @@ def spawn_delegated_assistant(
     mood = get_session_mood(session)
     tone = map_mood_to_tone(mood)
 
+    base_slug = slugify(name or f"{parent.slug}-delegate")
+    existing = Assistant.objects.filter(slug=base_slug).first()
+    if existing:
+        return existing
+
     child = Assistant.objects.create(
         name=name or f"{parent.name} Delegate",
         description=description,
@@ -141,7 +157,12 @@ def spawn_delegated_assistant(
         preferred_model=parent.preferred_model,
         created_from_mood=mood,
         inherited_tone=tone,
+        spawned_by=reason,
     )
+
+    print("🧠 Assistant Created:", child.name)
+    print("🔗 Parent:", parent.slug)
+    print(f"⚙️ Trigger: {reason}")
 
     prompt = Prompt.objects.create(
         title=f"{child.name} Creation Prompt",

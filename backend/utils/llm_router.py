@@ -301,6 +301,7 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
             + "\nIf glossary definitions are included in memory, use them verbatim.",
             reflection=gloss_reflection,
             reason="Glossary recall failure",
+            spawn_trigger="glossary_miss",
         )
     elif (not rag_meta.get("rag_used") or rag_meta.get("rag_fallback")) and (
         "couldn't" in reply.lower() or "could not" in reply.lower()
@@ -325,6 +326,7 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
             assistant,
             mutated_prompt.content,
             reflection=reflection,
+            spawn_trigger="rag_fallback" if rag_meta.get("rag_fallback") else "rag_unused",
         )
     elif rag_meta.get("anchor_misses"):
         engine = AssistantThoughtEngine(assistant=assistant)
@@ -351,6 +353,7 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
                 mutated.content + f"\nAlways explain '{label}' when referenced or relevant.",
                 reflection=anchor_reflection,
                 reason=f"anchor_miss:{miss_slug}",
+                spawn_trigger=f"anchor_miss:{miss_slug}",
             )
         except Exception:
             logger.exception("Failed to reflect on anchor miss")
