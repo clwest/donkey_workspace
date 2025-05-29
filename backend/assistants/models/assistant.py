@@ -116,6 +116,10 @@ class Assistant(models.Model):
     documents = models.ManyToManyField(
         "intel_core.Document", blank=True, related_name="linked_assistants"
     )
+    # Ω.8.2 Assigned document tracking
+    assigned_documents = models.ManyToManyField(
+        "intel_core.Document", blank=True, related_name="assigned_assistants"
+    )
     document_set = models.ForeignKey(
         "intel_core.DocumentSet",
         null=True,
@@ -168,9 +172,7 @@ class Assistant(models.Model):
 
     belief_vector = models.JSONField(default=dict, blank=True)
 
-    preferred_rag_vector = VectorField(
-        dimensions=1536, null=True, blank=True
-    )
+    preferred_rag_vector = VectorField(dimensions=1536, null=True, blank=True)
     anchor_weight_profile = models.JSONField(default=dict, blank=True)
 
     ideology = models.JSONField(default=dict, blank=True)

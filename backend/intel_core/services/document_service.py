@@ -52,6 +52,7 @@ class DocumentService:
             for doc in documents:
                 if isinstance(doc, Document):
                     doc.linked_assistants.add(assistant)
+                    assistant.assigned_documents.add(doc)
 
     @classmethod
     def ingest_youtube(
