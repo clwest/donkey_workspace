@@ -34,6 +34,9 @@ export default function SymbolicAnchorAdminPage() {
         {anchors.map((a) => (
           <li key={a.id} className="list-group-item">
             <strong>{a.label}</strong> ({a.slug})
+            <div className="mt-1">
+              <a href={`/anchor/symbolic/${a.slug}`}>View Training</a>
+            </div>
             <textarea
               className="form-control mt-2"
               rows={2}

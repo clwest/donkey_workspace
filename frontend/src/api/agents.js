@@ -106,6 +106,11 @@ export const fetchCodexInteraction = () => apiFetch(`/mythos/codex/`);
 export const fetchCodexAnchors = (assistantId) =>
   apiFetch(`/assistants/${assistantId}/codex-anchors/`);
 
+export const fetchAnchorConvergence = (slug, assistant) =>
+  apiFetch(`/memory/symbolic-anchors/${slug}/convergence/`, {
+    params: assistant ? { assistant } : undefined,
+  });
+
 export const fetchMythRecordingSessions = () => apiFetch("/myth/record/");
 export const createMythRecordingSession = (body) =>
   apiFetch("/myth/record/", { method: "POST", body });
