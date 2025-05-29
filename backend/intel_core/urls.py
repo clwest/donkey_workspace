@@ -57,4 +57,5 @@ urlpatterns = [
         name="create_bootstrapped_assistant_from_document",
     ),
     path("debug/chunks/<uuid:doc_id>/", debug.debug_doc_chunks),
+    path("debug/rag-recall/", debug.rag_recall),
 ]
