@@ -2,7 +2,7 @@ import warnings
 warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
 from django.urls import path
 
-from .views import ingestion, documents, intelligence
+from .views import ingestion, documents, intelligence, debug
 
 urlpatterns = [
     path("ingestions/", ingestion.unified_ingestion_view, name="intel-load-url"),
@@ -56,4 +56,5 @@ urlpatterns = [
         intelligence.create_bootstrapped_assistant_from_document,
         name="create_bootstrapped_assistant_from_document",
     ),
+    path("debug/chunks/<uuid:doc_id>/", debug.debug_doc_chunks),
 ]

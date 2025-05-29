@@ -312,6 +312,10 @@ def process_urls(content, url_title, project_name, metadata, session_id):
     try:
         logger.info(f"🌐 Processing URL: {url_title}")
         cleaned_text = clean_text(content)
+        print(f"[Ingest] Source URL: {metadata.get('source_url')}")
+        print(f"[Ingest] Cleaned text length: {len(cleaned_text)}")
+        print(f"[Ingest] First 300 chars: {cleaned_text[:300]}")
+        print(f"[Ingest] Token estimate: {count_tokens(cleaned_text)}")
         lemmatized_text = lemmatize_text(cleaned_text, nlp)
 
         metadata.update(
