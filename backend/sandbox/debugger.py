@@ -1,9 +1,14 @@
 # images/debugger.py
 
-from django.shortcuts import render
-from django.http import JsonResponse
-from .models import PromptHelper, PromptPlacement
-from .serializers import PromptHelperSerializer
+"""Debug utilities for inspecting prompt helpers."""
+
+# Import models and serializers from the images app directly. When this module
+# lived inside ``images`` these were relative imports, but ``sandbox`` does not
+# contain its own models.  Absolute imports ensure the debugger works even when
+# ``sandbox`` is optional.
+from images.models import PromptHelper, PromptPlacement
+from images.serializers import PromptHelperSerializer
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
