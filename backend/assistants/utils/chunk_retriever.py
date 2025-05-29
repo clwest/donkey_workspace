@@ -72,13 +72,15 @@ def get_relevant_chunks(
     Optional[str],
     bool,
     bool,
+    List[str],
+    Dict[str, object],
 ]:
     """Return top matching chunks and an optional ignore reason.
 
     Results are filtered by ``score_threshold`` and optionally reranked if
     ``keywords`` are provided.  The return value is ``(chunks, reason, fallback,
     glossary_present, top_score, top_chunk_id, glossary_forced, focus_fallback,
-    filtered_anchor_terms)`` where ``reason`` is ``"low score"`` when matches
+    filtered_anchor_terms, debug_info)`` where ``reason`` is ``"low score"`` when matches
     exist but all fall below the threshold. ``fallback`` indicates that
     low-score chunks were returned. ``glossary_present`` is ``True`` if any
     candidate chunk contains glossary hints. ``top_score`` and ``top_chunk_id``
@@ -89,7 +91,18 @@ def get_relevant_chunks(
     filtered out due to focus restrictions.
     """
     if not query_text:
-        return [], None, False, False, 0.0, None, False, False, []
+        return (
+            [],
+            None,
+            False,
+            False,
+            0.0,
+            None,
+            False,
+            False,
+            [],
+            {},
+        )
 
     logger.info("🔍 Searching document embeddings for query: %s", query_text[:80])
 
@@ -121,15 +134,48 @@ def get_relevant_chunks(
                 assistant.current_project.documents.values_list("id", flat=True)
             )
     if not doc_ids:
-        return [], None, False, False, 0.0, None, False, False, []
+        return (
+            [],
+            None,
+            False,
+            False,
+            0.0,
+            None,
+            False,
+            False,
+            [],
+            {},
+        )
 
     try:
         query_vec = get_embedding_for_text(query_text)
     except Exception as exc:  # pragma: no cover - network
         logger.error("Embedding generation failed: %s", exc)
-        return [], None, False, False, 0.0, None, False, False, []
+        return (
+            [],
+            None,
+            False,
+            False,
+            0.0,
+            None,
+            False,
+            False,
+            [],
+            {},
+        )
     if not query_vec:
-        return [], None, False, False, 0.0, None, False, False, []
+        return (
+            [],
+            None,
+            False,
+            False,
+            0.0,
+            None,
+            False,
+            False,
+            [],
+            {},
+        )
 
     chunks = DocumentChunk.objects.filter(
         document_id__in=doc_ids, embedding__isnull=False
