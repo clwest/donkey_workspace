@@ -22,6 +22,7 @@ from .models import (
     BraidedMemoryStrand,
     ContinuityAnchorPoint,
     MemoryEmbeddingFailureLog,
+    SymbolicMemoryAnchor,
 )
 from .serializers import (
     MemoryEntrySerializer,
@@ -32,6 +33,7 @@ from .serializers import (
     BraidedMemoryStrandSerializer,
     ContinuityAnchorPointSerializer,
     MemoryMergeSuggestionSerializer,
+    SymbolicMemoryAnchorSerializer,
 )
 from prompts.serializers import PromptSerializer
 from prompts.models import Prompt
@@ -835,6 +837,27 @@ def continuity_anchors(request):
     anchors = ContinuityAnchorPoint.objects.all().order_by("-created_at")
     serializer = ContinuityAnchorPointSerializer(anchors, many=True)
     return Response(serializer.data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def symbolic_anchors(request):
+    """List SymbolicMemoryAnchor objects."""
+    anchors = SymbolicMemoryAnchor.objects.all().order_by("slug")
+    serializer = SymbolicMemoryAnchorSerializer(anchors, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["PATCH"])
+@permission_classes([AllowAny])
+def update_symbolic_anchor(request, pk):
+    """Update a SymbolicMemoryAnchor."""
+    anchor = get_object_or_404(SymbolicMemoryAnchor, id=pk)
+    serializer = SymbolicMemoryAnchorSerializer(anchor, data=request.data, partial=True)
+    if serializer.is_valid():
+        anchor = serializer.save()
+        return Response(SymbolicMemoryAnchorSerializer(anchor).data)
+    return Response(serializer.errors, status=400)
 
 
 @api_view(["POST"])

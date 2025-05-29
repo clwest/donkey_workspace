@@ -201,9 +201,9 @@ class MemoryEntry(models.Model):
         tags = list(self.tags.all()[:3])
         if tags:
             tag_str = ", ".join(f"#{t.slug}" for t in tags)
-            return f"\U0001F9E0 Tags: {tag_str}"
+            return f"\U0001f9e0 Tags: {tag_str}"
         if self.session_id:
-            return f"\uD83D\uDD04 Created by reflection for session {self.session_id}"
+            return f"\ud83d\udd04 Created by reflection for session {self.session_id}"
         return "(No content available)"
 
     @property
@@ -332,6 +332,7 @@ class SharedMemoryPool(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
+    glossary_guidance = models.TextField(blank=True, default="")
     assistants = models.ManyToManyField(
         "assistants.Assistant", blank=True, related_name="shared_pools"
     )
@@ -387,10 +388,14 @@ class ContinuityAnchorPoint(models.Model):
 
     label = models.CharField(max_length=100)
     assistant = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE, related_name="continuity_anchors"
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="continuity_anchors",
     )
     anchor_memory = models.ForeignKey(
-        "agents.SwarmMemoryEntry", on_delete=models.CASCADE, related_name="anchor_points"
+        "agents.SwarmMemoryEntry",
+        on_delete=models.CASCADE,
+        related_name="anchor_points",
     )
     mythic_tag = models.CharField(max_length=100)
     symbolic_signature = models.CharField(max_length=256)
@@ -437,6 +442,7 @@ class MemoryEmbeddingFailureLog(models.Model):
     class Meta:
         ordering = ["-created_at"]
 
+
 class MemoryEntropyAudit(models.Model):
     """Record entropy metrics for an assistant's memory chain."""
 
@@ -473,4 +479,3 @@ class MemoryMergeSuggestion(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
-

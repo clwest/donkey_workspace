@@ -112,12 +112,20 @@ def chat(
         glossary_forced,
         focus_fallback,
         filtered_anchor_terms,
-    ) = get_relevant_chunks(
-        str(assistant.id), query_text, auto_expand=auto_expand
-    )
+    ) = get_relevant_chunks(str(assistant.id), query_text, auto_expand=auto_expand)
     query_terms = AcronymGlossaryService.extract(query_text)
     all_anchors = list(SymbolicMemoryAnchor.objects.values_list("slug", flat=True))
     anchor_matches = [s for s in all_anchors if s.lower() in query_text.lower()]
+    anchor_objs = SymbolicMemoryAnchor.objects.filter(slug__in=anchor_matches).order_by(
+        "slug"
+    )
+    guidance_map = {
+        a.slug: [
+            line.strip() for line in a.glossary_guidance.split("\n") if line.strip()
+        ]
+        for a in anchor_objs
+        if a.glossary_guidance
+    }
     rag_meta = {
         "rag_used": False,
         "used_chunks": [],
@@ -136,6 +144,7 @@ def chat(
         "focus_fallback": focus_fallback,
         "filtered_anchor_terms": filtered_anchor_terms,
         "glossary_definitions": [],
+        "glossary_guidance": sum(guidance_map.values(), []),
     }
     gloss_log = GlossaryUsageLog.objects.create(
         query=query_text,
@@ -157,7 +166,9 @@ def chat(
             {"id": c["chunk_id"], "slug": c.get("anchor_slug"), "score": c["score"]}
             for c in gloss_first
         ]
-        rag_meta["glossary_first"] = all(c in chunks[: len(gloss_first)] for c in gloss_first)
+        rag_meta["glossary_first"] = all(
+            c in chunks[: len(gloss_first)] for c in gloss_first
+        )
         logger.debug("Glossary chunks included: %s", rag_meta["glossary_debug"])
         rag_meta["rag_used"] = True
         rag_meta["rag_fallback"] = fallback
@@ -220,6 +231,17 @@ def chat(
                     f"{term_list}. Use them when responding."
                 )
             system_content += "\n\nGlossary Reference:\n" + "\n".join(gloss_lines)
+            if guidance_map:
+                hints = []
+                for slug, lines in guidance_map.items():
+                    for g in lines:
+                        hints.append(f"- {g}")
+                if hints:
+                    system_content += "\n\nAnchor Guidance:\n" + "\n".join(hints)
+                system_content += (
+                    "\nYou are equipped with glossary-backed memory. Use the following reference definitions to guide user questions related to:\n"
+                    + "\n".join(f"- Anchor: {s}" for s in guidance_map.keys())
+                )
 
         replaced = False
         for idx, m in enumerate(msgs):
@@ -234,6 +256,10 @@ def chat(
         for i, info in enumerate(chunks, 1):
             prefix = "[G] " if info.get("is_glossary") else ""
             lines.append(f"[{i}] {prefix}{info['text']}")
+        if guidance_map:
+            lines.append("-- Guidance --")
+            for g in sum(guidance_map.values(), []):
+                lines.append(f"- {g}")
         lines.append("==================")
         chunk_block = "\n".join(lines)
         logger.debug("Injecting chunk block: %s", chunk_block)
@@ -276,10 +302,13 @@ def chat(
                 gloss_log.reflected_on = True
                 gloss_log.save(update_fields=["reflected_on"])
                 from assistants.models.glossary import AssistantGlossaryLog
+
                 AssistantGlossaryLog.objects.create(
                     assistant=assistant,
                     query=query_text,
-                    anchor=SymbolicMemoryAnchor.objects.filter(slug=missing_anchor).first(),
+                    anchor=SymbolicMemoryAnchor.objects.filter(
+                        slug=missing_anchor
+                    ).first(),
                     ignored=True,
                 )
             except Exception:
@@ -318,9 +347,13 @@ def chat(
                 AssistantGlossaryLog.objects.create(
                     assistant=assistant,
                     query=query_text,
-                    anchor=SymbolicMemoryAnchor.objects.filter(slug=anchor_matches[0]).first()
-                    if anchor_matches
-                    else None,
+                    anchor=(
+                        SymbolicMemoryAnchor.objects.filter(
+                            slug=anchor_matches[0]
+                        ).first()
+                        if anchor_matches
+                        else None
+                    ),
                     ignored=True,
                 )
             except Exception:
@@ -402,7 +435,9 @@ def chat(
             assistant,
             mutated_prompt.content,
             reflection=reflection,
-            spawn_trigger="rag_fallback" if rag_meta.get("rag_fallback") else "rag_unused",
+            spawn_trigger=(
+                "rag_fallback" if rag_meta.get("rag_fallback") else "rag_unused"
+            ),
         )
     elif rag_meta.get("anchor_misses"):
         engine = AssistantThoughtEngine(assistant=assistant)
@@ -426,7 +461,8 @@ def chat(
             )
             fork_assistant_from_prompt(
                 assistant,
-                mutated.content + f"\nAlways explain '{label}' when referenced or relevant.",
+                mutated.content
+                + f"\nAlways explain '{label}' when referenced or relevant.",
                 reflection=anchor_reflection,
                 reason=f"anchor_miss:{miss_slug}",
                 spawn_trigger=f"anchor_miss:{miss_slug}",
