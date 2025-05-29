@@ -345,7 +345,19 @@ export async function fetchAssistantDashboard(slug) {
   return res;
 }
 
-export async function createAssistantFromDocuments(body) {
+// Guarded creation to prevent unintended spawns. Only execute when
+// `userInitiated` is explicitly true.
+export async function createAssistantFromDocuments(body, opts = {}) {
+  const { userInitiated = false } = opts;
+  if (!userInitiated) {
+    console.warn(
+      "createAssistantFromDocuments ignored – call missing userInitiated flag"
+    );
+    return null;
+  }
+  if (window.location.search.includes("debug_spawn=true")) {
+    console.log("[spawn-debug] createAssistantFromDocuments", body);
+  }
   return apiFetch("/assistants/from-documents/", {
     method: "POST",
     body,
