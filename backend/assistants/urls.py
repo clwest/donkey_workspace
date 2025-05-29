@@ -39,6 +39,7 @@ from .views import (
     subassistant,
     interface as interface_views,
     identity,
+    onboarding,
     symbolic,
 )
 from tasks.views.delegate import TaskDelegateView
