@@ -111,6 +111,11 @@ export const fetchAnchorConvergence = (slug, assistant) =>
     params: assistant ? { assistant } : undefined,
   });
 
+export const fetchConvergenceLogs = (assistant) =>
+  apiFetch(`/memory/symbolic-anchors/convergence/`, {
+    params: assistant ? { assistant } : undefined,
+  });
+
 export const fetchMythRecordingSessions = () => apiFetch("/myth/record/");
 export const createMythRecordingSession = (body) =>
   apiFetch("/myth/record/", { method: "POST", body });

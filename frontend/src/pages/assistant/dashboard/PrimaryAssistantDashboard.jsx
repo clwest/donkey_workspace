@@ -17,6 +17,7 @@ import PrimaryStar from "../../../components/assistant/PrimaryStar";
 import ThoughtCloudPanel from "../../../components/assistant/memory/ThoughtCloudPanel";
 import MemoryMoodChart from "../../../components/assistant/memory/MemoryMoodChart";
 import AssistantGlossaryTrainingPanel from "../../../components/assistant/memory/AssistantGlossaryTrainingPanel";
+import GlossaryConvergencePanel from "../../../components/assistant/memory/GlossaryConvergencePanel";
 import AssistantDashboardHeader from "./AssistantDashboardHeader";
 import SelfAssessmentModal from "../../../components/assistant/SelfAssessmentModal";
 import SceneMatchesPanel from "../../../components/assistant/SceneMatchesPanel";
@@ -427,9 +428,12 @@ export default function PrimaryAssistantDashboard() {
         </div>
       )}
     </div>
-    {activeTab === "glossary" && (
+  {activeTab === "glossary" && (
       <div className="mt-4">
-        <AssistantGlossaryTrainingPanel assistantSlug={assistant.slug} />
+        <GlossaryConvergencePanel assistantId={assistant.id} />
+        <div className="mt-3">
+          <AssistantGlossaryTrainingPanel assistantSlug={assistant.slug} />
+        </div>
       </div>
     )}
     <SelfAssessmentModal

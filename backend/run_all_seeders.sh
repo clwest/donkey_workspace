@@ -8,6 +8,8 @@ echo '🚀 Running: seed_embeddings'
 python manage.py seed_embeddings
 echo '🚀 Running: seed_memory_entries'
 python manage.py seed_memory_entries
+echo '🚀 Running: seed_convergence_logs'
+python manage.py seed_convergence_logs
 echo '🚀 Running: seed_dev_docs'
 python manage.py seed_dev_docs
 # echo '🚀 Running: seed_mcp_core'

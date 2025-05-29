@@ -961,3 +961,19 @@ def anchor_convergence_logs(request, slug):
     logs = qs.order_by("-created_at")[:20]
     data = AnchorConvergenceLogSerializer(logs, many=True).data
     return Response({"results": data})
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def assistant_convergence_logs(request):
+    """Return recent AnchorConvergenceLog entries for an assistant."""
+    assistant_id = request.GET.get("assistant")
+    if not assistant_id:
+        return Response({"results": []})
+
+    qs = AnchorConvergenceLog.objects.select_related("assistant", "memory", "anchor").filter(
+        assistant_id=assistant_id
+    )
+    logs = qs.order_by("-created_at")[:20]
+    data = AnchorConvergenceLogSerializer(logs, many=True).data
+    return Response({"results": data})
