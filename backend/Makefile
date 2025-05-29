@@ -122,7 +122,7 @@ codex-dry:
 # ==== 🌱 Seeder Shortcut ====
 seed-all:
         @echo "🌱 Running all seed scripts..."
-        @python manage.py seed_core_assistants && echo "✅ Seeded Core Assistants"
+        @python manage.py seed_assistants && echo "✅ Seeded Assistants"
         @python manage.py seed_glossary_terms && echo "✅ Seeded Glossary Terms"
         @python manage.py seed_documents && echo "✅ Seeded Documents"
         @python manage.py seed_chunks && echo "✅ Seeded Chunks"
