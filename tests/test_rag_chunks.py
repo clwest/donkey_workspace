@@ -303,3 +303,50 @@ def test_non_focus_anchor_ignored(mock_sim, mock_chunk_model, mock_embed, db):
 
     chunks, *_ = get_relevant_chunks(str(assistant.id), "what is sdk")
     assert chunks == []
+
+@patch("assistants.utils.chunk_retriever.get_embedding_for_text")
+@patch("assistants.utils.chunk_retriever.DocumentChunk")
+@patch("assistants.utils.chunk_retriever.compute_similarity")
+def test_anchor_weight_profile(mock_sim, mock_chunk_model, mock_embed, db):
+    from memory.models import SymbolicMemoryAnchor
+    from assistants.utils import chunk_retriever
+
+    assistant = Assistant.objects.create(name="A", anchor_weight_profile={"evm": 0.5})
+    doc = Document.objects.create(title="D", content="txt")
+    assistant.documents.add(doc)
+    anchor = SymbolicMemoryAnchor.objects.create(slug="evm", label="EVM", is_focus_term=True)
+
+    anchor_chunk = type(
+        "C",
+        (),
+        {
+            "id": 1,
+            "document_id": doc.id,
+            "document": doc,
+            "text": "evm text",
+            "embedding": type("E", (), {"vector": [0.1]})(),
+            "anchor": anchor,
+        },
+    )
+    other_chunk = type(
+        "C",
+        (),
+        {
+            "id": 2,
+            "document_id": doc.id,
+            "document": doc,
+            "text": "other",
+            "embedding": type("E", (), {"vector": [0.1]})(),
+        },
+    )
+    manager = DummyManager([other_chunk, anchor_chunk])
+    mock_chunk_model.objects.filter.return_value = manager
+
+    mock_embed.return_value = [0.5]
+    mock_sim.return_value = 0.4
+
+    with patch.object(chunk_retriever, "ANCHOR_BOOST", 0):
+        chunks, *_ = chunk_retriever.get_relevant_chunks(str(assistant.id), "q")
+    assert chunks[0]["chunk_id"] == "1"
+
+
