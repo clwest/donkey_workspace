@@ -71,6 +71,11 @@ export default function DocumentDetailPage() {
       <p className="mb-1">
         <strong>Chunks:</strong> {doc.num_chunks} | Embedded: {doc.num_embedded}
       </p>
+      {doc.chunk_count === 0 && (
+        <div className="alert alert-warning">
+          This document has no visible chunks. Try re-ingesting or check the ingestion logs.
+        </div>
+      )}
       {doc.glossary_ids && doc.glossary_ids.length > 0 && (
         <p className="mb-1 small text-muted">
           Glossary IDs: {JSON.stringify(doc.glossary_ids)}

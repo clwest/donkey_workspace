@@ -97,14 +97,21 @@ def extract_visible_text(html_content):
     ]):
         tag.decompose()
 
-    # Prefer <article> or <main> content if available
-    container = soup.find("article") or soup.find("main")
-    if container:
-        text = container.get_text(separator=" ", strip=True)
-    else:
-        text = soup.get_text(separator=" ", strip=True)
+    # Prefer <main>, <article>, or #content div
+    main = (
+        soup.find("main")
+        or soup.find("article")
+        or soup.find("div", {"id": "content"})
+    )
 
-    return " ".join(text.split())
+    if not main:
+        main = soup.body or soup
+
+    visible_text = main.get_text(" ", strip=True)
+    print("\ud83d\udcc4 Visible Text Preview:", visible_text[:300])
+    print("\u2728 Total visible characters:", len(visible_text))
+
+    return " ".join(visible_text.split())
 
 
 def get_documents(

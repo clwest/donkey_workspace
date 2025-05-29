@@ -17,6 +17,7 @@ from intel_core.utils.processing import (
 from intel_core.models import DocumentProgress, JobStatus
 from intel_core.core import clean_text
 from intel_core.helpers.document_helpers import fetch_url, extract_visible_text
+from prompts.utils.token_helpers import count_tokens
 from intel_core.helpers.youtube_video_helper import process_youtube_video
 
 logger = logging.getLogger("document_service")
@@ -193,10 +194,10 @@ def ingest_urls(
                 logger.info(f"Using provided title: {page_title}")
 
             visible_text = extract_visible_text(content)
-            logger.info(
-                f"URL text length {len(visible_text)} from {url}"
-            )
-            print(f"URL text length {len(visible_text)} from {url}")
+            print(f"[Ingest] Source URL: {url}")
+            print(f"[Ingest] Cleaned text length: {len(visible_text)}")
+            print(f"[Ingest] First 300 chars: {visible_text[:300]}")
+            print(f"[Ingest] Token estimate: {count_tokens(visible_text)}")
             if not visible_text or len(visible_text.strip()) < 50:
                 logger.warning(
                     f"Insufficient text content extracted from URL: {url}"
