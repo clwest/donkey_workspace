@@ -38,6 +38,7 @@ class Command(BaseCommand):
                     "specialty": specialties[i],
                     "description": f"Assistant focused on {specialties[i].lower()} and creative reasoning.",
                     "is_active": True,
+                    "capabilities": {"glossary": True, "reflection": True, "dashboard": True},
                 },
             )
             if created:

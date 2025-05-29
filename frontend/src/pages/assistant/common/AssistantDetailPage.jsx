@@ -383,30 +383,36 @@ export default function AssistantDetailPage() {
         >
           📘 Memory
         </Link>
-        <Link
-          to={`/assistants/${slug}/reflect`}
-          className="btn btn-outline-info"
-        >
-          🔍 Reflections
-        </Link>
+        {assistant.capabilities?.reflection && (
+          <Link
+            to={`/assistants/${slug}/reflect`}
+            className="btn btn-outline-info"
+          >
+            🔍 Reflections
+          </Link>
+        )}
         <Link
           to={`/assistants/${slug}/sessions`}
           className="btn btn-outline-secondary"
         >
           💬 Sessions
         </Link>
-        <Link
-          to={`/assistants/${slug}/trace`}
-          className="btn btn-outline-secondary"
-        >
-          🧬 Delegation Trace
-        </Link>
-        <Link
-          to={`/assistants/${slug}/dashboard`}
-          className="btn btn-outline-primary"
-        >
-          🧠 View Dashboard
-        </Link>
+        {assistant.capabilities?.delegation !== false && (
+          <Link
+            to={`/assistants/${slug}/trace`}
+            className="btn btn-outline-secondary"
+          >
+            🧬 Delegation Trace
+          </Link>
+        )}
+        {assistant.capabilities?.dashboard && (
+          <Link
+            to={`/assistants/${slug}/dashboard`}
+            className="btn btn-outline-primary"
+          >
+            🧠 View Dashboard
+          </Link>
+        )}
       </div>
 
       <hr />
@@ -586,23 +592,25 @@ export default function AssistantDetailPage() {
           <strong>Values:</strong> {assistant.values.join(", ")}
         </p>
       )}
-      <button
-        className="btn btn-outline-info mb-3"
-        onClick={handleSelfReflect}
-        disabled={reflecting}
-      >
-        {reflecting ? (
-          <>
-            <span
-              className="spinner-border spinner-border-sm me-2"
-              role="status"
-            />
-            Reflecting...
-          </>
-        ) : (
-          "Reflect on Self"
-        )}
-      </button>
+      {assistant.capabilities?.reflection && (
+        <button
+          className="btn btn-outline-info mb-3"
+          onClick={handleSelfReflect}
+          disabled={reflecting}
+        >
+          {reflecting ? (
+            <>
+              <span
+                className="spinner-border spinner-border-sm me-2"
+                role="status"
+              />
+              Reflecting...
+            </>
+          ) : (
+            "Reflect on Self"
+          )}
+        </button>
+      )}
       <button
         className="btn btn-outline-warning mb-3 ms-2"
         onClick={async () => {
@@ -618,23 +626,25 @@ export default function AssistantDetailPage() {
       >
         Check Drift
       </button>
-      <button
-        className="btn btn-outline-info mb-3 ms-2"
-        onClick={handleSelfAssess}
-        disabled={assessing}
-      >
-        {assessing ? (
-          <>
-            <span
-              className="spinner-border spinner-border-sm me-2"
-              role="status"
-            />
-            Running...
-          </>
-        ) : (
-          "Run Self-Assessment"
-        )}
-      </button>
+      {assistant.capabilities?.reflection && (
+        <button
+          className="btn btn-outline-info mb-3 ms-2"
+          onClick={handleSelfAssess}
+          disabled={assessing}
+        >
+          {assessing ? (
+            <>
+              <span
+                className="spinner-border spinner-border-sm me-2"
+                role="status"
+              />
+              Running...
+            </>
+          ) : (
+            "Run Self-Assessment"
+          )}
+        </button>
+      )}
 
       <h4>🧠 Summary at a Glance</h4>
       <p>
