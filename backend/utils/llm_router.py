@@ -118,6 +118,7 @@ def chat(
         glossary_forced,
         focus_fallback,
         filtered_anchor_terms,
+        debug_info,
     ) = get_relevant_chunks(str(assistant.id), query_text, auto_expand=auto_expand)
     query_terms = AcronymGlossaryService.extract(query_text)
     all_anchors = list(SymbolicMemoryAnchor.objects.values_list("slug", flat=True))
@@ -153,6 +154,7 @@ def chat(
         "glossary_definitions": [],
         "glossary_guidance": sum(guidance_map.values(), []),
     }
+    rag_meta.update(debug_info)
     retried = False
     retry_type = "standard"
     retry_log = None
