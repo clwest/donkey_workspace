@@ -193,6 +193,7 @@ import ReplayEnginePage from "./pages/replay/ReplayEnginePage";
 import FaultInjectorPage from "./pages/fault/FaultInjectorPage";
 import DreamRebirthPage from "./pages/agents/DreamRebirthPage";
 import ContinuityAnchorPage from "./pages/anchor/ContinuityAnchorPage";
+import SymbolicAnchorAdminPage from "./pages/anchor/SymbolicAnchorAdminPage";
 import ArbitrationCouncilPage from "./pages/guilds/ArbitrationCouncilPage";
 import TreatyForgePage from "./pages/treaty/TreatyForgePage";
 import FederationCodicesPage from "./pages/federation/FederationCodicesPage";
@@ -621,6 +622,7 @@ export default function App() {
           <Route path="/project/composer" element={<MythOSProjectComposerPage />} />
           <Route path="/summon/federated" element={<FederatedSummonPage />} />
           <Route path="/anchor/continuity" element={<ContinuityAnchorPage />} />
+          <Route path="/anchor/symbolic" element={<SymbolicAnchorAdminPage />} />
           <Route path="/assistants/:id/economy" element={<AssistantEconomyPage />} />
           <Route path="/assistants/:id/deploy" element={<AssistantDeployPage />} />
           <Route path="/assistants/:id/tools" element={<AssistantToolsPage />} />

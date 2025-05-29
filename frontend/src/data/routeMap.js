@@ -248,6 +248,13 @@ export const routeMap = [
     notes: "Continuity anchors",
   },
   {
+    frontend: "/anchor/symbolic",
+    backend: "/api/memory/symbolic-anchors/",
+    view: "SymbolicAnchorAdminPage",
+    serializer: "SymbolicMemoryAnchorSerializer",
+    notes: "Symbolic anchor admin",
+  },
+  {
     frontend: "/guilds/council",
     backend: "/api/guilds/council/",
     view: "GuildArbitrationCouncilPage",

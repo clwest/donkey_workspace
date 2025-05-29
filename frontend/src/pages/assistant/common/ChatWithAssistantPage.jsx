@@ -292,6 +292,11 @@ export default function ChatWithAssistantPage() {
                 🧠 Glossary Definition Injected: "{sourceInfo.glossary_definitions[0]}"
               </li>
             )}
+            {sourceInfo.glossary_guidance?.length > 0 && (
+              <li>
+                📝 Anchor Guidance: {sourceInfo.glossary_guidance.join(" | ")}
+              </li>
+            )}
           </ul>
         </div>
       )}

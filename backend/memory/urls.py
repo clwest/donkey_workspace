@@ -85,6 +85,16 @@ urlpatterns = (
         path(
             "continuity-anchors/", views.continuity_anchors, name="continuity-anchors"
         ),
+        path(
+            "symbolic-anchors/",
+            views.symbolic_anchors,
+            name="symbolic-anchors",
+        ),
+        path(
+            "symbolic-anchors/<uuid:pk>/",
+            views.update_symbolic_anchor,
+            name="symbolic-anchor-detail",
+        ),
         path("anamnesis/", views.anamnesis, name="anamnesis"),
         path("grove/public/", views.public_memory_grove, name="public-memory-grove"),
         path(
