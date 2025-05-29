@@ -268,6 +268,8 @@ class GlossaryRetryLogSerializer(serializers.ModelSerializer):
 class AnchorConvergenceLogSerializer(serializers.ModelSerializer):
     assistant_name = serializers.CharField(source="assistant.name", read_only=True)
     memory_summary = serializers.CharField(source="memory.summary", read_only=True)
+    anchor_label = serializers.CharField(source="anchor.label", read_only=True)
+    anchor_slug = serializers.CharField(source="anchor.slug", read_only=True)
 
     class Meta:
         model = AnchorConvergenceLog
@@ -282,6 +284,8 @@ class AnchorConvergenceLogSerializer(serializers.ModelSerializer):
             "created_at",
             "assistant_name",
             "memory_summary",
+            "anchor_label",
+            "anchor_slug",
         ]
         read_only_fields = ["id", "created_at"]
 

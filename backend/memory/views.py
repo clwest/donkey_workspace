@@ -952,6 +952,12 @@ def glossary_retry_logs(request):
 def anchor_convergence_logs(request, slug):
     """Return recent AnchorConvergenceLog entries for an anchor."""
     anchor = get_object_or_404(SymbolicMemoryAnchor, slug=slug)
-    logs = anchor.convergence_logs.select_related("assistant", "memory").order_by("-created_at")[:20]
+
+    qs = anchor.convergence_logs.select_related("assistant", "memory")
+    assistant_id = request.GET.get("assistant")
+    if assistant_id:
+        qs = qs.filter(assistant_id=assistant_id)
+
+    logs = qs.order_by("-created_at")[:20]
     data = AnchorConvergenceLogSerializer(logs, many=True).data
     return Response({"results": data})
