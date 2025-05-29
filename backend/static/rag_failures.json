@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "query": "What is the EVM?",
+    "assistant": "eth_helper",
+    "anchors": ["evm"],
+    "used_chunks": [],
+    "expected_chunks": ["chunk_32", "chunk_34"],
+    "reason": "missing source"
+  },
+  {
+    "id": 2,
+    "query": "Explain zk-rollup",
+    "assistant": "rollup_guru",
+    "anchors": ["zk-rollup"],
+    "used_chunks": ["chunk_10"],
+    "expected_chunks": ["chunk_10", "chunk_11"],
+    "reason": "filtered out"
+  }
+]
