@@ -431,6 +431,19 @@ Memories:
         log.tags.add(tag)
         return log
 
+    def reflect_on_glossary_gap(self, query: str, anchor_slug: str, definition: str) -> str:
+        """Generate reflection text when glossary coverage was insufficient."""
+        prompt = (
+            f"The user asked: \"{query}\"\n\n"
+            f"The assistant matched glossary term '{anchor_slug}' and injected a definition:\n"
+            f"{definition}\n\n"
+            "But it failed to answer the user's question. "
+            "Reflect on why the glossary coverage failed. "
+            "What additional glossary chunk or content would help? "
+            "Return your answer as a single paragraph followed by 3 bullet points titled 'Suggested Additions'."
+        )
+        return self.generate_thought(prompt, temperature=0.3)
+
     def delegate_objective(
         self,
         objective: "AssistantObjective",

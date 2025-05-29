@@ -7,8 +7,11 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework import status
 from openai import OpenAI
-from intel_core.models import Document
-from intel_core.models import DocumentSet
+from intel_core.models import (
+    Document,
+    DocumentSet,
+    GlossaryMissReflectionLog,
+)
 from prompts.models import Prompt
 from assistants.models.assistant import Assistant
 from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
@@ -380,3 +383,29 @@ def rag_check_source(request):
         "anchor_boost": ANCHOR_BOOST,
     }
     return Response({"results": chunks, "mode": mode, "debug": debug})
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def glossary_misses(request):
+    """Return logged glossary miss reflections."""
+    anchor = request.query_params.get("anchor")
+    logs = GlossaryMissReflectionLog.objects.all()
+    if anchor:
+        if is_valid_uuid(anchor):
+            logs = logs.filter(anchor__id=anchor)
+        else:
+            logs = logs.filter(anchor__slug=anchor)
+    data = []
+    for log in logs.order_by("-created_at")[:50]:
+        data.append(
+            {
+                "id": str(log.id),
+                "question": log.user_question,
+                "response": log.assistant_response,
+                "reflection": log.reflection,
+                "anchor": log.anchor.slug if log.anchor else None,
+                "chunks": [str(c.id) for c in log.matched_chunks.all()],
+            }
+        )
+    return Response({"results": data})
