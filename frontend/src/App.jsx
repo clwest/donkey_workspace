@@ -210,6 +210,7 @@ import RitualComposerPage from "./pages/ritual/RitualComposerPage";
 import RitualForkReplayPage from "./pages/ritual/RitualForkReplayPage";
 import MythOSProjectComposerPage from "./pages/project/MythOSProjectComposerPage";
 import PromptDebuggerPage from "./pages/debug/PromptDebuggerPage";
+import RagRecallDebugPage from "./pages/debug/RagRecallDebugPage";
 import SwarmTaskEvolutionPage from "./pages/evolve/SwarmTaskEvolutionPage";
 import SkillPlannerPage from "./pages/plan/SkillPlannerPage";
 import PromptFeedbackPage from "./pages/feedback/PromptFeedbackPage";
@@ -546,6 +547,7 @@ export default function App() {
 
           <Route path="/dev/routes" element={<RoutesDebugPage />} />
           <Route path="/debug/prompts" element={<PromptDebuggerPage />} />
+          <Route path="/debug/rag-recall" element={<RagRecallDebugPage />} />
           <Route path="/planning" element={<PlanningPage />} />
           <Route path="/plan/graph" element={<PlanningGraphPage />} />
           <Route path="/plan/assign" element={<TaskAssignmentPage />} />

@@ -88,7 +88,8 @@ def get_relevant_chunks(
     ``True`` when glossary chunks were injected due to an anchor match regardless
     of score. ``focus_fallback`` indicates that no focus anchors were found and
     all anchors were considered, while ``filtered_anchor_terms`` lists query terms
-    filtered out due to focus restrictions.
+    filtered out due to focus restrictions. ``debug_info`` now also includes
+    ``override_map`` and per-chunk candidate details.
     """
     if not query_text:
         return (
@@ -346,10 +347,9 @@ def get_relevant_chunks(
                 d["id"] for d in debug_candidates if d.get("was_anchor_match")
             ],
             "filtered_out_chunks": [d["id"] for d in debug_candidates],
-            "reason_not_included": {
-                d["id"]: "no_candidate"
-                for d in debug_candidates
-            },
+            "reason_not_included": {d["id"]: "no_candidate" for d in debug_candidates},
+            "override_map": {},
+            "candidates": debug_candidates,
         }
         return (
             [],
@@ -396,8 +396,28 @@ def get_relevant_chunks(
 
     included_ids = [str(p[1].id) for p in pairs]
     for info in debug_candidates:
-        info["was_filtered_out"] = info["id"] not in included_ids
-        info["forced_inclusion_reason"] = override_map.get(info["id"])
+        cid = info["id"]
+        info["was_filtered_out"] = cid not in included_ids
+        info["forced_included"] = cid in override_map
+        info["override_reason"] = override_map.get(cid)
+        if info["was_filtered_out"]:
+            info["excluded_reason"] = (
+                "score < threshold" if info["final_score"] < score_threshold else "top-k drop"
+            )
+        else:
+            info["excluded_reason"] = None
+        logger.debug(
+            "[RAG Result] Chunk %s | Score: %.4f | Forced: %s | Reason: %s",
+            cid,
+            info["final_score"],
+            info["forced_included"],
+            info.get("override_reason"),
+        )
+        if info["was_anchor_match"] and info["was_filtered_out"]:
+            logger.warning(
+                "[RAG ERROR] Anchor-linked chunk %s missing from results — expected forced inclusion.",
+                cid,
+            )
 
     result = []
     for score, chunk, anchor_conf, raw_score, anchor_weight in pairs:
@@ -445,12 +465,10 @@ def get_relevant_chunks(
             d["id"] for d in debug_candidates if d.get("was_filtered_out")
         ],
         "reason_not_included": {
-            d["id"]: (
-                "score < threshold" if d["final_score"] < score_threshold else "top-k drop"
-            )
-            for d in debug_candidates
-            if d.get("was_filtered_out")
+            d["id"]: d.get("excluded_reason") for d in debug_candidates if d.get("was_filtered_out")
         },
+        "override_map": override_map,
+        "candidates": debug_candidates,
     }
 
     return (
