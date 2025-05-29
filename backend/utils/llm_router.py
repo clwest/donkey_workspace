@@ -83,6 +83,7 @@ def chat(
     assistant,
     *,
     focus_anchors_only: bool = False,
+    retry_on_miss: bool = False,
     **kwargs,
 ) -> tuple[str, list[str], dict]:
     """High-level chat call that can summon memories and RAG context."""
@@ -252,7 +253,18 @@ def chat(
         if not replaced:
             msgs.insert(0, {"role": "system", "content": system_content})
 
-        lines = ["MEMORY CHUNKS", "=================="]
+        guidance_block = []
+        if gloss_lines:
+            guidance_block = [
+                "# Glossary Reference:",
+                "You may refer to the following glossary entry for context:",
+                "",
+                *gloss_lines,
+                "",
+                "Use this to inform your answer. Do not ignore this context.",
+                "ANCHOR:",
+            ]
+        lines = guidance_block + ["MEMORY CHUNKS", "=================="]
         for i, info in enumerate(chunks, 1):
             prefix = "[G] " if info.get("is_glossary") else ""
             lines.append(f"[{i}] {prefix}{info['text']}")
@@ -391,6 +403,28 @@ def chat(
                 matched = DocumentChunk.objects.filter(id__in=used_ids)
                 if matched:
                     miss_log.matched_chunks.add(*matched)
+
+                from intel_core.models import GlossaryFallbackReflectionLog
+
+                GlossaryFallbackReflectionLog.objects.create(
+                    anchor_slug=anchor.slug,
+                    chunk_id=rag_meta.get("glossary_chunk_ids", [""])[0] if rag_meta.get("glossary_chunk_ids") else "",
+                    match_score=rag_meta.get("retrieval_score", 0.0),
+                    assistant_response=reply,
+                    glossary_injected=rag_meta.get("prompt_appended_glossary", False),
+                )
+                if retry_on_miss:
+                    msgs.append(
+                        {
+                            "role": "user",
+                            "content": "Given the glossary context, revise your response.",
+                        }
+                    )
+                    reply = call_llm(
+                        msgs,
+                        model=getattr(assistant, "preferred_model", DEFAULT_MODEL),
+                        **kwargs,
+                    )
             else:
                 logger.warning(
                     "Glossary miss reflection skipped: no anchor found for %s",

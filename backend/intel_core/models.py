@@ -265,3 +265,17 @@ class GlossaryMissReflectionLog(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+
+class GlossaryFallbackReflectionLog(models.Model):
+    """Record when glossary context was ignored or missing."""
+
+    anchor_slug = models.SlugField()
+    chunk_id = models.CharField(max_length=64)
+    match_score = models.FloatField(default=0.0)
+    assistant_response = models.TextField()
+    glossary_injected = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]

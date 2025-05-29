@@ -246,6 +246,12 @@ export default function ChatWithAssistantPage() {
               📘 Glossary Present: {sourceInfo.glossary_present ? "✅" : "❌"}
             </span>
           )}
+          {sourceInfo.prompt_appended_glossary && (
+            <span className="badge bg-info text-dark ms-2">📓 Guidance Appended</span>
+          )}
+          {sourceInfo.glossary_ignored?.length > 0 && (
+            <span className="badge bg-warning text-dark ms-2">⚠️ Glossary Ignored</span>
+          )}
         </div>
       )}
       <button className="btn btn-outline-primary mt-2" onClick={handleSuggest}>
@@ -297,7 +303,20 @@ export default function ChatWithAssistantPage() {
                 📝 Anchor Guidance: {sourceInfo.glossary_guidance.join(" | ")}
               </li>
             )}
+            {sourceInfo.prompt_appended_glossary && (
+              <li>📓 Guidance Appended: ✅</li>
+            )}
+            {sourceInfo.glossary_ignored?.length > 0 && (
+              <li className="text-warning">
+                ⚠️ Glossary Ignored: {JSON.stringify(sourceInfo.glossary_ignored)}
+              </li>
+            )}
           </ul>
+          {sourceInfo.glossary_ignored?.length > 0 && (
+            <div className="alert alert-warning mt-2">
+              ⚠️ Consider retry with anchor guidance emphasis
+            </div>
+          )}
         </div>
       )}
 
