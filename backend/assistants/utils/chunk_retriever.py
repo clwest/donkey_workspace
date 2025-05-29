@@ -175,6 +175,16 @@ def get_relevant_chunks(
             logger.debug("Skipping chunk %s due to missing embedding", chunk.id)
             continue
         score = compute_similarity(query_vec, vec)
+        if assistant and assistant.preferred_rag_vector is not None:
+            try:
+                pref_score = compute_similarity(assistant.preferred_rag_vector, vec)
+                score += pref_score * 0.1
+            except Exception as exc:  # pragma: no cover - log mismatch
+                logger.warning("Preference similarity failed: %s", exc)
+        if assistant and assistant.anchor_weight_profile and chunk.anchor:
+            weight = assistant.anchor_weight_profile.get(chunk.anchor.slug)
+            if weight:
+                score += float(weight)
         if score < MIN_SCORE and not (
             chunk.anchor and chunk.anchor.slug in anchor_matches
         ):

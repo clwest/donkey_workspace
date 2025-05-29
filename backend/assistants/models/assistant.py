@@ -168,6 +168,11 @@ class Assistant(models.Model):
 
     belief_vector = models.JSONField(default=dict, blank=True)
 
+    preferred_rag_vector = VectorField(
+        dimensions=1536, null=True, blank=True
+    )
+    anchor_weight_profile = models.JSONField(default=dict, blank=True)
+
     ideology = models.JSONField(default=dict, blank=True)
     is_alignment_flexible = models.BooleanField(default=True)
     auto_reflect_on_message = models.BooleanField(default=False)
