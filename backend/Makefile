@@ -122,11 +122,13 @@ codex-dry:
 # ==== 🌱 Seeder Shortcut ====
 seed-all:
 	@echo "🌱 Running all seed scripts..."
+
 	@python manage.py seed_assistants && echo "✅ Seeded Assistants"
 	@python manage.py seed_symbolic_anchors && echo "✅ Seeded Glossary Terms"
 	@python manage.py seed_dev_docs && echo "✅ Seeded Dev Docs"
 	@python manage.py seed_memory_entries && echo "✅ Seeded Memory Entries"
 	@python manage.py seed_convergence_logs && echo "✅ Seeded Convergence Logs"
+
 
 post-seed-dashboard:
 	@python manage.py check_post_seed_status
