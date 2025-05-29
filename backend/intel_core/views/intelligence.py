@@ -372,7 +372,18 @@ def rag_check_source(request):
     if not content:
         return Response({"error": "content is required"}, status=400)
 
-    chunks, reason, fallback, glossary_present, top_score, _, glossary_forced, *_ = get_relevant_chunks(
+    (
+        chunks,
+        reason,
+        fallback,
+        glossary_present,
+        top_score,
+        _,
+        glossary_forced,
+        _,
+        _,
+        debug_info,
+    ) = get_relevant_chunks(
         assistant_id if assistant else None,
         content,
     )
@@ -382,6 +393,7 @@ def rag_check_source(request):
         "glossary_present": glossary_present,
         "retrieval_score": top_score,
         "anchor_boost": ANCHOR_BOOST,
+        **debug_info,
     }
     return Response({"results": chunks, "mode": mode, "debug": debug})
 

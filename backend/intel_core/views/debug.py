@@ -28,9 +28,18 @@ def rag_recall(request):
     assistant = request.query_params.get("assistant")
     from assistants.utils.chunk_retriever import get_relevant_chunks
 
-    chunks, reason, fallback, glossary_present, top_score, _, glossary_forced, *_ = (
-        get_relevant_chunks(assistant, query)
-    )
+    (
+        chunks,
+        reason,
+        fallback,
+        glossary_present,
+        top_score,
+        _,
+        glossary_forced,
+        _,
+        _,
+        debug_info,
+    ) = get_relevant_chunks(assistant, query)
     forced_chunks = [c["chunk_id"] for c in chunks if c.get("forced_included")]
     debug = {
         "reason": reason,
@@ -39,5 +48,6 @@ def rag_recall(request):
         "top_score": top_score,
         "glossary_forced": glossary_forced,
         "forced_chunks": forced_chunks,
+        **debug_info,
     }
     return Response({"results": chunks, "debug": debug})

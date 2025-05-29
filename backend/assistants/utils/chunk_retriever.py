@@ -144,6 +144,7 @@ def get_relevant_chunks(
     force_inject = any(k in query_text.lower() for k in force_keywords)
 
     scored = []
+    debug_candidates: list[dict[str, object]] = []
     glossary_present = False
     query_terms = AcronymGlossaryService.extract(query_text)
 
@@ -232,6 +233,16 @@ def get_relevant_chunks(
             contains_glossary,
         )
         scored.append((score, chunk, anchor_confidence, raw_score, anchor_weight))
+        debug_candidates.append(
+            {
+                "id": str(chunk.id),
+                "was_anchor_match": bool(
+                    chunk.anchor and chunk.anchor.slug in anchor_matches
+                ),
+                "raw_score": round(raw_score, 4),
+                "final_score": round(score, 4),
+            }
+        )
 
     scored.sort(key=lambda x: x[0], reverse=True)
     top_score = scored[0][0] if scored else 0.0
@@ -283,6 +294,17 @@ def get_relevant_chunks(
         for i, (s, c, _conf, _rs, _aw) in enumerate(pairs, 1):
             logger.info("Fallback chunk %s score %.4f", i, s)
     else:
+        debug_info = {
+            "retrieved_chunk_count": len(debug_candidates),
+            "anchor_matched_chunks": [
+                d["id"] for d in debug_candidates if d.get("was_anchor_match")
+            ],
+            "filtered_out_chunks": [d["id"] for d in debug_candidates],
+            "reason_not_included": {
+                d["id"]: "no_candidate"
+                for d in debug_candidates
+            },
+        }
         return (
             [],
             None,
@@ -293,6 +315,7 @@ def get_relevant_chunks(
             False,
             focus_fallback,
             filtered_anchor_terms,
+            debug_info,
         )
 
     override_map: dict[str, str] = {}
@@ -325,6 +348,11 @@ def get_relevant_chunks(
 
     pairs.sort(key=lambda x: x[0], reverse=True)
 
+    included_ids = [str(p[1].id) for p in pairs]
+    for info in debug_candidates:
+        info["was_filtered_out"] = info["id"] not in included_ids
+        info["forced_inclusion_reason"] = override_map.get(info["id"])
+
     result = []
     for score, chunk, anchor_conf, raw_score, anchor_weight in pairs:
         result.append(
@@ -353,8 +381,31 @@ def get_relevant_chunks(
                 ),
                 "override_reason": override_map.get(str(chunk.id)),
                 "forced_included": str(chunk.id) in override_map,
+                "was_anchor_match": bool(
+                    chunk.anchor and chunk.anchor.slug in anchor_matches
+                ),
+                "was_filtered_out": False,
+                "final_score": round(score, 4),
+                "forced_inclusion_reason": override_map.get(str(chunk.id)),
             }
         )
+
+    debug_info = {
+        "retrieved_chunk_count": len(debug_candidates),
+        "anchor_matched_chunks": [
+            d["id"] for d in debug_candidates if d.get("was_anchor_match")
+        ],
+        "filtered_out_chunks": [
+            d["id"] for d in debug_candidates if d.get("was_filtered_out")
+        ],
+        "reason_not_included": {
+            d["id"]: (
+                "score < threshold" if d["final_score"] < score_threshold else "top-k drop"
+            )
+            for d in debug_candidates
+            if d.get("was_filtered_out")
+        },
+    }
 
     return (
         result,
@@ -366,6 +417,7 @@ def get_relevant_chunks(
         glossary_forced,
         focus_fallback,
         filtered_anchor_terms,
+        debug_info,
     )
 
 

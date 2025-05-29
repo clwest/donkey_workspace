@@ -136,7 +136,7 @@ def test_anchor_forces_injection(mock_sim, mock_chunk_model, mock_embed, db):
     mock_embed.return_value = [0.5]
     mock_sim.return_value = 0.3
 
-    chunks, reason, fallback, _, _, _, _, _, _ = get_relevant_chunks(
+    chunks, reason, fallback, _, _, _, _, _, _, _ = get_relevant_chunks(
         str(assistant.id), "explain sdk"
     )
     assert chunks[0]["chunk_id"] == "1"

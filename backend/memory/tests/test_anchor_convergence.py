@@ -44,6 +44,7 @@ class AnchorConvergenceLogTests(TestCase):
             False,
             False,
             [],
+            {}
         )
         mock_llm.return_value = "zk rollup explanation"
 
@@ -92,6 +93,7 @@ class AnchorConvergenceLogTests(TestCase):
             False,
             False,
             [],
+                    {}
         )
         mock_llm.return_value = "zk rollup explanation"
 
@@ -137,6 +139,7 @@ class AnchorConvergenceLogTests(TestCase):
             False,
             False,
             [],
+            {}
         )
         mock_llm.return_value = "zk rollup explanation"
 
