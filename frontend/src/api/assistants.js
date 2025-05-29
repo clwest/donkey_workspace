@@ -363,3 +363,17 @@ export async function createAssistantFromDocuments(body, opts = {}) {
     body,
   });
 }
+
+export function onboardAssistant(id, body) {
+  return apiFetch(`/assistants/${id}/onboard/`, {
+    method: "POST",
+    body,
+  });
+}
+
+export function initiateDream(id, body) {
+  return apiFetch(`/assistants/${id}/dream/initiate/`, {
+    method: "POST",
+    body,
+  });
+}
