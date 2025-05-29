@@ -64,6 +64,7 @@ urlpatterns = [
     path("rituals/haptic/", views.haptic_ritual, name="haptic-ritual"),
     path("<uuid:id>/identity/", identity.assistant_identity, name="assistant-identity"),
     path("<uuid:id>/mythpath/", identity.assistant_mythpath, name="assistant-mythpath"),
+    path("<uuid:id>/onboard/", onboarding.assistant_onboard, name="assistant-onboard"),
     path(
         "<uuid:assistant_id>/sensory/",
         views.assistant_sensory_profile,
@@ -204,6 +205,11 @@ urlpatterns = [
         "<slug:slug>/dream/",
         thoughts.assistant_dream,
         name="assistant-dream",
+    ),
+    path(
+        "<uuid:id>/dream/initiate/",
+        thoughts.assistant_dream_initiate,
+        name="assistant-dream-initiate",
     ),
     path(
         "<slug:slug>/reflect_now/",

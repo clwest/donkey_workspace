@@ -34,6 +34,8 @@ from assistants.helpers.logging_helper import log_assistant_thought
 from mcp_core.models import DevDoc
 from assistants.services import AssistantService
 from django.http import Http404
+from agents.models.lore import SwarmMemoryEntry
+from agents.models.coordination import DirectiveMemoryNode
 
 
 class AssistantThoughtViewSet(viewsets.ReadOnlyModelViewSet):
@@ -44,7 +46,9 @@ class AssistantThoughtViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         assistant = get_object_or_404(Assistant, slug=self.kwargs.get("slug"))
-        return AssistantThoughtLog.objects.filter(assistant=assistant).order_by("-created_at")
+        return AssistantThoughtLog.objects.filter(assistant=assistant).order_by(
+            "-created_at"
+        )
 
     def list(self, request, *args, **kwargs):
         page_num = request.query_params.get("page", "1")
@@ -91,7 +95,6 @@ def submit_assistant_thought(request, slug):
         },
         status=201,
     )
-
 
 
 class AssistantThoughtViewSet(viewsets.ReadOnlyModelViewSet):
@@ -312,6 +315,33 @@ def assistant_dream(request, slug):
     result = engine.dream(topic)
 
     return Response({"dream": result.get("thought")})
+
+
+@api_view(["POST"])
+def assistant_dream_initiate(request, id):
+    """Initialize dream state and log memory."""
+    assistant = get_object_or_404(Assistant, id=id)
+    dream = request.data.get("dream") or assistant.init_reflection or ""
+    symbol = assistant.dream_symbol or ""
+
+    memory = SwarmMemoryEntry.objects.create(
+        title=f"Dream of {assistant.name}",
+        content=dream,
+        origin="dream",
+    )
+
+    DirectiveMemoryNode.objects.create(
+        assistant=assistant,
+        purpose_statement=dream or "dream",
+        triggering_conditions={"symbol": symbol},
+        directive_tags=[symbol] if symbol else [],
+        temporal_scope="initial",
+    )
+
+    engine = AssistantThoughtEngine(assistant=assistant)
+    engine.log_thought(dream, mode="dream", thought_type="generated")
+
+    return Response({"memory_id": memory.id})
 
 
 @api_view(["PATCH"])
@@ -559,18 +589,19 @@ class AssistantThoughtLogListView(APIView):
 
     def get(self, request, slug):
         assistant = get_object_or_404(Assistant, slug=slug)
-        logs = (
-            AssistantThoughtLog.objects.filter(assistant=assistant)
-            .order_by("-created_at")
+        logs = AssistantThoughtLog.objects.filter(assistant=assistant).order_by(
+            "-created_at"
         )
         if logs.exists():
             serializer = AssistantThoughtLogSerializer(logs, many=True)
             return Response(serializer.data)
-        return Response([
-            {
-                "id": 0,
-                "assistant": assistant.id,
-                "thought": "\U0001faa9 No reflections yet. Tap ‘Reflect’ to begin",
-                "thought_type": "meta",
-            }
-        ])
+        return Response(
+            [
+                {
+                    "id": 0,
+                    "assistant": assistant.id,
+                    "thought": "\U0001faa9 No reflections yet. Tap ‘Reflect’ to begin",
+                    "thought_type": "meta",
+                }
+            ]
+        )

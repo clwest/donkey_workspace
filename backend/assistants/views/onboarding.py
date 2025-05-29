@@ -60,7 +60,10 @@ def onboarding_create_assistant(request):
         return Response({"error": "name and path required"}, status=400)
 
     assistant, card = create_assistant_from_mythpath(
-        path, name, archetype, user=request.user if request.user.is_authenticated else None
+        path,
+        name,
+        archetype,
+        user=request.user if request.user.is_authenticated else None,
     )
 
     return Response(
@@ -70,3 +73,19 @@ def onboarding_create_assistant(request):
         },
         status=status.HTTP_201_CREATED,
     )
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def assistant_onboard(request, id):
+    """Save identity card details for an assistant."""
+    assistant = get_object_or_404(Assistant, id=id)
+
+    assistant.archetype = request.data.get("archetype", assistant.archetype)
+    assistant.dream_symbol = request.data.get("dream_symbol", assistant.dream_symbol)
+    assistant.init_reflection = request.data.get(
+        "init_reflection", assistant.init_reflection
+    )
+    assistant.save()
+
+    return Response(AssistantSerializer(assistant).data)

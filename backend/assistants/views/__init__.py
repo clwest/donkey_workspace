@@ -1,8 +1,6 @@
 from .assistants import (
-
     AssistantViewSet,
     assistants_view,
-
     assistant_detail_view,
     create_assistant_from_thought,
     chat_with_assistant_view,
@@ -19,7 +17,6 @@ from .knowledge import diff_knowledge
 from .dashboard import assistant_dashboard
 from .thoughts import (
     submit_assistant_thought,
-
     submit_chat_feedback,
     update_message_feedback,
     reflect_on_assistant_thoughts,
@@ -29,6 +26,7 @@ from .thoughts import (
     get_recent_thoughts,
     assistant_reflect_now,
     assistant_dream,
+    assistant_dream_initiate,
     update_reflection_feedback,
     get_recent_reflections,
     flush_chat_session_to_log,
@@ -116,7 +114,11 @@ from .sensory import (
     assistant_sensory_profile,
     haptic_ritual,
 )
-from .onboarding import onboarding_create_assistant, create_assistant_from_mythpath
+from .onboarding import (
+    onboarding_create_assistant,
+    create_assistant_from_mythpath,
+    assistant_onboard,
+)
 from .symbolic import (
     get_codex_anchors,
     get_belief_history,
@@ -144,7 +146,6 @@ from .objectives import reflect_to_objectives, primary_objectives
 __all__ = [
     "AssistantViewSet",
     "assistants_view",
-
     "assistant_detail_view",
     "create_assistant_from_thought",
     "chat_with_assistant_view",
@@ -155,7 +156,6 @@ __all__ = [
     "self_assess",
     "reflect_on_assistant",
     "submit_assistant_thought",
-    
     "submit_chat_feedback",
     "update_message_feedback",
     "reflect_on_assistant_thoughts",
@@ -272,6 +272,8 @@ __all__ = [
     "arena_active",
     "onboarding_create_assistant",
     "create_assistant_from_mythpath",
+    "assistant_onboard",
     "SkillPlanView",
+    "assistant_dream_initiate",
 ]
 from .skills import SkillPlanView

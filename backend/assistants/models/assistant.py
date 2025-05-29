@@ -104,6 +104,9 @@ class Assistant(models.Model):
         max_length=200, choices=MEMORY_MODES, default="long_term"
     )
     archetype_path = models.CharField(max_length=50, null=True, blank=True)
+    archetype = models.CharField(max_length=100, null=True, blank=True)
+    dream_symbol = models.CharField(max_length=50, null=True, blank=True)
+    init_reflection = models.TextField(null=True, blank=True)
     embedding = VectorField(
         dimensions=1536, null=True, blank=True
     )  # adjust dim if needed
@@ -1119,6 +1122,7 @@ def track_prompt_cascade(sender, instance, created, **kwargs):
     if not created or not instance.raw_prompt:
         return
     from simulation.models import PromptCascadeLog, CascadeNodeLink
+
     cascade = PromptCascadeLog.objects.create(
         prompt_id=str(instance.id),
         triggered_by=instance.assistant,
