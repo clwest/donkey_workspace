@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import apiFetch from "../../utils/apiClient";
+import { createAssistantFromDocuments } from "../../api/assistants";
 import { USE_PROMPT_MODE } from "../../config/ui";
 import { Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
@@ -28,20 +29,15 @@ export default function DocumentAutoBuilder({ docId }) {
 
     try {
       addLog("📨 Sending assistant creation request...");
-      const res = await apiFetch(
+      const res =
         USE_PROMPT_MODE === "legacy"
-          ? `/intel/intelligence/bootstrap-assistant/${docId}/`
-          : "/assistants/from-documents/",
-        {
-          method: "POST",
-          body:
-            USE_PROMPT_MODE === "legacy"
-              ? undefined
-              : {
-                  document_ids: [docId],
-                },
-        }
-      );
+          ? await apiFetch(`/intel/intelligence/bootstrap-assistant/${docId}/`, {
+              method: "POST",
+            })
+          : await createAssistantFromDocuments(
+              { document_ids: [docId] },
+              { userInitiated: true }
+            );
 
       const { slug, thread_id, project_id, memory_id, objective_id } = res;
       addLog("✅ Assistant created successfully", "success");

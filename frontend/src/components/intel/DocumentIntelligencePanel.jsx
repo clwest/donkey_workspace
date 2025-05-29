@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import apiFetch from "../../utils/apiClient";
+import { createAssistantFromDocuments } from "../../api/assistants";
 import { Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -33,20 +34,15 @@ export default function DocumentIntelligencePanel({ docId }) {
   const handleBootstrapAgent = async () => {
     setBootstrapping(true);
     try {
-      const res = await apiFetch(
+      const res =
         USE_PROMPT_MODE === "legacy"
-          ? `/intel/intelligence/bootstrap-assistant/${docId}/`
-          : "/assistants/from-documents/",
-        {
-          method: "POST",
-          body:
-            USE_PROMPT_MODE === "legacy"
-              ? undefined
-              : {
-                  document_ids: [docId],
-                },
-        }
-      );
+          ? await apiFetch(`/intel/intelligence/bootstrap-assistant/${docId}/`, {
+              method: "POST",
+            })
+          : await createAssistantFromDocuments(
+              { document_ids: [docId] },
+              { userInitiated: true }
+            );
 
       const { slug, thread_id, project_id, memory_id, objective_id } = res;
 
