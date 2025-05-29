@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import apiFetch from "../../../utils/apiClient";
 import ThoughtLogCard from "../../../components/assistant/thoughts/ThoughtLogCard";
 import ReflectionToastStatus from "../../../components/assistant/ReflectionToastStatus";
+import GlossaryPanel from "../../../components/debug/GlossaryPanel";
 import { toast } from "react-toastify";
 
 export default function AssistantReflectPage() {
@@ -134,6 +135,9 @@ export default function AssistantReflectPage() {
           </div>
         ))
       )}
+      <div className="my-4">
+        <GlossaryPanel />
+      </div>
       <ReflectionToastStatus status={toastStatus} />
     </div>
     

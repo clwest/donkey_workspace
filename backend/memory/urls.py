@@ -107,5 +107,10 @@ urlpatterns = (
             views.suggest_memory_merge,
             name="memory-merge-suggest",
         ),
+        path(
+            "glossary-retries/",
+            views.glossary_retry_logs,
+            name="glossary-retry-logs",
+        ),
     ]
 )

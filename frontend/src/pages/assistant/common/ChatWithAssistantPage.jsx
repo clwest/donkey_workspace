@@ -49,6 +49,8 @@ export default function ChatWithAssistantPage() {
           last.rag_fallback = data.rag_meta.rag_fallback;
           last.glossary_present = data.rag_meta.glossary_present;
           last.glossary_used = data.rag_meta.glossary_used;
+          last.glossary_retry_id = data.rag_meta.glossary_retry_id;
+          last.glossary_retry_score_diff = data.rag_meta.score_diff;
         }
         setSourceInfo(data.rag_meta);
         if (data.rag_meta.glossary_present && !data.rag_meta.rag_used) {
@@ -251,6 +253,18 @@ export default function ChatWithAssistantPage() {
           )}
           {sourceInfo.glossary_ignored?.length > 0 && (
             <span className="badge bg-warning text-dark ms-2">⚠️ Glossary Ignored</span>
+          )}
+          {sourceInfo.glossary_retry_id && (
+            <a
+              href={`/memory/glossary-retries/${sourceInfo.glossary_retry_id}`}
+              className="badge bg-info text-dark ms-2"
+              title="Initial reply ignored glossary context. LLM was retried using explicit guidance."
+            >
+              🔄 Glossary Retry
+              {sourceInfo.glossary_retry_score_diff > 0 && (
+                <span className="ms-1 text-success">+{sourceInfo.glossary_retry_score_diff}</span>
+              )}
+            </a>
           )}
         </div>
       )}
