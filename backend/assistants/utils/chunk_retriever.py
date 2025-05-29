@@ -1,5 +1,6 @@
 from __future__ import annotations
 import logging
+import uuid
 from typing import List, Dict, Tuple, Optional
 from django.shortcuts import get_object_or_404
 from assistants.models.assistant import Assistant
@@ -25,6 +26,15 @@ MIN_SCORE = 0.05
 ANCHOR_BOOST = getattr(settings, "RAG_ANCHOR_BOOST", 0.1)
 
 logger = logging.getLogger(__name__)
+
+
+def is_valid_uuid(value: str) -> bool:
+    """Return True if the given value is a valid UUID string."""
+    try:
+        uuid.UUID(str(value))
+        return True
+    except (ValueError, TypeError):
+        return False
 
 
 def _anchor_in_query(anchor: SymbolicMemoryAnchor, text: str) -> bool:
@@ -82,10 +92,12 @@ def get_relevant_chunks(
 
     assistant = None
     if assistant_id:
-        assistant = (
-            Assistant.objects.filter(id=assistant_id).first()
-            or Assistant.objects.filter(slug=assistant_id).first()
-        )
+        if is_valid_uuid(assistant_id):
+            assistant = Assistant.objects.filter(id=assistant_id).first()
+            if not assistant:
+                assistant = Assistant.objects.filter(slug=assistant_id).first()
+        else:
+            assistant = Assistant.objects.filter(slug=assistant_id).first()
         if not assistant:
             logger.warning("Assistant %s not found", assistant_id)
     doc_ids: List[str] = []
@@ -144,15 +156,14 @@ def get_relevant_chunks(
 
     anchor_qs = anchor_qs.prefetch_related("tags")
     all_anchors = list(anchor_qs)
-    anchor_matches = [
-        a.slug for a in all_anchors if _anchor_in_query(a, query_text)
-    ]
+    anchor_matches = [a.slug for a in all_anchors if _anchor_in_query(a, query_text)]
     if not (auto_expand or settings.DEBUG) and focus_qs.exists():
         all_slugs = list(SymbolicMemoryAnchor.objects.values_list("slug", flat=True))
         filtered_anchor_terms = [
             s
             for s in all_slugs
-            if s.lower() in query_text.lower() and s not in [a.slug for a in all_anchors]
+            if s.lower() in query_text.lower()
+            and s not in [a.slug for a in all_anchors]
         ]
     else:
         filtered_anchor_terms = []
@@ -163,9 +174,7 @@ def get_relevant_chunks(
             continue
         score = compute_similarity(query_vec, vec)
         if score < MIN_SCORE:
-            logger.debug(
-                "Skipping chunk %s due to low score %.3f", chunk.id, score
-            )
+            logger.debug("Skipping chunk %s due to low score %.3f", chunk.id, score)
             continue
         if keywords and any(k.lower() in chunk.text.lower() for k in keywords):
             score += 0.05
@@ -291,7 +300,14 @@ def get_relevant_chunks(
                 "anchor_slug": getattr(getattr(chunk, "anchor", None), "slug", None),
                 "anchor_confidence": anchor_conf,
                 "fingerprint": getattr(chunk, "fingerprint", ""),
-                "anchor_boost": ANCHOR_BOOST if (getattr(chunk, "anchor", None) and getattr(chunk.anchor, "slug", None) in anchor_matches) else 0,
+                "anchor_boost": (
+                    ANCHOR_BOOST
+                    if (
+                        getattr(chunk, "anchor", None)
+                        and getattr(chunk.anchor, "slug", None) in anchor_matches
+                    )
+                    else 0
+                ),
             }
         )
 

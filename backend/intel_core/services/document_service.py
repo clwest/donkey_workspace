@@ -14,6 +14,15 @@ from mcp_core.models import Tag
 from project.models import Project
 
 
+def is_valid_uuid(value: str) -> bool:
+    """Return True if the given value is a valid UUID string."""
+    try:
+        uuid.UUID(str(value))
+        return True
+    except (ValueError, TypeError):
+        return False
+
+
 class DocumentService:
     """High level document ingestion operations."""
 
@@ -148,10 +157,22 @@ class DocumentService:
         project_id: Optional[str] = None,
         tags: Optional[List[str]] = None,
     ) -> List[Document]:
-        assistant = (
-            Assistant.objects.filter(id=assistant_id).first() if assistant_id else None
-        )
-        project = Project.objects.filter(id=project_id).first() if project_id else None
+        assistant = None
+        if assistant_id:
+            if is_valid_uuid(assistant_id):
+                assistant = Assistant.objects.filter(id=assistant_id).first()
+                if not assistant:
+                    assistant = Assistant.objects.filter(slug=assistant_id).first()
+            else:
+                assistant = Assistant.objects.filter(slug=assistant_id).first()
+        project = None
+        if project_id:
+            if is_valid_uuid(project_id):
+                project = Project.objects.filter(id=project_id).first()
+                if not project:
+                    project = Project.objects.filter(slug=project_id).first()
+            else:
+                project = Project.objects.filter(slug=project_id).first()
         tags = tags or []
         if source_type == "youtube":
             return cls.ingest_youtube(
