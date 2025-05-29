@@ -93,22 +93,22 @@ celery:
 #        @python manage.py migrate
 
 reset-db:
-        @echo "💣 Dropping and recreating DB..."
-        dropdb donkey_ai_assistant || true
-        createdb donkey_ai_assistant
-        find . -path "./.venv" -prune -o -path "*/migrations/*.py" -not -name "__init__.py" -delete
-        find . -path "./.venv" -prune -o -path "*/migrations/*.pyc" -delete
-        python manage.py makemigrations
-        python manage.py migrate
+	@echo "💣 Dropping and recreating DB..."
+	dropdb donkey_ai_assistant || true
+	createdb donkey_ai_assistant
+	find . -path "./.venv" -prune -o -path "*/migrations/*.py" -not -name "__init__.py" -delete
+	find . -path "./.venv" -prune -o -path "*/migrations/*.pyc" -delete
+	python manage.py makemigrations
+	python manage.py migrate
 
 flush-db:
-        @echo "🧹 Flushing database..."
-        @python manage.py flush --no-input
-        @python manage.py migrate
+	@echo "🧹 Flushing database..."
+	@python manage.py flush --no-input
+	@python manage.py migrate
 
 reset-seed:
-        @echo "🔄 Resetting DB and reseeding..."
-        @make flush-db && make seed-all
+	@echo "🔄 Resetting DB and reseeding..."
+	@make flush-db && make seed-all
 
 # ==== 🤖 Codex ====
 codex:
@@ -121,14 +121,12 @@ codex-dry:
 
 # ==== 🌱 Seeder Shortcut ====
 seed-all:
-        @echo "🌱 Running all seed scripts..."
-        @python manage.py seed_assistants && echo "✅ Seeded Assistants"
-        @python manage.py seed_glossary_terms && echo "✅ Seeded Glossary Terms"
-        @python manage.py seed_documents && echo "✅ Seeded Documents"
-        @python manage.py seed_chunks && echo "✅ Seeded Chunks"
-        @python manage.py seed_assistant_memory && echo "✅ Seeded Assistant Memory"
-        @python manage.py seed_reflections && echo "✅ Seeded Reflections"
-        @python manage.py seed_rag_test_cases && echo "✅ Seeded RAG Test Cases"
+	@echo "🌱 Running all seed scripts..."
+	@python manage.py seed_assistants && echo "✅ Seeded Assistants"
+	@python manage.py seed_symbolic_anchors && echo "✅ Seeded Glossary Terms"
+	@python manage.py seed_dev_docs && echo "✅ Seeded Dev Docs"
+	@python manage.py seed_memory_entries && echo "✅ Seeded Memory Entries"
+	@python manage.py seed_convergence_logs && echo "✅ Seeded Convergence Logs"
 
 post-seed-dashboard:
 	@python manage.py check_post_seed_status
@@ -159,13 +157,13 @@ help:
 	@echo "  make ingest            📥 Ingest prompt_sets markdown"
 	@echo "  make run               🔄 Start Redis + Django + Celery"
 	@echo "  make restart           🔄 Kill + restart everything"
-        @echo "  make format            🧽 Run black formatter"
-        @echo "  make reset-db          💣 Drop + re-init DB"
-        @echo "  make flush-db          ♻️  Flush + migrate DB"
-        @echo "  make flush-redis       🧨 Clear Redis tasks"
-        @echo "  make codex             ⚡ Run Codex script"
-        @echo "  make bootstrap_memory  🧠 Load core memory"
-        @echo "  make seed-all          🌱 Run all seeders"
-        @echo "  make reset-seed        🔄 Flush DB + reseed"
-        @echo "  make run-all-scripts   🚀 Run all command and dev_script files"
+	@echo "  make format            🧽 Run black formatter"
+	@echo "  make reset-db          💣 Drop + re-init DB"
+	@echo "  make flush-db          ♻️  Flush + migrate DB"
+	@echo "  make flush-redis       🧨 Clear Redis tasks"
+	@echo "  make codex             ⚡ Run Codex script"
+	@echo "  make bootstrap_memory  🧠 Load core memory"
+	@echo "  make seed-all          🌱 Run all seeders"
+	@echo "  make reset-seed        🔄 Flush DB + reseed"
+	@echo "  make run-all-scripts   🚀 Run all command and dev_script files"
 	@echo ""
