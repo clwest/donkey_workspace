@@ -93,6 +93,9 @@ def create_document_set_task(
     job_id=None,
 ):
     """Background task to ingest multiple sources into a DocumentSet."""
+    logger.info(
+        f"[Task Start] Triggered by DocumentSet title '{title}' | URLs: {urls} | Session: {session_id}"
+    )
     urls = urls or []
     videos = videos or []
     file_paths = file_paths or []
