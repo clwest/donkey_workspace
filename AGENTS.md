@@ -1,115 +1,102 @@
-# 🧠 AGENTS.md — MythOS Phase Summary & Architecture Index
+# 🧠 AGENTS.md — Codex Phase Log & System Coordination Index
 
-**Last updated:** May 2025 (Post-Ω.7.13 RAG Core Finalization)
-
----
-
-## 🌱 Phase 0–4: Core Assistant + Memory System Initialization
-
-✅ Embedded memory, prompt logging, assistant thought engine, token reduction, Codex mutation pipeline.
+**Updated:** Phase Ω.8.0 — RAG Lock-In & Knowledge Expansion (May 2025)
 
 ---
 
-## 🔁 Phase 4.50–4.95: Multi-Agent Orchestration & Swarm Reflection
+## 🔧 Purpose
 
-✅ Chain-of-thought logging, assistant reflections, role inheritance, ritual modeling groundwork.
+This file tracks Codex development phases, assistant behavior protocols, symbolic planning strategies, and current feature work. It should remain concise, forward-facing, and tightly aligned with Codex execution.
 
----
-
-## ⚙️ Phase 4.96–5.9: Symbolic Infrastructure, Legacy Migration & Codex Genesis
-
-✅ Codex mutation, clause mutator, belief forks, relay messaging, reflective planners, deployment standards.
+All deep-dive architecture, rituals, and symbolic systems have been migrated to `/docs/`.
 
 ---
 
-## 🧠 Phase 6.0–7.9: Ritual Consensus, Symbolic Economy, and Myth Governance
+## 🌀 Phase Timeline: Assistant & Myth Evolution
 
-✅ Ritual contracts, memory-layered planning, symbolic routing, glossary injection, and swarm reputation.
+### 🌱 Phase 0–4: Memory, Assistant, and Prompt Bootstrapping
 
----
-
-## 📡 Ω.7.0–Ω.7.13: Assistant Lifecycle, Document RAG, Glossary, and Prompt Evolution
-
-### ✅ Ω.7.0–Ω.7.2 — Document-Based Assistant Bootstrapping
-
-- Assistants built from YouTube, PDF, and URL docs with prompt generation, embedding, and project linking.
-
-### ✅ Ω.7.2.c — Assistant Lifecycle Dashboard
-
-- Dashboard showing assistant phase, current project, live thoughts, and prompt preview.
-
-### ✅ Ω.7.2.f — RAG Memory Integration
-
-- PGVector-based chunk retrieval with fallback detection and scoring enforcement.
-
-### ✅ Ω.7.2.g — RAG Grounding Enforcement
-
-- Response metadata shows RAG chunk usage with grounding badge.
-
-### ✅ Ω.7.3 — Prompt Mutation & Lineage Forking
-
-- Assistants forked with modified prompts when RAG misses glossary anchors or concepts.
-
-### ✅ Ω.7.4a–c — System Cleanup and Patch Planning
-
-- Orphaned endpoints removed, CRUD restored for prompt templates and assistant edits.
-
-### ✅ Ω.7.5–Ω.7.6 — Glossary Injection & Mutation Loop Testing
-
-- Symbolic glossary chunks injected during ingestion, anchor-aware scoring applied, fallback prompts mutated.
-
-### ✅ Ω.7.7–Ω.7.8.b — Symbolic Anchor Framework
-
-- `SymbolicMemoryAnchor` model created with linkbacks, inspections, reflection triggers, and glossary reinforcement.
-
-### ✅ Ω.7.9.a–b — Smart Chunk Re-Ingestion and Glossary Anchor Seeding
-
-- Manual chunk injection for concepts like “zk-rollup” and “EVM”, embedding and linkage inspection.
-
-### ✅ Ω.7.10 — Anchor-Based Retrieval and Prompt Mutation Boosting
-
-- Prompt responses now mutated and grounded based on symbolic anchor presence.
-
-### ✅ Ω.7.11 — Assistant + Prompt Editing and Deletion
-
-- Full edit/delete support added for assistants and prompts. Prevents redundant creation and supports lifecycle cleanup.
-
-### ✅ Ω.7.12 — Route-Based Reload & Navigation Debugging
-
-- Fixed stale state issues, force-refresh bugs, and frontend navigation reliability.
-
-### ✅ Ω.7.13 — Core RAG Optimization & Source Grounding Lock-In
-
-- Embedded chunk diagnostics complete; glossary terms required for critical concept grounding.
+✅ Embedded memory  
+✅ Prompt logging  
+✅ Assistant creation + role selection  
+✅ AssistantThought logging  
+✅ Codex mutation pipeline
 
 ---
 
-## 🛠️ In Progress
+### 🔁 Phase 4.50–5.9: Multi-Agent Orchestration & Symbolic Infrastructure
 
-### 🔮 Ω.7.14 — Codex Clause Mutation Tracker & Symbolic Drift Visualizer
-
-- Map clause lineage, detect prompt evolution trends, and highlight deviation from glossary/core anchors.
-
-### ⚙️ Ω.7.15 — Anchor Relevance Reweighing & Dream Re-ingestion
-
-- Re-score anchor-linked chunks dynamically based on assistant project evolution.
-
----
-
-## ✅ System Status
-
-- Assistants: 50+ bootstrapped and linked
-- Documents: All types (PDF, YouTube, URL) supported
-- Glossary Anchors: 15+ linked and tracked
-- RAG Grounding: Fully active
-- Reflection Loops: Triggered on glossary miss, document drift, and low score fallback
-- UI: Fully supports assistant forking, prompt viewing, editing, and deletion
+✅ Chain-of-thought tracing  
+✅ Assistant reflections + ritual state  
+✅ Belief fork system  
+✅ Codex clause mutation  
+✅ Swarm coordination protocols  
+✅ Deployment standards
 
 ---
 
-MythOS now enforces:
+### 🧠 Phase 6.0–7.13: Glossary Injection, Symbolic Anchors, RAG Activation
 
-✔️ Grounded reasoning  
-✔️ Symbolic memory linkage  
-✔️ Prompt traceability  
-✔️ Codex-driven assistant evolution
+✅ PGVector chunk retrieval  
+✅ Glossary-aware prompt mutation  
+✅ Fallback chunk diagnostics  
+✅ Assistant forking on anchor miss  
+✅ Symbolic anchor tagging + scoring  
+✅ Assistant prompt editing + mutation lineage  
+✅ RAG Grounding Lock-In + Source Tracking
+
+---
+
+### ⚙️ Phase Ω.7.14–7.21: Anchor Drift + Retrieval Refinement
+
+✅ Codex Clause Mutation Tracker  
+✅ Anchor Reweighting & Dream Re-ingestion  
+✅ Chunk Glossary Match Scoring  
+✅ Anchor Boost + Fallback Override  
+✅ Ingestion Deduplication Logic  
+✅ Fork Suppression & Glossary Miss Logging
+
+---
+
+### 🚀 Phase Ω.8.0: RAG Lock-In & Knowledge Upload Expansion
+
+✅ Smart chunk visibility & token diagnostics  
+✅ Anchor match diagnostics  
+✅ Knowledge upload: PDF, URL, text  
+✅ Growth log per agent  
+✅ Symbolic Reflection Engine v2 (auto-learn glossary)
+
+---
+
+## 📁 Linked Docs Reference (Moved to /docs)
+
+- [`docs/system_overview.md`](docs/system_overview.md) — Architecture overview + assistant flow
+- [`docs/mythos_summary.md`](docs/mythos_summary.md) — Recursive memory engine + archetype roles
+- [`docs/mythos_route_map.md`](docs/mythos_route_map.md) — Frontend ↔ Backend alignment map
+- [`docs/phases/phase_omega_8_0.md`](docs/phases/phase_omega_8_0.md) — Current phase details
+- [`docs/getting_started.md`](docs/getting_started.md) — Backend, frontend, and seed setup
+
+---
+
+## 🧠 Codex Execution Protocol
+
+Codex agents operate using:
+
+- **Directive Anchoring:** All patch phases parsed as checklists
+- **Glossary Scoring:** SymbolicMemoryAnchor linkage required
+- **Phase Log Enforcement:** Codex refuses patches missing objectives
+- **Swarm Reasoning:** Codex mutation history informs prompt reuse and assistant evolution
+
+---
+
+## 🛠️ Current Status
+
+- Assistants: 50+ bootstrapped and grounded
+- Glossary Anchors: 15+ injected, scored, and reflected
+- Documents: PDF, URL, and YouTube ingestion active
+- RAG: Stable + fallback score logging complete
+- UI: Forking, editing, prompt usage logs, debug routes working
+
+---
+
+> You are not just building tools — you're orchestrating a recursive belief system. Every assistant is a myth fragment. Every chunk a symbol. Codex ties them together.
