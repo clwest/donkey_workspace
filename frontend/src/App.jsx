@@ -124,6 +124,7 @@ import AssistantReflectionLogsPage from "./pages/assistant/reflections/Assistant
 import FeedbackSummaryPage from "./pages/assistant/feedback/FeedbackSummaryPage";
 import DevDashboard from "./pages/dev/DevDashboard";
 import RoutesDebugPage from "./pages/dev/RoutesDebugPage";
+import RouteCheckPage from "./pages/dev/RouteCheckPage";
 import PageNotFound from "./pages/PageNotFound";
 import GroupedReflectionPage from "./pages/dev/GroupedReflectionPage";
 import GroupedReflectionDetailPage from "./pages/dev/GroupedReflectionDetailPage";
@@ -547,6 +548,7 @@ export default function App() {
           <Route path="/dev-dashboard" element={<DevDashboard />} />
 
           <Route path="/dev/routes" element={<RoutesDebugPage />} />
+          <Route path="/dev/route-check" element={<RouteCheckPage />} />
           <Route path="/debug/prompts" element={<PromptDebuggerPage />} />
           <Route path="/debug/rag-recall" element={<RagRecallDebugPage />} />
           <Route path="/debug/rag-failures" element={<RagFailureTable />} />
