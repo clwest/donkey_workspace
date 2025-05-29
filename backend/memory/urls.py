@@ -100,6 +100,11 @@ urlpatterns = (
             views.anchor_convergence_logs,
             name="anchor-convergence-logs",
         ),
+        path(
+            "symbolic-anchors/convergence/",
+            views.assistant_convergence_logs,
+            name="assistant-convergence-logs",
+        ),
         path("anamnesis/", views.anamnesis, name="anamnesis"),
         path("grove/public/", views.public_memory_grove, name="public-memory-grove"),
         path(
