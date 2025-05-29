@@ -287,6 +287,11 @@ export default function ChatWithAssistantPage() {
                 </div>
               ))}
             </li>
+            {sourceInfo.glossary_definitions?.length > 0 && (
+              <li>
+                🧠 Glossary Definition Injected: "{sourceInfo.glossary_definitions[0]}"
+              </li>
+            )}
           </ul>
         </div>
       )}

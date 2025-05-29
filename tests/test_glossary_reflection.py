@@ -21,5 +21,9 @@ def test_reflection_logged_when_glossary_fallback(
 
     mock_get.return_value = ([], "low", False, True, 0.2, None)
 
-    llm_router.chat([{"role": "user", "content": "What is SDK"}], assistant)
+    llm_router.chat(
+        [{"role": "user", "content": "What is SDK"}],
+        assistant,
+        focus_anchors_only=True,
+    )
     mock_reflect.assert_called_once()

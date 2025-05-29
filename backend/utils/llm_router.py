@@ -78,7 +78,13 @@ def call_llm(messages: list[dict], model: str = DEFAULT_MODEL, **kwargs) -> str:
         return _call_openai(messages, model, **kwargs)
 
 
-def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dict]:
+def chat(
+    messages: list[dict],
+    assistant,
+    *,
+    focus_anchors_only: bool = False,
+    **kwargs,
+) -> tuple[str, list[str], dict]:
     """High-level chat call that can summon memories and RAG context."""
     from assistants.utils.memory_summoner import summon_relevant_memories
     from assistants.utils.chunk_retriever import get_relevant_chunks, format_chunks
@@ -95,6 +101,7 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
     # RAG chunk retrieval
     user_parts = [m.get("content", "") for m in msgs if m.get("role") == "user"]
     query_text = user_parts[-1] if user_parts else ""
+    auto_expand = kwargs.pop("auto_expand", False)
     (
         chunks,
         reason,
@@ -106,7 +113,7 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
         focus_fallback,
         filtered_anchor_terms,
     ) = get_relevant_chunks(
-        str(assistant.id), query_text, auto_expand=kwargs.pop("auto_expand", False)
+        str(assistant.id), query_text, auto_expand=auto_expand
     )
     query_terms = AcronymGlossaryService.extract(query_text)
     all_anchors = list(SymbolicMemoryAnchor.objects.values_list("slug", flat=True))
@@ -128,6 +135,7 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
         "prompt_appended_glossary": False,
         "focus_fallback": focus_fallback,
         "filtered_anchor_terms": filtered_anchor_terms,
+        "glossary_definitions": [],
     }
     gloss_log = GlossaryUsageLog.objects.create(
         query=query_text,
@@ -139,6 +147,18 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
     )
     gloss_reflection = None
     if chunks:
+        if fallback or focus_anchors_only:
+            gloss_first = [c for c in chunks if c.get("is_glossary")]
+            non_gloss = [c for c in chunks if not c.get("is_glossary")]
+            chunks = gloss_first + non_gloss
+        else:
+            gloss_first = [c for c in chunks if c.get("is_glossary")]
+        rag_meta["glossary_debug"] = [
+            {"id": c["chunk_id"], "slug": c.get("anchor_slug"), "score": c["score"]}
+            for c in gloss_first
+        ]
+        rag_meta["glossary_first"] = all(c in chunks[: len(gloss_first)] for c in gloss_first)
+        logger.debug("Glossary chunks included: %s", rag_meta["glossary_debug"])
         rag_meta["rag_used"] = True
         rag_meta["rag_fallback"] = fallback
         rag_meta["used_chunks"] = [
@@ -186,6 +206,19 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
         system_content = RAG_SYSTEM_PROMPT
         if gloss_lines:
             rag_meta["prompt_appended_glossary"] = True
+            rag_meta["glossary_definitions"] = gloss_lines
+            terms = []
+            for line in gloss_lines:
+                if ":" in line:
+                    terms.append(line.split(":", 1)[0].lstrip("- "))
+                elif " refers to " in line:
+                    terms.append(line.split(" refers to ", 1)[0].lstrip("- "))
+            if terms:
+                term_list = ", ".join(f"'{t}'" for t in terms[:2])
+                system_content += (
+                    "\nYou have access to glossary definitions for key terms such as "
+                    f"{term_list}. Use them when responding."
+                )
             system_content += "\n\nGlossary Reference:\n" + "\n".join(gloss_lines)
 
         replaced = False
@@ -199,7 +232,8 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
 
         lines = ["MEMORY CHUNKS", "=================="]
         for i, info in enumerate(chunks, 1):
-            lines.append(f"[{i}] {info['text']}")
+            prefix = "[G] " if info.get("is_glossary") else ""
+            lines.append(f"[{i}] {prefix}{info['text']}")
         lines.append("==================")
         chunk_block = "\n".join(lines)
         logger.debug("Injecting chunk block: %s", chunk_block)
@@ -256,6 +290,14 @@ def chat(messages: list[dict], assistant, **kwargs) -> tuple[str, list[str], dic
     reply = call_llm(
         msgs, model=getattr(assistant, "preferred_model", DEFAULT_MODEL), **kwargs
     )
+    if rag_meta.get("glossary_debug"):
+        ignored = []
+        for g in rag_meta["glossary_debug"]:
+            term = (g.get("slug") or "").lower()
+            if term and term not in reply.lower():
+                ignored.append(g["id"])
+        rag_meta["glossary_ignored"] = ignored
+        logger.debug("Glossary chunks ignored by LLM: %s", ignored)
     if rag_meta.get("anchor_misses"):
         rag_meta["anchor_misses"] = [
             s for s in rag_meta["anchor_misses"] if s.lower() not in reply.lower()
