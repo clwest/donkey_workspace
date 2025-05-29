@@ -105,8 +105,6 @@ def _create_document_chunks(document: Document):
             match = re.match(r"([A-Z]{2,})\s+refers to", info["text"])
             if match:
                 slug = match.group(1).lower()
-                from memory.models import SymbolicMemoryAnchor
-
                 anchor, _ = SymbolicMemoryAnchor.objects.get_or_create(
                     slug=slug, defaults={"label": match.group(1)}
                 )
