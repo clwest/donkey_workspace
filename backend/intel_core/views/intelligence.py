@@ -11,6 +11,7 @@ from intel_core.models import (
     Document,
     DocumentSet,
     GlossaryMissReflectionLog,
+    GlossaryFallbackReflectionLog,
 )
 from prompts.models import Prompt
 from assistants.models.assistant import Assistant
@@ -406,6 +407,28 @@ def glossary_misses(request):
                 "reflection": log.reflection,
                 "anchor": log.anchor.slug if log.anchor else None,
                 "chunks": [str(c.id) for c in log.matched_chunks.all()],
+            }
+        )
+    return Response({"results": data})
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def glossary_fallback_logs(request):
+    """Return logs when glossary context was ignored."""
+    anchor = request.query_params.get("anchor")
+    logs = GlossaryFallbackReflectionLog.objects.all()
+    if anchor:
+        logs = logs.filter(anchor_slug=anchor)
+    data = []
+    for log in logs.order_by("-created_at")[:50]:
+        data.append(
+            {
+                "slug": log.anchor_slug,
+                "chunk_id": log.chunk_id,
+                "score": log.match_score,
+                "response": log.assistant_response,
+                "injected": log.glossary_injected,
             }
         )
     return Response({"results": data})

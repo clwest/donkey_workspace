@@ -5,6 +5,7 @@ from .models import (
     JobStatus,
     DocumentProgress,
     GlossaryMissReflectionLog,
+    GlossaryFallbackReflectionLog,
 )
 
 
@@ -52,3 +53,9 @@ class DocumentProgressAdmin(admin.ModelAdmin):
 class GlossaryMissReflectionLogAdmin(admin.ModelAdmin):
     list_display = ("anchor", "user_question", "created_at")
     search_fields = ("user_question", "assistant_response")
+
+
+@admin.register(GlossaryFallbackReflectionLog)
+class GlossaryFallbackReflectionLogAdmin(admin.ModelAdmin):
+    list_display = ("anchor_slug", "chunk_id", "created_at")
+    search_fields = ("assistant_response",)
