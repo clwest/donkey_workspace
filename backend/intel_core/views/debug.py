@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from intel_core.models import DocumentChunk
 
+
 @api_view(["GET"])
 def debug_doc_chunks(request, doc_id):
     chunks = DocumentChunk.objects.filter(document_id=doc_id).order_by("order")
@@ -27,14 +28,16 @@ def rag_recall(request):
     assistant = request.query_params.get("assistant")
     from assistants.utils.chunk_retriever import get_relevant_chunks
 
-    chunks, reason, fallback, glossary_present, top_score, _, glossary_forced, *_ = get_relevant_chunks(
-        assistant, query
+    chunks, reason, fallback, glossary_present, top_score, _, glossary_forced, *_ = (
+        get_relevant_chunks(assistant, query)
     )
+    forced_chunks = [c["chunk_id"] for c in chunks if c.get("forced_included")]
     debug = {
         "reason": reason,
         "fallback": fallback,
         "glossary_present": glossary_present,
         "top_score": top_score,
         "glossary_forced": glossary_forced,
+        "forced_chunks": forced_chunks,
     }
     return Response({"results": chunks, "debug": debug})
