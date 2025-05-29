@@ -143,12 +143,14 @@ def chat(
         "chunk_scores": [],
         "glossary_forced": glossary_forced,
         "prompt_appended_glossary": False,
+        "guidance_appended": False,
         "focus_fallback": focus_fallback,
         "filtered_anchor_terms": filtered_anchor_terms,
         "glossary_definitions": [],
         "glossary_guidance": sum(guidance_map.values(), []),
     }
     retried = False
+    retry_type = "standard"
     retry_log = None
     gloss_log = GlossaryUsageLog.objects.create(
         query=query_text,
@@ -246,6 +248,10 @@ def chat(
                     "\nYou are equipped with glossary-backed memory. Use the following reference definitions to guide user questions related to:\n"
                     + "\n".join(f"- Anchor: {s}" for s in guidance_map.keys())
                 )
+            system_content += (
+                "\nUse the above glossary definitions to answer the user's question unless contradicted by newer documents."
+            )
+            rag_meta["guidance_appended"] = bool(guidance_map)
 
         replaced = False
         for idx, m in enumerate(msgs):
@@ -343,6 +349,27 @@ def chat(
                 ignored.append(g["id"])
         rag_meta["glossary_ignored"] = ignored
         logger.debug("Glossary chunks ignored by LLM: %s", ignored)
+    escalate = (
+        rag_meta.get("glossary_present")
+        and rag_meta.get("guidance_appended")
+        and rag_meta.get("glossary_ignored")
+    )
+    if escalate:
+        msgs.insert(
+            0,
+            {
+                "role": "system",
+                "content": "The following glossary definition is authoritative. Use it unless explicitly contradicted by more recent sources.",
+            },
+        )
+        reply = call_llm(
+            msgs, model=getattr(assistant, "preferred_model", DEFAULT_MODEL), **kwargs
+        )
+        retried = True
+        retry_type = "escalated"
+        rag_meta["escalated_retry"] = True
+    else:
+        rag_meta["escalated_retry"] = False
     if rag_meta.get("anchor_misses"):
         rag_meta["anchor_misses"] = [
             s for s in rag_meta["anchor_misses"] if s.lower() not in reply.lower()
@@ -525,16 +552,19 @@ def chat(
         after = 1.0 if anchor_matches and anchor_matches[0].lower() in reply.lower() else 0.0
         retry_log = GlossaryRetryLog.objects.create(
             anchor=anchor_obj,
+            anchor_slug=anchor_obj.slug if anchor_obj else "",
             question=query_text,
             first_response=first_reply,
             retry_response=reply if retried else None,
-            glossary_chunks=rag_meta.get("glossary_chunk_ids", []),
+            glossary_chunk_ids=rag_meta.get("glossary_chunk_ids", []),
             guidance_injected=rag_meta.get("prompt_appended_glossary", False),
             retried=retried,
+            retry_type=retry_type,
             score_diff=after - before,
         )
 
         rag_meta["glossary_retry_id"] = str(retry_log.id)
         rag_meta["score_diff"] = retry_log.score_diff
+        rag_meta["retry_type"] = retry_type
 
     return reply, summoned, rag_meta
