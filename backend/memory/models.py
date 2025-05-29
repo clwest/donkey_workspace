@@ -415,6 +415,9 @@ class SymbolicMemoryAnchor(models.Model):
     glossary_guidance = models.TextField(blank=True, default="")
     is_focus_term = models.BooleanField(default=False)
     tags = models.ManyToManyField("mcp_core.Tag", blank=True)
+    reinforced_by = models.ManyToManyField(
+        "assistants.Assistant", blank=True, related_name="reinforced_anchors"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -504,6 +507,33 @@ class GlossaryRetryLog(models.Model):
         max_length=20, choices=RETRY_TYPES, default="standard"
     )
     score_diff = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class AnchorConvergenceLog(models.Model):
+    """Record when an assistant successfully answers using a glossary anchor."""
+
+    anchor = models.ForeignKey(
+        SymbolicMemoryAnchor,
+        on_delete=models.CASCADE,
+        related_name="convergence_logs",
+    )
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+    )
+    memory = models.ForeignKey(
+        MemoryEntry,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
+    guidance_used = models.BooleanField(default=False)
+    retried = models.BooleanField(default=False)
+    final_score = models.FloatField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

@@ -24,6 +24,7 @@ from .models import (
     MemoryEmbeddingFailureLog,
     SymbolicMemoryAnchor,
     GlossaryRetryLog,
+    AnchorConvergenceLog,
 )
 from .serializers import (
     MemoryEntrySerializer,
@@ -36,6 +37,7 @@ from .serializers import (
     MemoryMergeSuggestionSerializer,
     SymbolicMemoryAnchorSerializer,
     GlossaryRetryLogSerializer,
+    AnchorConvergenceLogSerializer,
 )
 from prompts.serializers import PromptSerializer
 from prompts.models import Prompt
@@ -942,4 +944,14 @@ def glossary_retry_logs(request):
     """Return recent GlossaryRetryLog entries."""
     logs = GlossaryRetryLog.objects.all().order_by("-created_at")[:20]
     data = GlossaryRetryLogSerializer(logs, many=True).data
+    return Response({"results": data})
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def anchor_convergence_logs(request, slug):
+    """Return recent AnchorConvergenceLog entries for an anchor."""
+    anchor = get_object_or_404(SymbolicMemoryAnchor, slug=slug)
+    logs = anchor.convergence_logs.select_related("assistant", "memory").order_by("-created_at")[:20]
+    data = AnchorConvergenceLogSerializer(logs, many=True).data
     return Response({"results": data})

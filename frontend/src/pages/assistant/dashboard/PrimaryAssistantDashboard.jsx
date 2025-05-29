@@ -16,6 +16,7 @@ import MemoryChainSettingsPanel from "../../../components/assistant/memory/Memor
 import PrimaryStar from "../../../components/assistant/PrimaryStar";
 import ThoughtCloudPanel from "../../../components/assistant/memory/ThoughtCloudPanel";
 import MemoryMoodChart from "../../../components/assistant/memory/MemoryMoodChart";
+import AssistantGlossaryTrainingPanel from "../../../components/assistant/memory/AssistantGlossaryTrainingPanel";
 import AssistantDashboardHeader from "./AssistantDashboardHeader";
 import SelfAssessmentModal from "../../../components/assistant/SelfAssessmentModal";
 import SceneMatchesPanel from "../../../components/assistant/SceneMatchesPanel";
@@ -228,6 +229,14 @@ export default function PrimaryAssistantDashboard() {
               🛰️ Relay
             </button>
           </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === "glossary" ? "active" : ""}`}
+              onClick={() => setActiveTab("glossary")}
+            >
+              📖 Glossary Training
+            </button>
+          </li>
         </ul>
       </div>
 
@@ -418,6 +427,11 @@ export default function PrimaryAssistantDashboard() {
         </div>
       )}
     </div>
+    {activeTab === "glossary" && (
+      <div className="mt-4">
+        <AssistantGlossaryTrainingPanel assistantSlug={assistant.slug} />
+      </div>
+    )}
     <SelfAssessmentModal
       show={showAssess}
       onClose={() => setShowAssess(false)}

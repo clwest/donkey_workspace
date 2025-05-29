@@ -11,6 +11,7 @@ from .models import (
     SymbolicMemoryAnchor,
     MemoryMergeSuggestion,
     GlossaryRetryLog,
+    AnchorConvergenceLog,
 )
 
 from assistants.models.thoughts import AssistantThoughtLog
@@ -227,6 +228,9 @@ class ContinuityAnchorPointSerializer(serializers.ModelSerializer):
 
 
 class SymbolicMemoryAnchorSerializer(serializers.ModelSerializer):
+    reinforced_by = serializers.SlugRelatedField(
+        slug_field="slug", many=True, read_only=True
+    )
     class Meta:
         model = SymbolicMemoryAnchor
         fields = "__all__"
@@ -257,6 +261,27 @@ class GlossaryRetryLogSerializer(serializers.ModelSerializer):
             "score_diff",
             "created_at",
             "anchor_label",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
+class AnchorConvergenceLogSerializer(serializers.ModelSerializer):
+    assistant_name = serializers.CharField(source="assistant.name", read_only=True)
+    memory_summary = serializers.CharField(source="memory.summary", read_only=True)
+
+    class Meta:
+        model = AnchorConvergenceLog
+        fields = [
+            "id",
+            "anchor",
+            "assistant",
+            "memory",
+            "guidance_used",
+            "retried",
+            "final_score",
+            "created_at",
+            "assistant_name",
+            "memory_summary",
         ]
         read_only_fields = ["id", "created_at"]
 
