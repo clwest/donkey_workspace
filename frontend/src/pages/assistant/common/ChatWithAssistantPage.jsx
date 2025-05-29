@@ -249,10 +249,14 @@ export default function ChatWithAssistantPage() {
             </span>
           )}
           {sourceInfo.prompt_appended_glossary && (
-            <span className="badge bg-info text-dark ms-2">📓 Guidance Appended</span>
+            <span className="badge bg-info text-dark ms-2">✅ Guidance Appended</span>
           )}
-          {sourceInfo.glossary_ignored?.length > 0 && (
-            <span className="badge bg-warning text-dark ms-2">⚠️ Glossary Ignored</span>
+          {sourceInfo.guidance_appended &&
+            sourceInfo.glossary_ignored?.length > 0 && (
+              <span className="badge bg-danger ms-2">🚨 Glossary Ignored</span>
+            )}
+          {sourceInfo.escalated_retry && (
+            <span className="badge bg-info text-dark ms-2">🔁 Escalated Retry Used</span>
           )}
           {sourceInfo.glossary_retry_id && (
             <a
@@ -318,12 +322,15 @@ export default function ChatWithAssistantPage() {
               </li>
             )}
             {sourceInfo.prompt_appended_glossary && (
-              <li>📓 Guidance Appended: ✅</li>
+              <li>✅ Guidance Appended</li>
             )}
-            {sourceInfo.glossary_ignored?.length > 0 && (
-              <li className="text-warning">
-                ⚠️ Glossary Ignored: {JSON.stringify(sourceInfo.glossary_ignored)}
+            {sourceInfo.guidance_appended && sourceInfo.glossary_ignored?.length > 0 && (
+              <li className="text-danger">
+                🚨 Glossary Ignored: {JSON.stringify(sourceInfo.glossary_ignored)}
               </li>
+            )}
+            {sourceInfo.escalated_retry && (
+              <li>🔁 Escalated Retry Used</li>
             )}
           </ul>
           {sourceInfo.glossary_ignored?.length > 0 && (
