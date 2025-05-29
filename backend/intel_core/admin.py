@@ -1,5 +1,11 @@
 from django.contrib import admin
-from .models import Document, DocumentInteraction, JobStatus, DocumentProgress
+from .models import (
+    Document,
+    DocumentInteraction,
+    JobStatus,
+    DocumentProgress,
+    GlossaryMissReflectionLog,
+)
 
 
 @admin.register(Document)
@@ -40,3 +46,9 @@ class DocumentProgressAdmin(admin.ModelAdmin):
     list_display = ("progress_id", "title", "status", "processed", "total_chunks")
     readonly_fields = ("progress_id", "created_at", "updated_at")
     list_filter = ("status", "created_at")
+
+
+@admin.register(GlossaryMissReflectionLog)
+class GlossaryMissReflectionLogAdmin(admin.ModelAdmin):
+    list_display = ("anchor", "user_question", "created_at")
+    search_fields = ("user_question", "assistant_response")

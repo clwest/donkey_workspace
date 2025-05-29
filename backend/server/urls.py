@@ -132,6 +132,7 @@ urlpatterns = [
     path("api/intel/", include("intel_core.urls")),
     path("api/v1/intel/", include("intel_core.api_urls")),
     path("api/rag/check-source/", intel_views.rag_check_source),
+    path("glossary/misses/", intel_views.glossary_misses),
     path("api/signal-artifacts/", agent_views.signal_artifacts),
     path("api/navigation-vectors/", agent_views.navigation_vectors),
     path("api/flux-index/", agent_views.flux_index),

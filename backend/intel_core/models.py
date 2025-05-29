@@ -247,3 +247,21 @@ class GlossaryUsageLog(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return f"Glossary log for {self.assistant} - used: {self.rag_used}"
+
+
+class GlossaryMissReflectionLog(models.Model):
+    """Store fallback events when glossary context was insufficient."""
+
+    anchor = models.ForeignKey(
+        "memory.SymbolicMemoryAnchor", on_delete=models.CASCADE
+    )
+    user_question = models.TextField()
+    assistant_response = models.TextField()
+    matched_chunks = models.ManyToManyField(DocumentChunk)
+    glossary_chunk_ids = ArrayField(models.CharField(max_length=64), default=list)
+    score_snapshot = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+    reflection = models.TextField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]

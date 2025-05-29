@@ -2,7 +2,7 @@ import os
 import logging
 import requests
 from openai import OpenAI
-from intel_core.models import GlossaryUsageLog
+from intel_core.models import GlossaryUsageLog, GlossaryMissReflectionLog, DocumentChunk
 from intel_core.services.acronym_glossary_service import AcronymGlossaryService
 from memory.models import SymbolicMemoryAnchor
 from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
@@ -325,6 +325,40 @@ def chat(
                 )
             except Exception:
                 logger.exception("Failed to log glossary refusal")
+
+    if (
+        rag_meta.get("glossary_present")
+        and rag_meta.get("rag_used")
+        and ("couldn't" in reply.lower() or "could not" in reply.lower())
+    ):
+        try:
+            anchor_slug = rag_meta.get("anchor_hits", [])
+            if not anchor_slug:
+                anchor_slug = rag_meta.get("anchors", [])
+            anchor = (
+                SymbolicMemoryAnchor.objects.filter(slug=anchor_slug[0]).first()
+                if anchor_slug
+                else None
+            )
+            engine = AssistantThoughtEngine(assistant=assistant)
+            definition = rag_meta.get("glossary_definitions", [""])[0]
+            reflection_text = engine.reflect_on_glossary_gap(
+                query_text, anchor.slug if anchor else "", definition
+            )
+            miss_log = GlossaryMissReflectionLog.objects.create(
+                anchor=anchor,
+                user_question=query_text,
+                assistant_response=reply,
+                glossary_chunk_ids=rag_meta.get("glossary_chunk_ids", []),
+                score_snapshot=dict(rag_meta.get("chunk_scores", [])),
+                reflection=reflection_text,
+            )
+            used_ids = [c["chunk_id"] for c in rag_meta.get("used_chunks", [])]
+            matched = DocumentChunk.objects.filter(id__in=used_ids)
+            if matched:
+                miss_log.matched_chunks.add(*matched)
+        except Exception:
+            logger.exception("Failed to log glossary miss reflection")
 
     if gloss_reflection:
         from prompts.utils.mutation import (
