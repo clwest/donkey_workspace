@@ -307,6 +307,14 @@ export default function ChatWithAssistantPage() {
                       {c.anchor_confidence.toFixed(1)}
                     </span>
                   )}
+                  {c.override_reason === "anchor-match" && (
+                    <span
+                      className="badge bg-warning text-dark me-1"
+                      title="This chunk was included due to a glossary match even though its vector score was low."
+                    >
+                      Glossary Anchor Override
+                    </span>
+                  )}
                   {c.text ? c.text.slice(0, 30) : ""}
                 </div>
               ))}
