@@ -13,6 +13,7 @@ Frontend Path Backend URL View Serializer Notes
 /assistants/:id/deck /api/assistants/:id/personality-deck/ PersonalityDeckBuilder AssistantPersonalityDeckSerializer Card-based role editor
 /assistants/:id/traits /api/assistants/:id/traits/ AssistantTraitCardViewer AssistantTraitCardSerializer Trait card deck with codex bar
 /agents/trained /api/agents/trained/ TrainedAgentsPage TrainedAgentLogSerializer List symbolic training sessions
+/assistants/:id/review-ingest/:doc_id/ /api/assistants/:id/review-ingest/:doc_id/ ReviewIngestPage n/a Review uploaded document for memory entry
 
 ⸻
 
@@ -79,6 +80,7 @@ Frontend Path Backend URL View Serializer Notes
 🔜 To Add (Phase X.5)
 • /audit/mythpath → Assistant lifecycle narrative reviewer
 • /sandbox/ritual → Codex clause + memory trigger playground
+• /intel/experiments/bootstrap-from-doc/:id → Assistant bootstrap sandbox
 
 ⸻
 

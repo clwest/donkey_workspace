@@ -15,6 +15,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
 from memory.models import MemoryEntry
+from mcp_core.models import MemoryContext
+from assistants.models.assistant import Assistant
 from .models import DocumentChunk, EmbeddingMetadata
 from embeddings.models import Embedding
 from prompts.utils.token_helpers import EMBEDDING_MODEL
@@ -23,7 +25,11 @@ import logging
 
 @receiver(post_save, sender=DocumentChunk)
 def create_memory_from_chunk(sender, instance, created, **kwargs):
-    if created:
+    if not created:
+        return
+
+    assistants = list(instance.document.linked_assistants.all())
+    if not assistants:
         MemoryEntry.objects.create(
             event=instance.text[:200],
             summary=instance.text[:200],
@@ -31,6 +37,24 @@ def create_memory_from_chunk(sender, instance, created, **kwargs):
             linked_content_type=ContentType.objects.get_for_model(DocumentChunk),
             linked_object_id=instance.id,
             type="document_chunk",
+        )
+        return
+
+    for assistant in assistants:
+        context = MemoryContext.objects.create(
+            target_content_type=ContentType.objects.get_for_model(Assistant),
+            target_object_id=assistant.id,
+            content=instance.text[:200],
+        )
+        MemoryEntry.objects.create(
+            event=instance.text[:200],
+            summary=instance.text[:200],
+            document=instance.document,
+            linked_content_type=ContentType.objects.get_for_model(DocumentChunk),
+            linked_object_id=instance.id,
+            type="document_chunk",
+            assistant=assistant,
+            context=context,
         )
 
 
