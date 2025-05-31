@@ -25,7 +25,10 @@ export default function GroupedReflectionPage() {
         .replace(/```\s*$/, "")
         .trim();
       const fixed = jsonrepair(content);
-      const groups = JSON.parse(fixed);
+      let parsed = JSON.parse(fixed);
+      const groups = Array.isArray(parsed)
+        ? parsed
+        : parsed.groups || parsed.data || [];
 
       const md = groups
         .map(
@@ -119,7 +122,10 @@ ${g.suggestions_or_todos
               }
 
               const fixed = jsonrepair(content);
-              const groups = JSON.parse(fixed);
+              let parsed = JSON.parse(fixed);
+              const groups = Array.isArray(parsed)
+                ? parsed
+                : parsed.groups || parsed.data || [];
               return groups.map((group, idx) => (
                 <div
                   key={idx}
