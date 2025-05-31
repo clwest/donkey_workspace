@@ -167,6 +167,7 @@ import RitualRewardsPage from "./pages/ritual/RitualRewardsPage";
 import AssistantEconomyPage from "./pages/assistant/economy/AssistantEconomyPage";
 import AssistantDeployPage from "./pages/assistant/deploy/AssistantDeployPage";
 import AssistantToolsPage from "./pages/assistant/tools/AssistantToolsPage";
+import ReviewIngestPage from "./pages/assistant/review_ingest/ReviewIngestPage";
 import ArenaActivePage from "./pages/arena/ArenaActivePage";
 import GuildFundingPage from "./pages/guilds/GuildFundingPage";
 import GuildExchangePage from "./pages/guilds/GuildExchangePage";
@@ -639,6 +640,10 @@ export default function App() {
           <Route path="/assistants/:id/economy" element={<AssistantEconomyPage />} />
           <Route path="/assistants/:id/deploy" element={<AssistantDeployPage />} />
           <Route path="/assistants/:id/tools" element={<AssistantToolsPage />} />
+          <Route
+            path="/assistants/:id/review-ingest/:doc_id"
+            element={<ReviewIngestPage />}
+          />
           <Route path="/arena/active" element={<ArenaActivePage />} />
           <Route path="/guilds/council" element={<ArbitrationCouncilPage />} />
           <Route path="/guilds/:id/funding" element={<GuildFundingPage />} />
