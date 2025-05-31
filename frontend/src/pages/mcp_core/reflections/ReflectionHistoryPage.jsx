@@ -25,9 +25,15 @@ export default function ReflectionHistoryPage() {
 
   useEffect(() => {
     fetch("/api/mcp/reflections/")
-      .then(res => res.json())
-      .then(data => {
-        setReflections(data);
+      .then((res) => res.json())
+      .then((data) => {
+        // Handle paginated results from DRF list endpoints
+        const items = Array.isArray(data) ? data : data.results || [];
+        setReflections(items);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch reflections:", err);
         setLoading(false);
       });
   }, []);
