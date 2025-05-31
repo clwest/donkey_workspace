@@ -413,6 +413,12 @@ export default function AssistantDetailPage() {
             🧠 View Dashboard
           </Link>
         )}
+        <Link
+          to={`/assistants/${slug}/capabilities`}
+          className="btn btn-outline-secondary"
+        >
+          ⚙️ Edit Capabilities
+        </Link>
       </div>
 
       <hr />
