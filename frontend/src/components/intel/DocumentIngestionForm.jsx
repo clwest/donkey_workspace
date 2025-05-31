@@ -13,12 +13,23 @@ export default function DocumentIngestionForm({ onSuccess }) {
   const [pdfFiles, setPdfFiles] = useState([]);
   const [tags, setTags] = useState("");
   const [title, setTitle] = useState("");
+  const [assistants, setAssistants] = useState([]);
+  const [selectedAssistant, setSelectedAssistant] = useState("");
   const [loading, setLoading] = useState(false);
   const [jobs, setJobs] = useState([]);
   const [log, setLog] = useState([]);
   const pollRef = useRef({});
 
   useEffect(() => {
+    async function fetchAssistants() {
+      try {
+        const res = await apiFetch("/assistants/?limit=100");
+        setAssistants(res.results || res);
+      } catch (err) {
+        console.error("Failed to load assistants", err);
+      }
+    }
+    fetchAssistants();
     return () => {
       Object.values(pollRef.current).forEach(clearInterval);
     };
@@ -40,6 +51,7 @@ export default function DocumentIngestionForm({ onSuccess }) {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("session_id", sessionId);
+      if (selectedAssistant) formData.append("assistant_id", selectedAssistant);
       parsedTags.forEach((t) => formData.append("tags", t));
       if (urlInput.trim()) formData.append("urls", urlInput);
       if (videoInput.trim()) formData.append("videos", videoInput);
@@ -95,6 +107,7 @@ export default function DocumentIngestionForm({ onSuccess }) {
       setVideoInput("");
       setTags("");
       setTitle("");
+      setSelectedAssistant("");
     } catch (err) {
       console.error("Failed to load documents:", err);
       toast.error("❌ Failed to load documents");
@@ -146,6 +159,22 @@ export default function DocumentIngestionForm({ onSuccess }) {
           multiple
           onChange={(e) => setPdfFiles([...e.target.files])}
         />
+      </div>
+
+      <div className="mb-3">
+        <label className="form-label">Assign to Assistant</label>
+        <select
+          className="form-select"
+          value={selectedAssistant}
+          onChange={(e) => setSelectedAssistant(e.target.value)}
+        >
+          <option value="">-- Select an assistant --</option>
+          {assistants.map((a) => (
+            <option key={a.id} value={a.id}>
+              {a.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="mb-3">
