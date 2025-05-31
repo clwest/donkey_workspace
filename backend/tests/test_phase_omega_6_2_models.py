@@ -39,7 +39,7 @@ def test_phase_omega_6_2_models_create(db):
     assert not feed_log.applied
     assert effect.feedback_vector == vec
 
-    resp1 = client.get("/api/evolve/swarm/")
+    resp1 = client.get("/api/metrics/evolve/swarm/")
     assert resp1.status_code == 200
     resp2 = client.get(f"/api/feedback/prompts/{prompt.id}/")
     assert resp2.status_code == 200

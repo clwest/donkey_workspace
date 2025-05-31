@@ -5,7 +5,7 @@ export default function SwarmTaskEvolutionPage() {
   const [suggestions, setSuggestions] = useState([]);
 
   useEffect(() => {
-    apiFetch("/evolve/swarm/")
+    apiFetch("/metrics/evolve/swarm/")
       .then((res) => setSuggestions(res.results || res))
       .catch((err) => console.error("Failed to load suggestions", err));
   }, []);
