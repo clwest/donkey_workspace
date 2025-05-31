@@ -15,7 +15,10 @@ export default function MemoryTimelinePanel({
     async function load() {
       try {
         const res = await apiFetch("/memory/list/", {
-          params: { assistant_id: assistantId, document_id: documentId },
+          params: {
+            assistant_slug: assistantId,
+            document_id: documentId,
+          },
         });
         setEntries(res);
       } catch (err) {
