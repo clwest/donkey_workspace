@@ -153,8 +153,17 @@ DEV DOCS:
     # Parse related doc slugs
     related_doc_slugs = []
     try:
-        parsed = json.loads(response.strip().strip("```json").strip("```").strip())
-        for group in parsed:
+        parsed = json.loads(
+            response.strip().strip("```json").strip("```").strip()
+        )
+        if isinstance(parsed, dict):
+            groups = parsed.get("groups") or parsed.get("data") or []
+        else:
+            groups = parsed
+
+        for group in groups:
+            if not isinstance(group, dict):
+                continue
             titles = group.get("related_document_titles", [])
             for title in titles:
                 related_doc_slugs.append(slugify(title))
