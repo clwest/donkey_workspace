@@ -123,6 +123,13 @@ class AgentService:
             agent=agent,
         )
 
+        try:
+            from agents.utils.artifact_builder import build_agent_spawn_artifact
+
+            build_agent_spawn_artifact(agent, skill)
+        except Exception:  # pragma: no cover - fail soft
+            pass
+
         AgentLegacy.objects.get_or_create(agent=agent)
         return agent
 
