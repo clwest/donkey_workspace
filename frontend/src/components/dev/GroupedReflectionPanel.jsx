@@ -2,6 +2,7 @@
 import React from "react";
 import { useGroupedReflection } from "../../hooks/useGroupedReflection";
 
+import { jsonrepair } from "jsonrepair";
 export default function GroupedReflectionPanel() {
   const { reflection, loading, runSummarize } = useGroupedReflection();
 
@@ -27,14 +28,28 @@ export default function GroupedReflectionPanel() {
 
           {(() => {
             try {
-              let content = reflection.event.trim();
+                let content = reflection.event.trim();
 
-              // 🔥 Fix: Remove ```json or ``` fences
-              if (content.startsWith("```json") || content.startsWith("```")) {
-                content = content.replace(/```json\\s*/i, "").replace(/```$/, "").trim();
-              }
+                // 🔥 Fix: Remove ```json or ``` fences
+                if (content.startsWith("```json") || content.startsWith("```") ) {
+                  content = content
+                    .replace(/```json\s*/i, "")
+                    .replace(/```\s*$/, "")
+                    .trim();
+                }
 
-              const groups = JSON.parse(content);
+                const fixed = jsonrepair(content);
+                const parsed = JSON.parse(fixed);
+                const arr = Array.isArray(parsed)
+                  ? parsed
+                  : parsed.groups || parsed.data || parsed.clusters || [];
+                const groups = arr.map((g) => ({
+                  group_title: g.group_title || g.title,
+                  group_summary: g.group_summary || g.summary,
+                  related_document_titles:
+                    g.related_document_titles || g.related_documents || [],
+                  suggestions_or_todos: g.suggestions_or_todos || g.suggestions || [],
+                }));
               return groups.map((group, idx) => (
                 <div key={idx} className="mb-4 p-3 border rounded bg-light shadow-sm">
                   <h5 className="mb-2">🧠 {group.group_title}</h5>

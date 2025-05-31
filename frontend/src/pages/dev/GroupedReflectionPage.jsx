@@ -26,9 +26,16 @@ export default function GroupedReflectionPage() {
         .trim();
       const fixed = jsonrepair(content);
       let parsed = JSON.parse(fixed);
-      const groups = Array.isArray(parsed)
+      const arr = Array.isArray(parsed)
         ? parsed
-        : parsed.groups || parsed.data || [];
+        : parsed.groups || parsed.data || parsed.clusters || [];
+      const groups = arr.map((g) => ({
+        group_title: g.group_title || g.title,
+        group_summary: g.group_summary || g.summary,
+        related_document_titles:
+          g.related_document_titles || g.related_documents || [],
+        suggestions_or_todos: g.suggestions_or_todos || g.suggestions || [],
+      }));
 
       const md = groups
         .map(
@@ -123,9 +130,16 @@ ${g.suggestions_or_todos
 
               const fixed = jsonrepair(content);
               let parsed = JSON.parse(fixed);
-              const groups = Array.isArray(parsed)
+              const arr = Array.isArray(parsed)
                 ? parsed
-                : parsed.groups || parsed.data || [];
+                : parsed.groups || parsed.data || parsed.clusters || [];
+              const groups = arr.map((g) => ({
+                group_title: g.group_title || g.title,
+                group_summary: g.group_summary || g.summary,
+                related_document_titles:
+                  g.related_document_titles || g.related_documents || [],
+                suggestions_or_todos: g.suggestions_or_todos || g.suggestions || [],
+              }));
               return groups.map((group, idx) => (
                 <div
                   key={idx}
