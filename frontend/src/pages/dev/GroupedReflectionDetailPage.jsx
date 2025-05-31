@@ -42,7 +42,17 @@ export default function GroupedReflectionDetailPage() {
       .replace(/^```json\s*/i, "")
       .replace(/```\s*$/, "")
       .trim();
-    groups = JSON.parse(jsonrepair(cleaned));
+    const parsed = JSON.parse(jsonrepair(cleaned));
+    const arr = Array.isArray(parsed)
+      ? parsed
+      : parsed.groups || parsed.data || parsed.clusters || [];
+    groups = arr.map((g) => ({
+      group_title: g.group_title || g.title,
+      group_summary: g.group_summary || g.summary,
+      related_document_titles:
+        g.related_document_titles || g.related_documents || [],
+      suggestions_or_todos: g.suggestions_or_todos || g.suggestions || [],
+    }));
   } catch (e) {
     return (
       <div className="container mt-4">

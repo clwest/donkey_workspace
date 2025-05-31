@@ -26,7 +26,16 @@ export default function GroupedReflectionPage() {
         .replace(/```\s*$/, "")
         .trim();
       const fixed = jsonrepair(content);
-      const groups = JSON.parse(fixed);
+      let parsed = JSON.parse(fixed);
+      const arr = Array.isArray(parsed)
+        ? parsed
+        : parsed.groups || parsed.data || parsed.clusters || [];
+      const groups = arr.map((g) => ({
+        group_title: g.group_title || g.title,
+        group_summary: g.group_summary || g.summary,
+        related_document_titles: g.related_document_titles || g.related_documents || [],
+        suggestions_or_todos: g.suggestions_or_todos || g.suggestions || [],
+      }));
 
       const md = groups
         .map(
@@ -92,11 +101,17 @@ export default function GroupedReflectionPage() {
               if (content.startsWith("```json") || content.startsWith("```")) {
                 content = content.replace(/^```json\s*/i, "").replace(/```\s*$/, "").trim();
               }
-
               const fixed = jsonrepair(content);
-              const groups = JSON.parse(fixed);
-              return groups.map((group, idx) => (
-                <div key={idx} className="mb-4 p-3 border rounded bg-light shadow-sm">
+              let parsed = JSON.parse(fixed);
+              const arr = Array.isArray(parsed)
+                ? parsed
+                : parsed.groups || parsed.data || parsed.clusters || [];
+              const groups = arr.map((g) => ({
+                group_title: g.group_title || g.title,
+                group_summary: g.group_summary || g.summary,
+                related_document_titles: g.related_document_titles || g.related_documents || [],
+                suggestions_or_todos: g.suggestions_or_todos || g.suggestions || [],
+              }));
                   <h5 className="mb-2">🧠 {group.group_title}</h5>
                   <p>{group.group_summary}</p>
 
