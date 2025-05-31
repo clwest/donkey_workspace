@@ -25,3 +25,5 @@ flowchart TD
   L --> N
   M --> N
 ```
+
+The internal endpoint `/assistants/:id/review-ingest/:doc_id/` triggers this flow. After reflection you can call `build_agent_spawn_artifact()` to preserve the insight as a legacy artifact.

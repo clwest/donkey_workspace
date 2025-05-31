@@ -13,6 +13,7 @@ Compiled for Codex routing, view integration, and component planning
 | `/assistants/:id/thoughts` | `/api/assistants/:id/thought-log/` | `ThoughtLogPanel` | `AssistantThoughtLogSerializer` | Chain-of-thought, ritual state, prompt lineage |
 | `/assistants/:id/deck` | `/api/assistants/:id/personality-deck/` | `PersonalityDeckBuilder` | `AssistantPersonalityDeckSerializer` | Card-based role editor |
 | `/assistants/:id/traits` | `/api/assistants/:id/traits/` | `AssistantTraitCardViewer` | `AssistantTraitCardSerializer` | Trait card deck with codex bar |
+| `/assistants/:id/review-ingest/:doc_id/` | `/api/assistants/:id/review-ingest/:doc_id/` | `ReviewIngestPage` | n/a | Review uploaded document |
 
 \-\-\-
 
