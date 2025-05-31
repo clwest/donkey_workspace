@@ -52,6 +52,11 @@ Update assistant seeders to include:
 - [ ] Update serializer to expose these fields
 - [ ] Update seeder logic to include per-assistant capability config
 
+### Migration Note
+Run `python manage.py repair_capabilities` before applying migrations if your
+database predates this patch. Old records may store `capabilities` as a Python
+string, which fails when the column is converted to `JSONField`.
+
 ### Frontend
 - [ ] Refactor all tab and tool rendering logic to use assistant capability checks
 - [ ] Ensure Glossary, Reflection, Dashboard, and Delegation logs are not tied to assistant slug
