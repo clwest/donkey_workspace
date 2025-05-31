@@ -4,7 +4,7 @@ import apiFetch from "../../../utils/apiClient";
 import MemoryTimelinePanel from "../../../components/memory/MemoryTimelinePanel";
 
 export default function ReviewIngestPage() {
-  const { id, doc_id } = useParams();
+  const { slug, doc_id } = useParams();
   const [assistant, setAssistant] = useState(null);
   const [doc, setDoc] = useState(null);
   const [summary, setSummary] = useState("");
@@ -17,7 +17,7 @@ export default function ReviewIngestPage() {
     async function loadInfo() {
       try {
         const [a, d] = await Promise.all([
-          apiFetch(`/assistants/${id}/`),
+          apiFetch(`/assistants/${slug}/`),
           apiFetch(`/intel/documents/${doc_id}/`),
         ]);
         setAssistant(a);
@@ -27,13 +27,13 @@ export default function ReviewIngestPage() {
       }
     }
     loadInfo();
-  }, [id, doc_id]);
+  }, [slug, doc_id]);
 
   useEffect(() => {
     async function runReflection() {
       try {
         const res = await apiFetch(
-          `/assistants/${id}/review-ingest/${doc_id}/`,
+          `/assistants/${slug}/review-ingest/${doc_id}/`,
           { method: "POST" }
         );
         setSummary(res.summary);
@@ -48,7 +48,7 @@ export default function ReviewIngestPage() {
       }
     }
     runReflection();
-  }, [id, doc_id]);
+  }, [slug, doc_id]);
 
   const updateTag = (idx, value) => {
     setInsights((prev) => prev.map((ins, i) => (i === idx ? { ...ins, tag: value } : ins)));
@@ -58,7 +58,7 @@ export default function ReviewIngestPage() {
     try {
       const res = await apiFetch("/memory/entries/", {
         method: "POST",
-        body: { event: text, assistant: id, document: doc_id, type: "ingest_insight" },
+        body: { event: text, assistant: slug, document: doc_id, type: "ingest_insight" },
       });
       setStatusMsg("Memory stored!");
       setHighlightId(res.id);
@@ -72,7 +72,7 @@ export default function ReviewIngestPage() {
     try {
       await apiFetch("/agents/create-from-reflection/", {
         method: "POST",
-        body: { assistant_id: id, insight: text },
+        body: { assistant_id: slug, insight: text },
       });
       setStatusMsg("Agent proposal submitted!");
     } catch (err) {
@@ -198,12 +198,12 @@ export default function ReviewIngestPage() {
       ))}
 
       <MemoryTimelinePanel
-        assistantId={id}
+        assistantId={slug}
         documentId={doc_id}
         highlightId={highlightId}
       />
 
-      <Link to={`/assistants/${id}`} className="btn btn-outline-secondary">
+      <Link to={`/assistants/${slug}`} className="btn btn-outline-secondary">
         🔙 Back to Assistant
       </Link>
     </div>

@@ -402,8 +402,8 @@ export const routeMap = [
     notes: "Swarm graph visualization",
   },
   {
-    frontend: "/assistants/:id/review-ingest/:doc_id",
-    backend: "/api/assistants/<id>/review-ingest/<doc_id>/",
+    frontend: "/assistants/:slug/review-ingest/:doc_id",
+    backend: "/api/assistants/<slug>/review-ingest/<doc_id>/",
     view: "ReviewIngestPage",
     serializer: "AssistantReflectionInsightSerializer",
     notes: "Assistant ingest review flow",
