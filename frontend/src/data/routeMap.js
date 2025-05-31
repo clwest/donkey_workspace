@@ -361,7 +361,7 @@ export const routeMap = [
   },
   {
     frontend: "/evolve/swarm",
-    backend: "/api/evolve/swarm/",
+    backend: "/api/metrics/evolve/swarm/",
     view: "SwarmTaskEvolutionPage",
     serializer: "TaskEvolutionSuggestionSerializer",
     notes: "Swarm task evolution dashboard",
