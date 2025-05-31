@@ -10,6 +10,7 @@ from django.db.models import Q
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status, viewsets
+import uuid
 import warnings
 from assistants.models import Assistant
 
@@ -471,7 +472,13 @@ def list_memories(request):
     if assistant_slug:
         queryset = queryset.filter(linked_thought__assistant__slug=assistant_slug)
     if assistant_id:
-        queryset = queryset.filter(assistant_id=assistant_id)
+        try:
+            uuid_val = uuid.UUID(str(assistant_id))
+            queryset = queryset.filter(assistant_id=uuid_val)
+        except (ValueError, TypeError):
+            queryset = queryset.filter(
+                linked_thought__assistant__slug=assistant_id
+            )
 
     if is_conversation in ["true", "1", "yes"]:
         queryset = queryset.filter(is_conversation=True)
