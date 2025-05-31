@@ -95,6 +95,7 @@ Codex agents operate using:
 - Glossary Anchors: 15+ injected, scored, and reflected
 - Documents: PDF, URL, and YouTube ingestion active
 - RAG: Stable + fallback score logging complete
+- Ingest review flow added: `/api/intel/ingest/` requires `assistant_id` and docs are reviewed via `/api/assistants/:slug/review-ingest/:doc_id/`
 - UI: Forking, editing, prompt usage logs, debug routes working
 
 ---

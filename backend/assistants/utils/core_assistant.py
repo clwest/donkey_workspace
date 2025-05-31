@@ -126,3 +126,10 @@ class CoreAssistant:
         except Exception as e:  # pragma: no cover - safeguard
             logger.error("[CoreAssistant] run_task failed: %s", e)
             return {"result": "Task failed.", "error": str(e)}
+
+    def retrieve_knowledge(self, query: str, limit: int = 5) -> list[str]:
+        """Return top matching document chunks for the query."""
+        from assistants.utils.chunk_retriever import get_relevant_chunks
+
+        chunks, *_ = get_relevant_chunks(str(self.assistant.id), query)
+        return [c.get("text", "") for c in chunks[:limit]]

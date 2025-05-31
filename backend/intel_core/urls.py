@@ -52,9 +52,9 @@ urlpatterns = [
         name="bootstrap_agent_from_docs",
     ),
     path(
-        "intelligence/bootstrap-assistant/<uuid:pk>/",
+        "experiments/bootstrap-from-doc/<uuid:pk>/",
         intelligence.create_bootstrapped_assistant_from_document,
-        name="create_bootstrapped_assistant_from_document",
+        name="bootstrap_from_doc_experiment",
     ),
     path("debug/chunks/<uuid:doc_id>/", debug.debug_doc_chunks),
     path("debug/rag-recall/", debug.rag_recall),

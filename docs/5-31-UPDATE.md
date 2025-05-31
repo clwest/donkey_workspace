@@ -21,12 +21,12 @@ Ingest Source Material
 
 Upload YouTube, PDF, URL or text via /api/intel/ingest specifying source_type.
 
-Provide optional assistant_id to immediately link the ingested documents to that assistant (the service adds entries to assigned_documents)
+`assistant_id` is now required to link the ingested documents to an assistant.
 
 Bootstrap the Assistant
 
 From a Document:
-Call /intel/intelligence/bootstrap-assistant/<document_id>/.
+Call /intel/experiments/bootstrap-from-doc/<document_id>/.
 This creates a system prompt, assistant record, starter project, initial objective, memory entry and thread. Tasks for that objective are auto‑planned using plan_tasks_from_objective.
 
 From a Prompt Template:
@@ -71,9 +71,9 @@ Summary
 
 To create an assistant:
 
-Ingest content using /api/intel/ingest.
+Ingest content using /api/intel/ingest (requires `assistant_id`).
 
-Bootstrap the assistant either from an ingested document (/intel/intelligence/bootstrap-assistant/<document_id>/), from a prompt template (/assistants/prompts/bootstrap-from-prompt/), or via the onboarding endpoint (/onboarding/).
+Bootstrap the assistant only via the sandbox route (/intel/experiments/bootstrap-from-doc/<document_id>/), from a prompt template (/assistants/prompts/bootstrap-from-prompt/), or via the onboarding endpoint (/onboarding/).
 
 Verify that the assistant and its initial project/objective appear under /api/assistants/ and /api/assistants/projects/.
 

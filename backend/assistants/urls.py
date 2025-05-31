@@ -620,6 +620,11 @@ urlpatterns = [
         name="assistant-add-document",
     ),
     path(
+        "<slug:slug>/review-ingest/<uuid:doc_id>/",
+        assistants.review_ingest,
+        name="assistant-review-ingest",
+    ),
+    path(
         "<slug:slug>/drift-check/",
         assistants.drift_check,
         name="assistant-drift-check",

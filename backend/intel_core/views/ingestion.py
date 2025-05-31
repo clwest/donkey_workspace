@@ -18,6 +18,8 @@ def unified_ingestion_view(request):
     session_id = request.data.get("session_id")
     user_provided_title = request.data.get("title")
     assistant_id = request.data.get("assistant_id")
+    if not assistant_id:
+        return Response({"error": "assistant_id required"}, status=400)
     project_id = request.data.get("project_id")
 
     urls = request.data.get("urls")

@@ -951,6 +951,35 @@ def add_document_to_assistant(request, slug):
 
 
 @api_view(["POST"])
+def review_ingest(request, slug, doc_id):
+    """Review a newly ingested document and log insights."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    try:
+        document = Document.objects.get(id=doc_id)
+    except Document.DoesNotExist:
+        return Response({"error": "Document not found"}, status=404)
+
+    engine = AssistantReflectionEngine(assistant)
+    summary, insights = engine.reflect_on_document(document)
+
+    memory = MemoryEntry.objects.create(
+        assistant=assistant,
+        document=document,
+        event=summary,
+        summary=summary,
+        type="ingest_review",
+    )
+
+    return Response(
+        {
+            "summary": summary,
+            "insights": insights,
+            "memory_id": str(memory.id),
+        }
+    )
+
+
+@api_view(["POST"])
 def self_reflect(request, slug):
     assistant = get_object_or_404(Assistant, slug=slug)
     engine = AssistantReflectionEngine(assistant)
