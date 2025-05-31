@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
+import { reviewIngestDocument } from "../../../api/assistants";
 import MemoryTimelinePanel from "../../../components/memory/MemoryTimelinePanel";
 
 export default function ReviewIngestPage() {
@@ -32,10 +33,8 @@ export default function ReviewIngestPage() {
   useEffect(() => {
     async function runReflection() {
       try {
-        const res = await apiFetch(
-          `/assistants/${slug}/review-ingest/${doc_id}/`,
-          { method: "POST" }
-        );
+        const res = await reviewIngestDocument(slug, doc_id);
+        if (!res) throw new Error("review failed");
         setSummary(res.summary);
         const formatted = (res.insights || []).map((i) =>
           typeof i === "string" ? { text: i, tag: "" } : { text: i.text || "", tag: i.tag || "" }
@@ -202,6 +201,18 @@ export default function ReviewIngestPage() {
         documentId={doc_id}
         highlightId={highlightId}
       />
+
+      {import.meta.env.DEV && (
+        <button
+          className="btn btn-outline-warning me-2"
+          onClick={async () => {
+            const data = await reviewIngestDocument(slug, doc_id);
+            console.log("[debug] reviewIngestDocument", data);
+          }}
+        >
+          🐞 Test API
+        </button>
+      )}
 
       <Link to={`/assistants/${slug}`} className="btn btn-outline-secondary">
         🔙 Back to Assistant

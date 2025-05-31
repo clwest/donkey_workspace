@@ -18,3 +18,15 @@ class AssistantIngestReviewAPITest(BaseAPITestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(MemoryEntry.objects.filter(assistant=self.assistant).exists())
 
+    @patch("assistants.utils.assistant_reflection_engine.AssistantReflectionEngine.reflect_on_document")
+    def test_review_ingest_returns_insights(self, mock_reflect):
+        mock_reflect.return_value = (
+            "sum",
+            [{"text": "hi", "insight_type": "new_knowledge"}],
+        )
+        url = f"/api/v1/assistants/{self.assistant.slug}/review-ingest/{self.document.id}/"
+        resp = self.client.post(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("insights", resp.data)
+        self.assertEqual(resp.data["insights"][0]["insight_type"], "new_knowledge")
+

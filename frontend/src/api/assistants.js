@@ -377,3 +377,14 @@ export function initiateDream(id, body) {
     body,
   });
 }
+
+export async function reviewIngestDocument(slug, docId) {
+  try {
+    return await apiFetch(`/assistants/${slug}/review-ingest/${docId}/`, {
+      method: "POST",
+    });
+  } catch (err) {
+    console.error("Failed to review ingest", err);
+    return null;
+  }
+}
