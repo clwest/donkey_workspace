@@ -74,6 +74,7 @@ import AssistantDemoPage from "./pages/assistant/common/AssistantDemoPage";
 import ChatWithAssistantPage from "./pages/assistant/common/ChatWithAssistantPage";
 import CreateNewAssistantPage from "./pages/assistant/common/CreateNewAssistantPage";
 import EditAssistantPage from "./pages/assistant/common/EditAssistantPage";
+import AssistantCapabilityEditor from "./pages/assistant/common/AssistantCapabilityEditor";
 import AssistantInterfacePage from "./pages/assistant/interface/AssistantInterfacePage";
 import AssistantRelayPage from "./pages/assistant/relay/AssistantRelayPage";
 import RunTaskPage from "./pages/assistant/run_task/RunTaskPage";
@@ -517,6 +518,10 @@ export default function App() {
           <Route path="/assistants/:id/identity" element={<AssistantIdentityPage />} />
           <Route path="/assistants/:id/mythpath" element={<AssistantMythpathPage />} />
           <Route path="/assistants/:slug/edit" element={<EditAssistantPage />} />
+          <Route
+            path="/assistants/:slug/capabilities"
+            element={<AssistantCapabilityEditor />}
+          />
           <Route path="/assistants/:slug" element={<AssistantDetailRoute />} />
           {/* MCP Core */}
           <Route path="/reflect" element={<ReflectionPage />} />

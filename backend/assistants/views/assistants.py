@@ -181,6 +181,12 @@ class AssistantViewSet(viewsets.ModelViewSet):
                 return Response({"error": "Invalid system_prompt"}, status=400)
             assistant.system_prompt = prompt_obj
 
+        capabilities = request.data.get("capabilities")
+        if isinstance(capabilities, dict):
+            existing = assistant.capabilities or {}
+            existing.update(capabilities)
+            assistant.capabilities = existing
+
         assistant.save()
 
         logger.info("Assistant %s edited", assistant.slug)
