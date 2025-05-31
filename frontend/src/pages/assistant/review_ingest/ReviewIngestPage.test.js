@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import ReviewIngestPage from "./ReviewIngestPage";
 
 const html = renderToStaticMarkup(
-  <MemoryRouter initialEntries={["/assistants/1/review-ingest/1"]}>
+  <MemoryRouter initialEntries={["/assistants/test-slug/review-ingest/1"]}>
     <ReviewIngestPage />
   </MemoryRouter>
 );

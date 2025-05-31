@@ -641,7 +641,7 @@ export default function App() {
           <Route path="/assistants/:id/deploy" element={<AssistantDeployPage />} />
           <Route path="/assistants/:id/tools" element={<AssistantToolsPage />} />
           <Route
-            path="/assistants/:id/review-ingest/:doc_id"
+            path="/assistants/:slug/review-ingest/:doc_id"
             element={<ReviewIngestPage />}
           />
           <Route path="/arena/active" element={<ArenaActivePage />} />
