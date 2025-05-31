@@ -66,6 +66,12 @@ All deep-dive architecture, rituals, and symbolic systems have been migrated to 
 ✅ Growth log per agent  
 ✅ Symbolic Reflection Engine v2 (auto-learn glossary)
 
+### 🛠️ Phase Ω.8.9: Ingest Realignment + Reflective RAG Agent Flow
+
+✅ `assistant_id` enforced on ingestion
+✅ Document reflection & memory linking
+✅ Agent proposals spawn swarm artifacts
+
 ---
 
 ## 📁 Linked Docs Reference (Moved to /docs)
@@ -73,7 +79,8 @@ All deep-dive architecture, rituals, and symbolic systems have been migrated to 
 - [`docs/system_overview.md`](docs/system_overview.md) — Architecture overview + assistant flow
 - [`docs/mythos_summary.md`](docs/mythos_summary.md) — Recursive memory engine + archetype roles
 - [`docs/mythos_route_map.md`](docs/mythos_route_map.md) — Frontend ↔ Backend alignment map
-- [`docs/phases/phase_omega_8_0.md`](docs/phases/phase_omega_8_0.md) — Current phase details
+- [`docs/phase_omega_8_0_rag_and_agent_expansion.md`](docs/phase_omega_8_0_rag_and_agent_expansion.md) — Phase Ω.8.0 details
+- [`docs/phase_omega_8_9_ingest_realignment.md`](docs/phase_omega_8_9_ingest_realignment.md) — Phase Ω.8.9 details
 - [`docs/getting_started.md`](docs/getting_started.md) — Backend, frontend, and seed setup
 
 ---
