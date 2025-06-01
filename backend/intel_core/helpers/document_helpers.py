@@ -108,7 +108,8 @@ def extract_visible_text(html_content):
         main = soup.body or soup
 
     visible_text = main.get_text(" ", strip=True)
-    print("\ud83d\udcc4 Visible Text Preview:", visible_text[:300])
+    # Using the actual emoji avoids UnicodeEncodeError in some terminals
+    print("📄 Visible Text Preview:", visible_text[:300])
     print("\u2728 Total visible characters:", len(visible_text))
 
     return " ".join(visible_text.split())

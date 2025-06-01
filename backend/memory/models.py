@@ -203,7 +203,8 @@ class MemoryEntry(models.Model):
             tag_str = ", ".join(f"#{t.slug}" for t in tags)
             return f"\U0001f9e0 Tags: {tag_str}"
         if self.session_id:
-            return f"\ud83d\udd04 Created by reflection for session {self.session_id}"
+            # Use the actual emoji to ensure safe rendering in all terminals
+            return f"🔄 Created by reflection for session {self.session_id}"
         return "(No content available)"
 
     @property
