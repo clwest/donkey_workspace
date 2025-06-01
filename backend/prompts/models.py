@@ -53,6 +53,21 @@ class Prompt(models.Model):
     tone = models.CharField(max_length=100, null=True, blank=True)
     token_count = models.IntegerField(default=0)
 
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="linked_prompts",
+    )
+    source_document = models.ForeignKey(
+        "intel_core.Document",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="prompts",
+    )
+
     flesch_reading_ease = models.FloatField(null=True, blank=True)
     flesch_kincaid_grade = models.FloatField(null=True, blank=True)
     avg_sentence_length = models.FloatField(null=True, blank=True)
