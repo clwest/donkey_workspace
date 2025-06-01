@@ -298,55 +298,58 @@ SPECTACULAR_SETTINGS = {
     "REDOC_DIST": "//unpkg.com/redoc@latest/bundles/redoc.standalone.js",
 }
 
-# === 🪵 Logging ===
+import os
+import sys
+
+LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG")
+
 LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "verbose": {
-            "format": "[{levelname}] {asctime} | {module}.{funcName}:{lineno} — {message}",
-            "style": "{",
-        },
-        "simple": {"format": "[{levelname}] {message}", "style": "{"},
-    },
-    "handlers": {
-        "console": {
-            "level": os.getenv("LOG_LEVEL", "DEBUG"),
-            "class": "logging.StreamHandler",
-            "formatter": "verbose",
-        },
-        "file": {
-            "level": os.getenv("LOG_LEVEL", "INFO"),
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": os.getenv("LOG_FILE", str(BASE_DIR / "app.log")),
-            "maxBytes": 1024 * 1024 * 5,
-            "backupCount": 5,
-            "formatter": "verbose",
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '[{levelname}] {asctime} | {module}.{funcName}:{lineno} — {message}',
+            'style': '{',
         },
     },
-    "loggers": {
-        "django": {"handlers": ["console"], "level": "WARNING"},
-        "intel_core": {
-            "handlers": ["console"],
-            "level": os.getenv("LOG_LEVEL", "DEBUG"),
-            "propagate": False,
+    'handlers': {
+        'console': {
+            'level': LOG_LEVEL,
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard',
+            'stream': sys.stdout,
         },
-        "embeddings": {
-            "handlers": ["console"],
-            "level": os.getenv("LOG_LEVEL", "DEBUG"),
-            "propagate": False,
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': LOG_LEVEL,
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+            'propagate': False,
         },
-        "agents": {
-            "handlers": ["console"],
-            "level": os.getenv("LOG_LEVEL", "DEBUG"),
-            "propagate": False,
+        'intel_core': {
+            'handlers': ['console'],
+            'level': LOG_LEVEL,
+            'propagate': False,
         },
-        "assistants": {
-            "handlers": ["console"],
-            "level": os.getenv("LOG_LEVEL", "DEBUG"),
-            "propagate": False,
+        'embeddings': {
+            'handlers': ['console'],
+            'level': LOG_LEVEL,
+            'propagate': False,
         },
-        "": {"handlers": ["console"], "level": os.getenv("LOG_LEVEL", "INFO")},
+        'document_service': {
+            'handlers': ['console'],
+            'level': LOG_LEVEL,
+            'propagate': False,
+        },
+        'youtube_video_helper': {
+            'handlers': ['console'],
+            'level': LOG_LEVEL,
+            'propagate': False,
+        },
     },
 }
 
