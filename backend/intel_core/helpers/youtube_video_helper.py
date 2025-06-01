@@ -102,6 +102,11 @@ def process_youtube_video(youtube_url):
         logger.warning(f"Could not fetch content for video: {youtube_url}")
         return []
 
+    segments = transcript
+    if not segments:
+        logger.warning("No transcript segments found for %s", youtube_url)
+        return []
+
     try:
         transcript_text = " ".join(item.get("text", "") for item in transcript)
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)

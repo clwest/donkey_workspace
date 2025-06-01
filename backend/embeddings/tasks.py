@@ -6,6 +6,7 @@ import logging
 from types import SimpleNamespace
 
 from celery import shared_task
+import traceback
 
 from embeddings.helpers.helpers_processing import generate_embedding
 from embeddings.helpers.helpers_io import save_embedding
@@ -71,6 +72,12 @@ def embed_and_store(
         emb_record = save_embedding(obj, embedding)
         if not emb_record:
             logger.error(f"Failed to save embedding for {content_type}:{content_id}")
+            if content_type == "document_chunk":
+                from intel_core.models import DocumentChunk
+
+                DocumentChunk.objects.filter(id=content_id).update(
+                    embedding_status="failed"
+                )
             return None
 
         emb_id = getattr(emb_record, "id", None)
@@ -78,6 +85,13 @@ def embed_and_store(
             f"Successfully embedded and stored {content_type}:{content_id} -> "
             f"embedding_id={emb_id}, size={len(embedding)}"
         )
+        if content_type == "document_chunk":
+            from intel_core.models import DocumentChunk, EmbeddingMetadata
+
+            meta = EmbeddingMetadata.objects.filter(embedding_id=emb_id).first()
+            DocumentChunk.objects.filter(id=content_id).update(
+                embedding=meta, embedding_status="embedded"
+            )
         # Trigger post-processing for character embeddings
         if content_type == "CharacterProfile":
             try:
@@ -91,7 +105,13 @@ def embed_and_store(
         return str(emb_id)
     except Exception as exc:
         logger.error(
-            f"Error in embed_and_store task for {content_type}:{content_id}: {exc}",
+            f"Embedding failure for chunk {content_id}: {exc}",
             exc_info=True,
         )
+        if content_type == "document_chunk":
+            from intel_core.models import DocumentChunk
+
+            DocumentChunk.objects.filter(id=content_id).update(
+                embedding_status="failed"
+            )
         return None

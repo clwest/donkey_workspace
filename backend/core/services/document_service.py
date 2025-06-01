@@ -304,6 +304,11 @@ def ingest_videos(
 
             if processed_document:
                 processed_documents.append(processed_document)
+                chunk_total = processed_document.chunks.count()
+                embedded = processed_document.chunks.filter(embedding__isnull=False).count()
+                logger.info(
+                    f"[Ingest] {embedded}/{chunk_total} chunks embedded for {processed_document.title}"
+                )
 
             _update_job(
                 job_id,

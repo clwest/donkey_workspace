@@ -320,3 +320,6 @@ SITE_ID = 1
 ASSISTANT_DELEGATION_TOKEN_LIMIT = int(
     os.getenv("ASSISTANT_DELEGATION_TOKEN_LIMIT", "10000")
 )
+
+# Embed chunks synchronously when Celery is unavailable
+FORCE_EMBED_SYNC = os.getenv("FORCE_EMBED_SYNC", "False") == "True"
