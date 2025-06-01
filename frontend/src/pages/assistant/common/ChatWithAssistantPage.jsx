@@ -15,6 +15,10 @@ export default function ChatWithAssistantPage() {
   const [sourceInfo, setSourceInfo] = useState(null);
   const [glossarySuggestion, setGlossarySuggestion] = useState(null);
   const [focusOnly, setFocusOnly] = useState(true);
+  const [noContextMatch, setNoContextMatch] = useState(false);
+  const [contextScore, setContextScore] = useState(null);
+  const [glossaryWarning, setGlossaryWarning] = useState(null);
+  const [anchorWarning, setAnchorWarning] = useState(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -51,6 +55,24 @@ export default function ChatWithAssistantPage() {
           last.glossary_used = data.rag_meta.glossary_used;
           last.glossary_retry_id = data.rag_meta.glossary_retry_id;
           last.glossary_retry_score_diff = data.rag_meta.score_diff;
+          last.context_score = data.rag_meta.used_chunks?.[0]?.score || null;
+        }
+        const topScore = data.rag_meta.used_chunks?.[0]?.score || null;
+        setContextScore(topScore);
+        setNoContextMatch(!(data.rag_meta.used_chunks?.length > 0));
+        if (!data.rag_meta.glossary_present) {
+          setGlossaryWarning(
+            "No glossary loaded. Glossary terms improve retrieval accuracy."
+          );
+        } else {
+          setGlossaryWarning(null);
+        }
+        if (!data.rag_meta.anchors || data.rag_meta.anchors.length === 0) {
+          setAnchorWarning(
+            "You can define anchors to help assistants recognize key concepts."
+          );
+        } else {
+          setAnchorWarning(null);
         }
         setSourceInfo(data.rag_meta);
         if (data.rag_meta.glossary_present && !data.rag_meta.rag_used) {
@@ -144,6 +166,18 @@ export default function ChatWithAssistantPage() {
     <div className="container my-5">
       <h1>💬 Chat with Assistant: <span className="text-primary">{slug}</span></h1>
 
+      {noContextMatch && (
+        <div className="alert alert-warning mt-3">
+          ⚠️ No strong matches found. Assistant is replying without confirmed context.
+        </div>
+      )}
+      {glossaryWarning && (
+        <div className="alert alert-info mt-2">{glossaryWarning}</div>
+      )}
+      {anchorWarning && (
+        <div className="alert alert-info mt-2">{anchorWarning}</div>
+      )}
+
       <div className="chat-box border rounded p-3 mb-4 bg-light" style={{ maxHeight: "500px", overflowY: "auto" }}>
         {messages.map((msg, idx) => (
           <div key={idx} className={`mb-4 ${msg.role === "user" ? "text-end" : "text-start"}`}>
@@ -190,6 +224,12 @@ export default function ChatWithAssistantPage() {
             >
               📄 Check Source
             </button>
+            {msg.role === "assistant" && msg.context_score !== null && (
+              <span className="badge bg-secondary ms-2" title="Top context score">
+                Context Score: {msg.context_score.toFixed(4)}
+                {msg.context_score < 0.65 ? " (weak)" : ""}
+              </span>
+            )}
 
             {msg.memory_id && (
               <div className="mt-2">
