@@ -21,6 +21,11 @@ def unified_ingestion_view(request):
     if not assistant_id:
         return Response({"error": "assistant_id required"}, status=400)
     project_id = request.data.get("project_id")
+    reflect_after = str(request.data.get("reflect_after", "false")).lower() in [
+        "1",
+        "true",
+        "yes",
+    ]
 
     urls = request.data.get("urls")
     if isinstance(urls, str):
@@ -47,6 +52,23 @@ def unified_ingestion_view(request):
             project_id=project_id,
             tags=tag_names,
         )
+
+        if reflect_after and docs:
+            from assistants.utils.assistant_reflection_engine import (
+                AssistantReflectionEngine,
+            )
+            from assistants.models import Assistant
+
+            assistant = Assistant.objects.filter(id=assistant_id).first()
+            if not assistant:
+                assistant = Assistant.objects.filter(slug=assistant_id).first()
+            if assistant:
+                engine = AssistantReflectionEngine(assistant)
+                for doc in docs:
+                    try:
+                        engine.reflect_on_document(doc)
+                    except Exception:
+                        pass
 
         serialized = [DocumentSerializer(doc).data for doc in docs]
 

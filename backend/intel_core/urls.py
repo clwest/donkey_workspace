@@ -1,4 +1,5 @@
 import warnings
+
 warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
 from django.urls import path
 
@@ -6,11 +7,16 @@ from .views import ingestion, documents, intelligence, debug
 
 urlpatterns = [
     path("ingestions/", ingestion.unified_ingestion_view, name="intel-load-url"),
+    path("ingest/", ingestion.unified_ingestion_view, name="intel-ingest"),
     path("documents/", documents.list_documents, name="list_documents"),
     path(
         "documents/<uuid:pk>/", documents.document_detail_view, name="document_detail"
     ),
-    path("documents/grouped/", documents.list_grouped_documents, name="list_document_group"),
+    path(
+        "documents/grouped/",
+        documents.list_grouped_documents,
+        name="list_document_group",
+    ),
     path(
         "documents/<uuid:pk>/favorite/",
         documents.toggle_favorite,
@@ -42,7 +48,7 @@ urlpatterns = [
         name="document_set_detail",
     ),
     path(
-        "document-sets/<uuid:pk>/bootstrap-assistant/",
+        "experiments/bootstrap-assistant/<uuid:pk>/",
         intelligence.create_assistant_from_document_set,
         name="bootstrap_assistant_from_set",
     ),

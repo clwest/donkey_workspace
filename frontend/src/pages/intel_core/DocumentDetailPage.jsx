@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
 import DocumentIntelligencePanel from "../../components/intel/DocumentIntelligencePanel";
 import DocumentAutoBuilder from "../../components/intel/DocumentAutoBuilder";
 import "./styles/DocumentDetailPage.css";
-import { Link } from "react-router-dom";
 
 export default function DocumentDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [doc, setDoc] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showSmartChunks, setShowSmartChunks] = useState(false);
@@ -20,7 +20,6 @@ export default function DocumentDetailPage() {
     setShowSmartChunks(false);
     setSummaryLoading(false);
   }, [id]);
-  
 
   useEffect(() => {
     async function fetchDoc() {
@@ -52,12 +51,12 @@ export default function DocumentDetailPage() {
     }
   };
 
-
-
   if (loading) return <div className="container py-4">Loading...</div>;
   if (!doc) return <div className="container py-4">Document not found.</div>;
 
   const chunks = showSmartChunks ? doc.smart_chunks : doc.chunks;
+
+  const assistants = doc.assistants || [];
 
   return (
     <div className="container py-4">
@@ -71,9 +70,21 @@ export default function DocumentDetailPage() {
       <p className="mb-1">
         <strong>Chunks:</strong> {doc.num_chunks} | Embedded: {doc.num_embedded}
       </p>
+      {assistants.length > 0 && (
+        <p className="mb-2">
+          <strong>Assigned Assistant:</strong>{" "}
+          {assistants.map((a, i) => (
+            <span key={a.id}>
+              <Link to={`/assistants/${a.slug}/`}>{a.name}</Link>
+              {i < assistants.length - 1 ? ", " : ""}
+            </span>
+          ))}
+        </p>
+      )}
       {doc.chunk_count === 0 && (
         <div className="alert alert-warning">
-          This document has no visible chunks. Try re-ingesting or check the ingestion logs.
+          This document has no visible chunks. Try re-ingesting or check the
+          ingestion logs.
         </div>
       )}
       {doc.glossary_ids && doc.glossary_ids.length > 0 && (
@@ -88,7 +99,7 @@ export default function DocumentDetailPage() {
           <p className="mb-0">{doc.summary}</p>
         </div>
       )}
-      
+
       <div className="my-3 d-flex gap-3">
         <button
           className="btn btn-outline-secondary"
@@ -100,7 +111,33 @@ export default function DocumentDetailPage() {
       </div>
       <DocumentAutoBuilder docId={doc.id} />
       <div className="my-3 d-flex gap-3">
-      <DocumentIntelligencePanel docId={doc.id} />
+        <DocumentIntelligencePanel docId={doc.id} />
+        {assistants.length > 0 && (
+          <div className="d-flex align-items-center gap-2">
+            <select
+              id="reflectSelect"
+              className="form-select"
+              style={{ width: "auto" }}
+            >
+              {assistants.map((a) => (
+                <option key={a.id} value={a.slug}>
+                  {a.name}
+                </option>
+              ))}
+            </select>
+            <Link
+              to={`/assistants/${assistants[0].slug}/review-ingest/${doc.id}/`}
+              className="btn btn-sm btn-outline-secondary"
+              onClick={(e) => {
+                e.preventDefault();
+                const slug = document.getElementById("reflectSelect").value;
+                navigate(`/assistants/${slug}/review-ingest/${doc.id}/`);
+              }}
+            >
+              Reflect with Assistant
+            </Link>
+          </div>
+        )}
       </div>
       <div className="form-check form-switch my-3">
         <input

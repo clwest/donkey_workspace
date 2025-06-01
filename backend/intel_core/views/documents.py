@@ -27,14 +27,12 @@ from assistants.models.assistant import Assistant
 def list_documents(request):
     """Return distinct documents for linking."""
 
-    docs = (
-        Document.objects.order_by(
-            "title",
-            "source_type",
-            "source_url",
-            "-created_at",
-        ).distinct("title", "source_type", "source_url")
-    )
+    docs = Document.objects.order_by(
+        "title",
+        "source_type",
+        "source_url",
+        "-created_at",
+    ).distinct("title", "source_type", "source_url")
 
     assistant_slug = request.query_params.get("exclude_for")
     if assistant_slug:
@@ -43,7 +41,6 @@ def list_documents(request):
             docs = docs.exclude(linked_assistants=assistant)
         except Assistant.DoesNotExist:
             pass
-
 
     limit = int(request.query_params.get("limit", 50))
     docs = docs[:limit]
@@ -104,6 +101,14 @@ def document_detail_view(request, pk):
         "chunks": chunk_data,
         "smart_chunks": smart_chunks,
         "summary": document.summary,
+        "assistants": [
+            {
+                "id": str(a.id),
+                "slug": a.slug,
+                "name": a.name,
+            }
+            for a in document.linked_assistants.all()
+        ],
     }
 
     return Response(data)
@@ -214,8 +219,6 @@ def document_progress_view(request, pk):
         "status": progress.status,
     }
     return Response(data)
-
-
 
 
 @api_view(["POST"])
