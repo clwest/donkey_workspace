@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 
 export default function ChatWithAgentPage() {
   const { slug } = useParams();
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const projectId = query.get("project");
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -16,11 +19,14 @@ export default function ChatWithAgentPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`/api/assistants/${slug}/think/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
-      });
+      const res = await fetch(
+        `/api/assistants/projects/${projectId}/thoughts/generate/`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        }
+      );
       if (!res.ok) throw new Error("Failed to get response");
 
       const data = await res.json();
