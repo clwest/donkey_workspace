@@ -37,10 +37,25 @@ export default function DocumentIngestionForm({ onSuccess }) {
       .filter((t) => t.length > 0);
 
     try {
+      let sourceType = "";
+      if (pdfFiles.length > 0) {
+        sourceType = "pdf";
+      } else if (videoInput.trim()) {
+        sourceType = "youtube";
+      } else if (urlInput.trim()) {
+        sourceType = "url";
+      }
+
+      if (!sourceType) {
+        toast.error("Please provide a URL, video, or PDF to ingest");
+        setLoading(false);
+        return;
+      }
       const formData = new FormData();
       formData.append("title", title);
       if (selectedAssistant) formData.append("assistant_id", selectedAssistant);
       formData.append("reflect_after", reflectAfter ? "true" : "false");
+      formData.append("source_type", sourceType);
       parsedTags.forEach((t) => formData.append("tags", t));
       if (urlInput.trim()) formData.append("urls", urlInput);
       if (videoInput.trim()) formData.append("videos", videoInput);
