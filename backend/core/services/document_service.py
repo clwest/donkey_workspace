@@ -264,38 +264,54 @@ def ingest_videos(
     session_id: str | None = None,
     job_id: str | None = None,
 ):
+    """Ingest a list of YouTube videos into Document objects."""
+
     processed_documents = []
-    for url in video_urls:
+
+    for index, url in enumerate(video_urls):
         try:
+            existing_doc = Document.objects.filter(source_url=url).first()
+            if existing_doc and DocumentChunk.objects.filter(document=existing_doc).exists():
+                logger.warning(f"[Ingest] Skipping {url} — chunks already exist.")
+                processed_documents.append(existing_doc)
+                continue
+
             chunks = process_youtube_video(url)
             if not chunks:
                 logger.warning(f"Could not fetch content for video: {url}")
                 continue
+
             video_title = user_provided_title or "Uploaded Video"
-            for i, chunk in enumerate(chunks):
-                document = {
-                    "page_content": chunk,
-                    "metadata": {
-                        "title": video_title,
-                        "source_type": "YouTube",
-                        "source_url": url,
-                        "project": project_name,
-                        "session_id": session_id,
-                    },
-                }
-                processed_document = process_videos(
-                    document,
-                    video_title=video_title,
-                    project_name=project_name,
-                    session_id=session_id,
-                )
+            transcript_text = " ".join(chunks)
+
+            document = {
+                "page_content": transcript_text,
+                "metadata": {
+                    "title": video_title,
+                    "source_type": "YouTube",
+                    "source_url": url,
+                    "project": project_name,
+                    "session_id": session_id,
+                },
+            }
+
+            processed_document = process_videos(
+                document,
+                video_title=video_title,
+                project_name=project_name,
+                session_id=session_id,
+            )
+
+            if processed_document:
                 processed_documents.append(processed_document)
-                _update_job(
-                    job_id,
-                    current=i + 1,
-                    total=len(chunks),
-                    message=f"Successfully processed chunk {i+1}/{len(chunks)}",
-                )
+
+            _update_job(
+                job_id,
+                current=index + 1,
+                total=len(video_urls),
+                message=f"Processed video {index + 1}/{len(video_urls)}",
+            )
+
         except Exception as e:
             logger.error(f"Failed to process YouTube video {url}: {e}")
 
