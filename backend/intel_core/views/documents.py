@@ -74,6 +74,7 @@ def document_detail_view(request, pk):
             "chunk_type": chunk.chunk_type,
             "is_glossary": chunk.is_glossary,
             "tags": chunk.tags,
+            "embedding_status": chunk.embedding_status,
             "text": chunk.text,
         }
         for chunk in chunks
@@ -83,6 +84,12 @@ def document_detail_view(request, pk):
 
     num_chunks = chunks.count()
     num_embedded = chunks.filter(embedding__isnull=False).count()
+    if num_embedded == 0:
+        embed_status = "pending"
+    elif num_embedded == num_chunks:
+        embed_status = "completed"
+    else:
+        embed_status = "partial"
     glossary_ids = list(chunks.filter(is_glossary=True).values_list("id", flat=True))
 
     data = {
@@ -96,6 +103,11 @@ def document_detail_view(request, pk):
         "total_tokens": count_tokens(document.content),
         "num_chunks": num_chunks,
         "num_embedded": num_embedded,
+        "embedding_status": {
+            "embedded": num_embedded,
+            "total": num_chunks,
+            "status": embed_status,
+        },
         "glossary_ids": [str(g) for g in glossary_ids],
         "content": document.content,
         "chunks": chunk_data,

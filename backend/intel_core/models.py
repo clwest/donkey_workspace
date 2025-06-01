@@ -111,6 +111,15 @@ class DocumentChunk(models.Model):
         on_delete=models.SET_NULL,
         related_name="chunk",
     )
+    embedding_status = models.CharField(
+        max_length=20,
+        default="pending",
+        choices=[
+            ("pending", "Pending"),
+            ("embedded", "Embedded"),
+            ("failed", "Failed"),
+        ],
+    )
 
     def __str__(self):
         return f"Chunk {self.order} of {self.document.title}"

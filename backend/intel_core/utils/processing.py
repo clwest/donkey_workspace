@@ -4,9 +4,13 @@ import uuid
 
 import numpy as np
 import spacy
+from celery import current_app
+from django.conf import settings
 from django.db import IntegrityError
-from embeddings.helpers.helpers_io import (get_embedding_for_text,
-                                           save_embedding)
+from embeddings.helpers.helpers_io import (
+    get_embedding_for_text,
+    save_embedding,
+)
 from intel_core.core import clean_text, detect_topic, lemmatize_text
 from intel_core.models import Document, EmbeddingMetadata
 from mcp_core.models import Tag
@@ -15,6 +19,16 @@ from openai import OpenAI
 logger = logging.getLogger("django")
 client = OpenAI()
 nlp = spacy.load("en_core_web_sm")
+
+
+def is_celery_running() -> bool:
+    """Check if a Celery worker is online."""
+    try:
+        insp = current_app.control.inspect()
+        stats = insp.stats()
+        return bool(stats)
+    except Exception:
+        return False
 
 
 def generate_summary(text: str) -> str:
@@ -147,6 +161,8 @@ def _embed_document_chunks(document: Document):
             vector = get_embedding_for_text(chunk.text)
         except Exception as e:  # pragma: no cover - embedding errors
             logger.warning(f"Failed to embed chunk {chunk.id}: {e}")
+            chunk.embedding_status = "failed"
+            chunk.save(update_fields=["embedding_status"])
             continue
 
         if vector is None or (hasattr(vector, "__len__") and len(vector) == 0):
@@ -162,7 +178,8 @@ def _embed_document_chunks(document: Document):
             source=document.source_type,
         )
         chunk.embedding = meta
-        chunk.save(update_fields=["embedding"])
+        chunk.embedding_status = "embedded"
+        chunk.save(update_fields=["embedding", "embedding_status"])
         try:
             save_embedding(chunk, vector)
         except Exception as e:
@@ -274,7 +291,10 @@ def save_document_to_db(content, metadata, session_id=None):
             )
 
         _create_document_chunks(document)
-        _embed_document_chunks(document)
+        if not is_celery_running():
+            logger.warning("Celery appears offline. Embeddings will not be computed.")
+            if getattr(settings, "FORCE_EMBED_SYNC", False):
+                _embed_document_chunks(document)
 
         return document
 
