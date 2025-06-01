@@ -5,9 +5,9 @@ Celery tasks for processing document uploads
 from celery import shared_task
 from intel_core.utils.ingestion import ingest_urls, ingest_videos, ingest_pdfs
 from intel_core.models import JobStatus, Document, DocumentSet
-import logging
+from utils.logging_utils import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 @shared_task(bind=True, name="process_url_upload")

@@ -1,4 +1,4 @@
-import logging
+from utils.logging_utils import get_logger
 from django.utils import timezone
 from django.contrib.contenttypes.models import ContentType
 
@@ -31,7 +31,7 @@ from mcp_core.utils.auto_tag_from_embedding import auto_tag_from_embedding
 from embeddings.helpers.helpers_io import save_embedding, get_embedding_for_text
 
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class AssistantThoughtEngine:

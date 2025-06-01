@@ -302,8 +302,52 @@ SPECTACULAR_SETTINGS = {
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "handlers": {"console": {"class": "logging.StreamHandler"}},
-    "root": {"handlers": ["console"], "level": "INFO"},
+    "formatters": {
+        "verbose": {
+            "format": "[{levelname}] {asctime} | {module}.{funcName}:{lineno} — {message}",
+            "style": "{",
+        },
+        "simple": {"format": "[{levelname}] {message}", "style": "{"},
+    },
+    "handlers": {
+        "console": {
+            "level": os.getenv("LOG_LEVEL", "DEBUG"),
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+        "file": {
+            "level": os.getenv("LOG_LEVEL", "INFO"),
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.getenv("LOG_FILE", str(BASE_DIR / "app.log")),
+            "maxBytes": 1024 * 1024 * 5,
+            "backupCount": 5,
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "django": {"handlers": ["console"], "level": "WARNING"},
+        "intel_core": {
+            "handlers": ["console"],
+            "level": os.getenv("LOG_LEVEL", "DEBUG"),
+            "propagate": False,
+        },
+        "embeddings": {
+            "handlers": ["console"],
+            "level": os.getenv("LOG_LEVEL", "DEBUG"),
+            "propagate": False,
+        },
+        "agents": {
+            "handlers": ["console"],
+            "level": os.getenv("LOG_LEVEL", "DEBUG"),
+            "propagate": False,
+        },
+        "assistants": {
+            "handlers": ["console"],
+            "level": os.getenv("LOG_LEVEL", "DEBUG"),
+            "propagate": False,
+        },
+        "": {"handlers": ["console"], "level": os.getenv("LOG_LEVEL", "INFO")},
+    },
 }
 
 # === 🌐 Localization ===

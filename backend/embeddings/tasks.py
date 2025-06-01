@@ -2,7 +2,7 @@
 Celery tasks for embeddings processing.
 """
 
-import logging
+from utils.logging_utils import get_logger
 from types import SimpleNamespace
 
 from celery import shared_task
@@ -14,7 +14,7 @@ from prompts.utils.token_helpers import EMBEDDING_MODEL
 
 EMBEDDING_LENGTH = 1536
 
-logger = logging.getLogger("embeddings")
+logger = get_logger("embeddings")
 
 
 @shared_task(bind=True)

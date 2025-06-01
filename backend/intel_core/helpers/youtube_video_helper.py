@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 import re
-import logging
+from utils.logging_utils import get_logger
 from urllib.parse import urlparse, parse_qs
 from youtube_transcript_api import (
     YouTubeTranscriptApi,
@@ -12,7 +12,7 @@ from youtube_transcript_api import (
 )
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 DEBUG_TRANSCRIPT = os.getenv("DEBUG_TRANSCRIPT", "false").lower() == "true"
 

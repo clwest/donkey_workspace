@@ -1,6 +1,6 @@
 from django.utils import timezone
 from celery import shared_task
-import logging
+from utils.logging_utils import get_logger
 import time
 from django.utils import timezone
 
@@ -28,7 +28,7 @@ from assistants.models.reflection import AssistantReflectionInsight, AssistantRe
 
 client = OpenAI()
 
-logger = logging.getLogger("assistants")
+logger = get_logger("assistants")
 
 
 @shared_task

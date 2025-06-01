@@ -1,4 +1,4 @@
-import logging
+from utils.logging_utils import get_logger
 import re
 import uuid
 
@@ -16,7 +16,7 @@ from intel_core.models import Document, EmbeddingMetadata
 from mcp_core.models import Tag
 from openai import OpenAI
 
-logger = logging.getLogger("django")
+logger = get_logger("intel_core.processing")
 client = OpenAI()
 nlp = spacy.load("en_core_web_sm")
 
@@ -137,10 +137,10 @@ def _create_document_chunks(document: Document):
                 glossary_score=glossary_score,
                 matched_anchors=matched,
             )
-            print(
+            logger.debug(
                 f"🧠 Chunk created: {new_chunk.id} for Document {document.id} | text preview: {new_chunk.text[:60]}"
             )
-            print(f"🚀 Scheduling embedding for chunk {new_chunk.id}")
+            logger.debug(f"🚀 Scheduling embedding for chunk {new_chunk.id}")
             try:
                 embed_and_store.delay(str(new_chunk.id))
             except Exception as e:
@@ -309,7 +309,6 @@ def save_document_to_db(content, metadata, session_id=None):
 
 # Process PDFs
 def process_pdfs(pdf, pdf_title, project_name, session_id):
-    logger = logging.getLogger("django")
     try:
         chunk_idx = pdf.metadata.get("chunk_index")
         total_chunks = pdf.metadata.get("total_chunks")
@@ -356,14 +355,13 @@ def process_pdfs(pdf, pdf_title, project_name, session_id):
 
 # Process URLs
 def process_urls(content, url_title, project_name, metadata, session_id):
-    logger = logging.getLogger("django")
     try:
         logger.info(f"🌐 Processing URL: {url_title}")
         cleaned_text = clean_text(content)
-        print(f"[Ingest] Source URL: {metadata.get('source_url')}")
-        print(f"[Ingest] Cleaned text length: {len(cleaned_text)}")
-        print(f"[Ingest] First 300 chars: {cleaned_text[:300]}")
-        print(f"[Ingest] Token estimate: {count_tokens(cleaned_text)}")
+        logger.debug(f"[Ingest] Source URL: {metadata.get('source_url')}")
+        logger.debug(f"[Ingest] Cleaned text length: {len(cleaned_text)}")
+        logger.debug(f"[Ingest] First 300 chars: {cleaned_text[:300]}")
+        logger.debug(f"[Ingest] Token estimate: {count_tokens(cleaned_text)}")
         lemmatized_text = lemmatize_text(cleaned_text, nlp)
 
         metadata.update(
@@ -393,7 +391,6 @@ def process_urls(content, url_title, project_name, metadata, session_id):
 
 # Process Videos
 def process_videos(video, video_title, project_name, session_id):
-    logger = logging.getLogger("django")
     try:
         logger.info(f"📹 Processing video: {video_title}")
         cleaned_text = clean_text(video["page_content"])
@@ -426,7 +423,6 @@ def process_videos(video, video_title, project_name, session_id):
 
 
 def process_raw_text(text, title, project_name, session_id):
-    logger = logging.getLogger("django")
     try:
         cleaned_text = clean_text(text)
         lemmatized_text = lemmatize_text(cleaned_text, nlp)
