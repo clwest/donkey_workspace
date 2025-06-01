@@ -6,15 +6,22 @@ from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 from project.models import ProjectTask
 from assistants.services import AssistantService
 from project.serializers import ProjectTaskSerializer
-from assistants.serializers import AssistantTaskSerializer, AssistantNextActionSerializer
+from assistants.serializers import (
+    AssistantTaskSerializer,
+    AssistantNextActionSerializer,
+)
 from django.shortcuts import get_object_or_404
 from assistants.models.assistant import (
     Assistant,
     ChatSession,
-    
 )
 from assistants.models.thoughts import AssistantThoughtLog
-from assistants.models.project import AssistantProject, AssistantObjective, AssistantTask, AssistantNextAction
+from assistants.models.project import (
+    AssistantProject,
+    AssistantObjective,
+    AssistantTask,
+    AssistantNextAction,
+)
 
 from memory.services import MemoryService
 from assistants.utils.task_generation import (
@@ -219,3 +226,20 @@ def update_task_status(request, task_id):
     task.status = new_status
     task.save(update_fields=["status"])
     return Response({"id": str(task.id), "status": task.status})
+
+
+@api_view(["POST"])
+def plan_task(request, slug):
+    """Create tasks for an objective using the planning engine."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    objective_id = request.data.get("objective_id")
+    if not objective_id:
+        return Response({"error": "objective_id required"}, status=400)
+
+    objective = get_object_or_404(
+        AssistantObjective, id=objective_id, assistant=assistant
+    )
+    engine = AssistantThoughtEngine(assistant=assistant, project=objective.project)
+    tasks = engine.plan_tasks_from_objective(objective)
+    serializer = AssistantTaskSerializer(tasks, many=True)
+    return Response(serializer.data, status=201)
