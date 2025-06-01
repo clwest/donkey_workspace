@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import apiFetch from "../../../utils/apiClient";
-import { searchDocumentChunks, storeMemoryFromChat } from "../../../api/rag";
+import apiFetch from "../../../../utils/apiClient";
+import { searchDocumentChunks, storeMemoryFromChat } from "../../../../api/rag";
 
 export default function ChatWithKnowledge() {
   const { slug } = useParams();
