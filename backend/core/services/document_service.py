@@ -283,6 +283,9 @@ def ingest_videos(
 
             video_title = user_provided_title or "Uploaded Video"
             transcript_text = " ".join(chunks)
+            if transcript_text.strip() == "":
+                logger.warning("Transcript text is empty — skipping document creation.")
+                continue
 
             document = {
                 "page_content": transcript_text,

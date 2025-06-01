@@ -188,6 +188,8 @@ def _embed_document_chunks(document: Document):
 
 def save_document_to_db(content, metadata, session_id=None):
     logger.info(f"🧐 Full Metadata: {metadata}")
+    logger.info("[Ingest] Saving document: %s", metadata.get("title"))
+    logger.info("[Ingest] Text length: %d chars", len(content))
 
     try:
         if not content or len(content.strip()) < 10:
@@ -291,6 +293,8 @@ def save_document_to_db(content, metadata, session_id=None):
             )
 
         _create_document_chunks(document)
+        chunk_count = DocumentChunk.objects.filter(document=document).count()
+        logger.info("[Chunking] Generated %d chunks", chunk_count)
         if not is_celery_running():
             logger.warning("Celery appears offline. Embeddings will not be computed.")
             if getattr(settings, "FORCE_EMBED_SYNC", False):
