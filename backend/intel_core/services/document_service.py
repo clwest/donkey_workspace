@@ -2,6 +2,7 @@ import json
 import os
 import uuid
 from typing import List, Optional
+from utils.logging_utils import get_logger
 
 from assistants.models.assistant import Assistant, ChatSession
 from django.conf import settings
@@ -12,6 +13,8 @@ from intel_core.processors.url_loader import load_urls
 from intel_core.processors.video_loader import load_videos
 from mcp_core.models import Tag
 from project.models import Project
+
+logger = get_logger(__name__)
 
 
 def is_valid_uuid(value: str) -> bool:

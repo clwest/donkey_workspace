@@ -1,7 +1,6 @@
-import logging
+from utils.logging_utils import get_logger
 
-# Set up logging
-logger = logging.getLogger("ingestion")
+logger = get_logger("intel_core.ingestion")
 
 
 def ingest_pdfs(

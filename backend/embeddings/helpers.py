@@ -1,4 +1,4 @@
-import logging
+from utils.logging_utils import get_logger
 try:
     from openai import OpenAI
 except Exception:  # pragma: no cover - optional dependency
@@ -37,7 +37,7 @@ from .sentence_transformer_service import get_sentence_transformer
 
 load_dotenv()
 client = OpenAI() if OpenAI else None
-logger = logging.getLogger("django")
+logger = get_logger("embeddings")
 
 EMBEDDING_MODEL = getattr(
     settings, "EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2"

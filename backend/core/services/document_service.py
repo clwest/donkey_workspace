@@ -1,7 +1,7 @@
 """Document ingestion service consolidating loaders."""
 
 import os
-import logging
+from utils.logging_utils import get_logger
 import warnings
 from typing import List
 from urllib.parse import urlparse
@@ -25,7 +25,7 @@ from intel_core.helpers.document_helpers import fetch_url, extract_visible_text
 from prompts.utils.token_helpers import count_tokens
 from intel_core.helpers.youtube_video_helper import process_youtube_video
 
-logger = logging.getLogger("document_service")
+logger = get_logger("document_service")
 warnings.filterwarnings("ignore", category=Warning)
 
 
@@ -205,10 +205,10 @@ def ingest_urls(
                 logger.info(f"Using provided title: {page_title}")
 
             visible_text = extract_visible_text(content)
-            print(f"[Ingest] Source URL: {url}")
-            print(f"[Ingest] Cleaned text length: {len(visible_text)}")
-            print(f"[Ingest] First 300 chars: {visible_text[:300]}")
-            print(f"[Ingest] Token estimate: {count_tokens(visible_text)}")
+            logger.debug(f"[Ingest] Source URL: {url}")
+            logger.debug(f"[Ingest] Cleaned text length: {len(visible_text)}")
+            logger.debug(f"[Ingest] First 300 chars: {visible_text[:300]}")
+            logger.debug(f"[Ingest] Token estimate: {count_tokens(visible_text)}")
             if not visible_text or len(visible_text.strip()) < 50:
                 logger.warning(
                     f"Insufficient text content extracted from URL: {url}"
