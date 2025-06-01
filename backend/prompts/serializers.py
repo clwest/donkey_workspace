@@ -13,24 +13,11 @@ from mcp_core.serializers_tags import TagSerializer
 
 class PromptSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
-    assistant = serializers.SerializerMethodField()
 
     class Meta:
         model = Prompt
         fields = "__all__"
 
-    def get_assistant(self, obj):
-        # Get the first assistant (if any) using this prompt
-        assistant = obj.assistants_using_prompt.first()
-        if assistant:
-            return {
-                "id": str(assistant.id),
-                "name": assistant.name,
-                "slug": assistant.slug,
-                "avatar": assistant.avatar,
-                "specialty": assistant.specialty,
-            }
-        return None
 
     def create(self, validated_data):
         tag_values = self.initial_data.get("tags", [])
