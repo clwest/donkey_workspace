@@ -18,6 +18,7 @@ from django.conf import settings
 from django.utils.text import slugify
 from assistants.services import AssistantService
 from memory.services import MemoryService
+from memory.models import MemoryEntry
 from assistants.helpers.logging_helper import log_assistant_thought
 from assistants.models.assistant import (
     Assistant,
