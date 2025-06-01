@@ -72,6 +72,7 @@ import AssistantThoughtsPage from "./pages/assistant/common/AssistantThoughtsPag
 import AssistantThoughtDetailPage from "./pages/assistant/common/AssistantThoughtDetailPage";
 import AssistantDemoPage from "./pages/assistant/common/AssistantDemoPage";
 import ChatWithAssistantPage from "./pages/assistant/common/ChatWithAssistantPage";
+import ChatWithKnowledge from "./pages/assistants/[slug]/chat/ChatWithKnowledge";
 import CreateNewAssistantPage from "./pages/assistant/common/CreateNewAssistantPage";
 import EditAssistantPage from "./pages/assistant/common/EditAssistantPage";
 import AssistantCapabilityEditor from "./pages/assistant/common/AssistantCapabilityEditor";
@@ -492,6 +493,10 @@ export default function App() {
           <Route
             path="/assistants/:slug/chat"
             element={<ChatWithAssistantPage />}
+          />
+          <Route
+            path="/assistants/:slug/chat/knowledge"
+            element={<ChatWithKnowledge />}
           />
           <Route path="/assistants/:id/thoughts" element={<ThoughtLogPanel />} />
           <Route path="/assistants/:id/deck" element={<PersonalityDeckBuilder />} />
