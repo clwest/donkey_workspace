@@ -14,6 +14,8 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 logger = logging.getLogger(__name__)
 
+DEBUG_TRANSCRIPT = os.getenv("DEBUG_TRANSCRIPT", "false").lower() == "true"
+
 
 # Load environment variables
 load_dotenv()
@@ -97,15 +99,27 @@ def process_youtube_video(youtube_url):
         logger.error(str(exc))
         return []
 
+    logger.info("[YT] Fetching transcript for video: %s", youtube_url)
     transcript = _fetch_transcript(video_id)
     if not transcript:
-        logger.warning(f"Could not fetch content for video: {youtube_url}")
-        return []
+        logger.warning("Could not fetch content for video: %s", youtube_url)
+        if DEBUG_TRANSCRIPT:
+            logger.warning("[YT] Using sample transcript due to missing content")
+            transcript = [{"text": "test segment"}]
+        else:
+            return []
 
     segments = transcript
     if not segments:
         logger.warning("No transcript segments found for %s", youtube_url)
-        return []
+        if DEBUG_TRANSCRIPT:
+            segments = [{"text": "test segment"}]
+        else:
+            return []
+
+    logger.info("[YT] Retrieved %d segments", len(segments))
+    for i, seg in enumerate(segments[:3]):
+        logger.debug("[YT] Segment %d: %s", i, seg.get("text", ""))
 
     try:
         transcript_text = " ".join(item.get("text", "") for item in transcript)
