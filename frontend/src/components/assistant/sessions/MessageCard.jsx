@@ -69,6 +69,12 @@ export default function MessageCard({ message, onFeedback, onTopicSave }) {
                 📘 Glossary Present: {message.glossary_present ? "✅" : "❌"}
               </span>
             )}
+            {message.context_score !== undefined && (
+              <span className="badge bg-info text-dark ms-2" title="Context score">
+                Context Score: {message.context_score.toFixed(4)}
+                {message.context_score < 0.65 ? " (weak)" : ""}
+              </span>
+            )}
           </div>
         )}
 

@@ -339,7 +339,12 @@ def get_relevant_chunks(
         candidates = [p for p in scored if p[0] >= fallback_min] or scored
         pairs = candidates[: max(1, fallback_limit)]
         for i, (s, c, _conf, _rs, _aw) in enumerate(pairs, 1):
-            logger.info("Fallback chunk %s score %.4f", i, s)
+            logger.info(
+                "[Fallback] Using Chunk ID %s | Score: %.4f | Reason: %s",
+                c.id,
+                s,
+                reason or "unknown",
+            )
     else:
         debug_info = {
             "retrieved_chunk_count": len(debug_candidates),
