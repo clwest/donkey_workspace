@@ -7,20 +7,21 @@ from rest_framework import status
 
 from assistants.models.project import (
     AssistantObjective,
-    AssistantProject
-
+    AssistantProject,
 )
 from assistants.models.thoughts import (
-    
     AssistantThoughtLog,
- 
 )
 from assistants.models.reflection import (
-
     AssistantReflectionLog,
 )
 
-from assistants.utils.objective_from_reflection import generate_objective_from_reflection
+from memory.models import MemoryEntry
+from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
+
+from assistants.utils.objective_from_reflection import (
+    generate_objective_from_reflection,
+)
 
 from assistants.serializers import (
     AssistantObjectiveSerializer,
@@ -99,9 +100,12 @@ def reflect_to_objectives(request, slug):
             AssistantProject, id=project_id, assistant=assistant
         )
     else:
-        project = assistant.current_project or AssistantProject.objects.filter(
-            assistant=assistant
-        ).order_by("-created_at").first()
+        project = (
+            assistant.current_project
+            or AssistantProject.objects.filter(assistant=assistant)
+            .order_by("-created_at")
+            .first()
+        )
 
     max_thoughts = int(request.data.get("max_thoughts", 15))
 
@@ -167,5 +171,57 @@ def objective_from_reflection(request, slug):
 
         obj.linked_event = NarrativeEvent.objects.filter(id=event_id).first()
         obj.save(update_fields=["linked_event"])
+    serializer = AssistantObjectiveSerializer(obj)
+    return Response(serializer.data, status=201)
+
+
+@api_view(["POST"])
+def plan_objective(request, slug):
+    """Create an objective from a memory entry or text."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+
+    memory_id = request.data.get("memory_id")
+    content = request.data.get("content")
+    if not memory_id and not content:
+        return Response({"error": "memory_id or content required"}, status=400)
+
+    project = (
+        assistant.current_project
+        or AssistantProject.objects.filter(assistant=assistant)
+        .order_by("-created_at")
+        .first()
+    )
+
+    memory = None
+    title = ""
+    if memory_id:
+        memory = get_object_or_404(MemoryEntry, id=memory_id)
+        title = memory.summary or memory.event[:60]
+        if not project:
+            project = AssistantProject.objects.create(
+                assistant=assistant,
+                title=title or "Memory Project",
+                created_by=request.user if request.user.is_authenticated else None,
+            )
+            engine = AssistantThoughtEngine(assistant=assistant, project=project)
+            engine.generate_project_mission()
+    else:
+        title = content[:60]
+        if not project:
+            project = AssistantProject.objects.create(
+                assistant=assistant,
+                title=title or "New Project",
+                created_by=request.user if request.user.is_authenticated else None,
+            )
+            engine = AssistantThoughtEngine(assistant=assistant, project=project)
+            engine.generate_project_mission()
+
+    obj = AssistantObjective.objects.create(
+        assistant=assistant,
+        project=project,
+        title=title or "Objective",
+        description=content or "",
+        source_memory=memory,
+    )
     serializer = AssistantObjectiveSerializer(obj)
     return Response(serializer.data, status=201)

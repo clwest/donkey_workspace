@@ -585,6 +585,11 @@ urlpatterns = [
         name="objective-from-reflection",
     ),
     path(
+        "<slug:slug>/plan-objective/",
+        objectives.plan_objective,
+        name="plan-objective",
+    ),
+    path(
         "<slug:slug>/plan-tasks/<uuid:objective_id>/",
         tasks.plan_tasks_for_objective,
         name="plan-tasks-objective",
@@ -598,6 +603,11 @@ urlpatterns = [
         "<slug:slug>/tasks/propose/",
         tasks.propose_task,
         name="assistant-propose-task",
+    ),
+    path(
+        "<slug:slug>/plan-task/",
+        tasks.plan_task,
+        name="assistant-plan-task",
     ),
     path(
         "<slug:slug>/flush/",
