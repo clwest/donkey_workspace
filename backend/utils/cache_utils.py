@@ -27,7 +27,7 @@ class VectorCache:
     @staticmethod
     def get_vector_key(text: str, model_name: str) -> str:
         """Generate a cache key for vector embeddings."""
-        text_hash = hashlib.md5(text.encode()).hexdigest()
+        text_hash = hashlib.md5(text.encode(errors="ignore")).hexdigest()
         return f"vector:{model_name}:{text_hash}"
 
     @staticmethod
@@ -95,7 +95,7 @@ class AIResponseCache:
     @staticmethod
     def get_response_key(prompt: str, model: str, temperature: float) -> str:
         """Generate a cache key for AI responses."""
-        prompt_hash = hashlib.md5(prompt.encode()).hexdigest()
+        prompt_hash = hashlib.md5(prompt.encode(errors="ignore")).hexdigest()
         return f"ai_response:{model}:{temperature}:{prompt_hash}"
 
     @classmethod

@@ -13,7 +13,7 @@ def verify_lore_token_signature(token: LoreToken) -> bool:
         return False
 
     data = "".join(m.content for m in token.source_memories.all())
-    computed = sha256(data.encode()).hexdigest()
+    computed = sha256(data.encode(errors="ignore")).hexdigest()
     if computed == signature.signature:
         signature.verified = True
         signature.save(update_fields=["verified"])
