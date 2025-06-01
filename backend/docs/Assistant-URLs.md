@@ -14,7 +14,7 @@ All API requests now require JWT authentication via an `Authorization: Bearer <t
 | `/api/assistants/create/`                     | `assistants_view` (POST)        | `/assistants/create`                   | Assistant creation form            |
 | `/api/assistants/<slug:slug>/`                | `assistant_detail_view`         | `/assistants/[slug]`                   | Detail page for a single assistant |
 | `/api/assistants/<slug:slug>/chat/`           | `chat_with_assistant_view`      | `/chat/[slug]`                         | Chat interface                     |
-| `/api/assistants/<slug:slug>/think/`          | `think_with_assistant`          | `AssistantThinkButton`                 | Trigger LLM thought from assistant |
+| `/api/assistants/projects/<uuid:project_id>/thoughts/generate/` | `generate_assistant_thought`   | `AssistantThinkButton`                 | Trigger LLM thought for project |
 | `/api/assistants/<slug:slug>/submit-thought/` | `submit_assistant_thought`      | `ThoughtInput` component               | User-submitted thought             |
 | `/api/assistants/<slug:slug>/reflect/`        | `reflect_on_assistant_thoughts` | Reflect button in `/assistants/[slug]` | Assistant self-reflection          |
 | `/api/assistants/<slug:slug>/thoughts/`       | `assistant_thoughts_by_slug`    | `/assistants/[slug]/thoughts`          | Thought history log                |

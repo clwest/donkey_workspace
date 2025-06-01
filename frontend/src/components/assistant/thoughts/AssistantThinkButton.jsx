@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function AssistantThinkButton({ slug, onThought }) {
+export default function AssistantThinkButton({ projectId, onThought }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -8,11 +8,14 @@ export default function AssistantThinkButton({ slug, onThought }) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/assistants/${slug}/think/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: "__think__" }),
-      });
+      const res = await fetch(
+        `/api/assistants/projects/${projectId}/thoughts/generate/`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: "__think__" }),
+        }
+      );
 
       if (!res.ok) throw new Error("Failed to generate thought");
       const data = await res.json();
