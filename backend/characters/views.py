@@ -440,7 +440,9 @@ class CharacterSimilarityView(APIView):
         nocache = request.query_params.get("nocache") == "true"
         # Compute fingerprint for caching
         try:
-            fingerprint = hashlib.sha256(text.encode("utf-8")).hexdigest()
+            fingerprint = hashlib.sha256(
+                text.encode("utf-8", errors="ignore")
+            ).hexdigest()
             cache_key = f"char-sim:{fingerprint}"
         except Exception:
             fingerprint = None

@@ -44,7 +44,9 @@ class DuplicatePatchDetector:
         self._seen = set()
 
     def is_duplicate(self, patch_text):
-        key = hashlib.sha256(patch_text.encode("utf-8")).hexdigest()
+        key = hashlib.sha256(
+            patch_text.encode("utf-8", errors="ignore")
+        ).hexdigest()
         if key in self._seen:
             return True
         self._seen.add(key)

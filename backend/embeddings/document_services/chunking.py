@@ -154,7 +154,11 @@ def generate_chunk_fingerprint(text: str) -> str:
         mid = len(filtered) // 2
         sampler = filtered[:50] + filtered[mid - 25 : mid + 25] + filtered[-50:]
     fingerprint_str = " ".join(sampler)
-    return hashlib.md5(fingerprint_str.encode("utf-8")).hexdigest()
+    # Surrogate characters from badly encoded pages can break utf-8 encoding
+    # during fingerprint generation. Ignore any invalid code points so the
+    # fingerprint function is more robust to noisy text.
+    fingerprint_bytes = fingerprint_str.encode("utf-8", errors="ignore")
+    return hashlib.md5(fingerprint_bytes).hexdigest()
 
 
 def fingerprint_similarity(fp1: str, fp2: str) -> float:
@@ -213,7 +217,8 @@ def fingerprint(text: str) -> str:
     if not text:
         return ""
     normalized = re.sub(r"\s+", " ", text.strip().lower())
-    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+    fingerprint_bytes = normalized.encode("utf-8", errors="ignore")
+    return hashlib.sha256(fingerprint_bytes).hexdigest()
 
 
 def summarize_chunks(chunks: List[str]) -> str:

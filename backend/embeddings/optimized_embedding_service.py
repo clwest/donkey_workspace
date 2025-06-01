@@ -152,7 +152,9 @@ class OptimizedEmbeddingService:
 
         # Normalize text by removing whitespace and lowercasing
         normalized = " ".join(text.lower().split())
-        return hashlib.md5(normalized.encode("utf-8")).hexdigest()
+        # Ignore invalid UTF-8 sequences to avoid crashes on malformed text
+        fingerprint_bytes = normalized.encode("utf-8", errors="ignore")
+        return hashlib.md5(fingerprint_bytes).hexdigest()
 
     def _get_cache_key(self, text: str, model: str = DEFAULT_MODEL) -> str:
         """
@@ -165,7 +167,7 @@ class OptimizedEmbeddingService:
         Returns:
             str: Cache key
         """
-        text_hash = hashlib.md5(text.encode("utf-8")).hexdigest()
+        text_hash = hashlib.md5(text.encode("utf-8", errors="ignore")).hexdigest()
         return f"embedding_{model}_{text_hash}"
 
     def get_embedding(
