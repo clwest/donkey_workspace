@@ -5,9 +5,9 @@ This module configures Celery for background task processing,
 including task scheduling and worker configuration.
 """
 
-
 from __future__ import absolute_import, unicode_literals
 import os
+import logging
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -76,4 +76,5 @@ app.conf.update(
 @app.task(bind=True)
 def debug_task(self):
     """Test task to verify Celery is working."""
-    print(f"Request: {self.request!r}")
+    logger = logging.getLogger("celery")
+    logger.info(f"Running task: {self.request!r}")
