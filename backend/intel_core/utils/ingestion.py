@@ -1,4 +1,5 @@
 from utils.logging_utils import get_logger
+from utils import coerce_uuid
 
 logger = get_logger("intel_core.ingestion")
 
@@ -26,13 +27,15 @@ def ingest_pdfs(
     from intel_core.processors.pdf_loader import load_pdfs
 
     logger.info(f"Starting PDF ingestion of {len(file_paths)} files")
+    session_uuid = coerce_uuid(session_id, "session_id")
+    job_uuid = coerce_uuid(job_id, "job_id")
     try:
         processed_documents = load_pdfs(
             file_paths,
             user_provided_title=title,
             project_name=project_name,
-            session_id=session_id,
-            job_id=job_id,
+            session_id=str(session_uuid) if session_uuid else None,
+            job_id=str(job_uuid) if job_uuid else None,
         )
         logger.info(
             f"Ingested {len(processed_documents)} PDF chunks for project '{project_name}'"
@@ -60,13 +63,15 @@ def ingest_urls(urls, title=None, project_name="General", session_id=None, job_i
     from intel_core.processors.url_loader import load_urls
 
     logger.info(f"Starting URL ingestion of {len(urls)} URLs")
+    session_uuid = coerce_uuid(session_id, "session_id")
+    job_uuid = coerce_uuid(job_id, "job_id")
     try:
         processed_documents = load_urls(
             urls,
             user_provided_title=title,
             project_name=project_name,
-            session_id=session_id,
-            job_id=job_id,
+            session_id=str(session_uuid) if session_uuid else None,
+            job_id=str(job_uuid) if job_uuid else None,
         )
         logger.info(
             f"Ingested {len(processed_documents)} URL chunks for project '{project_name}'"
@@ -77,7 +82,9 @@ def ingest_urls(urls, title=None, project_name="General", session_id=None, job_i
         return []
 
 
-def ingest_videos(video_urls, title=None, project_name="General", session_id=None, job_id=None):
+def ingest_videos(
+    video_urls, title=None, project_name="General", session_id=None, job_id=None
+):
     """
     Ingest YouTube videos.
 
@@ -94,13 +101,15 @@ def ingest_videos(video_urls, title=None, project_name="General", session_id=Non
     from intel_core.processors.video_loader import load_videos
 
     logger.info(f"Starting video ingestion of {len(video_urls)} videos")
+    session_uuid = coerce_uuid(session_id, "session_id")
+    job_uuid = coerce_uuid(job_id, "job_id")
     try:
         processed_documents = load_videos(
             video_urls,
             user_provided_title=title,
             project_name=project_name,
-            session_id=session_id,
-            job_id=job_id,
+            session_id=str(session_uuid) if session_uuid else None,
+            job_id=str(job_uuid) if job_uuid else None,
         )
         logger.info(
             f"Ingested {len(processed_documents)} video chunks for project '{project_name}'"

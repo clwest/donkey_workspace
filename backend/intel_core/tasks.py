@@ -6,6 +6,7 @@ from celery import shared_task
 from intel_core.utils.ingestion import ingest_urls, ingest_videos, ingest_pdfs
 from intel_core.models import JobStatus, Document, DocumentSet
 from utils.logging_utils import get_logger
+from utils import coerce_uuid
 
 logger = get_logger(__name__)
 
@@ -27,8 +28,13 @@ def process_url_upload(
     Returns:
         int: Number of documents processed
     """
+    job_uuid = coerce_uuid(job_id, "job_id")
+    session_uuid = coerce_uuid(session_id, "session_id")
+    if not job_uuid:
+        logger.error("[UUID Sanity] Aborting task due to invalid job_id")
+        return 0
     try:
-        job = JobStatus.objects.get(job_id=job_id)
+        job = JobStatus.objects.get(job_id=job_uuid)
         job.status = "processing"
         job.stage = "chunking"
         job.progress = 10
@@ -46,7 +52,13 @@ def process_url_upload(
             job.save()
 
             # Process in smaller batches
-            batch_result = ingest_urls([url], title, project_name, session_id, job_id)
+            batch_result = ingest_urls(
+                [url],
+                title,
+                project_name,
+                str(session_uuid) if session_uuid else None,
+                str(job_uuid),
+            )
             processed_docs.extend(batch_result)
 
             # Log progress
@@ -69,9 +81,9 @@ def process_url_upload(
         return len(processed_docs)
     except Exception as e:
         logger.error(f"Error in URL processing task: {str(e)}")
-        if job_id:
+        if job_uuid:
             try:
-                job = JobStatus.objects.get(job_id=job_id)
+                job = JobStatus.objects.get(job_id=job_uuid)
                 job.status = "failed"
                 job.message = str(e)
                 job.save()
@@ -100,8 +112,13 @@ def create_document_set_task(
     videos = videos or []
     file_paths = file_paths or []
     tags = tags or []
+    job_uuid = coerce_uuid(job_id, "job_id")
+    session_uuid = coerce_uuid(session_id, "session_id")
+    if not job_uuid:
+        logger.error("[UUID Sanity] Aborting task due to invalid job_id")
+        return None
     try:
-        job = JobStatus.objects.get(job_id=job_id)
+        job = JobStatus.objects.get(job_id=job_uuid)
         job.status = "processing"
         job.stage = "parsing"
         job.progress = 5
@@ -115,7 +132,15 @@ def create_document_set_task(
             job.progress = int(5 + (i / job.total_chunks) * 70)
             job.message = f"Loading URL {i+1}/{job.total_chunks}"
             job.save()
-            docs.extend(ingest_urls([url], title, "General", session_id, job_id))
+            docs.extend(
+                ingest_urls(
+                    [url],
+                    title,
+                    "General",
+                    str(session_uuid) if session_uuid else None,
+                    str(job_uuid),
+                )
+            )
 
         offset = len(urls)
         for j, vid in enumerate(videos):
@@ -124,7 +149,15 @@ def create_document_set_task(
             job.progress = int(5 + ((offset + j) / job.total_chunks) * 70)
             job.message = f"Loading video {j+1}/{len(videos)}"
             job.save()
-            docs.extend(ingest_videos([vid], title, "General", session_id, job_id))
+            docs.extend(
+                ingest_videos(
+                    [vid],
+                    title,
+                    "General",
+                    str(session_uuid) if session_uuid else None,
+                    str(job_uuid),
+                )
+            )
 
         offset += len(videos)
         for k, path in enumerate(file_paths):
@@ -133,13 +166,23 @@ def create_document_set_task(
             job.progress = int(5 + ((offset + k) / job.total_chunks) * 70)
             job.message = f"Loading PDF {k+1}/{len(file_paths)}"
             job.save()
-            docs.extend(ingest_pdfs([path], title, "General", session_id, job_id))
+            docs.extend(
+                ingest_pdfs(
+                    [path],
+                    title,
+                    "General",
+                    str(session_uuid) if session_uuid else None,
+                    str(job_uuid),
+                )
+            )
 
         job.stage = "embedding"
         job.progress = 90
         job.save()
 
-        document_set = DocumentSet.objects.create(title=title, urls=urls, videos=videos, tags=tags)
+        document_set = DocumentSet.objects.create(
+            title=title, urls=urls, videos=videos, tags=tags
+        )
         for doc in docs:
             if isinstance(doc, Document):
                 document_set.documents.add(doc)
@@ -153,9 +196,9 @@ def create_document_set_task(
         return document_set.id
     except Exception as e:
         logger.error(f"Error in document set task: {str(e)}")
-        if job_id:
+        if job_uuid:
             try:
-                job = JobStatus.objects.get(job_id=job_id)
+                job = JobStatus.objects.get(job_id=job_uuid)
                 job.status = "failed"
                 job.message = str(e)
                 job.save()
@@ -181,9 +224,14 @@ def process_video_upload(
     Returns:
         int: Number of documents processed
     """
+    job_uuid = coerce_uuid(job_id, "job_id")
+    session_uuid = coerce_uuid(session_id, "session_id")
+    if not job_uuid:
+        logger.error("[UUID Sanity] Aborting task due to invalid job_id")
+        return 0
     try:
         # Update job status to processing
-        job = JobStatus.objects.get(job_id=job_id)
+        job = JobStatus.objects.get(job_id=job_uuid)
         job.status = "processing"
         job.stage = "chunking"
         job.progress = 10
@@ -201,7 +249,13 @@ def process_video_upload(
             job.save()
 
             # Videos take longer to process
-            batch_result = ingest_videos([url], title, project_name, session_id, job_id)
+            batch_result = ingest_videos(
+                [url],
+                title,
+                project_name,
+                str(session_uuid) if session_uuid else None,
+                str(job_uuid),
+            )
             processed_docs.extend(batch_result)
 
             # Log progress
@@ -224,9 +278,9 @@ def process_video_upload(
         return len(processed_docs)
     except Exception as e:
         logger.error(f"Error in video processing task: {str(e)}")
-        if job_id:
+        if job_uuid:
             try:
-                job = JobStatus.objects.get(job_id=job_id)
+                job = JobStatus.objects.get(job_id=job_uuid)
                 job.status = "failed"
                 job.message = str(e)
                 job.save()
@@ -252,9 +306,14 @@ def process_pdf_upload(
     Returns:
         int: Number of documents processed
     """
+    job_uuid = coerce_uuid(job_id, "job_id")
+    session_uuid = coerce_uuid(session_id, "session_id")
+    if not job_uuid:
+        logger.error("[UUID Sanity] Aborting task due to invalid job_id")
+        return 0
     try:
         # Update job status to processing
-        job = JobStatus.objects.get(job_id=job_id)
+        job = JobStatus.objects.get(job_id=job_uuid)
         job.status = "processing"
         job.stage = "chunking"
         job.progress = 10
@@ -273,7 +332,13 @@ def process_pdf_upload(
 
             # PDFs process differently than URLs and videos
             # We'd need to modify this based on how your ingest_pdfs function works
-            batch_result = ingest_pdfs([file_path], title, project_name, session_id, job_id)
+            batch_result = ingest_pdfs(
+                [file_path],
+                title,
+                project_name,
+                str(session_uuid) if session_uuid else None,
+                str(job_uuid),
+            )
             processed_docs.extend(batch_result)
 
             # Log progress
@@ -296,9 +361,9 @@ def process_pdf_upload(
         return len(processed_docs)
     except Exception as e:
         logger.error(f"Error in PDF processing task: {str(e)}")
-        if job_id:
+        if job_uuid:
             try:
-                job = JobStatus.objects.get(job_id=job_id)
+                job = JobStatus.objects.get(job_id=job_uuid)
                 job.status = "failed"
                 job.message = str(e)
                 job.save()
