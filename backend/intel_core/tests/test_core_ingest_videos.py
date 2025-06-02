@@ -20,3 +20,10 @@ def test_ingest_videos_returns_document(monkeypatch):
 
     result = doc_service.ingest_videos(["https://youtu.be/test"])
     assert result[0]["document_id"] == str(dummy_doc.id)
+
+
+@pytest.mark.django_db
+def test_ingest_videos_returns_skipped(monkeypatch):
+    monkeypatch.setattr(doc_service, "process_youtube_video", lambda url: [])
+    result = doc_service.ingest_videos(["https://youtu.be/test"])
+    assert result[0]["status"] == "skipped"

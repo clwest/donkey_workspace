@@ -45,6 +45,7 @@ def extract_video_id(youtube_url: str) -> str:
 def _fetch_transcript(video_id: str):
     """Return a transcript list for the given video ID if available."""
 
+    logger.info("[YT] Fetching transcript for video ID: %s", video_id)
     fetch_attempts = []
 
     if api_key:
@@ -73,7 +74,10 @@ def _fetch_transcript(video_id: str):
 
     for attempt in fetch_attempts:
         try:
-            return attempt()
+            result = attempt()
+            if result:
+                logger.info("[YT] Transcript fetched for %s", video_id)
+            return result
         except (NoTranscriptFound, TranscriptsDisabled, VideoUnavailable, TooManyRequests) as exc:
             logger.error(f"Transcript unavailable for video {video_id}: {exc}")
             return None
@@ -99,10 +103,10 @@ def process_youtube_video(youtube_url):
         logger.error(str(exc))
         return []
 
-    logger.info("[YT] Fetching transcript for video: %s", youtube_url)
+    logger.info("🎬 Starting YouTube processing for %s", video_id)
     transcript = _fetch_transcript(video_id)
     if not transcript:
-        logger.warning("Could not fetch content for video: %s", youtube_url)
+        logger.warning("⚠️ Transcript missing – skipping ingestion for %s", video_id)
         if DEBUG_TRANSCRIPT:
             logger.warning("[YT] Using sample transcript due to missing content")
             transcript = [{"text": "test segment"}]
@@ -123,8 +127,11 @@ def process_youtube_video(youtube_url):
 
     try:
         transcript_text = " ".join(item.get("text", "") for item in transcript)
+        logger.info("[YT] Transcript length %d characters", len(transcript_text))
         text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-        return text_splitter.split_text(transcript_text)
+        chunks = text_splitter.split_text(transcript_text)
+        logger.info("[YT] Split into %d chunks", len(chunks))
+        return chunks
     except Exception as exc:
         logger.error(f"Error processing video {youtube_url}: {exc}")
         return []

@@ -287,12 +287,26 @@ def ingest_videos(
             chunks = process_youtube_video(url)
             if not chunks:
                 logger.warning(f"Could not fetch content for video: {url}")
+                processed_documents.append(
+                    {
+                        "status": "skipped",
+                        "reason": "Transcript could not be retrieved",
+                        "url": url,
+                    }
+                )
                 continue
 
             video_title = user_provided_title or "Uploaded Video"
             transcript_text = " ".join(chunks)
             if transcript_text.strip() == "":
                 logger.warning("Transcript text is empty — skipping document creation.")
+                processed_documents.append(
+                    {
+                        "status": "skipped",
+                        "reason": "Transcript could not be retrieved",
+                        "url": url,
+                    }
+                )
                 continue
 
             document = {
@@ -326,6 +340,14 @@ def ingest_videos(
                         "embedded_chunks": embedded,
                         "total_chunks": chunk_total,
                         "summary": processed_document.summary,
+                    }
+                )
+            else:
+                processed_documents.append(
+                    {
+                        "status": "skipped",
+                        "reason": "Transcript could not be retrieved",
+                        "url": url,
                     }
                 )
 
