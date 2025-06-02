@@ -16,6 +16,7 @@ class DocumentSerializer(serializers.ModelSerializer):
     token_count = serializers.IntegerField(source="token_count_int", read_only=True)
     chunk_count = serializers.SerializerMethodField()
     num_embedded = serializers.SerializerMethodField()
+    embedded_chunks = serializers.SerializerMethodField()
     glossary_ids = serializers.SerializerMethodField()
     user = serializers.StringRelatedField(read_only=True)
 
@@ -31,10 +32,12 @@ class DocumentSerializer(serializers.ModelSerializer):
             "source_url",
             "source_type",
             "created_at",
+            "updated_at",
             "metadata",
             "token_count",
             "chunk_count",
             "num_embedded",
+            "embedded_chunks",
             "glossary_ids",
             "is_favorited",
             "tags",
@@ -54,6 +57,9 @@ class DocumentSerializer(serializers.ModelSerializer):
 
     def get_num_embedded(self, obj):
         return obj.chunks.filter(embedding__isnull=False).count()
+
+    def get_embedded_chunks(self, obj):
+        return self.get_num_embedded(obj)
 
     def get_glossary_ids(self, obj):
         return list(obj.chunks.filter(is_glossary=True).values_list("id", flat=True))

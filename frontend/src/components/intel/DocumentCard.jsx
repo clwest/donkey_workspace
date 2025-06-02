@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { countTokens } from "../../utils/tokenCount";
@@ -43,6 +42,24 @@ export default function DocumentCard({ group, onToggleFavorite, onDelete }) {
     baseDoc.token_count ??
     metadata?.token_count ??
     (content ? countTokens(content) : 0);
+
+  const chunkCount =
+    baseDoc.chunk_count ??
+    baseDoc.num_chunks ??
+    metadata?.chunk_count ??
+    0;
+
+  const embeddedChunks =
+    baseDoc.embedded_chunks ??
+    baseDoc.num_embedded ??
+    0;
+
+  const updatedAt = baseDoc.updated_at ?? group.updated_at ?? created_at;
+
+  const isVideo = source_type === "youtube" || source_type === "video";
+  const isURL = source_type === "url";
+  const fileType = source_type ? source_type.toUpperCase() : "DOC";
+  const badgeType = isVideo ? "VIDEO" : isURL ? "URL" : fileType;
 
 
   const domain = source_url
@@ -111,9 +128,19 @@ export default function DocumentCard({ group, onToggleFavorite, onDelete }) {
       </div>
 
       <div className="mt-2 text-muted small">
-        {tokenCount} tokens
+        <div>
+          <strong>Chunks:</strong> {embeddedChunks} / {chunkCount}
+        </div>
+        <div>
+          <strong>Tokens:</strong> {tokenCount}
+        </div>
+        {updatedAt && (
+          <div>
+            <strong>Updated:</strong> {new Date(updatedAt).toLocaleString()}
+          </div>
+        )}
         <Badge bg={sourceColors[source_type] || "secondary"} className="ms-2">
-          {source_type?.toUpperCase()}
+          {badgeType}
         </Badge>
       </div>
     </div>
