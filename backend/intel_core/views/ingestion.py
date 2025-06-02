@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from rest_framework.response import Response
 from utils.logging_utils import get_logger
+from utils import coerce_uuid
 from intel_core.services import DocumentService
 from intel_core.models import Document
 from prompts.models import Prompt
@@ -12,6 +13,8 @@ from mcp_core.models import Tag
 import json
 
 logger = get_logger("django")
+
+
 @api_view(["POST"])
 @parser_classes([MultiPartParser, FormParser, JSONParser])
 def unified_ingestion_view(request):
@@ -26,24 +29,29 @@ def unified_ingestion_view(request):
         logger.info("🎥 Routing to ingest_videos()")
 
     project_name = request.data.get("project_name", "General")
-    session_id = request.data.get("session_id")
+    session_id = coerce_uuid(request.data.get("session_id"), "session_id")
     user_provided_title = request.data.get("title")
     assistant_id = request.data.get("assistant_id")
+    assistant_uuid = coerce_uuid(assistant_id, "assistant_id")
     if not assistant_id:
         return Response({"error": "assistant_id required"}, status=400)
     project_id = request.data.get("project_id")
+    project_uuid = coerce_uuid(project_id, "project_id")
     reflect_after = str(request.data.get("reflect_after", "false")).lower() in [
         "1",
         "true",
         "yes",
     ]
-    create_prompt = (
-        str(request.data.get("create_prompt", "false")).lower() in ["1", "true", "yes"]
-    )
-    set_as_system = (
-        str(request.data.get("set_as_system_prompt", "false")).lower()
-        in ["1", "true", "yes"]
-    )
+    create_prompt = str(request.data.get("create_prompt", "false")).lower() in [
+        "1",
+        "true",
+        "yes",
+    ]
+    set_as_system = str(request.data.get("set_as_system_prompt", "false")).lower() in [
+        "1",
+        "true",
+        "yes",
+    ]
 
     urls = request.data.get("urls")
     if isinstance(urls, str):
@@ -65,18 +73,19 @@ def unified_ingestion_view(request):
             files=uploaded_files,
             title=user_provided_title,
             project_name=project_name,
-            session_id=session_id,
-            assistant_id=assistant_id,
-            project_id=project_id,
+            session_id=str(session_id) if session_id else None,
+            assistant_id=str(assistant_uuid) if assistant_uuid else assistant_id,
+            project_id=str(project_uuid) if project_uuid else project_id,
             tags=tag_names,
         )
         doc_ids = [d.get("document_id") for d in ingest_result]
         docs = list(Document.objects.filter(id__in=doc_ids))
 
-        assistant = (
-            Assistant.objects.filter(id=assistant_id).first()
-            or Assistant.objects.filter(slug=assistant_id).first()
-        )
+        assistant = None
+        if assistant_uuid:
+            assistant = Assistant.objects.filter(id=assistant_uuid).first()
+        if not assistant and assistant_id:
+            assistant = Assistant.objects.filter(slug=assistant_id).first()
 
         if create_prompt and docs:
             for doc in docs:
@@ -130,6 +139,7 @@ def unified_ingestion_view(request):
                 from assistants.utils.assistant_reflection_engine import (
                     AssistantReflectionEngine,
                 )
+
                 engine = AssistantReflectionEngine(assistant)
                 for doc in docs:
                     logger.info(
@@ -153,7 +163,12 @@ def unified_ingestion_view(request):
                 ]
             if source_type == "url":
                 response["message"] = f"Loaded {len(ingest_result)} URL document(s)."
-            if not docs and ingest_result and isinstance(ingest_result[0], dict) and ingest_result[0].get("status") == "skipped":
+            if (
+                not docs
+                and ingest_result
+                and isinstance(ingest_result[0], dict)
+                and ingest_result[0].get("status") == "skipped"
+            ):
                 return Response(ingest_result[0], status=204)
             return Response(response, status=200)
         except Exception as e:
