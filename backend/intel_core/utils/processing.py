@@ -110,6 +110,7 @@ def _create_document_chunks(document: Document):
     chunks = generate_chunks(document.content)
     chunks = AcronymGlossaryService.insert_glossary_chunk(chunks)
     anchors = list(SymbolicMemoryAnchor.objects.all().prefetch_related("tags"))
+    queued_chunks = []
     for i, chunk in enumerate(chunks):
         info = clean_and_score_chunk(chunk, chunk_index=i)
         if not info["keep"]:
@@ -142,8 +143,12 @@ def _create_document_chunks(document: Document):
                 f"🧠 Chunk created: {new_chunk.id} for Document {document.id} | text preview: {new_chunk.text[:60]}"
             )
             logger.debug(f"🚀 Scheduling embedding for chunk {new_chunk.id}")
+            new_chunk.embedding_status = "pending"
+            new_chunk.save(update_fields=["embedding_status"])
+            logger.info(f"📦 Queuing chunk for embedding: {new_chunk.id}")
             try:
                 embed_and_store.delay(str(new_chunk.id))
+                queued_chunks.append(new_chunk.id)
             except Exception as e:
                 logger.warning(
                     f"Failed to queue embedding task for chunk {new_chunk.id}: {e}"
@@ -152,6 +157,11 @@ def _create_document_chunks(document: Document):
             logger.warning(
                 f"Duplicate fingerprint for chunk {i} on document {document.id}, skipping"
             )
+
+    if not queued_chunks:
+        logger.warning(
+            "⚠️ No chunks queued — all appear to be already embedded or skipped"
+        )
 
 
 def _embed_document_chunks(document: Document):
