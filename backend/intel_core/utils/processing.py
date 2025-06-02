@@ -304,17 +304,44 @@ def save_document_to_db(content, metadata, session_id=None):
                 f"✅ Saved embedding: {embedding_id} for document: {document.title}"
             )
 
+        from embeddings.tasks import embed_and_store
+
         _create_document_chunks(document)
-        chunk_count = DocumentChunk.objects.filter(document=document).count()
+        chunks = list(DocumentChunk.objects.filter(document=document))
+        chunk_count = len(chunks)
         logger.info("[Chunking] Generated %d chunks", chunk_count)
-        embedding_tasks_queued = DocumentChunk.objects.filter(
-            document=document, embedding__isnull=True
-        ).count()
-        if embedding_tasks_queued == 0:
-            logger.warning("No embedding tasks queued — check chunking logic.")
-        else:
-            logger.info(
-                "✅ Queued %d chunk embedding tasks via Celery.", embedding_tasks_queued
+
+        num_chunks_queued = 0
+        for chunk in chunks:
+            if not chunk.embedding_id or chunk.embedding_status != "embedded":
+                chunk.embedding_status = "pending"
+                chunk.save(update_fields=["embedding_status"])
+                if settings.FORCE_EMBED_SYNC:
+                    logger.info(
+                        f"⚠️ Celery disabled — embedding chunk {chunk.id} synchronously"
+                    )
+                    embed_and_store(
+                        text_or_id=chunk.id,
+                        content_type="documentchunk",
+                        content_id=str(chunk.id),
+                        model="text-embedding-3-small",
+                    )
+                else:
+                    embed_and_store.delay(
+                        text_or_id=chunk.id,
+                        content_type="documentchunk",
+                        content_id=str(chunk.id),
+                        model="text-embedding-3-small",
+                    )
+                logger.info(f"📦 Queued chunk {chunk.id} for embedding")
+                num_chunks_queued += 1
+
+        logger.info(
+            f"✅ Queued {num_chunks_queued} / {len(chunks)} chunks for embedding"
+        )
+        if num_chunks_queued == 0:
+            logger.warning(
+                "🚨 No chunk embeddings queued — check filtering conditions or embedding flags"
             )
 
         return document
