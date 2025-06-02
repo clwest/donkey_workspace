@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from rest_framework.response import Response
-
+from utils.logging_utils import get_logger
 from intel_core.serializers import DocumentSerializer
 from intel_core.services import DocumentService
 from prompts.models import Prompt
@@ -11,14 +11,20 @@ from assistants.models import Assistant
 from mcp_core.models import Tag
 import json
 
-
+logger = get_logger("django")
 @api_view(["POST"])
 @parser_classes([MultiPartParser, FormParser, JSONParser])
 def unified_ingestion_view(request):
     """
     Accepts YouTube URLs, web URLs, or PDF uploads and ingests them into the system.
     """
+    logger.info("🔥 /intel/ingest triggered with body: %s", request.data)
     source_type = request.data.get("source_type")  # "youtube", "pdf", or "url"
+    logger.info("🧭 Source Type Received: %s", source_type)
+
+    if source_type == "youtube":
+        logger.info("🎥 Routing to ingest_videos()")
+
     project_name = request.data.get("project_name", "General")
     session_id = request.data.get("session_id")
     user_provided_title = request.data.get("title")

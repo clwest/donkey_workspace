@@ -297,7 +297,7 @@ def ingest_videos(
                     "session_id": session_id,
                 },
             }
-
+            logger.info("[Router] Reached document_service.ingest(). source_type=%s", document)
             processed_document = process_videos(
                 document,
                 video_title=video_title,
@@ -334,4 +334,5 @@ def ingest_documents(*args, **kwargs):
         return ingest_urls(**kwargs)
     if kwargs.get("video_urls"):
         return ingest_videos(**kwargs)
+    
     raise ValueError("No valid ingestion parameters provided")
