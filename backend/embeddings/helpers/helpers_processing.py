@@ -97,7 +97,14 @@ def generate_embedding(
     Returns:
         A list of floats representing the embedding, or None on failure.
     """
-    if not text or not text.strip():
+    if text is None:
+        logger.warning("Empty or blank text provided to generate_embedding.")
+        return None
+
+    if not isinstance(text, str):
+        text = str(text)
+
+    if not text.strip():
         logger.warning("Empty or blank text provided to generate_embedding.")
         return None
 

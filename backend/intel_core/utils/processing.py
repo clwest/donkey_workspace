@@ -321,16 +321,12 @@ def save_document_to_db(content, metadata, session_id=None):
                         f"⚠️ Celery disabled — embedding chunk {chunk.id} synchronously"
                     )
                     embed_and_store(
-                        text_or_id=chunk.id,
-                        content_type="documentchunk",
-                        content_id=str(chunk.id),
+                        text_or_id=str(chunk.id),
                         model="text-embedding-3-small",
                     )
                 else:
                     embed_and_store.delay(
-                        text_or_id=chunk.id,
-                        content_type="documentchunk",
-                        content_id=str(chunk.id),
+                        text_or_id=str(chunk.id),
                         model="text-embedding-3-small",
                     )
                 logger.info(f"📦 Queued chunk {chunk.id} for embedding")
