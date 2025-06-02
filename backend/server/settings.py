@@ -356,6 +356,11 @@ LOGGING = {
             "handlers": ["file_backend", "file_errors"],
             "level": "DEBUG",
         },
+        "lite_llm": {
+            "handlers": ["file_backend"],  # Or [] if you want to silence completely
+            "level": "WARNING",  # or "ERROR" to hide DEBUG messages
+            "propagate": False,
+        },
     },
 }
 
