@@ -40,6 +40,15 @@ except Exception:  # pragma: no cover - fallback when model unavailable
     nlp = spacy.blank("en")
 
 
+def lexical_density(text: str) -> float:
+    """Return lexical density (ratio of non-stopwords to total words)."""
+    words = re.findall(r"\b\w+\b", text.lower())
+    if not words:
+        return 0.0
+    content = [w for w in words if w not in ALL_STOP_WORDS]
+    return len(content) / len(words)
+
+
 def clean_and_score_chunk(text: str, chunk_index: int | None = None) -> dict:
     """Clean and score a text chunk for relevance."""
     cleaned = text.strip()
@@ -50,23 +59,49 @@ def clean_and_score_chunk(text: str, chunk_index: int | None = None) -> dict:
             "score": score,
             "keep": True,
             "origin": "forced",
+            "reason": "first_chunks",
         }
     words = cleaned.split()
     if len(words) < 5:
-        return {"text": cleaned, "score": 0.0, "keep": False}
+        return {
+            "text": cleaned,
+            "score": 0.0,
+            "keep": False,
+            "reason": "too_short",
+        }
 
     if len(words) < 15:
-        return {"text": cleaned, "score": 0.0, "keep": False}
+        return {
+            "text": cleaned,
+            "score": 0.0,
+            "keep": False,
+            "reason": "short_low_quality",
+        }
 
     non_stop = [w for w in words if w.lower() not in ALL_STOP_WORDS]
     if len(non_stop) / len(words) < 0.5:
-        return {"text": cleaned, "score": 0.0, "keep": False}
+        return {
+            "text": cleaned,
+            "score": 0.0,
+            "keep": False,
+            "reason": "low_lexical_density",
+        }
 
     if HEADER_FOOTER_RE.search(cleaned):
-        return {"text": cleaned, "score": 0.0, "keep": False}
+        return {
+            "text": cleaned,
+            "score": 0.0,
+            "keep": False,
+            "reason": "header_footer",
+        }
 
     if not re.search(r"[.!?]", cleaned):
-        return {"text": cleaned, "score": 0.0, "keep": False}
+        return {
+            "text": cleaned,
+            "score": 0.0,
+            "keep": False,
+            "reason": "no_sentence_punctuation",
+        }
 
     filler_phrases = [
         "hey guys",
@@ -76,7 +111,12 @@ def clean_and_score_chunk(text: str, chunk_index: int | None = None) -> dict:
     ]
     lowered = cleaned.lower()
     if any(p in lowered for p in filler_phrases):
-        return {"text": cleaned, "score": 0.0, "keep": False}
+        return {
+            "text": cleaned,
+            "score": 0.0,
+            "keep": False,
+            "reason": "filler_phrase",
+        }
 
     keywords = ["setup", "install", "workflow", "step by step", "codex"]
     if any(k in lowered for k in keywords):
@@ -93,7 +133,13 @@ def clean_and_score_chunk(text: str, chunk_index: int | None = None) -> dict:
     if cleaned.endswith(('.', '?', '!')):
         score += 0.3
 
-    return {"text": cleaned, "score": score, "keep": score > 0.3}
+    keep = score > 0.3
+    return {
+        "text": cleaned,
+        "score": score,
+        "keep": keep,
+        "reason": "low_score" if not keep else "ok",
+    }
 
 
 def generate_chunks(text: str, chunk_size: int = 1000) -> List[str]:
@@ -110,7 +156,8 @@ def generate_chunks(text: str, chunk_size: int = 1000) -> List[str]:
         end = min(start + chunk_size, text_length)
         chunk = text[start:end]
         if len(chunk) < 50:
-            continue
+            if lexical_density(chunk) < 0.4:
+                continue
         chunks.append(chunk)
         if len(chunks) >= MAX_CHUNKS_PER_DOCUMENT:
             break

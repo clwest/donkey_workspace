@@ -381,3 +381,7 @@ ASSISTANT_DELEGATION_TOKEN_LIMIT = int(
 
 # Embed chunks synchronously when Celery is unavailable
 FORCE_EMBED_SYNC = os.getenv("FORCE_EMBED_SYNC", "False") == "True"
+# When enabled, bypass all chunk filtering logic for debugging
+DISABLE_CHUNK_SKIP_FILTERS = (
+    os.getenv("DISABLE_CHUNK_SKIP_FILTERS", "False") == "True"
+)
