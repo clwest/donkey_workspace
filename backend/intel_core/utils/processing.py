@@ -114,7 +114,17 @@ def _create_document_chunks(document: Document):
     for i, chunk in enumerate(chunks):
         info = clean_and_score_chunk(chunk, chunk_index=i)
         if not info["keep"]:
-            continue
+            logger.debug(
+                "⏭️ Skipping chunk %d (%d chars, %s) reason=%s score=%.2f",
+                i,
+                len(chunk),
+                document.source_type,
+                info.get("reason"),
+                info.get("score", 0.0),
+            )
+            if not getattr(settings, "DISABLE_CHUNK_SKIP_FILTERS", False):
+                continue
+            logger.debug("⚠️ Filter bypass enabled — keeping chunk %d", i)
         fingerprint = generate_chunk_fingerprint(info["text"])
         anchor = None
         if "refers to" in info["text"].lower():
@@ -155,7 +165,7 @@ def _create_document_chunks(document: Document):
                 )
         except IntegrityError:
             logger.warning(
-                f"Duplicate fingerprint for chunk {i} on document {document.id}, skipping"
+                f"🔁 Duplicate fingerprint {fingerprint} for chunk {i} on document {document.id}, skipping"
             )
 
     if not queued_chunks:
