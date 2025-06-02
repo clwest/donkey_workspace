@@ -175,7 +175,6 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 20,
-
     "DEFAULT_THROTTLE_RATES": {"user": "5/min"},
 }
 
@@ -299,56 +298,63 @@ SPECTACULAR_SETTINGS = {
 }
 
 import os
-import sys
 
-LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG")
+LOG_DIR = os.path.join(BASE_DIR, "logs")
+os.makedirs(LOG_DIR, exist_ok=True)
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'standard': {
-            'format': '[{levelname}] {asctime} | {module}.{funcName}:{lineno} — {message}',
-            'style': '{',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "[{asctime}] {levelname} {name}.{funcName}:{lineno} — {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "[{levelname}] {message}",
+            "style": "{",
         },
     },
-    'handlers': {
-        'console': {
-            'level': LOG_LEVEL,
-            'class': 'logging.StreamHandler',
-            'formatter': 'standard',
-            'stream': sys.stdout,
+    "handlers": {
+        "file_backend": {
+            "level": "INFO",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(LOG_DIR, "backend.log"),
+            "maxBytes": 1024 * 1024 * 5,
+            "backupCount": 3,
+            "formatter": "verbose",
+        },
+        "file_errors": {
+            "level": "WARNING",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(LOG_DIR, "errors.log"),
+            "maxBytes": 1024 * 1024 * 2,
+            "backupCount": 2,
+            "formatter": "verbose",
+        },
+        "file_celery": {
+            "level": "INFO",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(LOG_DIR, "celery.log"),
+            "maxBytes": 1024 * 1024 * 5,
+            "backupCount": 3,
+            "formatter": "verbose",
         },
     },
-    'root': {
-        'handlers': ['console'],
-        'level': LOG_LEVEL,
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'WARNING',
-            'propagate': False,
+    "loggers": {
+        "django": {
+            "handlers": ["file_backend", "file_errors"],
+            "level": "INFO",
+            "propagate": False,
         },
-        'intel_core': {
-            'handlers': ['console'],
-            'level': LOG_LEVEL,
-            'propagate': False,
+        "celery": {
+            "handlers": ["file_celery", "file_errors"],
+            "level": "INFO",
+            "propagate": False,
         },
-        'embeddings': {
-            'handlers': ['console'],
-            'level': LOG_LEVEL,
-            'propagate': False,
-        },
-        'document_service': {
-            'handlers': ['console'],
-            'level': LOG_LEVEL,
-            'propagate': False,
-        },
-        'youtube_video_helper': {
-            'handlers': ['console'],
-            'level': LOG_LEVEL,
-            'propagate': False,
+        "": {
+            "handlers": ["file_backend", "file_errors"],
+            "level": "DEBUG",
         },
     },
 }
