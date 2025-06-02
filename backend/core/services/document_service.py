@@ -189,7 +189,15 @@ def ingest_urls(
             existing_doc = Document.objects.filter(source_url=url).first()
             if existing_doc and DocumentChunk.objects.filter(document=existing_doc).exists():
                 logger.warning(f"[Ingest] Skipping {url} — chunks already exist.")
-                processed_documents.append(existing_doc)
+                processed_documents.append(
+                    {
+                        "message": "Ingestion complete",
+                        "document_id": str(existing_doc.id),
+                        "embedded_chunks": existing_doc.chunks.filter(embedding__isnull=False).count(),
+                        "total_chunks": existing_doc.chunks.count(),
+                        "summary": existing_doc.summary,
+                    }
+                )
                 continue
 
             content = fetch_url(url)
@@ -264,9 +272,9 @@ def ingest_videos(
     session_id: str | None = None,
     job_id: str | None = None,
 ):
-    """Ingest a list of YouTube videos into Document objects."""
+    """Ingest a list of YouTube videos and return serialized info."""
 
-    processed_documents = []
+    processed_documents: list[dict] = []
 
     for index, url in enumerate(video_urls):
         try:
@@ -306,11 +314,19 @@ def ingest_videos(
             )
 
             if processed_document:
-                processed_documents.append(processed_document)
                 chunk_total = processed_document.chunks.count()
                 embedded = processed_document.chunks.filter(embedding__isnull=False).count()
                 logger.info(
                     f"[Ingest] {embedded}/{chunk_total} chunks embedded for {processed_document.title}"
+                )
+                processed_documents.append(
+                    {
+                        "message": "Ingestion complete",
+                        "document_id": str(processed_document.id),
+                        "embedded_chunks": embedded,
+                        "total_chunks": chunk_total,
+                        "summary": processed_document.summary,
+                    }
                 )
 
             _update_job(

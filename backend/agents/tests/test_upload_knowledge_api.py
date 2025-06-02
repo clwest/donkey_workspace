@@ -27,7 +27,7 @@ class UploadKnowledgeAPITest(APITestCase):
         DocumentChunk.objects.create(
             document=doc, order=0, text="t", tokens=1, fingerprint="f"
         )
-        mock_ingest.return_value = [doc]
+        mock_ingest.return_value = [{"document_id": str(doc.id), "embedded_chunks": 1, "total_chunks": 1, "summary": ""}]
         mock_llm.return_value = "- s"
         resp = self.client.post(
             f"/api/v1/agents/{self.agent.id}/upload_knowledge/",
@@ -43,7 +43,7 @@ class UploadKnowledgeAPITest(APITestCase):
         DocumentChunk.objects.create(
             document=doc, order=0, text="t", tokens=1, fingerprint="f2"
         )
-        mock_ingest.return_value = [doc]
+        mock_ingest.return_value = [{"document_id": str(doc.id), "embedded_chunks": 1, "total_chunks": 1, "summary": ""}]
         mock_llm.return_value = "- b"
         resp = self.client.post(
             f"/api/v1/agents/{self.agent.id}/upload_knowledge/",

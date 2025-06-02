@@ -50,12 +50,20 @@ class DocumentService:
         return session_id
 
     @classmethod
-    def _link_assistant(cls, assistant: Optional[Assistant], documents: List[Document]):
+    def _link_assistant(cls, assistant: Optional[Assistant], documents):
+        """Link assistant to each document given raw models or serialized dicts."""
         if assistant:
             for doc in documents:
+                target = None
                 if isinstance(doc, Document):
-                    doc.linked_assistants.add(assistant)
-                    assistant.assigned_documents.add(doc)
+                    target = doc
+                elif isinstance(doc, dict):
+                    doc_id = doc.get("document_id")
+                    if doc_id:
+                        target = Document.objects.filter(id=doc_id).first()
+                if target:
+                    target.linked_assistants.add(assistant)
+                    assistant.assigned_documents.add(target)
 
     @classmethod
     def ingest_youtube(
@@ -66,7 +74,7 @@ class DocumentService:
         session_id: Optional[str],
         assistant: Optional[Assistant],
         project: Optional[Project],
-    ) -> List[Document]:
+    ) -> list[dict]:
         session_id = cls._ensure_session(session_id, assistant, project)
         documents = load_videos(video_urls, title, project_name, session_id)
         cls._link_assistant(assistant, documents)
@@ -179,23 +187,43 @@ class DocumentService:
                 project = Project.objects.filter(slug=project_id).first()
         tags = tags or []
         if source_type == "youtube":
-            return cls.ingest_youtube(
+            docs = cls.ingest_youtube(
                 urls or [], title, project_name, session_id, assistant, project
             )
-        if source_type == "url":
-            return cls.ingest_urls(
+        elif source_type == "url":
+            docs = cls.ingest_urls(
                 urls or [], title, project_name, session_id, tags, assistant, project
             )
-        if source_type == "pdf":
+        elif source_type == "pdf":
             uploaded_files = files or []
-            return cls.ingest_pdfs(
+            docs = cls.ingest_pdfs(
                 uploaded_files, title, project_name, session_id, assistant, project
             )
-        if source_type == "text":
-            return cls.ingest_text(
+        elif source_type == "text":
+            docs = cls.ingest_text(
                 text or "", title, project_name, session_id, tags, assistant, project
             )
-        raise ValueError("Invalid source_type")
+        else:
+            raise ValueError("Invalid source_type")
+
+        results: list[dict] = []
+        for doc in docs:
+            if isinstance(doc, Document):
+                results.append(
+                    {
+                        "message": "Ingestion complete",
+                        "document_id": str(doc.id),
+                        "embedded_chunks": doc.chunks.filter(embedding__isnull=False).count(),
+                        "total_chunks": doc.chunks.count(),
+                        "summary": doc.summary,
+                    }
+                )
+            elif isinstance(doc, dict):
+                results.append(doc)
+
+        cls._link_assistant(assistant, docs)
+
+        return results
 
     @classmethod
     def create_document_set(
@@ -215,9 +243,9 @@ class DocumentService:
         urls = urls or []
         videos = videos or []
         files = files or []
-        docs: list[Document] = []
+        docs_info: list[dict] = []
         if urls:
-            docs.extend(
+            docs_info.extend(
                 cls.ingest(
                     source_type="url",
                     urls=urls,
@@ -230,7 +258,7 @@ class DocumentService:
                 )
             )
         if videos:
-            docs.extend(
+            docs_info.extend(
                 cls.ingest(
                     source_type="youtube",
                     urls=videos,
@@ -242,7 +270,7 @@ class DocumentService:
                 )
             )
         if files:
-            docs.extend(
+            docs_info.extend(
                 cls.ingest(
                     source_type="pdf",
                     files=files,
@@ -254,8 +282,7 @@ class DocumentService:
                 )
             )
 
-        document_set = DocumentSet.objects.create(
-            title=title,
-        )
-        document_set.documents.set([d for d in docs if isinstance(d, Document)])
+        document_set = DocumentSet.objects.create(title=title)
+        doc_ids = [info["document_id"] for info in docs_info if info.get("document_id")]
+        document_set.documents.set(Document.objects.filter(id__in=doc_ids))
         return document_set

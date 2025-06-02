@@ -2,8 +2,8 @@ from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from rest_framework.response import Response
 from utils.logging_utils import get_logger
-from intel_core.serializers import DocumentSerializer
 from intel_core.services import DocumentService
+from intel_core.models import Document
 from prompts.models import Prompt
 from prompts.utils.token_helpers import count_tokens
 from prompts.utils.diagnostics import update_prompt_diagnostics
@@ -59,7 +59,7 @@ def unified_ingestion_view(request):
     uploaded_files = request.FILES.getlist("files")
 
     try:
-        docs = DocumentService.ingest(
+        ingest_result = DocumentService.ingest(
             source_type=source_type,
             urls=urls,
             files=uploaded_files,
@@ -70,6 +70,8 @@ def unified_ingestion_view(request):
             project_id=project_id,
             tags=tag_names,
         )
+        doc_ids = [d.get("document_id") for d in ingest_result]
+        docs = list(Document.objects.filter(id__in=doc_ids))
 
         assistant = (
             Assistant.objects.filter(id=assistant_id).first()
@@ -134,13 +136,21 @@ def unified_ingestion_view(request):
                 except Exception:
                     pass
 
-        serialized = [DocumentSerializer(doc).data for doc in docs]
-        response = {"documents": serialized}
-        if create_prompt and docs:
-            response["prompts"] = [str(p.id) for p in Prompt.objects.filter(source_document__in=docs, assistant=assistant)]
-        if source_type == "url":
-            response["message"] = f"Loaded {len(serialized)} URL document(s)."
-        return Response(response)
+        try:
+            response = {"documents": ingest_result}
+            if create_prompt and docs:
+                response["prompts"] = [
+                    str(p.id)
+                    for p in Prompt.objects.filter(
+                        source_document__in=docs, assistant=assistant
+                    )
+                ]
+            if source_type == "url":
+                response["message"] = f"Loaded {len(ingest_result)} URL document(s)."
+            return Response(response, status=200)
+        except Exception as e:
+            logger.exception("🔥 Final response serialization failed")
+            return Response({"error": str(e)}, status=500)
 
     except Exception as e:
         return Response({"error": str(e)}, status=500)
