@@ -432,6 +432,7 @@ def train_agent(request, id):
 @api_view(["POST"])
 def upload_knowledge(request, id):
     agent = get_object_or_404(Agent, id=id)
+    from intel_core.models import Document
 
     url = request.data.get("url")
     raw_text = request.data.get("raw_text")
@@ -451,12 +452,18 @@ def upload_knowledge(request, id):
     docs = []
     if url:
         origin = "url"
-        docs = DocumentService.ingest(source_type="url", urls=[url], tags=tags)
+        info = DocumentService.ingest(source_type="url", urls=[url], tags=tags)
+        doc_ids = [d.get("document_id") for d in info]
+        docs = list(Document.objects.filter(id__in=doc_ids))
     elif pdf_file:
         origin = "pdf"
-        docs = DocumentService.ingest(source_type="pdf", files=[pdf_file], tags=tags)
+        info = DocumentService.ingest(source_type="pdf", files=[pdf_file], tags=tags)
+        doc_ids = [d.get("document_id") for d in info]
+        docs = list(Document.objects.filter(id__in=doc_ids))
     else:
-        docs = DocumentService.ingest_text(raw_text, "Manual Upload", "General", None, tags, None, None)
+        docs = DocumentService.ingest_text(
+            raw_text, "Manual Upload", "General", None, tags, None, None
+        )
 
     if not docs:
         return Response({"error": "Ingestion failed"}, status=500)

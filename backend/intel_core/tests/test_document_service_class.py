@@ -24,7 +24,7 @@ def test_document_service_ingest_url(monkeypatch):
 
     monkeypatch.setattr("intel_core.processors.url_loader.load_urls", fake_loader)
 
-    docs = DocumentService.ingest(
+    result = DocumentService.ingest(
         source_type="url",
         urls=["http://example.com"],
         assistant_id=None,
@@ -32,8 +32,7 @@ def test_document_service_ingest_url(monkeypatch):
         title="t",
         project_name="general",
     )
-
-    assert docs == [dummy_doc]
+    assert result[0]["document_id"] == str(dummy_doc.id)
 
 
 @pytest.mark.django_db
@@ -49,7 +48,7 @@ def test_document_service_ingest_youtube(monkeypatch):
         "intel_core.processors.video_loader.load_videos", fake_loader
     )
 
-    docs = DocumentService.ingest(
+    result = DocumentService.ingest(
         source_type="youtube",
         urls=["https://youtu.be/test"],
         assistant_id=None,
@@ -57,5 +56,4 @@ def test_document_service_ingest_youtube(monkeypatch):
         title="t",
         project_name="general",
     )
-
-    assert docs == [dummy_doc]
+    assert result[0]["document_id"] == str(dummy_doc.id)

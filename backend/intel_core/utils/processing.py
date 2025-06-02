@@ -5,6 +5,7 @@ import uuid
 import numpy as np
 import spacy
 from celery import current_app
+import time
 from django.conf import settings
 from django.db import IntegrityError
 from embeddings.helpers.helpers_io import (
@@ -295,10 +296,15 @@ def save_document_to_db(content, metadata, session_id=None):
         _create_document_chunks(document)
         chunk_count = DocumentChunk.objects.filter(document=document).count()
         logger.info("[Chunking] Generated %d chunks", chunk_count)
-        if not is_celery_running():
-            logger.warning("Celery appears offline. Embeddings will not be computed.")
-            if getattr(settings, "FORCE_EMBED_SYNC", False):
-                _embed_document_chunks(document)
+        embedding_tasks_queued = DocumentChunk.objects.filter(
+            document=document, embedding__isnull=True
+        ).count()
+        if embedding_tasks_queued == 0:
+            logger.warning("No embedding tasks queued — check chunking logic.")
+        else:
+            logger.info(
+                "✅ Queued %d chunk embedding tasks via Celery.", embedding_tasks_queued
+            )
 
         return document
 
@@ -412,6 +418,23 @@ def process_videos(video, video_title, project_name, session_id):
 
         document = save_document_to_db(lemmatized_text, metadata, session_id)
         logger.info(f"✅ Video processed and saved: {video_title}")
+
+        if document:
+            chunk_count = document.chunks.count()
+            embedded_count = document.chunks.filter(embedding__isnull=False).count()
+            if embedded_count == 0:
+                time.sleep(5)
+                embedded_count = document.chunks.filter(embedding__isnull=False).count()
+                if embedded_count == 0:
+                    logger.warning(
+                        "⚠️ Ingest completed but no embeddings returned within timeout."
+                    )
+            logger.info(
+                "✅ Ingest finished: %s — %d chunks created, %d embedded",
+                document.title,
+                chunk_count,
+                embedded_count,
+            )
 
         return document
     except Exception as e:

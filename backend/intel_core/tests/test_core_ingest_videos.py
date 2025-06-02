@@ -18,5 +18,5 @@ def test_ingest_videos_returns_document(monkeypatch):
     monkeypatch.setattr(doc_service, "process_youtube_video", lambda url: ["hello", "world"])
     monkeypatch.setattr(doc_service, "process_videos", lambda *args, **kwargs: dummy_doc)
 
-    docs = doc_service.ingest_videos(["https://youtu.be/test"])
-    assert docs == [dummy_doc]
+    result = doc_service.ingest_videos(["https://youtu.be/test"])
+    assert result[0]["document_id"] == str(dummy_doc.id)
