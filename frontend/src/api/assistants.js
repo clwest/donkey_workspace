@@ -379,6 +379,12 @@ export function initiateDream(id, body) {
 }
 
 export async function reviewIngestDocument(slug, docId) {
+  if (!docId || docId === "undefined") {
+    console.warn(
+      `[ReviewIngest] Skipping review — invalid document ID: ${docId}`,
+    );
+    return null;
+  }
   try {
     return await apiFetch(`/assistants/${slug}/review-ingest/${docId}/`, {
       method: "POST",

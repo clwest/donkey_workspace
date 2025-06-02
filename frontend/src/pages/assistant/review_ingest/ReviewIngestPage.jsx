@@ -16,6 +16,13 @@ export default function ReviewIngestPage() {
 
   useEffect(() => {
     async function loadInfo() {
+      if (!doc_id || doc_id === "undefined") {
+        console.warn(
+          `[ReviewIngest] Skipping doc fetch — invalid document ID: ${doc_id}`,
+        );
+        setLoading(false);
+        return;
+      }
       try {
         const [a, d] = await Promise.all([
           apiFetch(`/assistants/${slug}/`),
@@ -32,6 +39,12 @@ export default function ReviewIngestPage() {
 
   useEffect(() => {
     async function runReflection() {
+      if (!doc_id || doc_id === "undefined") {
+        console.warn(
+          `[ReviewIngest] Skipping review — invalid document ID: ${doc_id}`,
+        );
+        return;
+      }
       try {
         const res = await reviewIngestDocument(slug, doc_id);
         if (!res) throw new Error("review failed");

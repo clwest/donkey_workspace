@@ -74,12 +74,17 @@ export default function DocumentIngestionForm({ onSuccess }) {
       }
       if (onSuccess) await onSuccess();
       if (reflectAfter && selectedAssistant && data && data.documents?.length > 0) {
-        const asst = assistants.find((a) => a.id === selectedAssistant);
-        if (asst) {
-          navigate(
-            `/assistants/${asst.slug}/review-ingest/${data.documents[0].id}/`,
+        const docId = data.documents[0].id;
+        if (!docId || docId === "undefined") {
+          console.warn(
+            `[ReviewIngest] Skipping review — invalid document ID: ${docId}`,
           );
-          return;
+        } else {
+          const asst = assistants.find((a) => a.id === selectedAssistant);
+          if (asst) {
+            navigate(`/assistants/${asst.slug}/review-ingest/${docId}/`);
+            return;
+          }
         }
       }
       if (
