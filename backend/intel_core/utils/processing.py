@@ -188,8 +188,9 @@ def _embed_document_chunks(document: Document):
 
 
 def save_document_to_db(content, metadata, session_id=None):
+    title = metadata.get("title", "Untitled")
+    logger.info(f"📝 Attempting to save document: {title}")
     logger.info(f"🧐 Full Metadata: {metadata}")
-    logger.info("[Ingest] Saving document: %s", metadata.get("title"))
     logger.info("[Ingest] Text length: %d chars", len(content))
 
     try:
@@ -309,7 +310,7 @@ def save_document_to_db(content, metadata, session_id=None):
         return document
 
     except Exception as e:
-        logger.error(f"❌ Error saving document to DB: {e}")
+        logger.exception("❌ Document save failed", exc_info=True)
         return None
 
 

@@ -66,9 +66,14 @@ export default function DocumentIngestionForm({ onSuccess }) {
         credentials: "include",
       });
       if (!uploadRes.ok) throw new Error("API Error");
-      const data = await uploadRes.json();
+      let data = null;
+      try {
+        data = await uploadRes.json();
+      } catch {
+        data = null;
+      }
       if (onSuccess) await onSuccess();
-      if (reflectAfter && selectedAssistant && data.documents?.length > 0) {
+      if (reflectAfter && selectedAssistant && data && data.documents?.length > 0) {
         const asst = assistants.find((a) => a.id === selectedAssistant);
         if (asst) {
           navigate(
@@ -77,7 +82,15 @@ export default function DocumentIngestionForm({ onSuccess }) {
           return;
         }
       }
-      toast.success("Ingestion complete");
+      if (
+        (data && data.status === "skipped") ||
+        (data && Array.isArray(data.documents) &&
+          data.documents.some((d) => d.status === "skipped" || d.total_chunks === 0))
+      ) {
+        toast.warn(data.reason || "Ingestion skipped");
+      } else {
+        toast.success("Ingestion complete");
+      }
       setUrlInput("");
       setVideoInput("");
       setTags("");

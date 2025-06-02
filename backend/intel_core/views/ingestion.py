@@ -125,16 +125,22 @@ def unified_ingestion_view(request):
                         update_fields.append("personality")
                     assistant.save(update_fields=update_fields)
 
-        if reflect_after and docs and assistant:
-            from assistants.utils.assistant_reflection_engine import (
-                AssistantReflectionEngine,
-            )
-            engine = AssistantReflectionEngine(assistant)
-            for doc in docs:
-                try:
-                    engine.reflect_on_document(doc)
-                except Exception:
-                    pass
+        if reflect_after:
+            if docs and assistant:
+                from assistants.utils.assistant_reflection_engine import (
+                    AssistantReflectionEngine,
+                )
+                engine = AssistantReflectionEngine(assistant)
+                for doc in docs:
+                    logger.info(
+                        f"🔁 Reflecting on document: {doc.title} | Assistant: {assistant.name}"
+                    )
+                    try:
+                        engine.reflect_on_document(doc)
+                    except Exception:
+                        logger.exception("Reflection failed", exc_info=True)
+            else:
+                logger.warning("⚠️ Reflection skipped – no document created")
 
         try:
             response = {"documents": ingest_result}
@@ -147,6 +153,8 @@ def unified_ingestion_view(request):
                 ]
             if source_type == "url":
                 response["message"] = f"Loaded {len(ingest_result)} URL document(s)."
+            if not docs and ingest_result and isinstance(ingest_result[0], dict) and ingest_result[0].get("status") == "skipped":
+                return Response(ingest_result[0], status=204)
             return Response(response, status=200)
         except Exception as e:
             logger.exception("🔥 Final response serialization failed")
