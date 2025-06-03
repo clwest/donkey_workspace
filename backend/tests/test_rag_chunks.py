@@ -396,3 +396,58 @@ def test_anchor_weight_profile(mock_sim, mock_chunk_model, mock_embed, db):
     with patch.object(chunk_retriever, "ANCHOR_BOOST", 0):
         chunks, *_ = chunk_retriever.get_relevant_chunks(str(assistant.id), "q")
     assert chunks[0]["chunk_id"] == "1"
+
+
+
+@patch("assistants.utils.chunk_retriever.get_embedding_for_text")
+@patch("assistants.utils.chunk_retriever.DocumentChunk")
+@patch("assistants.utils.chunk_retriever.compute_similarity")
+def test_excludes_non_embedded_chunks(mock_sim, mock_chunk_model, mock_embed, db):
+    assistant = Assistant.objects.create(name="A")
+    doc = Document.objects.create(title="D", content="txt")
+    assistant.documents.add(doc)
+
+    embedded_chunk = type(
+        "C",
+        (),
+        {
+            "id": 1,
+            "document_id": doc.id,
+            "document": doc,
+            "text": "ok",
+            "embedding": type("E", (), {"vector": [0.1]})(),
+            "embedding_status": "embedded",
+        },
+    )
+
+    pending_chunk = type(
+        "C",
+        (),
+        {
+            "id": 2,
+            "document_id": doc.id,
+            "document": doc,
+            "text": "pending",
+            "embedding": type("E", (), {"vector": [0.2]})(),
+            "embedding_status": "pending",
+        },
+    )
+
+    captured_kwargs = {}
+
+    def fake_filter(*args, **kwargs):
+        captured_kwargs.update(kwargs)
+        # Only return the embedded chunk, mimicking DB filter
+        return DummyManager([embedded_chunk])
+
+    mock_chunk_model.objects.filter.side_effect = fake_filter
+    mock_embed.return_value = [0.5]
+    mock_sim.return_value = 0.8
+
+    chunks, *_ = get_relevant_chunks(str(assistant.id), "q")
+
+    assert captured_kwargs.get("embedding_status") == "embedded"
+    assert len(chunks) == 1
+    assert chunks[0]["chunk_id"] == "1"
+
+
