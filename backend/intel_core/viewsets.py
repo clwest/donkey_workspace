@@ -6,7 +6,7 @@ from .models import Document, DocumentChunk, EmbeddingMetadata
 from .serializers import (
     DocumentSerializer,
     DocumentDetailSerializer,
-    DocumentChunkSerializer,
+    DocumentChunkFullSerializer,
     DocumentChunkInfoSerializer,
     EmbeddingMetadataSerializer,
 )
@@ -34,7 +34,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
 class DocumentChunkViewSet(viewsets.ModelViewSet):
     queryset = DocumentChunk.objects.all().order_by("order")
-    serializer_class = DocumentChunkSerializer
+    serializer_class = DocumentChunkFullSerializer
 
 
 class EmbeddingMetadataViewSet(viewsets.ModelViewSet):

@@ -3,7 +3,7 @@ import warnings
 warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
 from django.urls import path
 
-from .views import ingestion, documents, intelligence, debug
+from .views import ingestion, documents, intelligence, debug, chunks
 
 urlpatterns = [
     path("ingestions/", ingestion.unified_ingestion_view, name="intel-load-url"),
@@ -61,6 +61,11 @@ urlpatterns = [
         "experiments/bootstrap-from-doc/<uuid:pk>/",
         intelligence.create_bootstrapped_assistant_from_document,
         name="bootstrap_from_doc_experiment",
+    ),
+    path(
+        "documents/<uuid:doc_id>/chunks/",
+        chunks.document_chunks,
+        name="document_chunk_list",
     ),
     path("debug/chunks/<uuid:doc_id>/", debug.debug_doc_chunks),
     path("debug/rag-recall/", debug.rag_recall),

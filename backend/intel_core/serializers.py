@@ -109,10 +109,34 @@ class DocumentSetSerializer(serializers.ModelSerializer):
         ]
 
 
-class DocumentChunkSerializer(serializers.ModelSerializer):
+class DocumentChunkFullSerializer(serializers.ModelSerializer):
+    """Full representation used by the admin-facing viewset."""
+
     class Meta:
         model = DocumentChunk
         fields = "__all__"
+
+
+class DocumentChunkSerializer(serializers.ModelSerializer):
+    embedding_id = serializers.SerializerMethodField()
+    skipped = serializers.SerializerMethodField()
+
+    class Meta:
+        model = DocumentChunk
+        fields = [
+            "id",
+            "tokens",
+            "score",
+            "force_embed",
+            "skipped",
+            "embedding_id",
+        ]
+
+    def get_embedding_id(self, obj):
+        return getattr(obj.embedding, "embedding_id", None)
+
+    def get_skipped(self, obj):
+        return obj.embedding_status == "skipped"
 
 
 class DocumentChunkInfoSerializer(serializers.ModelSerializer):
