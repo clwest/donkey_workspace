@@ -1,88 +1,56 @@
 from django.core.management.base import BaseCommand
-from intel_core.models import Document, DocumentChunk, DocumentProgress
+from intel_core.models import Document, DocumentChunk, DocumentProgress, EmbeddingMetadata
 
+from uuid import UUID
 
 class Command(BaseCommand):
-    """Recount chunks and embeddings, update progress status."""
-
-    help = "Reconcile DocumentProgress counts for a document"
+    help = "Repair or create DocumentProgress records for documents"
 
     def add_arguments(self, parser):
-        parser.add_argument("--doc-id", dest="doc_id", required=True)
-        parser.add_argument("--repair", action="store_true", help="Force repair progress record and chunk states")
+        parser.add_argument('--doc-id', type=str, help='Document UUID to repair')
+        parser.add_argument('--all', action='store_true', help='Repair all documents')
+        parser.add_argument('--repair', action='store_true', help='Enable repair mode')
 
     def handle(self, *args, **options):
-        doc_id = options["doc_id"]
-        repair = options.get("repair")
-
-        document = Document.objects.filter(id=doc_id).first()
-        if not document:
-            self.stderr.write(f"Document {doc_id} not found")
+        if options['all']:
+            docs = Document.objects.all()
+        elif options['doc_id']:
+            try:
+                docs = [Document.objects.get(id=UUID(options['doc_id']))]
+            except Document.DoesNotExist:
+                self.stdout.write(self.style.ERROR("❌ Document not found."))
+                return
+        else:
+            self.stdout.write(self.style.ERROR("❌ Must provide --doc-id or --all"))
             return
 
-        chunks = DocumentChunk.objects.filter(document=document).order_by("order")
-        chunk_total = chunks.count()
+        for doc in docs:
+            chunks = DocumentChunk.objects.filter(document=doc)
+            total = chunks.count()
+            embedded = chunks.filter(embedding_status='embedded').count()
+            failed = chunks.filter(embedding_status='failed').count()
 
-        progress_id = None
-        if isinstance(document.metadata, dict):
-            progress_id = document.metadata.get("progress_id")
-
-        progress = None
-        if progress_id:
-            progress = DocumentProgress.objects.filter(progress_id=progress_id).first()
-
-        summary_marked = 0
-        summary_orphaned = 0
-
-        if repair:
-            for ch in chunks:
-                emb_id = getattr(ch.embedding, "embedding_id", None)
-                if emb_id and ch.embedding_status != "embedded":
-                    ch.embedding_status = "embedded"
-                    ch.save(update_fields=["embedding_status"])
-                    summary_marked += 1
-                elif not emb_id and ch.embedding_status == "embedded":
-                    ch.embedding_status = "pending"
-                    ch.save(update_fields=["embedding_status"])
-                    summary_orphaned += 1
-
-        embedded_total = chunks.filter(embedding_status="embedded").count()
-        failed_list = list(
-            chunks.filter(embedding_status="failed").values_list("order", flat=True)
-        )
-
-        if not progress and repair:
-            progress = DocumentProgress.objects.create(
-                title=document.title,
-                total_chunks=chunk_total,
-                processed=chunk_total,
-                embedded_chunks=embedded_total,
-                status="pending",
+            progress, created = DocumentProgress.objects.get_or_create(
+                document=doc,
+                defaults={
+                    'title': doc.title,
+                    'total_chunks': total,
+                    'processed': total,
+                    'embedded_chunks': embedded,
+                    'failed_chunks': [],
+                    'status': 'completed' if embedded == total else 'failed',
+                }
             )
-            document.metadata = document.metadata or {}
-            document.metadata["progress_id"] = str(progress.progress_id)
-            document.save(update_fields=["metadata"])
-        elif not progress:
-            self.stderr.write("No DocumentProgress record found")
-            return
 
-        progress.total_chunks = chunk_total
-        progress.processed = max(progress.processed, chunk_total)
-        progress.embedded_chunks = embedded_total
-        progress.failed_chunks = failed_list
-        if failed_list:
-            progress.status = "failed"
-        elif (
-            progress.status != "failed"
-            and progress.total_chunks > 0
-            and progress.embedded_chunks >= progress.total_chunks
-        ):
-            progress.status = "completed"
-        progress.save()
-
-        msg = (
-            f"Progress {progress.progress_id} -> {progress.embedded_chunks}/{progress.total_chunks} ({progress.status})"
-        )
-        if repair:
-            msg += f" | Marked {summary_marked} chunk(s) as embedded, repaired {summary_orphaned} orphaned chunk(s)"
-        self.stdout.write(msg)
+            if not created and options['repair']:
+                progress.total_chunks = total
+                progress.processed = total
+                progress.embedded_chunks = embedded
+                progress.failed_chunks = list(
+                    chunks.filter(embedding_status='failed').values_list('order', flat=True)
+                )
+                progress.status = 'completed' if embedded == total else 'failed'
+                progress.save()
+                self.stdout.write(f"🔧 Repaired: {doc.title} -> {embedded}/{total} embedded")
+            else:
+                self.stdout.write(f"✅ Verified: {doc.title} -> {embedded}/{total} embedded")
