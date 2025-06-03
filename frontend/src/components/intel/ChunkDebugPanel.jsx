@@ -28,12 +28,21 @@ export default function ChunkDebugPanel({ docId }) {
   const handleReembed = async (skipOnly) => {
     setReembedding(true);
     try {
-      await apiFetch(`/embeddings/reembed-skipped/`, {
+      const res = await apiFetch(`/embeddings/reembed-skipped/`, {
         method: "POST",
-        params: { document_id: docId, force: skipOnly ? undefined : "true" },
+        params: {
+          document_id: docId,
+          force: skipOnly ? undefined : "true",
+          repair: "true",
+        },
       });
       if (skipOnly) setShowSkipped(false);
-      toast.success("Re-embed queued");
+      toast.success(`✅ Re-embedding started for ${res.reembedded} chunks`);
+      const refreshed = await apiFetch(`/intel/documents/${docId}/chunks/`);
+      const list = Array.isArray(refreshed) ? refreshed.chunks || [] : refreshed;
+      setChunks(list);
+      const emb = list.filter((c) => c.embedding_id).length;
+      toast.success(`Embedded ${emb} / ${list.length}`);
     } catch (err) {
       console.error("Reembed failed", err);
       toast.error("Re-embed failed");
