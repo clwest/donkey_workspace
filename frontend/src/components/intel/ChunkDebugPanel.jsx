@@ -127,7 +127,7 @@ export default function ChunkDebugPanel({ docId }) {
                 <th>Score</th>
                 <th>Skipped</th>
                 <th>Force</th>
-                <th>Embed ID</th>
+                <th title="Embedding ID. ⚠️ icon means status not 'embedded'">Embed ID</th>
               </tr>
             </thead>
             <tbody>
@@ -147,8 +147,11 @@ export default function ChunkDebugPanel({ docId }) {
                   <td>{c.force_embed ? "⚠️" : ""}</td>
                   <td>
                     {c.embedding_id ? c.embedding_id.slice(0, 8) : "-"}
-                    {c.score === 1.0 && c.embedding_status !== "embedded" && (
-                      <span className="ms-1 text-warning" title="Chunk not embedded">
+                    {c.embedding_status !== "embedded" && (
+                      <span
+                        className="ms-1 text-warning"
+                        title={`Chunk status is '${c.embedding_status}' despite having an embedding`}
+                      >
                         ⚠️
                       </span>
                     )}

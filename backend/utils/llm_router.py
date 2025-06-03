@@ -140,6 +140,10 @@ def chat(
         top_score = 0.0
         fallback = True
         reason = "non-embedded"
+        ids = ", ".join(ch.get("chunk_id") for ch in invalid_chunks)
+        rag_meta.setdefault("debug_logs", []).append(
+            f"Invalid embedding status for chunks: {ids}"
+        )
     query_terms = AcronymGlossaryService.extract(query_text)
     all_anchors = list(SymbolicMemoryAnchor.objects.values_list("slug", flat=True))
     anchor_matches = [s for s in all_anchors if s.lower() in query_text.lower()]

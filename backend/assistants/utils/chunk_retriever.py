@@ -266,6 +266,15 @@ def get_relevant_chunks(
     else:
         filtered_anchor_terms = []
     for chunk in chunks:
+        if chunk.embedding and chunk.embedding_status != "embedded":
+            logger.warning(
+                "Chunk %s has embedding_id %s but status %s; fixing",
+                chunk.id,
+                getattr(chunk.embedding, "embedding_id", None),
+                chunk.embedding_status,
+            )
+            chunk.embedding_status = "embedded"
+            chunk.save(update_fields=["embedding_status"])
         if getattr(chunk, "embedding_status", "embedded") != "embedded":
             logger.warning(
                 "\u26a0\ufe0f RAG selected chunk %s with embedding_status=%s",

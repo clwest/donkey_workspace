@@ -69,12 +69,14 @@ class MemoryService:
         except Assistant.DoesNotExist:
             return None, MemoryEntry.objects.none()
 
-        linked_thought_ids = AssistantThoughtLog.objects.filter(
-            assistant=assistant
-        ).values_list("linked_memory_id", flat=True)
-        memories = MemoryEntry.objects.filter(id__in=linked_thought_ids).order_by(
-            "-created_at"
+        linked_thought_ids = list(
+            AssistantThoughtLog.objects.filter(assistant=assistant)
+            .values_list("linked_memory_id", flat=True)
         )
+        qs = MemoryEntry.objects.filter(assistant=assistant)
+        if linked_thought_ids:
+            qs = qs.union(MemoryEntry.objects.filter(id__in=linked_thought_ids))
+        memories = qs.order_by("-created_at")
         return assistant, memories
 
 
