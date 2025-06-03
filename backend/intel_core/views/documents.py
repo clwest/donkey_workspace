@@ -230,7 +230,9 @@ def document_progress_view(request, pk):
         "title": progress.title,
         "total_chunks": progress.total_chunks,
         "processed": progress.processed,
+        "embedded_chunks": progress.embedded_chunks,
         "failed_chunks": progress.failed_chunks,
+        "error_message": progress.error_message,
         "status": progress.status,
     }
     return Response(data)
