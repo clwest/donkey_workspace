@@ -58,6 +58,12 @@ export default function DocumentCard({ group, onToggleFavorite, onDelete }) {
   const inProgress = embeddedChunks > 0 && embeddedChunks < chunkCount;
   const progressPct = inProgress ? Math.round((embeddedChunks / chunkCount) * 100) : 0;
 
+  const stuck =
+    embeddedChunks === chunkCount &&
+    chunkCount > 0 &&
+    baseDoc.progress_status &&
+    baseDoc.progress_status !== "completed";
+
   const updatedAt = baseDoc.updated_at ?? group.updated_at ?? created_at;
 
   const isVideo = source_type === "youtube" || source_type === "video";
@@ -164,7 +170,14 @@ export default function DocumentCard({ group, onToggleFavorite, onDelete }) {
             <strong>Updated:</strong> {new Date(updatedAt).toLocaleString()}
           </div>
         )}
-        <DocumentStatusCard doc={baseDoc} />
+        <span className="me-2">
+          <DocumentStatusCard doc={baseDoc} />
+        </span>
+        {stuck && (
+          <span className="text-warning" title="All chunks embedded but progress pending">
+            ⚠️
+          </span>
+        )}
         <Badge bg={sourceColors[source_type] || "secondary"} className="ms-2">
           {badgeType}
         </Badge>

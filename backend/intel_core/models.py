@@ -115,15 +115,16 @@ class DocumentChunk(models.Model):
         on_delete=models.SET_NULL,
         related_name="chunk",
     )
+    class EmbeddingStatus(models.TextChoices):
+        PENDING = "pending", "Pending"
+        EMBEDDED = "embedded", "Embedded"
+        SKIPPED = "skipped", "Skipped"
+        FAILED = "failed", "Failed"
+
     embedding_status = models.CharField(
         max_length=20,
-        default="pending",
-        choices=[
-            ("pending", "Pending"),
-            ("embedded", "Embedded"),
-            ("failed", "Failed"),
-            ("skipped", "Skipped"),
-        ],
+        default=EmbeddingStatus.PENDING,
+        choices=EmbeddingStatus.choices,
     )
 
     def __str__(self):

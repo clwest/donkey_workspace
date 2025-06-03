@@ -9,6 +9,12 @@ export default function DocumentStatusCard({ doc }) {
 
   const failed = progressStatus === "failed" || chunkCount === 0;
   const inProgress = embedded < chunkCount && !failed;
+  const stuck =
+    embedded === chunkCount &&
+    chunkCount > 0 &&
+    progressStatus &&
+    progressStatus !== "completed" &&
+    !failed;
 
   let color = "success";
   let label = "Healthy";
@@ -27,6 +33,10 @@ export default function DocumentStatusCard({ doc }) {
     color = "warning";
     label = "Incomplete";
     tip = "Embedding in progress";
+  } else if (stuck) {
+    color = "warning";
+    label = "Mismatch";
+    tip = "All chunks embedded but progress still pending";
   }
 
   return (

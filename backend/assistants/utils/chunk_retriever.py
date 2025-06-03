@@ -5,7 +5,6 @@ from typing import List, Dict, Tuple, Optional
 from django.shortcuts import get_object_or_404
 from assistants.models.assistant import Assistant
 from assistants.models.project import AssistantProject
-from intel_core.models import DocumentChunk
 
 # Boost acronym chunks
 from intel_core.services import AcronymGlossaryService
@@ -217,13 +216,9 @@ def get_relevant_chunks(
             {},
         )
 
-    chunks_qs = DocumentChunk.objects.filter(
-        document_id__in=doc_ids,
-        embedding__isnull=False,
-    )
-    if not (debug or settings.DEBUG):
-        chunks_qs = chunks_qs.filter(embedding_status="embedded")
-    chunks = chunks_qs.select_related("embedding", "document")
+    from intel_core.utils.chunk_retriever import fetch_chunks
+
+    chunks = fetch_chunks(doc_ids, repair=debug or settings.DEBUG)
 
     logger.debug("[RAG Search] Docs=%s -> %d chunks", doc_ids, chunks.count())
     if chunks:

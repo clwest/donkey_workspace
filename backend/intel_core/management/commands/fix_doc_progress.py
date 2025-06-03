@@ -36,12 +36,14 @@ class Command(BaseCommand):
 
         if repair:
             for ch in chunks:
-                emb_id = getattr(ch.embedding, "embedding_id", None)
-                if emb_id and ch.embedding_status != "embedded":
+                meta = ch.embedding
+                meta_status = getattr(meta, "status", None)
+                has_emb = getattr(meta, "embedding_id", None)
+                if has_emb and meta_status == "completed" and ch.embedding_status != "embedded":
                     ch.embedding_status = "embedded"
                     ch.save(update_fields=["embedding_status"])
                     summary_marked += 1
-                elif not emb_id and ch.embedding_status == "embedded":
+                elif not has_emb and ch.embedding_status == "embedded":
                     ch.embedding_status = "pending"
                     ch.save(update_fields=["embedding_status"])
                     summary_orphaned += 1
