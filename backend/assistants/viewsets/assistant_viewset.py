@@ -98,6 +98,8 @@ class AssistantViewSet(viewsets.ViewSet):
         context = get_or_create_context_from_memory(memory)
         engine = AssistantReflectionEngine(assistant)
         ref_log = engine.reflect_now(context)
+        if not ref_log:
+            return Response({"status": "skipped", "summary": ""})
         AssistantThoughtLog.objects.create(
             assistant=assistant,
             thought=ref_log.summary,
