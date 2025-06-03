@@ -14,6 +14,7 @@ export default function DocumentDetailPage() {
   const [loading, setLoading] = useState(true);
   const [showSmartChunks, setShowSmartChunks] = useState(false);
   const [summaryLoading, setSummaryLoading] = useState(false);
+  const [debugKey, setDebugKey] = useState(0);
 
   // Reset local state whenever the document id changes
   useEffect(() => {
@@ -22,6 +23,36 @@ export default function DocumentDetailPage() {
     setShowSmartChunks(false);
     setSummaryLoading(false);
   }, [id]);
+
+  // Poll progress until completed
+  useEffect(() => {
+    if (!doc) return;
+    const pid = doc.metadata?.progress_id;
+    if (!pid || doc.progress_status === "completed" || doc.progress_status === "failed") return;
+
+    const fetchProgress = async () => {
+      try {
+        const data = await apiFetch(`/intel/documents/${pid}/progress/`);
+        setDoc((prev) => ({
+          ...prev,
+          progress_status: data.status,
+          num_embedded: data.embedded_chunks ?? prev.num_embedded,
+          embedded_chunks: data.embedded_chunks ?? prev.embedded_chunks,
+          num_chunks: data.total_chunks ?? prev.num_chunks,
+          chunk_count: data.total_chunks ?? prev.chunk_count,
+        }));
+        if (data.status === "completed") {
+          setDebugKey((k) => k + 1);
+        }
+      } catch (err) {
+        console.error("Progress poll failed", err);
+      }
+    };
+
+    fetchProgress();
+    const interval = setInterval(fetchProgress, 3000);
+    return () => clearInterval(interval);
+  }, [doc]);
 
   useEffect(() => {
     async function fetchDoc() {
@@ -144,7 +175,7 @@ export default function DocumentDetailPage() {
         </button>
       </div>
       <DocumentAutoBuilder docId={doc.id} />
-      <ChunkDebugPanel docId={doc.id} />
+      <ChunkDebugPanel docId={doc.id} key={debugKey} />
       <div className="my-3 d-flex gap-3">
         <DocumentIntelligencePanel docId={doc.id} />
         {assistants.length > 0 && (

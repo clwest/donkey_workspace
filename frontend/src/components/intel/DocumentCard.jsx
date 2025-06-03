@@ -17,7 +17,7 @@ const sourceColors = {
   text: "secondary",
 };
 
-export default function DocumentCard({ group, onToggleFavorite, onDelete }) {
+export default function DocumentCard({ group, progress, onToggleFavorite, onDelete }) {
   if (!group) return null;
 
   // Allow the component to handle both a single Document object or
@@ -25,6 +25,22 @@ export default function DocumentCard({ group, onToggleFavorite, onDelete }) {
   const baseDoc = Array.isArray(group.documents) && group.documents.length > 0
     ? group.documents[0]
     : group;
+
+  const mergedDoc = { ...baseDoc };
+  if (progress) {
+    if (progress.status) mergedDoc.progress_status = progress.status;
+    if (progress.error_message) mergedDoc.progress_error = progress.error_message;
+    if (Array.isArray(progress.failed_chunks)) mergedDoc.failed_chunks = progress.failed_chunks;
+    if (typeof progress.embedded_chunks === "number") {
+      mergedDoc.embedded_chunks = progress.embedded_chunks;
+      mergedDoc.num_embedded = progress.embedded_chunks;
+    }
+    if (typeof progress.total_chunks === "number") {
+      mergedDoc.chunk_count = progress.total_chunks;
+      mergedDoc.num_chunks = progress.total_chunks;
+    }
+    mergedDoc.updated_at = new Date().toISOString();
+  }
 
   const {
     id,
@@ -35,24 +51,23 @@ export default function DocumentCard({ group, onToggleFavorite, onDelete }) {
     metadata,
     content,
     is_favorited = false,
-  } = baseDoc;
+  } = mergedDoc;
 
   const tokenCount =
-
     group.total_tokens ??
-    baseDoc.token_count ??
+    mergedDoc.token_count ??
     metadata?.token_count ??
     (content ? countTokens(content) : 0);
 
   const chunkCount =
-    baseDoc.chunk_count ??
-    baseDoc.num_chunks ??
+    mergedDoc.chunk_count ??
+    mergedDoc.num_chunks ??
     metadata?.chunk_count ??
     0;
 
   const embeddedChunks =
-    baseDoc.embedded_chunks ??
-    baseDoc.num_embedded ??
+    mergedDoc.embedded_chunks ??
+    mergedDoc.num_embedded ??
     0;
 
   const inProgress = embeddedChunks > 0 && embeddedChunks < chunkCount;
@@ -61,10 +76,10 @@ export default function DocumentCard({ group, onToggleFavorite, onDelete }) {
   const stuck =
     embeddedChunks === chunkCount &&
     chunkCount > 0 &&
-    baseDoc.progress_status &&
-    baseDoc.progress_status !== "completed";
+    mergedDoc.progress_status &&
+    mergedDoc.progress_status !== "completed";
 
-  const updatedAt = baseDoc.updated_at ?? group.updated_at ?? created_at;
+  const updatedAt = mergedDoc.updated_at ?? group.updated_at ?? created_at;
 
   const isVideo = source_type === "youtube" || source_type === "video";
   const isURL = source_type === "url";
@@ -171,7 +186,7 @@ export default function DocumentCard({ group, onToggleFavorite, onDelete }) {
           </div>
         )}
         <span className="me-2">
-          <DocumentStatusCard doc={baseDoc} />
+          <DocumentStatusCard doc={mergedDoc} />
         </span>
         {stuck && (
           <span className="text-warning" title="All chunks embedded but progress pending">

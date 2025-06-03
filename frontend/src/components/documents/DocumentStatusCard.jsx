@@ -7,41 +7,54 @@ export default function DocumentStatusCard({ doc }) {
   const embedded = doc.num_embedded ?? doc.embedded_chunks ?? 0;
   const progressStatus = doc.progress_status || doc.embedding_status?.status;
 
-  const failed = progressStatus === "failed" || chunkCount === 0;
-  const inProgress = embedded < chunkCount && !failed;
-  const stuck =
-    embedded === chunkCount &&
-    chunkCount > 0 &&
-    progressStatus &&
-    progressStatus !== "completed" &&
-    !failed;
+  const failed = progressStatus === "failed";
+  const completed = progressStatus === "completed";
+  const inProgress = !completed && !failed;
 
-  let color = "success";
-  let label = "Healthy";
-  let tip = "Document embedding complete";
+  let color = "secondary";
+  let label = "";
+  let icon = "";
+  let tip = "";
 
   if (failed) {
     color = "danger";
-    label = "Broken";
+    icon = "⚠️";
+    label = "Failed";
     const reasons = [];
     if (doc.progress_error) reasons.push(doc.progress_error);
     if (doc.failed_chunks && doc.failed_chunks.length > 0) {
       reasons.push(`Failed chunks: ${doc.failed_chunks.join(", ")}`);
     }
-    tip = reasons.length > 0 ? reasons.join("; ") : "Document failed to embed. Repair suggested.";
+    tip = reasons.join("; ") || "Upload failed";
+  } else if (completed) {
+    color = "success";
+    icon = "✅";
+    label = "Completed";
+    tip = "Document embedding complete";
   } else if (inProgress) {
     color = "warning";
-    label = "Incomplete";
-    tip = "Embedding in progress";
-  } else if (stuck) {
-    color = "warning";
-    label = "Mismatch";
-    tip = "All chunks embedded but progress still pending";
+    icon = "⏳";
+    if (chunkCount > 0) {
+      label = `Embedding Chunks: ${embedded}/${chunkCount}`;
+    } else {
+      label = "Uploading...";
+    }
+    if (doc.failed_chunks && doc.failed_chunks.length > 0) {
+      tip = `Failed chunks: ${doc.failed_chunks.join(", ")}`;
+    } else if (doc.updated_at) {
+      tip = `Last updated: ${new Date(doc.updated_at).toLocaleString()}`;
+    }
   }
 
-  return (
-    <OverlayTrigger overlay={<Tooltip>{tip}</Tooltip>}>
-      <Badge bg={color}>{label}</Badge>
-    </OverlayTrigger>
+  const badge = (
+    <Badge bg={color} className="status-badge">
+      {icon} {label}
+    </Badge>
+  );
+
+  return tip ? (
+    <OverlayTrigger overlay={<Tooltip>{tip}</Tooltip>}>{badge}</OverlayTrigger>
+  ) : (
+    badge
   );
 }

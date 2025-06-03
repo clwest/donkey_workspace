@@ -6,8 +6,9 @@ import { Badge } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
 export default function DocumentBrowserPage() {
-  const [groupedDocs, setGroupedDocs] = useState({});
+  const [groupedDocs, setGroupedDocs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [progressMap, setProgressMap] = useState({});
 
   const loadDocuments = async () => {
     try {
@@ -18,6 +19,27 @@ export default function DocumentBrowserPage() {
       console.error("Failed to load grouped documents", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const pollProgress = async () => {
+    const updates = {};
+    for (const group of groupedDocs) {
+      if (!group.documents) continue;
+      for (const doc of group.documents) {
+        const pid = doc.metadata?.progress_id;
+        if (pid && doc.progress_status !== "completed" && doc.progress_status !== "failed") {
+          try {
+            const data = await apiFetch(`/intel/documents/${pid}/progress/`);
+            updates[doc.id] = data;
+          } catch (err) {
+            console.error("Progress poll failed", err);
+          }
+        }
+      }
+    }
+    if (Object.keys(updates).length > 0) {
+      setProgressMap((prev) => ({ ...prev, ...updates }));
     }
   };
 
@@ -36,9 +58,14 @@ export default function DocumentBrowserPage() {
     }
   };
 
-    useEffect(() => {
-      loadDocuments();
-    }, []);
+  useEffect(() => {
+    loadDocuments();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(pollProgress, 3000);
+    return () => clearInterval(interval);
+  }, [groupedDocs]);
 
   return (
     <div className="container py-4">
@@ -66,6 +93,7 @@ export default function DocumentBrowserPage() {
                 >
                   <DocumentCard
                     group={group}
+                    progress={progressMap[firstDoc.id]}
                     onDelete={() => handleDeleteDocument(firstDoc.id)}
                   />
                 </Link>
