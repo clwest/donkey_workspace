@@ -171,6 +171,8 @@ def reflect_now(request, slug):
 
     engine = AssistantReflectionEngine(assistant)
     ref_log = engine.reflect_now(context)
+    if not ref_log:
+        return Response({"status": "skipped", "summary": ""})
     return Response({"status": "ok", "summary": ref_log.summary})
 
 

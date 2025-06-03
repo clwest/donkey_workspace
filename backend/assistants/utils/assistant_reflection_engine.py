@@ -165,6 +165,19 @@ class AssistantReflectionEngine:
             limit=30,
         )
         texts = [e.event.strip() for e in entries if e.event.strip()]
+        if not texts:
+            logger.info(
+                "[ReflectionEngine] No memory entries for context %s", context.id
+            )
+            try:
+                tag, _ = Tag.objects.get_or_create(
+                    slug="pending-reflection", defaults={"name": "pending-reflection"}
+                )
+                context.tags.add(tag)
+            except Exception:
+                logger.exception("Failed to tag context for later reflection")
+            return None
+
         from assistants.utils.chunk_retriever import get_relevant_chunks
 
         query_text = texts[0] if texts else context.content or ""

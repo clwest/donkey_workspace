@@ -2209,7 +2209,8 @@ def deployment_standards(request):
     if log_reflection:
         context = MemoryContext.objects.create(content="deployment standards evaluation")
         reflection = AssistantReflectionEngine(assistant).reflect_now(context)
-        reflection_id = reflection.id
+        if reflection:
+            reflection_id = reflection.id
 
     return Response(
         {

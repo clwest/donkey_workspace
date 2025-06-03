@@ -166,6 +166,8 @@ def run_assistant_reflection(self, memory_id: int):
         context = get_or_create_context_from_memory(memory)
         engine = AssistantReflectionEngine(memory.assistant)
         ref_log = engine.reflect_now(context)
+        if not ref_log:
+            return "🧠 No relevant entries to reflect on."
 
         if memory.anchor:
             try:
