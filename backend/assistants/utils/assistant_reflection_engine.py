@@ -103,6 +103,15 @@ class AssistantReflectionEngine:
         self.assistant = assistant
         self.project = self.get_or_create_project(assistant)
 
+    def reflect_on_recent_activity(self) -> AssistantReflectionLog | None:
+        """Run a reflection using the assistant's default memory context."""
+        context = self.assistant.memory_context
+        if not context:
+            context = MemoryContext.objects.create(content=f"{self.assistant.name} Context")
+            self.assistant.memory_context = context
+            self.assistant.save(update_fields=["memory_context"])
+        return self.reflect_now(context)
+
     def build_reflection_prompt(self, memories: list[str]) -> str:
         joined_memories = "\n".join(memories)
         return f"""You are {self.assistant.name}, an AI assistant with reflective capabilities.

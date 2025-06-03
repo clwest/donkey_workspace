@@ -1,6 +1,7 @@
 from django.db import models
 import uuid
 from memory.models import MemoryEntry
+from mcp_core.models import MemoryContext
 from prompts.models import Prompt
 from project.models import ProjectTask, ProjectMilestone
 from agents.models.lore import SwarmMemoryEntry, GlobalMissionNode
@@ -127,6 +128,13 @@ class Assistant(models.Model):
         on_delete=models.SET_NULL,
         related_name="assistants",
     )
+    memory_context = models.ForeignKey(
+        MemoryContext,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="assistants",
+    )
     embedding_index = models.JSONField(default=dict, blank=True)
     current_project = models.ForeignKey(
         "assistants.AssistantProject",
@@ -180,6 +188,10 @@ class Assistant(models.Model):
     auto_reflect_on_message = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
+        if not self.memory_context:
+            self.memory_context = MemoryContext.objects.create(
+                content=f"{self.name} Context"
+            )
         if not self.slug:
             base_slug = slugify(self.name)
             slug = base_slug
