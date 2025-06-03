@@ -2,6 +2,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from intel_core.models import Document, DocumentChunk
+import os
+from intel_core.management.commands.fix_doc_progress import Command as FixCommand
 from embeddings.document_services.chunking import clean_and_score_chunk
 
 
@@ -116,3 +118,19 @@ def verify_embeddings(request):
                 embed_and_store.delay(str(ch.id))
 
     return Response({"mismatches": mismatches})
+
+
+@api_view(["POST"])
+def repair_progress(request):
+    """Run fix_doc_progress logic for a document."""
+    doc_id = request.query_params.get("document_id")
+    if not doc_id:
+        return Response(
+            {"error": "document_id required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    cmd = FixCommand()
+    cmd.stdout = open(os.devnull, "w")  # suppress command output
+    cmd.stderr = open(os.devnull, "w")
+    cmd.handle(doc_id=doc_id, repair=True)
+    return Response({"status": "ok"})

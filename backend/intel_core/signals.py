@@ -97,19 +97,36 @@ def link_embedding_metadata(sender, instance, created, **kwargs):
         progress_id = None
         if isinstance(chunk.document.metadata, dict):
             progress_id = chunk.document.metadata.get("progress_id")
+
+        prog = None
         if progress_id:
             prog = DocumentProgress.objects.filter(progress_id=progress_id).first()
-            if prog:
-                DocumentProgress.objects.filter(progress_id=progress_id).update(
-                    embedded_chunks=F("embedded_chunks") + 1
-                )
-                prog.refresh_from_db()
-                if (
-                    prog.status != "failed"
-                    and prog.total_chunks > 0
-                    and prog.embedded_chunks >= prog.total_chunks
-                ):
-                    prog.status = "completed"
-                    prog.save(update_fields=["status"])
+
+        if not prog:
+            total = chunk.document.chunks.count()
+            embedded = chunk.document.chunks.filter(embedding__isnull=False).count()
+            prog = DocumentProgress.objects.create(
+                title=chunk.document.title,
+                total_chunks=total,
+                processed=total,
+                embedded_chunks=embedded,
+                status="pending",
+            )
+            metadata = chunk.document.metadata or {}
+            metadata["progress_id"] = str(prog.progress_id)
+            chunk.document.metadata = metadata
+            chunk.document.save(update_fields=["metadata"])
+
+        DocumentProgress.objects.filter(progress_id=prog.progress_id).update(
+            embedded_chunks=F("embedded_chunks") + 1
+        )
+        prog.refresh_from_db()
+        if (
+            prog.status != "failed"
+            and prog.total_chunks > 0
+            and prog.embedded_chunks >= prog.total_chunks
+        ):
+            prog.status = "completed"
+            prog.save(update_fields=["status"])
     except Exception as e:
         logger.warning(f"Failed linking embedding to chunk: {e}")
