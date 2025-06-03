@@ -1405,6 +1405,13 @@ class AutonomyNarrativeModel(models.Model):
     known_story_events = models.ManyToManyField(SwarmMemoryEntry)
     active_purpose_statement = models.TextField()
 
+    class Meta:
+        verbose_name = "Autonomy Narrative Model"
+        verbose_name_plural = "Autonomy Narrative Models"
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Narrative for {self.assistant.name}"
+
 
 class MythCommunityCluster(models.Model):
     """Community cluster organized around shared mythic themes."""

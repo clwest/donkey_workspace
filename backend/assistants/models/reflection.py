@@ -8,7 +8,7 @@ class AssistantReflectionLog(models.Model):
 
     project = models.ForeignKey(
         "assistants.AssistantProject",
-        related_name="reflections",
+        related_name="project_reflections",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
@@ -16,7 +16,7 @@ class AssistantReflectionLog(models.Model):
     assistant = models.ForeignKey(
         "Assistant",
         on_delete=models.CASCADE,
-        related_name="reflections",
+        related_name="assistant_reflections",
         null=True,
         blank=True,
     )
@@ -44,7 +44,7 @@ class AssistantReflectionLog(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="reflections",
+        related_name="memory_reflections",
     )
     linked_event = models.ForeignKey(
         "story.NarrativeEvent",
