@@ -296,12 +296,14 @@ def save_document_to_db(content, metadata, session_id=None):
             ).first()
 
         if existing:
+            existing_meta = existing.metadata or {}
+            merged_meta = {**existing_meta, **metadata}
             for field, value in {
                 "content": content,
                 "title": title,
                 "source_type": source_type,
-                "source_url": metadata.get("source_url"),
-                "metadata": metadata,
+                "source_url": merged_meta.get("source_url"),
+                "metadata": merged_meta,
                 "session_id": session_id,
                 "description": f"Ingested from {source_type} - {title}",
                 "summary": summary,
@@ -309,6 +311,7 @@ def save_document_to_db(content, metadata, session_id=None):
                 setattr(existing, field, value)
             existing.save()
             document = existing
+            metadata = merged_meta
             created = False
         else:
             document = Document.objects.create(
@@ -371,7 +374,12 @@ def save_document_to_db(content, metadata, session_id=None):
 
         embedded_now = document.chunks.filter(embedding__isnull=False).count()
 
-        if not progress_id:
+        progress = None
+        if progress_id:
+            progress = DocumentProgress.objects.filter(progress_id=progress_id).first()
+        if not progress:
+            progress = DocumentProgress.objects.filter(document=document).first()
+        if not progress:
             progress = DocumentProgress.objects.create(
                 document=document,
                 title=document.title,
@@ -381,14 +389,15 @@ def save_document_to_db(content, metadata, session_id=None):
                 failed_chunks=[],
                 status="in_progress",
             )
-            meta["progress_id"] = str(progress.progress_id)
         else:
-            progress = DocumentProgress.objects.filter(progress_id=progress_id).first()
-            if progress:
-                progress.document = document
-                progress.total_chunks = chunk_count
-                progress.embedded_chunks = embedded_now
-                progress.save()
+            progress.document = document
+            progress.total_chunks = chunk_count
+            progress.embedded_chunks = embedded_now
+            progress.title = document.title
+            if progress.status == "pending":
+                progress.status = "in_progress"
+        progress.save()
+        meta["progress_id"] = str(progress.progress_id)
 
         document.metadata = meta
         document.save(update_fields=["metadata", "token_count_int"])
