@@ -96,6 +96,7 @@ class DocumentChunk(models.Model):
     matched_anchors = ArrayField(
         models.CharField(max_length=64), default=list, blank=True
     )
+    force_embed = models.BooleanField(default=False)
     quality_notes = models.TextField(blank=True)
     anchor = models.ForeignKey(
         "memory.SymbolicMemoryAnchor",
@@ -118,6 +119,7 @@ class DocumentChunk(models.Model):
             ("pending", "Pending"),
             ("embedded", "Embedded"),
             ("failed", "Failed"),
+            ("skipped", "Skipped"),
         ],
     )
 

@@ -161,6 +161,7 @@ def _create_document_chunks(document: Document):
                 anchor=anchor,
                 glossary_score=glossary_score,
                 matched_anchors=matched,
+                force_embed=getattr(settings, "DISABLE_CHUNK_SKIP_FILTERS", False),
             )
             logger.debug(
                 f"🧠 Chunk created: {new_chunk.id} for Document {document.id} | text preview: {new_chunk.text[:60]}"
