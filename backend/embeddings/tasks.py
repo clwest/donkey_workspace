@@ -4,17 +4,8 @@ Celery tasks for embeddings processing.
 
 from utils.logging_utils import get_logger
 from types import SimpleNamespace
-from django.conf import settings
 
-
-def should_embed_chunk(chunk):
-    """Return (True, reason) if a DocumentChunk should be embedded."""
-    if getattr(chunk, "force_embed", False):
-        return True, "force_embed"
-    threshold = getattr(settings, "CHUNK_EMBED_SCORE_THRESHOLD", 0.3)
-    if chunk.score is not None and chunk.score < threshold:
-        return False, "low_score"
-    return True, "ok"
+from embeddings.utils.chunk_retriever import should_embed_chunk
 
 from celery import shared_task
 import traceback
@@ -59,16 +50,20 @@ def embed_and_store(
             if not chunk:
                 logger.error(f"No DocumentChunk found with id {text_or_id}")
                 return None
-            should, reason = should_embed_chunk(chunk)
+            should = should_embed_chunk(chunk)
             if not should:
                 logger.info(
-                    "[Chunk Skipped] Chunk %s - reason: %s",
+                    "[Chunk Skipped] Chunk %s - score=%.3f",
                     chunk.id,
-                    reason,
+                    chunk.score,
                 )
                 chunk.embedding_status = "skipped"
                 chunk.save(update_fields=["embedding_status"])
                 return None
+            if chunk.force_embed:
+                logger.info(
+                    f"⚡️ Force-embedding chunk {chunk.id} despite score={chunk.score}"
+                )
             text = chunk.text
             content_type = "document_chunk"
             content_id = str(chunk.id)
@@ -79,16 +74,20 @@ def embed_and_store(
 
                 chunk = DocumentChunk.objects.filter(id=content_id).first()
                 if chunk:
-                    should, reason = should_embed_chunk(chunk)
+                    should = should_embed_chunk(chunk)
                     if not should:
                         logger.info(
-                            "[Chunk Skipped] Chunk %s - reason: %s",
+                            "[Chunk Skipped] Chunk %s - score=%.3f",
                             chunk.id,
-                            reason,
+                            chunk.score,
                         )
                         chunk.embedding_status = "skipped"
                         chunk.save(update_fields=["embedding_status"])
                         return None
+                    if chunk.force_embed:
+                        logger.info(
+                            f"⚡️ Force-embedding chunk {chunk.id} despite score={chunk.score}"
+                        )
 
         embedding = generate_embedding(text, model=model)
         if not embedding:
