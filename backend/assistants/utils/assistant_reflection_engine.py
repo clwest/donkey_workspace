@@ -6,6 +6,7 @@ from assistants.models.reflection import (
     AssistantReflectionLog,
     AssistantReflectionInsight,
 )
+from intel_core.models import DocumentChunk
 from mcp_core.models import MemoryContext, DevDoc, NarrativeThread
 from intel_core.models import Document
 from prompts.models import Prompt
@@ -28,6 +29,8 @@ from agents.models.core import (
 )
 
 from agents.models.lore import SwarmMemoryEntry
+from embeddings.helpers.helpers_processing import generate_embedding
+from embeddings.helpers.helpers_io import save_embedding
 from agents.utils.swarm_analytics import generate_temporal_swarm_report
 import json
 from typing import Optional, List
@@ -210,7 +213,7 @@ class AssistantReflectionEngine:
                 raw_prompt=prompt,
             )
 
-            MemoryEntry.objects.create(
+            mem = MemoryEntry.objects.create(
                 event=reflection_text,
                 assistant=self.assistant,
                 source_role="assistant",
@@ -219,6 +222,31 @@ class AssistantReflectionEngine:
                 is_conversation=False,
                 context=context,
             )
+
+            emb = generate_embedding(reflection_text)
+            if emb:
+                save_embedding(log, emb)
+
+            chunk_ids = [c.get("chunk_id") for c in chunk_info if c.get("chunk_id")]
+            if chunk_ids:
+                chunks = list(DocumentChunk.objects.filter(id__in=chunk_ids))
+                log.related_chunks.set(chunks)
+                mem.context_tags = [f"chunk:{cid}" for cid in chunk_ids]
+                mem.save(update_fields=["context_tags"])
+                tags = set()
+                for ch in chunks:
+                    tags.update(ch.tags or [])
+                if tags:
+                    insight = AssistantReflectionInsight.objects.create(
+                        assistant=self.assistant,
+                        linked_document=chunks[0].document,
+                        text=reflection_text,
+                    )
+                    insight.chunks.set(chunks)
+                    for name in tags:
+                        tag, _ = Tag.objects.get_or_create(name=name, defaults={"slug": slugify(name)})
+                        insight.tags.add(tag)
+
 
             entry = SwarmMemoryEntry.objects.create(
                 title=log.title,
