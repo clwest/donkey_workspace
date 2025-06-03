@@ -25,6 +25,8 @@ from embeddings.helpers.helpers_processing import generate_embedding
 from embeddings.vector_utils import compute_similarity
 from embeddings.helpers.helpers_similarity import get_similar_documents
 from embeddings.helpers.search_registry import search_registry
+from intel_core.models import DocumentChunk
+from embeddings.tasks import embed_and_store
 
 
 @api_view(["POST"])
@@ -145,9 +147,7 @@ def search_similar_characters(request):
         )
 
     vector = generate_embedding(text)
-    if vector is None or (
-        hasattr(vector, "__len__") and len(vector) == 0
-    ):
+    if vector is None or (hasattr(vector, "__len__") and len(vector) == 0):
         return Response(
             {"error": "Failed to generate embedding."},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -199,9 +199,7 @@ def search_embeddings(request):
             )
 
         vector = generate_embedding(text)
-        if vector is None or (
-            hasattr(vector, "__len__") and len(vector) == 0
-        ):
+        if vector is None or (hasattr(vector, "__len__") and len(vector) == 0):
             return Response(
                 {"error": "Failed to generate embedding for query."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -245,9 +243,7 @@ def search_embeddings(request):
         )
 
     vector = generate_embedding(text)
-    if vector is None or (
-        hasattr(vector, "__len__") and len(vector) == 0
-    ):
+    if vector is None or (hasattr(vector, "__len__") and len(vector) == 0):
         return Response({"error": "Failed to generate embedding."}, status=500)
 
     results = search_similar_embeddings_for_model(
@@ -272,4 +268,27 @@ def list_search_targets(request):
     targets = [
         {"key": key, "label": cfg["label"]} for key, cfg in search_registry.items()
     ]
+    return Response({"results": targets})
 
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def reembed_skipped_chunks(request):
+    doc_id = request.query_params.get("document_id")
+    force = request.query_params.get("force") == "true"
+    qs = DocumentChunk.objects.filter(embedding_status="skipped")
+    if doc_id:
+        qs = qs.filter(document_id=doc_id)
+    count = 0
+    for chunk in qs:
+        if force:
+            chunk.force_embed = True
+        chunk.embedding_status = "pending"
+        chunk.save(
+            update_fields=(
+                ["embedding_status", "force_embed"] if force else ["embedding_status"]
+            )
+        )
+        embed_and_store.delay(str(chunk.id))
+        count += 1
+    return Response({"reembedded": count})

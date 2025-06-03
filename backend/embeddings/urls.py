@@ -1,4 +1,5 @@
 import warnings
+
 warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
 # embeddings/urls.py
 
@@ -18,6 +19,11 @@ urlpatterns = [
         name="session-docs",
     ),
     path("track-session/", api_views.track_session_api, name="track-session"),
+    path(
+        "reembed-skipped/",
+        api_views.reembed_skipped_chunks,
+        name="reembed-skipped",
+    ),
     # === Legacy / Specific Tools ===
     path("similar/", api_views.search_similar_embeddings_api, name="search-similar"),
     path(

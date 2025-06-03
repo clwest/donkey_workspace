@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
 import DocumentIntelligencePanel from "../../components/intel/DocumentIntelligencePanel";
 import DocumentAutoBuilder from "../../components/intel/DocumentAutoBuilder";
+import ChunkDebugPanel from "../../components/intel/ChunkDebugPanel";
 import "./styles/DocumentDetailPage.css";
 
 export default function DocumentDetailPage() {
@@ -110,6 +111,7 @@ export default function DocumentDetailPage() {
         </button>
       </div>
       <DocumentAutoBuilder docId={doc.id} />
+      <ChunkDebugPanel docId={doc.id} />
       <div className="my-3 d-flex gap-3">
         <DocumentIntelligencePanel docId={doc.id} />
         {assistants.length > 0 && (
