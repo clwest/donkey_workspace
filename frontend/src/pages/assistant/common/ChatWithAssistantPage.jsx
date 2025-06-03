@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { suggestAssistant, suggestSwitch, switchAssistant } from "../../../api/assistants";
 import "./styles/ChatView.css";
-import ChatDebugPanel from "../../components/assistant/ChatDebugPanel";
+import ChatDebugPanel from "../../../components/assistant/ChatDebugPanel";
 
 export default function ChatWithAssistantPage() {
   const { slug } = useParams();
