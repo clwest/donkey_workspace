@@ -141,6 +141,9 @@ class DocumentFavorite(models.Model):
     class Meta:
         unique_together = ("user", "document")
 
+    def __str__(self):  # pragma: no cover - display helper
+        return f"{self.user} -> {self.document.title}"
+
 
 class ChunkTag(models.Model):
     chunk = models.ForeignKey(
@@ -295,6 +298,9 @@ class GlossaryMissReflectionLog(models.Model):
     class Meta:
         ordering = ["-created_at"]
 
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Miss for {self.anchor.label} @ {self.created_at.strftime('%Y-%m-%d')}"
+
 
 class GlossaryFallbackReflectionLog(models.Model):
     """Record when glossary context was ignored or missing."""
@@ -308,3 +314,6 @@ class GlossaryFallbackReflectionLog(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Fallback {self.anchor_slug} ({self.chunk_id})"

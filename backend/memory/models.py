@@ -91,6 +91,7 @@ class MemoryEntry(models.Model):
         related_name="memory_entries",
     )
 
+    # Original narrative context thread for this memory
     narrative_thread = models.ForeignKey(
         "mcp_core.NarrativeThread",
         null=True,
@@ -98,6 +99,7 @@ class MemoryEntry(models.Model):
         on_delete=models.SET_NULL,
         related_name="memories",
     )
+    # Active discussion thread (may differ from narrative_thread)
     thread = models.ForeignKey(
         "mcp_core.NarrativeThread",
         null=True,
@@ -326,6 +328,14 @@ class MemoryBranch(models.Model):
     approved = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name = "Memory Branch"
+        verbose_name_plural = "Memory Branches"
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Branch of {self.root_entry_id}"
+
 
 class SharedMemoryPool(models.Model):
     """Collection of shared key-value data accessible by multiple assistants."""
@@ -405,6 +415,9 @@ class ContinuityAnchorPoint(models.Model):
     class Meta:
         ordering = ["-created_at"]
 
+    def __str__(self):  # pragma: no cover - display helper
+        return self.label
+
 
 class SymbolicMemoryAnchor(models.Model):
     """Anchor term used for symbolic continuity across content."""
@@ -465,6 +478,9 @@ class MemoryEntropyAudit(models.Model):
     class Meta:
         ordering = ["-created_at"]
 
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Entropy {self.entropy_score}"
+
 
 class MemoryMergeSuggestion(models.Model):
     """Suggest merging two memories to reduce symbolic drift."""
@@ -484,6 +500,9 @@ class MemoryMergeSuggestion(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Merge {self.entry_a_id} & {self.entry_b_id}"
 
 
 class GlossaryRetryLog(models.Model):
@@ -535,7 +554,11 @@ class AnchorConvergenceLog(models.Model):
     guidance_used = models.BooleanField(default=False)
     retried = models.BooleanField(default=False)
     final_score = models.FloatField()
+    error_message = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"{self.anchor.slug} -> {self.assistant.name}"

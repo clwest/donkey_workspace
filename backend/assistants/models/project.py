@@ -138,14 +138,16 @@ class AssistantTask(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     project = models.ForeignKey(
-        "assistants.AssistantProject", on_delete=models.CASCADE, related_name="tasks"
+        "assistants.AssistantProject",
+        on_delete=models.CASCADE,
+        related_name="project_tasks",
     )
     objective = models.ForeignKey(
         "assistants.AssistantObjective",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="tasks",
+        related_name="objective_tasks",
     )
     title = models.CharField(max_length=255)
     status = models.CharField(max_length=50, default="pending")
@@ -317,37 +319,29 @@ class AssistantNextAction(models.Model):
     completed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    assigned_agent = (
-        models.ForeignKey(
-            "agents.Agent",
-            on_delete=models.CASCADE,
-            related_name="agents_assigned",
-        ),
+    assigned_agent = models.ForeignKey(
+        "agents.Agent",
+        on_delete=models.CASCADE,
+        related_name="agents_assigned",
     )
-    thread = (
-        models.ForeignKey(
-            "mcp_core.NarrativeThread",
-            null=True,
-            blank=True,
-            on_delete=models.SET_NULL,
-            related_name="next_actions",
-        ),
+    thread = models.ForeignKey(
+        "mcp_core.NarrativeThread",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="next_actions",
     )
 
-    linked_thread = (
-        models.ForeignKey(
-            "mcp_core.NarrativeThread",
-            on_delete=models.CASCADE,
-        ),
+    linked_thread = models.ForeignKey(
+        "mcp_core.NarrativeThread",
+        on_delete=models.CASCADE,
     )
-    origin_thought = (
-        models.ForeignKey(
-            "assistants.AssistantThoughtLog",
-            null=True,
-            blank=True,
-            on_delete=models.SET_NULL,
-            related_name="next_actions",
-        ),
+    origin_thought = models.ForeignKey(
+        "assistants.AssistantThoughtLog",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="next_actions",
     )
 
     importance_score = models.FloatField(default=0.5)
