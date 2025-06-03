@@ -98,3 +98,16 @@ def reflect_on_prompt(text: str) -> str:
     except Exception as e:  # pragma: no cover - network
         logger.error(f"❌ reflect_on_prompt failed: {e}", exc_info=True)
         return ""
+
+def generate_prompt_from_summary(summary: str, assistant=None) -> str:
+    """Generate an assistant-facing system prompt based on a document summary."""
+    identity = f" for {assistant.name}" if assistant else ""
+    system = (
+        "You create helpful assistant prompts from document summaries."
+    )
+    user = f"Create a concise prompt{identity} using this summary:\n{summary}"
+    try:
+        return complete_chat(system=system, user=user, temperature=0.5, max_tokens=600)
+    except Exception as e:
+        logger.error(f"Failed to generate prompt from summary: {e}", exc_info=True)
+        return ""
