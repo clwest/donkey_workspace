@@ -69,6 +69,8 @@ from project.models import (
 )
 from mcp_core.serializers_tags import TagSerializer
 from intel_core.serializers import DocumentSerializer
+from intel_core.models import DocumentChunk
+from django.db.models import Count, Q
 
 
 class DocumentChunkInfoSerializer(serializers.Serializer):
@@ -83,6 +85,25 @@ class DocumentChunkInfoSerializer(serializers.Serializer):
 
 
 from tools.models import Tool
+
+
+def calculate_composite_health(assistant):
+    """Return a composite health score from mood, prompts, and doc embeddings."""
+    docs = assistant.documents.all()
+    if docs:
+        agg = DocumentChunk.objects.filter(document__in=docs).aggregate(
+            total=Count("id"),
+            embedded=Count("id", filter=Q(embedding__isnull=False)),
+        )
+        doc_pct = agg["embedded"] / agg["total"] if agg["total"] else 0.0
+    else:
+        doc_pct = 0.0
+
+    prompt_factor = 1.0 if assistant.system_prompt else 0.0
+    score = assistant.mood_stability_index * 0.5
+    score += prompt_factor * 0.25
+    score += doc_pct * 0.25
+    return round(score, 2)
 
 from project.serializers import (
     ProjectSerializer,
@@ -619,6 +640,7 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
     drift_logs = SpecializationDriftLogSerializer(many=True, read_only=True)
     recent_drift = serializers.SerializerMethodField()
     system_prompt_id = serializers.UUIDField(read_only=True)
+    health_score = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -656,6 +678,7 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             "current_project",
             "preferred_model",
             "mood_stability_index",
+            "health_score",
             "child_assistants",
             "skills",
             "drift_logs",
@@ -676,6 +699,9 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
     def get_source_document_url(self, obj):
         doc = obj.documents.first()
         return doc.source_url if doc else None
+
+    def get_health_score(self, obj):
+        return calculate_composite_health(obj)
 
     def get_recent_drift(self, obj):
         from django.utils import timezone
@@ -1038,6 +1064,7 @@ class AssistantSerializer(serializers.ModelSerializer):
         source="system_prompt.slug",
         read_only=True,
     )
+    health_score = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -1062,6 +1089,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "specialty",
             "preferred_model",
             "mood_stability_index",
+            "health_score",
             "is_primary",
             "needs_recovery",
             "live_relay_enabled",
@@ -1110,6 +1138,9 @@ class AssistantSerializer(serializers.ModelSerializer):
 
         tags = Tag.objects.filter(assistant_thoughts__assistant=obj).distinct()[:5]
         return TagSerializer(tags, many=True).data
+
+    def get_health_score(self, obj):
+        return calculate_composite_health(obj)
 
 
 class AssistantProjectSummarySerializer(serializers.ModelSerializer):
