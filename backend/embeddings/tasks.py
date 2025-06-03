@@ -13,6 +13,7 @@ import traceback
 from embeddings.helpers.helpers_processing import generate_embedding
 from embeddings.helpers.helpers_io import save_embedding
 from prompts.utils.token_helpers import EMBEDDING_MODEL
+from django.db.models import F
 
 EMBEDDING_LENGTH = 1536
 
@@ -168,18 +169,17 @@ def embed_and_store(
                 if isinstance(doc.metadata, dict):
                     progress_id = doc.metadata.get("progress_id")
                 if progress_id:
-                    prog = DocumentProgress.objects.filter(
-                        progress_id=progress_id
-                    ).first()
-                    if prog:
-                        prog.embedded_chunks = embedded
+                    qs = DocumentProgress.objects.filter(progress_id=progress_id)
+                    if qs.exists():
+                        qs.update(embedded_chunks=F("embedded_chunks") + 1)
+                        prog = qs.first()
                         if (
                             prog.status != "failed"
                             and prog.total_chunks > 0
                             and prog.embedded_chunks >= prog.total_chunks
                         ):
                             prog.status = "completed"
-                        prog.save(update_fields=["embedded_chunks", "status"])
+                            prog.save(update_fields=["status"])
         # Trigger post-processing for character embeddings
         if content_type == "CharacterProfile":
             try:
