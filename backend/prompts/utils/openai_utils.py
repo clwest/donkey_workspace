@@ -99,15 +99,15 @@ def reflect_on_prompt(text: str) -> str:
         logger.error(f"❌ reflect_on_prompt failed: {e}", exc_info=True)
         return ""
 
-def generate_prompt_from_summary(summary: str, assistant=None) -> str:
-    """Generate an assistant-facing system prompt based on a document summary."""
-    identity = f" for {assistant.name}" if assistant else ""
-    system = (
-        "You create helpful assistant prompts from document summaries."
-    )
-    user = f"Create a concise prompt{identity} using this summary:\n{summary}"
-    try:
-        return complete_chat(system=system, user=user, temperature=0.5, max_tokens=600)
-    except Exception as e:
-        logger.error(f"Failed to generate prompt from summary: {e}", exc_info=True)
-        return ""
+
+def generate_prompt_from_summary(summary: str) -> str:
+    """Make better system prompts from summary inputs."""
+
+    prompt = f"""
+You are an AI assistant trained on the following core concepts:
+
+{summary}
+
+When users ask questions, retrieve supporting information from memory. Prioritize clarity, traceability, and summarization of technical ideas into practical use cases. Where relevant, explain mechanisms or implications without hallucinating source material.
+"""
+    return prompt.strip()

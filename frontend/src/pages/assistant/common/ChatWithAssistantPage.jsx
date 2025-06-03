@@ -153,7 +153,9 @@ export default function ChatWithAssistantPage() {
       const data = await res.json();
       if (data.results && data.results.length > 0) {
         const top = data.results[0];
-        alert(`Top match ${Math.round(top.similarity_score * 100)}%\n${top.text.slice(0, 120)}...`);
+        const score = top.similarity_score || 0;
+        const percent = isNaN(score * 100) ? 0 : Math.round(score * 100);
+        alert(`Top match ${percent}%\n${top.text.slice(0, 120)}...`);
       } else {
         alert("No matching source chunk found.");
       }
