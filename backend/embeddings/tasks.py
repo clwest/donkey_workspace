@@ -15,6 +15,7 @@ from embeddings.helpers.helpers_processing import generate_embedding
 from embeddings.helpers.helpers_io import save_embedding
 from prompts.utils.token_helpers import EMBEDDING_MODEL
 from django.db.models import F
+from intel_core.views.debug import repair_progress
 
 EMBEDDING_LENGTH = 1536
 
@@ -182,13 +183,7 @@ def embed_and_store(
                             prog.status = "completed"
                             prog.save(update_fields=["status"])
                         try:
-                            from intel_core.management.commands.fix_doc_progress import (
-                                Command as FixCommand,
-                            )
-                            cmd = FixCommand()
-                            cmd.stdout = open(os.devnull, "w")
-                            cmd.stderr = open(os.devnull, "w")
-                            cmd.handle(doc_id=str(doc.id), repair=True)
+                            repair_progress(document=doc)
                         except Exception as e:  # pragma: no cover - best effort
                             logger.warning(f"repair-progress failed: {e}")
         # Trigger post-processing for character embeddings
@@ -215,13 +210,7 @@ def embed_and_store(
                 chunk.embedding_status = "failed"
                 chunk.save(update_fields=["embedding_status"])
                 try:
-                    from intel_core.management.commands.fix_doc_progress import (
-                        Command as FixCommand,
-                    )
-                    cmd = FixCommand()
-                    cmd.stdout = open(os.devnull, "w")
-                    cmd.stderr = open(os.devnull, "w")
-                    cmd.handle(doc_id=str(chunk.document_id), repair=True)
+                    repair_progress(document_id=str(chunk.document_id))
                 except Exception as e:  # pragma: no cover - best effort
                     logger.warning(f"repair-progress failed: {e}")
         return None
