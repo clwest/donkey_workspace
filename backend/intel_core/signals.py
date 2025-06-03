@@ -105,11 +105,16 @@ def link_embedding_metadata(sender, instance, created, **kwargs):
         if not prog:
             total = chunk.document.chunks.count()
             embedded = chunk.document.chunks.filter(embedding__isnull=False).count()
+            if not chunk.document_id:
+                raise ValueError("🛑 Document must exist before creating progress")
+
             prog = DocumentProgress.objects.create(
+                document=chunk.document,
                 title=chunk.document.title,
                 total_chunks=total,
-                processed=total,
-                embedded_chunks=embedded,
+                processed=0,
+                embedded_chunks=0,
+                failed_chunks=[],
                 status="pending",
             )
             metadata = chunk.document.metadata or {}
