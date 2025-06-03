@@ -214,9 +214,13 @@ def get_relevant_chunks(
             {},
         )
 
-    chunks = DocumentChunk.objects.filter(
-        document_id__in=doc_ids, embedding__isnull=False
-    ).select_related("embedding", "document")
+    chunks = (
+        DocumentChunk.objects.filter(
+            document_id__in=doc_ids,
+            embedding__isnull=False,
+            embedding_status="embedded",
+        ).select_related("embedding", "document")
+    )
     logger.debug("[RAG Search] Docs=%s -> %d chunks", doc_ids, chunks.count())
     if chunks:
         logger.debug("Chunk IDs returned: %s", [str(c.id) for c in chunks[:20]])
@@ -499,6 +503,12 @@ def get_relevant_chunks(
     fallback_ids: List[str] = []
     fallback_scores: List[float] = []
     for score, chunk, anchor_conf, raw_score, anchor_weight in pairs:
+        if chunk.embedding_status != "embedded":
+            logger.warning(
+                "\u26a0\ufe0f Chunk %s selected but not embedded (status=%s)",
+                chunk.id,
+                chunk.embedding_status,
+            )
         if fallback and score < score_threshold:
             fallback_ids.append(str(chunk.id))
             fallback_scores.append(round(score, 4))
