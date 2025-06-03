@@ -1,6 +1,7 @@
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from rest_framework.response import Response
+from rest_framework import status
 from utils.logging_utils import get_logger
 from utils import coerce_uuid
 from intel_core.services import DocumentService
@@ -80,6 +81,7 @@ def unified_ingestion_view(request):
         )
         doc_ids = [d.get("document_id") for d in ingest_result]
         docs = list(Document.objects.filter(id__in=doc_ids))
+        document = docs[0] if docs else None
 
         assistant = None
         if assistant_uuid:
@@ -163,6 +165,12 @@ def unified_ingestion_view(request):
                 ]
             if source_type == "url":
                 response["message"] = f"Loaded {len(ingest_result)} URL document(s)."
+            if not document:
+                logger.warning("⚠️ Reflection skipped – no document created")
+                return Response(
+                    {"status": "skipped", "reason": "No document created"},
+                    status=status.HTTP_204_NO_CONTENT,
+                )
             if (
                 not docs
                 and ingest_result

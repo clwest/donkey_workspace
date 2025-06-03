@@ -117,4 +117,4 @@ def ingest_videos(
         return processed_documents
     except Exception as e:
         logger.error(f"Error ingesting videos: {str(e)}")
-        return []
+        return None
