@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { countTokens } from "../../utils/tokenCount";
 import { Badge } from "react-bootstrap";
+import DocumentStatusCard from "../documents/DocumentStatusCard";
 import { useState } from "react";
 import { Star, StarFill } from "react-bootstrap-icons";
 
@@ -163,6 +164,7 @@ export default function DocumentCard({ group, onToggleFavorite, onDelete }) {
             <strong>Updated:</strong> {new Date(updatedAt).toLocaleString()}
           </div>
         )}
+        <DocumentStatusCard doc={baseDoc} />
         <Badge bg={sourceColors[source_type] || "secondary"} className="ms-2">
           {badgeType}
         </Badge>

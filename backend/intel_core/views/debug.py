@@ -121,16 +121,14 @@ def verify_embeddings(request):
 
 
 @api_view(["POST"])
-def repair_progress(request):
-    """Run fix_doc_progress logic for a document."""
-    doc_id = request.query_params.get("document_id")
+def repair_progress_view(request):
+    """Run fix_doc_progress logic for a document and return summary."""
+    doc_id = request.data.get("doc_id") or request.query_params.get("doc_id")
     if not doc_id:
-        return Response(
-            {"error": "document_id required"}, status=status.HTTP_400_BAD_REQUEST
-        )
+        return Response({"error": "Missing doc_id"}, status=400)
 
     cmd = FixCommand()
-    cmd.stdout = open(os.devnull, "w")  # suppress command output
+    cmd.stdout = open(os.devnull, "w")
     cmd.stderr = open(os.devnull, "w")
-    cmd.handle(doc_id=doc_id, repair=True)
-    return Response({"status": "ok"})
+    result = cmd.handle(doc_id=doc_id, repair=True)
+    return Response({"status": "repaired", "details": result})

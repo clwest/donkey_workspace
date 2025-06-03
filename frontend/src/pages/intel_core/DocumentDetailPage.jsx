@@ -37,6 +37,21 @@ export default function DocumentDetailPage() {
     fetchDoc();
   }, [id]);
 
+  // Auto-trigger repair if the document failed to embed and has zero chunks
+  useEffect(() => {
+    if (
+      doc?.chunk_count === 0 &&
+      (doc?.progress_status === "failed" || doc?.embedding_status?.status === "failed")
+    ) {
+      apiFetch(`/intel/debug/repair-progress/`, {
+        method: "POST",
+        body: { doc_id: doc.id },
+      })
+        .then(() => toast.success("🛠 Repair triggered for this document"))
+        .catch(() => toast.error("⚠️ Repair failed"));
+    }
+  }, [doc?.id]);
+
   const handleSummarize = async () => {
     setSummaryLoading(true);
     try {
