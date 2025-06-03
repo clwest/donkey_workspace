@@ -8,12 +8,13 @@ from intel_core.models import (
     DocumentChunk,
     EmbeddingMetadata,
 )
+from prompts.utils.token_helpers import count_tokens
 
 
 class DocumentSerializer(serializers.ModelSerializer):
     is_favorited = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
-    token_count = serializers.IntegerField(source="token_count_int", read_only=True)
+    token_count = serializers.SerializerMethodField()
     chunk_count = serializers.SerializerMethodField()
     num_embedded = serializers.SerializerMethodField()
     embedded_chunks = serializers.SerializerMethodField()
@@ -52,14 +53,28 @@ class DocumentSerializer(serializers.ModelSerializer):
     def get_tags(self, obj):
         return list(obj.tags.values_list("name", flat=True))
 
+    def get_token_count(self, obj):
+        if obj.token_count_int:
+            return obj.token_count_int
+        meta_count = obj.metadata.get("token_count") if isinstance(obj.metadata, dict) else None
+        if isinstance(meta_count, int):
+            return meta_count
+        return count_tokens(obj.content)
+
     def get_chunk_count(self, obj):
+        meta_count = obj.metadata.get("chunk_count") if isinstance(obj.metadata, dict) else None
+        if isinstance(meta_count, int):
+            return meta_count
         return obj.chunks.count()
 
     def get_num_embedded(self, obj):
-        return obj.chunks.filter(embedding__isnull=False).count()
+        return self.get_embedded_chunks(obj)
 
     def get_embedded_chunks(self, obj):
-        return self.get_num_embedded(obj)
+        meta_embedded = obj.metadata.get("embedded_chunks") if isinstance(obj.metadata, dict) else None
+        if isinstance(meta_embedded, int):
+            return meta_embedded
+        return obj.chunks.filter(embedding__isnull=False).count()
 
     def get_glossary_ids(self, obj):
         return list(obj.chunks.filter(is_glossary=True).values_list("id", flat=True))
