@@ -20,6 +20,9 @@ class DocumentSerializer(serializers.ModelSerializer):
     embedded_chunks = serializers.SerializerMethodField()
     skipped_chunks = serializers.SerializerMethodField()
     glossary_ids = serializers.SerializerMethodField()
+    progress_status = serializers.SerializerMethodField()
+    progress_error = serializers.SerializerMethodField()
+    failed_chunks = serializers.SerializerMethodField()
     user = serializers.StringRelatedField(read_only=True)
 
     class Meta:
@@ -42,6 +45,9 @@ class DocumentSerializer(serializers.ModelSerializer):
             "embedded_chunks",
             "skipped_chunks",
             "glossary_ids",
+            "progress_status",
+            "progress_error",
+            "failed_chunks",
             "is_favorited",
             "tags",
         ]
@@ -91,6 +97,28 @@ class DocumentSerializer(serializers.ModelSerializer):
 
     def get_glossary_ids(self, obj):
         return list(obj.chunks.filter(is_glossary=True).values_list("id", flat=True))
+
+    def _get_progress(self, obj):
+        progress_id = None
+        if isinstance(obj.metadata, dict):
+            progress_id = obj.metadata.get("progress_id")
+        if progress_id:
+            from intel_core.models import DocumentProgress
+
+            return DocumentProgress.objects.filter(progress_id=progress_id).first()
+        return None
+
+    def get_progress_status(self, obj):
+        prog = self._get_progress(obj)
+        return prog.status if prog else None
+
+    def get_progress_error(self, obj):
+        prog = self._get_progress(obj)
+        return prog.error_message if prog else ""
+
+    def get_failed_chunks(self, obj):
+        prog = self._get_progress(obj)
+        return prog.failed_chunks if prog else []
 
 
 class DocumentSetSerializer(serializers.ModelSerializer):

@@ -4,6 +4,7 @@ Celery tasks for embeddings processing.
 
 from utils.logging_utils import get_logger
 from types import SimpleNamespace
+import os
 
 from embeddings.utils.chunk_retriever import should_embed_chunk
 
@@ -180,6 +181,16 @@ def embed_and_store(
                         ):
                             prog.status = "completed"
                             prog.save(update_fields=["status"])
+                        try:
+                            from intel_core.management.commands.fix_doc_progress import (
+                                Command as FixCommand,
+                            )
+                            cmd = FixCommand()
+                            cmd.stdout = open(os.devnull, "w")
+                            cmd.stderr = open(os.devnull, "w")
+                            cmd.handle(doc_id=str(doc.id), repair=True)
+                        except Exception as e:  # pragma: no cover - best effort
+                            logger.warning(f"repair-progress failed: {e}")
         # Trigger post-processing for character embeddings
         if content_type == "CharacterProfile":
             try:
@@ -199,7 +210,18 @@ def embed_and_store(
         if content_type == "document_chunk":
             from intel_core.models import DocumentChunk
 
-            DocumentChunk.objects.filter(id=content_id).update(
-                embedding_status="failed"
-            )
+            chunk = DocumentChunk.objects.filter(id=content_id).first()
+            if chunk:
+                chunk.embedding_status = "failed"
+                chunk.save(update_fields=["embedding_status"])
+                try:
+                    from intel_core.management.commands.fix_doc_progress import (
+                        Command as FixCommand,
+                    )
+                    cmd = FixCommand()
+                    cmd.stdout = open(os.devnull, "w")
+                    cmd.stderr = open(os.devnull, "w")
+                    cmd.handle(doc_id=str(chunk.document_id), repair=True)
+                except Exception as e:  # pragma: no cover - best effort
+                    logger.warning(f"repair-progress failed: {e}")
         return None

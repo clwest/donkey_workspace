@@ -47,6 +47,9 @@ class Command(BaseCommand):
                     summary_orphaned += 1
 
         embedded_total = chunks.filter(embedding_status="embedded").count()
+        failed_list = list(
+            chunks.filter(embedding_status="failed").values_list("order", flat=True)
+        )
 
         if not progress and repair:
             progress = DocumentProgress.objects.create(
@@ -66,7 +69,10 @@ class Command(BaseCommand):
         progress.total_chunks = chunk_total
         progress.processed = max(progress.processed, chunk_total)
         progress.embedded_chunks = embedded_total
-        if (
+        progress.failed_chunks = failed_list
+        if failed_list:
+            progress.status = "failed"
+        elif (
             progress.status != "failed"
             and progress.total_chunks > 0
             and progress.embedded_chunks >= progress.total_chunks
