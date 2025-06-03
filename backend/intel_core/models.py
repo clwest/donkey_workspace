@@ -93,6 +93,8 @@ class DocumentChunk(models.Model):
     fingerprint = models.CharField(max_length=64, unique=True)
     score = models.FloatField(default=1.0)
     glossary_score = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     matched_anchors = ArrayField(
         models.CharField(max_length=64), default=list, blank=True
     )
