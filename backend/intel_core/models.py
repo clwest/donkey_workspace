@@ -189,6 +189,7 @@ class DocumentProgress(models.Model):
     processed = models.IntegerField(default=0)
     embedded_chunks = models.IntegerField(default=0)
     failed_chunks = ArrayField(models.IntegerField(), default=list, blank=True)
+    error_message = models.TextField(blank=True)
     status = models.CharField(
         max_length=20,
         default="pending",

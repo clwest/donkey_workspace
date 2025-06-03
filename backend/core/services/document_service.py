@@ -58,6 +58,7 @@ def ingest_pdfs(
 
     processed_documents = []
     for file_path in file_paths:
+        progress = None
         try:
             file_name = os.path.basename(file_path)
             pdf_title = user_provided_title or os.path.splitext(file_name)[0]
@@ -150,6 +151,10 @@ def ingest_pdfs(
 
         except Exception as e:
             logger.error(f"Failed to process PDF {file_path}: {e}")
+            if "progress" in locals() and isinstance(progress, DocumentProgress):
+                progress.status = "failed"
+                progress.error_message = str(e)
+                progress.save()
 
     logger.info(f"Completed processing {len(processed_documents)} PDF chunks")
     return processed_documents

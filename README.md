@@ -101,6 +101,13 @@ summary is served the API response includes `"trace": "[cache]"`. Use the
 cache and generate a new reflection. This explains why results may not change
 immediately after repeated requests.
 
+### Document Ingestion Progress
+
+Each PDF upload creates a `DocumentProgress` record tracking chunking. If an
+exception interrupts ingestion the record now ends with `status="failed"` and the
+error message for diagnostics. Retrieve progress via
+`/api/v1/intel/documents/<progress_id>/progress/` to spot stuck uploads.
+
 
 
 ### Frontend
