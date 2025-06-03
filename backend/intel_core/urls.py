@@ -68,5 +68,6 @@ urlpatterns = [
         name="document_chunk_list",
     ),
     path("debug/chunks/<uuid:doc_id>/", debug.debug_doc_chunks),
+    path("debug/recalc-scores/", debug.recalc_scores),
     path("debug/rag-recall/", debug.rag_recall),
 ]

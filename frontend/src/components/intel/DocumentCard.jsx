@@ -54,6 +54,9 @@ export default function DocumentCard({ group, onToggleFavorite, onDelete }) {
     baseDoc.num_embedded ??
     0;
 
+  const inProgress = embeddedChunks > 0 && embeddedChunks < chunkCount;
+  const progressPct = inProgress ? Math.round((embeddedChunks / chunkCount) * 100) : 0;
+
   const updatedAt = baseDoc.updated_at ?? group.updated_at ?? created_at;
 
   const isVideo = source_type === "youtube" || source_type === "video";
@@ -138,12 +141,19 @@ export default function DocumentCard({ group, onToggleFavorite, onDelete }) {
                 ? "text-warning"
                 : "text-success"
             }
-            title={`Embedded ${embeddedChunks} of ${chunkCount} chunks; last updated at ${new Date(
-              updatedAt
-            ).toLocaleString()}`}
+            title={`${embeddedChunks} embedded, ${chunkCount - embeddedChunks} queued or skipped`}
           >
-            {embeddedChunks} / {chunkCount}
+            {embeddedChunks} / {chunkCount} {inProgress && "(In Progress)"}
           </span>
+          {inProgress && (
+            <div className="progress mt-1" style={{ height: "4px" }}>
+              <div
+                className="progress-bar"
+                role="progressbar"
+                style={{ width: `${progressPct}%` }}
+              />
+            </div>
+          )}
         </div>
         <div>
           <strong>Tokens:</strong> {tokenCount.toLocaleString()}
