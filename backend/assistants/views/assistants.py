@@ -749,6 +749,7 @@ def chat_with_assistant_view(request, slug):
         temperature=0.7,
         auto_expand=not request.data.get("focus_only", True),
         focus_anchors_only=request.data.get("focus_only", True),
+        force_chunks=request.query_params.get("force_chunks") == "true",
     )
     usage = type(
         "U", (), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
