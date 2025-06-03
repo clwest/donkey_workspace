@@ -92,6 +92,15 @@ def process_url_upload(
         raise
 
 
+
+
+
+
+
+
+
+
+
 @shared_task(bind=True, name="create_document_set_task")
 def create_document_set_task(
     self,
@@ -370,3 +379,10 @@ def process_pdf_upload(
             except Exception:
                 pass
         raise
+
+@shared_task(name="async_repair_progress")
+def async_repair_progress(document_id):
+    """Wrapper task to repair DocumentProgress asynchronously."""
+    from intel_core.views.debug import repair_progress
+
+    repair_progress(document_id=document_id)
