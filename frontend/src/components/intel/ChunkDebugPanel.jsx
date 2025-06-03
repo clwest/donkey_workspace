@@ -82,10 +82,10 @@ export default function ChunkDebugPanel({ docId }) {
               </tr>
             </thead>
             <tbody>
-              {chunks.map((c) => (
+              {chunks.map((c, idx) => (
                 <tr key={c.id}>
-                  <td>{c.order}</td>
-                  <td>{c.token_count}</td>
+                  <td>{idx + 1}</td>
+                  <td>{c.tokens}</td>
                   <td>{c.score?.toFixed(2)}</td>
                   <td>{c.skipped ? "❌" : ""}</td>
                   <td>{c.force_embed ? "⚠️" : ""}</td>
