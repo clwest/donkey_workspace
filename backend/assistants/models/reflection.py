@@ -29,6 +29,9 @@ class AssistantReflectionLog(models.Model):
     mood = models.CharField(max_length=50, null=True, blank=True)
 
     tags = models.ManyToManyField("mcp_core.Tag", blank=True)
+    related_chunks = models.ManyToManyField(
+        "intel_core.DocumentChunk", blank=True, related_name="reflection_logs"
+    )
     anchor = models.ForeignKey(
         "memory.SymbolicMemoryAnchor",
         on_delete=models.SET_NULL,
@@ -84,6 +87,9 @@ class AssistantReflectionInsight(models.Model):
     linked_document = models.ForeignKey("intel_core.Document", on_delete=models.CASCADE)
     text = models.TextField()
     tags = models.ManyToManyField("mcp_core.Tag", blank=True)
+    chunks = models.ManyToManyField(
+        "intel_core.DocumentChunk", blank=True, related_name="reflection_insights"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
