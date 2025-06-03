@@ -329,6 +329,9 @@ class AssistantReflectionEngine:
                     self.assistant.system_prompt = prompt_obj
                     self.assistant.save(update_fields=["system_prompt"])
 
+        target_document.last_reflected_at = timezone.now()
+        target_document.save(update_fields=["last_reflected_at"])
+
         return summary, insights, prompt_obj
 
     def reflect_on_memory(self, memory: MemoryEntry) -> AssistantReflectionLog | None:

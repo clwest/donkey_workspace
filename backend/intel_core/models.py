@@ -44,6 +44,7 @@ class Document(models.Model):
     )
     ingested_by = models.CharField(max_length=128, blank=True, null=True)
     token_count_int = models.IntegerField(default=0)
+    last_reflected_at = models.DateTimeField(null=True, blank=True)
     status = models.CharField(
         max_length=20,
         default="pending",

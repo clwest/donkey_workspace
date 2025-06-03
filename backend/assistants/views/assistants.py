@@ -10,7 +10,8 @@ from openai import OpenAI
 from utils.llm_router import call_llm
 from prompts.utils.token_helpers import EMBEDDING_MODEL
 import utils.llm_router as llm_router
-from datetime import datetime
+from datetime import datetime, timedelta
+from django.utils import timezone
 import logging
 import json
 import re
@@ -976,6 +977,12 @@ def review_ingest(request, slug, doc_id):
         document = Document.objects.get(id=doc_id)
     except Document.DoesNotExist:
         return Response({"error": "Document not found"}, status=404)
+
+    if document.last_reflected_at and timezone.now() - document.last_reflected_at < timedelta(hours=1):
+        return Response(
+            {"status": "skipped", "reason": "Document recently reflected"},
+            status=200,
+        )
 
     engine = AssistantReflectionEngine(assistant)
     summary, insights, prompt_obj = engine.reflect_on_document(document)

@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from utils.logging_utils import get_logger
 from utils import coerce_uuid
+from django.utils import timezone
+from datetime import timedelta
 from intel_core.services import DocumentService
 from intel_core.models import Document
 from prompts.models import Prompt
@@ -144,6 +146,11 @@ def unified_ingestion_view(request):
 
                 engine = AssistantReflectionEngine(assistant)
                 for doc in docs:
+                    if doc.last_reflected_at and timezone.now() - doc.last_reflected_at < timedelta(hours=1):
+                        logger.info(
+                            f"⏭️ Skipping reflection for {doc.title} (recently processed)"
+                        )
+                        continue
                     logger.info(
                         f"🔁 Reflecting on document: {doc.title} | Assistant: {assistant.name}"
                     )

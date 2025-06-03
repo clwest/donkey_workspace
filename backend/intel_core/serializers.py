@@ -35,6 +35,7 @@ class DocumentSerializer(serializers.ModelSerializer):
             "source_type",
             "created_at",
             "updated_at",
+            "last_reflected_at",
             "metadata",
             "token_count",
             "chunk_count",
