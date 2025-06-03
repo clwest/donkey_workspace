@@ -83,7 +83,8 @@ def link_embedding_metadata(sender, instance, created, **kwargs):
             source=getattr(chunk.document, "source_type", ""),
         )
         chunk.embedding = meta
-        chunk.save(update_fields=["embedding"])
+        chunk.embedding_status = "embedded"
+        chunk.save(update_fields=["embedding", "embedding_status"])
 
         mem_qs = MemoryEntry.objects.filter(
             linked_content_type=ContentType.objects.get_for_model(DocumentChunk),

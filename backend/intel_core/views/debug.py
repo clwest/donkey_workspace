@@ -60,11 +60,15 @@ def recalc_scores(request):
     """Recalculate chunk relevance scores for a document."""
     doc_id = request.data.get("document_id") or request.query_params.get("doc_id")
     if not doc_id:
-        return Response({"error": "document_id required"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "document_id required"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     document = Document.objects.filter(id=doc_id).first()
     if not document:
-        return Response({"error": "Document not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"error": "Document not found"}, status=status.HTTP_404_NOT_FOUND
+        )
 
     chunks = DocumentChunk.objects.filter(document=document).order_by("order")
     updated = 0
@@ -75,3 +79,40 @@ def recalc_scores(request):
         updated += 1
 
     return Response({"updated": updated})
+
+
+@api_view(["GET"])
+def verify_embeddings(request):
+    """Return mismatched chunks for a document."""
+    doc_id = request.query_params.get("document_id")
+    recalc = request.query_params.get("recalculate") == "true"
+    if not doc_id:
+        return Response(
+            {"error": "document_id required"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    document = Document.objects.filter(id=doc_id).first()
+    if not document:
+        return Response(
+            {"error": "Document not found"}, status=status.HTTP_404_NOT_FOUND
+        )
+
+    chunks = DocumentChunk.objects.filter(document=document).order_by("order")
+    mismatches = []
+    for ch in chunks:
+        emb_id = getattr(ch.embedding, "embedding_id", None)
+        if ch.embedding_status == "embedded":
+            if not emb_id:
+                mismatches.append({"id": str(ch.id), "issue": "missing embedding"})
+        else:
+            mismatches.append(
+                {"id": str(ch.id), "issue": f"status={ch.embedding_status}"}
+            )
+            if recalc:
+                ch.embedding_status = "pending"
+                ch.save(update_fields=["embedding_status"])
+                from embeddings.tasks import embed_and_store
+
+                embed_and_store.delay(str(ch.id))
+
+    return Response({"mismatches": mismatches})
