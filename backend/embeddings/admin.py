@@ -42,7 +42,29 @@ class ChunkAdmin(admin.ModelAdmin):
         "order",
         "score",
         "force_embed",
-        "embedding_status",
+        "status_colored",
+        "last_used_in_chat",
     )
     list_filter = ("embedding_status", "force_embed")
     search_fields = ("document__title", "document__id", "id")
+
+    @admin.display(description="Status")
+    def status_colored(self, obj):
+        from django.utils.html import format_html
+
+        color = (
+            "red"
+            if obj.embedding_status in {"pending", "skipped"} and obj.score > 0.3
+            else "black"
+        )
+        return format_html(
+            "<span style='color:{};'>{}</span>", color, obj.embedding_status
+        )
+
+    @admin.display(boolean=True)
+    def last_used_in_chat(self, obj):
+        from assistants.models.thoughts import AssistantThoughtLog
+
+        return AssistantThoughtLog.objects.filter(
+            fallback_details__chunk_ids__contains=[str(obj.id)]
+        ).exists()

@@ -305,3 +305,33 @@ def reembed_skipped_chunks(request):
         embed_and_store.delay(str(chunk.id))
         count += 1
     return Response({"reembedded": count})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def recalc_and_embed_missing(request):
+    """Recalculate scores and embed missing chunks for a document."""
+    doc_id = request.data.get("doc_id") or request.query_params.get("doc_id")
+    force = (
+        str(request.data.get("force") or request.query_params.get("force")) == "true"
+    )
+    if not doc_id:
+        return Response({"error": "doc_id required"}, status=400)
+
+    qs = DocumentChunk.objects.filter(document_id=doc_id).exclude(
+        embedding_status="embedded"
+    )
+    count = 0
+    for chunk in qs:
+        info = clean_and_score_chunk(chunk.text, chunk_index=chunk.order)
+        new_score = info.get("score")
+        if new_score is not None and not math.isnan(float(new_score)):
+            chunk.score = new_score
+        if force:
+            chunk.force_embed = True
+        chunk.embedding_status = "pending"
+        chunk.save(update_fields=["score", "force_embed", "embedding_status"])
+        embed_and_store.delay(str(chunk.id))
+        count += 1
+
+    return Response({"reembedded": count})

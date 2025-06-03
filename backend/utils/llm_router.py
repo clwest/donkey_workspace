@@ -128,6 +128,18 @@ def chat(
         auto_expand=auto_expand,
         force_chunks=force_chunks,
     )
+    invalid_chunks = [c for c in chunks if c.get("embedding_status") != "embedded"]
+    if invalid_chunks:
+        for ch in invalid_chunks:
+            logger.warning(
+                "\u26a0\ufe0f RAG selected chunk %s with embedding_status=%s",
+                ch.get("chunk_id"),
+                ch.get("embedding_status"),
+            )
+        chunks = [c for c in chunks if c.get("embedding_status") == "embedded"]
+        top_score = 0.0
+        fallback = True
+        reason = "non-embedded"
     query_terms = AcronymGlossaryService.extract(query_text)
     all_anchors = list(SymbolicMemoryAnchor.objects.values_list("slug", flat=True))
     anchor_matches = [s for s in all_anchors if s.lower() in query_text.lower()]
@@ -272,9 +284,7 @@ def chat(
                     "\nYou are equipped with glossary-backed memory. Use the following reference definitions to guide user questions related to:\n"
                     + "\n".join(f"- Anchor: {s}" for s in guidance_map.keys())
                 )
-            system_content += (
-                "\nUse the above glossary definitions to answer the user's question unless contradicted by newer documents."
-            )
+            system_content += "\nUse the above glossary definitions to answer the user's question unless contradicted by newer documents."
             rag_meta["guidance_appended"] = bool(guidance_map)
 
         replaced = False
@@ -341,6 +351,7 @@ def chat(
             from assistants.utils.assistant_thought_engine import (
                 AssistantThoughtEngine,
             )
+
             engine = AssistantThoughtEngine(assistant=assistant)
             try:
                 missing_anchor = anchor_matches[0] if anchor_matches else ""
@@ -447,6 +458,7 @@ def chat(
                     from assistants.utils.assistant_thought_engine import (
                         AssistantThoughtEngine,
                     )
+
                     engine = AssistantThoughtEngine(assistant=assistant)
                 definition = rag_meta.get("glossary_definitions", [""])[0]
                 reflection_text = engine.reflect_on_glossary_gap(
@@ -469,7 +481,11 @@ def chat(
 
                 GlossaryFallbackReflectionLog.objects.create(
                     anchor_slug=anchor.slug,
-                    chunk_id=rag_meta.get("glossary_chunk_ids", [""])[0] if rag_meta.get("glossary_chunk_ids") else "",
+                    chunk_id=(
+                        rag_meta.get("glossary_chunk_ids", [""])[0]
+                        if rag_meta.get("glossary_chunk_ids")
+                        else ""
+                    ),
                     match_score=rag_meta.get("retrieval_score", 0.0),
                     assistant_response=reply,
                     glossary_injected=rag_meta.get("prompt_appended_glossary", False),
@@ -543,6 +559,7 @@ def chat(
         )
     elif rag_meta.get("anchor_misses"):
         from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
+
         engine = AssistantThoughtEngine(assistant=assistant)
         miss_slug = rag_meta["anchor_misses"][0]
         try:
@@ -579,8 +596,16 @@ def chat(
             if anchor_matches
             else None
         )
-        before = 1.0 if anchor_matches and anchor_matches[0].lower() in first_reply.lower() else 0.0
-        after = 1.0 if anchor_matches and anchor_matches[0].lower() in reply.lower() else 0.0
+        before = (
+            1.0
+            if anchor_matches and anchor_matches[0].lower() in first_reply.lower()
+            else 0.0
+        )
+        after = (
+            1.0
+            if anchor_matches and anchor_matches[0].lower() in reply.lower()
+            else 0.0
+        )
         retry_log = GlossaryRetryLog.objects.create(
             anchor=anchor_obj,
             anchor_slug=anchor_obj.slug if anchor_obj else "",
@@ -599,7 +624,9 @@ def chat(
         rag_meta["retry_type"] = retry_type
 
     if rag_meta.get("glossary_used") and reply and not rag_meta.get("anchor_misses"):
-        anchor_slug = (rag_meta.get("anchor_hits") or rag_meta.get("anchors") or [None])[0]
+        anchor_slug = (
+            rag_meta.get("anchor_hits") or rag_meta.get("anchors") or [None]
+        )[0]
         anchor_obj = (
             SymbolicMemoryAnchor.objects.filter(slug=anchor_slug).first()
             if anchor_slug

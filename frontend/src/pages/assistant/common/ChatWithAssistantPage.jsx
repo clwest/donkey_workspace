@@ -189,11 +189,15 @@ export default function ChatWithAssistantPage() {
       if (data.results && data.results.length > 0) {
         const lines = data.results.slice(0, 3).map((c, i) => {
           const score = c.score || c.similarity_score || 0;
-          return `${i + 1}. ${c.chunk_id || c.id} | ${score.toFixed(2)} | ${c.text.slice(0, 80)}`;
+          const warn = c.embedding_status && c.embedding_status !== "embedded" ? " ⚠️" : "";
+          return `${i + 1}. ${c.chunk_id || c.id} | ${score.toFixed(2)} | ${c.text.slice(0, 80)}${warn}`;
         });
         let note = "";
         const bestScore = data.results[0].score || data.results[0].similarity_score || 0;
         if (bestScore < 0.3) note = "\n⚠️ Using fallback due to low score";
+        if (data.results.some((c) => c.embedding_status && c.embedding_status !== "embedded")) {
+          note += "\n⚠️ Some matches are unembedded. RAG accuracy may be degraded.";
+        }
         alert(lines.join("\n") + note);
       } else {
         alert("No matching source chunk found.");
