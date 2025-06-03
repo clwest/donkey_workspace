@@ -17,7 +17,12 @@ export default function DocumentStatusCard({ doc }) {
   if (failed) {
     color = "danger";
     label = "Broken";
-    tip = "Document failed to embed. Repair suggested.";
+    const reasons = [];
+    if (doc.progress_error) reasons.push(doc.progress_error);
+    if (doc.failed_chunks && doc.failed_chunks.length > 0) {
+      reasons.push(`Failed chunks: ${doc.failed_chunks.join(", ")}`);
+    }
+    tip = reasons.length > 0 ? reasons.join("; ") : "Document failed to embed. Repair suggested.";
   } else if (inProgress) {
     color = "warning";
     label = "Incomplete";

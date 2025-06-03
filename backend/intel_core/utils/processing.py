@@ -358,6 +358,31 @@ def save_document_to_db(content, metadata, session_id=None):
         meta["token_count"] = document.token_count_int
         meta["chunk_count"] = chunk_count
         meta.setdefault("embedded_chunks", 0)
+        from intel_core.models import DocumentProgress
+
+        progress_id = None
+        if isinstance(meta, dict):
+            progress_id = meta.get("progress_id")
+
+        embedded_now = document.chunks.filter(embedding__isnull=False).count()
+
+        if not progress_id:
+            progress = DocumentProgress.objects.create(
+                title=document.title,
+                total_chunks=chunk_count,
+                processed=chunk_count,
+                embedded_chunks=embedded_now,
+                status="in_progress",
+            )
+            meta["progress_id"] = str(progress.progress_id)
+        else:
+            progress = DocumentProgress.objects.filter(progress_id=progress_id).first()
+            if progress:
+                progress.total_chunks = chunk_count
+                progress.processed = max(progress.processed, chunk_count)
+                progress.embedded_chunks = embedded_now
+                progress.save()
+
         document.metadata = meta
         document.save(update_fields=["metadata", "token_count_int"])
 
