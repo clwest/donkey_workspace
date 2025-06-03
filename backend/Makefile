@@ -150,15 +150,25 @@ safe-restart:
 	sleep 5
 
 
+# 🧼 Lint backend (flake8) + frontend (eslint)
 lint:
-	@echo "Running Python flake8..."
+	@echo "Linting backend with flake8..."
 	flake8 .
-	@echo "Running frontend eslint..."
+	@echo "Linting frontend with eslint..."
 	cd ../frontend && npm run lint
 
-test:
-	@echo "Running pytest..."
-	pytest
+# 📦 Install frontend dependencies
+install-frontend:
+	cd ../frontend && npm install
+
+# 🚀 Start Vite frontend dev server
+dev-frontend:
+	cd ../frontend && npm run dev
+
+# 🧪 Run backend and frontend concurrently (requires GNU Make 4+)
+full-dev:
+	@echo "Starting backend and frontend in parallel..."
+	$(MAKE) -j 2 run dev-frontend
 	
 # ==== 🧙 Help ====
 help:
