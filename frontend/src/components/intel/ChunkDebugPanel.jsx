@@ -132,13 +132,27 @@ export default function ChunkDebugPanel({ docId }) {
             </thead>
             <tbody>
               {chunks.map((c, idx) => (
-                <tr key={c.id}>
+                <tr
+                  key={c.id}
+                  title={
+                    c.embedding_id
+                      ? undefined
+                      : "No embedding found. Use Re-embed All to fix."
+                  }
+                >
                   <td>{idx + 1}</td>
                   <td>{c.tokens}</td>
                   <td>{c.score?.toFixed(2)}</td>
                   <td>{c.skipped ? "❌" : ""}</td>
                   <td>{c.force_embed ? "⚠️" : ""}</td>
-                  <td>{c.embedding_id ? c.embedding_id.slice(0, 8) : "-"}</td>
+                  <td>
+                    {c.embedding_id ? c.embedding_id.slice(0, 8) : "-"}
+                    {c.score === 1.0 && c.embedding_status !== "embedded" && (
+                      <span className="ms-1 text-warning" title="Chunk not embedded">
+                        ⚠️
+                      </span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

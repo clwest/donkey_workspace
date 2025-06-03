@@ -99,6 +99,7 @@ def get_relevant_chunks(
     auto_expand: bool = False,
     force_chunks: bool = False,
     min_rag_score: float = 0.3,
+    debug: bool = False,
 ) -> Tuple[
     List[Dict[str, object]],
     Optional[str],
@@ -216,12 +217,13 @@ def get_relevant_chunks(
             {},
         )
 
-
-    chunks = DocumentChunk.objects.filter(
+    chunks_qs = DocumentChunk.objects.filter(
         document_id__in=doc_ids,
         embedding__isnull=False,
-        embedding_status="embedded",
-    ).select_related("embedding", "document")
+    )
+    if not (debug or settings.DEBUG):
+        chunks_qs = chunks_qs.filter(embedding_status="embedded")
+    chunks = chunks_qs.select_related("embedding", "document")
 
     logger.debug("[RAG Search] Docs=%s -> %d chunks", doc_ids, chunks.count())
     if chunks:

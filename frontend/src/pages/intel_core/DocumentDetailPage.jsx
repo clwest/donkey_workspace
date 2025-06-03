@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
+import { toast } from "react-toastify";
 import DocumentIntelligencePanel from "../../components/intel/DocumentIntelligencePanel";
 import DocumentAutoBuilder from "../../components/intel/DocumentAutoBuilder";
 import ChunkDebugPanel from "../../components/intel/ChunkDebugPanel";
@@ -49,6 +50,20 @@ export default function DocumentDetailPage() {
       console.error("Summary error:", err);
     } finally {
       setSummaryLoading(false);
+    }
+  };
+
+  const handleRecheck = async () => {
+    try {
+      await apiFetch(`/intel/debug/verify-embeddings/`, {
+        params: { document_id: id, recalculate: "true" },
+      });
+      const res = await apiFetch(`/intel/documents/${id}/`);
+      setDoc(res);
+      toast.success("Recheck queued");
+    } catch (err) {
+      console.error("Recheck failed", err);
+      toast.error("Recheck failed");
     }
   };
 
@@ -108,6 +123,9 @@ export default function DocumentDetailPage() {
           disabled={summaryLoading}
         >
           {summaryLoading ? "Summarizing..." : "🧠 Summarize with Context"}
+        </button>
+        <button className="btn btn-outline-warning" onClick={handleRecheck}>
+          🔄 Recheck Doc Status
         </button>
       </div>
       <DocumentAutoBuilder docId={doc.id} />

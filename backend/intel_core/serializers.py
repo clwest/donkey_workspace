@@ -143,6 +143,7 @@ class DocumentChunkInfoSerializer(serializers.ModelSerializer):
     embedding_id = serializers.SerializerMethodField()
     skipped = serializers.SerializerMethodField()
     token_count = serializers.IntegerField(source="tokens", read_only=True)
+    embedding_status = serializers.CharField(read_only=True)
 
     class Meta:
         model = DocumentChunk
@@ -155,6 +156,7 @@ class DocumentChunkInfoSerializer(serializers.ModelSerializer):
             "force_embed",
             "skipped",
             "embedding_id",
+            "embedding_status",
         ]
 
     def get_embedding_id(self, obj):

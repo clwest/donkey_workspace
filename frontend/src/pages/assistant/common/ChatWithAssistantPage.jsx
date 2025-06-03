@@ -394,7 +394,7 @@ export default function ChatWithAssistantPage() {
             <li>📎 Chunk Match Scores: {JSON.stringify(sourceInfo.chunk_scores || [])}</li>
             <li>🔍 Filtered Anchors: {JSON.stringify(sourceInfo.filtered_anchor_terms || [])}</li>
             <li>📓 Glossary Chunk IDs: {JSON.stringify(sourceInfo.glossary_chunk_ids || [])}</li>
-            <li>
+          <li>
               📄 Used Chunks:
               {sourceInfo.used_chunks?.map((c) => (
                 <div key={c.chunk_id}>
@@ -418,7 +418,12 @@ export default function ChatWithAssistantPage() {
                   {c.text ? c.text.slice(0, 30) : ""}
                 </div>
               ))}
-            </li>
+          </li>
+          {sourceInfo.used_chunks?.some((c) => c.embedding_status !== "embedded") && (
+            <div className="alert alert-danger mt-2">
+              Some chunks have invalid embedding status
+            </div>
+          )}
             {sourceInfo.glossary_definitions?.length > 0 && (
               <li>
                 🧠 Glossary Definition Injected: "{sourceInfo.glossary_definitions[0]}"
