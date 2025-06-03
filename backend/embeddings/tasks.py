@@ -4,6 +4,17 @@ Celery tasks for embeddings processing.
 
 from utils.logging_utils import get_logger
 from types import SimpleNamespace
+from django.conf import settings
+
+
+def should_embed_chunk(chunk):
+    """Return (True, reason) if a DocumentChunk should be embedded."""
+    if getattr(chunk, "force_embed", False):
+        return True, "force_embed"
+    threshold = getattr(settings, "CHUNK_EMBED_SCORE_THRESHOLD", 0.3)
+    if chunk.score is not None and chunk.score < threshold:
+        return False, "low_score"
+    return True, "ok"
 
 from celery import shared_task
 import traceback
@@ -48,11 +59,36 @@ def embed_and_store(
             if not chunk:
                 logger.error(f"No DocumentChunk found with id {text_or_id}")
                 return None
+            should, reason = should_embed_chunk(chunk)
+            if not should:
+                logger.info(
+                    "[Chunk Skipped] Chunk %s - reason: %s",
+                    chunk.id,
+                    reason,
+                )
+                chunk.embedding_status = "skipped"
+                chunk.save(update_fields=["embedding_status"])
+                return None
             text = chunk.text
             content_type = "document_chunk"
             content_id = str(chunk.id)
         else:
             text = text_or_id
+            if content_type == "document_chunk" and content_id:
+                from intel_core.models import DocumentChunk
+
+                chunk = DocumentChunk.objects.filter(id=content_id).first()
+                if chunk:
+                    should, reason = should_embed_chunk(chunk)
+                    if not should:
+                        logger.info(
+                            "[Chunk Skipped] Chunk %s - reason: %s",
+                            chunk.id,
+                            reason,
+                        )
+                        chunk.embedding_status = "skipped"
+                        chunk.save(update_fields=["embedding_status"])
+                        return None
 
         embedding = generate_embedding(text, model=model)
         if not embedding:
@@ -65,6 +101,16 @@ def embed_and_store(
                 f"Skipping embed_and_store for {content_type}:{content_id} -- "
                 f"invalid vector size {len(embedding) if isinstance(embedding, list) else 'N/A'}"
             )
+            if content_type == "document_chunk":
+                logger.info(
+                    "[Chunk Skipped] Chunk %s - reason: invalid_vector_size",
+                    content_id,
+                )
+                from intel_core.models import DocumentChunk
+
+                DocumentChunk.objects.filter(id=content_id).update(
+                    embedding_status="skipped"
+                )
             return None
 
         # Prepare a minimal object for saving

@@ -385,3 +385,7 @@ FORCE_EMBED_SYNC = os.getenv("FORCE_EMBED_SYNC", "False") == "True"
 DISABLE_CHUNK_SKIP_FILTERS = (
     os.getenv("DISABLE_CHUNK_SKIP_FILTERS", "False") == "True"
 )
+# Minimum score for embedding a chunk
+CHUNK_EMBED_SCORE_THRESHOLD = float(
+    os.getenv("CHUNK_EMBED_SCORE_THRESHOLD", "0.3")
+)
