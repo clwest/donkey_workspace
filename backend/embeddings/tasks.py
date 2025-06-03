@@ -87,11 +87,20 @@ def embed_and_store(
         )
         if content_type == "document_chunk":
             from django.utils import timezone
-            from intel_core.models import DocumentChunk, Document, EmbeddingMetadata
+            from intel_core.models import (
+                DocumentChunk,
+                Document,
+                EmbeddingMetadata,
+                DocumentProgress,
+            )
             from prompts.utils.token_helpers import count_tokens
 
             meta = EmbeddingMetadata.objects.filter(embedding_id=emb_id).first()
-            chunk = DocumentChunk.objects.filter(id=content_id).select_related("document").first()
+            chunk = (
+                DocumentChunk.objects.filter(id=content_id)
+                .select_related("document")
+                .first()
+            )
             if chunk:
                 chunk.embedding = meta
                 chunk.embedding_status = "embedded"
@@ -109,6 +118,23 @@ def embed_and_store(
                 doc.metadata = meta_data
                 doc.updated_at = timezone.now()
                 doc.save(update_fields=["metadata", "token_count_int", "updated_at"])
+
+                progress_id = None
+                if isinstance(doc.metadata, dict):
+                    progress_id = doc.metadata.get("progress_id")
+                if progress_id:
+                    prog = DocumentProgress.objects.filter(
+                        progress_id=progress_id
+                    ).first()
+                    if prog:
+                        prog.embedded_chunks = embedded
+                        if (
+                            prog.status != "failed"
+                            and prog.total_chunks > 0
+                            and prog.embedded_chunks >= prog.total_chunks
+                        ):
+                            prog.status = "completed"
+                        prog.save(update_fields=["embedded_chunks", "status"])
         # Trigger post-processing for character embeddings
         if content_type == "CharacterProfile":
             try:

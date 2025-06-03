@@ -128,6 +128,13 @@ def _create_document_chunks(document: Document):
                 info.get("reason"),
                 info.get("score", 0.0),
             )
+            logger.info(
+                "[Chunk Filter] %s chunk %d skipped: %s (%.2f)",
+                document.id,
+                i,
+                info.get("reason"),
+                info.get("score", 0.0),
+            )
             if not getattr(settings, "DISABLE_CHUNK_SKIP_FILTERS", False):
                 continue
             logger.debug("⚠️ Filter bypass enabled — keeping chunk %d", i)

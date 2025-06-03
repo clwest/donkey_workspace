@@ -11,14 +11,16 @@ def update_document_search_vector(sender, instance, **kwargs):
     """Deprecated stub kept for backward compatibility."""
     pass
 
+
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
 from memory.models import MemoryEntry
 from mcp_core.models import MemoryContext
 from assistants.models.assistant import Assistant
-from .models import DocumentChunk, EmbeddingMetadata
+from .models import DocumentChunk, EmbeddingMetadata, DocumentProgress
 from embeddings.models import Embedding
+from embeddings.helpers.helpers_io import save_embedding
 from prompts.utils.token_helpers import EMBEDDING_MODEL
 import logging
 
@@ -81,6 +83,28 @@ def link_embedding_metadata(sender, instance, created, **kwargs):
         )
         chunk.embedding = meta
         chunk.save(update_fields=["embedding"])
+
+        mem_qs = MemoryEntry.objects.filter(
+            linked_content_type=ContentType.objects.get_for_model(DocumentChunk),
+            linked_object_id=chunk.id,
+        )
+        for mem in mem_qs:
+            if not mem.embeddings.exists():
+                save_embedding(mem, vector)
+
+        progress_id = None
+        if isinstance(chunk.document.metadata, dict):
+            progress_id = chunk.document.metadata.get("progress_id")
+        if progress_id:
+            prog = DocumentProgress.objects.filter(progress_id=progress_id).first()
+            if prog:
+                prog.embedded_chunks = prog.embedded_chunks + 1
+                if (
+                    prog.status != "failed"
+                    and prog.total_chunks > 0
+                    and prog.embedded_chunks >= prog.total_chunks
+                ):
+                    prog.status = "completed"
+                prog.save(update_fields=["embedded_chunks", "status"])
     except Exception as e:
         logger.warning(f"Failed linking embedding to chunk: {e}")
-

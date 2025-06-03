@@ -14,6 +14,8 @@ from memory.models import SymbolicMemoryAnchor
 # Import directly from helpers_io to avoid __init__ fallbacks
 from embeddings.helpers.helpers_io import get_embedding_for_text
 from embeddings.vector_utils import compute_similarity
+from embeddings.models import EMBEDDING_LENGTH
+import math
 from django.conf import settings
 
 # Minimum score required to bypass normal filtering when forcing
@@ -181,6 +183,9 @@ def get_relevant_chunks(
     chunks = DocumentChunk.objects.filter(
         document_id__in=doc_ids, embedding__isnull=False
     ).select_related("embedding", "document")
+    logger.debug("[RAG Search] Docs=%s -> %d chunks", doc_ids, chunks.count())
+    if chunks:
+        logger.debug("Chunk IDs returned: %s", [str(c.id) for c in chunks[:20]])
     force_keywords = [
         "opening line",
         "first sentence",
@@ -223,6 +228,16 @@ def get_relevant_chunks(
         if vec is None:
             logger.debug("Skipping chunk %s due to missing embedding", chunk.id)
             continue
+        if not isinstance(vec, list) or len(vec) != EMBEDDING_LENGTH:
+            logger.warning(
+                "Chunk %s has malformed embedding length=%s",
+                chunk.id,
+                len(vec) if isinstance(vec, list) else "N/A",
+            )
+            continue
+        if any(math.isnan(v) for v in vec):
+            logger.warning("NaN values detected in embedding for chunk %s", chunk.id)
+            continue
         score = compute_similarity(query_vec, vec)
         raw_score = score
         if assistant and assistant.preferred_rag_vector is not None:
@@ -241,6 +256,12 @@ def get_relevant_chunks(
             chunk.anchor and chunk.anchor.slug in anchor_matches
         ):
             logger.debug("Skipping chunk %s due to low score %.3f", chunk.id, score)
+            if score < 0.2:
+                logger.info(
+                    "[RAG Filter] %s dropped due to score %.3f < 0.2",
+                    chunk.id,
+                    score,
+                )
             continue
         if keywords and any(k.lower() in chunk.text.lower() for k in keywords):
             score += 0.05
@@ -407,7 +428,9 @@ def get_relevant_chunks(
         info["override_reason"] = override_map.get(cid)
         if info["was_filtered_out"]:
             info["excluded_reason"] = (
-                "score < threshold" if info["final_score"] < score_threshold else "top-k drop"
+                "score < threshold"
+                if info["final_score"] < score_threshold
+                else "top-k drop"
             )
         else:
             info["excluded_reason"] = None
@@ -470,11 +493,15 @@ def get_relevant_chunks(
             d["id"] for d in debug_candidates if d.get("was_filtered_out")
         ],
         "reason_not_included": {
-            d["id"]: d.get("excluded_reason") for d in debug_candidates if d.get("was_filtered_out")
+            d["id"]: d.get("excluded_reason")
+            for d in debug_candidates
+            if d.get("was_filtered_out")
         },
         "override_map": override_map,
         "candidates": debug_candidates,
     }
+
+    logger.debug("[RAG Final] Returning chunks: %s", [r["chunk_id"] for r in result])
 
     return (
         result,
