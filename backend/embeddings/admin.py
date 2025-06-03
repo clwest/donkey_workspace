@@ -7,6 +7,7 @@ from .models import Embedding
 @admin.register(Embedding)
 class EmbeddingAdmin(admin.ModelAdmin):
     list_display = (
+
         "content_type",
         "content_id",
         "short_embedding",
@@ -33,3 +34,4 @@ class EmbeddingAdmin(admin.ModelAdmin):
 
         snippet = ", ".join(f"{x:.4f}" for x in vector_list[:3])
         return f"[{snippet}...]"
+
