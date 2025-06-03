@@ -190,6 +190,7 @@ class DocumentProgress(models.Model):
     """Tracks chunking progress for large documents like PDFs."""
 
     progress_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    document = models.OneToOneField('Document', on_delete=models.CASCADE)
     title = models.CharField(max_length=255, blank=True)
     total_chunks = models.IntegerField(default=0)
     processed = models.IntegerField(default=0)
