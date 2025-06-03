@@ -9,7 +9,6 @@ from memory.models import (
     GlossaryRetryLog,
     AnchorConvergenceLog,
 )
-from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 
 DEFAULT_MODEL = "gpt-4o-mini"
 client = OpenAI()
@@ -323,6 +322,9 @@ def chat(
                 source_role="system",
             )
             mem.tags.add(tag)
+            from assistants.utils.assistant_thought_engine import (
+                AssistantThoughtEngine,
+            )
             engine = AssistantThoughtEngine(assistant=assistant)
             try:
                 missing_anchor = anchor_matches[0] if anchor_matches else ""
@@ -420,13 +422,16 @@ def chat(
             anchor_slug = rag_meta.get("anchor_hits", [])
             if not anchor_slug:
                 anchor_slug = rag_meta.get("anchors", [])
-            anchor = (
-                SymbolicMemoryAnchor.objects.filter(slug=anchor_slug[0]).first()
-                if anchor_slug
-                else None
-            )
-            if anchor:
-                engine = AssistantThoughtEngine(assistant=assistant)
+                anchor = (
+                    SymbolicMemoryAnchor.objects.filter(slug=anchor_slug[0]).first()
+                    if anchor_slug
+                    else None
+                )
+                if anchor:
+                    from assistants.utils.assistant_thought_engine import (
+                        AssistantThoughtEngine,
+                    )
+                    engine = AssistantThoughtEngine(assistant=assistant)
                 definition = rag_meta.get("glossary_definitions", [""])[0]
                 reflection_text = engine.reflect_on_glossary_gap(
                     query_text, anchor.slug, definition
@@ -521,6 +526,7 @@ def chat(
             ),
         )
     elif rag_meta.get("anchor_misses"):
+        from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
         engine = AssistantThoughtEngine(assistant=assistant)
         miss_slug = rag_meta["anchor_misses"][0]
         try:
