@@ -11,6 +11,16 @@ export default function ChatWithKnowledge() {
   const [chunks, setChunks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [sessionId] = useState(() => {
+    const key = `chat_session_${slug}`;
+    const stored = localStorage.getItem(key);
+    if (stored) return stored;
+    const id = crypto.randomUUID();
+    localStorage.setItem(key, id);
+    return id;
+  });
+  const cachedRef = useRef(null);
+  const [showRestore, setShowRestore] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -20,8 +30,35 @@ export default function ChatWithKnowledge() {
   }, [slug]);
 
   useEffect(() => {
+    const cached = localStorage.getItem(`chat_${slug}_${sessionId}`);
+    if (cached) {
+      cachedRef.current = JSON.parse(cached);
+      setShowRestore(true);
+      if (window.DEBUG_CHAT_CACHE) {
+        console.log("Restoring chat:", cached);
+      }
+    }
+  }, [slug, sessionId]);
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    return () => {
+      localStorage.removeItem(`chat_${slug}_${sessionId}`);
+      localStorage.removeItem(`chat_session_${slug}`);
+    };
+  }, [slug, sessionId]);
+
+  useEffect(() => {
+    if (messages.length) {
+      localStorage.setItem(
+        `chat_${slug}_${sessionId}`,
+        JSON.stringify(messages)
+      );
+    }
+  }, [messages, slug, sessionId]);
 
   const handleSend = async (e) => {
     e.preventDefault();
@@ -63,6 +100,20 @@ export default function ChatWithKnowledge() {
       <h1>
         💬 Chat with Knowledge: <span className="text-primary">{slug}</span>
       </h1>
+      {showRestore && (
+        <div className="alert alert-warning d-flex justify-content-between align-items-center">
+          <span>Restore previous chat?</span>
+          <button
+            className="btn btn-sm btn-primary"
+            onClick={() => {
+              setMessages(cachedRef.current || []);
+              setShowRestore(false);
+            }}
+          >
+            Restore
+          </button>
+        </div>
+      )}
       {assistant?.system_prompt && (
         <div className="alert alert-secondary small">
           {assistant.system_prompt.slice(0, 120)}...
