@@ -91,6 +91,7 @@ def chat(
     focus_anchors_only: bool = False,
     retry_on_miss: bool = False,
     enable_retry_logging: bool = False,
+    force_chunks: bool = False,
     **kwargs,
 ) -> tuple[str, list[str], dict]:
     """High-level chat call that can summon memories and RAG context."""
@@ -121,7 +122,12 @@ def chat(
         focus_fallback,
         filtered_anchor_terms,
         debug_info,
-    ) = get_relevant_chunks(str(assistant.id), query_text, auto_expand=auto_expand)
+    ) = get_relevant_chunks(
+        str(assistant.id),
+        query_text,
+        auto_expand=auto_expand,
+        force_chunks=force_chunks,
+    )
     query_terms = AcronymGlossaryService.extract(query_text)
     all_anchors = list(SymbolicMemoryAnchor.objects.values_list("slug", flat=True))
     anchor_matches = [s for s in all_anchors if s.lower() in query_text.lower()]
@@ -155,8 +161,18 @@ def chat(
         "filtered_anchor_terms": filtered_anchor_terms,
         "glossary_definitions": [],
         "glossary_guidance": sum(guidance_map.values(), []),
+        "force_chunks": force_chunks,
     }
     rag_meta.update(debug_info)
+    if fallback:
+        rag_meta["weak_chunks_used"] = True
+        if rag_meta.get("fallback_chunk_ids"):
+            first_id = rag_meta["fallback_chunk_ids"][0]
+            first_score = rag_meta["fallback_chunk_scores"][0]
+            rag_meta.setdefault("debug_logs", []).append(
+                f"\u26a0\ufe0f Weak context fallback: used chunk {first_id} (score {first_score})"
+            )
+    rag_meta["fallback_reason"] = reason
     retried = False
     retry_type = "standard"
     retry_log = None

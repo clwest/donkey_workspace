@@ -54,6 +54,36 @@ def _anchor_in_query(anchor: SymbolicMemoryAnchor, text: str) -> bool:
     return False
 
 
+def _search_summary_hits(query_vec: list, doc_ids: List[str], limit: int = 3) -> List[dict]:
+    """Return summary-level fallback results for the given documents."""
+    from intel_core.models import Document
+
+    docs = Document.objects.filter(id__in=doc_ids).exclude(summary__isnull=True)
+    scored: List[tuple[float, Document]] = []
+    for doc in docs:
+        if not doc.summary:
+            continue
+        try:
+            vec = get_embedding_for_text(doc.summary)
+        except Exception:  # pragma: no cover - network
+            continue
+        if not vec:
+            continue
+        score = compute_similarity(query_vec, vec)
+        scored.append((score, doc))
+    scored.sort(key=lambda x: x[0], reverse=True)
+    results = []
+    for score, doc in scored[:limit]:
+        results.append(
+            {
+                "doc_id": str(doc.id),
+                "score": round(score, 4),
+                "summary_excerpt": (doc.summary or "")[:120],
+            }
+        )
+    return results
+
+
 def get_relevant_chunks(
     assistant_id: Optional[str],
     query_text: str,
@@ -65,6 +95,8 @@ def get_relevant_chunks(
     fallback_min: float = 0.5,
     fallback_limit: int = 2,
     auto_expand: bool = False,
+    force_chunks: bool = False,
+    min_rag_score: float = 0.3,
 ) -> Tuple[
     List[Dict[str, object]],
     Optional[str],
@@ -91,7 +123,9 @@ def get_relevant_chunks(
     of score. ``focus_fallback`` indicates that no focus anchors were found and
     all anchors were considered, while ``filtered_anchor_terms`` lists query terms
     filtered out due to focus restrictions. ``debug_info`` now also includes
-    ``override_map`` and per-chunk candidate details.
+    ``override_map`` and per-chunk candidate details. ``force_chunks`` bypasses
+    score filtering and always returns the top 3 chunks. ``min_rag_score``
+    triggers summary-level fallback when the best score is below the threshold.
     """
     if not query_text:
         return (
@@ -315,11 +349,18 @@ def get_relevant_chunks(
     scored.sort(key=lambda x: x[0], reverse=True)
     top_score = scored[0][0] if scored else 0.0
     top_chunk_id = str(scored[0][1].id) if scored else None
+
+    summary_hits: List[dict] = []
+    fallback_type = None
+    if top_score < min_rag_score and query_vec:
+        summary_hits = _search_summary_hits(query_vec, doc_ids)
+        if summary_hits:
+            fallback_type = "summary"
     # ``scored`` contains tuples of ``(score, chunk, anchor_confidence, raw_score, anchor_weight)``
     # so we keep all fields intact when filtering.
     filtered = [
         (s, c, conf, raw, aw) for s, c, conf, raw, aw in scored if s >= score_threshold
-    ]
+    ] if not force_chunks else scored
     reason = None
     fallback = False
 
@@ -346,9 +387,15 @@ def get_relevant_chunks(
     if query_terms and anchor_matches and not glossary_anchor_pairs:
         reason = reason or "glossary missing"
     glossary_forced = False
-    if force_inject and scored:
+    if force_chunks and scored:
+        reason = reason or "forced override"
+        fallback = True
+        fallback_type = fallback_type or "chunk"
+        pairs = scored[: max(1, fallback_limit)]
+    elif force_inject and scored:
         reason = reason or "forced"
         fallback = True
+        fallback_type = fallback_type or "chunk"
         pairs = scored[: max(1, fallback_limit)]
     elif strong_matches:
         pairs = strong_matches
@@ -366,6 +413,7 @@ def get_relevant_chunks(
                 s,
                 reason or "unknown",
             )
+        fallback_type = fallback_type or "chunk"
     else:
         debug_info = {
             "retrieved_chunk_count": len(debug_candidates),
@@ -448,7 +496,12 @@ def get_relevant_chunks(
             )
 
     result = []
+    fallback_ids: List[str] = []
+    fallback_scores: List[float] = []
     for score, chunk, anchor_conf, raw_score, anchor_weight in pairs:
+        if fallback and score < score_threshold:
+            fallback_ids.append(str(chunk.id))
+            fallback_scores.append(round(score, 4))
         result.append(
             {
                 "chunk_id": str(chunk.id),
@@ -499,6 +552,11 @@ def get_relevant_chunks(
         },
         "override_map": override_map,
         "candidates": debug_candidates,
+        "fallback_summaries": summary_hits,
+        "fallback_type": fallback_type or ("chunk" if fallback else None),
+        "weak_chunks_used": fallback,
+        "fallback_chunk_ids": fallback_ids,
+        "fallback_chunk_scores": fallback_scores,
     }
 
     logger.debug("[RAG Final] Returning chunks: %s", [r["chunk_id"] for r in result])
