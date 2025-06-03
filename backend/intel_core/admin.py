@@ -44,7 +44,14 @@ class JobStatusAdmin(admin.ModelAdmin):
 
 @admin.register(DocumentProgress)
 class DocumentProgressAdmin(admin.ModelAdmin):
-    list_display = ("progress_id", "title", "status", "processed", "total_chunks")
+    list_display = (
+        "progress_id",
+        "title",
+        "status",
+        "processed",
+        "embedded_chunks",
+        "total_chunks",
+    )
     readonly_fields = ("progress_id", "created_at", "updated_at")
     list_filter = ("status", "created_at")
 

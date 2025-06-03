@@ -83,25 +83,25 @@ def extract_visible_text(html_content):
     soup = Soup(html_content, "html.parser")
 
     # Strip undesirable elements
-    for tag in soup([
-        "script",
-        "style",
-        "meta",
-        "link",
-        "noscript",
-        "iframe",
-        "header",
-        "footer",
-        "nav",
-        "aside",
-    ]):
+    for tag in soup(
+        [
+            "script",
+            "style",
+            "meta",
+            "link",
+            "noscript",
+            "iframe",
+            "header",
+            "footer",
+            "nav",
+            "aside",
+        ]
+    ):
         tag.decompose()
 
     # Prefer <main>, <article>, or #content div
     main = (
-        soup.find("main")
-        or soup.find("article")
-        or soup.find("div", {"id": "content"})
+        soup.find("main") or soup.find("article") or soup.find("div", {"id": "content"})
     )
 
     if not main:
@@ -332,6 +332,17 @@ def get_document_memory_status(document: Document) -> dict:
     embedded_chunks = DocumentChunk.objects.filter(
         document=document, embedding__isnull=False
     ).count()
+
+    progress_id = None
+    if isinstance(document.metadata, dict):
+        progress_id = document.metadata.get("progress_id")
+    if progress_id:
+        from intel_core.models import DocumentProgress
+
+        prog = DocumentProgress.objects.filter(progress_id=progress_id).first()
+        if prog:
+            total_chunks = max(total_chunks, prog.total_chunks)
+            embedded_chunks = max(embedded_chunks, prog.embedded_chunks)
     coverage = round((embedded_chunks / total_chunks) * 100, 1) if total_chunks else 0.0
 
     tags = list(document.tags.values_list("name", flat=True))
@@ -341,7 +352,9 @@ def get_document_memory_status(document: Document) -> dict:
     )
     last_summary = ""
     if last_entry:
-        last_summary = last_entry.summary or (last_entry.event[:80] if last_entry.event else "")
+        last_summary = last_entry.summary or (
+            last_entry.event[:80] if last_entry.event else ""
+        )
 
     return {
         "document_id": str(document.id),

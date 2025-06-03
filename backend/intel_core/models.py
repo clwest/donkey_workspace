@@ -187,6 +187,7 @@ class DocumentProgress(models.Model):
     title = models.CharField(max_length=255, blank=True)
     total_chunks = models.IntegerField(default=0)
     processed = models.IntegerField(default=0)
+    embedded_chunks = models.IntegerField(default=0)
     failed_chunks = ArrayField(models.IntegerField(), default=list, blank=True)
     status = models.CharField(
         max_length=20,
@@ -200,6 +201,15 @@ class DocumentProgress(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if (
+            self.status not in {"completed", "failed"}
+            and self.total_chunks > 0
+            and self.processed >= self.total_chunks
+        ):
+            self.status = "completed"
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.title} - {self.processed}/{self.total_chunks}"
@@ -265,9 +275,7 @@ class GlossaryUsageLog(models.Model):
 class GlossaryMissReflectionLog(models.Model):
     """Store fallback events when glossary context was insufficient."""
 
-    anchor = models.ForeignKey(
-        "memory.SymbolicMemoryAnchor", on_delete=models.CASCADE
-    )
+    anchor = models.ForeignKey("memory.SymbolicMemoryAnchor", on_delete=models.CASCADE)
     user_question = models.TextField()
     assistant_response = models.TextField()
     matched_chunks = models.ManyToManyField(DocumentChunk)

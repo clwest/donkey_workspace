@@ -68,13 +68,17 @@ def generate_unique_slug(title):
     return slug
 
 
-from embeddings.document_services.chunking import (clean_and_score_chunk,
-                                                   generate_chunk_fingerprint,
-                                                   generate_chunks)
+from embeddings.document_services.chunking import (
+    clean_and_score_chunk,
+    generate_chunk_fingerprint,
+    generate_chunks,
+)
 from intel_core.models import DocumentChunk
+
 # Import directly to avoid circular dependency triggered via
 # ``intel_core.services.__init__`` which pulls in ``DocumentService``.
 from memory.models import SymbolicMemoryAnchor
+
 # Import directly to avoid circular dependency triggered via
 # ``intel_core.services.__init__`` which pulls in ``DocumentService``.
 from intel_core.services.acronym_glossary_service import AcronymGlossaryService
@@ -97,6 +101,8 @@ def compute_glossary_score(text: str, anchors=None):
             matched.append(anc.slug)
     score = len(matched) / max(len(anchors), 1)
     return round(score, 2), matched
+
+
 from prompts.utils.token_helpers import EMBEDDING_MODEL, count_tokens
 
 
@@ -119,6 +125,13 @@ def _create_document_chunks(document: Document):
                 i,
                 len(chunk),
                 document.source_type,
+                info.get("reason"),
+                info.get("score", 0.0),
+            )
+            logger.info(
+                "[Chunk Filter] %s chunk %d skipped: %s (%.2f)",
+                document.id,
+                i,
                 info.get("reason"),
                 info.get("score", 0.0),
             )
