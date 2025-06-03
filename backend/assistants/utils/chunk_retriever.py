@@ -386,6 +386,13 @@ def get_relevant_chunks(
         if not force_chunks
         else scored
     )
+    warnings: List[str] = []
+    score_list = [s for s, _c, _conf, _raw, _aw in scored]
+    max_score = max(score_list) if score_list else 0.0
+    if not filtered and score_list and max_score < 0.15:
+        warnings.append(
+            f"\u26a0\ufe0f All chunk scores below threshold ({max_score:.3f}) \u2014 RAG fallback in effect."
+        )
     reason = None
     fallback = False
 
@@ -533,13 +540,12 @@ def get_relevant_chunks(
         if fallback and score < score_threshold:
             fallback_ids.append(str(chunk.id))
             fallback_scores.append(round(score, 4))
-        result.append(
-            {
-                "chunk_id": str(chunk.id),
-                "document_id": str(chunk.document_id),
-                "score": round(score, 4),
-                "score_before_anchor_boost": round(raw_score, 4),
-                "score_after_anchor_boost": round(score, 4),
+        info = {
+            "chunk_id": str(chunk.id),
+            "document_id": str(chunk.document_id),
+            "score": round(score, 4),
+            "score_before_anchor_boost": round(raw_score, 4),
+            "score_after_anchor_boost": round(score, 4),
                 "text": chunk.text,
                 "source_doc": chunk.document.title,
                 "is_glossary": getattr(chunk, "is_glossary", False),
@@ -565,9 +571,11 @@ def get_relevant_chunks(
                 ),
                 "was_filtered_out": False,
                 "final_score": round(score, 4),
-                "forced_inclusion_reason": override_map.get(str(chunk.id)),
-            }
-        )
+            "forced_inclusion_reason": override_map.get(str(chunk.id)),
+        }
+        if reason:
+            info["debug_log"] = reason
+        result.append(info)
 
     debug_info = {
         "retrieved_chunk_count": len(debug_candidates),
@@ -589,6 +597,7 @@ def get_relevant_chunks(
         "weak_chunks_used": fallback,
         "fallback_chunk_ids": fallback_ids,
         "fallback_chunk_scores": fallback_scores,
+        "warnings": warnings,
     }
 
     logger.debug("[RAG Final] Returning chunks: %s", [r["chunk_id"] for r in result])

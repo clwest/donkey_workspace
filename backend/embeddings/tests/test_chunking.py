@@ -71,3 +71,16 @@ def test_summarize_chunks_truncate(monkeypatch):
     summary = ck.summarize_chunks(chunks)
     # 'one two three four' truncated to <=10 chars -> 'one two...'
     assert summary == "one two..."
+
+
+def test_is_chunk_clean_basic():
+    assert ck.is_chunk_clean("This is a reasonably clean chunk of text.") is True
+
+
+def test_is_chunk_clean_reject_short():
+    assert ck.is_chunk_clean("too short") is False
+
+
+def test_is_chunk_clean_low_readability(monkeypatch):
+    monkeypatch.setattr(ck.textstat, "flesch_reading_ease", lambda t: 0)
+    assert ck.is_chunk_clean("This text looks fine but score will be low.") is False

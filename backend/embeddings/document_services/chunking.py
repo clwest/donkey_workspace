@@ -10,6 +10,7 @@ from typing import List, Tuple
 
 from intel_core.core.filters import ALL_STOP_WORDS
 import spacy
+from textstat import textstat
 
 try:
     from nltk.tokenize import sent_tokenize
@@ -32,6 +33,7 @@ __all__ = [
     "summarize_chunks",
     "merge_and_score_chunks",
     "clean_and_score_chunk",
+    "is_chunk_clean",
 ]
 
 try:
@@ -47,6 +49,22 @@ def lexical_density(text: str) -> float:
         return 0.0
     content = [w for w in words if w not in ALL_STOP_WORDS]
     return len(content) / len(words)
+
+
+def is_chunk_clean(text: str) -> bool:
+    """Return True if ``text`` passes basic quality checks."""
+    if len(text.strip()) < 20:
+        return False
+    if textstat.flesch_reading_ease(text) < 5:
+        return False
+    if sum(c.isalnum() for c in text) / max(len(text), 1) < 0.5:
+        return False
+    words = text.split()
+    if words and len(set(words)) / len(words) < 0.3:
+        return False
+    if re.search(r"(.)\1{4,}", text):
+        return False
+    return True
 
 
 def clean_and_score_chunk(text: str, chunk_index: int | None = None) -> dict:
@@ -155,9 +173,11 @@ def generate_chunks(text: str, chunk_size: int = 1000) -> List[str]:
     for start in range(0, text_length, step):
         end = min(start + chunk_size, text_length)
         chunk = text[start:end]
-        if len(chunk) < 50:
-            if lexical_density(chunk) < 0.4:
-                continue
+        chunk = re.sub(r"\s+", " ", chunk).strip()
+        if len(chunk) < 50 and lexical_density(chunk) < 0.4:
+            continue
+        if not is_chunk_clean(chunk):
+            continue
         chunks.append(chunk)
         if len(chunks) >= MAX_CHUNKS_PER_DOCUMENT:
             break

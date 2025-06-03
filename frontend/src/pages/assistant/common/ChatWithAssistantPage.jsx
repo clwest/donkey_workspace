@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { suggestAssistant, suggestSwitch, switchAssistant } from "../../../api/assistants";
 import "./styles/ChatView.css";
+import ChatDebugPanel from "../../components/assistant/ChatDebugPanel";
 
 export default function ChatWithAssistantPage() {
   const { slug } = useParams();
@@ -453,6 +454,8 @@ export default function ChatWithAssistantPage() {
           )}
         </div>
       )}
+
+      {sourceInfo && <ChatDebugPanel ragMeta={sourceInfo} />}
 
       {error && <div className="alert alert-danger mt-3">{error}</div>}
     </div>
