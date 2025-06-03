@@ -165,19 +165,22 @@ def unified_ingestion_view(request):
                 ]
             if source_type == "url":
                 response["message"] = f"Loaded {len(ingest_result)} URL document(s)."
-            if not document:
-                logger.warning("⚠️ Reflection skipped – no document created")
-                return Response(
-                    {"status": "skipped", "reason": "No document created"},
-                    status=status.HTTP_200_OK,
-                )
             if (
                 not docs
                 and ingest_result
                 and isinstance(ingest_result[0], dict)
                 and ingest_result[0].get("status") == "skipped"
             ):
+                logger.warning(
+                    "⚠️ Ingestion skipped — %s", ingest_result[0].get("reason")
+                )
                 return Response(ingest_result[0], status=status.HTTP_200_OK)
+            if not document:
+                logger.warning("⚠️ Reflection skipped – no document created")
+                return Response(
+                    {"status": "skipped", "reason": "No document created"},
+                    status=status.HTTP_200_OK,
+                )
             return Response(response, status=200)
         except Exception as e:
             logger.exception("🔥 Final response serialization failed")
