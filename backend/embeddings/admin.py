@@ -7,24 +7,31 @@ from .models import Embedding
 @admin.register(Embedding)
 class EmbeddingAdmin(admin.ModelAdmin):
     list_display = (
-        "id",  # Optional UUID
+
         "content_type",
-        "object_id",
-        "short_content",
+        "content_id",
         "short_embedding",
-        "session_id",
         "created_at",
     )
-    list_filter = ("content_type", "created_at")
-    search_fields = ("content", "object_id", "session_id")
+    list_filter = ("content_type",)
+    search_fields = ("content_id",)
 
-    def short_content(self, obj):
-        return (obj.content[:75] + "...") if obj.content else "—"
+    @admin.display(description="Embedding Preview")
+    def short_embedding(self, obj) -> str:
+        """Return a short, human friendly preview of the vector."""
+        vector = obj.embedding
+        if vector is None:
+            return "—"
 
-    def short_embedding(self, obj):
-        return (
-            f"[{', '.join(f'{x:.4f}' for x in obj.embedding[:3])}...]" if obj.embedding else "—"
-        )
+        # pgvector may return a list or numpy array. Avoid boolean evaluation
+        try:
+            vector_list = (
+                vector.tolist() if hasattr(vector, "tolist") else list(vector)
+            )
+        except Exception:
+            # Fallback to string representation on unexpected types
+            return str(vector)[:20] + "..."
 
-    short_content.short_description = "Content Preview"
-    short_embedding.short_description = "Embedding (preview)"
+        snippet = ", ".join(f"{x:.4f}" for x in vector_list[:3])
+        return f"[{snippet}...]"
+
