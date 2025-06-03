@@ -27,6 +27,8 @@ from embeddings.helpers.helpers_similarity import get_similar_documents
 from embeddings.helpers.search_registry import search_registry
 from intel_core.models import DocumentChunk
 from embeddings.tasks import embed_and_store
+from embeddings.document_services.chunking import clean_and_score_chunk
+import math
 
 
 @api_view(["POST"])
@@ -276,11 +278,22 @@ def list_search_targets(request):
 def reembed_skipped_chunks(request):
     doc_id = request.query_params.get("document_id")
     force = request.query_params.get("force") == "true"
+    repair = request.query_params.get("repair") == "true"
     qs = DocumentChunk.objects.filter(embedding_status="skipped")
     if doc_id:
         qs = qs.filter(document_id=doc_id)
     count = 0
     for chunk in qs:
+        if repair:
+            info = clean_and_score_chunk(chunk.text, chunk_index=chunk.order)
+            new_score = info.get("score")
+            if new_score is not None and not math.isnan(float(new_score)):
+                chunk.score = new_score
+                if new_score < 0.0:
+                    chunk.force_embed = True
+                chunk.save(update_fields=["score"])
+            else:
+                chunk.force_embed = True
         if force:
             chunk.force_embed = True
         chunk.embedding_status = "pending"

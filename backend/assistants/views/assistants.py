@@ -751,6 +751,22 @@ def chat_with_assistant_view(request, slug):
         focus_anchors_only=request.data.get("focus_only", True),
         force_chunks=request.query_params.get("force_chunks") == "true",
     )
+    if request.query_params.get("debug_chunks") == "true":
+        candidates = rag_meta.get("candidates") or rag_meta.get("used_chunks") or []
+        for info in candidates[:5]:
+            cid = info.get("chunk_id") or info.get("id")
+            score = info.get("score") or info.get("final_score")
+            text = info.get("text", "")
+            logger.info(
+                "[ChunkDebug] %s | score=%.4f | len=%d",
+                cid,
+                float(score or 0.0),
+                len(text),
+            )
+        logger.info(
+            "[ChunkDebug] fallback_reason=%s",
+            rag_meta.get("fallback_reason"),
+        )
     usage = type(
         "U", (), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
     )()

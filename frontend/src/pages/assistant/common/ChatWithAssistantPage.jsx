@@ -187,10 +187,14 @@ export default function ChatWithAssistantPage() {
       });
       const data = await res.json();
       if (data.results && data.results.length > 0) {
-        const top = data.results[0];
-        const score = top.similarity_score || 0;
-        const percent = isNaN(score * 100) ? 0 : Math.round(score * 100);
-        alert(`Top match ${percent}%\n${top.text.slice(0, 120)}...`);
+        const lines = data.results.slice(0, 3).map((c, i) => {
+          const score = c.score || c.similarity_score || 0;
+          return `${i + 1}. ${c.chunk_id || c.id} | ${score.toFixed(2)} | ${c.text.slice(0, 80)}`;
+        });
+        let note = "";
+        const bestScore = data.results[0].score || data.results[0].similarity_score || 0;
+        if (bestScore < 0.3) note = "\n⚠️ Using fallback due to low score";
+        alert(lines.join("\n") + note);
       } else {
         alert("No matching source chunk found.");
       }
