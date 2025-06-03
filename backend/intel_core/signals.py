@@ -15,6 +15,7 @@ def update_document_search_vector(sender, instance, **kwargs):
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import F
 from memory.models import MemoryEntry
 from mcp_core.models import MemoryContext
 from assistants.models.assistant import Assistant
@@ -98,13 +99,16 @@ def link_embedding_metadata(sender, instance, created, **kwargs):
         if progress_id:
             prog = DocumentProgress.objects.filter(progress_id=progress_id).first()
             if prog:
-                prog.embedded_chunks = prog.embedded_chunks + 1
+                DocumentProgress.objects.filter(progress_id=progress_id).update(
+                    embedded_chunks=F("embedded_chunks") + 1
+                )
+                prog.refresh_from_db()
                 if (
                     prog.status != "failed"
                     and prog.total_chunks > 0
                     and prog.embedded_chunks >= prog.total_chunks
                 ):
                     prog.status = "completed"
-                prog.save(update_fields=["embedded_chunks", "status"])
+                    prog.save(update_fields=["status"])
     except Exception as e:
         logger.warning(f"Failed linking embedding to chunk: {e}")

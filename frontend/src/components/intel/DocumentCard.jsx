@@ -129,10 +129,24 @@ export default function DocumentCard({ group, onToggleFavorite, onDelete }) {
 
       <div className="mt-2 text-muted small">
         <div>
-          <strong>Chunks:</strong> {embeddedChunks} / {chunkCount}
+          <strong>Chunks:</strong>{" "}
+          <span
+            className={
+              embeddedChunks === 0
+                ? "text-danger"
+                : embeddedChunks < chunkCount
+                ? "text-warning"
+                : "text-success"
+            }
+            title={`Embedded ${embeddedChunks} of ${chunkCount} chunks; last updated at ${new Date(
+              updatedAt
+            ).toLocaleString()}`}
+          >
+            {embeddedChunks} / {chunkCount}
+          </span>
         </div>
         <div>
-          <strong>Tokens:</strong> {tokenCount}
+          <strong>Tokens:</strong> {tokenCount.toLocaleString()}
         </div>
         {updatedAt && (
           <div>

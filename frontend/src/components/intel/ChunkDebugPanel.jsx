@@ -23,16 +23,30 @@ export default function ChunkDebugPanel({ docId }) {
     load();
   }, [docId, showSkipped]);
 
-  const handleReembed = async () => {
+  const handleReembed = async (skipOnly) => {
     setReembedding(true);
     try {
       await apiFetch(`/embeddings/reembed-skipped/`, {
         method: "POST",
-        params: { document_id: docId },
+        params: { document_id: docId, force: skipOnly ? undefined : "true" },
       });
-      setShowSkipped(false);
+      if (skipOnly) setShowSkipped(false);
     } catch (err) {
       console.error("Reembed failed", err);
+    } finally {
+      setReembedding(false);
+    }
+  };
+
+  const handleRecalcScores = async () => {
+    setReembedding(true);
+    try {
+      await apiFetch(`/intel/debug/recalc-scores/`, {
+        method: "POST",
+        params: { document_id: docId },
+      });
+    } catch (err) {
+      console.error("Score recalc failed", err);
     } finally {
       setReembedding(false);
     }
@@ -63,9 +77,29 @@ export default function ChunkDebugPanel({ docId }) {
       <p className="mb-2 small">
         Total: {total} | Embedded: {embedded} | Skipped: {skipped} | Avg score: {avgScore}
       </p>
-      <button className="btn btn-sm btn-outline-primary mb-2" onClick={handleReembed} disabled={reembedding}>
-        {reembedding ? "Re-embedding..." : "Re-embed Skipped Chunks"}
-      </button>
+      <div className="mb-2 d-flex gap-2">
+        <button
+          className="btn btn-sm btn-outline-primary"
+          onClick={() => handleReembed(false)}
+          disabled={reembedding}
+        >
+          {reembedding ? "Re-embedding..." : "Re-embed All"}
+        </button>
+        <button
+          className="btn btn-sm btn-outline-secondary"
+          onClick={() => handleReembed(true)}
+          disabled={reembedding}
+        >
+          Re-embed Skipped
+        </button>
+        <button
+          className="btn btn-sm btn-outline-warning"
+          onClick={handleRecalcScores}
+          disabled={reembedding}
+        >
+          Recalculate Scores
+        </button>
+      </div>
       {loading ? (
         <div>Loading chunks...</div>
       ) : (
