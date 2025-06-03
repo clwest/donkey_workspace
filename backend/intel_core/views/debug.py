@@ -1,6 +1,8 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from intel_core.models import DocumentChunk
+from rest_framework import status
+from intel_core.models import Document, DocumentChunk
+from embeddings.document_services.chunking import clean_and_score_chunk
 
 
 @api_view(["GET"])
@@ -51,3 +53,25 @@ def rag_recall(request):
         **debug_info,
     }
     return Response({"results": chunks, "debug": debug})
+
+
+@api_view(["POST", "GET"])
+def recalc_scores(request):
+    """Recalculate chunk relevance scores for a document."""
+    doc_id = request.data.get("document_id") or request.query_params.get("doc_id")
+    if not doc_id:
+        return Response({"error": "document_id required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    document = Document.objects.filter(id=doc_id).first()
+    if not document:
+        return Response({"error": "Document not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    chunks = DocumentChunk.objects.filter(document=document).order_by("order")
+    updated = 0
+    for chunk in chunks:
+        info = clean_and_score_chunk(chunk.text, chunk_index=chunk.order)
+        chunk.score = info.get("score", 0.0)
+        chunk.save(update_fields=["score"])
+        updated += 1
+
+    return Response({"updated": updated})

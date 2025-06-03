@@ -28,8 +28,11 @@ class DocumentViewSet(viewsets.ModelViewSet):
             qs = qs.filter(embedding_status="skipped")
         if request.query_params.get("force") == "true":
             qs = qs.filter(force_embed=True)
+        status_str = "completed"
+        if qs.count() < doc.chunks.count():
+            status_str = "processing"
         serializer = DocumentChunkInfoSerializer(qs, many=True)
-        return Response(serializer.data)
+        return Response({"chunks": serializer.data, "status": status_str})
 
 
 class DocumentChunkViewSet(viewsets.ModelViewSet):

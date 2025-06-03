@@ -1,23 +1,25 @@
 import { useEffect, useState } from "react";
 import apiFetch from "../../utils/apiClient";
+import { toast } from "react-toastify";
 
 export default function ChunkDebugPanel({ docId }) {
   const [chunks, setChunks] = useState([]);
   const [showSkipped, setShowSkipped] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [isLoadingChunks, setIsLoadingChunks] = useState(true);
   const [reembedding, setReembedding] = useState(false);
 
   useEffect(() => {
     async function load() {
-      setLoading(true);
+      setIsLoadingChunks(true);
       try {
         const params = showSkipped ? { skipped: "true" } : {};
         const res = await apiFetch(`/intel/documents/${docId}/chunks/`, { params });
-        setChunks(res);
+        const list = Array.isArray(res) ? res : res.chunks || [];
+        setChunks(list);
       } catch (err) {
         console.error("Failed to load chunks", err);
       } finally {
-        setLoading(false);
+        setIsLoadingChunks(false);
       }
     }
     load();
@@ -31,8 +33,10 @@ export default function ChunkDebugPanel({ docId }) {
         params: { document_id: docId, force: skipOnly ? undefined : "true" },
       });
       if (skipOnly) setShowSkipped(false);
+      toast.success("Re-embed queued");
     } catch (err) {
       console.error("Reembed failed", err);
+      toast.error("Re-embed failed");
     } finally {
       setReembedding(false);
     }
@@ -45,8 +49,10 @@ export default function ChunkDebugPanel({ docId }) {
         method: "POST",
         params: { document_id: docId },
       });
+      toast.success("Score recalculation queued");
     } catch (err) {
       console.error("Score recalc failed", err);
+      toast.error("Score recalculation failed");
     } finally {
       setReembedding(false);
     }
@@ -81,26 +87,26 @@ export default function ChunkDebugPanel({ docId }) {
         <button
           className="btn btn-sm btn-outline-primary"
           onClick={() => handleReembed(false)}
-          disabled={reembedding}
+          disabled={reembedding || isLoadingChunks}
         >
           {reembedding ? "Re-embedding..." : "Re-embed All"}
         </button>
         <button
           className="btn btn-sm btn-outline-secondary"
           onClick={() => handleReembed(true)}
-          disabled={reembedding}
+          disabled={reembedding || isLoadingChunks}
         >
           Re-embed Skipped
         </button>
         <button
           className="btn btn-sm btn-outline-warning"
           onClick={handleRecalcScores}
-          disabled={reembedding}
+          disabled={reembedding || isLoadingChunks}
         >
           Recalculate Scores
         </button>
       </div>
-      {loading ? (
+      {isLoadingChunks ? (
         <div>Loading chunks...</div>
       ) : (
         <div className="table-responsive">
