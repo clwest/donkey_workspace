@@ -10,7 +10,16 @@ export default function ChatWithAssistantPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [switchSuggestion, setSwitchSuggestion] = useState(null);
-  const [sessionId] = useState(() => crypto.randomUUID());
+  const [sessionId] = useState(() => {
+    const key = `chat_session_${slug}`;
+    const stored = localStorage.getItem(key);
+    if (stored) return stored;
+    const id = crypto.randomUUID();
+    localStorage.setItem(key, id);
+    return id;
+  });
+  const cachedRef = useRef(null);
+  const [showRestore, setShowRestore] = useState(false);
   const messagesEndRef = useRef(null);
   const [sourceInfo, setSourceInfo] = useState(null);
   const [glossarySuggestion, setGlossarySuggestion] = useState(null);
@@ -27,6 +36,46 @@ export default function ChatWithAssistantPage() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    if (messages.length) {
+      localStorage.setItem(
+        `chat_${slug}_${sessionId}`,
+        JSON.stringify(messages)
+      );
+    }
+  }, [messages, slug, sessionId]);
+
+  // Load cached messages on mount
+  useEffect(() => {
+    const cached = localStorage.getItem(`chat_${slug}_${sessionId}`);
+    if (cached) {
+      cachedRef.current = JSON.parse(cached);
+      setShowRestore(true);
+      if (window.DEBUG_CHAT_CACHE) {
+        console.log("Restoring chat:", cached);
+      }
+    } else {
+      const fetchSession = async () => {
+        const res = await fetch(`/api/assistants/${slug}/chat/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: "__ping__", session_id: sessionId }),
+        });
+
+        const data = await res.json();
+        setMessages(data.messages || []);
+      };
+      fetchSession();
+    }
+  }, [slug, sessionId]);
+
+  useEffect(() => {
+    return () => {
+      localStorage.removeItem(`chat_${slug}_${sessionId}`);
+      localStorage.removeItem(`chat_session_${slug}`);
+    };
+  }, [slug, sessionId]);
 
   const handleSend = async (e) => {
     e.preventDefault();
@@ -93,20 +142,6 @@ export default function ChatWithAssistantPage() {
     }
   };
 
-  useEffect(() => {
-    const fetchSession = async () => {
-      const res = await fetch(`/api/assistants/${slug}/chat/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: "__ping__", session_id: sessionId }),
-      });
-
-      const data = await res.json();
-      setMessages(data.messages || []);
-    };
-
-    fetchSession();
-  }, [slug]);
 
   const handleSuggest = async () => {
     try {
@@ -167,6 +202,21 @@ export default function ChatWithAssistantPage() {
   return (
     <div className="container my-5">
       <h1>💬 Chat with Assistant: <span className="text-primary">{slug}</span></h1>
+
+      {showRestore && (
+        <div className="alert alert-warning d-flex justify-content-between align-items-center">
+          <span>Restore previous chat?</span>
+          <button
+            className="btn btn-sm btn-primary"
+            onClick={() => {
+              setMessages(cachedRef.current || []);
+              setShowRestore(false);
+            }}
+          >
+            Restore
+          </button>
+        </div>
+      )}
 
       {noContextMatch && (
         <div className="alert alert-warning mt-3">
