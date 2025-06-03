@@ -13,13 +13,14 @@ class AcronymGlossaryService:
     @classmethod
     def extract(cls, text: str) -> dict:
         """Return mapping of found acronyms to expansions."""
-        terms = set(re.findall(r"\b[A-Z]{2,}\b", text or ""))
+        terms = set(re.findall(r"\b[A-Za-z]{2,}\b", text or ""))
         results = {}
         lowered = text.lower() if text else ""
         for term in terms:
-            expansion = cls.KNOWN.get(term)
+            lookup = term.upper()
+            expansion = cls.KNOWN.get(lookup)
             if expansion and expansion.lower() not in lowered:
-                results[term] = expansion
+                results[lookup] = expansion
         return results
 
     @classmethod
