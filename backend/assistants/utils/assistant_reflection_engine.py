@@ -8,11 +8,15 @@ from assistants.models.reflection import (
 )
 from mcp_core.models import MemoryContext, DevDoc, NarrativeThread
 from intel_core.models import Document
+from prompts.models import Prompt
+from prompts.utils.token_helpers import count_tokens
+from prompts.utils.openai_utils import generate_prompt_from_summary
+from mcp_core.models import Tag
+from assistants.models.project import AssistantPromptLink
 from memory.models import MemoryEntry
 from django.contrib.contenttypes.models import ContentType
 from django.utils.text import slugify
 from django.utils import timezone
-from assistants.models.project import AssistantProject
 
 from agents.models.core import (
     Agent,
@@ -257,7 +261,11 @@ class AssistantReflectionEngine:
         return project
 
     def reflect_on_document(self, document):
-        """Reflect on a Document or DevDoc instance and save insights."""
+        """Reflect on a Document or DevDoc instance and save insights.
+
+        Returns a tuple ``(summary, insights, prompt)`` where ``prompt`` is the
+        generated ``Prompt`` instance or ``None``.
+        """
 
         # Allow passing a DevDoc; use its linked Document
         if isinstance(document, DevDoc):
@@ -286,7 +294,41 @@ class AssistantReflectionEngine:
                 text=insight,
             )
 
-        return summary, insights
+        prompt_obj = None
+        if summary:
+            prompt_text = generate_prompt_from_summary(summary, assistant=self.assistant)
+            if prompt_text:
+                prompt_obj, _ = Prompt.objects.get_or_create(
+                    assistant=self.assistant,
+                    source_document=target_document,
+                    source="reflection",
+                    defaults={
+                        "title": f"Reflection Prompt - {target_document.title}"[:255],
+                        "content": prompt_text,
+                        "type": "assistant",
+                        "tone": "informative",
+                        "token_count": count_tokens(prompt_text),
+                    },
+                )
+                for name in ["rag", "document", "summary"]:
+                    tag, _ = Tag.objects.get_or_create(name=name, defaults={"slug": slugify(name)})
+                    prompt_obj.tags.add(tag)
+
+                linked_project = (
+                    self.assistant.current_project.linked_projects.first()
+                    if self.assistant.current_project
+                    else None
+                )
+                if linked_project:
+                    AssistantPromptLink.objects.get_or_create(
+                        project=linked_project, prompt=prompt_obj
+                    )
+
+                if not self.assistant.system_prompt:
+                    self.assistant.system_prompt = prompt_obj
+                    self.assistant.save(update_fields=["system_prompt"])
+
+        return summary, insights, prompt_obj
 
     def reflect_on_memory(self, memory: MemoryEntry) -> AssistantReflectionLog | None:
         """

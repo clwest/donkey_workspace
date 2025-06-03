@@ -961,7 +961,7 @@ def review_ingest(request, slug, doc_id):
         return Response({"error": "Document not found"}, status=404)
 
     engine = AssistantReflectionEngine(assistant)
-    summary, insights = engine.reflect_on_document(document)
+    summary, insights, prompt_obj = engine.reflect_on_document(document)
 
     memory = MemoryEntry.objects.create(
         assistant=assistant,
@@ -976,6 +976,8 @@ def review_ingest(request, slug, doc_id):
             "summary": summary,
             "insights": insights,
             "memory_id": str(memory.id),
+            "prompt_id": str(prompt_obj.id) if prompt_obj else None,
+            "prompt_title": prompt_obj.title if prompt_obj else None,
         }
     )
 
