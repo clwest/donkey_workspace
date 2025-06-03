@@ -130,3 +130,12 @@ def link_embedding_metadata(sender, instance, created, **kwargs):
             prog.save(update_fields=["status"])
     except Exception as e:
         logger.warning(f"Failed linking embedding to chunk: {e}")
+
+
+@receiver(post_save, sender=EmbeddingMetadata)
+def update_chunk_status(sender, instance, **kwargs):
+    """Ensure DocumentChunk records reflect embedding completion."""
+    chunk = getattr(instance, "chunk", None)
+    if chunk and chunk.embedding_status != DocumentChunk.EmbeddingStatus.EMBEDDED:
+        chunk.embedding_status = DocumentChunk.EmbeddingStatus.EMBEDDED
+        chunk.save(update_fields=["embedding_status"])

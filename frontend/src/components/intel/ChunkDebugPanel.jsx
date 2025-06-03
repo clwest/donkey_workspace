@@ -67,6 +67,25 @@ export default function ChunkDebugPanel({ docId }) {
     }
   };
 
+  const handleFixStatus = async () => {
+    setReembedding(true);
+    try {
+      const res = await apiFetch(`/intel/debug/fix-embeddings/`, {
+        method: "POST",
+        body: { doc_id: docId },
+      });
+      toast.success(`Updated ${res.updated} chunk statuses`);
+      const refreshed = await apiFetch(`/intel/documents/${docId}/chunks/`);
+      const list = Array.isArray(refreshed) ? refreshed : refreshed.chunks || [];
+      setChunks(list);
+    } catch (err) {
+      console.error("Status fix failed", err);
+      toast.error("Status check failed");
+    } finally {
+      setReembedding(false);
+    }
+  };
+
   const total = chunks.length;
   const embedded = chunks.filter((c) => c.embedding_id).length;
   const skipped = chunks.filter((c) => c.skipped).length;
@@ -113,6 +132,13 @@ export default function ChunkDebugPanel({ docId }) {
           disabled={reembedding || isLoadingChunks}
         >
           Recalculate Scores
+        </button>
+        <button
+          className="btn btn-sm btn-outline-danger"
+          onClick={handleFixStatus}
+          disabled={reembedding || isLoadingChunks}
+        >
+          Re-verify Status
         </button>
       </div>
       {isLoadingChunks ? (

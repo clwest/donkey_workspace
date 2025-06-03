@@ -24,22 +24,47 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR("❌ Must provide --doc-id or --all"))
             return
 
-        for doc in docs:
-            chunks = DocumentChunk.objects.filter(document=doc)
-            total = chunks.count()
-            embedded = chunks.filter(embedding_status='embedded').count()
-            failed = chunks.filter(embedding_status='failed').count()
+        chunks = DocumentChunk.objects.filter(document=document).order_by("order")
+        chunk_total = chunks.count()
 
-            progress, created = DocumentProgress.objects.get_or_create(
-                document=doc,
-                defaults={
-                    'title': doc.title,
-                    'total_chunks': total,
-                    'processed': total,
-                    'embedded_chunks': embedded,
-                    'failed_chunks': [],
-                    'status': 'completed' if embedded == total else 'failed',
-                }
+        progress_id = None
+        if isinstance(document.metadata, dict):
+            progress_id = document.metadata.get("progress_id")
+
+        progress = None
+        if progress_id:
+            progress = DocumentProgress.objects.filter(progress_id=progress_id).first()
+
+        summary_marked = 0
+        summary_orphaned = 0
+
+        if repair:
+            for ch in chunks:
+                meta = ch.embedding
+                meta_status = getattr(meta, "status", None)
+                has_emb = getattr(meta, "embedding_id", None)
+                if has_emb and meta_status == "completed" and ch.embedding_status != "embedded":
+                    ch.embedding_status = "embedded"
+                    ch.save(update_fields=["embedding_status"])
+                    summary_marked += 1
+                elif not has_emb and ch.embedding_status == "embedded":
+                    ch.embedding_status = "pending"
+                    ch.save(update_fields=["embedding_status"])
+                    summary_orphaned += 1
+
+        embedded_total = chunks.filter(embedding_status="embedded").count()
+        failed_list = list(
+            chunks.filter(embedding_status="failed").values_list("order", flat=True)
+        )
+
+        if not progress and repair:
+            progress = DocumentProgress.objects.create(
+                title=document.title,
+                total_chunks=chunk_total,
+                processed=chunk_total,
+                embedded_chunks=embedded_total,
+                status="pending",
+
             )
 
             if not created and options['repair']:

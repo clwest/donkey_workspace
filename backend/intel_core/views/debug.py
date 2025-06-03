@@ -132,3 +132,22 @@ def repair_progress_view(request):
     cmd.stderr = open(os.devnull, "w")
     result = cmd.handle(doc_id=doc_id, repair=True)
     return Response({"status": "repaired", "details": result})
+
+
+@api_view(["POST"])
+def fix_embeddings(request):
+    """Correct embedding_status based on EmbeddingMetadata."""
+    doc_id = request.data.get("doc_id") or request.query_params.get("doc_id")
+    if not doc_id:
+        return Response({"error": "Missing doc_id"}, status=400)
+
+    chunks = (
+        DocumentChunk.objects.filter(document_id=doc_id, embedding__status="completed")
+        .exclude(embedding_status="embedded")
+    )
+    updated = 0
+    for ch in chunks:
+        ch.embedding_status = "embedded"
+        ch.save(update_fields=["embedding_status"])
+        updated += 1
+    return Response({"updated": updated})

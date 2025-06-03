@@ -72,4 +72,5 @@ urlpatterns = [
     path("debug/rag-recall/", debug.rag_recall),
     path("debug/verify-embeddings/", debug.verify_embeddings),
     path("debug/repair-progress/", debug.repair_progress_view, name="repair-progress"),
+    path("debug/fix-embeddings/", debug.fix_embeddings, name="fix-embeddings"),
 ]
