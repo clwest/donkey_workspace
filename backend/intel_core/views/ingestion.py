@@ -169,7 +169,7 @@ def unified_ingestion_view(request):
                 logger.warning("⚠️ Reflection skipped – no document created")
                 return Response(
                     {"status": "skipped", "reason": "No document created"},
-                    status=status.HTTP_204_NO_CONTENT,
+                    status=status.HTTP_200_OK,
                 )
             if (
                 not docs
@@ -177,7 +177,7 @@ def unified_ingestion_view(request):
                 and isinstance(ingest_result[0], dict)
                 and ingest_result[0].get("status") == "skipped"
             ):
-                return Response(ingest_result[0], status=204)
+                return Response(ingest_result[0], status=status.HTTP_200_OK)
             return Response(response, status=200)
         except Exception as e:
             logger.exception("🔥 Final response serialization failed")
