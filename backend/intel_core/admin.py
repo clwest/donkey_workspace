@@ -47,6 +47,7 @@ class DocumentProgressAdmin(admin.ModelAdmin):
     list_display = (
         "progress_id",
         "title",
+        "warning_badge",
         "status_color",
         "processed",
         "embedded_chunks",
@@ -67,6 +68,19 @@ class DocumentProgressAdmin(admin.ModelAdmin):
         return format_html("<span style='color:{};'>{}</span>", color, obj.status)
 
     status_color.short_description = "Status"
+
+    @admin.display(description="")
+    def warning_badge(self, obj):
+        from django.utils.html import format_html
+        doc = Document.objects.filter(metadata__progress_id=str(obj.progress_id)).first()
+        if not doc:
+            return ""
+        total = doc.chunks.count()
+        embedded = doc.chunks.filter(embedding_status="embedded").count()
+        missing = doc.chunks.filter(embedding_status="embedded", embedding__isnull=True).exists()
+        if missing or obj.total_chunks != total or obj.embedded_chunks != embedded:
+            return format_html("<span style='color:orange;'>⚠️</span>")
+        return ""
 
 
 

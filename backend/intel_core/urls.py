@@ -71,4 +71,5 @@ urlpatterns = [
     path("debug/recalc-scores/", debug.recalc_scores),
     path("debug/rag-recall/", debug.rag_recall),
     path("debug/verify-embeddings/", debug.verify_embeddings),
+    path("intel/debug/repair-progress/", debug.repair_progress, name="repair_progress"),
 ]
