@@ -220,7 +220,7 @@ def get_relevant_chunks(
 
     chunks = fetch_chunks(doc_ids, repair=debug or settings.DEBUG)
 
-    logger.debug("[RAG Search] Docs=%s -> %d chunks", doc_ids, chunks.count())
+    logger.debug("[RAG Search] Docs=%s -> %d chunks", doc_ids, len(chunks))
     if chunks:
         logger.debug("Chunk IDs returned: %s", [str(c.id) for c in chunks[:20]])
     force_keywords = [
