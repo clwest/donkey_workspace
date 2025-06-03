@@ -275,8 +275,8 @@ def handoff_session(request, slug):
     if not session:
         return Response({"error": "Session not found"}, status=404)
 
-    memory_id = request.data.get("memory_context_id")
-    memory = MemoryService.get_entry(memory_id) if memory_id else None
+    context_id = request.data.get("context_id")
+    memory = MemoryService.get_entry(context_id) if context_id else None
     reason = request.data.get("reason", "handoff")
     end_session = bool(request.data.get("end_session"))
 

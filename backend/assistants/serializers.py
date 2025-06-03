@@ -1069,6 +1069,7 @@ class AssistantSerializer(serializers.ModelSerializer):
         read_only=True,
     )
     health_score = serializers.SerializerMethodField()
+    memory_context_id = serializers.UUIDField(source="memory_context.id", read_only=True)
 
     class Meta:
         model = Assistant
@@ -1101,6 +1102,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "preferred_conflict_resolution",
             "current_project",
             "document_set",
+            "memory_context_id",
             "embedding_index",
             "avg_empathy_score",
             "trust",
