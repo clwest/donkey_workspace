@@ -82,15 +82,17 @@ def document_detail_view(request, pk):
 
     smart_chunks = smart_chunk_prompt(document.content)
 
-    num_chunks = chunks.count()
+    chunk_count = chunks.count()
     num_embedded = chunks.filter(embedding__isnull=False).count()
     if num_embedded == 0:
         embed_status = "pending"
-    elif num_embedded == num_chunks:
+    elif num_embedded == chunk_count:
         embed_status = "completed"
     else:
         embed_status = "partial"
     glossary_ids = list(chunks.filter(is_glossary=True).values_list("id", flat=True))
+
+    token_count = document.token_count_int or document.metadata.get("token_count") or count_tokens(document.content)
 
     data = {
         "id": str(document.id),
@@ -99,13 +101,14 @@ def document_detail_view(request, pk):
         "source_type": document.source_type,
         "description": document.description,
         "created_at": document.created_at,
+        "updated_at": document.updated_at,
         "metadata": document.metadata,
-        "total_tokens": count_tokens(document.content),
-        "num_chunks": num_chunks,
-        "num_embedded": num_embedded,
+        "token_count": token_count,
+        "chunk_count": chunk_count,
+        "embedded_chunks": num_embedded,
         "embedding_status": {
             "embedded": num_embedded,
-            "total": num_chunks,
+            "total": chunk_count,
             "status": embed_status,
         },
         "glossary_ids": [str(g) for g in glossary_ids],

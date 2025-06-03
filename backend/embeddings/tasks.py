@@ -86,12 +86,29 @@ def embed_and_store(
             f"embedding_id={emb_id}, size={len(embedding)}"
         )
         if content_type == "document_chunk":
-            from intel_core.models import DocumentChunk, EmbeddingMetadata
+            from django.utils import timezone
+            from intel_core.models import DocumentChunk, Document, EmbeddingMetadata
+            from prompts.utils.token_helpers import count_tokens
 
             meta = EmbeddingMetadata.objects.filter(embedding_id=emb_id).first()
-            DocumentChunk.objects.filter(id=content_id).update(
-                embedding=meta, embedding_status="embedded"
-            )
+            chunk = DocumentChunk.objects.filter(id=content_id).select_related("document").first()
+            if chunk:
+                chunk.embedding = meta
+                chunk.embedding_status = "embedded"
+                chunk.save(update_fields=["embedding", "embedding_status"])
+
+                doc = chunk.document
+                embedded = doc.chunks.filter(embedding__isnull=False).count()
+                total = doc.chunks.count()
+                meta_data = doc.metadata or {}
+                meta_data["embedded_chunks"] = embedded
+                meta_data.setdefault("chunk_count", total)
+                if not doc.token_count_int:
+                    doc.token_count_int = count_tokens(doc.content)
+                    meta_data["token_count"] = doc.token_count_int
+                doc.metadata = meta_data
+                doc.updated_at = timezone.now()
+                doc.save(update_fields=["metadata", "token_count_int", "updated_at"])
         # Trigger post-processing for character embeddings
         if content_type == "CharacterProfile":
             try:

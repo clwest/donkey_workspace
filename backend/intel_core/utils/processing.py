@@ -321,6 +321,15 @@ def save_document_to_db(content, metadata, session_id=None):
         chunk_count = len(chunks)
         logger.info("[Chunking] Generated %d chunks", chunk_count)
 
+        if not document.token_count_int:
+            document.token_count_int = count_tokens(content)
+        meta = document.metadata or {}
+        meta["token_count"] = document.token_count_int
+        meta["chunk_count"] = chunk_count
+        meta.setdefault("embedded_chunks", 0)
+        document.metadata = meta
+        document.save(update_fields=["metadata", "token_count_int"])
+
         num_chunks_queued = 0
         for chunk in chunks:
             if not chunk.embedding_id or chunk.embedding_status != "embedded":
