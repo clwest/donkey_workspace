@@ -13,9 +13,11 @@ import utils.llm_router as llm_router
 from datetime import datetime
 import logging
 import json
+import os
 import re
 from django.conf import settings
 from django.utils.text import slugify
+from pathlib import Path
 from assistants.services import AssistantService
 from memory.services import MemoryService
 from memory.models import MemoryEntry
@@ -1113,15 +1115,52 @@ def drift_check(request, slug):
 
 @api_view(["POST"])
 def recover_assistant_view(request, slug):
-    """Generate a recovery summary and prompt revision for the assistant."""
+    """Run a lightweight recovery routine for the assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
+
     from assistants.utils.recovery import (
         create_prompt_revision,
         generate_recovery_summary,
     )
+    from intel_core.management.commands.fix_doc_progress import (
+        Command as FixDocProgressCommand,
+    )
+    from assistants.utils.chunk_retriever import get_relevant_chunks
+    from prompts.utils.openai_utils import reflect_on_prompt
 
     summary = generate_recovery_summary(assistant)
+    prompt_tip = reflect_on_prompt(summary)
     create_prompt_revision(assistant)
+
+    repaired_docs = []
+    cmd = FixDocProgressCommand()
+    cmd.stdout = open(os.devnull, "w")
+    cmd.stderr = open(os.devnull, "w")
+    for doc in assistant.assigned_documents.all():
+        result = cmd.handle(doc_id=str(doc.id), repair=True)
+        repaired_docs.append({"id": str(doc.id), "result": result})
+
+    rag_replay = None
+    log_path = Path(settings.BASE_DIR) / "static" / "rag_failures.json"
+    if log_path.exists():
+        try:
+            with open(log_path) as f:
+                entries = json.load(f)
+            for entry in reversed(entries):
+                if entry.get("assistant") == assistant.slug:
+                    query = entry.get("query", "")
+                    expected = entry.get("expected_chunks", [])
+                    chunks, reason, *_ = get_relevant_chunks(assistant.slug, query, debug=True)
+                    used = [c.get("chunk_id") for c in chunks]
+                    rag_replay = {
+                        "query": query,
+                        "expected": expected,
+                        "used": used,
+                        "reason": reason,
+                    }
+                    break
+        except Exception:
+            rag_replay = None
 
     assistant.needs_recovery = False
     assistant.save(update_fields=["needs_recovery"])
@@ -1133,7 +1172,14 @@ def recover_assistant_view(request, slug):
         category="meta",
     )
 
-    return Response({"summary": summary})
+    return Response(
+        {
+            "summary": summary,
+            "prompt_suggestion": prompt_tip,
+            "doc_repairs": repaired_docs,
+            "rag_replay": rag_replay,
+        }
+    )
 
 
 @api_view(["POST"])
