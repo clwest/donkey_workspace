@@ -147,6 +147,37 @@ def verify_similarity():
     return sim_related, sim_unrelated
 
 
+def check_recent_chat_chunks(limit: int = 50):
+    """Report chunks used in recent chats that lack embeddings."""
+    from django.utils import timezone
+    from datetime import timedelta
+    from assistants.models.thoughts import AssistantThoughtLog
+    from intel_core.models import DocumentChunk
+
+    cutoff = timezone.now() - timedelta(days=1)
+    logs = AssistantThoughtLog.objects.filter(created_at__gte=cutoff)
+    ids: list[str] = []
+    for log in logs:
+        details = log.fallback_details or {}
+        ids.extend(details.get("chunk_ids", []))
+
+    if not ids:
+        logger.info("No recent chunk usage found in thought logs")
+        return
+
+    bad = (
+        DocumentChunk.objects.filter(id__in=ids)
+        .exclude(embedding_status="embedded")
+        .values_list("id", "embedding_status")
+    )
+    if bad:
+        logger.warning("\nChunks used without embeddings:")
+        for cid, status in bad[:limit]:
+            logger.warning(" - %s | status=%s", cid, status)
+    else:
+        logger.info("All referenced chunks are embedded")
+
+
 def main():
     """Run all verification checks."""
     logger.info("==== Starting Embedding System Verification ====")
@@ -161,6 +192,9 @@ def main():
 
         # Verify similarity
         sim_related, sim_unrelated = verify_similarity()
+
+        # Report any invalid chunks used recently
+        check_recent_chat_chunks()
 
         logger.info("\n==== All Verification Checks Passed! ====")
         logger.info(f"✓ Embedding dimensions: {EMBEDDING_LENGTH}")

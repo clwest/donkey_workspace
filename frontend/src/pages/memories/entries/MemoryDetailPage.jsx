@@ -88,9 +88,13 @@ export default function MemoryDetailPage() {
       const data = await res.json();
       if (data.results && data.results.length > 0) {
         const top = data.results[0];
-        const score = top.similarity_score || 0;
+        const score = top.similarity_score || top.score || 0;
         const percent = isNaN(score * 100) ? 0 : Math.round(score * 100);
-        alert(`Top match ${percent}%\n${top.text.slice(0,120)}...`);
+        let note = "";
+        if (top.embedding_status && top.embedding_status !== "embedded") {
+          note = "\n⚠️ This chunk has not been embedded.";
+        }
+        alert(`Top match ${percent}%\n${top.text.slice(0,120)}...${note}`);
       } else {
         alert("No matching source chunk found.");
       }

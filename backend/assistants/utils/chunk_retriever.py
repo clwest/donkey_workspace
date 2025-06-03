@@ -54,7 +54,9 @@ def _anchor_in_query(anchor: SymbolicMemoryAnchor, text: str) -> bool:
     return False
 
 
-def _search_summary_hits(query_vec: list, doc_ids: List[str], limit: int = 3) -> List[dict]:
+def _search_summary_hits(
+    query_vec: list, doc_ids: List[str], limit: int = 3
+) -> List[dict]:
     """Return summary-level fallback results for the given documents."""
     from intel_core.models import Document
 
@@ -214,13 +216,13 @@ def get_relevant_chunks(
             {},
         )
 
-    chunks = (
-        DocumentChunk.objects.filter(
-            document_id__in=doc_ids,
-            embedding__isnull=False,
-            embedding_status="embedded",
-        ).select_related("embedding", "document")
-    )
+
+    chunks = DocumentChunk.objects.filter(
+        document_id__in=doc_ids,
+        embedding__isnull=False,
+        embedding_status="embedded",
+    ).select_related("embedding", "document")
+
     logger.debug("[RAG Search] Docs=%s -> %d chunks", doc_ids, chunks.count())
     if chunks:
         logger.debug("Chunk IDs returned: %s", [str(c.id) for c in chunks[:20]])
@@ -262,6 +264,13 @@ def get_relevant_chunks(
     else:
         filtered_anchor_terms = []
     for chunk in chunks:
+        if getattr(chunk, "embedding_status", "embedded") != "embedded":
+            logger.warning(
+                "\u26a0\ufe0f RAG selected chunk %s with embedding_status=%s",
+                chunk.id,
+                getattr(chunk, "embedding_status", "unknown"),
+            )
+            continue
         vec = chunk.embedding.vector if chunk.embedding else None
         if vec is None:
             logger.debug("Skipping chunk %s due to missing embedding", chunk.id)
@@ -362,9 +371,15 @@ def get_relevant_chunks(
             fallback_type = "summary"
     # ``scored`` contains tuples of ``(score, chunk, anchor_confidence, raw_score, anchor_weight)``
     # so we keep all fields intact when filtering.
-    filtered = [
-        (s, c, conf, raw, aw) for s, c, conf, raw, aw in scored if s >= score_threshold
-    ] if not force_chunks else scored
+    filtered = (
+        [
+            (s, c, conf, raw, aw)
+            for s, c, conf, raw, aw in scored
+            if s >= score_threshold
+        ]
+        if not force_chunks
+        else scored
+    )
     reason = None
     fallback = False
 
@@ -528,6 +543,7 @@ def get_relevant_chunks(
                 "tokens": getattr(chunk, "tokens", 0),
                 "glossary_score": getattr(chunk, "glossary_score", 0.0),
                 "matched_anchors": getattr(chunk, "matched_anchors", []),
+                "embedding_status": getattr(chunk, "embedding_status", "embedded"),
                 "anchor_boost": (
                     ANCHOR_BOOST
                     if (

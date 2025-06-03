@@ -24,6 +24,11 @@ urlpatterns = [
         api_views.reembed_skipped_chunks,
         name="reembed-skipped",
     ),
+    path(
+        "recalc-and-embed-missing/",
+        api_views.recalc_and_embed_missing,
+        name="recalc-embed-missing",
+    ),
     # === Legacy / Specific Tools ===
     path("similar/", api_views.search_similar_embeddings_api, name="search-similar"),
     path(
