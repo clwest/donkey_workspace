@@ -47,13 +47,35 @@ class DocumentProgressAdmin(admin.ModelAdmin):
     list_display = (
         "progress_id",
         "title",
-        "status",
-        "processed",
-        "embedded_chunks",
-        "total_chunks",
+        "status_color",
+        "processed_display",
+        "embedded_display",
     )
     readonly_fields = ("progress_id", "created_at", "updated_at")
     list_filter = ("status", "created_at")
+
+    def status_color(self, obj):
+        from django.utils.html import format_html
+
+        color = {
+            "failed": "red",
+            "pending": "orange",
+            "in_progress": "blue",
+            "completed": "green",
+        }.get(obj.status, "black")
+        return format_html("<span style='color:{};'>{}</span>", color, obj.status)
+
+    status_color.short_description = "Status"
+
+    def processed_display(self, obj):
+        return f"{obj.processed} / {obj.total_chunks}"
+
+    processed_display.short_description = "Processed"
+
+    def embedded_display(self, obj):
+        return f"{obj.embedded_chunks} / {obj.total_chunks}"
+
+    embedded_display.short_description = "Embedded"
 
 
 @admin.register(GlossaryMissReflectionLog)
