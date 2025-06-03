@@ -58,7 +58,6 @@ def ingest_pdfs(
 
     processed_documents = []
     for file_path in file_paths:
-        progress = None
         try:
             file_name = os.path.basename(file_path)
             pdf_title = user_provided_title or os.path.splitext(file_name)[0]
@@ -77,11 +76,6 @@ def ingest_pdfs(
 
             logger.info(f"Successfully extracted {len(pdf_list)} chunks from PDF")
 
-            progress = DocumentProgress.objects.create(
-                title=pdf_title,
-                total_chunks=len(pdf_list),
-                status="in_progress",
-            )
             failed_chunks = set()
 
             for i, pdf in enumerate(pdf_list):
@@ -94,7 +88,7 @@ def ingest_pdfs(
                         "session_id": session_id,
                         "chunk_index": i,
                         "total_chunks": len(pdf_list),
-                        "progress_id": str(progress.progress_id),
+                        # progress_id will be attached after document save
                     }
                 )
 
@@ -104,8 +98,6 @@ def ingest_pdfs(
                         f"Skipping chunk {i+1}/{len(pdf_list)} for '{pdf_title}' - too short"
                     )
                     failed_chunks.add(i)
-                    progress.failed_chunks = list(failed_chunks)
-                    progress.save()
                     continue
 
                 processed_document = process_pdfs(
@@ -122,14 +114,14 @@ def ingest_pdfs(
 
                 if processed_document:
                     processed_documents.append(processed_document)
-                    progress.processed += 1
                     logger.info(f"Successfully processed chunk {i+1}/{len(pdf_list)}")
-                    _update_job(
-                        job_id,
-                        current=progress.processed,
-                        total=progress.total_chunks,
-                        message=f"Successfully processed chunk {i+1}/{len(pdf_list)}",
-                    )
+                    if _update_job and job_id:
+                        _update_job(
+                            job_id,
+                            current=i + 1,
+                            total=len(pdf_list),
+                            message=f"Successfully processed chunk {i+1}/{len(pdf_list)}",
+                        )
                 else:
                     logger.error(
                         f"Failed to process chunk {i+1}/{len(pdf_list)} for '{pdf_title}'",
@@ -137,24 +129,16 @@ def ingest_pdfs(
                     )
                     failed_chunks.add(i)
 
-                progress.failed_chunks = list(failed_chunks)
-                progress.save()
-
-            progress.status = "completed" if not failed_chunks else "failed"
-            progress.save()
-            _update_job(
-                job_id,
-                current=progress.total_chunks,
-                total=progress.total_chunks,
-                message="PDF processing complete",
-            )
+            if _update_job and job_id:
+                _update_job(
+                    job_id,
+                    current=len(pdf_list),
+                    total=len(pdf_list),
+                    message="PDF processing complete",
+                )
 
         except Exception as e:
             logger.error(f"Failed to process PDF {file_path}: {e}")
-            if "progress" in locals() and isinstance(progress, DocumentProgress):
-                progress.status = "failed"
-                progress.error_message = str(e)
-                progress.save()
 
     logger.info(f"Completed processing {len(processed_documents)} PDF chunks")
     return processed_documents
@@ -192,13 +176,18 @@ def ingest_urls(
             logger.info(f"Processing URL: {url}")
 
             existing_doc = Document.objects.filter(source_url=url).first()
-            if existing_doc and DocumentChunk.objects.filter(document=existing_doc).exists():
+            if (
+                existing_doc
+                and DocumentChunk.objects.filter(document=existing_doc).exists()
+            ):
                 logger.warning(f"[Ingest] Skipping {url} — chunks already exist.")
                 processed_documents.append(
                     {
                         "message": "Ingestion complete",
                         "document_id": str(existing_doc.id),
-                        "embedded_chunks": existing_doc.chunks.filter(embedding__isnull=False).count(),
+                        "embedded_chunks": existing_doc.chunks.filter(
+                            embedding__isnull=False
+                        ).count(),
                         "total_chunks": existing_doc.chunks.count(),
                         "summary": existing_doc.summary,
                     }
@@ -223,9 +212,7 @@ def ingest_urls(
             logger.debug(f"[Ingest] First 300 chars: {visible_text[:300]}")
             logger.debug(f"[Ingest] Token estimate: {count_tokens(visible_text)}")
             if not visible_text or len(visible_text.strip()) < 50:
-                logger.warning(
-                    f"Insufficient text content extracted from URL: {url}"
-                )
+                logger.warning(f"Insufficient text content extracted from URL: {url}")
                 continue
 
             text_splitter = RecursiveCharacterTextSplitter(
@@ -284,7 +271,10 @@ def ingest_videos(
     for index, url in enumerate(video_urls):
         try:
             existing_doc = Document.objects.filter(source_url=url).first()
-            if existing_doc and DocumentChunk.objects.filter(document=existing_doc).exists():
+            if (
+                existing_doc
+                and DocumentChunk.objects.filter(document=existing_doc).exists()
+            ):
                 logger.warning(f"[Ingest] Skipping {url} — chunks already exist.")
                 processed_documents.append(existing_doc)
                 continue
@@ -324,7 +314,9 @@ def ingest_videos(
                     "session_id": session_id,
                 },
             }
-            logger.info("[Router] Reached document_service.ingest(). source_type=%s", document)
+            logger.info(
+                "[Router] Reached document_service.ingest(). source_type=%s", document
+            )
             processed_document = process_videos(
                 document,
                 video_title=video_title,
@@ -334,7 +326,9 @@ def ingest_videos(
 
             if processed_document:
                 chunk_total = processed_document.chunks.count()
-                embedded = processed_document.chunks.filter(embedding__isnull=False).count()
+                embedded = processed_document.chunks.filter(
+                    embedding__isnull=False
+                ).count()
                 logger.info(
                     f"[Ingest] {embedded}/{chunk_total} chunks embedded for {processed_document.title}"
                 )
@@ -377,5 +371,5 @@ def ingest_documents(*args, **kwargs):
         return ingest_urls(**kwargs)
     if kwargs.get("video_urls"):
         return ingest_videos(**kwargs)
-    
+
     raise ValueError("No valid ingestion parameters provided")

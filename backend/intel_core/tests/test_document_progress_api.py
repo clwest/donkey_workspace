@@ -1,4 +1,5 @@
 import os
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 import django
 
@@ -7,21 +8,25 @@ django.setup()
 from rest_framework.test import APITestCase
 from intel_core.models import Document, DocumentProgress
 
+
 class DocumentProgressAPITest(APITestCase):
     def setUp(self):
-        self.progress = DocumentProgress.objects.create(
-            title="Test PDF",
-            total_chunks=5,
-            processed=2,
-            failed_chunks=[1],
-            status="in_progress",
-        )
-        Document.objects.create(
+        self.document = Document.objects.create(
             title="Chunk 1",
             content="c",
             source_type="pdf",
-            metadata={"progress_id": str(self.progress.progress_id)},
         )
+        self.progress = DocumentProgress.objects.create(
+            document=self.document,
+            title="Test PDF",
+            total_chunks=5,
+            processed=2,
+            embedded_chunks=0,
+            failed_chunks=[1],
+            status="in_progress",
+        )
+        self.document.metadata = {"progress_id": str(self.progress.progress_id)}
+        self.document.save(update_fields=["metadata"])
 
     def test_progress_endpoint(self):
         url = f"/api/v1/intel/documents/{self.progress.progress_id}/progress/"
@@ -38,13 +43,17 @@ class DocumentProgressAPITest(APITestCase):
         from types import SimpleNamespace
         from unittest.mock import patch
 
-        sys.modules.setdefault("openai", types.ModuleType("openai")).OpenAI = lambda: None
+        sys.modules.setdefault("openai", types.ModuleType("openai")).OpenAI = (
+            lambda: None
+        )
         spacy_stub = types.ModuleType("spacy")
         spacy_stub.load = lambda name: None
         sys.modules.setdefault("spacy", spacy_stub)
         numpy_stub = types.ModuleType("numpy")
+
         class FakeNdArray(list):
             pass
+
         numpy_stub.ndarray = FakeNdArray
         sys.modules.setdefault("numpy", numpy_stub)
 

@@ -364,22 +364,29 @@ def save_document_to_db(content, metadata, session_id=None):
         if isinstance(meta, dict):
             progress_id = meta.get("progress_id")
 
+        if not document.id:
+            raise ValueError(
+                "🛑 Document must be saved before creating DocumentProgress"
+            )
+
         embedded_now = document.chunks.filter(embedding__isnull=False).count()
 
         if not progress_id:
             progress = DocumentProgress.objects.create(
+                document=document,
                 title=document.title,
                 total_chunks=chunk_count,
-                processed=chunk_count,
-                embedded_chunks=embedded_now,
+                processed=0,
+                embedded_chunks=0,
+                failed_chunks=[],
                 status="in_progress",
             )
             meta["progress_id"] = str(progress.progress_id)
         else:
             progress = DocumentProgress.objects.filter(progress_id=progress_id).first()
             if progress:
+                progress.document = document
                 progress.total_chunks = chunk_count
-                progress.processed = max(progress.processed, chunk_count)
                 progress.embedded_chunks = embedded_now
                 progress.save()
 
