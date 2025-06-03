@@ -72,6 +72,11 @@ export default function DocumentIngestionForm({ onSuccess }) {
       } catch {
         data = null;
       }
+      if (!data) {
+        toast.error("Ingestion failed: invalid response");
+        setLoading(false);
+        return;
+      }
       if (onSuccess) await onSuccess();
       if (reflectAfter && selectedAssistant && data && data.documents?.length > 0) {
         const docId = data.documents[0].id;
