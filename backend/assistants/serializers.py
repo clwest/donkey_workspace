@@ -578,7 +578,11 @@ class AssistantProjectSerializer(serializers.ModelSerializer):
         return project.id if project else None
 
     def get_reflections(self, obj):
-        return [{"id": r.id, "summary": r.summary} for r in obj.reflections.all()[:5]]
+        """Return the most recent reflections for this project."""
+        return [
+            {"id": r.id, "summary": r.summary}
+            for r in obj.project_reflections.all()[:5]
+        ]
 
 
 class ProjectOverviewSerializer(serializers.ModelSerializer):
