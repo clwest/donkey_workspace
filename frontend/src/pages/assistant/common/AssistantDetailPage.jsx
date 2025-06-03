@@ -244,7 +244,7 @@ export default function AssistantDetailPage() {
           </>
         )}
         <PrimaryStar isPrimary={assistant.is_primary} />
-        <MoodStabilityGauge msi={assistant.mood_stability_index} />
+        <MoodStabilityGauge score={assistant.health_score} />
         {!assistant.is_primary && (
           <button
             className="btn btn-sm btn-outline-warning ms-3"
