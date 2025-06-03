@@ -150,6 +150,15 @@ safe-restart:
 	sleep 5
 
 
+lint:
+	@echo "Running Python flake8..."
+	flake8 .
+	@echo "Running frontend eslint..."
+	cd ../frontend && npm run lint
+
+test:
+	@echo "Running pytest..."
+	pytest
 	
 # ==== 🧙 Help ====
 help:
