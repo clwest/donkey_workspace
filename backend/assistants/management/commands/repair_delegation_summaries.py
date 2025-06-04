@@ -1,6 +1,9 @@
+import logging
 from django.core.management.base import BaseCommand
-from assistants.models import Assistant
 from memory.models import MemoryEntry
+from assistants.utils.delegation_summary_engine import DelegationSummaryEngine
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -15,11 +18,26 @@ class Command(BaseCommand):
         if slug:
             qs = qs.filter(assistant__slug=slug)
         repaired = 0
-        for mem in qs.filter(summary__isnull=True):
-            text = mem.full_transcript or mem.event
-            mem.summary = (text or "").splitlines()[0][:200]
-            mem.save(update_fields=["summary"])
-            repaired += 1
+        for mem in qs:
+            updated_fields = []
+            if mem.summary is None:
+                text = mem.full_transcript or mem.event
+                mem.summary = (text or "").splitlines()[0][:200]
+                updated_fields.append("summary")
+
+            if mem.full_transcript is None:
+                full_text = mem.summary or mem.event or ""
+                if len(full_text) > 4000:
+                    # use same compression logic as DelegationSummaryEngine
+                    engine = DelegationSummaryEngine(mem.assistant)
+                    full_text = engine._compress_history(full_text)
+                mem.full_transcript = full_text
+                updated_fields.append("full_transcript")
+                logger.info("Updated full_transcript for %s", mem.id)
+
+            if updated_fields:
+                mem.save(update_fields=updated_fields)
+                repaired += 1
         self.stdout.write(
             self.style.SUCCESS(f"Repaired {repaired} delegation summaries")
         )
