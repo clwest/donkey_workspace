@@ -681,6 +681,16 @@ urlpatterns = [
         name="assistant-diagnostics",
     ),
     path(
+        "<slug:slug>/clean_memories/",
+        assistants.clean_memories,
+        name="assistant-clean-memories",
+    ),
+    path(
+        "<slug:slug>/clean_projects/",
+        assistants.clean_projects,
+        name="assistant-clean-projects",
+    ),
+    path(
         "<slug:slug>/collaboration_profile/",
         collaboration.collaboration_profile,
         name="assistant-collaboration-profile",
