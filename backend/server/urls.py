@@ -14,6 +14,8 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
+import inspect
+from capabilities.registry import get_capability_for_path
 from django.urls import get_resolver
 from story.views import storyboard_list
 from mcp_core.views import threading as thread_views
@@ -73,13 +75,23 @@ def _collect_route_info(patterns, prefix=""):
             callback = getattr(p, "callback", None)
             module = getattr(callback, "__module__", "") if callback else ""
             view_name = getattr(callback, "__name__", "") if callback else ""
+            filename = ""
+            if callback:
+                try:
+                    filename = inspect.getsourcefile(callback) or ""
+                except Exception:
+                    filename = ""
             category = path_str.split("/")[1] if "/" in path_str else ""
+            capability = get_capability_for_path(path_str)
             routes.append(
                 {
                     "path": path_str,
                     "category": category,
                     "module": module,
                     "view_name": view_name,
+                    "module_path": filename,
+                    "capability": capability,
+                    "connected": capability is not None,
                 }
             )
     return routes

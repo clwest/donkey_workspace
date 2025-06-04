@@ -24,3 +24,17 @@ CAPABILITY_REGISTRY = {
         "description": "Allow assistant self-forking",
     },
 }
+
+
+def get_capability_for_path(path: str):
+    """Return capability key if the given API path matches a registered route."""
+    for key, info in CAPABILITY_REGISTRY.items():
+        route = info.get("route", "").lstrip("/")
+        if not route:
+            continue
+        if path.startswith(route):
+            return key
+    return None
+
+
+__all__ = ["CAPABILITY_REGISTRY", "get_capability_for_path"]

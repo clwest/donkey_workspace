@@ -18,6 +18,7 @@ from assistants.serializers import (
     AssistantThoughtLogSerializer,
 )
 from project.models import ProjectMemoryLink
+from capabilities.utils import log_capability_usage
 from project.serializers import ProjectMemoryLinkSerializer
 
 from memory.services import MemoryService
@@ -139,6 +140,8 @@ def prioritized_memories(request, slug):
 def reflect_now(request, slug):
     """Trigger an immediate reflection using optional context."""
     assistant = get_object_or_404(Assistant, slug=slug)
+
+    log_capability_usage(request, "can_run_reflection")
 
     memory_id = request.data.get("memory_id")
     project_id = request.data.get("project_id")
