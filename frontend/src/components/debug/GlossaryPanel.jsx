@@ -36,6 +36,11 @@ export default function GlossaryPanel() {
           {anchors.map((a) => (
             <li key={a.id} title={a.source === "inferred" ? "AI-inferred" : ""}>
               <strong>{a.label}</strong> ({a.slug}) – {a.chunks_count || 0}
+              {a.retagged_count > 0 && (
+                <span className="badge bg-info text-dark ms-1" title="Retagged chunks">
+                  +{a.retagged_count}
+                </span>
+              )}
               {a.source === "inferred" && <span className="ms-1">🤖</span>}
             </li>
           ))}
