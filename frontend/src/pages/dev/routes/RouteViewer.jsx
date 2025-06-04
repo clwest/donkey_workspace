@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import useApi from '@/hooks/useApi';
 
 export default function RouteViewer() {
-  const { data } = useApi('/api/dev/routes/fullmap/');
+  const { data } = useApi('/dev/routes/fullmap/');
   const [filter, setFilter] = useState('all');
 
   if (!data) return <div className="p-4">Loading...</div>;
