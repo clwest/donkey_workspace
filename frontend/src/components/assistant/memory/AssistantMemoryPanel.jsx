@@ -3,12 +3,14 @@ import apiFetch from "../../../utils/apiClient";
 import ReflectNowButton from "../ReflectNowButton";
 import MemoryCard from "../../mcp_core/MemoryCard";
 
-export default function AssistantMemoryPanel({ slug }) {
+export default function AssistantMemoryPanel({ slug, refreshKey = 0 }) {
   const [memories, setMemories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [project, setProject] = useState(null);
   const [visible, setVisible] = useState(25);
-  const [meaningfulOnly, setMeaningfulOnly] = useState(false);
+  const [meaningfulOnly, setMeaningfulOnly] = useState(true);
+
+  const isWeak = (m) => (m.token_count || 0) < 5 && (m.importance || 0) <= 2;
 
   useEffect(() => {
     if (!slug) return;
@@ -28,7 +30,7 @@ export default function AssistantMemoryPanel({ slug }) {
       }
     }
     load();
-  }, [slug]);
+  }, [slug, refreshKey]);
 
   if (loading) return <div>Loading memories...</div>;
 
@@ -54,19 +56,20 @@ export default function AssistantMemoryPanel({ slug }) {
         <div className="text-muted">No recent memories 📭</div>
       ) : (
         <ul className="list-group list-unstyled">
-          {(meaningfulOnly ? memories.filter((m) => (m.summary || m.event || "").trim() !== "No meaningful content.") : memories)
+          {memories
+            .filter((m) => !meaningfulOnly || !isWeak(m))
             .slice(0, visible)
             .map((m) => (
-            <li key={m.id} className="mb-2">
-              <MemoryCard
-                memory={m}
-                action={<ReflectNowButton slug={slug} memoryId={m.id} />}
-              />
-            </li>
-          ))}
+              <li key={m.id} className="mb-2">
+                <MemoryCard
+                  memory={m}
+                  action={<ReflectNowButton slug={slug} memoryId={m.id} />}
+                />
+              </li>
+            ))}
         </ul>
       )}
-      {visible < (meaningfulOnly ? memories.filter((m) => (m.summary || m.event || "").trim() !== "No meaningful content.").length : memories.length) && (
+      {visible < memories.filter((m) => !meaningfulOnly || !isWeak(m)).length && (
         <button className="btn btn-sm btn-outline-secondary mt-2" onClick={() => setVisible(visible + 25)}>
           Load More
         </button>
