@@ -1,13 +1,11 @@
 from celery import shared_task
 from django.utils import timezone
 from datetime import timedelta
-from django.contrib.contenttypes.models import ContentType
 
 from .models import NarrativeEvent
 from assistants.utils.delegation import spawn_delegated_assistant
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from assistants.models.thoughts import AssistantThoughtLog
-from mcp_core.models import MemoryContext
 
 
 @shared_task
@@ -71,17 +69,13 @@ def evaluate_narrative_triggers():
 
         # Ongoing
         within_event = (
-            event.start_time and event.end_time and event.start_time <= now <= event.end_time
+            event.start_time
+            and event.end_time
+            and event.start_time <= now <= event.end_time
         )
         if within_event and event.auto_reflect:
-            context = MemoryContext.objects.create(
-                content=f"Reflection triggered by event {event.title}",
-                target_content_type=ContentType.objects.get_for_model(NarrativeEvent),
-                target_object_id=event.id,
-            )
             engine = AssistantReflectionEngine(assistant)
             engine.reflect_now(
-                context,
                 scene=event.scene,
                 location_context=event.location_context,
             )
@@ -89,7 +83,9 @@ def evaluate_narrative_triggers():
             event.save(update_fields=["last_triggered"])
 
         # Recently ended
-        if event.end_time and event.end_time < now <= event.end_time + timedelta(days=1):
+        if event.end_time and event.end_time < now <= event.end_time + timedelta(
+            days=1
+        ):
             if event.auto_summarize:
                 AssistantThoughtLog.objects.create(
                     assistant=assistant,

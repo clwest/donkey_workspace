@@ -17,11 +17,9 @@ from agents.models.core import (
     Agent,
     AgentFeedbackLog,
     AgentCluster,
-    MemoryContext,
     AgentTrainingAssignment,
     TrainedAgentLog,
     KnowledgeGrowthLog,
-
 )
 from agents.models.lore import (
     SwarmMemoryEntry,
@@ -115,13 +113,13 @@ from agents.models.lore import (
     CodexRestabilizationNode,
     LegacyArtifactExporter,
     RecursiveRitualContract,
-    
- 
-    
     # resilience & deployment
-
 )
-from agents.models.temporal import CodexMemoryCrystallizationLayer, DreamframeRebirthEngine, FederatedMythicIntelligenceSummoner
+from agents.models.temporal import (
+    CodexMemoryCrystallizationLayer,
+    DreamframeRebirthEngine,
+    FederatedMythicIntelligenceSummoner,
+)
 from agents.models.deployment import (
     SymbolicResilienceMonitor,
     MythOSDeploymentPacket,
@@ -144,17 +142,18 @@ from agents.models.recovery import (
     CodexProofOfSymbolEngine,
 )
 
-from agents.models.forecast import SymbolicForecastIndex,AssistantSentimentModelEngine
-from agents.models.governance import SymbolicConsensusChamber, RitualNegotiationEngine, NarrativeGovernanceModel
-
-from agents.models.lore import (
-    BeliefFeedbackSignal
+from agents.models.forecast import SymbolicForecastIndex, AssistantSentimentModelEngine
+from agents.models.governance import (
+    SymbolicConsensusChamber,
+    RitualNegotiationEngine,
+    NarrativeGovernanceModel,
 )
+
+from agents.models.lore import BeliefFeedbackSignal
 from agents.models.trend import (
     RitualMarketFeed,
     MultiAgentTrendReactivityModel,
-    SymbolicStabilityGraph
-
+    SymbolicStabilityGraph,
 )
 from agents.models.coordination import (
     CollaborationThread,
@@ -164,7 +163,6 @@ from agents.models.coordination import (
     MythflowOrchestrationPlan,
     DirectiveMemoryNode,
     SymbolicPlanningLattice,
-
 )
 from agents.models.storyfield import (
     StoryfieldZone,
@@ -177,13 +175,21 @@ from agents.models.storyfield import (
     PlotlineExtractorEngine,
     MemoryCompressionRitualTool,
     CodexStoryReshaper,
-
 )
 from simulation.models import SceneDirectorFrame
 from simulation.serializers import SceneDirectorFrameSerializer
-from agents.models.mythchain import MythchainOutputGenerator, NarrativeArtifactExporter, SymbolicPatternBroadcastEngine
-from agents.models.swarm_balance import SymbolicResonanceGraph, CognitiveBalanceReport, PurposeMigrationEvent
+from agents.models.mythchain import (
+    MythchainOutputGenerator,
+    NarrativeArtifactExporter,
+    SymbolicPatternBroadcastEngine,
+)
+from agents.models.swarm_balance import (
+    SymbolicResonanceGraph,
+    CognitiveBalanceReport,
+    PurposeMigrationEvent,
+)
 from agents.models.identity import PersonaFusionEvent
+
 # from simulation.models import SceneDirectorFrame
 from agents.serializers import (
     NarrativeGovernanceModelSerializer,
@@ -301,13 +307,10 @@ from agents.serializers import (
     RitualNegotiationEngineSerializer,
     NarrativeGovernanceModelSerializer,
     CodexFederationArchitectureSerializer,
-
     SymbolicTreatyProtocolSerializer,
     FederatedCodexOracleSerializer,
     SwarmTreatyEnforcementEngineSerializer,
     LegislativeRitualSimulationSystemSerializer,
-
-
     SymbolicPlanningLatticeSerializer,
     StoryfieldZoneSerializer,
     MythPatternClusterSerializer,
@@ -315,7 +318,6 @@ from agents.serializers import (
     AgentPlotlineCurationSerializer,
     AgentTrainingEventSerializer,
     CodexAnchorSerializer,
-
 )
 
 from assistants.serializers import (
@@ -473,18 +475,27 @@ def upload_knowledge(request, id):
 
     summary = document.summary or ""
     try:
-        joined = "\n\n".join(document.chunks.order_by("order").values_list("text", flat=True)[:5])
+        joined = "\n\n".join(
+            document.chunks.order_by("order").values_list("text", flat=True)[:5]
+        )
         prompt = (
             "You are an AI assistant learning new knowledge. Summarize the main points from the newly ingested document below:\n\n"
             + joined
         )
-        summary = call_llm([{"role": "user", "content": prompt}], model="gpt-4o", max_tokens=150)
+        summary = call_llm(
+            [{"role": "user", "content": prompt}], model="gpt-4o", max_tokens=150
+        )
     except Exception as e:
         logging.warning(f"Summary generation failed: {e}")
 
-    log = KnowledgeGrowthLog.objects.create(agent=agent, document=document, summary=summary, origin=origin)
+    log = KnowledgeGrowthLog.objects.create(
+        agent=agent, document=document, summary=summary, origin=origin
+    )
 
-    return Response({"document_id": str(document.id), "log_id": log.id, "summary": log.summary}, status=201)
+    return Response(
+        {"document_id": str(document.id), "log_id": log.id, "summary": log.summary},
+        status=201,
+    )
 
 
 @api_view(["GET"])
@@ -1442,7 +1453,6 @@ from agents.serializers import (
     SymbolicResilienceMonitorSerializer,
     MythOSDeploymentPacketSerializer,
     BeliefDeploymentStrategyEngineSerializer,
-
     GuildDeploymentKitSerializer,
     AssistantNetworkTransferProtocolSerializer,
     RitualFunctionContainerSerializer,
@@ -1558,10 +1568,16 @@ def symbolic_forecasts(request):
 def assistant_sentiments(request, assistant_id=None):
     if request.method == "GET":
         if assistant_id:
-            entries = AssistantSentimentModelEngine.objects.filter(assistant_id=assistant_id).order_by("-created_at")
+            entries = AssistantSentimentModelEngine.objects.filter(
+                assistant_id=assistant_id
+            ).order_by("-created_at")
         else:
-            entries = AssistantSentimentModelEngine.objects.all().order_by("-created_at")
-        return Response(AssistantSentimentModelEngineSerializer(entries, many=True).data)
+            entries = AssistantSentimentModelEngine.objects.all().order_by(
+                "-created_at"
+            )
+        return Response(
+            AssistantSentimentModelEngineSerializer(entries, many=True).data
+        )
 
     serializer = AssistantSentimentModelEngineSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -1585,7 +1601,9 @@ def ritual_market_feeds(request):
 def trend_reactivity_models(request):
     if request.method == "GET":
         models = MultiAgentTrendReactivityModel.objects.all().order_by("-created_at")
-        return Response(MultiAgentTrendReactivityModelSerializer(models, many=True).data)
+        return Response(
+            MultiAgentTrendReactivityModelSerializer(models, many=True).data
+        )
 
     serializer = MultiAgentTrendReactivityModelSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -1632,8 +1650,12 @@ def deployment_packets(request):
 @api_view(["GET", "POST"])
 def deployment_strategies(request):
     if request.method == "GET":
-        strategies = BeliefDeploymentStrategyEngine.objects.all().order_by("-created_at")
-        return Response(BeliefDeploymentStrategyEngineSerializer(strategies, many=True).data)
+        strategies = BeliefDeploymentStrategyEngine.objects.all().order_by(
+            "-created_at"
+        )
+        return Response(
+            BeliefDeploymentStrategyEngineSerializer(strategies, many=True).data
+        )
 
     serializer = BeliefDeploymentStrategyEngineSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -1657,15 +1679,23 @@ def deployment_kits(request):
 def assistant_transfers(request, assistant_id=None):
     if request.method == "GET":
         if assistant_id:
-            transfers = AssistantNetworkTransferProtocol.objects.filter(assistant_id=assistant_id).order_by("-created_at")
+            transfers = AssistantNetworkTransferProtocol.objects.filter(
+                assistant_id=assistant_id
+            ).order_by("-created_at")
         else:
-            transfers = AssistantNetworkTransferProtocol.objects.all().order_by("-created_at")
-        return Response(AssistantNetworkTransferProtocolSerializer(transfers, many=True).data)
+            transfers = AssistantNetworkTransferProtocol.objects.all().order_by(
+                "-created_at"
+            )
+        return Response(
+            AssistantNetworkTransferProtocolSerializer(transfers, many=True).data
+        )
 
     serializer = AssistantNetworkTransferProtocolSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     transfer = serializer.save()
-    return Response(AssistantNetworkTransferProtocolSerializer(transfer).data, status=201)
+    return Response(
+        AssistantNetworkTransferProtocolSerializer(transfer).data, status=201
+    )
 
 
 @api_view(["GET", "POST"])
@@ -1678,7 +1708,6 @@ def ritual_containers(request):
     serializer.is_valid(raise_exception=True)
     container = serializer.save()
     return Response(RitualFunctionContainerSerializer(container).data, status=201)
-
 
 
 @api_view(["GET", "POST"])
@@ -1917,8 +1946,6 @@ def timeline_curate(request):
     return Response(NarrativeCurationTimelineSerializer(timeline).data, status=201)
 
 
-
-
 @api_view(["GET", "POST"])
 def reflection_chamber(request):
     if request.method == "GET":
@@ -1935,7 +1962,9 @@ def reflection_chamber(request):
 def dialogue_amplify(request):
     if request.method == "GET":
         amplifiers = MultiAgentDialogueAmplifier.objects.all().order_by("-created_at")
-        return Response(MultiAgentDialogueAmplifierSerializer(amplifiers, many=True).data)
+        return Response(
+            MultiAgentDialogueAmplifierSerializer(amplifiers, many=True).data
+        )
 
     serializer = MultiAgentDialogueAmplifierSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -1955,9 +1984,7 @@ def sequence_resolve(request):
     return Response(MythicResolutionSequenceSerializer(sequence).data, status=201)
 
 
-
 @api_view(["GET", "POST"])
-
 def export_mythchain(request):
     if request.method == "GET":
         gens = MythchainOutputGenerator.objects.all().order_by("-created_at")
@@ -1984,8 +2011,12 @@ def export_artifact(request):
 @api_view(["GET", "POST"])
 def broadcast_patterns(request):
     if request.method == "GET":
-        broadcasts = SymbolicPatternBroadcastEngine.objects.all().order_by("-created_at")
-        return Response(SymbolicPatternBroadcastEngineSerializer(broadcasts, many=True).data)
+        broadcasts = SymbolicPatternBroadcastEngine.objects.all().order_by(
+            "-created_at"
+        )
+        return Response(
+            SymbolicPatternBroadcastEngineSerializer(broadcasts, many=True).data
+        )
 
     serializer = SymbolicPatternBroadcastEngineSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -2140,7 +2171,9 @@ def network_governance(request):
 def codex_crystallize(request):
     if request.method == "GET":
         layers = CodexMemoryCrystallizationLayer.objects.all().order_by("-created_at")
-        return Response(CodexMemoryCrystallizationLayerSerializer(layers, many=True).data)
+        return Response(
+            CodexMemoryCrystallizationLayerSerializer(layers, many=True).data
+        )
 
     serializer = CodexMemoryCrystallizationLayerSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -2163,21 +2196,31 @@ def dream_rebirth(request):
 @api_view(["GET", "POST"])
 def federated_summon(request):
     if request.method == "GET":
-        summoners = FederatedMythicIntelligenceSummoner.objects.all().order_by("-created_at")
-        return Response(FederatedMythicIntelligenceSummonerSerializer(summoners, many=True).data)
+        summoners = FederatedMythicIntelligenceSummoner.objects.all().order_by(
+            "-created_at"
+        )
+        return Response(
+            FederatedMythicIntelligenceSummonerSerializer(summoners, many=True).data
+        )
 
     serializer = FederatedMythicIntelligenceSummonerSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     summoner = serializer.save()
-    return Response(FederatedMythicIntelligenceSummonerSerializer(summoner).data, status=201)
+    return Response(
+        FederatedMythicIntelligenceSummonerSerializer(summoner).data, status=201
+    )
 
 
 @api_view(["GET", "POST"])
 def deployment_standards(request):
     """Evaluate deployment standards or list previous evaluations."""
     if request.method == "GET":
-        standards = BeliefAlignedDeploymentStandard.objects.all().order_by("-created_at")[:20]
-        return Response(BeliefAlignedDeploymentStandardSerializer(standards, many=True).data)
+        standards = BeliefAlignedDeploymentStandard.objects.all().order_by(
+            "-created_at"
+        )[:20]
+        return Response(
+            BeliefAlignedDeploymentStandardSerializer(standards, many=True).data
+        )
 
     slug = request.data.get("assistant_slug")
     goal = request.data.get("goal", "")
@@ -2207,8 +2250,7 @@ def deployment_standards(request):
 
     reflection_id = None
     if log_reflection:
-        context = MemoryContext.objects.create(content="deployment standards evaluation")
-        reflection = AssistantReflectionEngine(assistant).reflect_now(context)
+        reflection = AssistantReflectionEngine(assistant).reflect_now()
         if reflection:
             reflection_id = reflection.id
 
@@ -2231,9 +2273,6 @@ class AgentTrainingTimelineView(APIView):
         return Response(serializer.data)
 
 
-
-
-
 @api_view(["GET", "POST"])
 def deployment_narratives(request):
     """List or create deployment narrative logs."""
@@ -2251,7 +2290,9 @@ def deployment_narratives(request):
 def deployment_replay(request, vector_id):
     """Record or fetch replay traces for a deployment vector."""
     if request.method == "GET":
-        traces = DeploymentReplayTrace.objects.filter(vector_id=vector_id).order_by("-created_at")
+        traces = DeploymentReplayTrace.objects.filter(vector_id=vector_id).order_by(
+            "-created_at"
+        )
         return Response(DeploymentReplayTraceSerializer(traces, many=True).data)
 
     serializer = DeploymentReplayTraceSerializer(data=request.data)
@@ -2264,10 +2305,16 @@ def deployment_replay(request, vector_id):
 def deployment_feedback(request):
     """List or create iteration suggestions."""
     if request.method == "GET":
-        suggestions = DeploymentIterationSuggestion.objects.all().order_by("-created_at")[:20]
-        return Response(DeploymentIterationSuggestionSerializer(suggestions, many=True).data)
+        suggestions = DeploymentIterationSuggestion.objects.all().order_by(
+            "-created_at"
+        )[:20]
+        return Response(
+            DeploymentIterationSuggestionSerializer(suggestions, many=True).data
+        )
 
     serializer = DeploymentIterationSuggestionSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     suggestion = serializer.save()
-    return Response(DeploymentIterationSuggestionSerializer(suggestion).data, status=201)
+    return Response(
+        DeploymentIterationSuggestionSerializer(suggestion).data, status=201
+    )
