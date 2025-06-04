@@ -1106,6 +1106,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "document_set",
             "memory_context_id",
             "embedding_index",
+            "min_score_threshold",
             "avg_empathy_score",
             "trust",
             "delegation_events_count",

@@ -26,3 +26,34 @@ def document_chunks(request, doc_id):
         return Response({"chunks": [], "status": "processing"})
 
     return Response({"chunks": []})
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def chunk_stats(request):
+    """Return basic score distribution for a document."""
+    doc_id = request.query_params.get("document_id")
+    if not doc_id:
+        return Response({"error": "document_id required"}, status=400)
+    document = Document.objects.filter(id=doc_id).first()
+    if not document:
+        return Response({"error": "Document not found"}, status=404)
+    qs = DocumentChunk.objects.filter(document=document)
+    distribution = {}
+    for ch in qs:
+        key = f"{ch.score:.2f}"
+        distribution[key] = distribution.get(key, 0) + 1
+    glossary_hits = qs.filter(is_glossary=True).count()
+    anchor_counts = {}
+    for ch in qs:
+        for slug in ch.matched_anchors:
+            anchor_counts[slug] = anchor_counts.get(slug, 0) + 1
+    return Response(
+        {
+            "document": str(document.id),
+            "distribution": distribution,
+            "glossary_hits": glossary_hits,
+            "chunk_total": qs.count(),
+            "anchor_counts": anchor_counts,
+        }
+    )
