@@ -137,10 +137,11 @@ def suggest_delegate(request):
 
     return Response({"suggestions": data})
 
+
 @api_view(["POST"])
 def summarize_delegations(request, slug):
     """Generate a summary of delegation memories."""
     assistant = get_object_or_404(Assistant, slug=slug)
     engine = DelegationSummaryEngine(assistant)
     entry = engine.summarize_delegations()
-    return Response({"summary": entry.event, "memory_id": str(entry.id)})
+    return Response({"summary": entry.summary, "memory_id": str(entry.id)})

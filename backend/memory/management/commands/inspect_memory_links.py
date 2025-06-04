@@ -39,3 +39,10 @@ class Command(BaseCommand):
             self.stdout.write(f"\u2705 Context ID matches: {matches}")
             if mismatches:
                 self.stdout.write(f"\u274c Context mismatches: {mismatches}")
+            missing_summary = mems.filter(
+                type="delegation_summary", summary__isnull=True
+            ).count()
+            if missing_summary:
+                self.stdout.write(
+                    f"\u26a0\ufe0f {missing_summary} delegation summaries missing summary"
+                )
