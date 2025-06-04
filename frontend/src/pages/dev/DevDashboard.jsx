@@ -78,40 +78,9 @@ export default function DevDashboard() {
     }
   };
 
-  return (
-    <div
-      className="container-fluid mt-4 dev-dashboard"
-      style={{ height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column" }}
-    >
-      <div>
-        <h2 className="mb-3">🧠 Dev Dashboard</h2>
-        <Link to="/grouped-reflection" className="btn btn-outline-secondary my-3 me-2">
-          🧠 View Grouped Reflection
-        </Link>
-        <button className="btn btn-outline-danger my-3" onClick={cleanupUnused}>
-          🧹 Delete Unused Assistants
-        </button>
-        <ul className="nav nav-tabs mt-2">
-          <li className="nav-item">
-            <button
-              className={`nav-link ${activeTab === "docs" ? "active" : ""}`}
-              onClick={() => setActiveTab("docs")}
-            >
-              Dev Docs
-            </button>
-          </li>
-          <li className="nav-item">
-            <button
-              className={`nav-link ${activeTab === "templates" ? "active" : ""}`}
-              onClick={() => setActiveTab("templates")}
-            >
-              Template Drift
-            </button>
-          </li>
-        </ul>
-      </div>
-
-      {activeTab === "docs" ? (
+  const renderBody = () => {
+    if (activeTab === "docs") {
+      return (
         <div className="row flex-grow-1" style={{ overflow: "hidden" }}>
           <div
             className="col-md-3 scroll-sidebar"
@@ -146,9 +115,46 @@ export default function DevDashboard() {
             </button>
           </div>
         </div>
-      ) : (
-        <TemplateDriftTab />
-      )
+      );
+    }
+
+    return <TemplateDriftTab />;
+  };
+
+  return (
+    <div
+      className="container-fluid mt-4 dev-dashboard"
+      style={{ height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column" }}
+    >
+      <div>
+        <h2 className="mb-3">🧠 Dev Dashboard</h2>
+        <Link to="/grouped-reflection" className="btn btn-outline-secondary my-3 me-2">
+          🧠 View Grouped Reflection
+        </Link>
+        <button className="btn btn-outline-danger my-3" onClick={cleanupUnused}>
+          🧹 Delete Unused Assistants
+        </button>
+        <ul className="nav nav-tabs mt-2">
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === "docs" ? "active" : ""}`}
+              onClick={() => setActiveTab("docs")}
+            >
+              Dev Docs
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === "templates" ? "active" : ""}`}
+              onClick={() => setActiveTab("templates")}
+            >
+              Template Drift
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      {renderBody()}
     </div>
   );
 }
