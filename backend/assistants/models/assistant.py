@@ -1045,6 +1045,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.db import IntegrityError
 from django.db.utils import DataError, ProgrammingError
+from embeddings.helpers.helper_tagging import generate_tags_for_memory
+from assistants.utils.reflection_helpers import resolve_tags_from_names
 
 
 def safe_create_planning_log(project, event_type, summary, related_object=None):
@@ -1133,6 +1135,16 @@ def record_swarm_memory(sender, instance, created, **kwargs):
         entry.linked_agents.set(list(instance.project.agents.all()))
     if instance.assistant:
         entry.linked_agents.add(*instance.assistant.assigned_agents.all())
+
+
+@receiver(post_save, sender="assistants.AssistantReflectionLog")
+def auto_tag_reflection_log(sender, instance, created, **kwargs):
+    """Generate and apply tags for new reflection logs."""
+    if not created:
+        return
+    tag_names = generate_tags_for_memory(instance.summary)
+    tags = resolve_tags_from_names(tag_names)
+    instance.tags.set(tags)
 
 
 @receiver(post_save, sender="assistants.AssistantReflectionLog")
