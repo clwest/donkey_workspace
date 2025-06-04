@@ -5,6 +5,7 @@ import PrimaryStar from "../../../components/assistant/PrimaryStar";
 import MoodStabilityGauge from "../../../components/assistant/MoodStabilityGauge";
 import DriftScoreChart from "../../../components/assistant/DriftScoreChart";
 import RecoveryPanel from "../../../components/assistant/RecoveryPanel";
+import AssistantDiagnosticsPanel from "../../../components/assistant/AssistantDiagnosticsPanel";
 import {
   runDriftCheck,
   runSelfAssessment,
@@ -294,6 +295,7 @@ export default function AssistantDetailPage() {
       </div>
       {activeTab === "overview" && (
         <>
+          <AssistantDiagnosticsPanel slug={slug} />
           {assistant.recent_drift && (
             <div className="alert alert-warning">
               🧬 Drift Detected: {assistant.recent_drift.summary}

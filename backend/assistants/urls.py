@@ -25,6 +25,7 @@ from .views import (
     reflection,
     knowledge,
     dashboard,
+    diagnostics,
     routing,
     handoffs,
     scene,
@@ -673,6 +674,11 @@ urlpatterns = [
         "<slug:slug>/dashboard/",
         dashboard.assistant_dashboard,
         name="assistant-dashboard",
+    ),
+    path(
+        "<slug:slug>/diagnostics/",
+        diagnostics.assistant_diagnostics,
+        name="assistant-diagnostics",
     ),
     path(
         "<slug:slug>/collaboration_profile/",

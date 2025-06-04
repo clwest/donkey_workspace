@@ -880,6 +880,43 @@ def update_symbolic_anchor(request, pk):
     return Response(serializer.errors, status=400)
 
 
+@api_view(["PATCH", "DELETE"])
+@permission_classes([AllowAny])
+def glossary_anchor_detail(request, slug):
+    """Rename or delete a SymbolicMemoryAnchor identified by slug."""
+    anchor = get_object_or_404(SymbolicMemoryAnchor, slug=slug)
+
+    if request.method == "DELETE":
+        anchor.delete()
+        return Response(status=204)
+
+    serializer = SymbolicMemoryAnchorSerializer(anchor, data=request.data, partial=True)
+    if serializer.is_valid():
+        old_slug = anchor.slug
+        anchor = serializer.save()
+        if old_slug != anchor.slug and request.GET.get("auto_retag") == "true":
+            from intel_core.models import DocumentChunk
+
+            chunks = DocumentChunk.objects.filter(matched_anchors__contains=[old_slug])
+            for chunk in chunks:
+                changed = False
+                anchors = list(chunk.matched_anchors)
+                while old_slug in anchors:
+                    anchors.remove(old_slug)
+                    changed = True
+                if anchor.slug not in anchors:
+                    anchors.append(anchor.slug)
+                    changed = True
+                if chunk.anchor_id and chunk.anchor_id == anchor.id:
+                    chunk.anchor = anchor
+                    changed = True
+                if changed:
+                    chunk.matched_anchors = anchors
+                    chunk.save(update_fields=["matched_anchors", "anchor"])
+        return Response(SymbolicMemoryAnchorSerializer(anchor).data)
+    return Response(serializer.errors, status=400)
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def anamnesis(request):
