@@ -7,7 +7,7 @@ from assistants.models.assistant import Assistant
 from assistants.helpers.logging_helper import log_assistant_thought
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from intel_core.models import DocumentChunk, DocumentProgress
-from intel_core.views.debug import repair_progress
+from intel_core.utils.document_progress import repair_progress
 
 
 @api_view(["POST"])
