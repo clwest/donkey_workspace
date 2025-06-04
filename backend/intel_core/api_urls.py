@@ -1,4 +1,6 @@
 from rest_framework.routers import DefaultRouter
+from django.urls import path
+from .views import chunks
 from .viewsets import (
     DocumentViewSet,
     DocumentChunkViewSet,
@@ -17,5 +19,6 @@ router.register(
     EmbeddingMetadataViewSet,
     basename="embeddingmetadataalias",
 )
-
-urlpatterns = router.urls
+urlpatterns = [
+    path("chunk-stats/", chunks.chunk_stats, name="chunk_stats"),
+] + router.urls

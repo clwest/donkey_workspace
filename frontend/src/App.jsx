@@ -216,6 +216,7 @@ import MythOSProjectComposerPage from "./pages/project/MythOSProjectComposerPage
 import PromptDebuggerPage from "./pages/debug/PromptDebuggerPage";
 import RagRecallDebugPage from "./pages/debug/RagRecallDebugPage";
 import RagFailureTable from "./pages/debug/RagFailureTable";
+import ChunkStatsDashboard from "./pages/debug/ChunkStatsDashboard";
 import SwarmTaskEvolutionPage from "./pages/evolve/SwarmTaskEvolutionPage";
 import SkillPlannerPage from "./pages/plan/SkillPlannerPage";
 import PromptFeedbackPage from "./pages/feedback/PromptFeedbackPage";
@@ -563,6 +564,7 @@ export default function App() {
           <Route path="/debug/prompts" element={<PromptDebuggerPage />} />
           <Route path="/debug/rag-recall" element={<RagRecallDebugPage />} />
           <Route path="/debug/rag-failures" element={<RagFailureTable />} />
+          <Route path="/debug/chunk-stats" element={<ChunkStatsDashboard />} />
           <Route path="/planning" element={<PlanningPage />} />
           <Route path="/plan/graph" element={<PlanningGraphPage />} />
           <Route path="/plan/assign" element={<TaskAssignmentPage />} />

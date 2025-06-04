@@ -152,6 +152,7 @@ class AssistantViewSet(viewsets.ModelViewSet):
         description = request.data.get("description")
         tone = request.data.get("tone")
         preferred_model = request.data.get("preferred_model")
+        min_score_threshold = request.data.get("min_score_threshold")
         system_prompt_id = request.data.get("system_prompt")
 
         if (
@@ -176,6 +177,12 @@ class AssistantViewSet(viewsets.ModelViewSet):
 
         if preferred_model is not None:
             assistant.preferred_model = preferred_model
+
+        if min_score_threshold is not None:
+            try:
+                assistant.min_score_threshold = float(min_score_threshold)
+            except (TypeError, ValueError):
+                return Response({"error": "Invalid min_score_threshold"}, status=400)
 
         if system_prompt_id is not None:
             try:
