@@ -55,7 +55,9 @@ export default function AssistantBootPanel({ assistant, onTestComplete }) {
     <div>
       <h6 className="mt-2">🧬 Boot Profile Overview</h6>
       <ul className="list-unstyled small mb-3">
-        <li>Prompt: “{profile.system_prompt.title}”</li>
+        <li>
+          Prompt: “{profile.system_prompt?.title || (profile.has_system_prompt ? "" : "None")}”
+        </li>
         <li>Tone: {assistant.tone || "default"}</li>
         <li>Model: {assistant.preferred_model || assistant.preferred_llm}</li>
         <li>Context ID: {assistant.memory_context_id}</li>
