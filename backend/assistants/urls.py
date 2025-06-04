@@ -681,6 +681,7 @@ urlpatterns = [
         name="assistant-diagnostics",
     ),
     path(
+
         "<slug:slug>/fix_context/",
         diagnostics.fix_context,
         name="assistant-fix-context",
@@ -689,6 +690,7 @@ urlpatterns = [
         "<slug:slug>/retag_glossary_chunks/",
         diagnostics.retag_glossary_chunks_view,
         name="assistant-retag-glossary-chunks",
+
     ),
     path(
         "<slug:slug>/collaboration_profile/",

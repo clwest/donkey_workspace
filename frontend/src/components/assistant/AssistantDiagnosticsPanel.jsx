@@ -3,6 +3,8 @@ import { toast } from "react-toastify";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import apiFetch from "@/utils/apiClient";
+import { toast } from "react-toastify";
+import { cleanRecentMemories, cleanStaleProjects } from "../../api/assistants";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -39,6 +41,7 @@ export default function AssistantDiagnosticsPanel({ slug }) {
       },
     ],
   };
+
 
   const cooldown = () =>
     setTimeout(() => {
@@ -88,6 +91,7 @@ export default function AssistantDiagnosticsPanel({ slug }) {
       toast.error("Failed to sync glossary anchors");
     } finally {
       cooldown();
+
     }
   };
 
@@ -107,6 +111,7 @@ export default function AssistantDiagnosticsPanel({ slug }) {
         <Pie data={chartData} options={{ plugins: { legend: { position: "bottom" } } }} />
       </div>
       <div className="mt-2">
+
         <button
           className="btn btn-sm btn-outline-primary me-1"
           onClick={handleReflect}
@@ -148,6 +153,7 @@ export default function AssistantDiagnosticsPanel({ slug }) {
           ) : (
             "📚 Sync Glossary Anchors"
           )}
+
         </button>
       </div>
     </div>
