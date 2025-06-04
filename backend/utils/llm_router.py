@@ -98,7 +98,24 @@ def chat(
     from assistants.utils.memory_summoner import summon_relevant_memories
     from assistants.utils.chunk_retriever import get_relevant_chunks, format_chunks
 
+    assistant = assistant.__class__.objects.select_related("system_prompt").get(id=assistant.id)
     msgs = list(messages)
+    system_prompt = assistant.system_prompt.content if assistant.system_prompt else None
+    if system_prompt:
+        logger.debug(
+            "\U0001f9e0 Using prompt %s (%s) for assistant %s",
+            assistant.system_prompt.title,
+            assistant.system_prompt.id,
+            assistant.slug,
+        )
+        replaced = False
+        for idx, m in enumerate(msgs):
+            if m.get("role") == "system":
+                msgs[idx] = {"role": "system", "content": system_prompt}
+                replaced = True
+                break
+        if not replaced:
+            msgs.insert(0, {"role": "system", "content": system_prompt})
     summoned: list[str] = []
     if getattr(assistant, "memory_summon_enabled", False):
         user_parts = [m.get("content", "") for m in msgs if m.get("role") == "user"]

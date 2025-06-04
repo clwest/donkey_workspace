@@ -6,6 +6,7 @@ import os
 from intel_core.management.commands.fix_doc_progress import Command as FixCommand
 from embeddings.document_services.chunking import clean_and_score_chunk
 from utils.logging_utils import get_logger
+from intel_core.utils.embedding_debug import reembed_missing_chunks
 
 logger = get_logger(__name__)
 
@@ -193,3 +194,10 @@ def sync_chunk_counts_view(request):
     cmd.stderr = buf
     cmd.handle()
     return Response({"detail": buf.getvalue().strip()})
+
+
+@api_view(["POST"])
+def reembed_missing_chunks_view(request):
+    """Trigger reembedding for chunks missing vectors or scores."""
+    report = reembed_missing_chunks()
+    return Response(report)

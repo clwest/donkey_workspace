@@ -29,6 +29,8 @@ ANCHOR_FORCE_MIN_SCORE = 0.1
 ANCHOR_BOOST = getattr(settings, "RAG_ANCHOR_BOOST", 0.1)
 # Boost factor applied when a chunk contains glossary matches
 GLOSSARY_BOOST_FACTOR = getattr(settings, "RAG_GLOSSARY_BOOST_FACTOR", 0.2)
+# Threshold below which glossary chunks are considered weak
+GLOSSARY_WEAK_THRESHOLD = getattr(settings, "GLOSSARY_WEAK_THRESHOLD", 0.2)
 
 logger = logging.getLogger(__name__)
 
@@ -100,6 +102,7 @@ def get_relevant_chunks(
     fallback_limit: int = 2,
     auto_expand: bool = False,
     force_chunks: bool = False,
+    force_fallback: bool = False,
     min_rag_score: float = 0.3,
     debug: bool = False,
 ) -> Tuple[
@@ -129,8 +132,10 @@ def get_relevant_chunks(
     all anchors were considered, while ``filtered_anchor_terms`` lists query terms
     filtered out due to focus restrictions. ``debug_info`` now also includes
     ``override_map`` and per-chunk candidate details. ``force_chunks`` bypasses
-    score filtering and always returns the top 3 chunks. ``min_rag_score``
-    triggers summary-level fallback when the best score is below the threshold.
+    score filtering and always returns the top 3 chunks. ``force_fallback``
+    allows zero-score or weak chunks to be returned when no valid options remain.
+    ``min_rag_score`` triggers summary-level fallback when the best score is
+    below the threshold.
     """
     if not query_text:
         return (
@@ -312,6 +317,9 @@ def get_relevant_chunks(
             score += 0.05
         length_norm = min(len(chunk.text) / 500, 1.0)
         score *= 0.6 + 0.4 * length_norm
+        if score <= 0.0 and not force_fallback:
+            logger.debug("Skipping chunk %s due to zero score", chunk.id)
+            continue
         if score < MIN_SCORE and not (
             chunk.anchor and chunk.anchor.slug in anchor_matches
         ):
@@ -348,6 +356,13 @@ def get_relevant_chunks(
             score += 0.15
         # Boost using precomputed glossary_score
         score += getattr(chunk, "glossary_score", 0.0) * GLOSSARY_BOOST_FACTOR
+        weak_glossary = (
+            getattr(chunk, "is_glossary", False)
+            and getattr(chunk, "glossary_score", 0.0) < GLOSSARY_WEAK_THRESHOLD
+        ) or getattr(chunk, "weak", False)
+        if weak_glossary and not force_fallback:
+            logger.debug("Skipping weak glossary chunk %s", chunk.id)
+            continue
         anchor_confidence = 0.0
         if chunk.anchor:
             if chunk.anchor.slug in anchor_matches:
@@ -443,7 +458,12 @@ def get_relevant_chunks(
         reason = "low score"
         logger.warning("\u26a0\ufe0f RAG fallback: using low-score chunks")
         # take top ``fallback_limit`` above ``fallback_min`` if any
-        candidates = [p for p in scored if p[0] >= fallback_min] or scored
+        candidates = [
+            p for p in scored if p[0] >= fallback_min and (force_fallback or p[0] > 0.0)
+        ]
+        if not candidates:
+            logger.warning("⚠️ All candidate chunks rejected; forcing fallback")
+            candidates = scored
         pairs = candidates[: max(1, fallback_limit)]
         for i, (s, c, _conf, _rs, _aw) in enumerate(pairs, 1):
             logger.info(
