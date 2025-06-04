@@ -455,6 +455,11 @@ urlpatterns = [
         name="assistant-subagent-reflect",
     ),
     path(
+        "delegation/subagent_reflect/<uuid:event_id>/",
+        reflection.subagent_reflect_view,
+        name="delegation-subagent-reflect",
+    ),
+    path(
         "<slug:slug>/evaluate-delegation/",
         delegations.evaluate_delegation,
         name="assistant-evaluate-delegation",

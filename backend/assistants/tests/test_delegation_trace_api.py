@@ -25,5 +25,7 @@ class DelegationTraceAPITest(BaseAPITestCase):
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]["child_slug"], self.child1.slug)
+        self.assertEqual(data[0]["assistant_slug"], self.parent.slug)
+        self.assertEqual(data[0]["delegated_to_slug"], self.child1.slug)
+        self.assertTrue(data[0]["delegation_event_id"])
         self.assertEqual(len(data[0]["delegations"]), 1)

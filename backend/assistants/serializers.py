@@ -170,6 +170,18 @@ class RecentDelegationEventSerializer(serializers.ModelSerializer):
         ]
 
 
+class DelegationTraceSerializer(serializers.Serializer):
+    assistant_slug = serializers.CharField()
+    delegated_to_slug = serializers.CharField()
+    delegated_to = serializers.CharField()
+    reason = serializers.CharField()
+    summary = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    session_id = serializers.CharField(allow_null=True)
+    delegation_event_id = serializers.CharField(allow_null=True)
+    created_at = serializers.DateTimeField()
+    delegations = serializers.ListField()
+
+
 class SessionHandoffSerializer(serializers.ModelSerializer):
     from_assistant = serializers.CharField(source="from_assistant.name", read_only=True)
     to_assistant = serializers.CharField(source="to_assistant.name", read_only=True)

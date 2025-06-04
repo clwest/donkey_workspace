@@ -488,6 +488,10 @@ export default function App() {
             element={<AssistantSubAgentReflectionPage />}
           />
           <Route
+            path="/delegation/subagent_reflect/:id"
+            element={<AssistantSubAgentReflectionPage />}
+          />
+          <Route
             path="/assistants/:slug/skillgraph"
             element={<SkillGraphPage />}
           />

@@ -10,7 +10,10 @@ export default function AssistantSubAgentReflectionPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await apiFetch(`/assistants/${slug}/subagent_reflect/${id}/`);
+        const url = slug
+          ? `/assistants/${slug}/subagent_reflect/${id}/`
+          : `/assistants/delegation/subagent_reflect/${id}/`;
+        const res = await apiFetch(url);
         setData(res);
       } catch (err) {
         console.error("Failed to load reflection", err);
@@ -40,7 +43,10 @@ export default function AssistantSubAgentReflectionPage() {
           </ul>
         </>
       )}
-      <Link to={`/assistants/${slug}/delegation-trace`} className="btn btn-outline-secondary mt-3">
+      <Link
+        to={slug ? `/assistants/${slug}/delegation-trace` : "/assistants"}
+        className="btn btn-outline-secondary mt-3"
+      >
         Back to Trace
       </Link>
     </div>
