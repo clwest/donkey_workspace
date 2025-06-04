@@ -79,4 +79,9 @@ urlpatterns = [
         debug.sync_chunk_counts_view,
         name="sync-chunk-counts",
     ),
+    path(
+        "reembed_missing_chunks/",
+        debug.reembed_missing_chunks_view,
+        name="reembed-missing-chunks",
+    ),
 ]

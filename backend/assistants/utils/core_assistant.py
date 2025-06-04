@@ -22,6 +22,20 @@ class CoreAssistant:
         self.thought_engine = AssistantThoughtEngine(assistant)
         self.reflection_engine = AssistantReflectionEngine(assistant)
 
+    def get_system_prompt(self) -> str:
+        """Return the current system prompt content, reloading from the DB."""
+        self.assistant.refresh_from_db(fields=["system_prompt", "prompt_title"])
+        prompt = self.assistant.system_prompt
+        if prompt:
+            logger.debug(
+                "\U0001f9e0 Using prompt %s (%s) for assistant %s",
+                prompt.title,
+                prompt.id,
+                self.assistant.slug,
+            )
+            return prompt.content
+        return "You are a helpful assistant."
+
     def think(self, user_input: str, *, stream: bool = False):
         """Generate a thought. If ``stream`` is True return an async token generator."""
         logger.info(f"[CoreAssistant] Thinking on: {user_input}")
