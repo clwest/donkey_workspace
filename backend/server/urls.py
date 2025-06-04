@@ -24,6 +24,7 @@ from agents.views import stabilization as stabilization_views
 from capabilities import urls as capability_urls
 from assistants.views import onboarding as onboarding_views
 from assistants.views import assistants as assistant_views
+from assistants.views.diagnostics import run_all_self_tests
 from intel_core.views import intelligence as intel_views
 
 from tts.urls import router as tts_router
@@ -83,6 +84,10 @@ urlpatterns = [
     path(
         "assistants/from-documents/",
         assistant_views.assistant_from_documents,
+    ),
+    path(
+        "assistants/self_tests/run_all/",
+        run_all_self_tests,
     ),
     path("api/dj-rest-auth/", include("dj_rest_auth.urls")),
     path("api/dj-rest-auth/registration/", include("dj_rest_auth.registration.urls")),

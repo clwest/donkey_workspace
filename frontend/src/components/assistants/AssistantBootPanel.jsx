@@ -13,7 +13,16 @@ export default function AssistantBootPanel({ assistant, onTestComplete }) {
     if (!slug) return;
     setLoading(true);
     fetchBootProfile(slug)
-      .then(setProfile)
+      .then((data) => {
+        setProfile(data);
+        if (data.last_boot) {
+          setTestResult({
+            passed: data.last_boot.passed,
+            issues: [],
+            timestamp: data.last_boot.timestamp,
+          });
+        }
+      })
       .catch(() => {
         toast.error("Failed to load boot profile");
         setProfile(null);
@@ -61,6 +70,11 @@ export default function AssistantBootPanel({ assistant, onTestComplete }) {
           {testResult.passed ? "✅ Passed" : "❌ Failed"}
           {testResult.issues && testResult.issues.length > 0 && (
             <> - {testResult.issues.join(", ")}</>
+          )}
+          {testResult.timestamp && (
+            <span className="ms-2 text-muted">
+              ({new Date(testResult.timestamp).toLocaleString()})
+            </span>
           )}
         </p>
       )}

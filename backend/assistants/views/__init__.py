@@ -21,6 +21,7 @@ from .diagnostics import (
     retag_glossary_chunks_view,
     assistant_boot_profile,
     assistant_self_test,
+    run_all_self_tests,
 )
 from .thoughts import (
     submit_assistant_thought,
@@ -258,6 +259,7 @@ __all__ = [
     "retag_glossary_chunks_view",
     "assistant_boot_profile",
     "assistant_self_test",
+    "run_all_self_tests",
     "diff_knowledge",
     "replay_scene_view",
     "chat_with_scene",

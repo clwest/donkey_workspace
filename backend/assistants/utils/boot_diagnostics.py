@@ -1,4 +1,5 @@
 from typing import Dict, List
+from assistants.models import AssistantBootLog
 from django.urls import get_resolver
 from assistants.models import Assistant
 from assistants.models.reflection import AssistantReflectionLog
@@ -47,6 +48,11 @@ def generate_boot_profile(assistant: Assistant) -> Dict[str, object]:
     )
     reflections_total = AssistantReflectionLog.objects.filter(assistant=assistant).count()
     projects_total = AssistantProject.objects.filter(assistant=assistant).count()
+    last_log = (
+        AssistantBootLog.objects.filter(assistant=assistant)
+        .order_by("-created_at")
+        .first()
+    )
 
     return {
         "assistant_id": str(assistant.id),
@@ -62,6 +68,13 @@ def generate_boot_profile(assistant: Assistant) -> Dict[str, object]:
         },
         "reflections_total": reflections_total,
         "projects_total": projects_total,
+        "last_boot":
+            {
+                "passed": last_log.passed,
+                "timestamp": last_log.created_at.isoformat(),
+            }
+            if last_log
+            else None,
     }
 
 

@@ -4,7 +4,11 @@ import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import apiFetch from "@/utils/apiClient";
 
-import { cleanRecentMemories, cleanStaleProjects } from "../../api/assistants";
+import {
+  cleanRecentMemories,
+  cleanStaleProjects,
+  runAllSelfTests,
+} from "../../api/assistants";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -127,6 +131,19 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
     }
   };
 
+  const handleGlobalBoot = async () => {
+    if (action) return;
+    setAction("global");
+    try {
+      await runAllSelfTests();
+      toast.success("Global boot check complete");
+    } catch {
+      toast.error("Boot check failed");
+    } finally {
+      cooldown();
+    }
+  };
+
   return (
     <div className="p-2 border rounded mb-3">
       <h5 className="mb-3">Assistant Diagnostics</h5>
@@ -213,6 +230,20 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
             </>
           ) : (
             "🗑️ Clear Stale Projects"
+          )}
+        </button>
+        <button
+          className="btn btn-sm btn-outline-primary ms-1"
+          onClick={handleGlobalBoot}
+          disabled={!!action}
+        >
+          {action === "global" ? (
+            <>
+              <span className="spinner-border spinner-border-sm me-1" role="status" />
+              Running...
+            </>
+          ) : (
+            "🚀 Run Global Boot Check"
           )}
         </button>
       </div>
