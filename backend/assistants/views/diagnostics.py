@@ -83,3 +83,24 @@ def retag_glossary_chunks_view(request, slug):
     total = sum(len(v) for v in results.values())
     summary = {k: len(v) for k, v in results.items()}
     return Response({"matched_total": total, "per_anchor": summary})
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def assistant_boot_profile(request, slug):
+    """Return boot profile diagnostics for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    from assistants.utils.boot_diagnostics import generate_boot_profile
+
+    data = generate_boot_profile(assistant)
+    return Response(data)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def assistant_self_test(request, slug):
+    """Run a lightweight self-test for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    from assistants.utils.boot_diagnostics import run_assistant_self_test
+
+    result = run_assistant_self_test(assistant)
+    return Response(result)

@@ -691,6 +691,16 @@ urlpatterns = [
         name="assistant-retag-glossary-chunks",
     ),
     path(
+        "<slug:slug>/boot_profile/",
+        diagnostics.assistant_boot_profile,
+        name="assistant-boot-profile",
+    ),
+    path(
+        "<slug:slug>/selftest/",
+        diagnostics.assistant_self_test,
+        name="assistant-self-test",
+    ),
+    path(
         "<slug:slug>/collaboration_profile/",
         collaboration.collaboration_profile,
         name="assistant-collaboration-profile",
