@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "django_extensions",
     "django_redis",
+    "crispy_forms",
+    "django.contrib.humanize",
     # Local Apps
     "accounts.apps.AccountsConfig",
     "assistants",
@@ -100,9 +102,14 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
+            'libraries': {
+                'crispy_forms_tags': 'crispy_forms.templatetags.crispy_forms_tags',
+                'humanize': 'django.templatetags.humanize',
+            },
         },
     },
 ]
+CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 ROOT_URLCONF = "server.urls"
 WSGI_APPLICATION = "server.wsgi.application"
