@@ -285,7 +285,7 @@ export default function ChatWithAssistantPage() {
             >
               📄 Check Source
             </button>
-            {msg.role === "assistant" && msg.context_score !== null && (
+            {msg.role === "assistant" && msg.context_score != null && (
               <span className="badge bg-secondary ms-2" title="Top context score">
                 Context Score: {msg.context_score.toFixed(4)}
                 {msg.context_score < 0.65 ? " (weak)" : ""}
