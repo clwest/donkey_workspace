@@ -19,6 +19,8 @@ import AssistantMemoryAuditPanel from "../../../components/assistant/memory/Assi
 import AssistantMemoryPanel from "../../../components/assistant/memory/AssistantMemoryPanel";
 import AgentTrainingManager from "../../../components/assistants/AgentTrainingManager";
 import ReflectNowButton from "../../../components/assistant/ReflectNowButton";
+import CommonModal from "../../../components/CommonModal";
+import AssistantBootPanel from "../../../components/assistants/AssistantBootPanel";
 
 export default function AssistantDetailPage() {
   const { slug } = useParams();
@@ -38,6 +40,8 @@ export default function AssistantDetailPage() {
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
+  const [showBoot, setShowBoot] = useState(false);
+  const [lastSelfTest, setLastSelfTest] = useState(null);
   const threadId = query.get("thread");
   const projectId = query.get("project");
   const memoryId = query.get("memory");
@@ -252,6 +256,20 @@ export default function AssistantDetailPage() {
         )}
         <PrimaryStar isPrimary={assistant.is_primary} />
         <MoodStabilityGauge score={assistant.health_score} />
+        {lastSelfTest && (
+          <span
+            className={`badge ms-2 ${lastSelfTest.passed ? "bg-success" : "bg-danger"}`}
+            title={new Date(lastSelfTest.timestamp).toLocaleString()}
+          >
+            {lastSelfTest.passed ? "✅" : "❌"}
+          </span>
+        )}
+        <button
+          className="btn btn-sm btn-outline-secondary ms-3"
+          onClick={() => setShowBoot(true)}
+        >
+          Open Boot Diagnostics
+        </button>
         {!assistant.is_primary && (
           <button
             className="btn btn-sm btn-outline-warning ms-3"
@@ -739,6 +757,16 @@ export default function AssistantDetailPage() {
       {activeTab === "training" && (
         <AgentTrainingManager assistantSlug={slug} />
       )}
+      <CommonModal
+        show={showBoot}
+        onClose={() => setShowBoot(false)}
+        title="Boot Diagnostics"
+      >
+        <AssistantBootPanel
+          assistant={assistant}
+          onTestComplete={(res) => setLastSelfTest(res)}
+        />
+      </CommonModal>
       <SelfAssessmentModal
         show={showAssess}
         onClose={() => setShowAssess(false)}
