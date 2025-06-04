@@ -8,6 +8,7 @@ export default function ChatDebugPanel({ ragMeta }) {
   const score = ragMeta.retrieval_score ?? 0;
   const list = showAll ? candidates : used;
   const showTip = score < 0.2 && used.length === 0;
+  const glossaryMissing = ragMeta.glossary_present === false;
 
   return (
     <div className="border rounded p-2 mt-3">
@@ -30,6 +31,11 @@ export default function ChatDebugPanel({ ragMeta }) {
             Show all retrieved chunks (incl. low scores)
           </label>
         </div>
+      )}
+      {glossaryMissing && (
+        <button className="btn btn-sm btn-outline-secondary mb-2">
+          Suggest Glossary Anchor
+        </button>
       )}
       {list.length > 0 ? (
         <ul className="small mb-0">
