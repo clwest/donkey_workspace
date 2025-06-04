@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { Button } from "react-bootstrap";
 import apiFetch from "../../utils/apiClient";
 import DelegationFeedbackModal from "../../components/assistant/DelegationFeedbackModal";
 import ToolFeedbackDropdown from "../../components/tools/ToolFeedbackDropdown";
 
 function MemoryRow({ entry, onRate }) {
+  const navigate = useNavigate();
   const indent = { marginLeft: `${entry.depth * 20}px` };
   return (
     <li style={indent} className="mb-2">
@@ -34,9 +36,16 @@ function MemoryRow({ entry, onRate }) {
         {entry.delegation_event_id && (
           <>
             {" | "}
-            <Link to={`/assistants/${entry.assistant_slug}/reflect-subagent/${entry.delegation_event_id}`}>
+            <Button
+              variant="link"
+              size="sm"
+              className="p-0"
+              onClick={() =>
+                navigate(`/delegation/subagent_reflect/${entry.delegation_event_id}`)
+              }
+            >
               Reflect on Sub-Agent Output
-            </Link>
+            </Button>
           </>
         )}
         {entry.tool_usage_id && (

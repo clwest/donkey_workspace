@@ -66,6 +66,13 @@ export const routeMap = [
     notes: "Reflect on sub-agent output",
   },
   {
+    frontend: "/delegation/subagent_reflect/:id",
+    backend: "/api/assistants/delegation/subagent_reflect/<trace_id>/",
+    view: "subagent_reflect",
+    serializer: "AssistantReflectionLogSerializer",
+    notes: "Reflect on sub-agent output by event",
+  },
+  {
     frontend: "/assistants/:slug/reflections",
     backend: "/api/assistants/<slug>/reflections/",
     view: "assistant_reflection_logs",

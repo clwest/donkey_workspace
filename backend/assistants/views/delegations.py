@@ -5,6 +5,7 @@ from assistants.models.thoughts import AssistantThoughtLog
 from assistants.serializers import (
     DelegationEventSerializer,
     RecentDelegationEventSerializer,
+    DelegationTraceSerializer,
 )
 from assistants.utils.delegation import (
     spawn_delegated_assistant,
@@ -113,8 +114,9 @@ def delegation_trace(request, slug):
         for e in events:
             trace.append(
                 {
-                    "child": e.child_assistant.name,
-                    "child_slug": e.child_assistant.slug,
+                    "assistant_slug": assistant.slug,
+                    "delegated_to_slug": e.child_assistant.slug,
+                    "delegated_to": e.child_assistant.name,
                     "reason": e.reason,
                     "summary": e.summary,
                     "session_id": (
@@ -122,6 +124,7 @@ def delegation_trace(request, slug):
                         if e.triggering_session
                         else None
                     ),
+                    "delegation_event_id": str(e.id),
                     "created_at": e.created_at,
                     "delegations": build_trace(e.child_assistant),
                 }
@@ -132,7 +135,8 @@ def delegation_trace(request, slug):
     if not assistant:
         return Response({"error": "Assistant not found"}, status=404)
     data = build_trace(assistant)
-    return Response(data)
+    serializer = DelegationTraceSerializer(data, many=True)
+    return Response(serializer.data)
 
 
 @api_view(["GET"])
