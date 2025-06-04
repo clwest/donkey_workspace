@@ -17,6 +17,7 @@ import { toast } from "react-toastify";
 import "./styles/AssistantDetail.css";
 import AssistantMemoryAuditPanel from "../../../components/assistant/memory/AssistantMemoryAuditPanel";
 import AssistantMemoryPanel from "../../../components/assistant/memory/AssistantMemoryPanel";
+import DelegationSummaryPanel from "../../../components/assistant/memory/DelegationSummaryPanel";
 import AgentTrainingManager from "../../../components/assistants/AgentTrainingManager";
 import ReflectNowButton from "../../../components/assistant/ReflectNowButton";
 import CommonModal from "../../../components/CommonModal";
@@ -752,7 +753,10 @@ export default function AssistantDetailPage() {
         </>
       )}
       {activeTab === "memory" && (
-        <AssistantMemoryAuditPanel assistant={assistant} />
+        <>
+          <DelegationSummaryPanel slug={slug} />
+          <AssistantMemoryAuditPanel assistant={assistant} />
+        </>
       )}
       {activeTab === "training" && (
         <AgentTrainingManager assistantSlug={slug} />

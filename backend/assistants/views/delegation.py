@@ -7,6 +7,7 @@ from assistants.models.thoughts import AssistantThoughtLog
 from assistants.serializers import DelegationEventSerializer
 from assistants.utils.delegation import spawn_delegated_assistant
 from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
+from assistants.utils.delegation_summary_engine import DelegationSummaryEngine
 from memory.services import MemoryService
 from intel_core.models import Document
 from assistants.models.project import AssistantObjective
@@ -135,3 +136,11 @@ def suggest_delegate(request):
             )
 
     return Response({"suggestions": data})
+
+@api_view(["POST"])
+def summarize_delegations(request, slug):
+    """Generate a summary of delegation memories."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    engine = DelegationSummaryEngine(assistant)
+    entry = engine.summarize_delegations()
+    return Response({"summary": entry.event, "memory_id": str(entry.id)})

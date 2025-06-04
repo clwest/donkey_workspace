@@ -475,6 +475,11 @@ urlpatterns = [
         name="assistant-evaluate-continuity",
     ),
     path(
+        "<slug:slug>/summarize_delegations/",
+        delegation.summarize_delegations,
+        name="assistant-summarize-delegations",
+    ),
+    path(
         "<slug:slug>/suggest-delegation/",
         delegations.suggest_delegation,
         name="assistant-suggest-delegation",
