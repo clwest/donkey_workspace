@@ -1,5 +1,8 @@
 from pathlib import Path
 import traceback
+import json
+import hashlib
+from datetime import datetime
 
 from django.core.management.base import BaseCommand
 from django.template import Context, loader
@@ -27,6 +30,11 @@ class Command(BaseCommand):
         exclude_thirdparty = options.get("exclude_thirdparty", False)
         folder_filter = options.get("only_folder")
 
+        status_file = Path("logs/template_status.json")
+        existing = {}
+        if status_file.exists():
+            existing = json.loads(status_file.read_text())
+
         for template_path in self.get_template_sources():
             if exclude_thirdparty and "site-packages" in str(template_path):
                 continue
@@ -34,6 +42,22 @@ class Command(BaseCommand):
                 continue
 
             template_name = self.relative_template_name(template_path)
+            file_hash = hashlib.sha256(template_path.read_bytes()).hexdigest()
+            tag_libraries = []
+            for line in template_path.read_text().splitlines():
+                if "{%" in line and "load" in line:
+                    parts = line.strip().split()
+                    if "load" in parts:
+                        idx = parts.index("load")
+                        tag_libraries.extend(parts[idx + 1 :])
+            info = {
+                "file_hash": file_hash,
+                "last_edited": template_path.stat().st_mtime,
+                "last_validated": datetime.utcnow().isoformat(),
+                "tag_libraries": tag_libraries,
+                "is_rag_linked": "rag" in str(template_path).lower(),
+            }
+            existing[str(template_path)] = info
             try:
                 template = loader.get_template(template_name)
                 template.render(Context({}))
@@ -41,6 +65,9 @@ class Command(BaseCommand):
             except Exception:
                 self.stderr.write(f"❌ {template_path}")
                 self.stderr.write(traceback.format_exc())
+
+        status_file.parent.mkdir(parents=True, exist_ok=True)
+        status_file.write_text(json.dumps(existing, indent=2))
 
     def get_template_sources(self):
         directories = set()

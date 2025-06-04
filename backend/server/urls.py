@@ -15,7 +15,12 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 from django.urls import get_resolver
-from devtools.views import full_route_map
+from devtools.views import (
+    full_route_map,
+    template_health_summary,
+    reload_templates,
+    template_detail,
+)
 from story.views import storyboard_list
 from mcp_core.views import threading as thread_views
 from mcp_core.views import ontology as ontology_views
@@ -83,6 +88,9 @@ urlpatterns = [
     path("api/routes/", routes_list),
     path("api/dev/routes/fullmap/", full_route_map),
     path("api/dev/routes/fullmap/refresh/", full_route_map),
+    path("api/dev/templates/health/", template_health_summary),
+    path("api/dev/templates/reload/", reload_templates),
+    path("api/dev/templates/<path:slug>/detail/", template_detail),
     path("api/capabilities/", include(capability_urls)),
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
