@@ -15,7 +15,7 @@ from embeddings.helpers.helpers_processing import generate_embedding
 from embeddings.helpers.helpers_io import save_embedding
 from prompts.utils.token_helpers import EMBEDDING_MODEL
 from django.db.models import F
-from intel_core.views.debug import repair_progress
+from intel_core.utils.document_progress import repair_progress
 
 EMBEDDING_LENGTH = 1536
 

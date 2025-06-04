@@ -383,6 +383,6 @@ def process_pdf_upload(
 @shared_task(name="async_repair_progress")
 def async_repair_progress(document_id):
     """Wrapper task to repair DocumentProgress asynchronously."""
-    from intel_core.views.debug import repair_progress
+    from intel_core.utils.document_progress import repair_progress
 
     repair_progress(document_id=document_id)
