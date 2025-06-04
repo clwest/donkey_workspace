@@ -476,9 +476,7 @@ def list_memories(request):
             uuid_val = uuid.UUID(str(assistant_id))
             queryset = queryset.filter(assistant_id=uuid_val)
         except (ValueError, TypeError):
-            queryset = queryset.filter(
-                linked_thought__assistant__slug=assistant_id
-            )
+            queryset = queryset.filter(linked_thought__assistant__slug=assistant_id)
 
     if is_conversation in ["true", "1", "yes"]:
         queryset = queryset.filter(is_conversation=True)
@@ -855,8 +853,19 @@ def continuity_anchors(request):
 def symbolic_anchors(request):
     """List SymbolicMemoryAnchor objects."""
     anchors = SymbolicMemoryAnchor.objects.all().order_by("slug")
+    assistant = request.GET.get("assistant")
+    show_empty = request.GET.get("show_empty") == "true"
+    if assistant:
+        anchors = anchors.filter(reinforced_by__id=assistant)
     serializer = SymbolicMemoryAnchorSerializer(anchors, many=True)
-    return Response(serializer.data)
+    data = serializer.data
+    if not show_empty:
+        data = [
+            a
+            for a in data
+            if (a.get("chunks_count") or 0) > 0 or (a.get("retagged_count") or 0) > 0
+        ]
+    return Response({"results": data})
 
 
 @api_view(["PATCH"])
@@ -978,9 +987,9 @@ def assistant_convergence_logs(request):
     if not assistant_id:
         return Response({"results": []})
 
-    qs = AnchorConvergenceLog.objects.select_related("assistant", "memory", "anchor").filter(
-        assistant_id=assistant_id
-    )
+    qs = AnchorConvergenceLog.objects.select_related(
+        "assistant", "memory", "anchor"
+    ).filter(assistant_id=assistant_id)
     logs = qs.order_by("-created_at")[:20]
     data = AnchorConvergenceLogSerializer(logs, many=True).data
     return Response({"results": data})

@@ -9,6 +9,7 @@ from assistants.models.project import AssistantProject
 # Boost acronym chunks
 from intel_core.services import AcronymGlossaryService
 from memory.models import SymbolicMemoryAnchor
+from intel_core.utils.glossary_tagging import _match_anchor
 
 # Import directly from helpers_io to avoid __init__ fallbacks
 from embeddings.helpers.helpers_io import get_embedding_for_text
@@ -46,11 +47,13 @@ def _anchor_in_query(anchor: SymbolicMemoryAnchor, text: str) -> bool:
     q = text.lower()
     if anchor.slug.lower() in q or anchor.label.lower() in q:
         return True
-    if anchor.tags.filter(slug__in=q.split()).exists():
+    if (
+        anchor.tags.filter(slug__in=q.split()).exists()
+        or anchor.tags.filter(name__in=q.split()).exists()
+    ):
         return True
-    if anchor.tags.filter(name__in=q.split()).exists():
-        return True
-    return False
+    matched, _ = _match_anchor(anchor, text)
+    return matched
 
 
 def _search_summary_hits(

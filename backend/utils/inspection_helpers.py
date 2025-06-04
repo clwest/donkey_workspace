@@ -8,7 +8,12 @@ def bool_icon(value: bool) -> str:
     return "✅" if value else "❌"
 
 
-def print_glossary_debug_table(stdout, anchor_slug: str, chunks: Iterable) -> None:
+def print_glossary_debug_table(
+    stdout,
+    anchor_slug: str,
+    chunks: Iterable,
+    match_info: dict | None = None,
+) -> None:
     """Print a diagnostic table for glossary chunks."""
     header = (
         f"📎 Glossary Anchor: {anchor_slug}\n"
@@ -42,13 +47,16 @@ def print_glossary_debug_table(stdout, anchor_slug: str, chunks: Iterable) -> No
             missing_glossary += 1
 
         prefix = "*" if retagged else ""
+        via = ""
+        if match_info:
+            via = match_info.get(str(chunk.id), "")
         stdout.write(
             f"{prefix}{chunk.order:<5}"  # type: ignore[attr-defined]
             f"{bool_icon(chunk.is_glossary):<10}"
             f"{bool_icon(has_emb):<10}"
             f"{bool_icon(has_fp):<14}"
             f"{score_val:<7.2f}"
-            f"{chunk.document.title}"
+            f"{chunk.document.title}" + (f" via={via}" if via else "")
         )
 
     stdout.write("\n")
