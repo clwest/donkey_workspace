@@ -71,3 +71,32 @@ def chunk_stats(request):
     if len(doc_ids) == 1:
         payload["document"] = doc_ids[0]
     return Response(payload)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def chunk_drift_stats(request):
+    """Return counts of drifting chunks per anchor."""
+    from django.db.models import Count, Q
+    from memory.models import SymbolicMemoryAnchor
+
+    drift_qs = (
+        DocumentChunk.objects.filter(is_drifting=True, anchor__isnull=False)
+        .values("anchor__slug")
+        .annotate(c=Count("id"))
+    )
+    drift_counts = {item["anchor__slug"]: item["c"] for item in drift_qs}
+
+    zero_match = (
+        SymbolicMemoryAnchor.objects.annotate(
+            match_count=Count(
+                "chunks", filter=Q(chunks__glossary_score__gt=0)
+            )
+        )
+        .filter(match_count=0)
+        .values_list("slug", flat=True)
+    )
+
+    return Response(
+        {"drift_counts": drift_counts, "zero_match_anchors": list(zero_match)}
+    )

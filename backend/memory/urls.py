@@ -101,6 +101,11 @@ urlpatterns = (
             name="glossary-anchor-detail",
         ),
         path(
+            "glossary/boost_anchor/",
+            views.boost_anchor,
+            name="glossary-boost-anchor",
+        ),
+        path(
             "symbolic-anchors/<slug:slug>/convergence/",
             views.anchor_convergence_logs,
             name="anchor-convergence-logs",

@@ -35,6 +35,7 @@ from assistants.views import onboarding as onboarding_views
 from assistants.views import assistants as assistant_views
 from assistants.views.diagnostics import run_all_self_tests
 from intel_core.views import intelligence as intel_views
+import memory.views as memory_views
 
 from tts.urls import router as tts_router
 from story.urls import router as story_router
@@ -169,6 +170,7 @@ urlpatterns = [
     path("api/v1/intel/", include("intel_core.api_urls")),
     path("api/rag/check-source/", intel_views.rag_check_source),
     path("glossary/misses/", intel_views.glossary_misses),
+    path("api/glossary/boost_anchor/", memory_views.boost_anchor),
     path("api/signal-artifacts/", agent_views.signal_artifacts),
     path("api/navigation-vectors/", agent_views.navigation_vectors),
     path("api/flux-index/", agent_views.flux_index),

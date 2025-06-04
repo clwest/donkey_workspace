@@ -356,6 +356,7 @@ def get_relevant_chunks(
             score += 0.15
         # Boost using precomputed glossary_score
         score += getattr(chunk, "glossary_score", 0.0) * GLOSSARY_BOOST_FACTOR
+        score += getattr(chunk, "glossary_boost", 0.0)
         weak_glossary = (
             getattr(chunk, "is_glossary", False)
             and getattr(chunk, "glossary_score", 0.0) < GLOSSARY_WEAK_THRESHOLD

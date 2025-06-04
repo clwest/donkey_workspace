@@ -126,6 +126,12 @@ export const renameGlossaryAnchor = (slug, name, autoRetag = true) =>
 export const deleteGlossaryAnchor = (slug) =>
   apiFetch(`/glossary/anchor/${slug}/`, { method: "DELETE" });
 
+export const boostGlossaryAnchor = (slug, boost) =>
+  apiFetch(`/glossary/boost_anchor/`, {
+    method: "POST",
+    body: { anchor: slug, boost },
+  });
+
 export const fetchMythRecordingSessions = () => apiFetch("/myth/record/");
 export const createMythRecordingSession = (body) =>
   apiFetch("/myth/record/", { method: "POST", body });

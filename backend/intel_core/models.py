@@ -94,6 +94,14 @@ class DocumentChunk(models.Model):
     fingerprint = models.CharField(max_length=64, unique=True)
     score = models.FloatField(default=1.0)
     glossary_score = models.FloatField(default=0.0)
+    glossary_boost = models.FloatField(
+        default=0.0,
+        help_text="Additional boost applied during retrieval for high-priority anchors",
+    )
+    is_drifting = models.BooleanField(
+        default=False,
+        help_text="Flagged when an anchored chunk has no glossary score",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     matched_anchors = ArrayField(

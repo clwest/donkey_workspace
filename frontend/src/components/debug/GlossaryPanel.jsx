@@ -1,10 +1,15 @@
 import { useEffect, useState } from "react";
 import apiFetch from "../../utils/apiClient";
-import { renameGlossaryAnchor, deleteGlossaryAnchor } from "../../api/agents";
+import {
+  renameGlossaryAnchor,
+  deleteGlossaryAnchor,
+  boostGlossaryAnchor,
+} from "../../api/agents";
 
 export default function GlossaryPanel() {
   const [logs, setLogs] = useState([]);
   const [anchors, setAnchors] = useState([]);
+  const [drift, setDrift] = useState({ drift_counts: {}, zero_match_anchors: [] });
 
   const handleRemove = (slug) => {
     if (!window.confirm("Remove this anchor?")) return;
@@ -23,6 +28,14 @@ export default function GlossaryPanel() {
       .catch((err) => console.error("Rename failed", err));
   };
 
+  const handleBoost = (slug) => {
+    const val = window.prompt("Boost score", "0.2");
+    if (!val) return;
+    boostGlossaryAnchor(slug, parseFloat(val)).catch((err) =>
+      console.error("Boost failed", err)
+    );
+  };
+
   useEffect(() => {
     apiFetch("/memory/glossary-retries/")
       .then((res) => setLogs(res.results || []))
@@ -30,6 +43,9 @@ export default function GlossaryPanel() {
     apiFetch("/memory/symbolic-anchors/?show_empty=true")
       .then((res) => setAnchors(res.results || res))
       .catch((err) => console.error("Failed to load anchors", err));
+    apiFetch("/intel/chunk_drift_stats/")
+      .then(setDrift)
+      .catch((err) => console.error("Failed to load drift", err));
   }, []);
 
   return (
@@ -67,6 +83,14 @@ export default function GlossaryPanel() {
                   0
                 </span>
               )}
+              {drift.drift_counts[a.slug] && (
+                <span
+                  className="badge bg-danger ms-1"
+                  title={`${drift.drift_counts[a.slug]} drifting chunks`}
+                >
+                  ⚠️
+                </span>
+              )}
               {a.source === "inferred" && <span className="ms-1">🤖</span>}
               {a.total_matches === 0 && (
                 <>
@@ -84,6 +108,12 @@ export default function GlossaryPanel() {
                   </button>
                 </>
               )}
+              <button
+                className="btn btn-sm btn-link ms-1"
+                onClick={() => handleBoost(a.slug)}
+              >
+                Boost
+              </button>
             </li>
           ))}
         </ul>
