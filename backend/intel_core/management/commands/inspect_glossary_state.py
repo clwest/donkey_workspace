@@ -40,6 +40,9 @@ class Command(BaseCommand):
             anchors = SymbolicMemoryAnchor.objects.filter(
                 reinforced_by__slug=assistant_slug
             )
+            self.stdout.write(
+                f"Total anchors linked to {assistant_slug}: {anchors.count()}"
+            )
             if not anchors.exists():
                 self.stdout.write(
                     self.style.WARNING(
@@ -49,7 +52,10 @@ class Command(BaseCommand):
                 return
 
             for anchor in anchors:
-                self.stdout.write(f"\n🔎 Anchor {anchor.slug} ({anchor.label})")
+                self.stdout.write(
+                    f"\n🔎 Anchor {anchor.slug} ({anchor.label})"
+                    f" source={anchor.source} created={anchor.created_at.date()}"
+                )
                 chunks = (
                     DocumentChunk.objects.filter(anchor=anchor)
                     .select_related("document")
@@ -61,6 +67,8 @@ class Command(BaseCommand):
                     )
 
                 print_glossary_debug_table(self.stdout, anchor.slug, chunks)
+                if chunks.count() == 0:
+                    self.stdout.write("⚠️ No chunk matches for this anchor")
                 unresolved = GlossaryMissReflectionLog.objects.filter(
                     anchor=anchor, reflection__isnull=True
                 ).count()
@@ -89,4 +97,9 @@ class Command(BaseCommand):
         if not include_incomplete:
             chunks = chunks.exclude(embedding__isnull=True).exclude(score__isnull=True)
 
+        self.stdout.write(
+            f"Anchor {anchor.slug} ({anchor.label}) source={anchor.source} created={anchor.created_at.date()}"
+        )
         print_glossary_debug_table(self.stdout, slug, chunks)
+        if chunks.count() == 0:
+            self.stdout.write("⚠️ No chunk matches for this anchor")

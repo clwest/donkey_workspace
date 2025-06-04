@@ -428,6 +428,9 @@ class SymbolicMemoryAnchor(models.Model):
     description = models.TextField(blank=True)
     glossary_guidance = models.TextField(blank=True, default="")
     is_focus_term = models.BooleanField(default=False)
+    source = models.CharField(max_length=20, default="manual")
+    created_from = models.CharField(max_length=20, default="manual")
+    score_weight = models.FloatField(default=1.0)
     tags = models.ManyToManyField("mcp_core.Tag", blank=True)
     reinforced_by = models.ManyToManyField(
         "assistants.Assistant", blank=True, related_name="reinforced_anchors"

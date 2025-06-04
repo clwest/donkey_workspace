@@ -16,7 +16,7 @@ def _tokenize(text: str) -> List[str]:
 
 def infer_symbolic_anchors_from_memory(
     assistant: Assistant,
-) -> List[Tuple[SymbolicMemoryAnchor, int]]:
+) -> Tuple[List[Tuple[SymbolicMemoryAnchor, int]], int]:
     """Infer likely glossary anchors from an assistant's memory."""
     texts: List[str] = []
 
@@ -44,16 +44,24 @@ def infer_symbolic_anchors_from_memory(
         counter.update(_tokenize(txt))
 
     anchors: List[Tuple[SymbolicMemoryAnchor, int]] = []
+    created_count = 0
     if not counter:
-        return anchors
+        return anchors, created_count
 
     for token, count in counter.items():
         if count < 3:
             continue
         slug = slugify(token)
-        anchor, _ = SymbolicMemoryAnchor.objects.get_or_create(
-            slug=slug, defaults={"label": token.title()}
+        anchor, created = SymbolicMemoryAnchor.objects.get_or_create(
+            slug=slug,
+            defaults={
+                "label": token.title(),
+                "source": "inferred",
+                "created_from": "inference",
+            },
         )
+        if created:
+            created_count += 1
         if not anchor.reinforced_by.filter(id=assistant.id).exists():
             anchor.reinforced_by.add(assistant)
         anchors.append((anchor, count))
@@ -64,7 +72,10 @@ def infer_symbolic_anchors_from_memory(
         for anchor, cnt in anchors:
             weight = round(cnt / max_score, 2)
             profile[anchor.slug] = weight
+            if anchor.score_weight != weight:
+                anchor.score_weight = weight
+                anchor.save(update_fields=["score_weight"])
         assistant.anchor_weight_profile = profile
         assistant.save(update_fields=["anchor_weight_profile"])
 
-    return anchors
+    return anchors, created_count
