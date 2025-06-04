@@ -173,6 +173,7 @@ class DocumentChunkInfoSerializer(serializers.ModelSerializer):
     skipped = serializers.SerializerMethodField()
     token_count = serializers.IntegerField(source="tokens", read_only=True)
     matched_anchors = serializers.ListField(read_only=True)
+    glossary_score = serializers.FloatField(read_only=True)
     embedding_status = serializers.CharField(read_only=True)
 
     class Meta:
@@ -182,6 +183,7 @@ class DocumentChunkInfoSerializer(serializers.ModelSerializer):
             "order",
             "text",
             "score",
+            "glossary_score",
             "token_count",
             "force_embed",
             "skipped",
