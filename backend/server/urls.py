@@ -20,6 +20,7 @@ from devtools.views import (
     template_health_summary,
     reload_templates,
     template_detail,
+    template_diff,
 )
 from story.views import storyboard_list
 from mcp_core.views import threading as thread_views
@@ -91,6 +92,7 @@ urlpatterns = [
     path("api/dev/templates/health/", template_health_summary),
     path("api/dev/templates/reload/", reload_templates),
     path("api/dev/templates/<path:slug>/detail/", template_detail),
+    path("api/dev/templates/<path:slug>/diff/", template_diff),
     path("api/capabilities/", include(capability_urls)),
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),

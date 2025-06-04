@@ -4,11 +4,14 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import apiFetch from "../../utils/apiClient";
 import "./DevDashboard.css";
+import { toast } from "react-toastify";
+import TemplateDriftTab from "./TemplateDriftTab";
 
 export default function DevDashboard() {
   const [docs, setDocs] = useState([]);
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [markdownContent, setMarkdownContent] = useState("");
+  const [activeTab, setActiveTab] = useState("docs");
   const location = useLocation();
   const navigate = useNavigate();
   const markdownRef = useRef(null);
@@ -76,7 +79,10 @@ export default function DevDashboard() {
   };
 
   return (
-    <div className="container-fluid mt-4 dev-dashboard" style={{ height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+    <div
+      className="container-fluid mt-4 dev-dashboard"
+      style={{ height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column" }}
+    >
       <div>
         <h2 className="mb-3">🧠 Dev Dashboard</h2>
         <Link to="/grouped-reflection" className="btn btn-outline-secondary my-3 me-2">
@@ -85,35 +91,64 @@ export default function DevDashboard() {
         <button className="btn btn-outline-danger my-3" onClick={cleanupUnused}>
           🧹 Delete Unused Assistants
         </button>
+        <ul className="nav nav-tabs mt-2">
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === "docs" ? "active" : ""}`}
+              onClick={() => setActiveTab("docs")}
+            >
+              Dev Docs
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === "templates" ? "active" : ""}`}
+              onClick={() => setActiveTab("templates")}
+            >
+              Template Drift
+            </button>
+          </li>
+        </ul>
       </div>
 
-      <div className="row flex-grow-1" style={{ overflow: "hidden" }}>
-        <div className="col-md-3 scroll-sidebar" style={{ overflowY: "auto", height: "100%", paddingRight: "1rem", borderRight: "1px solid #ccc" }}>
-          <h5 className="mb-3">📚 Available Docs</h5>
-          <ul className="list-group dev-doc-list">
-            {docs.map((doc) => (
-              <li
-                key={doc.slug}
-                className={`list-group-item ${doc.slug === selectedDoc ? "active" : ""}`}
-                onClick={() => loadDocContent(doc.slug)}
-                style={{ cursor: "pointer" }}
-              >
-                {doc.title || doc.slug}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="col-md-9 markdown-preview" ref={markdownRef} style={{ overflowY: "auto", height: "100%", paddingLeft: "1rem" }}>
-          <div className="markdown-preview">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdownContent}</ReactMarkdown>
+      {activeTab === "docs" ? (
+        <div className="row flex-grow-1" style={{ overflow: "hidden" }}>
+          <div
+            className="col-md-3 scroll-sidebar"
+            style={{ overflowY: "auto", height: "100%", paddingRight: "1rem", borderRight: "1px solid #ccc" }}
+          >
+            <h5 className="mb-3">📚 Available Docs</h5>
+            <ul className="list-group dev-doc-list">
+              {docs.map((doc) => (
+                <li
+                  key={doc.slug}
+                  className={`list-group-item ${doc.slug === selectedDoc ? "active" : ""}`}
+                  onClick={() => loadDocContent(doc.slug)}
+                  style={{ cursor: "pointer" }}
+                >
+                  {doc.title || doc.slug}
+                </li>
+              ))}
+            </ul>
           </div>
 
-          <button className="btn btn-outline-primary my-3" onClick={reflectOnDoc}>
-            🪞 Reflect on This DevDoc
-          </button>
+          <div
+            className="col-md-9 markdown-preview"
+            ref={markdownRef}
+            style={{ overflowY: "auto", height: "100%", paddingLeft: "1rem" }}
+          >
+            <div className="markdown-preview">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdownContent}</ReactMarkdown>
+            </div>
+
+            <button className="btn btn-outline-primary my-3" onClick={reflectOnDoc}>
+              🪞 Reflect on This DevDoc
+            </button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <TemplateDriftTab />
+      )
     </div>
   );
 }
