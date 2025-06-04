@@ -62,7 +62,7 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
     }
   };
 
-  const handleFixContext = async () => {
+  const handleRepairMemories = async () => {
     if (action) return;
     setAction("context");
     try {
@@ -160,16 +160,16 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
         </button>
         <button
           className="btn btn-sm btn-outline-secondary me-1"
-          onClick={handleFixContext}
+          onClick={handleRepairMemories}
           disabled={!!action}
         >
           {action === "context" ? (
             <>
               <span className="spinner-border spinner-border-sm me-1" role="status" />
-              Linking...
+              Repairing...
             </>
           ) : (
-            "🔧 Fix Context"
+            "🔧 Repair Orphaned Memories"
           )}
         </button>
         <button

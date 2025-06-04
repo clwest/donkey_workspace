@@ -163,6 +163,7 @@ export default function ChunkDebugPanel({ docId }) {
                 <th>#</th>
                 <th>Tokens</th>
                 <th>Score</th>
+                <th title="Glossary match score">Glossary</th>
                 <th>Skipped</th>
                 <th>Force</th>
                 <th title="Embedding ID. ⚠️ icon means status not 'embedded'">Embed ID</th>
@@ -172,7 +173,13 @@ export default function ChunkDebugPanel({ docId }) {
               {chunks.map((c, idx) => (
                 <tr
                   key={c.id}
-                  className={duplicateIds.has(c.id) ? "table-danger" : undefined}
+                  className={
+                    duplicateIds.has(c.id)
+                      ? "table-danger"
+                      : c.score < 0.6 && (!c.matched_anchors || c.matched_anchors.length === 0)
+                      ? "table-warning"
+                      : undefined
+                  }
                   title={
                     c.embedding_id
                       ? undefined
@@ -190,6 +197,7 @@ export default function ChunkDebugPanel({ docId }) {
                   >
                     {c.score?.toFixed(2)}
                   </td>
+                  <td>{c.glossary_score?.toFixed(2)}</td>
                   <td>{c.skipped ? "❌" : ""}</td>
                   <td>{c.force_embed ? "⚠️" : ""}</td>
                   <td>
