@@ -681,7 +681,6 @@ urlpatterns = [
         name="assistant-diagnostics",
     ),
     path(
-
         "<slug:slug>/fix_context/",
         diagnostics.fix_context,
         name="assistant-fix-context",
@@ -690,7 +689,6 @@ urlpatterns = [
         "<slug:slug>/retag_glossary_chunks/",
         diagnostics.retag_glossary_chunks_view,
         name="assistant-retag-glossary-chunks",
-
     ),
     path(
         "<slug:slug>/collaboration_profile/",
@@ -721,6 +719,16 @@ urlpatterns = [
         "<slug:slug>/reputation/",
         reputation.assistant_reputation,
         name="assistant-reputation",
+    ),
+    path(
+        "<slug:slug>/clean_memories/",
+        assistants.clean_memories,
+        name="assistant-clean-memories",
+    ),
+    path(
+        "<slug:slug>/clean_projects/",
+        assistants.clean_projects,
+        name="assistant-clean-projects",
     ),
     path(
         "<uuid:assistant_id>/check-in/",
