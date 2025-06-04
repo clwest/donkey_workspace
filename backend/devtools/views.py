@@ -52,8 +52,22 @@ def template_health_summary(request):
     try:
         data = json.loads(result.stdout)
     except json.JSONDecodeError:
-        data = {"error": result.stderr}
-    return Response({"templates": data})
+        return Response({"error": result.stderr})
+
+    templates = []
+    for item in data:
+        path = item.get("template_path")
+        tracked = (
+            subprocess.run(
+                ["git", "ls-files", "--error-unmatch", str(path)],
+                capture_output=True,
+            ).returncode
+            == 0
+        )
+        item["git_tracked"] = tracked
+        templates.append(item)
+
+    return Response({"templates": templates})
 
 
 @api_view(["POST"])
@@ -77,3 +91,23 @@ def template_detail(request, slug):
     if path.exists():
         content = path.read_text()
     return Response({"path": str(path), "content": content, "info": info})
+
+
+@api_view(["GET"])
+def template_diff(request, slug):
+    path = Path(slug)
+    try:
+        subprocess.run(
+            ["git", "ls-files", "--error-unmatch", str(path)],
+            check=True,
+            capture_output=True,
+        )
+        result = subprocess.run(
+            ["git", "diff", str(path)], capture_output=True, text=True
+        )
+        diff_text = result.stdout
+        tracked = True
+    except subprocess.CalledProcessError:
+        diff_text = ""
+        tracked = False
+    return Response({"path": str(path), "diff": diff_text, "tracked": tracked})
