@@ -16,7 +16,9 @@ class DelegationSummaryEngine:
     def __init__(self, assistant: Assistant):
         self.assistant = assistant
         if not assistant.memory_context:
-            ctx, _ = MemoryContext.objects.get_or_create(content=f"{assistant.slug} context")
+            ctx, _ = MemoryContext.objects.get_or_create(
+                content=f"{assistant.slug} context"
+            )
             assistant.memory_context = ctx
             assistant.save(update_fields=["memory_context"])
         self.context = assistant.memory_context
@@ -40,6 +42,52 @@ class DelegationSummaryEngine:
                 lines.append(preview)
         return "\n".join(lines)
 
+    def _compress_history(self, text: str) -> str:
+        """Optionally compress very long history logs using the LLM."""
+        if len(text) <= 4000:
+            return text
+        prompt = (
+            "Summarize the following delegation history in under 300 words:\n\n"
+            f"{text}"
+        )
+        try:  # pragma: no cover - external call
+            return call_llm(
+                [{"role": "user", "content": prompt}],
+                model=getattr(self.assistant, "preferred_model", "gpt-4o"),
+                max_tokens=400,
+            )
+        except Exception as exc:  # pragma: no cover - external call
+            logger.error("Delegation compression failed: %s", exc)
+            return text[:4000]
+
+    def save_to_memory(self, summary_text: str, full_text: str, qs) -> MemoryEntry:
+        """Persist the delegation summary to memory with tagging."""
+        entry = MemoryEntry.objects.create(
+            assistant=self.assistant,
+            context=self.context,
+            type="delegation_summary",
+            event="Delegation summary",
+            summary=summary_text,
+            full_transcript=full_text,
+            importance=6,
+            source_role="assistant",
+        )
+        tags = ["delegation", "delegation_summary"]
+        agent_slugs = set()
+        for mem in qs:
+            agent_slugs.update(a.slug for a in mem.linked_agents.all())
+        for slug in agent_slugs:
+            tags.append(f"agent:{slug}")
+        tag_objs = []
+        for name in tags:
+            tag, _ = Tag.objects.get_or_create(
+                slug=slugify(name), defaults={"name": name}
+            )
+            tag_objs.append(tag)
+        if tag_objs:
+            entry.tags.add(*tag_objs)
+        return entry
+
     def summarize_delegations(self) -> MemoryEntry:
         qs = MemoryEntry.objects.filter(
             assistant=self.assistant,
@@ -49,8 +97,10 @@ class DelegationSummaryEngine:
         count = qs.count()
         if count == 0:
             summary_text = "No delegation history found."
+            history_text = ""
         else:
             formatted = self._format_history(list(qs.order_by("created_at")))
+            history_text = self._compress_history(formatted)
             prompt = (
                 f"You are summarizing all recent task delegations performed by the assistant {self.assistant.name}.\n\n"
                 "Below are recorded memory logs of delegation events.\n\n"
@@ -71,25 +121,4 @@ class DelegationSummaryEngine:
             except Exception as exc:  # pragma: no cover - external call
                 logger.error("Delegation summary failed: %s", exc)
                 summary_text = "Delegation summary failed."
-
-        entry = MemoryEntry.objects.create(
-            assistant=self.assistant,
-            context=self.context,
-            type="delegation_summary",
-            event=summary_text,
-            importance=6,
-            source_role="assistant",
-        )
-        tags = ["delegation", "delegation_summary"]
-        agent_slugs = set()
-        for mem in qs:
-            agent_slugs.update(a.slug for a in mem.linked_agents.all())
-        for slug in agent_slugs:
-            tags.append(f"agent:{slug}")
-        tag_objs = []
-        for name in tags:
-            tag, _ = Tag.objects.get_or_create(slug=slugify(name), defaults={"name": name})
-            tag_objs.append(tag)
-        if tag_objs:
-            entry.tags.add(*tag_objs)
-        return entry
+        return self.save_to_memory(summary_text, history_text, qs)
