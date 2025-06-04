@@ -12,6 +12,13 @@ class RouteInspectionTest(BaseAPITestCase):
         self.assertEqual(resp.status_code, 200)
         data = resp.json().get("routes", [])
         self.assertTrue(any("view" in r and "module" in r for r in data))
+        paths = [r["path"] for r in data]
+        for p in [
+            "api/assistants/<slug:slug>/summarize_delegations/",
+            "api/assistants/<slug:slug>/reflect_on_self/",
+            "api/assistants/<slug:slug>/subagent_reflect/",
+        ]:
+            assert p in paths
 
     def test_capability_status_structure(self):
         resp = self.client.get("/api/capabilities/status/")

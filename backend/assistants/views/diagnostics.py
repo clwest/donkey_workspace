@@ -112,3 +112,33 @@ def run_all_self_tests(request):
     """Run boot self-tests for all assistants."""
     results = run_batch_self_tests()
     return Response({"status": "ok", "results": results})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def summarize_delegations(request, slug):
+    """Proxy to delegation.summarize_delegations for route metadata."""
+    from .delegation import summarize_delegations as _summarize
+
+    return _summarize(request, slug)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def reflect_on_self(request, slug):
+    """Proxy to assistants.self_reflect for stable route name."""
+    from .assistants import self_reflect
+
+    return self_reflect(request, slug)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def subagent_reflect(request, slug):
+    """Proxy to delegations.subagent_reflect using query param."""
+    from .delegations import subagent_reflect as _reflect
+
+    trace_id = request.GET.get("trace_id")
+    if not trace_id:
+        return Response({"error": "trace_id required"}, status=400)
+    return _reflect(request, slug, trace_id)
