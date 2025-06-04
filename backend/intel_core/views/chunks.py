@@ -33,12 +33,23 @@ def document_chunks(request, doc_id):
 def chunk_stats(request):
     """Return basic score distribution for a document."""
     doc_id = request.query_params.get("document_id")
-    if not doc_id:
-        return Response({"error": "document_id required"}, status=400)
-    document = Document.objects.filter(id=doc_id).first()
-    if not document:
+    assistant_slug = request.query_params.get("assistant_slug")
+
+    if doc_id:
+        documents = Document.objects.filter(id=doc_id)
+    elif assistant_slug:
+        documents = Document.objects.filter(
+            linked_assistants__slug=assistant_slug
+        ).distinct()
+    else:
+        return Response(
+            {"error": "document_id or assistant_slug required"}, status=400
+        )
+
+    if not documents.exists():
         return Response({"error": "Document not found"}, status=404)
-    qs = DocumentChunk.objects.filter(document=document)
+
+    qs = DocumentChunk.objects.filter(document__in=documents)
     distribution = {}
     for ch in qs:
         key = f"{ch.score:.2f}"
@@ -48,12 +59,15 @@ def chunk_stats(request):
     for ch in qs:
         for slug in ch.matched_anchors:
             anchor_counts[slug] = anchor_counts.get(slug, 0) + 1
-    return Response(
-        {
-            "document": str(document.id),
-            "distribution": distribution,
-            "glossary_hits": glossary_hits,
-            "chunk_total": qs.count(),
-            "anchor_counts": anchor_counts,
-        }
-    )
+
+    doc_ids = [str(d.id) for d in documents]
+    payload = {
+        "documents": doc_ids,
+        "distribution": distribution,
+        "glossary_hits": glossary_hits,
+        "chunk_total": qs.count(),
+        "anchor_counts": anchor_counts,
+    }
+    if len(doc_ids) == 1:
+        payload["document"] = doc_ids[0]
+    return Response(payload)
