@@ -167,6 +167,21 @@ export async function regeneratePlan(slug, body = {}) {
   return res.json();
 }
 
+export async function summarizeDelegations(slug) {
+  const res = await fetch(
+    `${ASSISTANTS_API}/${slug}/summarize_delegations/`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    },
+  );
+  if (!res.ok) {
+    throw new Error("Failed to summarize delegations");
+  }
+  return res.json();
+}
+
 export async function suggestSwitch(sessionId) {
   const res = await fetch(
     `${ASSISTANTS_API}/suggest_switch/`,
