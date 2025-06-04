@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from django.db.models import Q
+from intel_core.models import DocumentChunk
 from .models import (
     MemoryEntry,
     MemoryFeedback,
@@ -232,13 +234,29 @@ class SymbolicMemoryAnchorSerializer(serializers.ModelSerializer):
         slug_field="slug", many=True, read_only=True
     )
     chunks_count = serializers.SerializerMethodField()
+    retagged_count = serializers.SerializerMethodField()
+
     class Meta:
         model = SymbolicMemoryAnchor
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 
     def get_chunks_count(self, obj):
-        return obj.chunks.count()
+        return (
+            DocumentChunk.objects.filter(
+                Q(anchor=obj) | Q(matched_anchors__contains=[obj.slug])
+            )
+            .distinct()
+            .count()
+        )
+
+    def get_retagged_count(self, obj):
+        return (
+            DocumentChunk.objects.filter(matched_anchors__contains=[obj.slug])
+            .exclude(anchor=obj)
+            .count()
+        )
+
 
 class MemoryMergeSuggestionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -249,6 +267,7 @@ class MemoryMergeSuggestionSerializer(serializers.ModelSerializer):
 
 class GlossaryRetryLogSerializer(serializers.ModelSerializer):
     anchor_label = serializers.CharField(source="anchor.label", read_only=True)
+
     class Meta:
         model = GlossaryRetryLog
         fields = [
@@ -292,4 +311,3 @@ class AnchorConvergenceLogSerializer(serializers.ModelSerializer):
             "anchor_slug",
         ]
         read_only_fields = ["id", "created_at"]
-

@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+from django.db.models import Q
 from intel_core.models import (
     DocumentChunk,
     GlossaryMissReflectionLog,
@@ -57,7 +58,9 @@ class Command(BaseCommand):
                     f" source={anchor.source} created={anchor.created_at.date()}"
                 )
                 chunks = (
-                    DocumentChunk.objects.filter(anchor=anchor)
+                    DocumentChunk.objects.filter(
+                        Q(anchor=anchor) | Q(matched_anchors__contains=[anchor.slug])
+                    )
                     .select_related("document")
                     .order_by("order")
                 )
@@ -69,6 +72,9 @@ class Command(BaseCommand):
                 print_glossary_debug_table(self.stdout, anchor.slug, chunks)
                 if chunks.count() == 0:
                     self.stdout.write("⚠️ No chunk matches for this anchor")
+                direct = chunks.filter(anchor=anchor).count()
+                retagged = chunks.exclude(anchor=anchor).count()
+                self.stdout.write(f"Matched direct: {direct} | retagged: {retagged}")
                 unresolved = GlossaryMissReflectionLog.objects.filter(
                     anchor=anchor, reflection__isnull=True
                 ).count()

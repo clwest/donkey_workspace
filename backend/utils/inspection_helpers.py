@@ -15,6 +15,7 @@ def print_glossary_debug_table(stdout, anchor_slug: str, chunks: Iterable) -> No
         f"{'ID':<6}{'Glossary':<10}{'Embedded':<10}{'Fingerprint':<14}{'Score':<7}Doc Title"
     )
     stdout.write(header)
+    stdout.write("* = retagged match")
 
     missing_emb = 0
     missing_fingerprint = 0
@@ -27,6 +28,9 @@ def print_glossary_debug_table(stdout, anchor_slug: str, chunks: Iterable) -> No
         has_emb = chunk.embedding_id is not None
         has_fp = bool(getattr(chunk, "fingerprint", ""))
         score_val = chunk.score if chunk.score is not None else 0.0
+        retagged = anchor_slug in getattr(chunk, "matched_anchors", []) and (
+            not chunk.anchor or chunk.anchor.slug != anchor_slug
+        )
 
         if not has_emb:
             missing_emb += 1
@@ -37,8 +41,9 @@ def print_glossary_debug_table(stdout, anchor_slug: str, chunks: Iterable) -> No
         if not chunk.is_glossary:
             missing_glossary += 1
 
+        prefix = "*" if retagged else ""
         stdout.write(
-            f"{chunk.order:<6}"  # type: ignore[attr-defined]
+            f"{prefix}{chunk.order:<5}"  # type: ignore[attr-defined]
             f"{bool_icon(chunk.is_glossary):<10}"
             f"{bool_icon(has_emb):<10}"
             f"{bool_icon(has_fp):<14}"
