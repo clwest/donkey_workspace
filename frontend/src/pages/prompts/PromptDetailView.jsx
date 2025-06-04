@@ -135,7 +135,7 @@ export default function PromptDetailView() {
         <button className="btn btn-danger" onClick={async () => {
           if (!window.confirm("Are you sure you want to delete this prompt?")) return;
           try {
-            const res = await fetch(`/api/prompts/${slug}/`, { method: "DELETE" });
+            const res = await fetch(`/api/prompts/${slug}/delete/`, { method: "DELETE" });
             if (res.ok) {
               toast.success("✅ Prompt deleted");
               navigate("/prompts");
