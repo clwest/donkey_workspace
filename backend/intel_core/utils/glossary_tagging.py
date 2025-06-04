@@ -1,10 +1,11 @@
 import re
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, TYPE_CHECKING
 from difflib import SequenceMatcher
 
 from nltk.stem import PorterStemmer
 
-from assistants.models import Assistant
+if TYPE_CHECKING:  # Avoid circular import during runtime
+    from assistants.models.assistant import Assistant
 from intel_core.models import DocumentChunk
 from memory.models import SymbolicMemoryAnchor, MemoryEntry
 
