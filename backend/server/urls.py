@@ -112,6 +112,10 @@ urlpatterns = [
         "assistants/self_tests/run_all/",
         run_all_self_tests,
     ),
+    path(
+        "api/assistants/self_tests/run_all/",
+        run_all_self_tests,
+    ),
     path("api/dj-rest-auth/", include("dj_rest_auth.urls")),
     path("api/dj-rest-auth/registration/", include("dj_rest_auth.registration.urls")),
     path("api/tts/", include("tts.urls")),
