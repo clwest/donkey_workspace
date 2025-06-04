@@ -9,7 +9,11 @@ from memory.models import SymbolicMemoryAnchor, MemoryEntry
 from mcp_core.models import MemoryContext
 from intel_core.models import DocumentChunk
 from intel_core.utils.glossary_tagging import retag_glossary_chunks
-from assistants.utils.assistant_boot import run_batch_self_tests
+from assistants.utils.assistant_boot import (
+    generate_boot_profile,
+    run_assistant_self_test,
+    run_batch_self_tests,
+)
 
 
 @api_view(["GET"])
@@ -90,8 +94,6 @@ def retag_glossary_chunks_view(request, slug):
 def assistant_boot_profile(request, slug):
     """Return boot profile diagnostics for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
-    from assistants.utils.boot_diagnostics import generate_boot_profile
-
     data = generate_boot_profile(assistant)
     return Response(data)
 
@@ -101,8 +103,6 @@ def assistant_boot_profile(request, slug):
 def assistant_self_test(request, slug):
     """Run a lightweight self-test for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
-    from assistants.utils.boot_diagnostics import run_assistant_self_test
-
     result = run_assistant_self_test(assistant)
     return Response(result)
 
