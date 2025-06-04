@@ -114,3 +114,4 @@ wcwidth==0.2.13
 websockets==15.0.1
 yamllint==1.37.0
 zipp==3.21.0
+django-template-check==latest

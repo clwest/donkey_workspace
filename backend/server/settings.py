@@ -104,7 +104,7 @@ TEMPLATES = [
             ],
             'libraries': {
                 'crispy_forms_tags': 'crispy_forms.templatetags.crispy_forms_tags',
-                'humanize': 'django.templatetags.humanize',
+                'humanize': 'django.contrib.humanize.templatetags.humanize',
             },
         },
     },
