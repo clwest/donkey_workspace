@@ -59,6 +59,13 @@ export const routeMap = [
     notes: "Hierarchical memory trace",
   },
   {
+    frontend: "/assistants/:slug/reflect-subagent/:id",
+    backend: "/api/assistants/<slug>/subagent_reflect/<trace_id>/",
+    view: "subagent_reflect",
+    serializer: "AssistantReflectionLogSerializer",
+    notes: "Reflect on sub-agent output",
+  },
+  {
     frontend: "/assistants/:slug/reflections",
     backend: "/api/assistants/<slug>/reflections/",
     view: "assistant_reflection_logs",

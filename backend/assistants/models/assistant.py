@@ -722,6 +722,14 @@ class DelegationEvent(models.Model):
     def __str__(self):
         return f"{self.parent_assistant} -> {self.child_assistant}"
 
+    def get_source_slug(self) -> str | None:
+        """Return slug of the assistant that triggered this event."""
+        if self.triggering_session and self.triggering_session.assistant:
+            return self.triggering_session.assistant.slug
+        if self.triggering_memory and self.triggering_memory.assistant:
+            return self.triggering_memory.assistant.slug
+        return getattr(self.parent_assistant, "slug", None)
+
 
 class AssistantMessage(models.Model):
     """Direct message sent between assistants."""

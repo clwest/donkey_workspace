@@ -15,7 +15,7 @@ from assistants.models.assistant import (
     TokenUsage,
     ChatSession,
     AssistantChatMessage,
-    DelegationEvent
+    DelegationEvent,
 )
 from assistants.utils.delegation_helpers import get_trust_score
 from memory.services import MemoryService
@@ -157,7 +157,9 @@ def hierarchical_memory(request, slug):
         data[idx]["assistant_id"] = str(entry.assistant_id)
         data[idx]["is_delegated"] = entry.is_delegated
         if entry.document_id:
-            data[idx]["linked_document"] = entry.document.title if entry.document else None
+            data[idx]["linked_document"] = (
+                entry.document.title if entry.document else None
+            )
     return Response(data)
 
 
@@ -295,9 +297,7 @@ def handoff_session(request, slug):
     session.assistant = target
     session.save()
 
-    message = (
-        f"Conversation transferred to {target.name} due to: {reason}."
-    )
+    message = f"Conversation transferred to {target.name} due to: {reason}."
     AssistantChatMessage.objects.create(
         session=session,
         role="assistant",
@@ -319,3 +319,26 @@ def handoff_session(request, slug):
     )
 
     return Response({"new_assistant": target.slug})
+
+
+@api_view(["GET"])
+def subagent_reflect(request, slug, trace_id):
+    """Return reflection on a delegated assistant's output."""
+    parent = get_object_or_404(Assistant, slug=slug)
+    event = get_object_or_404(DelegationEvent, id=trace_id)
+    child = event.child_assistant
+
+    thoughts = list(
+        AssistantThoughtLog.objects.filter(assistant=child).order_by("-created_at")[:5]
+    )
+    if not thoughts:
+        return Response({"summary": "No sub-agent output found."})
+
+    summary = " | ".join(t.thought[:50] for t in thoughts)
+
+    return Response(
+        {
+            "summary": summary,
+            "linked_thoughts": [t.thought for t in thoughts],
+        }
+    )
