@@ -51,20 +51,8 @@ def lexical_density(text: str) -> float:
     return len(content) / len(words)
 
 
-def is_chunk_clean(text: str) -> bool:
-    """Return True if ``text`` passes basic quality checks."""
-    if len(text.strip()) < 20:
-        return False
-    if textstat.flesch_reading_ease(text) < 5:
-        return False
-    if sum(c.isalnum() for c in text) / max(len(text), 1) < 0.5:
-        return False
-    words = text.split()
-    if words and len(set(words)) / len(words) < 0.3:
-        return False
-    if re.search(r"(.)\1{4,}", text):
-        return False
-    return True
+
+from intel_core.utils.document_cleanup import is_chunk_clean
 
 
 def clean_and_score_chunk(text: str, chunk_index: int | None = None) -> dict:
