@@ -402,6 +402,27 @@ export const routeMap = [
     notes: "Swarm graph visualization",
   },
   {
+    frontend: "/assistants/:slug/boot",
+    backend: "/api/assistants/<slug>/boot_profile/",
+    view: "AssistantBootPanel",
+    serializer: "-",
+    notes: "Assistant boot diagnostics",
+  },
+  {
+    frontend: "/assistants/:slug/selftest",
+    backend: "/api/assistants/<slug>/selftest/",
+    view: "AssistantBootPanel",
+    serializer: "-",
+    notes: "Run assistant self-test",
+  },
+  {
+    frontend: "/assistants/self_tests/run_all",
+    backend: "/assistants/self_tests/run_all/",
+    view: "RouteViewer",
+    serializer: "-",
+    notes: "Run all assistant self-tests",
+  },
+  {
     frontend: "/assistants/:slug/review-ingest/:doc_id",
     backend: "/api/assistants/<slug>/review-ingest/<doc_id>/",
     view: "ReviewIngestPage",
