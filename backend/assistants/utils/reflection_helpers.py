@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import List
 
+from django.utils.text import slugify
 from tags.models import Tag
 
 
@@ -11,7 +12,10 @@ def resolve_tags_from_names(
     """Return Tag instances for the provided tag names."""
     tags: List[Tag] = []
     for name in tag_names:
-        tag, _ = Tag.objects.get_or_create(name=name, defaults={"category": category})
+        slug = slugify(name)
+        tag, _ = Tag.objects.get_or_create(
+            slug=slug, defaults={"name": name, "category": category}
+        )
         tags.append(tag)
     return tags
 
