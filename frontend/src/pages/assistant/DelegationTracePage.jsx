@@ -31,8 +31,14 @@ function MemoryRow({ entry, onRate }) {
             </button>
           </>
         )}
-        {" | "}
-        <Link to={`/assistants/${entry.assistant_slug}/reflect-subagent/${entry.delegation_event_id}`}>Reflect on Sub-Agent Output</Link>
+        {entry.delegation_event_id && (
+          <>
+            {" | "}
+            <Link to={`/assistants/${entry.assistant_slug}/reflect-subagent/${entry.delegation_event_id}`}>
+              Reflect on Sub-Agent Output
+            </Link>
+          </>
+        )}
         {entry.tool_usage_id && (
           <>
             {" | "}
