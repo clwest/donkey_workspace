@@ -391,3 +391,35 @@ class CapsuleTransferLogViewSet(viewsets.ModelViewSet):
         if assistant:
             qs = qs.filter(to_assistant_id=assistant)
         return qs
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def validate_prompt_links(request):
+    """Return system prompts missing documents or unused by assistants."""
+    unlinked_prompts = list(
+        Prompt.objects.filter(type="system", source_document__isnull=True).values(
+            "id",
+            "slug",
+            "title",
+        )
+    )
+
+    from intel_core.models import Document
+
+    orphan_documents = list(
+        Document.objects.filter(prompts__isnull=True).values("id", "slug", "title")
+    )
+
+    unused_prompts = list(
+        Prompt.objects.filter(type="system", assistants_using_prompt__isnull=True)
+        .values("id", "slug", "title")
+    )
+
+    return Response(
+        {
+            "unlinked_prompts": unlinked_prompts,
+            "orphan_documents": orphan_documents,
+            "unused_prompts": unused_prompts,
+        }
+    )

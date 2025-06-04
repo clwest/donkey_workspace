@@ -149,6 +149,8 @@ class DocumentChunkFullSerializer(serializers.ModelSerializer):
 class DocumentChunkSerializer(serializers.ModelSerializer):
     embedding_id = serializers.SerializerMethodField()
     skipped = serializers.SerializerMethodField()
+    glossary_score = serializers.FloatField(read_only=True)
+    is_glossary_weak = serializers.SerializerMethodField()
 
     class Meta:
         model = DocumentChunk
@@ -159,6 +161,8 @@ class DocumentChunkSerializer(serializers.ModelSerializer):
             "force_embed",
             "skipped",
             "embedding_id",
+            "glossary_score",
+            "is_glossary_weak",
         ]
 
     def get_embedding_id(self, obj):
@@ -167,6 +171,12 @@ class DocumentChunkSerializer(serializers.ModelSerializer):
     def get_skipped(self, obj):
         return obj.embedding_status == "skipped"
 
+    def get_is_glossary_weak(self, obj):
+        from django.conf import settings
+
+        threshold = getattr(settings, "GLOSSARY_WEAK_THRESHOLD", 0.2)
+        return obj.glossary_score < threshold
+
 
 class DocumentChunkInfoSerializer(serializers.ModelSerializer):
     embedding_id = serializers.SerializerMethodField()
@@ -174,6 +184,7 @@ class DocumentChunkInfoSerializer(serializers.ModelSerializer):
     token_count = serializers.IntegerField(source="tokens", read_only=True)
     matched_anchors = serializers.ListField(read_only=True)
     glossary_score = serializers.FloatField(read_only=True)
+    is_glossary_weak = serializers.SerializerMethodField()
     embedding_status = serializers.CharField(read_only=True)
 
     class Meta:
@@ -184,6 +195,7 @@ class DocumentChunkInfoSerializer(serializers.ModelSerializer):
             "text",
             "score",
             "glossary_score",
+            "is_glossary_weak",
             "token_count",
             "force_embed",
             "skipped",
@@ -197,6 +209,12 @@ class DocumentChunkInfoSerializer(serializers.ModelSerializer):
 
     def get_skipped(self, obj):
         return obj.embedding_status == "skipped"
+
+    def get_is_glossary_weak(self, obj):
+        from django.conf import settings
+
+        threshold = getattr(settings, "GLOSSARY_WEAK_THRESHOLD", 0.2)
+        return obj.glossary_score < threshold
 
 
 class DocumentDetailSerializer(DocumentSerializer):
