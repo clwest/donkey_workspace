@@ -108,6 +108,7 @@ from .routing import routing_history
 from .scene import replay_scene_view, chat_with_scene
 from .recovery import regenerate_plan
 from .intelligence import plan_from_thread, run_task, search_docs
+from .repair import repair_documents, reflect_again
 from .training import assign_training, evaluate_agent, promote_trained_agent
 from .myth import assistant_myth_layer, assistant_journals
 from .reputation import assistant_reputation
@@ -292,5 +293,7 @@ __all__ = [
     "assistant_onboard",
     "SkillPlanView",
     "assistant_dream_initiate",
+    "reflect_again",
+    "repair_documents",
 ]
 from .skills import SkillPlanView
