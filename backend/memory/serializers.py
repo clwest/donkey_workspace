@@ -231,10 +231,14 @@ class SymbolicMemoryAnchorSerializer(serializers.ModelSerializer):
     reinforced_by = serializers.SlugRelatedField(
         slug_field="slug", many=True, read_only=True
     )
+    chunks_count = serializers.SerializerMethodField()
     class Meta:
         model = SymbolicMemoryAnchor
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
+
+    def get_chunks_count(self, obj):
+        return obj.chunks.count()
 
 class MemoryMergeSuggestionSerializer(serializers.ModelSerializer):
     class Meta:

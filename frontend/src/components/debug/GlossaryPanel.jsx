@@ -3,11 +3,15 @@ import apiFetch from "../../utils/apiClient";
 
 export default function GlossaryPanel() {
   const [logs, setLogs] = useState([]);
+  const [anchors, setAnchors] = useState([]);
 
   useEffect(() => {
     apiFetch("/memory/glossary-retries/")
       .then((res) => setLogs(res.results || []))
       .catch((err) => console.error("Failed to load glossary retries", err));
+    apiFetch("/memory/symbolic-anchors/")
+      .then((res) => setAnchors(res.results || res))
+      .catch((err) => console.error("Failed to load anchors", err));
   }, []);
 
   return (
@@ -20,6 +24,19 @@ export default function GlossaryPanel() {
           {logs.map((log) => (
             <li key={log.id}>
               <strong>{log.anchor_label || log.anchor}</strong> – diff {log.score_diff}
+            </li>
+          ))}
+        </ul>
+      )}
+      <h5 className="mt-3">Anchors</h5>
+      {anchors.length === 0 ? (
+        <div className="text-muted">No anchors</div>
+      ) : (
+        <ul className="small">
+          {anchors.map((a) => (
+            <li key={a.id} title={a.source === "inferred" ? "AI-inferred" : ""}>
+              <strong>{a.label}</strong> ({a.slug}) – {a.chunks_count || 0}
+              {a.source === "inferred" && <span className="ms-1">🤖</span>}
             </li>
           ))}
         </ul>

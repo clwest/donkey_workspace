@@ -1,15 +1,12 @@
 from django.core.management.base import BaseCommand
 
 from assistants.models import Assistant
-from intel_core.utils.infer_anchors_from_memory import (
-    infer_symbolic_anchors_from_memory,
-)
-
+from intel_core.utils.infer_anchors_from_memory import infer_symbolic_anchors_from_memory
 
 class Command(BaseCommand):
-    """Infer glossary anchors from assistant memory."""
+    """Persist anchors inferred from assistant memory."""
 
-    help = "Infer glossary anchors from recent memory and reflections"
+    help = "Persist AI-inferred glossary anchors from memory"
 
     def add_arguments(self, parser):
         parser.add_argument("--assistant", type=str)
@@ -18,7 +15,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         slug = options.get("assistant")
         process_all = options.get("all")
-
         if not slug and not process_all:
             self.stdout.write(self.style.ERROR("Specify --assistant=<slug> or --all"))
             return
@@ -31,10 +27,9 @@ class Command(BaseCommand):
                 return
 
         for assistant in assistants:
-            self.stdout.write(f"🔍 Inferring anchors for {assistant.slug}...")
-            anchors, created = infer_symbolic_anchors_from_memory(assistant)
+            self.stdout.write(f"🔍 Persisting anchors for {assistant.slug}...")
+            _, created = infer_symbolic_anchors_from_memory(assistant)
             self.stdout.write(
-                self.style.SUCCESS(
-                    f"Found {len(anchors)} candidates, saved {created} for {assistant.slug}"
-                )
+                self.style.SUCCESS(f"Saved {created} inferred anchors for {assistant.slug}")
             )
+
