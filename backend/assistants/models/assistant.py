@@ -17,6 +17,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from story.models import LoreEntry
+import json
+from ast import literal_eval
 from .core import (
     THOUGHT_TYPES,
     MEMORY_MODES,
@@ -188,6 +190,19 @@ class Assistant(models.Model):
     ideology = models.JSONField(default=dict, blank=True)
     is_alignment_flexible = models.BooleanField(default=True)
     auto_reflect_on_message = models.BooleanField(default=False)
+
+    def capabilities_dict(self) -> dict:
+        """Return capabilities as a dictionary even if stored as a string."""
+        data = self.capabilities
+        if isinstance(data, str):
+            try:
+                data = json.loads(data)
+            except json.JSONDecodeError:
+                try:
+                    data = literal_eval(data)
+                except Exception:
+                    data = {}
+        return data or {}
 
     def save(self, *args, **kwargs):
         if not self.memory_context:
