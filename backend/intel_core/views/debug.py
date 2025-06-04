@@ -35,7 +35,7 @@ def repair_progress(document=None, document_id=None):
     cmd = FixCommand()
     cmd.stdout = open(os.devnull, "w")
     cmd.stderr = open(os.devnull, "w")
-    logger.info(f"\ud83d\udd27 Repairing document progress for: {document.title}")
+    logger.info(f"🔧 Repairing document progress for: {document.title}")
     return cmd.handle(doc_id=str(document.id), repair=True)
 
 
