@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "intel_core",
     "mythcasting",
     "mythos",
+    "capabilities",
     "capabilities.dev_docs",
     "tools",
     "workflows",

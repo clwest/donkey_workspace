@@ -20,6 +20,7 @@ from mcp_core.views import threading as thread_views
 from mcp_core.views import ontology as ontology_views
 from agents.views import agents as agent_views
 from agents.views import stabilization as stabilization_views
+from capabilities import urls as capability_urls
 from assistants.views import onboarding as onboarding_views
 from assistants.views import assistants as assistant_views
 from intel_core.views import intelligence as intel_views
@@ -60,6 +61,30 @@ def _collect_routes(patterns, prefix=""):
     return urls
 
 
+def _collect_route_info(patterns, prefix=""):
+    routes = []
+    for p in patterns:
+        if hasattr(p, "url_patterns"):
+            routes.extend(_collect_route_info(p.url_patterns, prefix + str(p.pattern)))
+        else:
+            path_str = prefix + str(p.pattern)
+            if not str(path_str).startswith("api"):
+                continue
+            callback = getattr(p, "callback", None)
+            module = getattr(callback, "__module__", "") if callback else ""
+            view_name = getattr(callback, "__name__", "") if callback else ""
+            category = path_str.split("/")[1] if "/" in path_str else ""
+            routes.append(
+                {
+                    "path": path_str,
+                    "category": category,
+                    "module": module,
+                    "view_name": view_name,
+                }
+            )
+    return routes
+
+
 def routes_list(request):
     resolver = get_resolver()
     routes = [
@@ -68,10 +93,21 @@ def routes_list(request):
     return JsonResponse({"routes": routes})
 
 
+def full_route_map(request):
+    resolver = get_resolver()
+    routes = _collect_route_info(resolver.url_patterns)
+    prefix = request.GET.get("prefix")
+    if prefix:
+        routes = [r for r in routes if r["path"].startswith(prefix)]
+    return JsonResponse({"routes": routes})
+
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v1/", include(api_router.urls)),
     path("api/routes/", routes_list),
+    path("api/dev/routes/fullmap/", full_route_map),
+    path("api/capabilities/", include(capability_urls)),
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/token/verify/", TokenVerifyView.as_view(), name="token_verify"),

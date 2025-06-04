@@ -108,8 +108,11 @@ def mutate_prompt_from_reflection(
         return None
 
     mutated_text = f"{source_prompt.content}\n\n[Reflected mutation]"
+    base_title = source_prompt.title
+    if base_title.endswith(" (mutated)"):
+        base_title = base_title[: -10]
     mutated_prompt = Prompt.objects.create(
-        title=f"{source_prompt.title} (mutated)",
+        title=f"{base_title} (mutated)",
         content=mutated_text,
         source="reflection",
         parent=source_prompt,
