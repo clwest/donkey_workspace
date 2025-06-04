@@ -9,11 +9,10 @@ from memory.models import SymbolicMemoryAnchor, MemoryEntry
 from mcp_core.models import MemoryContext
 from intel_core.models import DocumentChunk
 from intel_core.utils.glossary_tagging import retag_glossary_chunks
-from assistants.utils.assistant_boot import (
-    generate_boot_profile,
-    run_assistant_self_test,
-    run_batch_self_tests,
-)
+# ``assistant_boot`` contains generic self-test helpers while
+# ``boot_diagnostics`` builds a richer boot profile used by the UI.
+from assistants.utils.boot_diagnostics import generate_boot_profile, run_assistant_self_test
+from assistants.utils.assistant_boot import run_batch_self_tests
 
 
 @api_view(["GET"])
