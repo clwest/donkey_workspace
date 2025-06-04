@@ -104,6 +104,7 @@ from .intelligence import plan_from_thread, run_task, search_docs
 from .training import assign_training, evaluate_agent, promote_trained_agent
 from .myth import assistant_myth_layer, assistant_journals
 from .reputation import assistant_reputation
+from .assistants import clean_memories, clean_projects
 from .conscience import (
     conscience_profiles,
     reflexive_epistemology,
@@ -260,6 +261,8 @@ __all__ = [
     "assistant_myth_layer",
     "assistant_journals",
     "assistant_reputation",
+    "clean_memories",
+    "clean_projects",
     "conscience_profiles",
     "reflexive_epistemology",
     "decision_frameworks",

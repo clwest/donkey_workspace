@@ -298,6 +298,14 @@ export async function evaluateAgentTraining(slug, agentId) {
   return res.json();
 }
 
+export function cleanRecentMemories(slug) {
+  return apiFetch(`/assistants/${slug}/clean_memories/`, { method: "POST" });
+}
+
+export function cleanStaleProjects(slug) {
+  return apiFetch(`/assistants/${slug}/clean_projects/`, { method: "POST" });
+}
+
 export async function fetchRecentReflections(slug) {
   const res = await fetch(`${ASSISTANTS_API}/${slug}/reflections/recent/`);
   if (!res.ok) {

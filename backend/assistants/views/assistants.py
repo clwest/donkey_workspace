@@ -18,6 +18,7 @@ import os
 import re
 from django.conf import settings
 from django.utils.text import slugify
+from django.core.management import call_command
 from pathlib import Path
 from assistants.services import AssistantService
 from memory.services import MemoryService
@@ -1338,3 +1339,18 @@ def assistant_lineage(request, slug):
         }
 
     return Response(build_tree(assistant))
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def clean_memories(request, slug):
+    """Purge weak recent memories for an assistant."""
+    call_command("clean_recent_memories", assistant=slug)
+    return Response({"status": "ok"})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def clean_projects(request, slug):
+    """Remove stale assistant projects."""
+    call_command("clean_linked_projects", assistant=slug)
+    return Response({"status": "ok"})
