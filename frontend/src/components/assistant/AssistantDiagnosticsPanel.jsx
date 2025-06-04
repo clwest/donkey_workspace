@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import apiFetch from "@/utils/apiClient";
@@ -10,6 +11,8 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 export default function AssistantDiagnosticsPanel({ slug }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [action, setAction] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!slug) return;
@@ -18,7 +21,7 @@ export default function AssistantDiagnosticsPanel({ slug }) {
       .then(setData)
       .catch(() => setData(null))
       .finally(() => setLoading(false));
-  }, [slug]);
+  }, [slug, refreshKey]);
 
   if (loading) return <div>Loading diagnostics...</div>;
   if (!data) return <div className="text-muted">No diagnostics available.</div>;
@@ -39,21 +42,56 @@ export default function AssistantDiagnosticsPanel({ slug }) {
     ],
   };
 
-  const handleCleanMemories = async () => {
+
+  const cooldown = () =>
+    setTimeout(() => {
+      setAction(null);
+    }, 5000);
+
+  const handleReflect = async () => {
+    if (action) return;
+    setAction("reflect");
     try {
-      await cleanRecentMemories(slug);
-      toast.success("Weak memories purged");
+      await apiFetch(`/assistants/${slug}/reflect_now/`, { method: "POST" });
+      toast.success("Reflection complete");
+      setRefreshKey((k) => k + 1);
     } catch {
-      toast.error("Cleanup failed");
+      toast.error("Failed to run reflection");
+    } finally {
+      cooldown();
     }
   };
 
-  const handleCleanProjects = async () => {
+  const handleFixContext = async () => {
+    if (action) return;
+    setAction("context");
     try {
-      await cleanStaleProjects(slug);
-      toast.success("Stale projects removed");
+      const res = await apiFetch(`/assistants/${slug}/fix_context/`, {
+        method: "POST",
+      });
+      toast.info(`Linked ${res.updated} memories`);
+      setRefreshKey((k) => k + 1);
     } catch {
-      toast.error("Project cleanup failed");
+      toast.error("Failed to fix context");
+    } finally {
+      cooldown();
+    }
+  };
+
+  const handleSyncAnchors = async () => {
+    if (action) return;
+    setAction("anchors");
+    try {
+      const res = await apiFetch(`/assistants/${slug}/retag_glossary_chunks/`, {
+        method: "POST",
+      });
+      toast.success(`Retagged ${res.matched_total} chunks`);
+      setRefreshKey((k) => k + 1);
+    } catch {
+      toast.error("Failed to sync glossary anchors");
+    } finally {
+      cooldown();
+
     }
   };
 
@@ -73,14 +111,49 @@ export default function AssistantDiagnosticsPanel({ slug }) {
         <Pie data={chartData} options={{ plugins: { legend: { position: "bottom" } } }} />
       </div>
       <div className="mt-2">
-        <button className="btn btn-sm btn-outline-primary me-1">🧠 Re-run Reflection</button>
-        <button className="btn btn-sm btn-outline-secondary me-1">🔧 Fix Context</button>
-        <button className="btn btn-sm btn-outline-success me-1">📚 Sync Glossary Anchors</button>
-        <button className="btn btn-sm btn-outline-danger me-1" onClick={handleCleanMemories}>
-          🧹 Clean Recent Memories
+
+        <button
+          className="btn btn-sm btn-outline-primary me-1"
+          onClick={handleReflect}
+          disabled={!!action}
+        >
+          {action === "reflect" ? (
+            <>
+              <span className="spinner-border spinner-border-sm me-1" role="status" />
+              Running...
+            </>
+          ) : (
+            "🧠 Re-run Reflection"
+          )}
         </button>
-        <button className="btn btn-sm btn-outline-danger" onClick={handleCleanProjects}>
-          🗑 Clear Stale Projects
+        <button
+          className="btn btn-sm btn-outline-secondary me-1"
+          onClick={handleFixContext}
+          disabled={!!action}
+        >
+          {action === "context" ? (
+            <>
+              <span className="spinner-border spinner-border-sm me-1" role="status" />
+              Linking...
+            </>
+          ) : (
+            "🔧 Fix Context"
+          )}
+        </button>
+        <button
+          className="btn btn-sm btn-outline-success"
+          onClick={handleSyncAnchors}
+          disabled={!!action}
+        >
+          {action === "anchors" ? (
+            <>
+              <span className="spinner-border spinner-border-sm me-1" role="status" />
+              Syncing...
+            </>
+          ) : (
+            "📚 Sync Glossary Anchors"
+          )}
+
         </button>
       </div>
     </div>
