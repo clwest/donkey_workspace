@@ -439,7 +439,7 @@ export default function AssistantDetailPage() {
             </Link>
             {assistant.capabilities?.delegation !== false && (
               <Link
-                to={`/assistants/${slug}/trace`}
+                to={`/assistants/${slug}/delegation-trace`}
                 className="btn btn-outline-secondary"
               >
                 🧬 Delegation Trace
