@@ -17,10 +17,12 @@ def generate_boot_profile(assistant: Assistant) -> Dict[str, object]:
         all_urls.append(str(p.pattern))
 
     capabilities: List[Dict[str, object]] = []
+    cap_data = assistant.capabilities_dict()
+
     for key, info in CAPABILITY_REGISTRY.items():
         route = info.get("route", "")
         connected = any(u.startswith(route.lstrip("/")) for u in all_urls)
-        enabled = bool(assistant.capabilities.get(key))
+        enabled = bool(cap_data.get(key))
         last_used = (
             CapabilityUsageLog.objects.filter(assistant=assistant, capability=key)
             .order_by("-created_at")

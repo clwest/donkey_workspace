@@ -14,6 +14,8 @@ def capability_status(request):
     if assistant_slug:
         assistant = Assistant.objects.filter(slug=assistant_slug).first()
 
+    cap_data = assistant.capabilities_dict() if assistant else {}
+
     data = []
     for key, info in CAPABILITY_REGISTRY.items():
         route = info.get("route")
@@ -29,7 +31,7 @@ def capability_status(request):
         else:
             status = "missing"
 
-        if assistant and not assistant.capabilities.get(key):
+        if assistant and not cap_data.get(key):
             status = "disabled"
 
         data.append(
