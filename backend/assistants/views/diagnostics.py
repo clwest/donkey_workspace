@@ -6,7 +6,9 @@ from rest_framework.response import Response
 from assistants.models import Assistant
 from assistants.models.reflection import AssistantReflectionLog
 from memory.models import SymbolicMemoryAnchor, MemoryEntry
+from mcp_core.models import MemoryContext
 from intel_core.models import DocumentChunk
+from intel_core.utils.glossary_tagging import retag_glossary_chunks
 
 
 @api_view(["GET"])
@@ -51,3 +53,33 @@ def assistant_diagnostics(request, slug):
         },
     }
     return Response(data)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def fix_context(request, slug):
+    """Link orphaned memories to the assistant's context."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    context = assistant.memory_context
+    if not context:
+        context, _ = MemoryContext.objects.get_or_create(
+            content=f"{assistant.slug} context"
+        )
+        assistant.memory_context = context
+        assistant.save(update_fields=["memory_context"])
+
+    count = MemoryEntry.objects.filter(assistant=assistant, context__isnull=True).update(
+        context=context
+    )
+    return Response({"updated": count, "context_id": context.id})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def retag_glossary_chunks_view(request, slug):
+    """Retag chunks for the assistant using glossary anchors."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    results = retag_glossary_chunks(assistant)
+    total = sum(len(v) for v in results.values())
+    summary = {k: len(v) for k, v in results.items()}
+    return Response({"matched_total": total, "per_anchor": summary})

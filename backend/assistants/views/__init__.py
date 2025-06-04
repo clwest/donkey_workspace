@@ -15,7 +15,7 @@ from .assistants import (
 )
 from .knowledge import diff_knowledge
 from .dashboard import assistant_dashboard
-from .diagnostics import assistant_diagnostics
+from .diagnostics import assistant_diagnostics, fix_context, retag_glossary_chunks_view
 from .thoughts import (
     submit_assistant_thought,
     submit_chat_feedback,
@@ -247,6 +247,8 @@ __all__ = [
     "collaboration_profile",
     "assistant_dashboard",
     "assistant_diagnostics",
+    "fix_context",
+    "retag_glossary_chunks_view",
     "diff_knowledge",
     "replay_scene_view",
     "chat_with_scene",
