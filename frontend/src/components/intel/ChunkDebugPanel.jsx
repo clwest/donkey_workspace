@@ -7,6 +7,7 @@ export default function ChunkDebugPanel({ docId }) {
   const [showSkipped, setShowSkipped] = useState(false);
   const [isLoadingChunks, setIsLoadingChunks] = useState(true);
   const [reembedding, setReembedding] = useState(false);
+  const [duplicateIds, setDuplicateIds] = useState(new Set());
 
   useEffect(() => {
     async function load() {
@@ -15,6 +16,17 @@ export default function ChunkDebugPanel({ docId }) {
         const params = showSkipped ? { skipped: "true" } : {};
         const res = await apiFetch(`/intel/documents/${docId}/chunks/`, { params });
         const list = Array.isArray(res) ? res : res.chunks || [];
+        const seen = {};
+        const dup = new Set();
+        list.forEach((c) => {
+          if (seen[c.order]) {
+            dup.add(seen[c.order]);
+            dup.add(c.id);
+          } else {
+            seen[c.order] = c.id;
+          }
+        });
+        setDuplicateIds(dup);
         setChunks(list);
       } catch (err) {
         console.error("Failed to load chunks", err);
@@ -160,6 +172,7 @@ export default function ChunkDebugPanel({ docId }) {
               {chunks.map((c, idx) => (
                 <tr
                   key={c.id}
+                  className={duplicateIds.has(c.id) ? "table-danger" : undefined}
                   title={
                     c.embedding_id
                       ? undefined
@@ -168,7 +181,15 @@ export default function ChunkDebugPanel({ docId }) {
                 >
                   <td>{idx + 1}</td>
                   <td>{c.tokens}</td>
-                  <td>{c.score?.toFixed(2)}</td>
+                  <td
+                    title={
+                      c.score < 0.3 && (!c.matched_anchors || c.matched_anchors.length === 0)
+                        ? "Low score - no glossary hits"
+                        : undefined
+                    }
+                  >
+                    {c.score?.toFixed(2)}
+                  </td>
                   <td>{c.skipped ? "❌" : ""}</td>
                   <td>{c.force_embed ? "⚠️" : ""}</td>
                   <td>

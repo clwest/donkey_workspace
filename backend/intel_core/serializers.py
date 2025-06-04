@@ -172,6 +172,7 @@ class DocumentChunkInfoSerializer(serializers.ModelSerializer):
     embedding_id = serializers.SerializerMethodField()
     skipped = serializers.SerializerMethodField()
     token_count = serializers.IntegerField(source="tokens", read_only=True)
+    matched_anchors = serializers.ListField(read_only=True)
     embedding_status = serializers.CharField(read_only=True)
 
     class Meta:
@@ -184,6 +185,7 @@ class DocumentChunkInfoSerializer(serializers.ModelSerializer):
             "token_count",
             "force_embed",
             "skipped",
+            "matched_anchors",
             "embedding_id",
             "embedding_status",
         ]

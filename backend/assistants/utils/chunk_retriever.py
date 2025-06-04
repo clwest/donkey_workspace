@@ -305,6 +305,10 @@ def get_relevant_chunks(
             if weight:
                 anchor_weight = float(weight)
                 score *= 1 + anchor_weight
+        if chunk.anchor and chunk.anchor.slug in query_text.lower():
+            score += 0.05
+        length_norm = min(len(chunk.text) / 500, 1.0)
+        score *= 0.6 + 0.4 * length_norm
         if score < MIN_SCORE and not (
             chunk.anchor and chunk.anchor.slug in anchor_matches
         ):
@@ -546,31 +550,31 @@ def get_relevant_chunks(
             "score": round(score, 4),
             "score_before_anchor_boost": round(raw_score, 4),
             "score_after_anchor_boost": round(score, 4),
-                "text": chunk.text,
-                "source_doc": chunk.document.title,
-                "is_glossary": getattr(chunk, "is_glossary", False),
-                "anchor_slug": getattr(getattr(chunk, "anchor", None), "slug", None),
-                "anchor_confidence": anchor_conf,
-                "fingerprint": getattr(chunk, "fingerprint", ""),
-                "tokens": getattr(chunk, "tokens", 0),
-                "glossary_score": getattr(chunk, "glossary_score", 0.0),
-                "matched_anchors": getattr(chunk, "matched_anchors", []),
-                "embedding_status": getattr(chunk, "embedding_status", "embedded"),
-                "anchor_boost": (
-                    ANCHOR_BOOST
-                    if (
-                        getattr(chunk, "anchor", None)
-                        and getattr(chunk.anchor, "slug", None) in anchor_matches
-                    )
-                    else 0
-                ),
-                "override_reason": override_map.get(str(chunk.id)),
-                "forced_included": str(chunk.id) in override_map,
-                "was_anchor_match": bool(
-                    chunk.anchor and chunk.anchor.slug in anchor_matches
-                ),
-                "was_filtered_out": False,
-                "final_score": round(score, 4),
+            "text": chunk.text,
+            "source_doc": chunk.document.title,
+            "is_glossary": getattr(chunk, "is_glossary", False),
+            "anchor_slug": getattr(getattr(chunk, "anchor", None), "slug", None),
+            "anchor_confidence": anchor_conf,
+            "fingerprint": getattr(chunk, "fingerprint", ""),
+            "tokens": getattr(chunk, "tokens", 0),
+            "glossary_score": getattr(chunk, "glossary_score", 0.0),
+            "matched_anchors": getattr(chunk, "matched_anchors", []),
+            "embedding_status": getattr(chunk, "embedding_status", "embedded"),
+            "anchor_boost": (
+                ANCHOR_BOOST
+                if (
+                    getattr(chunk, "anchor", None)
+                    and getattr(chunk.anchor, "slug", None) in anchor_matches
+                )
+                else 0
+            ),
+            "override_reason": override_map.get(str(chunk.id)),
+            "forced_included": str(chunk.id) in override_map,
+            "was_anchor_match": bool(
+                chunk.anchor and chunk.anchor.slug in anchor_matches
+            ),
+            "was_filtered_out": False,
+            "final_score": round(score, 4),
             "forced_inclusion_reason": override_map.get(str(chunk.id)),
         }
         if reason:
