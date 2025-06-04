@@ -1,7 +1,12 @@
 from django.core.management.base import BaseCommand
 from assistants.models import Assistant, AssistantReflectionLog
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
+from memory.models import MemoryEntry
+import logging
 import json
+
+logger = logging.getLogger(__name__)
+
 
 class Command(BaseCommand):
     help = "Generate a self reflection for an assistant and update identity"
@@ -28,6 +33,10 @@ class Command(BaseCommand):
                 updates = json.loads(json_part)
             except Exception:
                 pass
+        # append reflection scope tag if missing
+        if "#reflection-scope" not in text:
+            text += "\n#reflection-scope:complete"
+
         AssistantReflectionLog.objects.create(
             assistant=assistant,
             summary=text,
@@ -35,6 +44,11 @@ class Command(BaseCommand):
             category="self_reflection",
             raw_prompt=prompt,
         )
+
+        # warn if delegation memories exist but were not covered
+        if MemoryEntry.objects.filter(assistant=assistant, type="delegation").exists():
+            if "delegation" not in text.lower():
+                logger.warning("Delegation memories were not summarized")
         if updates:
             if updates.get("persona_summary"):
                 assistant.persona_summary = updates["persona_summary"]
