@@ -63,6 +63,17 @@ export default function ReflectionDetailPage() {
       <h5 className="mt-4">LLM Reflection:</h5>
       <p>{reflection.llm_summary || "No LLM reflection available."}</p>
 
+      {reflection.tags?.length > 0 && (
+        <div className="mt-2">
+          <span className="text-muted small me-1">🏷 Tags:</span>
+          {reflection.tags.map((tag) => (
+            <span key={tag.id} className="badge bg-secondary me-1">
+              {tag.name}
+            </span>
+          ))}
+        </div>
+      )}
+
       {thoughts.length > 0 && (
         <details className="mt-4">
           <summary>Related Thoughts ({thoughts.length})</summary>

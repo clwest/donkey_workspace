@@ -306,6 +306,10 @@ export async function fetchRecentReflections(slug) {
   return res.json();
 }
 
+export async function fetchReflections(slug) {
+  return apiFetch(`/assistants/${slug}/reflections/`);
+}
+
 export const fetchDeploymentReadiness = (id) =>
   apiFetch(`/assistants/${id}/deploy/`);
 
