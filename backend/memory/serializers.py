@@ -235,6 +235,8 @@ class SymbolicMemoryAnchorSerializer(serializers.ModelSerializer):
     )
     chunks_count = serializers.SerializerMethodField()
     retagged_count = serializers.SerializerMethodField()
+    first_used_at = serializers.SerializerMethodField()
+    total_matches = serializers.SerializerMethodField()
 
     class Meta:
         model = SymbolicMemoryAnchor
@@ -256,6 +258,19 @@ class SymbolicMemoryAnchorSerializer(serializers.ModelSerializer):
             .exclude(anchor=obj)
             .count()
         )
+
+    def get_first_used_at(self, obj):
+        chunk = (
+            DocumentChunk.objects.filter(
+                Q(anchor=obj) | Q(matched_anchors__contains=[obj.slug])
+            )
+            .order_by("created_at")
+            .first()
+        )
+        return chunk.created_at if chunk else None
+
+    def get_total_matches(self, obj):
+        return self.get_chunks_count(obj)
 
 
 class MemoryMergeSuggestionSerializer(serializers.ModelSerializer):

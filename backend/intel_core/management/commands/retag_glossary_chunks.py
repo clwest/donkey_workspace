@@ -1,9 +1,6 @@
 from django.core.management.base import BaseCommand
-from django.db.models import Q
-
 from assistants.models import Assistant
-from intel_core.models import DocumentChunk
-from memory.models import SymbolicMemoryAnchor
+from intel_core.utils.glossary_tagging import retag_glossary_chunks
 
 
 class Command(BaseCommand):
@@ -29,48 +26,14 @@ class Command(BaseCommand):
             )
             return
 
-        chunks_qs = DocumentChunk.objects.filter(document__linked_assistants=assistant)
-
         if reset:
-            reset_count = chunks_qs.update(is_glossary=False)
+            from intel_core.models import DocumentChunk
+
+            reset_count = DocumentChunk.objects.filter(
+                document__linked_assistants=assistant
+            ).update(is_glossary=False)
             self.stdout.write(f"Reset is_glossary on {reset_count} chunks")
 
-        anchors = SymbolicMemoryAnchor.objects.filter(reinforced_by=assistant)
-        if not anchors.exists():
-            self.stdout.write(
-                self.style.WARNING(f"No anchors linked to {assistant_slug}")
-            )
-            return
-
-        for anchor in anchors:
-            slug_lower = anchor.slug.lower()
-            label_lower = anchor.label.lower()
-            fp_list = list(
-                DocumentChunk.objects.filter(anchor=anchor).values_list(
-                    "fingerprint", flat=True
-                )
-            )
-
-            q = Q(text__icontains=slug_lower) | Q(text__icontains=label_lower)
-            if fp_list:
-                q |= Q(fingerprint__in=fp_list)
-
-            matches = list(chunks_qs.filter(q).distinct())
-            if not matches:
-                self.stdout.write(self.style.WARNING(f"⚠️ {anchor.slug}: no matches"))
-                continue
-
-            if not dry_run:
-                for chunk in matches:
-                    changed = False
-                    if anchor.slug not in chunk.matched_anchors:
-                        chunk.matched_anchors.append(anchor.slug)
-                        changed = True
-                    if not chunk.is_glossary:
-                        chunk.is_glossary = True
-                        changed = True
-                    if changed:
-                        chunk.save(update_fields=["matched_anchors", "is_glossary"])
-            self.stdout.write(
-                self.style.SUCCESS(f"✔️ {anchor.slug}: {len(matches)} chunks")
-            )
+        results = retag_glossary_chunks(assistant, dry_run=dry_run)
+        for slug, info in results.items():
+            self.stdout.write(self.style.SUCCESS(f"✔️ {slug}: {len(info)} chunks"))

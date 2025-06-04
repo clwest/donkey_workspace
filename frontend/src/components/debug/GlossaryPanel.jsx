@@ -5,11 +5,31 @@ export default function GlossaryPanel() {
   const [logs, setLogs] = useState([]);
   const [anchors, setAnchors] = useState([]);
 
+  const handleRemove = (id) => {
+    if (!window.confirm("Remove this anchor?")) return;
+    apiFetch(`/memory/symbolic-anchors/${id}/`, { method: "DELETE" })
+      .then(() => setAnchors((arr) => arr.filter((a) => a.id !== id)))
+      .catch((err) => console.error("Delete failed", err));
+  };
+
+  const handleRename = (id, current) => {
+    const label = window.prompt("New label", current);
+    if (!label) return;
+    apiFetch(`/memory/symbolic-anchors/${id}/`, {
+      method: "PATCH",
+      body: JSON.stringify({ label }),
+    })
+      .then((res) =>
+        setAnchors((arr) => arr.map((a) => (a.id === id ? res : a)))
+      )
+      .catch((err) => console.error("Rename failed", err));
+  };
+
   useEffect(() => {
     apiFetch("/memory/glossary-retries/")
       .then((res) => setLogs(res.results || []))
       .catch((err) => console.error("Failed to load glossary retries", err));
-    apiFetch("/memory/symbolic-anchors/")
+    apiFetch("/memory/symbolic-anchors/?show_empty=true")
       .then((res) => setAnchors(res.results || res))
       .catch((err) => console.error("Failed to load anchors", err));
   }, []);
@@ -41,7 +61,31 @@ export default function GlossaryPanel() {
                   +{a.retagged_count}
                 </span>
               )}
+              {a.chunks_count === 0 && a.retagged_count === 0 && (
+                <span
+                  className="badge bg-warning text-dark ms-1"
+                  title="This anchor has no linked chunks or memory entries. Consider renaming or removing."
+                >
+                  ⚠️
+                </span>
+              )}
               {a.source === "inferred" && <span className="ms-1">🤖</span>}
+              {a.chunks_count === 0 && a.retagged_count === 0 && (
+                <>
+                  <button
+                    className="btn btn-sm btn-link text-danger ms-1"
+                    onClick={() => handleRemove(a.id)}
+                  >
+                    🗑 Remove
+                  </button>
+                  <button
+                    className="btn btn-sm btn-link ms-1"
+                    onClick={() => handleRename(a.id, a.label)}
+                  >
+                    ✏️ Rename
+                  </button>
+                </>
+              )}
             </li>
           ))}
         </ul>

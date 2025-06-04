@@ -82,6 +82,7 @@ from memory.models import SymbolicMemoryAnchor
 # Import directly to avoid circular dependency triggered via
 # ``intel_core.services.__init__`` which pulls in ``DocumentService``.
 from intel_core.services.acronym_glossary_service import AcronymGlossaryService
+from intel_core.utils.glossary_tagging import _match_anchor
 
 
 def compute_glossary_score(text: str, anchors=None):
@@ -98,6 +99,10 @@ def compute_glossary_score(text: str, anchors=None):
         tag_slugs = set(anc.tags.values_list("slug", flat=True))
         tag_names = set(anc.tags.values_list("name", flat=True))
         if words.intersection(tag_slugs) or words.intersection(tag_names):
+            matched.append(anc.slug)
+            continue
+        m, _ = _match_anchor(anc, text)
+        if m:
             matched.append(anc.slug)
     score = len(matched) / max(len(anchors), 1)
     return round(score, 2), matched
