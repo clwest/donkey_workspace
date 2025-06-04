@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Badge, OverlayTrigger, Tooltip } from "react-bootstrap";
 import apiFetch from "../../../utils/apiClient";
 
 export default function AssistantMemoryAuditPanel({ assistant }) {
@@ -40,7 +41,29 @@ export default function AssistantMemoryAuditPanel({ assistant }) {
             <td>
               {d.embedded_chunks}/{d.total_chunks}
             </td>
-            <td>{d.embedding_coverage}%</td>
+            <td>
+              {(() => {
+                const embedded = d.embedded_chunks ?? 0;
+                const total = d.total_chunks ?? 0;
+                const pct = total
+                  ? Math.min(100, Math.round((embedded / total) * 100))
+                  : 0;
+                return (
+                  <>
+                    {pct}%
+                    {embedded > total && (
+                      <Badge
+                        bg="danger"
+                        className="ms-1"
+                        title="Mismatch: More embedded than total. Run sync_chunk_counts."
+                      >
+                        ⚠️
+                      </Badge>
+                    )}
+                  </>
+                );
+              })()}
+            </td>
             <td>{d.tags && d.tags.length > 0 ? d.tags.join(", ") : "—"}</td>
             <td className="small">{d.last_chunk_summary}</td>
             <td>

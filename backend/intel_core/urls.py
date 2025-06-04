@@ -73,4 +73,9 @@ urlpatterns = [
     path("debug/verify-embeddings/", debug.verify_embeddings),
     path("debug/repair-progress/", debug.repair_progress_view, name="repair-progress"),
     path("debug/fix-embeddings/", debug.fix_embeddings, name="fix-embeddings"),
+    path(
+        "debug/sync-chunk-counts/",
+        debug.sync_chunk_counts_view,
+        name="sync-chunk-counts",
+    ),
 ]
