@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import apiFetch from "@/utils/apiClient";
-import { toast } from "react-toastify";
+
 import { cleanRecentMemories, cleanStaleProjects } from "../../api/assistants";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
