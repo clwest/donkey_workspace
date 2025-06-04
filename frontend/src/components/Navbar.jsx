@@ -207,7 +207,7 @@ export default function Navbar({ onToggleSidebar }) {
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/dev/routes">
+              <Link className="nav-link" to="/dev/routes/fullmap">
                 🛣 Route Health
               </Link>
             </li>
