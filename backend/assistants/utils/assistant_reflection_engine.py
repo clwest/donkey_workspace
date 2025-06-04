@@ -121,17 +121,50 @@ class AssistantReflectionEngine:
                 f"[ReflectionEngine] \u26a0\ufe0f Found {orphaned} orphaned memory entries for {self.assistant.slug}"
             )
 
-    def get_memory_entries(self, limit: int = 30):
-        """Return prioritized memories used during reflection."""
-        from assistants.helpers.memory_helpers import get_relevant_memories_for_task
+    def get_memory_entries(self, limit: int = 30, *, verbose: bool = False):
+        """Return prioritized memories eligible for reflection."""
+        from django.db.models import Q
 
-        return get_relevant_memories_for_task(
-            self.assistant,
-            project=self.project,
-            task_type="reflection",
-            context=self.context,
-            limit=limit,
-        )
+        qs = MemoryEntry.objects.filter(assistant=self.assistant)
+        total = qs.count()
+
+        skipped_context = 0
+        if self.context:
+            skipped_context = qs.exclude(context=self.context).count()
+            qs = qs.filter(context=self.context)
+
+        skipped_low = qs.filter(importance__lt=1).count()
+        qs = qs.filter(importance__gte=1)
+
+        skipped_missing = qs.filter(
+            full_transcript__isnull=True, summary__isnull=True
+        ).count()
+        qs = qs.filter(Q(full_transcript__isnull=False) | Q(summary__isnull=False))
+
+        junk_phrase = "couldn’t find that information"
+        skipped_junk = qs.filter(event__icontains=junk_phrase).count()
+        qs = qs.exclude(event__icontains=junk_phrase)
+
+        entries = list(qs.order_by("-created_at")[:limit])
+
+        if verbose:
+            print(
+                f"\U0001f9e0 Reflection Candidates: {len(entries)} valid / {total} total"
+            )
+            if skipped_context:
+                print(f"- Skipped {skipped_context} context mismatch")
+            if skipped_low:
+                print(f"- Skipped {skipped_low} low importance")
+            if skipped_missing:
+                print(f"- Skipped {skipped_missing} missing transcript")
+            if skipped_junk:
+                print(f"- Skipped {skipped_junk} junk transcripts")
+            for e in entries:
+                tag = e.bookmark_label or e.type or ""
+                preview = (e.summary or e.event).splitlines()[0][:80]
+                print(f"- [{tag}] {e.created_at:%Y-%m-%d} — {preview}...")
+
+        return entries
 
     def reflect_on_recent_activity(self) -> AssistantReflectionLog | None:
         """Run a reflection using the assistant's default memory context."""
@@ -188,30 +221,13 @@ class AssistantReflectionEngine:
         *,
         scene: str | None = None,
         location_context: str | None = None,
-    ) -> AssistantReflectionLog:
+        verbose: bool = False,
+    ) -> AssistantReflectionLog | None:
         """Run a quick reflection over recent memories for the assistant's context."""
 
-        from assistants.helpers.memory_helpers import get_relevant_memories_for_task
-
         context = self.context
-        entries = get_relevant_memories_for_task(
-            self.assistant,
-            project=self.project,
-            task_type="reflection",
-            context=context,
-            limit=30,
-        )
-        total_count = MemoryEntry.objects.filter(assistant=self.assistant).count()
-        context_count = MemoryEntry.objects.filter(
-            assistant=self.assistant, context=context
-        ).count()
-        logger.info(
-            "[ReflectionEngine] Memory entries: %s total, %s linked to context %s",
-            total_count,
-            context_count,
-            context.id,
-        )
-        texts = [e.event.strip() for e in entries if e.event.strip()]
+        entries = self.get_memory_entries(limit=30, verbose=verbose)
+        texts = [e.summary or e.event for e in entries if (e.summary or e.event)]
         if not texts:
             logger.info(
                 "[ReflectionEngine] No memory entries for context %s", context.id
