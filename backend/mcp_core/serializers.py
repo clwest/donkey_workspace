@@ -6,7 +6,6 @@ from .models import (
     DevDoc,
     Fault,
     ActionLog,
-    
     NarrativeThread,
     GroupedDevDocReflection,
 )
@@ -48,12 +47,10 @@ class ActionLogSerializer(serializers.ModelSerializer):
 
 
 class ReflectionLogSerializer(serializers.ModelSerializer):
-    tags = serializers.SlugRelatedField(
-        many=True,
-        read_only=True,
-        slug_field="name"
+    tags = serializers.SlugRelatedField(many=True, read_only=True, slug_field="name")
+    raw_summary = serializers.CharField(
+        source="raw_prompt", allow_null=True, read_only=True
     )
-    raw_summary = serializers.CharField(source="raw_prompt", allow_null=True, read_only=True)
 
     class Meta:
         model = AssistantReflectionLog  # or whatever model you're using
@@ -68,8 +65,6 @@ class PromptUsageLogSerializer(serializers.ModelSerializer):
         model = PromptUsageLog
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
-
-
 
 
 class DevDocSerializer(serializers.ModelSerializer):
@@ -91,15 +86,18 @@ class DevDocSerializer(serializers.ModelSerializer):
             "linked_assistants",
         ]
         read_only_fields = ["reflected_at"]
+
     def get_linked_assistants(self, obj):
         return [
             {"id": a.id, "name": a.name, "slug": a.slug}
             for a in obj.linked_assistants.all()
         ]
 
+
 class GroupedDevDocReflectionSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
-    source_assistant = AssistantSerializer(read_only=True)
+    source_assistant_slug = serializers.SerializerMethodField()
+    source_assistant_name = serializers.SerializerMethodField()
     related_docs = DevDocSerializer(many=True, read_only=True)
 
     class Meta:
@@ -110,8 +108,15 @@ class GroupedDevDocReflectionSerializer(serializers.ModelSerializer):
             "raw_json",
             "created_at",
             "tags",
-            "source_assistant",
+            "source_assistant_slug",
+            "source_assistant_name",
             "related_docs",
         ]
 
+    def get_source_assistant_slug(self, obj):
+        return getattr(obj.source_assistant, "slug", None)
 
+    def get_source_assistant_name(self, obj):
+        if obj.source_assistant:
+            return obj.source_assistant.name
+        return None

@@ -17,7 +17,7 @@ function MemoryRow({ entry, onRate }) {
         </div>
       </div>
       <div className="small">
-        <Link to={`/assistants/${entry.assistant_id}`}>View Source Assistant</Link>
+        <Link to={`/assistants/${entry.assistant_slug}`}>View Source Assistant</Link>
         {entry.delegation_event_id && (
           <>
             {" | "}
@@ -32,7 +32,7 @@ function MemoryRow({ entry, onRate }) {
           </>
         )}
         {" | "}
-        <Link to={`/assistants/${entry.assistant_id}/reflect`}>Reflect on Sub-Agent Output</Link>
+        <Link to={`/assistants/${entry.assistant_slug}/reflect-subagent/${entry.delegation_event_id}`}>Reflect on Sub-Agent Output</Link>
         {entry.tool_usage_id && (
           <>
             {" | "}

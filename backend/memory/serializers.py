@@ -37,6 +37,7 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
     delegation_event_id = serializers.SerializerMethodField()
     assistant_name = serializers.SerializerMethodField()
     assistant_id = serializers.SerializerMethodField()
+    assistant_slug = serializers.SerializerMethodField()
     parent_assistant_name = serializers.SerializerMethodField()
     is_delegated = serializers.SerializerMethodField()
     simulated_forks = SimulatedMemoryForkSerializer(many=True, read_only=True)
@@ -75,6 +76,7 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
             "delegation_event_id",
             "assistant_name",
             "assistant_id",
+            "assistant_slug",
             "parent_assistant_name",
             "is_delegated",
             "linked_agents",
@@ -110,6 +112,9 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
 
     def get_assistant_id(self, obj):
         return str(obj.assistant_id) if obj.assistant_id else None
+
+    def get_assistant_slug(self, obj):
+        return getattr(obj.assistant, "slug", None)
 
     def get_parent_assistant_name(self, obj):
         if obj.assistant and obj.assistant.parent_assistant:

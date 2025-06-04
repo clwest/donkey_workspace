@@ -450,6 +450,11 @@ urlpatterns = [
         name="assistant-hierarchical-memory",
     ),
     path(
+        "<slug:slug>/subagent_reflect/<uuid:trace_id>/",
+        delegations.subagent_reflect,
+        name="assistant-subagent-reflect",
+    ),
+    path(
         "<slug:slug>/evaluate-delegation/",
         delegations.evaluate_delegation,
         name="assistant-evaluate-delegation",
@@ -661,8 +666,16 @@ urlpatterns = [
         recovery.regenerate_plan,
         name="assistant-regenerate-plan",
     ),
-    path("<slug:slug>/reflect_again/", repair.reflect_again, name="assistant-reflect-again"),
-    path("<slug:slug>/repair_documents/", repair.repair_documents, name="assistant-repair-documents"),
+    path(
+        "<slug:slug>/reflect_again/",
+        repair.reflect_again,
+        name="assistant-reflect-again",
+    ),
+    path(
+        "<slug:slug>/repair_documents/",
+        repair.repair_documents,
+        name="assistant-repair-documents",
+    ),
     path(
         "<slug:slug>/plan-from-thread/",
         intelligence.plan_from_thread,

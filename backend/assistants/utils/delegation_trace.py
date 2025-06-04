@@ -15,6 +15,7 @@ def build_delegation_trace(assistant: Assistant, depth: int = 0) -> List[MemoryE
         m.is_delegated = assistant.parent_assistant_id is not None
         m.assistant_name = assistant.name
         m.assistant_id = assistant.id
+        m.assistant_slug = assistant.slug
         m.parent_assistant_name = (
             assistant.parent_assistant.name if assistant.parent_assistant else None
         )
@@ -22,9 +23,9 @@ def build_delegation_trace(assistant: Assistant, depth: int = 0) -> List[MemoryE
         m.delegation_event_id = event.id if event else None
         entries.append(m)
 
-    child_events = DelegationEvent.objects.filter(parent_assistant=assistant).select_related(
-        "child_assistant"
-    )
+    child_events = DelegationEvent.objects.filter(
+        parent_assistant=assistant
+    ).select_related("child_assistant")
     for event in child_events:
         entries.extend(build_delegation_trace(event.child_assistant, depth + 1))
     return entries
