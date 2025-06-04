@@ -9,6 +9,7 @@ from memory.models import SymbolicMemoryAnchor, MemoryEntry
 from mcp_core.models import MemoryContext
 from intel_core.models import DocumentChunk
 from intel_core.utils.glossary_tagging import retag_glossary_chunks
+from assistants.utils.assistant_boot import run_batch_self_tests
 
 
 @api_view(["GET"])
@@ -104,3 +105,11 @@ def assistant_self_test(request, slug):
 
     result = run_assistant_self_test(assistant)
     return Response(result)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def run_all_self_tests(request):
+    """Run boot self-tests for all assistants."""
+    results = run_batch_self_tests()
+    return Response({"status": "ok", "results": results})
