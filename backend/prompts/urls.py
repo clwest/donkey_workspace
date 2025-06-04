@@ -27,6 +27,7 @@ urlpatterns = [
     path("mutate/", views.mutate_prompt_view),
     path("generate-from-idea/", views.generate_prompt_from_idea_view),
     path("create/", views.create_prompt),
+    path("validate_links/", views.validate_prompt_links),
     # Prompt templates CRUD
     path(
         "templates/",

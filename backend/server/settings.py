@@ -390,3 +390,8 @@ DISABLE_CHUNK_SKIP_FILTERS = (
 CHUNK_EMBED_SCORE_THRESHOLD = float(
     os.getenv("CHUNK_EMBED_SCORE_THRESHOLD", "0.3")
 )
+
+# Score below which glossary anchors are considered weak
+GLOSSARY_WEAK_THRESHOLD = float(
+    os.getenv("GLOSSARY_WEAK_THRESHOLD", "0.2")
+)
