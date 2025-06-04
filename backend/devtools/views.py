@@ -7,6 +7,7 @@ from capabilities.registry import get_capability_for_path
 import subprocess
 import json
 from pathlib import Path
+from django.forms.models import model_to_dict
 
 
 @api_view(["GET"])
@@ -111,3 +112,34 @@ def template_diff(request, slug):
         diff_text = ""
         tracked = False
     return Response({"path": str(path), "diff": diff_text, "tracked": tracked})
+
+
+@api_view(["GET"])
+def export_assistants(request):
+    """Return a JSON dump of all assistants."""
+    from assistants.models.assistant import Assistant
+
+    assistants = [model_to_dict(a) for a in Assistant.objects.all()]
+    return Response({"assistants": assistants})
+
+
+@api_view(["GET"])
+def export_routes(request):
+    """Return a JSON dump of all URL routes with view info."""
+    resp = full_route_map(request)
+    return resp
+
+
+@api_view(["GET"])
+def export_templates(request):
+    """Return template health info as raw JSON."""
+    result = subprocess.run(
+        ["python", "manage.py", "inspect_template_health", "--include-rag"],
+        capture_output=True,
+        text=True,
+    )
+    try:
+        data = json.loads(result.stdout)
+    except json.JSONDecodeError:
+        return Response({"error": result.stderr})
+    return Response({"templates": data})
