@@ -120,6 +120,18 @@ class AssistantReflectionEngine:
                 f"[ReflectionEngine] \u26a0\ufe0f Found {orphaned} orphaned memory entries for {self.assistant.slug}"
             )
 
+    def get_memory_entries(self, limit: int = 30):
+        """Return prioritized memories used during reflection."""
+        from assistants.helpers.memory_helpers import get_relevant_memories_for_task
+
+        return get_relevant_memories_for_task(
+            self.assistant,
+            project=self.project,
+            task_type="reflection",
+            context=self.context,
+            limit=limit,
+        )
+
     def reflect_on_recent_activity(self) -> AssistantReflectionLog | None:
         """Run a reflection using the assistant's default memory context."""
         return self.reflect_now()
