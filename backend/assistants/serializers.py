@@ -267,6 +267,7 @@ class AssistantSkillSerializer(serializers.ModelSerializer):
 class AssistantReflectionLogSerializer(serializers.ModelSerializer):
     linked_event = serializers.SerializerMethodField()
     anchor_slug = serializers.SlugField(source="anchor.slug", read_only=True)
+    tags = TagSerializer(many=True, read_only=True)
 
     class Meta:
         model = AssistantReflectionLog
@@ -279,6 +280,7 @@ class AssistantReflectionLogSerializer(serializers.ModelSerializer):
             "llm_summary",
             "linked_event",
             "anchor_slug",
+            "tags",
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]
