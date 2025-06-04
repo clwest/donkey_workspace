@@ -54,12 +54,18 @@ extend_router("simulation", simulation_router)
 
 
 def _collect_routes(patterns, prefix=""):
+    """Return a flat list of URL patterns without duplicated prefixes."""
     urls = []
     for p in patterns:
         if hasattr(p, "url_patterns"):
             urls.extend(_collect_routes(p.url_patterns, prefix + str(p.pattern)))
         else:
-            urls.append(prefix + str(p.pattern))
+            path = prefix + str(p.pattern)
+            # collapse any accidental double slashes or repeated ``api/`` prefix
+            while "//" in path:
+                path = path.replace("//", "/")
+            path = path.replace("api/api/", "api/")
+            urls.append(path)
     return urls
 
 
@@ -76,6 +82,7 @@ urlpatterns = [
     path("api/v1/", include(api_router.urls)),
     path("api/routes/", routes_list),
     path("api/dev/routes/fullmap/", full_route_map),
+    path("api/dev/routes/fullmap/refresh/", full_route_map),
     path("api/capabilities/", include(capability_urls)),
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
