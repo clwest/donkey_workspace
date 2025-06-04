@@ -37,4 +37,8 @@ def get_capability_for_path(path: str):
     return None
 
 
-__all__ = ["CAPABILITY_REGISTRY", "get_capability_for_path"]
+def get_capabilities():
+    return CAPABILITY_REGISTRY
+
+
+__all__ = ["CAPABILITY_REGISTRY", "get_capabilities", "get_capability_for_path"]

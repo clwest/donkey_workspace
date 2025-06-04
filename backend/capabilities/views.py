@@ -1,6 +1,8 @@
 from django.http import JsonResponse
-from django.urls import get_resolver
-from .registry import CAPABILITY_REGISTRY
+from django.urls import get_resolver, resolve
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .registry import CAPABILITY_REGISTRY, get_capabilities
 from .models import CapabilityUsageLog
 from assistants.models.assistant import Assistant
 
@@ -51,3 +53,22 @@ def capability_status(request):
         )
 
     return JsonResponse({"capabilities": data})
+
+
+@api_view(["GET"])
+def capability_status_view(request):
+    from .registry import get_capabilities
+
+    status = {}
+    for cap, info in get_capabilities().items():
+        route = info.get("route")
+        if not route:
+            status[cap] = {"connected": False, "reason": "No route defined"}
+        else:
+            try:
+                match = resolve(route)
+                status[cap] = {"connected": True, "view": match.view_name}
+            except Exception as e:
+                status[cap] = {"connected": False, "reason": str(e)}
+
+    return Response(status)

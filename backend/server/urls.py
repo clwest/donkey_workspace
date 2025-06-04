@@ -14,9 +14,8 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
-import inspect
-from capabilities.registry import get_capability_for_path
 from django.urls import get_resolver
+from devtools.views import full_route_map
 from story.views import storyboard_list
 from mcp_core.views import threading as thread_views
 from mcp_core.views import ontology as ontology_views
@@ -63,54 +62,11 @@ def _collect_routes(patterns, prefix=""):
     return urls
 
 
-def _collect_route_info(patterns, prefix=""):
-    routes = []
-    for p in patterns:
-        if hasattr(p, "url_patterns"):
-            routes.extend(_collect_route_info(p.url_patterns, prefix + str(p.pattern)))
-        else:
-            path_str = prefix + str(p.pattern)
-            if not str(path_str).startswith("api"):
-                continue
-            callback = getattr(p, "callback", None)
-            module = getattr(callback, "__module__", "") if callback else ""
-            view_name = getattr(callback, "__name__", "") if callback else ""
-            filename = ""
-            if callback:
-                try:
-                    filename = inspect.getsourcefile(callback) or ""
-                except Exception:
-                    filename = ""
-            category = path_str.split("/")[1] if "/" in path_str else ""
-            capability = get_capability_for_path(path_str)
-            routes.append(
-                {
-                    "path": path_str,
-                    "category": category,
-                    "module": module,
-                    "view_name": view_name,
-                    "module_path": filename,
-                    "capability": capability,
-                    "connected": capability is not None,
-                }
-            )
-    return routes
-
-
 def routes_list(request):
     resolver = get_resolver()
     routes = [
         r for r in _collect_routes(resolver.url_patterns) if str(r).startswith("api")
     ]
-    return JsonResponse({"routes": routes})
-
-
-def full_route_map(request):
-    resolver = get_resolver()
-    routes = _collect_route_info(resolver.url_patterns)
-    prefix = request.GET.get("prefix")
-    if prefix:
-        routes = [r for r in routes if r["path"].startswith(prefix)]
     return JsonResponse({"routes": routes})
 
 

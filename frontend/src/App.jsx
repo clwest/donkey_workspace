@@ -127,6 +127,8 @@ import FeedbackSummaryPage from "./pages/assistant/feedback/FeedbackSummaryPage"
 import DevDashboard from "./pages/dev/DevDashboard";
 import RoutesDebugPage from "./pages/dev/RoutesDebugPage";
 import RouteCheckPage from "./pages/dev/RouteCheckPage";
+import RouteViewer from "./pages/dev/routes/RouteViewer";
+import CapabilityStatus from "./pages/dev/routes/CapabilityStatus";
 import PageNotFound from "./pages/PageNotFound";
 import GroupedReflectionPage from "./pages/dev/GroupedReflectionPage";
 import GroupedReflectionDetailPage from "./pages/dev/GroupedReflectionDetailPage";
@@ -560,7 +562,8 @@ export default function App() {
           <Route path="/threads/:id" element={<ThreadDetailPage />} />
           <Route path="/dev-dashboard" element={<DevDashboard />} />
 
-          <Route path="/dev/routes" element={<RoutesDebugPage />} />
+          <Route path="/dev/routes" element={<RouteViewer />} />
+          <Route path="/dev/routes/capabilities" element={<CapabilityStatus />} />
           <Route path="/dev/route-check" element={<RouteCheckPage />} />
           <Route path="/dev/debug/intel" element={<IntelDebugTools />} />
           <Route path="/debug/prompts" element={<PromptDebuggerPage />} />
