@@ -5,6 +5,10 @@ import { Link, useNavigate } from "react-router-dom";
 import "./styles/PromptsPage.css";
 import { toast } from "react-toastify";
 import apiFetch from "../../utils/apiClient";
+import {
+  deletePromptWithFallback,
+  forceDeletePrompt,
+} from "../../hooks/useDeletePrompt";
 
 export default function PromptsPage() {
   const [prompts, setPrompts] = useState([]);
@@ -251,13 +255,19 @@ export default function PromptsPage() {
               className="btn btn-sm btn-outline-danger"
               onClick={async (e) => {
                 e.stopPropagation();
-                if (!window.confirm('Delete this prompt?')) return;
-                try {
-                  await apiFetch(`/prompts/${prompt.slug}/delete/`, { method: 'DELETE' });
+                if (!window.confirm("Delete this prompt?")) return;
+                const result = await deletePromptWithFallback(prompt.slug);
+                if (result.deleted) {
                   setPrompts((prev) => prev.filter((p) => p.slug !== prompt.slug));
-                  toast.success('Prompt deleted');
-                } catch (err) {
-                  toast.error('Delete failed');
+                } else if (result.needsForce) {
+                  if (window.confirm("Prompt is in use. Force delete anyway?")) {
+                    const forced = await forceDeletePrompt(prompt.slug);
+                    if (forced.deleted) {
+                      setPrompts((prev) =>
+                        prev.filter((p) => p.slug !== prompt.slug)
+                      );
+                    }
+                  }
                 }
               }}
             >
