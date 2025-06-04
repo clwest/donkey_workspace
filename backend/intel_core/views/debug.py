@@ -9,6 +9,7 @@ from utils.logging_utils import get_logger
 
 logger = get_logger(__name__)
 
+
 def repair_progress(document=None, document_id=None):
     """Repair DocumentProgress records for a single document."""
     from intel_core.models import Document
@@ -169,13 +170,26 @@ def fix_embeddings(request):
     if not doc_id:
         return Response({"error": "Missing doc_id"}, status=400)
 
-    chunks = (
-        DocumentChunk.objects.filter(document_id=doc_id, embedding__status="completed")
-        .exclude(embedding_status="embedded")
-    )
+    chunks = DocumentChunk.objects.filter(
+        document_id=doc_id, embedding__status="completed"
+    ).exclude(embedding_status="embedded")
     updated = 0
     for ch in chunks:
         ch.embedding_status = "embedded"
         ch.save(update_fields=["embedding_status"])
         updated += 1
     return Response({"updated": updated})
+
+
+@api_view(["POST"])
+def sync_chunk_counts_view(request):
+    """Synchronize DocumentProgress.total_chunks with actual chunk counts."""
+    from io import StringIO
+    from intel_core.management.commands.sync_chunk_counts import Command as SyncCommand
+
+    buf = StringIO()
+    cmd = SyncCommand()
+    cmd.stdout = buf
+    cmd.stderr = buf
+    cmd.handle()
+    return Response({"detail": buf.getvalue().strip()})

@@ -102,12 +102,18 @@ class AssistantReflectionEngine:
     def __init__(self, assistant):
         self.assistant = assistant
         self.project = self.get_or_create_project(assistant)
+        context_id = getattr(assistant.memory_context, "id", None)
+        logger.info(
+            f"[ReflectionEngine] Assistant: {assistant.slug}, Context ID: {context_id}"
+        )
 
     def reflect_on_recent_activity(self) -> AssistantReflectionLog | None:
         """Run a reflection using the assistant's default memory context."""
         context = self.assistant.memory_context
         if not context:
-            context = MemoryContext.objects.create(content=f"{self.assistant.name} Context")
+            context = MemoryContext.objects.create(
+                content=f"{self.assistant.name} Context"
+            )
             self.assistant.memory_context = context
             self.assistant.save(update_fields=["memory_context"])
         return self.reflect_now(context)
@@ -175,6 +181,16 @@ class AssistantReflectionEngine:
             task_type="reflection",
             context=context,
             limit=30,
+        )
+        total_count = MemoryEntry.objects.filter(assistant=self.assistant).count()
+        context_count = MemoryEntry.objects.filter(
+            assistant=self.assistant, context=context
+        ).count()
+        logger.info(
+            "[ReflectionEngine] Memory entries: %s total, %s linked to context %s",
+            total_count,
+            context_count,
+            context.id,
         )
         texts = [e.event.strip() for e in entries if e.event.strip()]
         if not texts:
@@ -253,9 +269,10 @@ class AssistantReflectionEngine:
                     )
                     insight.chunks.set(chunks)
                     for name in tags:
-                        tag, _ = Tag.objects.get_or_create(name=name, defaults={"slug": slugify(name)})
+                        tag, _ = Tag.objects.get_or_create(
+                            name=name, defaults={"slug": slugify(name)}
+                        )
                         insight.tags.add(tag)
-
 
             entry = SwarmMemoryEntry.objects.create(
                 title=log.title,

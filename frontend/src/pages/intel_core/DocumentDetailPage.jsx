@@ -113,6 +113,17 @@ export default function DocumentDetailPage() {
     }
   };
 
+  const runChunkSync = async () => {
+    try {
+      await apiFetch(`/intel/debug/sync-chunk-counts/`, { method: "POST" });
+      toast.success("Chunk counts synced");
+      setDebugKey((k) => k + 1);
+    } catch (err) {
+      console.error("Sync failed", err);
+      toast.error("Sync failed");
+    }
+  };
+
   if (loading) return <div className="container py-4">Loading...</div>;
   if (!doc) return <div className="container py-4">Document not found.</div>;
 
@@ -172,6 +183,9 @@ export default function DocumentDetailPage() {
         </button>
         <button className="btn btn-outline-warning" onClick={handleRecheck}>
           🔄 Recheck Doc Status
+        </button>
+        <button className="btn btn-outline-danger" onClick={runChunkSync}>
+          Sync Chunk Counts
         </button>
       </div>
       <DocumentAutoBuilder docId={doc.id} />
