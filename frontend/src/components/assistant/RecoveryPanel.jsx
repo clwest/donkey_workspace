@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import apiFetch from "../../utils/apiClient";
 
 export default function RecoveryPanel({ assistantSlug }) {
@@ -6,29 +7,30 @@ export default function RecoveryPanel({ assistantSlug }) {
   const [thoughts, setThoughts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [recovering, setRecovering] = useState(false);
+  const [reflecting, setReflecting] = useState(false);
+  const [repairing, setRepairing] = useState(false);
   const [summary, setSummary] = useState("");
   const [promptTip, setPromptTip] = useState("");
+  const loadAssistant = async () => {
+    setLoading(true);
+    try {
+      const data = await apiFetch(`/assistants/${assistantSlug}/`);
+      setAssistant(data);
+      if (data.recent_drift) {
+        const t = await apiFetch(`/assistants/${assistantSlug}/thoughts/?before=${data.recent_drift.timestamp}`);
+        setThoughts(t.results || t);
+      }
+    } catch (err) {
+      console.error("Failed to load recovery info", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function load() {
-      setLoading(true);
-      try {
-        const data = await apiFetch(`/assistants/${assistantSlug}/`);
-        setAssistant(data);
-        if (data.recent_drift) {
-          const t = await apiFetch(
-            `/assistants/${assistantSlug}/thoughts/?before=${data.recent_drift.timestamp}`
-          );
-          setThoughts(t.results || t);
-        }
-      } catch (err) {
-        console.error("Failed to load recovery info", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
+    loadAssistant();
   }, [assistantSlug]);
+
 
   const handleRecover = async () => {
     setRecovering(true);
@@ -47,32 +49,34 @@ export default function RecoveryPanel({ assistantSlug }) {
   };
 
   const handleReflect = async () => {
-    if (!assistant?.id || !assistant?.current_project?.id) return;
+    setReflecting(true);
     try {
-      await apiFetch(`/assistants/thoughts/reflect_on_assistant/`, {
+      await apiFetch(`/assistants/${assistantSlug}/reflect_again/`, {
         method: "POST",
-        body: {
-          assistant_id: assistant.id,
-          project_id: assistant.current_project.id,
-          reason: "manual recovery",
-        },
       });
+      toast.success("Reflection triggered");
+      await loadAssistant();
     } catch (err) {
       console.error("Reflection failed", err);
+      toast.error("Reflection failed");
+    } finally {
+      setReflecting(false);
     }
   };
 
   const handleRepairDocs = async () => {
-    if (!assistant?.documents) return;
-    for (const doc of assistant.documents) {
-      try {
-        await apiFetch(`/intel/debug/repair-progress/`, {
-          method: "POST",
-          body: { doc_id: doc.id },
-        });
-      } catch {
-        // ignore individual failures
-      }
+    setRepairing(true);
+    try {
+      await apiFetch(`/assistants/${assistantSlug}/repair_documents/`, {
+        method: "POST",
+      });
+      toast.info("Repair triggered");
+      await loadAssistant();
+    } catch (err) {
+      console.error("Repair failed", err);
+      toast.error("Repair failed");
+    } finally {
+      setRepairing(false);
     }
   };
 
@@ -101,11 +105,19 @@ export default function RecoveryPanel({ assistantSlug }) {
           >
             {recovering ? "Recovering..." : "Run Recovery"}
           </button>
-          <button className="btn btn-outline-secondary" onClick={handleReflect}>
-            Reflect Again
+          <button
+            className="btn btn-outline-secondary"
+            onClick={handleReflect}
+            disabled={reflecting}
+          >
+            {reflecting ? "Reflecting..." : "Reflect Again"}
           </button>
-          <button className="btn btn-outline-secondary" onClick={handleRepairDocs}>
-            Repair Documents
+          <button
+            className="btn btn-outline-secondary"
+            onClick={handleRepairDocs}
+            disabled={repairing}
+          >
+            {repairing ? "Repairing..." : "Repair Documents"}
           </button>
         </div>
         {thoughts.length > 0 && (
