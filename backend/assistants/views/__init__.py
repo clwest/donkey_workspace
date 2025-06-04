@@ -15,6 +15,7 @@ from .assistants import (
 )
 from .knowledge import diff_knowledge
 from .dashboard import assistant_dashboard
+from .diagnostics import assistant_diagnostics
 from .thoughts import (
     submit_assistant_thought,
     submit_chat_feedback,
@@ -245,6 +246,7 @@ __all__ = [
     "collaboration_logs_for_project",
     "collaboration_profile",
     "assistant_dashboard",
+    "assistant_diagnostics",
     "diff_knowledge",
     "replay_scene_view",
     "chat_with_scene",

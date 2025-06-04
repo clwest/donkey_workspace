@@ -116,6 +116,16 @@ export const fetchConvergenceLogs = (assistant) =>
     params: assistant ? { assistant } : undefined,
   });
 
+export const renameGlossaryAnchor = (slug, name, autoRetag = true) =>
+  apiFetch(`/glossary/anchor/${slug}/`, {
+    method: "PATCH",
+    body: { name },
+    params: autoRetag ? { auto_retag: true } : undefined,
+  });
+
+export const deleteGlossaryAnchor = (slug) =>
+  apiFetch(`/glossary/anchor/${slug}/`, { method: "DELETE" });
+
 export const fetchMythRecordingSessions = () => apiFetch("/myth/record/");
 export const createMythRecordingSession = (body) =>
   apiFetch("/myth/record/", { method: "POST", body });

@@ -96,6 +96,11 @@ urlpatterns = (
             name="symbolic-anchor-detail",
         ),
         path(
+            "glossary/anchor/<slug:slug>/",
+            views.glossary_anchor_detail,
+            name="glossary-anchor-detail",
+        ),
+        path(
             "symbolic-anchors/<slug:slug>/convergence/",
             views.anchor_convergence_logs,
             name="anchor-convergence-logs",

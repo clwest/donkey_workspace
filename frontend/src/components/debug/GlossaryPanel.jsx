@@ -1,26 +1,24 @@
 import { useEffect, useState } from "react";
 import apiFetch from "../../utils/apiClient";
+import { renameGlossaryAnchor, deleteGlossaryAnchor } from "../../api/agents";
 
 export default function GlossaryPanel() {
   const [logs, setLogs] = useState([]);
   const [anchors, setAnchors] = useState([]);
 
-  const handleRemove = (id) => {
+  const handleRemove = (slug) => {
     if (!window.confirm("Remove this anchor?")) return;
-    apiFetch(`/memory/symbolic-anchors/${id}/`, { method: "DELETE" })
-      .then(() => setAnchors((arr) => arr.filter((a) => a.id !== id)))
+    deleteGlossaryAnchor(slug)
+      .then(() => setAnchors((arr) => arr.filter((a) => a.slug !== slug)))
       .catch((err) => console.error("Delete failed", err));
   };
 
-  const handleRename = (id, current) => {
-    const label = window.prompt("New label", current);
-    if (!label) return;
-    apiFetch(`/memory/symbolic-anchors/${id}/`, {
-      method: "PATCH",
-      body: JSON.stringify({ label }),
-    })
+  const handleRename = (slug, current) => {
+    const name = window.prompt("New label", current);
+    if (!name) return;
+    renameGlossaryAnchor(slug, name)
       .then((res) =>
-        setAnchors((arr) => arr.map((a) => (a.id === id ? res : a)))
+        setAnchors((arr) => arr.map((a) => (a.slug === slug ? res : a)))
       )
       .catch((err) => console.error("Rename failed", err));
   };
@@ -61,26 +59,26 @@ export default function GlossaryPanel() {
                   +{a.retagged_count}
                 </span>
               )}
-              {a.chunks_count === 0 && a.retagged_count === 0 && (
+              {a.total_matches === 0 && (
                 <span
                   className="badge bg-warning text-dark ms-1"
-                  title="This anchor has no linked chunks or memory entries. Consider renaming or removing."
+                  title="This anchor has no linked chunks or memory entries."
                 >
-                  ⚠️
+                  0
                 </span>
               )}
               {a.source === "inferred" && <span className="ms-1">🤖</span>}
-              {a.chunks_count === 0 && a.retagged_count === 0 && (
+              {a.total_matches === 0 && (
                 <>
                   <button
                     className="btn btn-sm btn-link text-danger ms-1"
-                    onClick={() => handleRemove(a.id)}
+                    onClick={() => handleRemove(a.slug)}
                   >
                     🗑 Remove
                   </button>
                   <button
                     className="btn btn-sm btn-link ms-1"
-                    onClick={() => handleRename(a.id, a.label)}
+                    onClick={() => handleRename(a.slug, a.label)}
                   >
                     ✏️ Rename
                   </button>
