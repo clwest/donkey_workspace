@@ -37,10 +37,15 @@ export default function AssistantDetailPage() {
   const [assessing, setAssessing] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState("");
+  const [refreshKey, setRefreshKey] = useState(0);
   const threadId = query.get("thread");
   const projectId = query.get("project");
   const memoryId = query.get("memory");
   const objectiveId = query.get("objective");
+  const handleDiagnosticsRefresh = () => {
+    setRefreshKey((k) => k + 1);
+    reloadAssistant();
+  };
 
   // Clear state when navigating between assistants so new data loads properly
   useEffect(() => {
@@ -56,17 +61,18 @@ export default function AssistantDetailPage() {
     setNameInput("");
   }, [slug]);
 
-  useEffect(() => {
-    async function fetchAssistant() {
-      try {
-        const data = await apiFetch(`/assistants/${slug}/`);
-        setAssistant(data);
-        setNameInput(data.name);
-      } catch (err) {
-        console.error("Error fetching assistant:", err);
-      }
+  const reloadAssistant = async () => {
+    try {
+      const data = await apiFetch(`/assistants/${slug}/`);
+      setAssistant(data);
+      setNameInput(data.name);
+    } catch (err) {
+      console.error("Error fetching assistant:", err);
     }
-    fetchAssistant();
+  };
+
+  useEffect(() => {
+    reloadAssistant();
   }, [slug]);
 
   useEffect(() => {
@@ -295,7 +301,7 @@ export default function AssistantDetailPage() {
       </div>
       {activeTab === "overview" && (
         <>
-          <AssistantDiagnosticsPanel slug={slug} />
+          <AssistantDiagnosticsPanel slug={slug} onRefresh={handleDiagnosticsRefresh} />
           {assistant.recent_drift && (
             <div className="alert alert-warning">
               🧬 Drift Detected: {assistant.recent_drift.summary}
@@ -503,30 +509,46 @@ export default function AssistantDetailPage() {
             <>
               <h5 className="mt-4">📂 Linked Projects</h5>
               <ul className="list-group mb-3">
-                {assistant.projects.map((project) => (
-                  <li
-                    key={project.id}
-                    id={`project-${project.id}`}
-                    className="list-group-item"
-                  >
-                    <Link to={`/assistants/projects/${project.id}`}>
-                      {project.title}
-                    </Link>
-                    {project.objectives?.length > 0 && (
-                      <ul className="mt-2 ms-3">
-                        {project.objectives.map((obj) => (
-                          <li
-                            key={obj.id}
-                            id={`objective-${obj.id}`}
-                            className="small"
-                          >
-                            ✅ <strong>{obj.title}</strong>: {obj.description}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </li>
-                ))}
+                {assistant.projects.map((project) => {
+                  const stale =
+                    !(project.objectives && project.objectives.length) &&
+                    !(project.next_actions && project.next_actions.length);
+                  return (
+                    <li
+                      key={project.id}
+                      id={`project-${project.id}`}
+                      className={`list-group-item ${stale ? "opacity-50" : ""}`}
+                    >
+                      <Link to={`/assistants/projects/${project.id}`}>{project.title}</Link>
+                      {stale && (
+                        <button
+                          className="btn btn-sm btn-outline-danger ms-2"
+                          onClick={async () => {
+                            if (!window.confirm("Delete stale project?")) return;
+                            try {
+                              await apiFetch(`/assistants/projects/${project.id}/`, { method: "DELETE" });
+                              reloadAssistant();
+                              toast.success("Project removed");
+                            } catch {
+                              toast.error("Delete failed");
+                            }
+                          }}
+                        >
+                          🗑️
+                        </button>
+                      )}
+                      {project.objectives?.length > 0 && (
+                        <ul className="mt-2 ms-3">
+                          {project.objectives.map((obj) => (
+                            <li key={obj.id} id={`objective-${obj.id}`} className="small">
+                              ✅ <strong>{obj.title}</strong>: {obj.description}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </>
           )}
@@ -593,7 +615,7 @@ export default function AssistantDetailPage() {
             </div>
           )}
 
-          <AssistantMemoryPanel slug={slug} />
+          <AssistantMemoryPanel slug={slug} refreshKey={refreshKey} />
 
           <RecoveryPanel assistantSlug={slug} />
 

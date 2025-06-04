@@ -8,7 +8,7 @@ import { cleanRecentMemories, cleanStaleProjects } from "../../api/assistants";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-export default function AssistantDiagnosticsPanel({ slug }) {
+export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [action, setAction] = useState(null);
@@ -95,6 +95,38 @@ export default function AssistantDiagnosticsPanel({ slug }) {
     }
   };
 
+  const handleCleanMemories = async () => {
+    if (action) return;
+    if (!window.confirm("Remove weak memories?")) return;
+    setAction("memories");
+    try {
+      await cleanRecentMemories(slug);
+      toast.success("Weak memories cleaned");
+      setRefreshKey((k) => k + 1);
+      onRefresh && onRefresh();
+    } catch {
+      toast.error("Failed to clean memories");
+    } finally {
+      cooldown();
+    }
+  };
+
+  const handleCleanProjects = async () => {
+    if (action) return;
+    if (!window.confirm("Remove stale projects?")) return;
+    setAction("projects");
+    try {
+      await cleanStaleProjects(slug);
+      toast.success("Stale projects cleaned");
+      setRefreshKey((k) => k + 1);
+      onRefresh && onRefresh();
+    } catch {
+      toast.error("Failed to clean projects");
+    } finally {
+      cooldown();
+    }
+  };
+
   return (
     <div className="p-2 border rounded mb-3">
       <h5 className="mb-3">Assistant Diagnostics</h5>
@@ -154,6 +186,34 @@ export default function AssistantDiagnosticsPanel({ slug }) {
             "📚 Sync Glossary Anchors"
           )}
 
+        </button>
+        <button
+          className="btn btn-sm btn-outline-danger ms-1"
+          onClick={handleCleanMemories}
+          disabled={!!action}
+        >
+          {action === "memories" ? (
+            <>
+              <span className="spinner-border spinner-border-sm me-1" role="status" />
+              Cleaning...
+            </>
+          ) : (
+            "🧹 Clean Weak Memories"
+          )}
+        </button>
+        <button
+          className="btn btn-sm btn-outline-danger ms-1"
+          onClick={handleCleanProjects}
+          disabled={!!action}
+        >
+          {action === "projects" ? (
+            <>
+              <span className="spinner-border spinner-border-sm me-1" role="status" />
+              Removing...
+            </>
+          ) : (
+            "🗑️ Clear Stale Projects"
+          )}
         </button>
       </div>
     </div>
