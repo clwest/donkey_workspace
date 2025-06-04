@@ -406,3 +406,15 @@ export async function reviewIngestDocument(slug, docId) {
     return null;
   }
 }
+
+export async function fetchBootProfile(slug) {
+  const res = await apiFetch(`/assistants/${slug}/boot_profile/`);
+  return res;
+}
+
+export async function runSelfTest(slug) {
+  const res = await apiFetch(`/assistants/${slug}/selftest/`, {
+    method: "POST",
+  });
+  return res;
+}
