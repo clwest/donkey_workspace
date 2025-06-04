@@ -7,6 +7,7 @@ import PromptUsageLogTable from "../../components/prompts/PromptUsageLogTable";
 import PromptUsageLogList from "../../components/prompts/PromptUsageLogList";
 import PromptDiagnosticsPanel from "../../components/prompts/PromptDiagnosticPanel";
 import PrimaryStar from "../../components/assistant/PrimaryStar";
+import PromptDangerZone from "../../components/prompts/PromptDangerZone";
 
 export default function PromptDetailView() {
   const { slug } = useParams();
@@ -131,24 +132,9 @@ export default function PromptDetailView() {
         <button className="btn btn-primary" onClick={() => navigate(`/prompts/${slug}/remix?mode=${mutationMode}`)}>
           ✨ Apply Mutation
         </button>
-
-        <button className="btn btn-danger" onClick={async () => {
-          if (!window.confirm("Are you sure you want to delete this prompt?")) return;
-          try {
-            const res = await fetch(`/api/prompts/${slug}/delete/`, { method: "DELETE" });
-            if (res.ok) {
-              toast.success("✅ Prompt deleted");
-              navigate("/prompts");
-            } else {
-              toast.error("❌ Failed to delete");
-            }
-          } catch (err) {
-            console.error("Delete failed", err);
-          }
-        }}>
-          🗑️ Delete Prompt
-        </button>
       </div>
+
+      <PromptDangerZone slug={slug} />
     </div>
   );
 }
