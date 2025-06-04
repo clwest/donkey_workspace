@@ -126,6 +126,15 @@ class DocumentChunk(models.Model):
         default=EmbeddingStatus.PENDING,
         choices=EmbeddingStatus.choices,
     )
+    embedding_valid = models.BooleanField(
+        default=True,
+        help_text="False when the stored vector appears invalid",
+    )
+
+    @property
+    def has_glossary_score(self) -> bool:
+        """Return True if this glossary chunk has a positive glossary_score."""
+        return self.is_glossary and self.glossary_score > 0
 
     def __str__(self):
         return f"Chunk {self.order} of {self.document.title}"

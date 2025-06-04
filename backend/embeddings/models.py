@@ -100,6 +100,12 @@ class Embedding(models.Model, EmbeddingMixin):
             else "Unknown Embedding"
         )
 
+    @property
+    def is_valid_vector(self) -> bool:
+        """Return True if the stored vector has non-zero magnitude."""
+        vec = self.embedding or []
+        return bool(vec) and any(abs(v) > 0 for v in vec)
+
 
 class TagConcept(models.Model):
     """Predefined semantic tags with their embeddings for inference."""

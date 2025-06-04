@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation, GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from agents.models import SwarmMemoryEntry
+from mcp_core.models import MemoryContext
 
 User = settings.AUTH_USER_MODEL
 
@@ -178,7 +179,19 @@ class MemoryEntry(models.Model):
     def save(self, *args, **kwargs):
         if not self.title:
             self.title = self.generate_memory_title()
+        creating = self._state.adding
         super().save(*args, **kwargs)
+        if not self.context:
+            ctx = MemoryContext.objects.create(
+                target_content_type=ContentType.objects.get_for_model(MemoryEntry),
+                target_object_id=self.id,
+                content=self.summary or self.event,
+            )
+            self.context = ctx
+            super().save(update_fields=["context"])
+        elif str(self.context.target_object_id or "") != str(self.id):
+            self.context.target_object_id = str(self.id)
+            self.context.save(update_fields=["target_object_id"])
 
     @property
     def source_name(self):

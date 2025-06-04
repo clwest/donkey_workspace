@@ -53,6 +53,13 @@ class AssistantReflectionLog(models.Model):
         on_delete=models.SET_NULL,
         related_name="reflection_logs",
     )
+    prompt_log = models.ForeignKey(
+        "mcp_core.PromptUsageLog",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reflection_logs",
+    )
     category = models.CharField(
         max_length=50,
         choices=[

@@ -12,6 +12,7 @@ from intel_core.models import Document
 from prompts.models import Prompt
 from prompts.utils.token_helpers import count_tokens
 from prompts.utils.openai_utils import generate_prompt_from_summary
+from mcp_core.utils.log_prompt import log_prompt_usage
 from mcp_core.models import Tag
 from assistants.models.project import AssistantPromptLink
 from memory.models import MemoryEntry
@@ -255,6 +256,17 @@ class AssistantReflectionEngine:
                 summary=reflection_text,
                 raw_prompt=prompt,
             )
+            usage = log_prompt_usage(
+                prompt_slug="reflection-prompt",
+                prompt_title="Reflection Prompt",
+                used_by="assistant_reflection",
+                context_id=str(context.id),
+                rendered_prompt=prompt or "",
+                assistant_id=str(self.assistant.id),
+            )
+            if usage:
+                log.prompt_log = usage
+                log.save(update_fields=["prompt_log"])
 
             mem = MemoryEntry.objects.create(
                 event=reflection_text,
@@ -449,6 +461,17 @@ class AssistantReflectionEngine:
                 raw_prompt=prompt,
                 category="meta",
             )
+            usage = log_prompt_usage(
+                prompt_slug="memory-reflection",
+                prompt_title="Memory Reflection",
+                used_by="assistant_reflection",
+                context_id=str(memory.context_id or ""),
+                rendered_prompt=prompt,
+                assistant_id=str(self.assistant.id),
+            )
+            if usage:
+                log.prompt_log = usage
+                log.save(update_fields=["prompt_log"])
 
             logger.info(f"[✅] Reflection log created for memory {memory.id}")
             return log
@@ -477,6 +500,17 @@ class AssistantReflectionEngine:
             raw_prompt=prompt,
             title=f"Reflection on assistant {assistant.name}",
         )
+        usage = log_prompt_usage(
+            prompt_slug="assistant-reflection",
+            prompt_title="Assistant Reflection",
+            used_by="assistant_reflection",
+            context_id=str(project.memory_context_id if project else ""),
+            rendered_prompt=prompt,
+            assistant_id=str(self.assistant.id),
+        )
+        if usage:
+            log.prompt_log = usage
+            log.save(update_fields=["prompt_log"])
         return log
 
     # CODEx MARKER: plan_from_thread_context
@@ -811,11 +845,22 @@ def reflect_on_agent_swarm(assistant: Assistant) -> AssistantReflectionLog:
         temperature=0.4,
     )
 
-    return AssistantReflectionLog.objects.create(
+    log = AssistantReflectionLog.objects.create(
         assistant=assistant,
         title="Agent Swarm & Cluster Reflection",
         summary=summary,
     )
+    usage = log_prompt_usage(
+        prompt_slug="agent-swarm-reflection",
+        prompt_title="Agent Swarm Reflection",
+        used_by="assistant_reflection",
+        rendered_prompt=prompt,
+        assistant_id=str(assistant.id),
+    )
+    if usage:
+        log.prompt_log = usage
+        log.save(update_fields=["prompt_log"])
+    return log
 
 
 def suggest_agent_resurrections(assistant: Assistant) -> list[str]:
@@ -843,11 +888,21 @@ def suggest_agent_resurrections(assistant: Assistant) -> list[str]:
         )
 
     if bullets:
-        AssistantReflectionLog.objects.create(
+        log = AssistantReflectionLog.objects.create(
             assistant=assistant,
             title="Agent Resurrection Suggestions",
             summary="\n".join(bullets),
         )
+        usage = log_prompt_usage(
+            prompt_slug="resurrection-suggestions",
+            prompt_title="Agent Resurrection Suggestions",
+            used_by="assistant_reflection",
+            rendered_prompt="\n".join(bullets),
+            assistant_id=str(assistant.id),
+        )
+        if usage:
+            log.prompt_log = usage
+            log.save(update_fields=["prompt_log"])
 
     return bullets
 
@@ -880,6 +935,16 @@ def forecast_future_swarm_needs(assistant: Assistant) -> str:
         title="Swarm Forecast",
         summary=forecast,
     )
+    usage = log_prompt_usage(
+        prompt_slug="swarm-forecast",
+        prompt_title="Swarm Forecast",
+        used_by="assistant_reflection",
+        rendered_prompt=prompt,
+        assistant_id=str(assistant.id),
+    )
+    if usage:
+        log.prompt_log = usage
+        log.save(update_fields=["prompt_log"])
     entry = SwarmMemoryEntry.objects.create(
         title="Swarm Forecast",
         content=forecast,
@@ -905,11 +970,21 @@ def reflect_on_dissent_signals(assistant: Assistant) -> str:
     else:
         summary = "No dissent signals detected."
 
-    AssistantReflectionLog.objects.create(
+    log = AssistantReflectionLog.objects.create(
         assistant=assistant,
         title="Dissent Review",
         summary=summary,
     )
+    usage = log_prompt_usage(
+        prompt_slug="dissent-review",
+        prompt_title="Dissent Review",
+        used_by="assistant_reflection",
+        rendered_prompt=summary,
+        assistant_id=str(assistant.id),
+    )
+    if usage:
+        log.prompt_log = usage
+        log.save(update_fields=["prompt_log"])
     entry = SwarmMemoryEntry.objects.create(
         title="Dissent Review",
         content=summary,
