@@ -47,7 +47,6 @@ from assistants.helpers.chat_helper import get_or_create_chat_session, save_chat
 from assistants.utils.delegation import spawn_delegated_assistant, should_delegate
 from assistants.helpers.memory_helpers import create_memory_from_chat
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
-from memory.utils.context_helpers import get_or_create_context_from_memory
 from embeddings.helpers.helpers_io import save_embedding, get_embedding_for_text
 from embeddings.helpers.helper_tagging import generate_tags_for_memory
 from tools.utils import call_tool, reflect_on_tool_output
@@ -288,9 +287,11 @@ class AssistantViewSet(viewsets.ModelViewSet):
             return Response({"error": "memory_id required"}, status=400)
 
         memory = get_object_or_404(MemoryEntry, id=memory_id)
-        context = get_or_create_context_from_memory(memory)
+        if not memory.context:
+            memory.context = assistant.memory_context
+            memory.save(update_fields=["context"])
         engine = AssistantReflectionEngine(assistant)
-        ref_log = engine.reflect_now(context)
+        ref_log = engine.reflect_now()
         if not ref_log:
             return Response({"status": "skipped", "summary": ""})
 
@@ -982,7 +983,10 @@ def review_ingest(request, slug, doc_id):
     except Document.DoesNotExist:
         return Response({"error": "Document not found"}, status=404)
 
-    if document.last_reflected_at and timezone.now() - document.last_reflected_at < timedelta(hours=1):
+    if (
+        document.last_reflected_at
+        and timezone.now() - document.last_reflected_at < timedelta(hours=1)
+    ):
         return Response(
             {"status": "skipped", "reason": "Document recently reflected"},
             status=200,
@@ -1159,7 +1163,9 @@ def recover_assistant_view(request, slug):
                 if entry.get("assistant") == assistant.slug:
                     query = entry.get("query", "")
                     expected = entry.get("expected_chunks", [])
-                    chunks, reason, *_ = get_relevant_chunks(assistant.slug, query, debug=True)
+                    chunks, reason, *_ = get_relevant_chunks(
+                        assistant.slug, query, debug=True
+                    )
                     used = [c.get("chunk_id") for c in chunks]
                     rag_replay = {
                         "query": query,

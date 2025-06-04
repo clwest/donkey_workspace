@@ -23,7 +23,6 @@ from assistants.utils.assistant_reflection_engine import AssistantReflectionEngi
 
 logger = logging.getLogger(__name__)
 from memory.models import MemoryEntry
-from memory.utils.context_helpers import get_or_create_context_from_memory
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 
 
@@ -42,7 +41,9 @@ class AssistantViewSet(viewsets.ViewSet):
         serializer = AssistantSerializer(data=request.data)
         if serializer.is_valid():
             assistant = serializer.save()
-            return Response(AssistantSerializer(assistant).data, status=status.HTTP_201_CREATED)
+            return Response(
+                AssistantSerializer(assistant).data, status=status.HTTP_201_CREATED
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk=None):
@@ -54,7 +55,9 @@ class AssistantViewSet(viewsets.ViewSet):
         if assistant.current_project:
             from assistants.serializers import ProjectOverviewSerializer
 
-            data["current_project"] = ProjectOverviewSerializer(assistant.current_project).data
+            data["current_project"] = ProjectOverviewSerializer(
+                assistant.current_project
+            ).data
         return Response(data)
 
     @action(detail=False, methods=["get"], url_path="primary")
@@ -95,9 +98,11 @@ class AssistantViewSet(viewsets.ViewSet):
         if not memory_id:
             return Response({"error": "memory_id required"}, status=400)
         memory = get_object_or_404(MemoryEntry, id=memory_id)
-        context = get_or_create_context_from_memory(memory)
+        if not memory.context:
+            memory.context = assistant.memory_context
+            memory.save(update_fields=["context"])
         engine = AssistantReflectionEngine(assistant)
-        ref_log = engine.reflect_now(context)
+        ref_log = engine.reflect_now()
         if not ref_log:
             return Response({"status": "skipped", "summary": ""})
         AssistantThoughtLog.objects.create(

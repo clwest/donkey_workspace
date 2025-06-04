@@ -10,16 +10,16 @@ logger = logging.getLogger(__name__)
 def reflect_on_project_memory(project_id: str) -> str | None:
     """Run reflection when project memory links change."""
     Project = apps.get_model("project", "Project")
-    MemoryContext = apps.get_model("mcp_core", "MemoryContext")
-    engine_cls = apps.get_app_config("assistants").module.utils.assistant_reflection_engine.AssistantReflectionEngine
+    engine_cls = apps.get_app_config(
+        "assistants"
+    ).module.utils.assistant_reflection_engine.AssistantReflectionEngine
     project = Project.objects.filter(id=project_id).select_related("assistant").first()
     if not project or not project.assistant:
         logger.warning("Project %s missing assistant", project_id)
         return None
-    context = MemoryContext.objects.create(target=project, content=f"Reflection for project {project.title}")
     engine = engine_cls(project.assistant)
-    engine.reflect_now(context)
-    return str(context.id)
+    engine.reflect_now()
+    return str(project.assistant.memory_context_id)
 
 
 @shared_task
@@ -27,14 +27,20 @@ def auto_tag_new_memory(memory_id: str) -> str | None:
     """Compute embedding and tags for a MemoryEntry."""
     MemoryEntry = apps.get_model("memory", "MemoryEntry")
     Tag = apps.get_model("mcp_core", "Tag")
-    save_embedding = apps.get_app_config("embeddings").module.helpers.helpers_io.save_embedding
-    auto_tag = apps.get_app_config("mcp_core").module.utils.auto_tag_from_embedding.auto_tag_from_embedding
+    save_embedding = apps.get_app_config(
+        "embeddings"
+    ).module.helpers.helpers_io.save_embedding
+    auto_tag = apps.get_app_config(
+        "mcp_core"
+    ).module.utils.auto_tag_from_embedding.auto_tag_from_embedding
     memory = MemoryEntry.objects.filter(id=memory_id).first()
     if not memory:
         return None
     text = memory.summary or memory.event
     try:
-        embedding = apps.get_app_config("embeddings").module.helpers.helpers_processing.generate_embedding(text)
+        embedding = apps.get_app_config(
+            "embeddings"
+        ).module.helpers.helpers_processing.generate_embedding(text)
         if embedding:
             save_embedding(memory, embedding)
     except Exception as e:
@@ -63,7 +69,9 @@ def bootstrap_assistant_from_doc(doc_id: str) -> str | None:
     doc = Document.objects.filter(id=doc_id).first()
     if not doc:
         return None
-    prompt = Prompt.objects.create(title=f"Summary of {doc.title}", content=doc.summary or doc.content[:200])
+    prompt = Prompt.objects.create(
+        title=f"Summary of {doc.title}", content=doc.summary or doc.content[:200]
+    )
     base_slug = slugify(f"draft-{doc.title}")
     assistant = Assistant.objects.filter(slug=base_slug).first()
     if not assistant:
@@ -127,6 +135,8 @@ def mine_swarm_codification_patterns() -> int:
         return 0
     count = 0
     for pattern in Pattern.objects.all():
-        Suggestion.objects.get_or_create(pattern=pattern, defaults={"summary": pattern.summary})
+        Suggestion.objects.get_or_create(
+            pattern=pattern, defaults={"summary": pattern.summary}
+        )
         count += 1
     return count

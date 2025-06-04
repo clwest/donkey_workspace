@@ -101,22 +101,28 @@ class AssistantReflectionEngine:
 
     def __init__(self, assistant):
         self.assistant = assistant
+        if not assistant.memory_context:
+            ctx, _ = MemoryContext.objects.get_or_create(
+                content=f"{assistant.slug} context"
+            )
+            assistant.memory_context = ctx
+            assistant.save(update_fields=["memory_context"])
+        self.context = assistant.memory_context
         self.project = self.get_or_create_project(assistant)
-        context_id = getattr(assistant.memory_context, "id", None)
         logger.info(
-            f"[ReflectionEngine] Assistant: {assistant.slug}, Context ID: {context_id}"
+            f"[ReflectionEngine] Assistant: {assistant.slug}, Context ID: {self.context.id}"
         )
+        orphaned = MemoryEntry.objects.filter(
+            assistant=self.assistant, context__isnull=True
+        ).count()
+        if orphaned > 0:
+            logger.warning(
+                f"[ReflectionEngine] \u26a0\ufe0f Found {orphaned} orphaned memory entries for {self.assistant.slug}"
+            )
 
     def reflect_on_recent_activity(self) -> AssistantReflectionLog | None:
         """Run a reflection using the assistant's default memory context."""
-        context = self.assistant.memory_context
-        if not context:
-            context = MemoryContext.objects.create(
-                content=f"{self.assistant.name} Context"
-            )
-            self.assistant.memory_context = context
-            self.assistant.save(update_fields=["memory_context"])
-        return self.reflect_now(context)
+        return self.reflect_now()
 
     def build_reflection_prompt(self, memories: list[str]) -> str:
         joined_memories = "\n".join(memories)
@@ -166,15 +172,15 @@ class AssistantReflectionEngine:
 
     def reflect_now(
         self,
-        context: MemoryContext,
         *,
         scene: str | None = None,
         location_context: str | None = None,
     ) -> AssistantReflectionLog:
-        """Run a quick reflection over recent memories for the given context."""
+        """Run a quick reflection over recent memories for the assistant's context."""
 
         from assistants.helpers.memory_helpers import get_relevant_memories_for_task
 
+        context = self.context
         entries = get_relevant_memories_for_task(
             self.assistant,
             project=self.project,

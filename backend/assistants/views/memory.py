@@ -3,9 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from assistants.models.reflection import (
-    AssistantReflectionInsight,    
+    AssistantReflectionInsight,
     AssistantReflectionLog,
-
 )
 from assistants.models.assistant import Assistant
 from assistants.models.project import AssistantMemoryChain
@@ -30,10 +29,7 @@ from memory.serializers import (
 )
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from assistants.utils.memory_filters import get_filtered_memories
-from memory.utils.context_helpers import get_or_create_context_from_memory
 from assistants.helpers.reflection_helpers import simulate_memory_fork
-from mcp_core.models import MemoryContext
-from django.contrib.contenttypes.models import ContentType
 from intel_core.models import Document
 from assistants.services import AssistantService
 
@@ -148,29 +144,17 @@ def reflect_now(request, slug):
     project_id = request.data.get("project_id")
     doc_id = request.data.get("doc_id")
 
-    context = None
     if memory_id:
         memory = MemoryService.get_entry_or_404(memory_id)
-        context = get_or_create_context_from_memory(memory)
-    elif project_id:
-        project = AssistantService.get_project_or_404(project_id)
-        context = MemoryContext.objects.create(
-            target_content_type=ContentType.objects.get_for_model(Project),
-            target_object_id=project.id,
-            content=project.title,
-        )
-    elif doc_id:
-        document = get_object_or_404(Document, id=doc_id)
-        context = MemoryContext.objects.create(
-            target_content_type=ContentType.objects.get_for_model(Document),
-            target_object_id=document.id,
-            content=document.title,
-        )
-    else:
-        context = MemoryContext.objects.create(content="ad-hoc reflection")
+        if not memory.context:
+            memory.context = assistant.memory_context
+            memory.save(update_fields=["context"])
+    elif project_id or doc_id:
+        # legacy parameters ignored; reflections use assistant.memory_context
+        pass
 
     engine = AssistantReflectionEngine(assistant)
-    ref_log = engine.reflect_now(context)
+    ref_log = engine.reflect_now()
     if not ref_log:
         return Response({"status": "skipped", "summary": ""})
     return Response({"status": "ok", "summary": ref_log.summary})
@@ -297,9 +281,7 @@ def assistant_memory_documents(request, slug):
     """List documents currently loaded in memory for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
 
-    doc_ids = set(
-        assistant.documents.values_list("id", flat=True)
-    )
+    doc_ids = set(assistant.documents.values_list("id", flat=True))
 
     doc_ids.update(
         MemoryService.filter_entries(
