@@ -79,7 +79,7 @@ export default function Sidebar({ collapsed }) {
             </NavLink>
           </li>
           <li>
-            <NavLink to="/dev/routes" className="d-block">
+            <NavLink to="/dev/routes/fullmap" className="d-block">
               <span role="img" aria-label="Route">🛣</span>
               <span className="link-text ms-1">Route Health</span>
             </NavLink>

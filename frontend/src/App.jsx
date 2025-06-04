@@ -563,6 +563,7 @@ export default function App() {
           <Route path="/dev-dashboard" element={<DevDashboard />} />
 
           <Route path="/dev/routes" element={<RouteViewer />} />
+          <Route path="/dev/routes/fullmap" element={<RouteViewer />} />
           <Route path="/dev/routes/capabilities" element={<CapabilityStatus />} />
           <Route path="/dev/route-check" element={<RouteCheckPage />} />
           <Route path="/dev/debug/intel" element={<IntelDebugTools />} />
