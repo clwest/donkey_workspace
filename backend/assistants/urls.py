@@ -273,6 +273,16 @@ urlpatterns = [
         prompts.recent_prompts,
         name="recent-prompts",
     ),
+    path(
+        "<slug:slug>/available_prompts/",
+        prompts.available_prompts,
+        name="assistant-available-prompts",
+    ),
+    path(
+        "<slug:slug>/update_prompt/",
+        prompts.update_assistant_prompt,
+        name="assistant-update-prompt",
+    ),
     path("prompts/bootstrap-from-prompt/", projects.bootstrap_assistant_from_prompt),
     path("assistants/<slug:slug>/projects/", views.projects_for_assistant),
     path(

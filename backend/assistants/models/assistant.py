@@ -64,6 +64,7 @@ class Assistant(models.Model):
         on_delete=models.SET_NULL,
         related_name="assistants_using_prompt",
     )
+    prompt_title = models.CharField(max_length=255, blank=True, null=True)
 
     parent_assistant = models.ForeignKey(
         "self",

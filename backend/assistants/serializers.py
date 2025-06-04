@@ -105,6 +105,7 @@ def calculate_composite_health(assistant):
     score += doc_pct * 0.25
     return round(score, 2)
 
+
 from project.serializers import (
     ProjectSerializer,
     ProjectTaskSerializer,
@@ -670,6 +671,7 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             "preferred_conflict_resolution",
             "system_prompt",
             "system_prompt_id",
+            "prompt_title",
             "personality",
             "tone",
             "persona_summary",
@@ -1071,7 +1073,9 @@ class AssistantSerializer(serializers.ModelSerializer):
         read_only=True,
     )
     health_score = serializers.SerializerMethodField()
-    memory_context_id = serializers.UUIDField(source="memory_context.id", read_only=True)
+    memory_context_id = serializers.UUIDField(
+        source="memory_context.id", read_only=True
+    )
 
     class Meta:
         model = Assistant
@@ -1093,6 +1097,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "is_alignment_flexible",
             "system_prompt_id",
             "system_prompt_slug",
+            "prompt_title",
             "specialty",
             "preferred_model",
             "mood_stability_index",
