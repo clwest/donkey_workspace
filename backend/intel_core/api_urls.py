@@ -21,4 +21,5 @@ router.register(
 )
 urlpatterns = [
     path("chunk-stats/", chunks.chunk_stats, name="chunk_stats"),
+    path("chunk_drift_stats/", chunks.chunk_drift_stats, name="chunk_drift_stats"),
 ] + router.urls

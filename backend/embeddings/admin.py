@@ -41,7 +41,9 @@ class ChunkAdmin(admin.ModelAdmin):
         "document",
         "order",
         "score",
+        "glossary_boost",
         "force_embed",
+        "is_drifting",
         "status_colored",
         "last_used_in_chat",
     )

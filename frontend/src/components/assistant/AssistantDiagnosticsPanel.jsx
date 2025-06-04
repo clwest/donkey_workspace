@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import apiFetch from "@/utils/apiClient";
+import ChunkDriftPanel from "../intel/ChunkDriftPanel";
 
 import {
   cleanRecentMemories,
@@ -232,11 +233,11 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
             "🗑️ Clear Stale Projects"
           )}
         </button>
-        <button
-          className="btn btn-sm btn-outline-primary ms-1"
-          onClick={handleGlobalBoot}
-          disabled={!!action}
-        >
+      <button
+        className="btn btn-sm btn-outline-primary ms-1"
+        onClick={handleGlobalBoot}
+        disabled={!!action}
+      >
           {action === "global" ? (
             <>
               <span className="spinner-border spinner-border-sm me-1" role="status" />
@@ -247,6 +248,10 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
           )}
         </button>
       </div>
+      <details className="mt-3">
+        <summary className="h6">Chunk Drift</summary>
+        <ChunkDriftPanel />
+      </details>
     </div>
   );
 }

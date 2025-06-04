@@ -150,6 +150,7 @@ class DocumentChunkSerializer(serializers.ModelSerializer):
     embedding_id = serializers.SerializerMethodField()
     skipped = serializers.SerializerMethodField()
     glossary_score = serializers.FloatField(read_only=True)
+    glossary_boost = serializers.FloatField(read_only=True)
     is_glossary_weak = serializers.SerializerMethodField()
 
     class Meta:
@@ -162,6 +163,7 @@ class DocumentChunkSerializer(serializers.ModelSerializer):
             "skipped",
             "embedding_id",
             "glossary_score",
+            "glossary_boost",
             "is_glossary_weak",
         ]
 
@@ -184,6 +186,7 @@ class DocumentChunkInfoSerializer(serializers.ModelSerializer):
     token_count = serializers.IntegerField(source="tokens", read_only=True)
     matched_anchors = serializers.ListField(read_only=True)
     glossary_score = serializers.FloatField(read_only=True)
+    glossary_boost = serializers.FloatField(read_only=True)
     is_glossary_weak = serializers.SerializerMethodField()
     embedding_status = serializers.CharField(read_only=True)
 
@@ -195,6 +198,7 @@ class DocumentChunkInfoSerializer(serializers.ModelSerializer):
             "text",
             "score",
             "glossary_score",
+            "glossary_boost",
             "is_glossary_weak",
             "token_count",
             "force_embed",

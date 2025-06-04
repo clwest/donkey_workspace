@@ -919,6 +919,21 @@ def glossary_anchor_detail(request, slug):
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
+def boost_anchor(request):
+    """Set glossary_boost on all chunks for a given anchor slug."""
+    slug = request.data.get("anchor")
+    boost = float(request.data.get("boost", 0))
+    if not slug:
+        return Response({"error": "anchor required"}, status=400)
+    anchor = get_object_or_404(SymbolicMemoryAnchor, slug=slug)
+    from intel_core.models import DocumentChunk
+
+    updated = DocumentChunk.objects.filter(anchor=anchor).update(glossary_boost=boost)
+    return Response({"updated": updated, "boost": boost})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
 def anamnesis(request):
     """Recover fragmented memory for an assistant."""
     slug = request.data.get("assistant_slug")

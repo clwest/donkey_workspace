@@ -68,6 +68,7 @@ urlpatterns = [
         name="document_chunk_list",
     ),
     path("chunk-stats/", chunks.chunk_stats, name="chunk_stats"),
+    path("chunk_drift_stats/", chunks.chunk_drift_stats, name="chunk_drift_stats"),
     path("debug/chunks/<uuid:doc_id>/", debug.debug_doc_chunks),
     path("debug/recalc-scores/", debug.recalc_scores),
     path("debug/rag-recall/", debug.rag_recall),
