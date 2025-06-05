@@ -8,7 +8,7 @@ pytest.importorskip("django")
 
 from django.core.management import call_command
 from assistants.models import Assistant
-from memory.models import GlossaryChangeEvent
+from memory.models import SymbolicMemoryAnchor
 
 
 @patch(
@@ -34,5 +34,6 @@ def test_mutate_glossary_handles_long_lines(mock_suggest, tmp_path):
         "--save-to-review",
     )
 
-    event = GlossaryChangeEvent.objects.get()
-    assert event.term == "May 31, 2025"
+    anchor = SymbolicMemoryAnchor.objects.get(label="May 31, 2025")
+    assert anchor.mutation_source == "rag_auto_suggest"
+    assert anchor.mutation_status == "pending"

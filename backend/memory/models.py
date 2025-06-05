@@ -452,6 +452,30 @@ class SymbolicMemoryAnchor(models.Model):
         default="pending",
     )
     mutation_source = models.CharField(max_length=64, blank=True, null=True)
+    related_anchor = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="mutated_variants",
+    )
+    suggested_by = models.CharField(max_length=100, blank=True, null=True)
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="anchor_suggestions",
+    )
+    memory_context = models.ForeignKey(
+        "mcp_core.MemoryContext",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="anchor_suggestions",
+    )
+    fallback_score = models.FloatField(null=True, blank=True)
+    retrieved_from = models.CharField(max_length=100, blank=True, null=True)
     tags = models.ManyToManyField("mcp_core.Tag", blank=True)
     reinforced_by = models.ManyToManyField(
         "assistants.Assistant", blank=True, related_name="reinforced_anchors"

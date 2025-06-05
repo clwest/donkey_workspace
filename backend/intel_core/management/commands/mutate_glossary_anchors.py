@@ -7,7 +7,7 @@ from django.utils.text import slugify
 
 from assistants.models import Assistant
 from assistants.utils.chunk_retriever import get_glossary_terms_from_reflections
-from memory.models import SymbolicMemoryAnchor, GlossaryChangeEvent
+from memory.models import SymbolicMemoryAnchor, RAGGroundingLog
 from intel_core.utils.anchor_mutation import suggest_anchor_mutations
 
 
@@ -105,8 +105,46 @@ class Command(BaseCommand):
                         self.stdout.write(f"Existing anchor {slug_a} updated")
 
             if save_review:
+                orig_anchor = SymbolicMemoryAnchor.objects.filter(slug=slugify(term)).first()
+                log = (
+                    RAGGroundingLog.objects.filter(
+                        assistant=assistant, expected_anchor=term
+                    )
+                    .order_by("-created_at")
+                    .first()
+                )
+                score = None
+                if log:
+                    score = log.corrected_score or log.retrieval_score
                 for a in anchors:
-                    if a:
-                        term = a[: GlossaryChangeEvent._meta.get_field("term").max_length]
-                        GlossaryChangeEvent.objects.create(term=term, boost=0.0)
-                        self.stdout.write(f"Queued {term} for review")
+                    if not a:
+                        continue
+                    if SymbolicMemoryAnchor.objects.filter(
+                        label__iexact=a, related_anchor=orig_anchor
+                    ).exists():
+                        self.stdout.write(self.style.WARNING(f"⚠️ Already exists: {a}"))
+                        continue
+                    slug_a = slugify(a)
+                    if SymbolicMemoryAnchor.objects.filter(slug=slug_a).exists():
+                        base = slug_a
+                        i = 1
+                        while SymbolicMemoryAnchor.objects.filter(slug=f"{base}-{i}").exists():
+                            i += 1
+                        slug_a = f"{base}-{i}"
+                    SymbolicMemoryAnchor.objects.create(
+                        slug=slug_a,
+                        label=a,
+                        mutation_source="rag_auto_suggest",
+                        mutation_status="pending",
+                        related_anchor=orig_anchor,
+                        suggested_by="gpt-4o",
+                        assistant=assistant,
+                        memory_context=assistant.memory_context,
+                        fallback_score=score,
+                        retrieved_from="RAGGroundingLog",
+                        source="mutation",
+                        created_from="mutation",
+                    )
+                    self.stdout.write(
+                        self.style.SUCCESS(f"✅ Saved: {a} (source: rag_auto_suggest)")
+                    )
