@@ -158,8 +158,8 @@ export default function RouteCheckPage() {
         <div className="mt-4">
           <h4>API-only Endpoints</h4>
           <ul className="list-group">
-            {report.api_only.map((br) => (
-              <li key={br} className="list-group-item">
+            {report.api_only.map((br, idx) => (
+              <li key={br + '-' + idx} className="list-group-item">
                 <code>{br}</code>
               </li>
             ))}

@@ -39,8 +39,8 @@ export default function RouteViewer() {
           </tr>
         </thead>
         <tbody>
-          {filtered.map((route) => (
-            <tr key={route.path}>
+          {filtered.map((route, idx) => (
+            <tr key={route.path + '-' + idx}>
               <td><code>{route.path}</code></td>
               <td>{route.view || 'Unknown'}</td>
               <td>{route.module || '?'}</td>
