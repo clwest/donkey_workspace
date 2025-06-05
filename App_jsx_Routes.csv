@@ -8,6 +8,7 @@ Route Path,Component
 /agents/dashboard,AgentDashboardPage
 /agents/trained,TrainedAgentsPage
 /anchor/continuity,ContinuityAnchorPage
+/anchor/mutations,GlossaryMutationReviewPanel
 /anchor/symbolic,SymbolicAnchorAdminPage
 /anchor/symbolic/:slug,SymbolicAnchorDetailPage
 /arena/active,ArenaActivePage

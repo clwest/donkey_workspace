@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   fetchGlossaryMutations,
   acceptGlossaryMutation,
@@ -9,14 +10,24 @@ import apiFetch from "../../utils/apiClient";
 export default function GlossaryMutationReviewPanel() {
   const [mutations, setMutations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const load = async () => {
     try {
-      const res = await fetchGlossaryMutations();
-      setMutations(res.results || res);
+      const assistant = searchParams.get("assistant");
+      const res = await fetchGlossaryMutations(
+        assistant ? { assistant } : undefined
+      );
+      const data = res.results || res;
+      if (!data || data.length === 0) {
+        navigate("/anchor/symbolic", { replace: true });
+      } else {
+        setMutations(data);
+      }
     } catch (err) {
       console.error("Failed to load mutations", err);
-      setMutations([]);
+      navigate("/anchor/symbolic", { replace: true });
     } finally {
       setLoading(false);
     }
@@ -24,7 +35,7 @@ export default function GlossaryMutationReviewPanel() {
 
   useEffect(() => {
     load();
-  }, []);
+  }, [searchParams]);
 
   const handleAccept = async (id) => {
     await acceptGlossaryMutation(id);
