@@ -169,6 +169,11 @@ export default function Navbar({ onToggleSidebar }) {
                     ⏳ Job Status
                   </Link>
                 </li>
+                <li>
+                  <Link className="dropdown-item" to="/anchor/mutations">
+                    🔀 Glossary Mutations
+                  </Link>
+                </li>
               </ul>
             </li>
             <li className="nav-item dropdown">

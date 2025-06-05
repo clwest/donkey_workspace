@@ -445,6 +445,13 @@ class SymbolicMemoryAnchor(models.Model):
     source = models.CharField(max_length=20, default="manual")
     created_from = models.CharField(max_length=20, default="manual")
     score_weight = models.FloatField(default=1.0)
+    suggested_label = models.CharField(max_length=100, blank=True, null=True)
+    mutation_status = models.CharField(
+        max_length=20,
+        choices=[("pending", "pending"), ("applied", "applied"), ("rejected", "rejected")],
+        default="pending",
+    )
+    mutation_source = models.CharField(max_length=64, blank=True, null=True)
     tags = models.ManyToManyField("mcp_core.Tag", blank=True)
     reinforced_by = models.ManyToManyField(
         "assistants.Assistant", blank=True, related_name="reinforced_anchors"
