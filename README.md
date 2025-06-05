@@ -108,6 +108,16 @@ exception interrupts ingestion the record now ends with `status="failed"` and th
 error message for diagnostics. Retrieve progress via
 `/api/v1/intel/documents/<progress_id>/progress/` to spot stuck uploads.
 
+### Fixing Embedding Status
+
+Occasionally embeddings are generated but the associated `DocumentChunk`
+records remain marked as `pending` or `failed`. Run:
+
+```bash
+python manage.py fix_embeddings_status
+```
+
+to update those chunks to `embedding_status="embedded"` in bulk.
 
 
 ### Frontend

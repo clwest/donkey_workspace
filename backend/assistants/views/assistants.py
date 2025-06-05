@@ -22,7 +22,8 @@ from django.core.management import call_command
 from pathlib import Path
 from assistants.services import AssistantService
 from memory.services import MemoryService
-from memory.models import MemoryEntry, RAGGroundingLog
+from memory.models import MemoryEntry
+from utils.rag_debug import log_rag_debug
 from memory.serializers import RAGGroundingLogSerializer
 from assistants.helpers.logging_helper import log_assistant_thought
 from assistants.models.assistant import (
@@ -927,6 +928,7 @@ def chat_with_assistant_view(request, slug):
         memory.tags.add(tag)
 
     debug_flag = request.query_params.get("debug") or request.data.get("debug")
+
     should_log = str(debug_flag).lower() == "true" or rag_meta.get("rag_fallback", False)
     if should_log:
         RAGGroundingLog.objects.create(
@@ -940,6 +942,7 @@ def chat_with_assistant_view(request, slug):
             retrieval_score=rag_meta.get("retrieval_score", 0.0),
 
         )
+
 
     return Response(
         {

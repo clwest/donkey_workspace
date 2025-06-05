@@ -9,5 +9,6 @@ This phase introduces management tools and model tweaks to verify that assistant
 - New management commands:
   - `inspect_memory_links` – reports orphaned memories and missing transcripts.
   - `check_chunk_embedding_status` – detects missing or invalid embeddings and glossary-score issues.
+  - `fix_embeddings_status` – sets `embedding_status="embedded"` when an embedding already exists.
 
 Run the commands with an optional `--assistant` slug to focus on a single assistant.
