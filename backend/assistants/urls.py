@@ -598,6 +598,11 @@ urlpatterns = [
         name="assistant-boost-anchors",
     ),
     path(
+        "<slug:slug>/suggest_glossary_anchor/",
+        assistants.suggest_glossary_anchor,
+        name="assistant-suggest-glossary-anchor",
+    ),
+    path(
         "<slug:slug>/lineage/",
         assistants.assistant_lineage,
         name="assistant-lineage",
