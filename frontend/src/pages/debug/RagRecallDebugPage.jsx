@@ -51,6 +51,7 @@ export default function RagRecallDebugPage() {
               <tr>
                 <th>ID</th>
                 <th>Score</th>
+                <th>Reflection</th>
                 <th>Anchor</th>
                 <th>Forced</th>
                 <th>Reason</th>
@@ -66,6 +67,7 @@ export default function RagRecallDebugPage() {
                     <code>{c.id}</code>
                   </td>
                   <td>{c.final_score?.toFixed(3)}</td>
+                  <td>{c.reflection_hit ? "⚡" : ""}</td>
                   <td>{c.was_anchor_match ? "🔗" : ""}</td>
                   <td>{c.forced_included ? "✅" : ""}</td>
                   <td>

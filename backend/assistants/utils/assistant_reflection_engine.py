@@ -244,7 +244,13 @@ class AssistantReflectionEngine:
         from assistants.utils.chunk_retriever import get_relevant_chunks
 
         query_text = texts[0] if texts else context.content or ""
-        chunk_info, *_ = get_relevant_chunks(str(self.assistant.id), query_text)
+        chunk_info, *_ = get_relevant_chunks(
+            str(self.assistant.id),
+            query_text,
+            memory_context_id=str(self.assistant.memory_context_id)
+            if self.assistant.memory_context_id
+            else None,
+        )
         rag_chunks = [c["text"] for c in chunk_info]
         if scene or location_context:
             loc_parts = []
