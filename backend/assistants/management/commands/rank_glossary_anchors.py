@@ -1,56 +1,47 @@
 from django.core.management.base import BaseCommand
 from assistants.models import Assistant
-from memory.models import RAGGroundingLog
 import json
+from collections import Counter
 
 class Command(BaseCommand):
-    """Rank glossary anchors based on hits and fallback logs."""
+    """Rank glossary anchors from RAG diagnostics JSON file or database."""
 
-    help = "Rank glossary anchors from RAGGroundingLog data"
+    help = "Score glossary anchors by hits/fallbacks using diagnostic output"
 
     def add_arguments(self, parser):
-        parser.add_argument("--assistant", required=True, type=str)
-        parser.add_argument("--from-json", dest="from_json")
+        parser.add_argument("--assistant", required=True, type=str, help="Assistant slug")
+        parser.add_argument("--from-json", dest="from_json", help="Path to diagnostics JSON file")
 
     def handle(self, *args, **options):
         slug = options["assistant"]
+        json_path = options["from_json"]
+
         try:
             assistant = Assistant.objects.get(slug=slug)
         except Assistant.DoesNotExist:
             self.stderr.write(self.style.ERROR(f"Assistant '{slug}' not found"))
             return
 
-        records = []
-        if options.get("from_json"):
-            with open(options["from_json"], "r") as f:
-                records = json.load(f)
-        else:
-            qs = RAGGroundingLog.objects.filter(assistant=assistant)
-            for log in qs:
-                records.append({
-                    "anchor": log.expected_anchor or "prompt",
-                    "fallback": log.fallback_triggered,
-                    "score": log.corrected_score or log.retrieval_score,
-                    "boost_type": log.glossary_boost_type,
-                })
+        if not json_path:
+            self.stderr.write("❌ Must use --from-json to provide diagnostic file.")
+            return
 
-        stats = {}
-        for r in records:
-            anchor = r.get("anchor") or "prompt"
-            s = stats.setdefault(anchor, {"hits":0, "fallbacks":0, "scores":[], "boost_type":r.get("boost_type")})
-            if r.get("fallback"):
-                s["fallbacks"] += 1
-            else:
-                s["hits"] += 1
-            if r.get("score") is not None:
-                s["scores"].append(r["score"])
-            if not s.get("boost_type"):
-                s["boost_type"] = r.get("boost_type")
+        with open(json_path, "r") as f:
+            data = json.load(f)
 
-        headers = ["Anchor", "Hits", "Fallbacks", "Avg Score", "Boost Type"]
-        self.stdout.write("\t".join(headers))
-        for anchor, info in stats.items():
-            avg = sum(info["scores"])/len(info["scores"]) if info["scores"] else 0.0
-            line = [anchor, str(info["hits"]), str(info["fallbacks"]), f"{avg:.2f}", info.get("boost_type") or "None"]
-            self.stdout.write("\t".join(line))
+        # Find the assistant's diagnostic blob
+        record = next((r for r in data if r.get("assistant") == slug), None)
+        if not record or "issues" not in record:
+            self.stderr.write(f"⚠️ No issues found in diagnostic file for assistant '{slug}'")
+            return
 
+        issues = record["issues"]
+        freq = Counter(issues)
+
+        self.stdout.write(f"\n📊 Glossary Fallback Frequency — Assistant: {slug}")
+        self.stdout.write("-" * 60)
+        self.stdout.write(f"{'Anchor':<30} {'Fallbacks':<10}")
+        self.stdout.write("-" * 60)
+
+        for term, count in freq.most_common(50):
+            self.stdout.write(f"{term:<30} {count:<10}")
