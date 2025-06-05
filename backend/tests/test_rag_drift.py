@@ -21,6 +21,9 @@ class RagDriftReportTests(TestCase):
                 fallback_triggered=True,
                 expected_anchor="evm",
                 adjusted_score=0.1,
+                boosted_from_reflection=False,
+                reflection_boost_score=0.0,
+                glossary_boost_type="chunk",
             )
         resp = self.client.get(f"/api/assistants/{self.assistant.slug}/rag_drift_report/")
         self.assertEqual(resp.status_code, 200)

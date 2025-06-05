@@ -24,6 +24,9 @@ class RagGroundingLogSerializerTest(TestCase):
             raw_score=0.4,
             adjusted_score=0.6,
             glossary_boost_applied=0.2,
+            boosted_from_reflection=False,
+            reflection_boost_score=0.0,
+            glossary_boost_type="chunk",
             fallback_threshold_used=0.6,
         )
         data = RAGGroundingLogSerializer(log).data

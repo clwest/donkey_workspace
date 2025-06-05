@@ -31,6 +31,8 @@ ANCHOR_BOOST = getattr(settings, "RAG_ANCHOR_BOOST", 0.1)
 GLOSSARY_BOOST_FACTOR = getattr(settings, "RAG_GLOSSARY_BOOST_FACTOR", 0.2)
 # Threshold below which glossary chunks are considered weak
 GLOSSARY_WEAK_THRESHOLD = getattr(settings, "GLOSSARY_WEAK_THRESHOLD", 0.2)
+# Boost when a term is pulled from recent reflections
+REFLECTION_BOOST = getattr(settings, "RAG_REFLECTION_BOOST", 0.15)
 
 logger = logging.getLogger(__name__)
 
@@ -88,6 +90,28 @@ def _search_summary_hits(
             }
         )
     return results
+
+
+def get_glossary_terms_from_reflections(memory_context_id: Optional[str]) -> List[str]:
+    """Return list of glossary terms mentioned in recent reflections."""
+    from memory.models import MemoryEntry, SymbolicMemoryAnchor
+
+    reflections = (
+        MemoryEntry.objects.filter(type="reflection")
+        .order_by("-created_at")
+    )
+    if memory_context_id:
+        reflections = reflections.filter(context_id=memory_context_id)
+    reflections = reflections[:25]
+    anchors = list(SymbolicMemoryAnchor.objects.all())
+    terms: set[str] = set()
+    for mem in reflections:
+        text = (mem.summary or mem.event or "").lower()
+        for anc in anchors:
+            if anc.slug.lower() in text or anc.label.lower() in text:
+                terms.add(anc.slug)
+        terms.update(mem.tags.values_list("slug", flat=True))
+    return list(terms)
 
 
 def get_relevant_chunks(
@@ -288,6 +312,9 @@ def get_relevant_chunks(
     anchor_qs = anchor_qs.prefetch_related("tags")
     all_anchors = list(anchor_qs)
     anchor_matches = [a.slug for a in all_anchors if _anchor_in_query(a, query_text)]
+    reflection_terms = set(
+        get_glossary_terms_from_reflections(memory_context_id)
+    )
     if not (auto_expand or settings.DEBUG) and focus_qs.exists():
         all_slugs = list(SymbolicMemoryAnchor.objects.values_list("slug", flat=True))
         filtered_anchor_terms = [
@@ -400,6 +427,16 @@ def get_relevant_chunks(
         glossary_boost = getattr(chunk, "glossary_boost", 0.0)
         if glossary_hit:
             score += glossary_boost
+        reflection_boost = 0.0
+        reflection_hit = False
+        if reflection_terms:
+            if chunk.anchor and chunk.anchor.slug in reflection_terms:
+                reflection_hit = True
+            elif any(t in chunk.text.lower() for t in reflection_terms):
+                reflection_hit = True
+        if reflection_hit:
+            reflection_boost = REFLECTION_BOOST
+            score += reflection_boost
         if not getattr(chunk, "fingerprint", ""):
             score -= 0.05
         weak_glossary = (
@@ -439,6 +476,7 @@ def get_relevant_chunks(
                 raw_score,
                 glossary_boost if glossary_hit else 0.0,
                 glossary_hit,
+                reflection_boost,
             )
         )
         debug_candidates.append(
@@ -451,6 +489,8 @@ def get_relevant_chunks(
                 "final_score": round(score, 4),
                 "glossary_boost": round(glossary_boost if glossary_hit else 0.0, 4),
                 "glossary_hit": glossary_hit,
+                "reflection_boost": round(reflection_boost, 4),
+                "reflection_hit": reflection_hit,
             }
         )
 
@@ -466,19 +506,19 @@ def get_relevant_chunks(
         summary_hits = _search_summary_hits(query_vec, doc_ids)
         if summary_hits:
             fallback_type = "summary"
-    # ``scored`` contains tuples of ``(score, chunk, anchor_confidence, raw_score, glossary_boost, glossary_hit)``
+    # ``scored`` contains tuples of ``(score, chunk, anchor_confidence, raw_score, glossary_boost, glossary_hit, reflection_boost)``
     # so we keep all fields intact when filtering.
     filtered = (
         [
-            (s, c, conf, raw, boost, ghit)
-            for s, c, conf, raw, boost, ghit in scored
+            (s, c, conf, raw, boost, ghit, rboost)
+            for s, c, conf, raw, boost, ghit, rboost in scored
             if s >= score_threshold or (ghit and s >= min_score)
         ]
         if not force_chunks
         else scored
     )
     warnings: List[str] = []
-    score_list = [s for s, _c, _conf, _raw, _b, _g in scored]
+    score_list = [s for s, _c, _conf, _raw, _b, _g, _r in scored]
     max_score = max(score_list) if score_list else 0.0
     if not filtered and score_list and max_score < 0.15:
         warnings.append(
@@ -534,7 +574,7 @@ def get_relevant_chunks(
             logger.warning("⚠️ All candidate chunks rejected; forcing fallback")
             candidates = scored
         pairs = candidates[: max(1, fallback_limit)]
-        for i, (s, c, _conf, _rs, _boost, _ghit) in enumerate(pairs, 1):
+        for i, (s, c, _conf, _rs, _boost, _ghit, _rboost) in enumerate(pairs, 1):
             logger.info(
                 "[Fallback] Using Chunk ID %s | Score: %.4f | Reason: %s",
                 c.id,
@@ -626,7 +666,7 @@ def get_relevant_chunks(
     result = []
     fallback_ids: List[str] = []
     fallback_scores: List[float] = []
-    for score, chunk, anchor_conf, raw_score, g_boost, g_hit in pairs:
+    for score, chunk, anchor_conf, raw_score, g_boost, g_hit, r_boost in pairs:
         if chunk.embedding_status != "embedded":
             logger.warning(
                 "\u26a0\ufe0f Chunk %s selected but not embedded (status=%s)",
@@ -643,6 +683,7 @@ def get_relevant_chunks(
             "score_before_anchor_boost": round(raw_score, 4),
             "score_after_anchor_boost": round(score, 4),
             "glossary_boost_applied": round(g_boost, 4),
+            "reflection_boost_applied": round(r_boost, 4),
             "fallback_threshold_used": (
                 score_threshold if score >= score_threshold else min_score
             ),
@@ -699,6 +740,8 @@ def get_relevant_chunks(
         "fallback_chunk_scores": fallback_scores,
         "top_raw_score": top_raw_score,
         "top_glossary_boost": top_boost,
+        "top_reflection_boost": max((p[6] for p in scored), default=0.0),
+        "reflection_hits": [d["id"] for d in debug_candidates if d.get("reflection_hit")],
         "warnings": warnings,
     }
 

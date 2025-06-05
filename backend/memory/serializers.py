@@ -355,6 +355,9 @@ class RAGGroundingLogSerializer(serializers.ModelSerializer):
             "raw_score",
             "adjusted_score",
             "glossary_boost_applied",
+            "boosted_from_reflection",
+            "reflection_boost_score",
+            "glossary_boost_type",
             "fallback_threshold_used",
             "created_at",
         ]
