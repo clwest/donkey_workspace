@@ -20,8 +20,10 @@ class RagGroundingLogSerializerTest(TestCase):
             glossary_hits=["term"],
             glossary_misses=[],
             retrieval_score=0.5,
+            expected_anchor="term",
         )
         data = RAGGroundingLogSerializer(log).data
         self.assertEqual(data["glossary_hits"], ["term"])
         self.assertIn("corrected_score", data)
+        self.assertEqual(data["expected_anchor"], "term")
 

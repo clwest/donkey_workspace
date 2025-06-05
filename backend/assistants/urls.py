@@ -764,6 +764,11 @@ urlpatterns = [
         name="assistant-self-test",
     ),
     path(
+        "<slug:slug>/rag_self_test/",
+        diagnostics.rag_self_test,
+        name="assistant-rag-self-test",
+    ),
+    path(
         "<slug:slug>/collaboration_profile/",
         collaboration.collaboration_profile,
         name="assistant-collaboration-profile",

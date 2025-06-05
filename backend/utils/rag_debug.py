@@ -1,10 +1,14 @@
 from datetime import timedelta
 from django.utils import timezone
-from memory.models import RAGGroundingLog, GlossaryChangeEvent, SymbolicMemoryAnchor
+from memory.models import (
+    RAGGroundingLog,
+    GlossaryChangeEvent,
+    SymbolicMemoryAnchor,
+)
 from intel_core.models import DocumentChunk
 from django.utils.text import slugify
 
-def log_rag_debug(assistant, query, rag_meta, debug=False):
+def log_rag_debug(assistant, query, rag_meta, debug=False, expected_anchor=None):
     """Persist RAG debug info, always logging when fallback occurs."""
     if not debug and not rag_meta.get("rag_fallback", False):
         return None
@@ -18,6 +22,7 @@ def log_rag_debug(assistant, query, rag_meta, debug=False):
         used_chunk_ids=used_ids,
         fallback_triggered=rag_meta.get("rag_fallback", False),
         fallback_reason=rag_meta.get("fallback_reason"),
+        expected_anchor=expected_anchor or "",
         glossary_hits=rag_meta.get("anchor_hits", []),
         glossary_misses=rag_meta.get("anchor_misses", []),
         retrieval_score=rag_meta.get("retrieval_score", 0.0),

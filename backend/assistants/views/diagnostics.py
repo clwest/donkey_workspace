@@ -108,6 +108,17 @@ def assistant_self_test(request, slug):
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
+def rag_self_test(request, slug):
+    """Run glossary-based RAG self-test for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    from assistants.utils.rag_diagnostics import run_assistant_rag_test
+
+    result = run_assistant_rag_test(assistant)
+    return Response(result)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
 def run_all_self_tests(request):
     """Run boot self-tests for all assistants."""
     results = run_batch_self_tests()

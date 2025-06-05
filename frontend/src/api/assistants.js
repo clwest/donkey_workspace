@@ -434,6 +434,13 @@ export async function runSelfTest(slug) {
   return res;
 }
 
+export async function runRagSelfTest(slug) {
+  const res = await apiFetch(`/assistants/${slug}/rag_self_test/`, {
+    method: "POST",
+  });
+  return res;
+}
+
 export async function runAllSelfTests() {
   const res = await apiFetch(`/assistants/self_tests/run_all/`, {
     method: "POST",
