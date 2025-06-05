@@ -98,6 +98,9 @@ import AssistantMemoriesPage from "./pages/assistant/common/AssistantMemoriesPag
 import AssistantMemoryPage from "./pages/assistant/memory/AssistantMemoryPage";
 import DelegationTracePage from "./pages/assistant/DelegationTracePage";
 import AssistantSubAgentReflectionPage from "./pages/assistant/AssistantSubAgentReflectionPage";
+import AssistantSelfReflectionPage from "./pages/assistants/AssistantSelfReflectionPage";
+import DelegationSummaryPage from "./pages/assistants/DelegationSummaryPage";
+import SubAgentReflectionPage from "./pages/assistants/SubAgentReflectionPage";
 import SkillGraphPage from "./pages/assistant/skills/SkillGraphPage";
 import MemoryToTaskPage from "./pages/assistant/objectives/MemoryToTaskPage";
 import MilestonesPage from "./pages/assistant/milestones/MilestonesPage";
@@ -490,6 +493,18 @@ export default function App() {
           <Route
             path="/delegation/subagent_reflect/:id"
             element={<AssistantSubAgentReflectionPage />}
+          />
+          <Route
+            path="/assistants/:slug/reflect_on_self/"
+            element={<AssistantSelfReflectionPage />}
+          />
+          <Route
+            path="/assistants/:slug/summarize_delegations/"
+            element={<DelegationSummaryPage />}
+          />
+          <Route
+            path="/assistants/:slug/subagent_reflect/:event_id/"
+            element={<SubAgentReflectionPage />}
           />
           <Route
             path="/assistants/:slug/skillgraph"

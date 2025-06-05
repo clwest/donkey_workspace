@@ -134,11 +134,8 @@ def reflect_on_self(request, slug):
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
-def subagent_reflect(request, slug):
-    """Proxy to delegations.subagent_reflect using query param."""
+def subagent_reflect(request, slug, event_id):
+    """Proxy to delegations.subagent_reflect using path param."""
     from .delegations import subagent_reflect as _reflect
 
-    trace_id = request.GET.get("trace_id")
-    if not trace_id:
-        return Response({"error": "trace_id required"}, status=400)
-    return _reflect(request, slug, trace_id)
+    return _reflect(request, slug, event_id)

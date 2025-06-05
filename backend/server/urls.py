@@ -34,10 +34,7 @@ from capabilities import urls as capability_urls
 from assistants.views import onboarding as onboarding_views
 from assistants.views import assistants as assistant_views
 
-from assistants.views.diagnostics import run_all_self_tests
-from assistants.views import delegation as delegation_views
-from assistants.views import delegations as delegations_views
-from assistants.views import reflection as reflection_views
+from assistants.views import diagnostics as diagnostic_views
 
 from intel_core.views import intelligence as intel_views
 import memory.views as memory_views
@@ -66,11 +63,6 @@ extend_router("images", images_router)
 extend_router("characters", characters_router)
 extend_router("storyboard", storyboard_router)
 extend_router("simulation", simulation_router)
-
-
-def subagent_reflect_alias(request, slug, event_id):
-    return delegations_views.subagent_reflect(request, slug=slug, trace_id=event_id)
-
 
 def _collect_routes(patterns, prefix=""):
     """Return a flat list of URL patterns without duplicated prefixes."""
@@ -120,38 +112,38 @@ urlpatterns = [
     ),
     path(
         "assistants/self_tests/run_all/",
-        run_all_self_tests,
+        diagnostic_views.run_all_self_tests,
     ),
     path(
         "assistants/<slug:slug>/summarize_delegations/",
-        delegation_views.summarize_delegations,
+        diagnostic_views.summarize_delegations,
         name="summarize_delegations",
     ),
     path(
         "assistants/<slug:slug>/reflect_on_self/",
-        reflection_views.reflect_on_self,
+        diagnostic_views.reflect_on_self,
         name="reflect_on_self",
     ),
     path(
-        "assistants/<slug:slug>/subagent_reflect/",
-        subagent_reflect_alias,
+        "assistants/<slug:slug>/subagent_reflect/<uuid:event_id>/",
+        diagnostic_views.subagent_reflect,
         name="subagent_reflect",
     ),
     path(
         "api/assistants/self_tests/run_all/",
-        run_all_self_tests,
+        diagnostic_views.run_all_self_tests,
     ),
     path(
         "api/assistants/<slug:slug>/summarize_delegations/",
-        delegation_views.summarize_delegations,
+        diagnostic_views.summarize_delegations,
     ),
     path(
         "api/assistants/<slug:slug>/reflect_on_self/",
-        reflection_views.reflect_on_self,
+        diagnostic_views.reflect_on_self,
     ),
     path(
         "api/assistants/<slug:slug>/subagent_reflect/<uuid:event_id>/",
-        subagent_reflect_alias,
+        diagnostic_views.subagent_reflect,
     ),
     path("api/dj-rest-auth/", include("dj_rest_auth.urls")),
     path("api/dj-rest-auth/registration/", include("dj_rest_auth.registration.urls")),
