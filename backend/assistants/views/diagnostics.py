@@ -128,10 +128,13 @@ def run_all_self_tests(request):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def summarize_delegations(request, slug):
-    """Proxy to delegation.summarize_delegations for route metadata."""
-    from .delegation import summarize_delegations as _summarize
+    """Generate a summary of delegation memories for the assistant."""
+    from .utils.delegation_summary_engine import DelegationSummaryEngine
 
-    return _summarize(request, slug)
+    assistant = get_object_or_404(Assistant, slug=slug)
+    engine = DelegationSummaryEngine(assistant)
+    entry = engine.summarize_delegations()
+    return Response({"summary": entry.summary, "memory_id": str(entry.id)})
 
 
 @api_view(["POST"])
