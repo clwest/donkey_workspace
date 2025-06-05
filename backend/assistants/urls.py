@@ -567,8 +567,10 @@ urlpatterns = [
     ),
     path(
         "<slug:slug>/reflect_on_self/",
-        diagnostics.reflect_on_self,
-        name="reflect_on_self",
+
+        reflection.reflect_on_self,
+        name="assistant-reflect-on-self",
+
     ),
     path(
         "<slug:slug>/self-assess/",

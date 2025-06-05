@@ -2,6 +2,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+import logging
+import json
 
 from assistants.models.assistant import Assistant
 from assistants.models.project import AssistantProject
@@ -11,6 +13,7 @@ from assistants.utils.assistant_reflection_engine import (
 )
 from assistants.models.assistant import DelegationEvent
 from assistants.models.thoughts import AssistantThoughtLog
+from memory.models import MemoryEntry
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
@@ -53,3 +56,59 @@ def subagent_reflect_view(request, event_id):
             "assistant_slug": event.child_assistant.slug,
         }
     )
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def reflect_on_self(request, slug):
+    """Generate a self reflection for an assistant and update identity."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    engine = AssistantReflectionEngine(assistant)
+    prompt = (
+        f"You are {assistant.name}. Reflect on your recent behavior and suggest"
+        " updates to your persona_summary, traits, motto or values if needed."
+        " Respond with a short reflection followed by a JSON object of updates."
+    )
+
+    output = engine.generate_reflection(prompt)
+    text = output
+    updates = {}
+    if "{" in output:
+        try:
+            json_part = output[output.index("{") : output.rindex("}") + 1]
+            text = output[: output.index("{")].strip()
+            updates = json.loads(json_part)
+        except Exception:
+            pass
+
+    if "#reflection-scope" not in text:
+        text += "\n#reflection-scope:complete"
+
+    AssistantReflectionLog.objects.create(
+        assistant=assistant,
+        summary=text,
+        title="Self Reflection",
+        category="self_reflection",
+        raw_prompt=prompt,
+    )
+
+    if MemoryEntry.objects.filter(assistant=assistant, type="delegation").exists():
+        if "delegation" not in text.lower():
+            logging.getLogger(__name__).warning("Delegation memories were not summarized")
+
+    if updates:
+        if updates.get("persona_summary"):
+            assistant.persona_summary = updates["persona_summary"]
+        if updates.get("traits"):
+            assistant.traits = updates["traits"]
+        if updates.get("personality_description"):
+            assistant.personality_description = updates["personality_description"]
+        if updates.get("persona_mode"):
+            assistant.persona_mode = updates["persona_mode"]
+        if updates.get("values") is not None:
+            assistant.values = updates["values"]
+        if updates.get("motto"):
+            assistant.motto = updates["motto"]
+        assistant.save()
+
+    return Response({"summary": text, "updates": updates})

@@ -7,7 +7,9 @@ export default function AssistantMemoryPanel({ slug, refreshKey = 0 }) {
   const [memories, setMemories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [project, setProject] = useState(null);
-  const [visible, setVisible] = useState(25);
+  const [visible, setVisible] = useState(10);
+  const [showAll, setShowAll] = useState(false);
+  const [tagFilter, setTagFilter] = useState("");
   const [meaningfulOnly, setMeaningfulOnly] = useState(true);
 
   const isWeak = (m) => (m.token_count || 0) < 5 && (m.importance || 0) <= 2;
@@ -21,7 +23,9 @@ export default function AssistantMemoryPanel({ slug, refreshKey = 0 }) {
           apiFetch(`/assistants/${slug}/`),
         ]);
         setMemories(memRes || []);
-        setVisible(25);
+        setVisible(10);
+        setShowAll(false);
+        setTagFilter("");
         setProject(asst.current_project || null);
       } catch (err) {
         console.error("Failed to fetch memories", err);
@@ -32,7 +36,13 @@ export default function AssistantMemoryPanel({ slug, refreshKey = 0 }) {
     load();
   }, [slug, refreshKey]);
 
-  if (loading) return <div>Loading memories...</div>;
+  if (loading)
+    return (
+      <div className="placeholder-glow">
+        <div className="placeholder col-12 mb-2" style={{ height: 20 }}></div>
+        <div className="placeholder col-8" style={{ height: 20 }}></div>
+      </div>
+    );
 
   return (
     <div className="p-2 border rounded">
@@ -55,24 +65,52 @@ export default function AssistantMemoryPanel({ slug, refreshKey = 0 }) {
       {memories.length === 0 ? (
         <div className="text-muted">No recent memories 📭</div>
       ) : (
-        <ul className="list-group list-unstyled">
-          {memories
-            .filter((m) => !meaningfulOnly || !isWeak(m))
-            .slice(0, visible)
-            .map((m) => (
-              <li key={m.id} className="mb-2">
-                <MemoryCard
-                  memory={m}
-                  action={<ReflectNowButton slug={slug} memoryId={m.id} />}
-                />
-              </li>
-            ))}
-        </ul>
-      )}
-      {visible < memories.filter((m) => !meaningfulOnly || !isWeak(m)).length && (
-        <button className="btn btn-sm btn-outline-secondary mt-2" onClick={() => setVisible(visible + 25)}>
-          Load More
-        </button>
+        <>
+          <div className="d-flex mb-2 align-items-center gap-2">
+            <select
+              className="form-select form-select-sm"
+              style={{ maxWidth: "160px" }}
+              value={tagFilter}
+              onChange={(e) => setTagFilter(e.target.value)}
+            >
+              <option value="">All Tags</option>
+              <option value="delegation">#delegation</option>
+              <option value="reflection">#reflection</option>
+            </select>
+            <div className="form-check ms-2">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                id="showAll"
+                checked={showAll}
+                onChange={(e) => setShowAll(e.target.checked)}
+              />
+              <label className="form-check-label" htmlFor="showAll">
+                Show All
+              </label>
+            </div>
+          </div>
+          <ul className="list-group list-unstyled">
+            {memories
+              .filter((m) => !meaningfulOnly || !isWeak(m))
+              .filter(
+                (m) =>
+                  !tagFilter ||
+                  (m.tags || []).some((t) =>
+                    t.name.toLowerCase().includes(tagFilter)
+                  )
+              )
+              .slice(0, showAll ? memories.length : visible)
+              .map((m) => (
+                <li key={m.id} className="mb-2">
+                  <MemoryCard
+                    memory={m}
+                    action={<ReflectNowButton slug={slug} memoryId={m.id} />}
+                  />
+                </li>
+              ))}
+          </ul>
+        </>
       )}
     </div>
   );

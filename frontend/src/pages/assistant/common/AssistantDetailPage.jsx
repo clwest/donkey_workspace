@@ -30,6 +30,7 @@ export default function AssistantDetailPage() {
   const query = new URLSearchParams(location.search);
   const [showTools, setShowTools] = useState(false);
   const [availableDocs, setAvailableDocs] = useState([]);
+  const [docLoading, setDocLoading] = useState(true);
   const [selectedDoc, setSelectedDoc] = useState("");
   const [reflectAfter, setReflectAfter] = useState(false);
   const [linking, setLinking] = useState(false);
@@ -82,6 +83,7 @@ export default function AssistantDetailPage() {
 
   useEffect(() => {
     async function fetchDocs() {
+      setDocLoading(true);
       try {
         const res = await apiFetch(
           `/intel/documents/?exclude_for=${slug}&limit=50`,
@@ -89,6 +91,8 @@ export default function AssistantDetailPage() {
         setAvailableDocs(res);
       } catch (err) {
         console.error("Failed to load documents", err);
+      } finally {
+        setDocLoading(false);
       }
     }
     fetchDocs();
@@ -464,9 +468,9 @@ export default function AssistantDetailPage() {
 
           <hr />
           {assistant.documents?.length > 0 && (
-            <>
-              <h5 className="mt-4">📄 Linked Documents</h5>
-              <ul className="list-group mb-3">
+            <details className="mt-4">
+              <summary className="h5">📄 Linked Documents</summary>
+              <ul className="list-group mb-3 mt-2">
                 {assistant.documents.map((doc) => (
                   <li
                     key={doc.id}
@@ -477,7 +481,7 @@ export default function AssistantDetailPage() {
                   </li>
                 ))}
               </ul>
-            </>
+            </details>
           )}
 
           <div className="mb-4">
@@ -486,7 +490,11 @@ export default function AssistantDetailPage() {
               onSubmit={handleLinkDocument}
               className="d-flex align-items-end gap-2"
             >
-              {availableDocs.length > 0 ? (
+              {docLoading ? (
+                <div className="placeholder-glow flex-grow-1">
+                  <div className="placeholder col-12" style={{ height: 32 }}></div>
+                </div>
+              ) : availableDocs.length > 0 ? (
                 <select
                   className="form-select"
                   value={selectedDoc}
@@ -527,48 +535,52 @@ export default function AssistantDetailPage() {
           {assistant.projects?.length > 0 && (
             <>
               <h5 className="mt-4">📂 Linked Projects</h5>
-              <ul className="list-group mb-3">
-                {assistant.projects.map((project) => {
-                  const stale =
-                    !(project.objectives && project.objectives.length) &&
-                    !(project.next_actions && project.next_actions.length);
-                  return (
-                    <li
-                      key={project.id}
-                      id={`project-${project.id}`}
-                      className={`list-group-item ${stale ? "opacity-50" : ""}`}
-                    >
-                      <Link to={`/assistants/projects/${project.id}`}>{project.title}</Link>
-                      {stale && (
-                        <button
-                          className="btn btn-sm btn-outline-danger ms-2"
-                          onClick={async () => {
-                            if (!window.confirm("Delete stale project?")) return;
-                            try {
-                              await apiFetch(`/assistants/projects/${project.id}/`, { method: "DELETE" });
-                              reloadAssistant();
-                              toast.success("Project removed");
-                            } catch {
-                              toast.error("Delete failed");
-                            }
-                          }}
-                        >
-                          🗑️
-                        </button>
-                      )}
-                      {project.objectives?.length > 0 && (
-                        <ul className="mt-2 ms-3">
-                          {project.objectives.map((obj) => (
-                            <li key={obj.id} id={`objective-${obj.id}`} className="small">
-                              ✅ <strong>{obj.title}</strong>: {obj.description}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
+              <table className="table table-sm mb-3">
+                <tbody>
+                  {assistant.projects.map((project) => {
+                    const stale =
+                      !(project.objectives && project.objectives.length) &&
+                      !(project.next_actions && project.next_actions.length);
+                    return (
+                      <tr
+                        key={project.id}
+                        id={`project-${project.id}`}
+                        className={stale ? "opacity-50" : ""}
+                      >
+                        <td>
+                          <Link to={`/assistants/projects/${project.id}`}>{project.title}</Link>
+                          {project.objectives?.length > 0 && (
+                            <ul className="mt-1 mb-0 small">
+                              {project.objectives.map((obj) => (
+                                <li key={obj.id} id={`objective-${obj.id}`}>{obj.title}</li>
+                              ))}
+                            </ul>
+                          )}
+                        </td>
+                        <td className="text-end">
+                          {stale && (
+                            <button
+                              className="btn btn-sm btn-outline-danger"
+                              onClick={async () => {
+                                if (!window.confirm("Delete stale project?")) return;
+                                try {
+                                  await apiFetch(`/assistants/projects/${project.id}/`, { method: "DELETE" });
+                                  reloadAssistant();
+                                  toast.success("Project removed");
+                                } catch {
+                                  toast.error("Delete failed");
+                                }
+                              }}
+                            >
+                              🗑️
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </>
           )}
 
