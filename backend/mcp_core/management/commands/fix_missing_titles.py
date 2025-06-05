@@ -1,7 +1,9 @@
 # mcp_core/management/commands/fix_missing_titles.py
 
 from django.core.management.base import BaseCommand
-from mcp_core.models import ReflectionLog
+# The ReflectionLog model was moved under the assistants app as
+# ``AssistantReflectionLog``. Import the correct model path.
+from assistants.models.reflection import AssistantReflectionLog
 from agents.utils.agent_reflection_engine import AgentReflectionEngine
 
 
@@ -19,9 +21,9 @@ class Command(BaseCommand):
         agent = AgentReflectionEngine()
         preview = options["preview"]
 
-        reflections = ReflectionLog.objects.filter(
+        reflections = AssistantReflectionLog.objects.filter(
             title__isnull=True
-        ) | ReflectionLog.objects.filter(title="")
+        ) | AssistantReflectionLog.objects.filter(title="")
         total = reflections.count()
 
         if total == 0:
