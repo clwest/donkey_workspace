@@ -10,7 +10,6 @@ from intel_core.utils.document_progress import repair_progress
 logger = get_logger(__name__)
 
 
-
 @api_view(["GET"])
 def debug_doc_chunks(request, doc_id):
     chunks = DocumentChunk.objects.filter(document_id=doc_id).order_by("order")
@@ -47,7 +46,11 @@ def rag_recall(request):
         _,
         _,
         debug_info,
-    ) = get_relevant_chunks(assistant, query)
+    ) = get_relevant_chunks(
+        assistant,
+        query,
+        memory_context_id=str(assistant.memory_context_id) if assistant else None,
+    )
     forced_chunks = [c["chunk_id"] for c in chunks if c.get("forced_included")]
     debug = {
         "reason": reason,
@@ -198,7 +201,9 @@ def boost_glossary_term(request):
         embed_and_store.delay(str(ch.id))
         updated += 1
     GlossaryChangeEvent.objects.create(
-        term=term, boost=boost, created_by=request.user if request.user.is_authenticated else None
+        term=term,
+        boost=boost,
+        created_by=request.user if request.user.is_authenticated else None,
     )
     return Response({"updated": updated, "term": term, "boost": boost})
 
@@ -216,6 +221,8 @@ def suggest_glossary_anchor(request):
         slug=slugify(term), defaults={"label": term}
     )
     GlossaryChangeEvent.objects.create(
-        term=term, boost=0.0, created_by=request.user if request.user.is_authenticated else None
+        term=term,
+        boost=0.0,
+        created_by=request.user if request.user.is_authenticated else None,
     )
     return Response({"anchor": anchor.slug})

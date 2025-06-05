@@ -94,6 +94,7 @@ def get_relevant_chunks(
     assistant_id: Optional[str],
     query_text: str,
     *,
+    memory_context_id: Optional[str] = None,
     project_id: Optional[str] = None,
     document_id: Optional[str] = None,
     score_threshold: float = 0.75,
@@ -165,8 +166,24 @@ def get_relevant_chunks(
             assistant = Assistant.objects.filter(slug=assistant_id).first()
         if not assistant:
             logger.warning("Assistant %s not found", assistant_id)
+    chunk_ids: List[str] = []
     doc_ids: List[str] = []
 
+    if memory_context_id:
+        from django.contrib.contenttypes.models import ContentType
+        from memory.models import MemoryEntry
+
+        ct = ContentType.objects.get_for_model(DocumentChunk)
+        chunk_ids = list(
+            MemoryEntry.objects.filter(
+                context_id=memory_context_id, linked_content_type=ct
+            ).values_list("linked_object_id", flat=True)
+        )
+        logger.info(
+            "[RAG] Scope enforced: memory_context_id=%s | chunks searched=%d",
+            memory_context_id,
+            len(chunk_ids),
+        )
     if document_id:
         doc_ids = [document_id]
     elif project_id:
@@ -182,7 +199,8 @@ def get_relevant_chunks(
             doc_ids += list(
                 assistant.current_project.documents.values_list("id", flat=True)
             )
-    if not doc_ids:
+
+    if not chunk_ids and not doc_ids:
         return (
             [],
             None,
@@ -228,9 +246,18 @@ def get_relevant_chunks(
 
     from intel_core.utils.chunk_retriever import fetch_chunks
 
-    chunks = fetch_chunks(doc_ids, repair=debug or settings.DEBUG)
+    chunks = fetch_chunks(
+        doc_ids if chunk_ids == [] else None,
+        chunk_ids=chunk_ids if chunk_ids else None,
+        repair=debug or settings.DEBUG,
+    )
 
-    logger.debug("[RAG Search] Docs=%s -> %d chunks", doc_ids, len(chunks))
+    logger.debug(
+        "[RAG Search] Docs=%s Chunks=%s -> %d chunks",
+        doc_ids,
+        chunk_ids[:10] if chunk_ids else None,
+        len(chunks),
+    )
     if chunks:
         logger.debug("Chunk IDs returned: %s", [str(c.id) for c in chunks[:20]])
     force_keywords = [
@@ -404,7 +431,14 @@ def get_relevant_chunks(
             score,
         )
         scored.append(
-            (score, chunk, anchor_confidence, raw_score, glossary_boost if glossary_hit else 0.0, glossary_hit)
+            (
+                score,
+                chunk,
+                anchor_confidence,
+                raw_score,
+                glossary_boost if glossary_hit else 0.0,
+                glossary_hit,
+            )
         )
         debug_candidates.append(
             {
@@ -608,7 +642,9 @@ def get_relevant_chunks(
             "score_before_anchor_boost": round(raw_score, 4),
             "score_after_anchor_boost": round(score, 4),
             "glossary_boost_applied": round(g_boost, 4),
-            "fallback_threshold_used": score_threshold if score >= score_threshold else min_score,
+            "fallback_threshold_used": (
+                score_threshold if score >= score_threshold else min_score
+            ),
             "text": chunk.text,
             "source_doc": chunk.document.title,
             "is_glossary": getattr(chunk, "is_glossary", False),
@@ -692,8 +728,15 @@ def format_chunks(chunks: List[Dict[str, object]]) -> str:
     lines.append("==================")
     return "\n".join(lines)
 
-def get_rag_chunk_debug(assistant_id: str, query_text: str) -> dict:
+
+def get_rag_chunk_debug(
+    assistant_id: str, query_text: str, *, disable_scope: bool = False
+) -> dict:
     """Return chunk matches split into normal and fallback sets."""
+    assistant = None
+    if not disable_scope:
+        assistant = Assistant.objects.filter(id=assistant_id).first()
+
     (
         chunks,
         reason,
@@ -705,7 +748,12 @@ def get_rag_chunk_debug(assistant_id: str, query_text: str) -> dict:
         _,
         _,
         debug_info,
-    ) = get_relevant_chunks(assistant_id, query_text, debug=True)
+    ) = get_relevant_chunks(
+        assistant_id,
+        query_text,
+        memory_context_id=str(assistant.memory_context_id) if assistant else None,
+        debug=True,
+    )
 
     fallback_ids = set(debug_info.get("fallback_chunk_ids", []))
     matched = [c for c in chunks if c.get("chunk_id") not in fallback_ids]
@@ -714,7 +762,9 @@ def get_rag_chunk_debug(assistant_id: str, query_text: str) -> dict:
         "matched_chunks": matched,
         "fallback_chunks": fallback_chunks,
         "scores": {c["chunk_id"]: c["score"] for c in chunks},
-        "glossary_scores": {c["chunk_id"]: c.get("glossary_score", 0.0) for c in chunks},
+        "glossary_scores": {
+            c["chunk_id"]: c.get("glossary_score", 0.0) for c in chunks
+        },
         "fallback_triggered": fallback,
         "glossary_present": glossary_present,
         "glossary_misses": debug_info.get("anchor_misses", []),
@@ -722,4 +772,3 @@ def get_rag_chunk_debug(assistant_id: str, query_text: str) -> dict:
         "reason": reason,
         "glossary_forced": glossary_forced,
     }
-

@@ -98,7 +98,10 @@ def summarize_document_with_context(request, pk):
                     "role": "system",
                     "content": "You are a helpful assistant that summarizes technical documents.",
                 },
-                {"role": "user", "content": f"Summarize this document:\n\n{prompt_text}"},
+                {
+                    "role": "user",
+                    "content": f"Summarize this document:\n\n{prompt_text}",
+                },
             ],
             temperature=0.5,
             max_tokens=200,
@@ -297,9 +300,7 @@ Return only JSON in this format:
         thread.save()
 
         # Auto-plan tasks for the first objective
-        engine = AssistantThoughtEngine(
-            assistant=assistant, project=assistant_project
-        )
+        engine = AssistantThoughtEngine(assistant=assistant, project=assistant_project)
         engine.plan_tasks_from_objective(objective)
 
         AssistantThoughtLog.objects.create(
@@ -386,6 +387,7 @@ def rag_check_source(request):
     ) = get_relevant_chunks(
         assistant_id if assistant else None,
         content,
+        memory_context_id=str(assistant.memory_context_id) if assistant else None,
     )
     debug = {
         "fallback": fallback,
