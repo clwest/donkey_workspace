@@ -27,14 +27,16 @@ export default function RagDebugPanel({ slug }) {
     load();
   }, [slug, fallbackOnly, lowScoreOnly]);
 
-  const boostTerm = async (term) => {
+  const boostTerms = async (terms) => {
     try {
-      await apiFetch(`/intel/glossary/boost/term/`, {
+      await apiFetch(`/assistants/${slug}/boost_anchors/`, {
         method: "POST",
-        body: { term },
+        body: { terms },
       });
+
       alert(`Boosted ${term}`);
       load();
+
     } catch {
       alert("Boost failed");
     }
@@ -88,28 +90,30 @@ export default function RagDebugPanel({ slug }) {
         </thead>
         <tbody>
           {logs.map((log) => (
-            <tr key={log.id}>
-              <td className="text-break" style={{ maxWidth: 200 }}>{log.query}</td>
-              <td>{log.retrieval_score?.toFixed(2)}</td>
-              <td className="small text-muted">
-                {(log.used_chunk_ids || []).join(", ") || "—"}
-              </td>
-              <td className="small">{(log.glossary_hits || []).join(", ")}</td>
-              <td>
-                {(log.glossary_misses || []).map((m) => (
-                  <span key={m} className="me-1">
-                    {m}{" "}
+            <>
+              <tr key={log.id}>
+                <td className="text-break" style={{ maxWidth: 200 }}>{log.query}</td>
+                <td>{log.retrieval_score?.toFixed(2)}</td>
+                <td className="small text-muted">
+                  {(log.used_chunk_ids || []).join(", ") || "—"}
+                </td>
+                <td className="small">{(log.glossary_hits || []).join(", ")}</td>
+                <td className="small">{(log.glossary_misses || []).join(", ")}</td>
+                <td>{log.fallback_triggered ? "⚠️" : ""}</td>
+              </tr>
+              {log.glossary_misses?.length > 0 && (
+                <tr>
+                  <td colSpan="6">
                     <button
-                      className="btn btn-link btn-sm p-0"
-                      onClick={() => boostTerm(m)}
+                      className="btn btn-sm btn-outline-primary"
+                      onClick={() => boostTerms(log.glossary_misses)}
                     >
-                      Boost
+                      Boost Glossary Terms
                     </button>
-                  </span>
-                ))}
-              </td>
-              <td>{log.fallback_triggered ? "⚠️" : ""}</td>
-            </tr>
+                  </td>
+                </tr>
+              )}
+            </>
           ))}
         </tbody>
       </table>

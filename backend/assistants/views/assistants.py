@@ -914,6 +914,7 @@ def chat_with_assistant_view(request, slug):
     if rag_meta.get("anchor_hits") or rag_meta.get("anchor_misses"):
         from mcp_core.models import Tag
 
+
         tag, _ = Tag.objects.get_or_create(
             slug="glossary_insight", defaults={"name": "glossary_insight"}
         )
@@ -930,6 +931,7 @@ def chat_with_assistant_view(request, slug):
             glossary_hits=rag_meta.get("anchor_hits", []),
             glossary_misses=rag_meta.get("anchor_misses", []),
             retrieval_score=rag_meta.get("retrieval_score", 0.0),
+
         )
 
     return Response(
@@ -1378,7 +1380,9 @@ def failure_log(request, slug):
 def rag_grounding_logs(request, slug):
     """Return recent RAG grounding logs for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
-    qs = RAGGroundingLog.objects.filter(assistant=assistant)
+    from utils.rag_debug import get_recent_logs
+
+    qs = get_recent_logs(assistant)
     if request.GET.get("fallback") == "true":
         qs = qs.filter(fallback_triggered=True)
     score_lt = request.GET.get("score_lt")
@@ -1387,9 +1391,27 @@ def rag_grounding_logs(request, slug):
             qs = qs.filter(retrieval_score__lt=float(score_lt))
         except ValueError:
             pass
-    logs = qs.order_by("-created_at")[:10]
+    logs = qs[:50]
     data = RAGGroundingLogSerializer(logs, many=True).data
     return Response({"results": data})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def boost_anchors(request, slug):
+    """Boost glossary anchors for an assistant."""
+    get_object_or_404(Assistant, slug=slug)
+    terms = request.data.get("terms", [])
+    if not isinstance(terms, list):
+        terms = [terms]
+    boost = float(request.data.get("boost", 0.1))
+    from utils.rag_debug import boost_glossary_anchor
+
+    boosted = []
+    for term in terms:
+        boost_glossary_anchor(term, boost)
+        boosted.append(term)
+    return Response({"boosted": boosted, "boost": boost})
 
 
 @api_view(["GET"])
