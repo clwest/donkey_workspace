@@ -854,6 +854,10 @@ def chat_with_assistant_view(request, slug):
         + [f"Assistant: {reply}"]
     )
     print(f"Chat transcript is {chat_transcript}")
+    anchor_slug = None
+    if rag_meta.get("anchor_hits"):
+        anchor_slug = rag_meta["anchor_hits"][0]
+
     memory = create_memory_from_chat(
         assistant_name=assistant.name,
         session_id=session_id,
@@ -864,6 +868,8 @@ def chat_with_assistant_view(request, slug):
         assistant=assistant,
         project=chat_session.project,
         tool_response=tool_result,
+        anchor_slug=anchor_slug,
+        fallback_reason=rag_meta.get("fallback_reason"),
     )
 
     if rag_meta.get("convergence_log_id"):

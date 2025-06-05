@@ -1,6 +1,5 @@
 import json
 import logging
-from django.utils.text import slugify
 from mcp_core.models import Tag
 from memory.models import MemoryEntry
 from assistants.tasks import embed_and_tag_memory, run_assistant_reflection
@@ -27,6 +26,8 @@ def create_memory_from_chat(
     narrative_thread=None,
     thread=None,
     tool_response=None,
+    anchor_slug=None,
+    fallback_reason=None,
 ):
     transcript = "\n".join(
         [
@@ -48,7 +49,7 @@ def create_memory_from_chat(
     event_text = f"Conversation with assistant {assistant_name}"
     if identity:
         event_text += f" | {identity}"
-    memory = MemoryEntry.objects.create(
+    memory_kwargs = dict(
         event=event_text,
         emotion="neutral",
         importance=importance,
@@ -62,6 +63,28 @@ def create_memory_from_chat(
         thread=thread,
         tool_response=tool_response,
     )
+
+    if anchor_slug:
+        from memory.models import SymbolicMemoryAnchor
+
+        anchor_obj = SymbolicMemoryAnchor.objects.filter(slug=anchor_slug).first()
+        if anchor_obj:
+            memory_kwargs["anchor"] = anchor_obj
+
+    if fallback_reason:
+        memory_kwargs["triggered_by"] = f"RAG Fallback: {fallback_reason}"
+
+    memory = MemoryEntry.objects.create(**memory_kwargs)
+
+    if anchor_slug:
+        tag, _ = Tag.objects.get_or_create(slug=anchor_slug, defaults={"name": anchor_slug})
+        memory.tags.add(tag)
+        gloss_tag, _ = Tag.objects.get_or_create(slug="glossary_insight", defaults={"name": "glossary_insight"})
+        memory.tags.add(gloss_tag)
+
+    if fallback_reason:
+        fb_tag, _ = Tag.objects.get_or_create(slug="rag_fallback", defaults={"name": "rag_fallback"})
+        memory.tags.add(fb_tag)
 
     embed_and_tag_memory.delay(memory.id)
     run_assistant_reflection.delay(memory.id)
