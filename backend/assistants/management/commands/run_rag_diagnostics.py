@@ -10,9 +10,10 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--output", dest="output", default=None)
+        parser.add_argument("--disable-scope", action="store_true")
 
     def handle(self, *args, **options):
-        results = run_rag_diagnostics()
+        results = run_rag_diagnostics(disable_scope=options.get("disable_scope"))
         out_path = options.get("output")
         if out_path:
             with open(out_path, "w") as f:

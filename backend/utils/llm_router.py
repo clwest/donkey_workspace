@@ -98,7 +98,9 @@ def chat(
     from assistants.utils.memory_summoner import summon_relevant_memories
     from assistants.utils.chunk_retriever import get_relevant_chunks, format_chunks
 
-    assistant = assistant.__class__.objects.select_related("system_prompt").get(id=assistant.id)
+    assistant = assistant.__class__.objects.select_related("system_prompt").get(
+        id=assistant.id
+    )
     msgs = list(messages)
     system_prompt = assistant.system_prompt.content if assistant.system_prompt else None
     if system_prompt:
@@ -142,6 +144,9 @@ def chat(
     ) = get_relevant_chunks(
         str(assistant.id),
         query_text,
+        memory_context_id=(
+            str(assistant.memory_context_id) if assistant.memory_context_id else None
+        ),
         auto_expand=auto_expand,
         force_chunks=force_chunks,
     )
