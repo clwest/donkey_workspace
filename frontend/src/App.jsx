@@ -101,6 +101,7 @@ import AssistantSubAgentReflectionPage from "./pages/assistant/AssistantSubAgent
 import AssistantSelfReflectionPage from "./pages/assistants/AssistantSelfReflectionPage";
 import DelegationSummaryPage from "./pages/assistants/DelegationSummaryPage";
 import RagGroundingInspectorPage from "./pages/assistants/RagGroundingInspectorPage";
+import AssistantRagSelfTestPage from "./pages/assistants/AssistantRagSelfTestPage";
 import SubAgentReflectionPage from "./pages/assistants/SubAgentReflectionPage";
 import SkillGraphPage from "./pages/assistant/skills/SkillGraphPage";
 import MemoryToTaskPage from "./pages/assistant/objectives/MemoryToTaskPage";
@@ -507,6 +508,10 @@ export default function App() {
           <Route
             path="/assistants/:slug/rag-inspector"
             element={<RagGroundingInspectorPage />}
+          />
+          <Route
+            path="/assistants/:slug/diagnostics"
+            element={<AssistantRagSelfTestPage />}
           />
           <Route
             path="/assistants/:slug/subagent_reflect/:event_id/"

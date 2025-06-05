@@ -437,6 +437,13 @@ export const routeMap = [
     notes: "Run assistant RAG self-test",
   },
   {
+    frontend: "/assistants/:slug/diagnostics",
+    backend: "/api/assistants/<slug>/rag_self_test/",
+    view: "AssistantRagSelfTestPage",
+    serializer: "-",
+    notes: "Assistant RAG diagnostic runner",
+  },
+  {
     frontend: "/assistants/self_tests/run_all",
     backend: "/assistants/self_tests/run_all/",
     view: "RouteViewer",

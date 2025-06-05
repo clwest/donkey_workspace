@@ -329,6 +329,11 @@ export default function AssistantDetailPage() {
               RAG Debug
             </button>
           </li>
+          <li className="nav-item">
+            <Link className="nav-link" to={`/assistants/${slug}/diagnostics`}>
+              Diagnostics
+            </Link>
+          </li>
         </ul>
       </div>
       {activeTab === "overview" && (
