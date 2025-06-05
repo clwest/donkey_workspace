@@ -24,11 +24,17 @@ class Command(BaseCommand):
             return
 
         self.stdout.write(f"\nChunks for Assistant '{slug}' [Context ID: {memory_context_id}]\n")
-        self.stdout.write("-" * 80)
-        self.stdout.write(f"{'Chunk ID':<10} {'Doc ID':<10} {'Title':<30} {'Status':<10}")
-        self.stdout.write("-" * 80)
+        self.stdout.write("-" * 120)
+        self.stdout.write(
+            f"{'Chunk ID':<36} {'Doc ID':<36} {'Title':<30} {'Status':<10}"
+        )
+        self.stdout.write("-" * 120)
 
         for chunk in DocumentChunk.objects.filter(document__memory_context=assistant.memory_context).select_related("document"):
             status = chunk.embedding_status
             title = chunk.document.title if chunk.document else "No Title"
-            self.stdout.write(f"{chunk.id:<10} {chunk.document_id:<10} {title[:30]:<30} {status:<10}")
+            chunk_id = str(chunk.id)
+            document_id = str(chunk.document_id)
+            self.stdout.write(
+                f"{chunk_id:<36} {document_id:<36} {title[:30]:<30} {status:<10}"
+            )
