@@ -5,7 +5,13 @@ pytest.importorskip("django")
 
 from assistants.utils.chunk_retriever import get_relevant_chunks
 from assistants.models import Assistant
-from intel_core.models import Document
+from intel_core.models import (
+    Document,
+    DocumentChunk,
+    EmbeddingMetadata,
+)
+from mcp_core.models import MemoryContext
+from memory.models import MemoryEntry, SymbolicMemoryAnchor
 
 
 class DummyManager(list):
@@ -235,6 +241,92 @@ def test_get_relevant_chunks_document_filter(
     chunks, *_ = get_relevant_chunks(None, "q", document_id=str(doc.id))
     assert len(chunks) == 1
     assert chunks[0]["document_id"] == str(doc.id)
+
+
+@patch("assistants.utils.chunk_retriever.get_embedding_for_text")
+@patch("assistants.utils.chunk_retriever.compute_similarity")
+def test_get_relevant_chunks_context_filter(mock_sim, mock_embed, db):
+    assistant = Assistant.objects.create(name="A")
+    ctx1 = assistant.memory_context
+    ctx2 = MemoryContext.objects.create(content="Other")
+
+    doc1 = Document.objects.create(title="D1", content="t1", memory_context=ctx1)
+    doc2 = Document.objects.create(title="D2", content="t2", memory_context=ctx2)
+    assistant.documents.add(doc1, doc2)
+
+    emb1 = EmbeddingMetadata.objects.create(model_used="m", num_tokens=1, vector=[0.1])
+    chunk1 = DocumentChunk.objects.create(
+        document=doc1,
+        order=1,
+        text="c1",
+        tokens=5,
+        fingerprint="f1",
+        embedding=emb1,
+        embedding_status="embedded",
+    )
+    emb2 = EmbeddingMetadata.objects.create(model_used="m", num_tokens=1, vector=[0.2])
+    DocumentChunk.objects.create(
+        document=doc2,
+        order=1,
+        text="c2",
+        tokens=5,
+        fingerprint="f2",
+        embedding=emb2,
+        embedding_status="embedded",
+    )
+
+    mock_embed.return_value = [0.5]
+    mock_sim.return_value = 0.9
+
+    chunks, *_ = get_relevant_chunks(
+        str(assistant.id),
+        "q",
+        memory_context_id=str(ctx1.id),
+    )
+    assert len(chunks) == 1
+    assert chunks[0]["document_id"] == str(doc1.id)
+
+
+@patch("assistants.utils.chunk_retriever.get_embedding_for_text")
+@patch("assistants.utils.chunk_retriever.compute_similarity")
+def test_reflection_terms_boosted(mock_sim, mock_embed, db):
+    assistant = Assistant.objects.create(name="A")
+    ctx = assistant.memory_context
+
+    anchor = SymbolicMemoryAnchor.objects.create(slug="evm", label="EVM")
+    doc = Document.objects.create(title="D", content="text", memory_context=ctx)
+    assistant.documents.add(doc)
+    emb = EmbeddingMetadata.objects.create(model_used="m", num_tokens=1, vector=[0.1])
+    chunk = DocumentChunk.objects.create(
+        document=doc,
+        order=1,
+        text="EVM explained",
+        tokens=5,
+        fingerprint="f3",
+        anchor=anchor,
+        embedding=emb,
+        embedding_status="embedded",
+    )
+    MemoryEntry.objects.create(
+        assistant=assistant,
+        context=ctx,
+        event="reflection",
+        summary="Discussion of evm details",
+        type="reflection",
+        linked_content_type=None,
+    )
+
+    mock_embed.return_value = [0.5]
+    mock_sim.return_value = 0.5
+
+    chunks, _, _, _, top_score, top_id, *_ = get_relevant_chunks(
+        str(assistant.id),
+        "what is evm",
+        memory_context_id=str(ctx.id),
+    )
+
+    assert top_id == str(chunk.id)
+    assert top_score > 0.5
 
 
 @patch("assistants.utils.chunk_retriever.get_embedding_for_text")

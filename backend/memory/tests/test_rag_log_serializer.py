@@ -35,4 +35,7 @@ class RagGroundingLogSerializerTest(TestCase):
         self.assertEqual(data["expected_anchor"], "term")
         self.assertIn("raw_score", data)
         self.assertEqual(data["adjusted_score"], 0.6)
+        self.assertIn("boosted_from_reflection", data)
+        self.assertIn("reflection_boost_score", data)
+        self.assertIn("glossary_boost_type", data)
 

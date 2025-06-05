@@ -24,12 +24,14 @@ class DocumentSerializer(serializers.ModelSerializer):
     progress_error = serializers.SerializerMethodField()
     failed_chunks = serializers.SerializerMethodField()
     user = serializers.StringRelatedField(read_only=True)
+    memory_context = serializers.UUIDField(source="memory_context_id", read_only=True)
 
     class Meta:
         model = Document
         fields = [
             "id",
             "user",
+            "memory_context",
             "title",
             "content",
             "description",

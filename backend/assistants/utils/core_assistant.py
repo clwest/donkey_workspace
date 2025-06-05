@@ -145,5 +145,11 @@ class CoreAssistant:
         """Return top matching document chunks for the query."""
         from assistants.utils.chunk_retriever import get_relevant_chunks
 
-        chunks, *_ = get_relevant_chunks(str(self.assistant.id), query)
+        chunks, *_ = get_relevant_chunks(
+            str(self.assistant.id),
+            query,
+            memory_context_id=str(self.assistant.memory_context_id)
+            if self.assistant.memory_context_id
+            else None,
+        )
         return [c.get("text", "") for c in chunks[:limit]]

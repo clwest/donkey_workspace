@@ -83,6 +83,7 @@ export default function RagDebugPanel({ slug }) {
           <tr>
             <th>Query</th>
             <th>Score</th>
+            <th>Reflection</th>
             <th>Used Chunks</th>
             <th>Glossary Hits</th>
             <th>Glossary Misses</th>
@@ -96,6 +97,9 @@ export default function RagDebugPanel({ slug }) {
               <tr>
                 <td className="text-break" style={{ maxWidth: 200 }}>{log.query}</td>
                 <td>{log.retrieval_score?.toFixed(2)}</td>
+                <td title={log.reflection_boost_score ? `Boost ${log.reflection_boost_score}` : ""}>
+                  {log.boosted_from_reflection ? "⚡" : ""}
+                </td>
                 <td className="small text-muted">
                   {(log.used_chunk_ids || []).join(", ") || "—"}
                 </td>
@@ -106,7 +110,7 @@ export default function RagDebugPanel({ slug }) {
               </tr>
               {log.glossary_misses?.length > 0 && (
                 <tr>
-                  <td colSpan="7">
+                  <td colSpan="8">
                     <button
                       className="btn btn-sm btn-outline-primary"
                       onClick={() => boostTerms(log.glossary_misses)}

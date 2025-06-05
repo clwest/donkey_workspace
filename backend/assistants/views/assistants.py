@@ -1227,7 +1227,12 @@ def recover_assistant_view(request, slug):
                     query = entry.get("query", "")
                     expected = entry.get("expected_chunks", [])
                     chunks, reason, *_ = get_relevant_chunks(
-                        assistant.slug, query, debug=True
+                        assistant.slug,
+                        query,
+                        memory_context_id=str(assistant.memory_context_id)
+                        if assistant.memory_context_id
+                        else None,
+                        debug=True,
                     )
                     used = [c.get("chunk_id") for c in chunks]
                     rag_replay = {
