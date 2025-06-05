@@ -1,11 +1,15 @@
 
 from assistants.tests import BaseAPITestCase
 from assistants.models import Assistant, SpecializationDriftLog
+from intel_core.models import Document
+from memory.models import MemoryEntry
 
 
 class RecoveryEndpointTest(BaseAPITestCase):
     def setUp(self):
         self.assistant = Assistant.objects.create(name="RecBot", specialty="x")
+        doc = Document.objects.create(title="Doc", content="hello", source_type="url")
+        self.assistant.documents.add(doc)
         SpecializationDriftLog.objects.create(
             assistant=self.assistant,
             drift_score=0.9,
@@ -24,4 +28,7 @@ class RecoveryEndpointTest(BaseAPITestCase):
         self.assistant.refresh_from_db()
         self.assertFalse(self.assistant.needs_recovery)
         self.assertIn("summary", resp.data)
+        mem = MemoryEntry.objects.filter(assistant=self.assistant, type="recovered").first()
+        self.assertIsNotNone(mem)
+        self.assertEqual(mem.context, self.assistant.memory_context)
 

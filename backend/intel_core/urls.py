@@ -90,4 +90,9 @@ urlpatterns = [
         debug.boost_glossary_term,
         name="boost-glossary-term",
     ),
+    path(
+        "glossary/suggest/anchor/",
+        debug.suggest_glossary_anchor,
+        name="suggest-glossary-anchor",
+    ),
 ]

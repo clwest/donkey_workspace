@@ -34,6 +34,7 @@ export default function RagDebugPanel({ slug }) {
         body: { term },
       });
       alert(`Boosted ${term}`);
+      load();
     } catch {
       alert("Boost failed");
     }

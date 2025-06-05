@@ -908,15 +908,25 @@ def chat_with_assistant_view(request, slug):
         embedding_vector = embed_resp.data[0].embedding
         save_embedding(memory, embedding_vector)
 
-        memory.tags = generate_tags_for_memory(full_transcript)
-        memory.save()
+    memory.tags = generate_tags_for_memory(full_transcript)
+    memory.save()
 
-    if request.query_params.get("debug") == "true":
+    if rag_meta.get("anchor_hits") or rag_meta.get("anchor_misses"):
+        from mcp_core.models import Tag
+
+        tag, _ = Tag.objects.get_or_create(
+            slug="glossary_insight", defaults={"name": "glossary_insight"}
+        )
+        memory.tags.add(tag)
+
+    debug_flag = request.query_params.get("debug") or request.data.get("debug")
+    if str(debug_flag).lower() == "true":
         RAGGroundingLog.objects.create(
             assistant=assistant,
             query=message,
             used_chunk_ids=[c["chunk_id"] for c in rag_meta.get("used_chunks", [])],
             fallback_triggered=rag_meta.get("rag_fallback", False),
+            fallback_reason=rag_meta.get("fallback_reason"),
             glossary_hits=rag_meta.get("anchor_hits", []),
             glossary_misses=rag_meta.get("anchor_misses", []),
             retrieval_score=rag_meta.get("retrieval_score", 0.0),
@@ -1160,6 +1170,10 @@ def recover_assistant_view(request, slug):
     )
     from assistants.utils.chunk_retriever import get_relevant_chunks
     from prompts.utils.openai_utils import reflect_on_prompt
+    from assistants.utils.assistant_reflection_engine import (
+        AssistantReflectionEngine,
+    )
+    from memory.models import MemoryEntry
 
     summary = generate_recovery_summary(assistant)
     prompt_tip = reflect_on_prompt(summary)
@@ -1169,9 +1183,23 @@ def recover_assistant_view(request, slug):
     cmd = FixDocProgressCommand()
     cmd.stdout = open(os.devnull, "w")
     cmd.stderr = open(os.devnull, "w")
+    engine = AssistantReflectionEngine(assistant)
     for doc in assistant.assigned_documents.all():
         result = cmd.handle(doc_id=str(doc.id), repair=True)
         repaired_docs.append({"id": str(doc.id), "result": result})
+        try:
+            summary, _ins, _p = engine.reflect_on_document(doc)
+            MemoryEntry.objects.create(
+                assistant=assistant,
+                document=doc,
+                context=assistant.memory_context,
+                event=summary,
+                summary=summary,
+                full_transcript=summary,
+                type="recovered",
+            )
+        except Exception as e:
+            logger.exception("[Recovery] Reflection failed for %s", doc.title)
 
     rag_replay = None
     log_path = Path(settings.BASE_DIR) / "static" / "rag_failures.json"

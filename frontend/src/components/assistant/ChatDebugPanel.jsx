@@ -1,4 +1,5 @@
 import { useState } from "react";
+import apiFetch from "../../utils/apiClient";
 
 export default function ChatDebugPanel({ ragMeta }) {
   if (!ragMeta) return null;
@@ -9,6 +10,22 @@ export default function ChatDebugPanel({ ragMeta }) {
   const list = showAll ? candidates : used;
   const showTip = score < 0.2 && used.length === 0;
   const glossaryMissing = ragMeta.glossary_present === false;
+  const showSuggest =
+    glossaryMissing || score === 0 || (ragMeta.glossary_chunk_ids || []).length === 0;
+
+  async function suggestAnchor() {
+    const term = ragMeta.query || ragMeta.query_text || "";
+    if (!term) return;
+    try {
+      await apiFetch("/intel/glossary/suggest/anchor/", {
+        method: "POST",
+        body: { term },
+      });
+      alert("Suggestion submitted");
+    } catch (err) {
+      console.error("Suggest failed", err);
+    }
+  }
 
   return (
     <div className="border rounded p-2 mt-3">
@@ -32,8 +49,11 @@ export default function ChatDebugPanel({ ragMeta }) {
           </label>
         </div>
       )}
-      {glossaryMissing && (
-        <button className="btn btn-sm btn-outline-secondary mb-2">
+      {showSuggest && (
+        <button
+          className="btn btn-sm btn-outline-secondary mb-2"
+          onClick={suggestAnchor}
+        >
           Suggest Glossary Anchor
         </button>
       )}
