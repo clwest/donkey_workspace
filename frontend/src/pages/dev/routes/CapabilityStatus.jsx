@@ -2,7 +2,9 @@ import React from 'react';
 import useApi from '@/hooks/useApi';
 
 export default function CapabilityStatus() {
-  const { data } = useApi('/api/capabilities/status/simple/');
+  // apiFetch already prefixes requests with the base /api path
+  // so we omit it here to avoid duplicated segments like /api/api/
+  const { data } = useApi('/capabilities/status/simple/');
 
   if (!data) return <div className="p-4">Loading...</div>;
 
