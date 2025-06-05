@@ -131,6 +131,7 @@ import FeedbackSummaryPage from "./pages/assistant/feedback/FeedbackSummaryPage"
 import DevDashboard from "./pages/dev/DevDashboard";
 import RoutesDebugPage from "./pages/dev/RoutesDebugPage";
 import RouteCheckPage from "./pages/dev/RouteCheckPage";
+import RouteExplorerPage from "./pages/dev/RouteExplorerPage";
 import RouteViewer from "./pages/dev/routes/RouteViewer";
 import CapabilityStatus from "./pages/dev/routes/CapabilityStatus";
 import PageNotFound from "./pages/PageNotFound";
@@ -588,6 +589,7 @@ export default function App() {
 
           <Route path="/dev/routes" element={<RouteViewer />} />
           <Route path="/dev/route-health" element={<RouteViewer />} />
+          <Route path="/dev/route-explorer" element={<RouteExplorerPage />} />
           <Route path="/dev/routes/capabilities" element={<CapabilityStatus />} />
           <Route path="/dev/route-check" element={<RouteCheckPage />} />
           <Route path="/dev/debug/intel" element={<IntelDebugTools />} />
