@@ -68,7 +68,22 @@ class Command(BaseCommand):
             suggestion = suggest_anchor_mutations(term, context_text)
             self.stdout.write(suggestion)
 
-            anchors = [s.strip("- •\n") for s in suggestion.splitlines() if s.strip()]
+            anchors = []
+            for line in suggestion.splitlines():
+                cleaned = line.strip().lstrip("- •")
+                if not cleaned:
+                    continue
+                if cleaned[0].isdigit() and "." in cleaned:
+                    cleaned = cleaned.split(".", 1)[1].strip()
+                if "\"" in cleaned:
+                    parts = cleaned.split("\"")
+                    if len(parts) >= 3:
+                        cleaned = parts[1]
+                if " - " in cleaned:
+                    cleaned = cleaned.split(" - ", 1)[0].strip()
+                cleaned = cleaned.strip()
+                if cleaned:
+                    anchors.append(cleaned)
 
             if apply_changes:
                 for a in anchors:
@@ -92,5 +107,6 @@ class Command(BaseCommand):
             if save_review:
                 for a in anchors:
                     if a:
-                        GlossaryChangeEvent.objects.create(term=a, boost=0.0)
-                        self.stdout.write(f"Queued {a} for review")
+                        term = a[: GlossaryChangeEvent._meta.get_field("term").max_length]
+                        GlossaryChangeEvent.objects.create(term=term, boost=0.0)
+                        self.stdout.write(f"Queued {term} for review")
