@@ -31,6 +31,9 @@ def log_rag_debug(assistant, query, rag_meta, debug=False, expected_anchor=None)
             raw_score=rag_meta.get("raw_score"),
             adjusted_score=rag_meta.get("adjusted_score"),
             glossary_boost_applied=rag_meta.get("glossary_boost_applied", 0.0),
+            boosted_from_reflection=rag_meta.get("boosted_from_reflection", False),
+            reflection_boost_score=rag_meta.get("reflection_boost_score", 0.0),
+            glossary_boost_type=rag_meta.get("glossary_boost_type", ""),
             fallback_threshold_used=rag_meta.get("fallback_threshold_used"),
         )
     except Exception as e:  # pragma: no cover - failsafe for missing fields
@@ -48,6 +51,9 @@ def log_rag_debug(assistant, query, rag_meta, debug=False, expected_anchor=None)
                 raw_score=rag_meta.get("raw_score"),
                 adjusted_score=rag_meta.get("adjusted_score"),
                 glossary_boost_applied=rag_meta.get("glossary_boost_applied", 0.0),
+                boosted_from_reflection=rag_meta.get("boosted_from_reflection", False),
+                reflection_boost_score=rag_meta.get("reflection_boost_score", 0.0),
+                glossary_boost_type=rag_meta.get("glossary_boost_type", ""),
                 fallback_threshold_used=rag_meta.get("fallback_threshold_used"),
             )
         raise

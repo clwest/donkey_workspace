@@ -16,6 +16,9 @@ def test_glossary_health_index():
             fallback_triggered=True,
             expected_anchor="evm",
             adjusted_score=0.05,
+            boosted_from_reflection=False,
+            reflection_boost_score=0.0,
+            glossary_boost_type="chunk",
         )
     data = AssistantSerializer(a).data
     assert data["glossary_health_index"] == 0.0

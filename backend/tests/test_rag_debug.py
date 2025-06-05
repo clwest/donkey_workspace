@@ -23,12 +23,18 @@ class RagDebugTests(TestCase):
             query="q1",
             used_chunk_ids=["1"],
             retrieval_score=0.5,
+            boosted_from_reflection=False,
+            reflection_boost_score=0.0,
+            glossary_boost_type="chunk",
         )
         old = RAGGroundingLog.objects.create(
             assistant=self.assistant,
             query="old",
             used_chunk_ids=["2"],
             retrieval_score=0.1,
+            boosted_from_reflection=False,
+            reflection_boost_score=0.0,
+            glossary_boost_type="chunk",
         )
         old.created_at = timezone.now() - timedelta(days=2)
         old.save(update_fields=["created_at"])

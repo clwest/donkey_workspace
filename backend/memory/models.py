@@ -602,6 +602,13 @@ class RAGGroundingLog(models.Model):
     raw_score = models.FloatField(null=True, blank=True)
     adjusted_score = models.FloatField(null=True, blank=True)
     glossary_boost_applied = models.FloatField(default=0.0)
+    boosted_from_reflection = models.BooleanField(default=False)
+    reflection_boost_score = models.FloatField(default=0.0)
+    glossary_boost_type = models.CharField(
+        max_length=20,
+        choices=[("chunk", "chunk"), ("reflection", "reflection"), ("both", "both")],
+        default="chunk",
+    )
     fallback_threshold_used = models.FloatField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

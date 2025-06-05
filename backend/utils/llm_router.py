@@ -205,6 +205,16 @@ def chat(
     rag_meta["raw_score"] = debug_info.get("top_raw_score", top_score)
     rag_meta["adjusted_score"] = top_score
     rag_meta["glossary_boost_applied"] = debug_info.get("top_glossary_boost", 0.0)
+    rag_meta["reflection_boost_score"] = debug_info.get("top_reflection_boost", 0.0)
+    rag_meta["boosted_from_reflection"] = bool(debug_info.get("reflection_hits"))
+    if rag_meta["glossary_boost_applied"] and rag_meta["reflection_boost_score"]:
+        rag_meta["glossary_boost_type"] = "both"
+    elif rag_meta["reflection_boost_score"]:
+        rag_meta["glossary_boost_type"] = "reflection"
+    elif rag_meta["glossary_boost_applied"]:
+        rag_meta["glossary_boost_type"] = "chunk"
+    else:
+        rag_meta["glossary_boost_type"] = ""
     rag_meta["fallback_threshold_used"] = 0.6
     if fallback:
         rag_meta["weak_chunks_used"] = True
