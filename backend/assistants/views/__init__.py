@@ -10,7 +10,6 @@ from .assistants import (
     self_reflect,
     self_assess,
     reflect_on_assistant,
-    reflect_on_self,
     clarify_prompt,
     failure_log,
 )
@@ -168,7 +167,6 @@ __all__ = [
     "add_document_to_assistant",
     "self_reflect",
     "self_assess",
-    "reflect_on_self",
     "reflect_on_assistant",
     "submit_assistant_thought",
     "submit_chat_feedback",
