@@ -75,6 +75,12 @@ does not exist, ensure you ran `python manage.py makemigrations` before
 `python manage.py migrate`. This generates all initial migration files so Django
 creates the required tables.
 
+If a migration adds a new model field and you see an error such as
+`ProgrammingError: column memory_symbolicmemoryanchor.suggested_label does not exist`,
+run `python manage.py makemigrations` again followed by
+`python manage.py migrate`. This updates your database schema with the missing
+column before executing management commands like `mutate_glossary_anchors`.
+
 ### Running Tests
 
 Use the helper script to automatically run migrations before executing tests:
