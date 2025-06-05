@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchBootProfile, runSelfTest } from "../../api/assistants";
+import { fetchBootProfile, runSelfTest, runRagSelfTest } from "../../api/assistants";
 import { toast } from "react-toastify";
 
 export default function AssistantBootPanel({ assistant, onTestComplete }) {
@@ -8,6 +8,7 @@ export default function AssistantBootPanel({ assistant, onTestComplete }) {
   const [loading, setLoading] = useState(true);
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState(null);
+  const [ragResult, setRagResult] = useState(null);
 
   useEffect(() => {
     if (!slug) return;
@@ -35,10 +36,17 @@ export default function AssistantBootPanel({ assistant, onTestComplete }) {
     setTesting(true);
     try {
       const res = await runSelfTest(slug);
+      const rag = await runRagSelfTest(slug);
       setTestResult(res);
-      onTestComplete && onTestComplete({ ...res, timestamp: new Date().toISOString() });
-      toast[res.passed ? "success" : "error"](
-        res.passed ? "Self-test passed" : "Self-test failed",
+      setRagResult(rag);
+      onTestComplete &&
+        onTestComplete({
+          ...res,
+          rag_passed: rag.passed,
+          timestamp: new Date().toISOString(),
+        });
+      toast[res.passed && rag.passed ? "success" : "error"](
+        res.passed && rag.passed ? "Self-test passed" : "Self-test failed",
       );
     } catch (err) {
       toast.error("Self-test failed");
@@ -77,6 +85,14 @@ export default function AssistantBootPanel({ assistant, onTestComplete }) {
             <span className="ms-2 text-muted">
               ({new Date(testResult.timestamp).toLocaleString()})
             </span>
+          )}
+        </p>
+      )}
+      {ragResult && (
+        <p className="small">
+          RAG: {ragResult.passed ? "✅" : "❌"}
+          {ragResult.issues && ragResult.issues.length > 0 && (
+            <> - {ragResult.issues.join(", ")}</>
           )}
         </p>
       )}

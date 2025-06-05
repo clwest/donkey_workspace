@@ -347,6 +347,7 @@ class RAGGroundingLogSerializer(serializers.ModelSerializer):
             "used_chunk_ids",
             "fallback_triggered",
             "fallback_reason",
+            "expected_anchor",
             "glossary_hits",
             "glossary_misses",
             "retrieval_score",
