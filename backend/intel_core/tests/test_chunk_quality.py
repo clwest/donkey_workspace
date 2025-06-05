@@ -50,3 +50,12 @@ def test_glossary_score_clamped():
 
     assert matched == ["openai"]
     assert score >= 0.1
+
+
+def test_glossary_score_density():
+    anchors = [DummyAnchor("openai", "OpenAI"), DummyAnchor("gpt5", "GPT5")]
+    text = "OpenAI just launched GPT5 with improved reliability"
+    score, matched = compute_glossary_score(text, anchors)
+
+    assert set(matched) == {"openai", "gpt5"}
+    assert score > 0.4

@@ -91,14 +91,15 @@ def compute_glossary_score(text: str, anchors=None):
         anchors = SymbolicMemoryAnchor.objects.all().prefetch_related("tags")
     text_lower = text.lower()
     matched = []
-    words = set(text_lower.split())
+    words = text_lower.split()
+    word_set = set(words)
     for anc in anchors:
         if anc.slug.lower() in text_lower or anc.label.lower() in text_lower:
             matched.append(anc.slug)
             continue
         tag_slugs = set(anc.tags.values_list("slug", flat=True))
         tag_names = set(anc.tags.values_list("name", flat=True))
-        if words.intersection(tag_slugs) or words.intersection(tag_names):
+        if word_set.intersection(tag_slugs) or word_set.intersection(tag_names):
             matched.append(anc.slug)
             continue
         m, _ = _match_anchor(anc, text)
@@ -106,12 +107,11 @@ def compute_glossary_score(text: str, anchors=None):
             matched.append(anc.slug)
     score = len(matched) / max(len(anchors), 1)
 
-    # Avoid vanishingly small scores when the anchor pool is huge by
-    # normalizing against the number of matches as well. This prevents a
-    # single match among hundreds of anchors from resulting in a near-zero
-    # value, which makes downstream averaging more meaningful.
     if matched:
+        density = len(matched) / max(len(words), 1)
+        score = max(score, density)
         score = max(score, len(matched) / 10)
+        score = max(score, 0.1)
 
     score = min(score, 1.0)
     return round(score, 2), matched

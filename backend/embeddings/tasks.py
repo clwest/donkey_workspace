@@ -17,9 +17,40 @@ from prompts.utils.token_helpers import EMBEDDING_MODEL
 from django.db.models import F
 from intel_core.utils.document_progress import repair_progress
 
+
 EMBEDDING_LENGTH = 1536
 
 logger = get_logger("embeddings")
+
+
+@shared_task
+def verify_chunk_embedding(chunk_id: str) -> bool:
+    """Ensure the chunk's embedding exists and status reflects reality."""
+    from intel_core.models import DocumentChunk
+    chunk = DocumentChunk.objects.filter(id=chunk_id).select_related("embedding").first()
+    if not chunk:
+        return False
+    has_vector = getattr(chunk.embedding, "vector", None)
+    if has_vector and chunk.embedding_status != "embedded":
+        chunk.embedding_status = "embedded"
+        chunk.save(update_fields=["embedding_status"])
+        return True
+    if not has_vector and chunk.embedding_status == "embedded":
+        chunk.embedding_status = "pending"
+        chunk.save(update_fields=["embedding_status"])
+        return False
+    return bool(has_vector)
+
+
+@shared_task
+def validate_embedded_chunks(limit: int = 100) -> int:
+    """Recheck a batch of chunks flagged as embedded."""
+    from intel_core.models import DocumentChunk
+    checked = 0
+    for chunk in DocumentChunk.objects.filter(embedding_status="embedded")[:limit]:
+        verify_chunk_embedding(chunk.id)
+        checked += 1
+    return checked
 
 
 @shared_task(bind=True)
@@ -196,6 +227,7 @@ def embed_and_store(
                 logger.error(
                     f"Failed to schedule post_embedding_update: {e}", exc_info=True
                 )
+        verify_chunk_embedding.delay(str(content_id))
         return str(emb_id)
     except Exception as exc:
         logger.error(
