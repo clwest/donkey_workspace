@@ -588,6 +588,11 @@ urlpatterns = [
         name="assistant-failure-log",
     ),
     path(
+        "<slug:slug>/rag_debug/",
+        assistants.rag_grounding_logs,
+        name="assistant-rag-debug",
+    ),
+    path(
         "<slug:slug>/lineage/",
         assistants.assistant_lineage,
         name="assistant-lineage",

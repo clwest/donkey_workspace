@@ -6,6 +6,7 @@ from django.contrib.contenttypes.fields import GenericRelation, GenericForeignKe
 from django.contrib.contenttypes.models import ContentType
 from agents.models import SwarmMemoryEntry
 from mcp_core.models import MemoryContext
+from django.contrib.postgres.fields import ArrayField
 
 User = settings.AUTH_USER_MODEL
 
@@ -578,3 +579,23 @@ class AnchorConvergenceLog(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return f"{self.anchor.slug} -> {self.assistant.name}"
+
+class RAGGroundingLog(models.Model):
+    """Log RAG grounding results for debugging retrieval."""
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="rag_logs"
+    )
+    query = models.TextField()
+    used_chunk_ids = ArrayField(models.CharField(max_length=64), default=list)
+    fallback_triggered = models.BooleanField(default=False)
+    glossary_misses = ArrayField(models.CharField(max_length=64), default=list, blank=True)
+    retrieval_score = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"{self.assistant} | {self.query[:20]}"
+

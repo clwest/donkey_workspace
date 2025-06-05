@@ -331,3 +331,22 @@ class AnchorConvergenceLogSerializer(serializers.ModelSerializer):
             "anchor_slug",
         ]
         read_only_fields = ["id", "created_at"]
+
+class RAGGroundingLogSerializer(serializers.ModelSerializer):
+    assistant_name = serializers.CharField(source="assistant.name", read_only=True)
+
+    class Meta:
+        model = RAGGroundingLog
+        fields = [
+            "id",
+            "assistant",
+            "assistant_name",
+            "query",
+            "used_chunk_ids",
+            "fallback_triggered",
+            "glossary_misses",
+            "retrieval_score",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+

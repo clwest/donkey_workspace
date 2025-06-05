@@ -356,13 +356,23 @@ def get_relevant_chunks(
             score += 0.15
         # Boost using precomputed glossary_score
         score += getattr(chunk, "glossary_score", 0.0) * GLOSSARY_BOOST_FACTOR
-        score += getattr(chunk, "glossary_boost", 0.0)
+        score += getattr(chunk, "glossary_boost", 0.0) * 1.5
+        if not getattr(chunk, "fingerprint", ""):
+            score -= 0.05
         weak_glossary = (
             getattr(chunk, "is_glossary", False)
             and getattr(chunk, "glossary_score", 0.0) < GLOSSARY_WEAK_THRESHOLD
         ) or getattr(chunk, "weak", False)
         if weak_glossary and not force_fallback:
             logger.debug("Skipping weak glossary chunk %s", chunk.id)
+            continue
+        if (
+            getattr(chunk, "is_glossary", False)
+            and score < GLOSSARY_MIN_SCORE_OVERRIDE
+            and (not chunk.anchor or chunk.anchor.slug not in anchor_matches)
+            and not force_chunks
+        ):
+            logger.debug("Skipping low-score glossary chunk %s", chunk.id)
             continue
         anchor_confidence = 0.0
         if chunk.anchor:
@@ -654,3 +664,35 @@ def format_chunks(chunks: List[Dict[str, object]]) -> str:
         lines.append(f"[{i}] {text}")
     lines.append("==================")
     return "\n".join(lines)
+
+def get_rag_chunk_debug(assistant_id: str, query_text: str) -> dict:
+    """Return chunk matches split into normal and fallback sets."""
+    (
+        chunks,
+        reason,
+        fallback,
+        glossary_present,
+        top_score,
+        _,
+        glossary_forced,
+        _,
+        _,
+        debug_info,
+    ) = get_relevant_chunks(assistant_id, query_text, debug=True)
+
+    fallback_ids = set(debug_info.get("fallback_chunk_ids", []))
+    matched = [c for c in chunks if c.get("chunk_id") not in fallback_ids]
+    fallback_chunks = [c for c in chunks if c.get("chunk_id") in fallback_ids]
+    return {
+        "matched_chunks": matched,
+        "fallback_chunks": fallback_chunks,
+        "scores": {c["chunk_id"]: c["score"] for c in chunks},
+        "glossary_scores": {c["chunk_id"]: c.get("glossary_score", 0.0) for c in chunks},
+        "fallback_triggered": fallback,
+        "glossary_present": glossary_present,
+        "glossary_misses": debug_info.get("anchor_misses", []),
+        "retrieval_score": top_score,
+        "reason": reason,
+        "glossary_forced": glossary_forced,
+    }
+

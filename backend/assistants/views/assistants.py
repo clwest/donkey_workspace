@@ -22,7 +22,8 @@ from django.core.management import call_command
 from pathlib import Path
 from assistants.services import AssistantService
 from memory.services import MemoryService
-from memory.models import MemoryEntry
+from memory.models import MemoryEntry, RAGGroundingLog
+from memory.serializers import RAGGroundingLogSerializer
 from assistants.helpers.logging_helper import log_assistant_thought
 from assistants.models.assistant import (
     Assistant,
@@ -910,6 +911,16 @@ def chat_with_assistant_view(request, slug):
         memory.tags = generate_tags_for_memory(full_transcript)
         memory.save()
 
+    if request.query_params.get("debug") == "true":
+        RAGGroundingLog.objects.create(
+            assistant=assistant,
+            query=message,
+            used_chunk_ids=[c["chunk_id"] for c in rag_meta.get("used_chunks", [])],
+            fallback_triggered=rag_meta.get("rag_fallback", False),
+            glossary_misses=rag_meta.get("anchor_misses", []),
+            retrieval_score=rag_meta.get("retrieval_score", 0.0),
+        )
+
     return Response(
         {
             "messages": load_session_messages(session_id),
@@ -1331,6 +1342,25 @@ def failure_log(request, slug):
         for l in logs
     ]
     return Response(data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def rag_grounding_logs(request, slug):
+    """Return recent RAG grounding logs for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    qs = RAGGroundingLog.objects.filter(assistant=assistant)
+    if request.GET.get("fallback") == "true":
+        qs = qs.filter(fallback_triggered=True)
+    score_lt = request.GET.get("score_lt")
+    if score_lt:
+        try:
+            qs = qs.filter(retrieval_score__lt=float(score_lt))
+        except ValueError:
+            pass
+    logs = qs.order_by("-created_at")[:10]
+    data = RAGGroundingLogSerializer(logs, many=True).data
+    return Response({"results": data})
 
 
 @api_view(["GET"])
