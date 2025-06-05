@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
+import TagBadge from "../../../components/TagBadge";
 import { suggestAssistant, suggestSwitch, switchAssistant } from "../../../api/assistants";
 import "./styles/ChatView.css";
 import ChatDebugPanel from "../../../components/assistant/ChatDebugPanel";
@@ -257,11 +258,19 @@ export default function ChatWithAssistantPage() {
 
             {msg.tags?.length > 0 && (
               <div className="mt-1">
-                {msg.tags.map((tag, i) => (
-                  <span key={i} className="badge rounded-pill bg-info text-dark me-1">
-                    #{tag}
-                  </span>
-                ))}
+                {msg.tags.map((tag, i) => {
+                  if (typeof tag === "string") {
+                    return (
+                      <span
+                        key={i}
+                        className="badge rounded-pill bg-info text-dark me-1"
+                      >
+                        #{tag}
+                      </span>
+                    );
+                  }
+                  return <TagBadge key={tag.id || tag.slug || i} tag={tag} />;
+                })}
               </div>
             )}
 
