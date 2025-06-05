@@ -11,7 +11,12 @@ class RouteInspectionTest(BaseAPITestCase):
         resp = self.client.get("/api/dev/routes/fullmap/")
         self.assertEqual(resp.status_code, 200)
         data = resp.json().get("routes", [])
-        self.assertTrue(any("view" in r and "module" in r for r in data))
+        self.assertTrue(
+            any(
+                all(key in r for key in ["view", "module", "name", "capability"]) 
+                for r in data
+            )
+        )
         paths = [r["path"] for r in data]
         for p in [
             "api/assistants/<slug:slug>/summarize_delegations/",
