@@ -22,7 +22,7 @@ from django.core.management import call_command
 from pathlib import Path
 from assistants.services import AssistantService
 from memory.services import MemoryService
-from memory.models import MemoryEntry
+from memory.models import MemoryEntry, RAGGroundingLog
 from utils.rag_debug import log_rag_debug
 from memory.serializers import RAGGroundingLogSerializer
 from assistants.helpers.logging_helper import log_assistant_thought
@@ -1404,6 +1404,56 @@ def rag_grounding_logs(request, slug):
     logs = qs[:50]
     data = RAGGroundingLogSerializer(logs, many=True).data
     return Response({"results": data})
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def rag_drift_report(request, slug):
+    """Return aggregated fallback scores for glossary anchors."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    from django.db.models import Avg, Count, Max
+    from memory.models import RAGGroundingLog
+
+    qs = RAGGroundingLog.objects.filter(
+        assistant=assistant, fallback_triggered=True
+    ).exclude(expected_anchor="")
+
+    stats = (
+        qs.values("expected_anchor")
+        .annotate(avg=Avg("adjusted_score"), count=Count("id"))
+        .order_by("expected_anchor")
+    )
+
+    data = []
+    for row in stats:
+        anchor = row["expected_anchor"]
+        avg_score = round(row["avg"] or 0.0, 2)
+        fallback_count = row["count"]
+        last = (
+            qs.filter(expected_anchor=anchor)
+            .order_by("-created_at")
+            .first()
+        )
+        last_chunk = (
+            last.used_chunk_ids[0] if last and last.used_chunk_ids else None
+        )
+        if avg_score < 0.2 and fallback_count >= 3:
+            risk = "high"
+        elif 0.2 <= avg_score <= 0.6:
+            risk = "medium"
+        else:
+            risk = "healthy"
+        data.append(
+            {
+                "term": anchor,
+                "avg_score": avg_score,
+                "fallback_count": fallback_count,
+                "last_chunk_id": last_chunk,
+                "risk": risk,
+            }
+        )
+
+    return Response(data)
 
 
 @api_view(["POST"])

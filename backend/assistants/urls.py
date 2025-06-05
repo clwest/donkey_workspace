@@ -593,6 +593,11 @@ urlpatterns = [
         name="assistant-rag-debug",
     ),
     path(
+        "<slug:slug>/rag_drift_report/",
+        assistants.rag_drift_report,
+        name="assistant-rag-drift-report",
+    ),
+    path(
         "<slug:slug>/boost_anchors/",
         assistants.boost_anchors,
         name="assistant-boost-anchors",

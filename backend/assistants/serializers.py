@@ -70,6 +70,7 @@ from project.models import (
 from mcp_core.serializers_tags import TagSerializer
 from intel_core.serializers import DocumentSerializer
 from intel_core.models import DocumentChunk
+from memory.models import RAGGroundingLog
 from django.db.models import Count, Q
 
 
@@ -660,6 +661,8 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
     recent_drift = serializers.SerializerMethodField()
     system_prompt_id = serializers.UUIDField(read_only=True)
     health_score = serializers.SerializerMethodField()
+    glossary_health_index = serializers.SerializerMethodField()
+    glossary_health_index = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -699,6 +702,7 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             "preferred_model",
             "mood_stability_index",
             "health_score",
+            "glossary_health_index",
             "child_assistants",
             "skills",
             "drift_logs",
@@ -722,6 +726,50 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
 
     def get_health_score(self, obj):
         return calculate_composite_health(obj)
+
+    def get_glossary_health_index(self, obj):
+        from django.db.models import Avg, Count
+        from memory.models import SymbolicMemoryAnchor
+
+        total = SymbolicMemoryAnchor.objects.filter(reinforced_by=obj).count()
+        if total == 0:
+            return 1.0
+
+        qs = (
+            RAGGroundingLog.objects.filter(assistant=obj, fallback_triggered=True)
+            .exclude(expected_anchor="")
+            .values("expected_anchor")
+            .annotate(avg=Avg("adjusted_score"), count=Count("id"))
+        )
+        high = 0
+        for row in qs:
+            avg = row["avg"] or 0.0
+            if avg < 0.2 and row["count"] >= 3:
+                high += 1
+        index = 1.0 - (high / total)
+        return round(index, 2)
+
+    def get_glossary_health_index(self, obj):
+        from django.db.models import Avg, Count
+        from memory.models import SymbolicMemoryAnchor
+
+        total = SymbolicMemoryAnchor.objects.filter(reinforced_by=obj).count()
+        if total == 0:
+            return 1.0
+
+        qs = (
+            RAGGroundingLog.objects.filter(assistant=obj, fallback_triggered=True)
+            .exclude(expected_anchor="")
+            .values("expected_anchor")
+            .annotate(avg=Avg("adjusted_score"), count=Count("id"))
+        )
+        high = 0
+        for row in qs:
+            avg = row["avg"] or 0.0
+            if avg < 0.2 and row["count"] >= 3:
+                high += 1
+        index = 1.0 - (high / total)
+        return round(index, 2)
 
     def get_recent_drift(self, obj):
         from django.utils import timezone
@@ -1114,6 +1162,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "preferred_model",
             "mood_stability_index",
             "health_score",
+            "glossary_health_index",
             "is_primary",
             "needs_recovery",
             "live_relay_enabled",
