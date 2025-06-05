@@ -66,6 +66,7 @@ networkx==3.4.2
 nltk==3.9.1
 numpy==2.2.5
 openai==1.76.0
+litellm==1.39.0
 packaging==25.0
 pathspec==0.12.1
 pgvector==0.4.1
