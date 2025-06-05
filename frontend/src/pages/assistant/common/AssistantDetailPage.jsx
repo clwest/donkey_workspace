@@ -766,6 +766,14 @@ export default function AssistantDetailPage() {
       )}
       {activeTab === "memory" && (
         <>
+          <div className="text-end mb-2">
+            <Link
+              to={`/assistants/${slug}/rag-inspector`}
+              className="btn btn-sm btn-outline-primary"
+            >
+              RAG Grounding Inspector
+            </Link>
+          </div>
           <DelegationSummaryPanel slug={slug} />
           <AssistantMemoryAuditPanel assistant={assistant} />
         </>
