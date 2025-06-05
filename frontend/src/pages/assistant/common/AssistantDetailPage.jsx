@@ -22,6 +22,7 @@ import AgentTrainingManager from "../../../components/assistants/AgentTrainingMa
 import ReflectNowButton from "../../../components/assistant/ReflectNowButton";
 import CommonModal from "../../../components/CommonModal";
 import AssistantBootPanel from "../../../components/assistants/AssistantBootPanel";
+import RagDebugPanel from "../../../components/assistant/RagDebugPanel";
 
 export default function AssistantDetailPage() {
   const { slug } = useParams();
@@ -318,6 +319,14 @@ export default function AssistantDetailPage() {
               onClick={() => setActiveTab("training")}
             >
               Agent Training
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === "ragdebug" ? "active" : ""}`}
+              onClick={() => setActiveTab("ragdebug")}
+            >
+              RAG Debug
             </button>
           </li>
         </ul>
@@ -781,6 +790,7 @@ export default function AssistantDetailPage() {
       {activeTab === "training" && (
         <AgentTrainingManager assistantSlug={slug} />
       )}
+      {activeTab === "ragdebug" && <RagDebugPanel slug={slug} />}
       <CommonModal
         show={showBoot}
         onClose={() => setShowBoot(false)}

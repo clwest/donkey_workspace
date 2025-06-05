@@ -85,4 +85,9 @@ urlpatterns = [
         debug.reembed_missing_chunks_view,
         name="reembed-missing-chunks",
     ),
+    path(
+        "glossary/boost/term/",
+        debug.boost_glossary_term,
+        name="boost-glossary-term",
+    ),
 ]

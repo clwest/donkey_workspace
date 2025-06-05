@@ -917,6 +917,7 @@ def chat_with_assistant_view(request, slug):
             query=message,
             used_chunk_ids=[c["chunk_id"] for c in rag_meta.get("used_chunks", [])],
             fallback_triggered=rag_meta.get("rag_fallback", False),
+            glossary_hits=rag_meta.get("anchor_hits", []),
             glossary_misses=rag_meta.get("anchor_misses", []),
             retrieval_score=rag_meta.get("retrieval_score", 0.0),
         )
