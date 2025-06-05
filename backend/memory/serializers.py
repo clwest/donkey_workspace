@@ -14,6 +14,7 @@ from .models import (
     MemoryMergeSuggestion,
     GlossaryRetryLog,
     AnchorConvergenceLog,
+    RAGGroundingLog,
 )
 
 from assistants.models.thoughts import AssistantThoughtLog
@@ -332,6 +333,7 @@ class AnchorConvergenceLogSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "created_at"]
 
+
 class RAGGroundingLogSerializer(serializers.ModelSerializer):
     assistant_name = serializers.CharField(source="assistant.name", read_only=True)
 
@@ -349,4 +351,3 @@ class RAGGroundingLogSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]
-
