@@ -928,12 +928,21 @@ def chat_with_assistant_view(request, slug):
         memory.tags.add(tag)
 
     debug_flag = request.query_params.get("debug") or request.data.get("debug")
-    log_rag_debug(
-        assistant,
-        message,
-        rag_meta,
-        debug=str(debug_flag).lower() == "true",
-    )
+
+    should_log = str(debug_flag).lower() == "true" or rag_meta.get("rag_fallback", False)
+    if should_log:
+        RAGGroundingLog.objects.create(
+            assistant=assistant,
+            query=message,
+            used_chunk_ids=[c["chunk_id"] for c in rag_meta.get("used_chunks", [])],
+            fallback_triggered=rag_meta.get("rag_fallback", False),
+            fallback_reason=rag_meta.get("fallback_reason"),
+            glossary_hits=rag_meta.get("anchor_hits", []),
+            glossary_misses=rag_meta.get("anchor_misses", []),
+            retrieval_score=rag_meta.get("retrieval_score", 0.0),
+
+        )
+
 
     return Response(
         {

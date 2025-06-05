@@ -8,6 +8,7 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 from django.utils import timezone
 from datetime import timedelta
+from unittest.mock import patch
 from assistants.models import Assistant
 from memory.models import RAGGroundingLog, GlossaryChangeEvent
 
@@ -52,3 +53,28 @@ class RagDebugTests(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(GlossaryChangeEvent.objects.filter(term="zk rollup").count(), 1)
+
+    @patch("utils.llm_router.chat")
+    def test_fallback_log_created_without_debug(self, mock_chat):
+        mock_chat.return_value = (
+            "fallback",
+            [],
+            {
+                "used_chunks": [],
+                "rag_fallback": True,
+                "retrieval_score": 0.0,
+                "anchor_hits": [],
+                "anchor_misses": [],
+                "fallback_reason": "no_chunks",
+            },
+        )
+        resp = self.client.post(
+            f"/api/v1/assistants/{self.assistant.slug}/chat/",
+            {"message": "hi", "session_id": "s1"},
+            format="json",
+        )
+        self.assertEqual(resp.status_code, 200)
+        log = RAGGroundingLog.objects.filter(assistant=self.assistant).first()
+        self.assertIsNotNone(log)
+        self.assertTrue(log.fallback_triggered)
+        self.assertEqual(log.fallback_reason, "no_chunks")
