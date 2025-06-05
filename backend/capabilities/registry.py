@@ -24,6 +24,7 @@ CAPABILITY_REGISTRY = {
         "description": "Allow assistant self-forking",
     },
     "can_reflect_on_self": {
+
         "route": "/api/assistants/reflect_on_self/",
         "description": "Allow self-reflection endpoint",
     },
@@ -34,6 +35,7 @@ CAPABILITY_REGISTRY = {
     "can_subagent_reflect": {
         "route": "/api/assistants/subagent_reflect/",
         "description": "Reflect on subagent output",
+
     },
 }
 

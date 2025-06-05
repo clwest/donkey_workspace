@@ -33,10 +33,12 @@ from agents.views import stabilization as stabilization_views
 from capabilities import urls as capability_urls
 from assistants.views import onboarding as onboarding_views
 from assistants.views import assistants as assistant_views
+
 from assistants.views.diagnostics import run_all_self_tests
 from assistants.views import delegation as delegation_views
 from assistants.views import delegations as delegations_views
 from assistants.views import reflection as reflection_views
+
 from intel_core.views import intelligence as intel_views
 import memory.views as memory_views
 
@@ -119,6 +121,21 @@ urlpatterns = [
     path(
         "assistants/self_tests/run_all/",
         run_all_self_tests,
+    ),
+    path(
+        "assistants/<slug:slug>/summarize_delegations/",
+        summarize_delegations,
+        name="summarize_delegations",
+    ),
+    path(
+        "assistants/<slug:slug>/reflect_on_self/",
+        reflect_on_self,
+        name="reflect_on_self",
+    ),
+    path(
+        "assistants/<slug:slug>/subagent_reflect/",
+        subagent_reflect,
+        name="subagent_reflect",
     ),
     path(
         "api/assistants/self_tests/run_all/",

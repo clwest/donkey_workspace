@@ -1,4 +1,4 @@
-from django.urls import get_resolver
+from django.urls import get_resolver, URLPattern, URLResolver
 from django.views.decorators.cache import never_cache
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -10,36 +10,44 @@ from pathlib import Path
 from django.forms.models import model_to_dict
 
 
+def _walk_patterns(patterns, prefix=""):
+    routes = []
+    for p in patterns:
+        if isinstance(p, URLResolver):
+            routes.extend(_walk_patterns(p.url_patterns, prefix + str(p.pattern)))
+        elif isinstance(p, URLPattern):
+            try:
+                callback = p.callback
+                route = prefix + str(p.pattern)
+                routes.append(
+                    {
+                        "path": route,
+                        "view": callback.__name__,
+                        "module": inspect.getmodule(callback).__name__,
+                        "name": getattr(p, "name", None),
+                        "capability": get_capability_for_path(route),
+                    }
+                )
+            except Exception as e:
+                routes.append({"path": prefix + str(p.pattern), "error": str(e)})
+    return routes
+
+
+def get_full_route_map():
+    resolver = get_resolver()
+    return _walk_patterns(resolver.url_patterns)
+
+
+class RouteInspector:
+    @staticmethod
+    def get_routes():
+        return get_full_route_map()
+
+
 @api_view(["GET"])
 @never_cache
 def full_route_map(request):
-    urlconf = get_resolver()
-    routes = []
-
-    for pattern in urlconf.url_patterns:
-        try:
-            callback = pattern.callback
-            view_name = callback.__name__
-            module_name = inspect.getmodule(callback).__name__
-            pattern_str = str(pattern.pattern)
-
-            routes.append(
-                {
-                    "path": pattern_str,
-                    "view": view_name,
-                    "module": module_name,
-                    "name": getattr(pattern, "name", None),
-                    "capability": get_capability_for_path(pattern_str),
-                }
-            )
-        except Exception as e:
-            routes.append(
-                {
-                    "path": str(pattern.pattern),
-                    "error": str(e),
-                }
-            )
-
+    routes = get_full_route_map()
     return Response({"routes": routes})
 
 
@@ -126,8 +134,8 @@ def export_assistants(request):
 @api_view(["GET"])
 def export_routes(request):
     """Return a JSON dump of all URL routes with view info."""
-    resp = full_route_map(request)
-    return resp
+    routes = get_full_route_map()
+    return Response({"routes": routes})
 
 
 @api_view(["GET"])

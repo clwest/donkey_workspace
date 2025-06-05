@@ -23,6 +23,9 @@ from .diagnostics import (
     assistant_boot_profile,
     assistant_self_test,
     run_all_self_tests,
+    summarize_delegations,
+    reflect_on_self,
+    subagent_reflect,
 )
 from .thoughts import (
     submit_assistant_thought,
@@ -263,6 +266,9 @@ __all__ = [
     "assistant_boot_profile",
     "assistant_self_test",
     "run_all_self_tests",
+    "summarize_delegations",
+    "reflect_on_self",
+    "subagent_reflect",
     "diff_knowledge",
     "replay_scene_view",
     "chat_with_scene",

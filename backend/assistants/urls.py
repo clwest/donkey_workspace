@@ -455,6 +455,11 @@ urlpatterns = [
         name="assistant-subagent-reflect",
     ),
     path(
+        "<slug:slug>/subagent_reflect/",
+        diagnostics.subagent_reflect,
+        name="subagent_reflect",
+    ),
+    path(
         "delegation/subagent_reflect/<uuid:event_id>/",
         reflection.subagent_reflect_view,
         name="delegation-subagent-reflect",
@@ -476,8 +481,8 @@ urlpatterns = [
     ),
     path(
         "<slug:slug>/summarize_delegations/",
-        delegation.summarize_delegations,
-        name="assistant-summarize-delegations",
+        diagnostics.summarize_delegations,
+        name="summarize_delegations",
     ),
     path(
         "<slug:slug>/suggest-delegation/",
@@ -562,8 +567,10 @@ urlpatterns = [
     ),
     path(
         "<slug:slug>/reflect_on_self/",
+
         reflection.reflect_on_self,
         name="assistant-reflect-on-self",
+
     ),
     path(
         "<slug:slug>/self-assess/",
