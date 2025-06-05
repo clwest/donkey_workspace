@@ -352,6 +352,10 @@ class RAGGroundingLogSerializer(serializers.ModelSerializer):
             "glossary_misses",
             "retrieval_score",
             "corrected_score",
+            "raw_score",
+            "adjusted_score",
+            "glossary_boost_applied",
+            "fallback_threshold_used",
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]

@@ -28,6 +28,10 @@ def log_rag_debug(assistant, query, rag_meta, debug=False, expected_anchor=None)
             glossary_misses=rag_meta.get("anchor_misses", []),
             retrieval_score=rag_meta.get("retrieval_score", 0.0),
             corrected_score=corrected,
+            raw_score=rag_meta.get("raw_score"),
+            adjusted_score=rag_meta.get("adjusted_score"),
+            glossary_boost_applied=rag_meta.get("glossary_boost_applied", 0.0),
+            fallback_threshold_used=rag_meta.get("fallback_threshold_used"),
         )
     except Exception as e:  # pragma: no cover - failsafe for missing fields
         if "expected_anchor" in str(e):
@@ -41,6 +45,10 @@ def log_rag_debug(assistant, query, rag_meta, debug=False, expected_anchor=None)
                 glossary_misses=rag_meta.get("anchor_misses", []),
                 retrieval_score=rag_meta.get("retrieval_score", 0.0),
                 corrected_score=corrected,
+                raw_score=rag_meta.get("raw_score"),
+                adjusted_score=rag_meta.get("adjusted_score"),
+                glossary_boost_applied=rag_meta.get("glossary_boost_applied", 0.0),
+                fallback_threshold_used=rag_meta.get("fallback_threshold_used"),
             )
         raise
 

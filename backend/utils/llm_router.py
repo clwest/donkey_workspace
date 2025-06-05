@@ -197,6 +197,10 @@ def chat(
         "force_chunks": force_chunks,
     }
     rag_meta.update(debug_info)
+    rag_meta["raw_score"] = debug_info.get("top_raw_score", top_score)
+    rag_meta["adjusted_score"] = top_score
+    rag_meta["glossary_boost_applied"] = debug_info.get("top_glossary_boost", 0.0)
+    rag_meta["fallback_threshold_used"] = 0.6
     if fallback:
         rag_meta["weak_chunks_used"] = True
         if rag_meta.get("fallback_chunk_ids"):
