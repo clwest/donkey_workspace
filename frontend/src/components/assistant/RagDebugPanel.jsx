@@ -33,7 +33,10 @@ export default function RagDebugPanel({ slug }) {
         method: "POST",
         body: { terms },
       });
-      alert("Glossary terms boosted");
+
+      alert(`Boosted ${term}`);
+      load();
+
     } catch {
       alert("Boost failed");
     }

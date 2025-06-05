@@ -596,6 +596,7 @@ class RAGGroundingLog(models.Model):
         models.CharField(max_length=64), default=list, blank=True
     )
     retrieval_score = models.FloatField(default=0.0)
+    fallback_reason = models.CharField(max_length=100, blank=True, null=True)
     corrected_score = models.FloatField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -201,3 +201,21 @@ def boost_glossary_term(request):
         term=term, boost=boost, created_by=request.user if request.user.is_authenticated else None
     )
     return Response({"updated": updated, "term": term, "boost": boost})
+
+
+@api_view(["POST"])
+def suggest_glossary_anchor(request):
+    """Suggest a new glossary anchor term."""
+    term = request.data.get("term")
+    if not term:
+        return Response({"error": "term required"}, status=400)
+    from django.utils.text import slugify
+    from memory.models import SymbolicMemoryAnchor, GlossaryChangeEvent
+
+    anchor, _ = SymbolicMemoryAnchor.objects.get_or_create(
+        slug=slugify(term), defaults={"label": term}
+    )
+    GlossaryChangeEvent.objects.create(
+        term=term, boost=0.0, created_by=request.user if request.user.is_authenticated else None
+    )
+    return Response({"anchor": anchor.slug})
