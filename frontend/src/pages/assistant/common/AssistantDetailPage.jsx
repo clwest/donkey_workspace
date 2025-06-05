@@ -330,6 +330,11 @@ export default function AssistantDetailPage() {
             </button>
           </li>
           <li className="nav-item">
+            <Link className="nav-link" to={`/assistants/${slug}/rag-drift`}>
+              Glossary Drift
+            </Link>
+          </li>
+          <li className="nav-item">
             <Link className="nav-link" to={`/assistants/${slug}/diagnostics`}>
               Diagnostics
             </Link>
