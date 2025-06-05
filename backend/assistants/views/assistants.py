@@ -915,6 +915,9 @@ def chat_with_assistant_view(request, slug):
         embedding_vector = embed_resp.data[0].embedding
         save_embedding(memory, embedding_vector)
 
+    else:
+        full_transcript = memory.full_transcript or ""
+
     memory.tags = generate_tags_for_memory(full_transcript)
     memory.save()
 

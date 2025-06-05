@@ -1133,6 +1133,7 @@ class AssistantSerializer(serializers.ModelSerializer):
         read_only=True,
     )
     health_score = serializers.SerializerMethodField()
+    glossary_health_index = serializers.SerializerMethodField()
     memory_context_id = serializers.UUIDField(
         source="memory_context.id", read_only=True
     )
@@ -1216,6 +1217,28 @@ class AssistantSerializer(serializers.ModelSerializer):
 
     def get_health_score(self, obj):
         return calculate_composite_health(obj)
+
+    def get_glossary_health_index(self, obj):
+        from django.db.models import Avg, Count
+        from memory.models import SymbolicMemoryAnchor
+
+        total = SymbolicMemoryAnchor.objects.filter(reinforced_by=obj).count()
+        if total == 0:
+            return 1.0
+
+        qs = (
+            RAGGroundingLog.objects.filter(assistant=obj, fallback_triggered=True)
+            .exclude(expected_anchor="")
+            .values("expected_anchor")
+            .annotate(avg=Avg("adjusted_score"), count=Count("id"))
+        )
+        high = 0
+        for row in qs:
+            avg = row["avg"] or 0.0
+            if avg < 0.2 and row["count"] >= 3:
+                high += 1
+        index = 1.0 - (high / total)
+        return round(index, 2)
 
 
 class AssistantProjectSummarySerializer(serializers.ModelSerializer):
