@@ -84,6 +84,12 @@ export default function Sidebar({ collapsed }) {
               <span className="link-text ms-1">Route Health</span>
             </NavLink>
           </li>
+          <li>
+            <NavLink to="/dev/route-explorer" className="d-block">
+              <span role="img" aria-label="Explorer">🗺</span>
+              <span className="link-text ms-1">Route Explorer</span>
+            </NavLink>
+          </li>
         </ul>
       </div>
     </div>

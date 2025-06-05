@@ -134,6 +134,9 @@ export default function DevDashboard() {
         <button className="btn btn-outline-danger my-3" onClick={cleanupUnused}>
           🧹 Delete Unused Assistants
         </button>
+        <Link to="/dev/route-explorer" className="btn btn-outline-secondary my-3 ms-2">
+          🗺 Route Explorer
+        </Link>
         <ul className="nav nav-tabs mt-2">
           <li className="nav-item">
             <button

@@ -212,6 +212,11 @@ export default function Navbar({ onToggleSidebar }) {
               </Link>
             </li>
             <li className="nav-item">
+              <Link className="nav-link" to="/dev/route-explorer">
+                🗺 Route Explorer
+              </Link>
+            </li>
+            <li className="nav-item">
               <Link className="nav-link" to="/project/composer">
                 🛠️ Project Composer
               </Link>
