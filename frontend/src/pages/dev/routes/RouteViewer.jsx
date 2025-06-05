@@ -1,16 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import useApi from '@/hooks/useApi';
 import appSource from '@/App.jsx?raw';
+import { parseAppSource } from '@/utils/appRouteScanner';
+import { mapFrontendLinks } from '@/utils/routeLinker';
 
-function parseFrontendPaths(src) {
-  const regex = /<Route[^>]+path="([^"]+)"/g;
-  const paths = [];
-  let match;
-  while ((match = regex.exec(src))) {
-    paths.push(match[1]);
-  }
-  return paths;
-}
+const frontendRoutes = parseAppSource(appSource);
+const frontendMap = new Map(frontendRoutes.map(r => [r.normalized, r]));
 
 function normalize(path) {
   return path
@@ -24,7 +19,17 @@ export default function RouteViewer() {
   const [filter, setFilter] = useState('all');
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(0);
-  const frontendSet = useMemo(() => new Set(parseFrontendPaths(appSource).map(normalize)), []);
+  const frontendSet = useMemo(() => new Set(frontendRoutes.map(r => r.normalized)), []);
+  const pageFiles = useMemo(
+    () => Object.keys(import.meta.glob('../../pages/**/*.jsx')),
+    []
+  );
+  const orphaned = useMemo(() => {
+    const used = new Set(frontendRoutes.map(r => r.file));
+    return pageFiles
+      .map((p) => p.replace('../../pages/', ''))
+      .filter((p) => !used.has(p));
+  }, [pageFiles]);
 
   if (!data) return <div className="p-4">Loading...</div>;
 
@@ -80,7 +85,8 @@ export default function RouteViewer() {
           <tr>
             <th>Path</th>
             <th>Status</th>
-            <th>Frontend</th>
+            <th>Frontend Linked</th>
+            <th>Component</th>
             <th>View</th>
             <th>Module</th>
             <th>Name</th>
@@ -89,7 +95,8 @@ export default function RouteViewer() {
         </thead>
         <tbody>
           {filtered.map((route, idx) => {
-            const isFrontend = frontendSet.has(route.normalized);
+            const linked = frontendMap.get(route.normalized);
+            const isFrontend = !!linked;
             let status = '✅';
             if (route.error) status = '❌';
             else if (!route.view) status = '⁉️';
@@ -112,6 +119,7 @@ export default function RouteViewer() {
                 </td>
                 <td>{status}</td>
                 <td>{isFrontend ? '✅' : '❌'}</td>
+                <td>{linked ? linked.file : '-'}</td>
                 <td>{route.view || '-'}</td>
                 <td>{route.module || '-'}</td>
                 <td>{route.name || '-'}</td>
@@ -141,6 +149,14 @@ export default function RouteViewer() {
             Next
           </button>
         </div>
+      </div>
+      <div className="mt-4">
+        <h5>Orphaned Pages: {orphaned.length}</h5>
+        <ul>
+          {orphaned.map((f) => (
+            <li key={f}>{f}</li>
+          ))}
+        </ul>
       </div>
     </div>
   );
