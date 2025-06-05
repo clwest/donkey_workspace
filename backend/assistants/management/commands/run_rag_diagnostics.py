@@ -54,4 +54,6 @@ class Command(BaseCommand):
             symbol = "✅" if r["passed"] else "❌"
             self.stdout.write(f"{symbol} {r['assistant']} ({len(r['issues'])} issues)")
 
-        self.stdout.write(self.style.SUCCESS(f"{len(results)} assistant(s) tested."))
+        assistant_label = r.get("assistant", "unknown")
+        issue_count = len(r.get("issues", []))
+        self.stdout.write(f"{symbol} {assistant_label} ({issue_count} issues)")

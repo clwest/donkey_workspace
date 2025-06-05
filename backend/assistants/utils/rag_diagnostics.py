@@ -42,7 +42,11 @@ def run_assistant_rag_test(
         )
         if not hit:
             issues.append(anchor.slug)
-    return {"passed": len(issues) == 0, "issues": issues}
+    return {
+            "assistant": assistant.slug,
+            "passed": len(issues) == 0,
+            "issues": issues
+        }
 
 
 def run_rag_diagnostics(*, disable_scope: bool = False) -> List[Dict[str, object]]:
