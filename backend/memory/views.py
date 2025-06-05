@@ -1055,6 +1055,9 @@ def glossary_mutations(request):
         SymbolicMemoryAnchor.objects.exclude(mutation_source__isnull=True)
         .exclude(mutation_source="")
     )
+    assistant_slug = request.query_params.get("assistant")
+    if assistant_slug:
+        anchors = anchors.filter(assistant__slug=assistant_slug)
     data = []
     for a in anchors:
         from memory.models import RAGGroundingLog

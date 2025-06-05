@@ -343,8 +343,10 @@ export default function AssistantDetailPage() {
           </li>
         </ul>
         <div className="mt-2">
-          <Link to={`/anchor/mutations?assistant=${slug}`}>
-            <Button variant="outline-primary">Review Glossary Suggestions</Button>
+          <Link to={`/anchor/mutations?assistant=${assistant.slug}`}>
+            <Button variant="outline" className="mt-2">
+              Review Glossary Suggestions
+            </Button>
           </Link>
         </div>
       </div>
