@@ -484,7 +484,7 @@ export default function App() {
             element={<DelegationTracePage />}
           />
           <Route
-            path="/assistants/:slug/reflect-subagent/:id"
+            path="/assistants/:slug/subagent_reflect/:id"
             element={<AssistantSubAgentReflectionPage />}
           />
           <Route
