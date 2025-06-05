@@ -1,7 +1,7 @@
 import { useState } from "react";
 import apiFetch from "../../utils/apiClient";
 
-export default function ChatDebugPanel({ ragMeta }) {
+export default function ChatDebugPanel({ ragMeta, slug }) {
   if (!ragMeta) return null;
   const [showAll, setShowAll] = useState(false);
   const used = ragMeta.used_chunks || [];
@@ -17,7 +17,10 @@ export default function ChatDebugPanel({ ragMeta }) {
     const term = ragMeta.query || ragMeta.query_text || "";
     if (!term) return;
     try {
-      await apiFetch("/intel/glossary/suggest/anchor/", {
+      const url = slug
+        ? `/assistants/${slug}/suggest_glossary_anchor/`
+        : "/intel/glossary/suggest/anchor/";
+      await apiFetch(url, {
         method: "POST",
         body: { term },
       });
@@ -34,6 +37,9 @@ export default function ChatDebugPanel({ ragMeta }) {
         <div className="alert alert-warning small">
           🧠 Tip: The document may be noisy, too short, or semantically distant. Consider re-embedding or increasing similarity tolerance.
         </div>
+      )}
+      {ragMeta.fallback_reason && (
+        <div className="small text-danger mb-1">Fallback Reason: {ragMeta.fallback_reason}</div>
       )}
       {candidates.length > 0 && (
         <div className="form-check form-switch mb-2">

@@ -44,3 +44,11 @@ class RagDebugTests(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(GlossaryChangeEvent.objects.filter(term="zk rollup").count(), 1)
+
+    def test_suggest_glossary_anchor_endpoint(self):
+        resp = self.client.post(
+            f"/api/assistants/{self.assistant.slug}/suggest_glossary_anchor/",
+            {"term": "zk rollup"},
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(GlossaryChangeEvent.objects.filter(term="zk rollup").count(), 1)

@@ -86,6 +86,7 @@ export default function RagDebugPanel({ slug }) {
             <th>Glossary Hits</th>
             <th>Glossary Misses</th>
             <th>Fallback</th>
+            <th>Reason</th>
           </tr>
         </thead>
         <tbody>
@@ -100,10 +101,11 @@ export default function RagDebugPanel({ slug }) {
                 <td className="small">{(log.glossary_hits || []).join(", ")}</td>
                 <td className="small">{(log.glossary_misses || []).join(", ")}</td>
                 <td>{log.fallback_triggered ? "⚠️" : ""}</td>
+                <td className="small text-danger">{log.fallback_reason || ""}</td>
               </tr>
               {log.glossary_misses?.length > 0 && (
                 <tr>
-                  <td colSpan="6">
+                  <td colSpan="7">
                     <button
                       className="btn btn-sm btn-outline-primary"
                       onClick={() => boostTerms(log.glossary_misses)}

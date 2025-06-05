@@ -464,7 +464,7 @@ export default function ChatWithAssistantPage() {
         </div>
       )}
 
-      {sourceInfo && <ChatDebugPanel ragMeta={sourceInfo} />}
+      {sourceInfo && <ChatDebugPanel ragMeta={sourceInfo} slug={slug} />}
 
       {error && <div className="alert alert-danger mt-3">{error}</div>}
     </div>

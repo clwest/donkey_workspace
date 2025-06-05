@@ -1414,6 +1414,16 @@ def boost_anchors(request, slug):
     return Response({"boosted": boosted, "boost": boost})
 
 
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def suggest_glossary_anchor(request, slug):
+    """Proxy anchor suggestion to intel debug view with assistant context."""
+    get_object_or_404(Assistant, slug=slug)
+    from intel_core.views import debug as debug_views
+
+    return debug_views.suggest_glossary_anchor(request)
+
+
 @api_view(["GET"])
 def assistant_lineage(request, slug):
     """Return a recursive lineage tree for an assistant."""
