@@ -927,7 +927,8 @@ def chat_with_assistant_view(request, slug):
         memory.tags.add(tag)
 
     debug_flag = request.query_params.get("debug") or request.data.get("debug")
-    if str(debug_flag).lower() == "true":
+    should_log = str(debug_flag).lower() == "true" or rag_meta.get("rag_fallback", False)
+    if should_log:
         RAGGroundingLog.objects.create(
             assistant=assistant,
             query=message,
