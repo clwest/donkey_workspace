@@ -1,4 +1,5 @@
 import json
+import os
 from typing import List
 
 from django.core.management.base import BaseCommand
@@ -33,8 +34,22 @@ class Command(BaseCommand):
             self.stderr.write(self.style.ERROR(f"Assistant '{slug}' not found"))
             return
 
-        with open(json_path, "r") as f:
-            data = json.load(f)
+        if not os.path.exists(json_path):
+            self.stderr.write(self.style.ERROR(f"File '{json_path}' not found"))
+            return
+
+        try:
+            with open(json_path, "r") as f:
+                raw_content = f.read().strip()
+                if not raw_content:
+                    self.stderr.write(self.style.ERROR(f"File '{json_path}' is empty"))
+                    return
+                data = json.loads(raw_content)
+        except json.JSONDecodeError as exc:
+            self.stderr.write(
+                self.style.ERROR(f"Failed to parse '{json_path}': {exc.msg}")
+            )
+            return
 
         record = next((r for r in data if r.get("assistant") == slug), None)
         if not record or not record.get("issues"):
@@ -42,7 +57,9 @@ class Command(BaseCommand):
             return
 
         failed: List[str] = record["issues"]
-        context_id = str(assistant.memory_context_id) if assistant.memory_context_id else None
+        context_id = (
+            str(assistant.memory_context_id) if assistant.memory_context_id else None
+        )
         reflections = get_glossary_terms_from_reflections(context_id)
         context_text = ", ".join(reflections)
 
