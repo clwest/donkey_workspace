@@ -124,17 +124,17 @@ urlpatterns = [
     ),
     path(
         "assistants/<slug:slug>/summarize_delegations/",
-        summarize_delegations,
+        delegation_views.summarize_delegations,
         name="summarize_delegations",
     ),
     path(
         "assistants/<slug:slug>/reflect_on_self/",
-        reflect_on_self,
+        reflection_views.reflect_on_self,
         name="reflect_on_self",
     ),
     path(
         "assistants/<slug:slug>/subagent_reflect/",
-        subagent_reflect,
+        subagent_reflect_alias,
         name="subagent_reflect",
     ),
     path(
