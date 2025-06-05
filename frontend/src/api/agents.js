@@ -132,6 +132,12 @@ export const boostGlossaryAnchor = (slug, boost) =>
     body: { anchor: slug, boost },
   });
 
+export const fetchGlossaryMutations = () => apiFetch(`/glossary/mutations/`);
+export const acceptGlossaryMutation = (id) =>
+  apiFetch(`/glossary/mutations/${id}/accept`, { method: "POST" });
+export const rejectGlossaryMutation = (id) =>
+  apiFetch(`/glossary/mutations/${id}/reject`, { method: "POST" });
+
 export const fetchMythRecordingSessions = () => apiFetch("/myth/record/");
 export const createMythRecordingSession = (body) =>
   apiFetch("/myth/record/", { method: "POST", body });

@@ -262,6 +262,13 @@ export const routeMap = [
     notes: "Continuity anchors",
   },
   {
+    frontend: "/anchor/mutations",
+    backend: "/api/glossary/mutations/",
+    view: "GlossaryMutationReviewPanel",
+    serializer: "SymbolicMemoryAnchorSerializer",
+    notes: "Glossary mutations",
+  },
+  {
     frontend: "/anchor/symbolic",
     backend: "/api/memory/symbolic-anchors/",
     view: "SymbolicAnchorAdminPage",

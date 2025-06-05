@@ -106,6 +106,21 @@ urlpatterns = (
             name="glossary-boost-anchor",
         ),
         path(
+            "glossary/mutations/",
+            views.glossary_mutations,
+            name="glossary-mutations",
+        ),
+        path(
+            "glossary/mutations/<uuid:id>/accept",
+            views.accept_glossary_mutation,
+            name="glossary-mutation-accept",
+        ),
+        path(
+            "glossary/mutations/<uuid:id>/reject",
+            views.reject_glossary_mutation,
+            name="glossary-mutation-reject",
+        ),
+        path(
             "symbolic-anchors/<slug:slug>/convergence/",
             views.anchor_convergence_logs,
             name="anchor-convergence-logs",

@@ -1045,3 +1045,55 @@ def assistant_convergence_logs(request):
     logs = qs.order_by("-created_at")[:20]
     data = AnchorConvergenceLogSerializer(logs, many=True).data
     return Response({"results": data})
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def glossary_mutations(request):
+    """Return SymbolicMemoryAnchor records with pending mutations."""
+    anchors = (
+        SymbolicMemoryAnchor.objects.exclude(mutation_source__isnull=True)
+        .exclude(mutation_source="")
+    )
+    data = []
+    for a in anchors:
+        from memory.models import RAGGroundingLog
+
+        fallback_count = RAGGroundingLog.objects.filter(
+            expected_anchor=a.slug, fallback_triggered=True
+        ).count()
+        data.append(
+            {
+                "id": str(a.id),
+                "original_label": a.label,
+                "suggested_label": a.suggested_label,
+                "mutation_source": a.mutation_source,
+                "fallback_count": fallback_count,
+                "status": a.mutation_status,
+            }
+        )
+    return Response({"results": data})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def accept_glossary_mutation(request, id):
+    """Apply the suggested label and mark mutation as applied."""
+    anchor = get_object_or_404(SymbolicMemoryAnchor, id=id)
+    if not anchor.suggested_label:
+        return Response({"error": "no suggestion"}, status=400)
+    anchor.label = anchor.suggested_label
+    anchor.suggested_label = None
+    anchor.mutation_status = "applied"
+    anchor.save(update_fields=["label", "suggested_label", "mutation_status"])
+    return Response({"status": "applied"})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def reject_glossary_mutation(request, id):
+    """Mark a glossary mutation as rejected."""
+    anchor = get_object_or_404(SymbolicMemoryAnchor, id=id)
+    anchor.mutation_status = "rejected"
+    anchor.save(update_fields=["mutation_status"])
+    return Response({"status": "rejected"})

@@ -199,6 +199,15 @@ urlpatterns = [
     path("api/rag/check-source/", intel_views.rag_check_source),
     path("glossary/misses/", intel_views.glossary_misses),
     path("api/glossary/boost_anchor/", memory_views.boost_anchor),
+    path("api/glossary/mutations/", memory_views.glossary_mutations),
+    path(
+        "api/glossary/mutations/<uuid:id>/accept",
+        memory_views.accept_glossary_mutation,
+    ),
+    path(
+        "api/glossary/mutations/<uuid:id>/reject",
+        memory_views.reject_glossary_mutation,
+    ),
     path("api/signal-artifacts/", agent_views.signal_artifacts),
     path("api/navigation-vectors/", agent_views.navigation_vectors),
     path("api/flux-index/", agent_views.flux_index),
