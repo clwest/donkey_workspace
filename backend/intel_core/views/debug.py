@@ -172,3 +172,32 @@ def reembed_missing_chunks_view(request):
     """Trigger reembedding for chunks missing vectors or scores."""
     report = reembed_missing_chunks()
     return Response(report)
+
+
+@api_view(["POST"])
+def boost_glossary_term(request):
+    """Boost retrieval weight for a raw term and reembed related chunks."""
+    term = request.data.get("term")
+    if not term:
+        return Response({"error": "term required"}, status=400)
+    boost = float(request.data.get("boost", 0.1))
+    from django.utils.text import slugify
+    from memory.models import SymbolicMemoryAnchor, GlossaryChangeEvent
+    from embeddings.tasks import embed_and_store
+
+    slug = slugify(term)
+    anchor, _ = SymbolicMemoryAnchor.objects.get_or_create(
+        slug=slug, defaults={"label": term}
+    )
+    chunks = DocumentChunk.objects.filter(text__icontains=term)
+    updated = 0
+    for ch in chunks:
+        ch.anchor = anchor
+        ch.glossary_boost = boost
+        ch.save(update_fields=["anchor", "glossary_boost"])
+        embed_and_store.delay(str(ch.id))
+        updated += 1
+    GlossaryChangeEvent.objects.create(
+        term=term, boost=boost, created_by=request.user if request.user.is_authenticated else None
+    )
+    return Response({"updated": updated, "term": term, "boost": boost})

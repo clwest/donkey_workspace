@@ -589,8 +589,14 @@ class RAGGroundingLog(models.Model):
     query = models.TextField()
     used_chunk_ids = ArrayField(models.CharField(max_length=64), default=list)
     fallback_triggered = models.BooleanField(default=False)
-    glossary_misses = ArrayField(models.CharField(max_length=64), default=list, blank=True)
+    glossary_hits = ArrayField(
+        models.CharField(max_length=64), default=list, blank=True
+    )
+    glossary_misses = ArrayField(
+        models.CharField(max_length=64), default=list, blank=True
+    )
     retrieval_score = models.FloatField(default=0.0)
+    corrected_score = models.FloatField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -598,4 +604,22 @@ class RAGGroundingLog(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return f"{self.assistant} | {self.query[:20]}"
+
+
+class GlossaryChangeEvent(models.Model):
+    """Record manual boosts or adjustments to glossary terms."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    term = models.CharField(max_length=100)
+    boost = models.FloatField(default=0.0)
+    created_by = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.SET_NULL
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"{self.term} boost {self.boost}"
 
