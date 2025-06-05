@@ -81,7 +81,6 @@ class Command(BaseCommand):
                             "label": a.title(),
                             "source": "mutation",
                             "created_from": "mutation",
-                            "mutation_source": "codex_synonym",
                         },
                     )
                     obj.reinforced_by.add(assistant)
