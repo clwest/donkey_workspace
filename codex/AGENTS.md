@@ -1,3 +1,4 @@
+
 # 🧠 AGENTS.md — Donkey Workspace Codex System Guide
 
 > Updated: 2025-06-04  
@@ -47,34 +48,32 @@ All Codex tasks should conform to the following expectations:
 
 ## 🔎 Active UI Dashboards
 
-| Tool                       | Route                    | Linked?                                   |
-| -------------------------- | ------------------------ | ----------------------------------------- |
-| Route Health               | `/dev/route-health`      | ✅ Yes                                    |
-| Assistant Boot Diagnostics | `/assistants/boot/`      | ✅ Yes                                    |
-| Glossary Usage             | `/intel/glossary`        | ✅ Yes                                    |
-| Template Drift             | `/dev/templates`         | ✅ Yes                                    |
-| Delegation Summary Panel   | `/assistants/:slug/`     | ✅ Yes                                    |
-| Sub-Agent Reflections      | `/subagent_reflect/:id/` | 🟡 Manual only (link in delegation trace) |
-| Self Reflection Trigger    | `/reflect_on_self/`      | ✅ Yes (via Assistant page)               |
-| Intel Debug Tools          | `/intel/debug/`          | ❌ Unlinked                               |
-| Chunk Scores + Anchors     | `/intel/chunk-stats/`    | ✅ Yes                                    |
-| MythGraph + Simulation     | `/codex/strategy`        | ❌ Unlinked                               |
-| All App.jsx Routes         | `/dev/app-routes`        | ✅ Yes (post Ω.9.25)                      |
+| Tool                        | Route                     | Linked? |
+|----------------------------|---------------------------|---------|
+| Route Health               | `/dev/route-health`       | ✅ Yes  |
+| Route Explorer             | `/dev/route-explorer`     | ✅ Yes  |
+| Assistant Boot Diagnostics | `/assistants/boot/`       | ✅ Yes  |
+| Glossary Usage             | `/intel/glossary`         | ✅ Yes  |
+| Template Drift             | `/dev/templates`          | ✅ Yes  |
+| Delegation Summary Panel   | `/assistants/:slug/`      | ✅ Yes  |
+| Sub-Agent Reflections      | `/subagent_reflect/:id/`  | 🟡 Manual only (link in delegation trace) |
+| Self Reflection Trigger    | `/reflect_on_self/`       | ✅ Yes (via Assistant page) |
+| Intel Debug Tools          | `/intel/debug/`           | ❌ Unlinked |
+| Chunk Scores + Anchors     | `/intel/chunk-stats/`     | ✅ Yes |
+| MythGraph + Simulation     | `/codex/strategy`         | ❌ Unlinked |
+| All App.jsx Routes         | `/dev/app-routes`         | ✅ Yes (post Ω.9.25) |
 
 ---
 
 ## 🧩 Codex Protocol Reminders
 
 1. **Every Route Must Be Registered**
-
    - All endpoints must be routed through `urls.py`, named, and visible in `/dev/route-health`.
 
 2. **Frontend Links Required**
-
    - Every page in `App.jsx` must have a discoverable link in a navbar, dashboard, or dev panel.
 
 3. **Reflective RAG Flow Must Trigger:**
-
    - After document ingest, `/assistants/:id/review-ingest/:doc_id/` should call:
      - `get_relevant_chunks()`
      - `reflect_on_document()`
@@ -82,7 +81,6 @@ All Codex tasks should conform to the following expectations:
      - optionally `build_agent_spawn_artifact()`
 
 4. **Memory Validation**
-
    - Every `MemoryEntry` must have:
      - `assistant`, `context`
      - a non-empty `summary` or `full_transcript`
@@ -107,5 +105,3 @@ All Codex tasks should conform to the following expectations:
 - Add Test Route buttons to `/dev/route-health`
 
 ---
-
-Save this as `AGENTS.md` at the root of the monorepo. Let me know if you want it exported as a `.md` file right now.
