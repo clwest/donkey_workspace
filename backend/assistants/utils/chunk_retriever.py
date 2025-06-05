@@ -172,6 +172,7 @@ def get_relevant_chunks(
     if memory_context_id:
         from django.contrib.contenttypes.models import ContentType
         from memory.models import MemoryEntry
+        from intel_core.models import DocumentChunk
 
         ct = ContentType.objects.get_for_model(DocumentChunk)
         chunk_ids = list(
