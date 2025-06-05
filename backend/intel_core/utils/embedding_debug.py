@@ -9,7 +9,13 @@ logger = logging.getLogger(__name__)
 def reembed_missing_chunks() -> dict:
     """Recalculate embeddings for chunks missing vectors or scores."""
     chunks = DocumentChunk.objects.filter(
-        Q(embedding__isnull=True) | Q(embedding__vector__isnull=True) | Q(glossary_score=0)
+        Q(embedding__isnull=True)
+        | Q(embedding__vector__isnull=True)
+        | Q(glossary_score=0)
+        | (
+            Q(embedding__isnull=False)
+            & ~Q(embedding_status=DocumentChunk.EmbeddingStatus.EMBEDDED)
+        )
     ).select_related("embedding")
     ids = []
     tokens = 0
