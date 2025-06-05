@@ -132,7 +132,8 @@ export const boostGlossaryAnchor = (slug, boost) =>
     body: { anchor: slug, boost },
   });
 
-export const fetchGlossaryMutations = () => apiFetch(`/glossary/mutations/`);
+export const fetchGlossaryMutations = (params) =>
+  apiFetch(`/glossary/mutations/`, { params });
 export const acceptGlossaryMutation = (id) =>
   apiFetch(`/glossary/mutations/${id}/accept`, { method: "POST" });
 export const rejectGlossaryMutation = (id) =>
