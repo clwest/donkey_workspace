@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import TagBadge from "../../components/TagBadge";
 import apiFetch from "../../utils/apiClient";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -57,9 +58,15 @@ export default function DevDocReflectionDetailPage() {
 
           <div className="mb-3">
             <h6 className="mb-1">Tags:</h6>
-            {reflection.tags?.map((tag) => (
-              <span key={tag} className="badge bg-secondary me-1">{tag}</span>
-            ))}
+            {reflection.tags?.map((tag, idx) =>
+              typeof tag === "string" ? (
+                <span key={idx} className="badge bg-secondary me-1">
+                  {tag}
+                </span>
+              ) : (
+                <TagBadge key={tag.id || tag.slug || idx} tag={tag} />
+              )
+            )}
           </div>
 
           <pre className="bg-light p-2 rounded small overflow-auto">

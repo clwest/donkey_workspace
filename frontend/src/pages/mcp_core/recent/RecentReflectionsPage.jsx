@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import TagBadge from "../../../components/TagBadge";
 import apiFetch from "../../../utils/apiClient";
 import ReflectionMoodChart from "../../../components/mcp_core/ReflectionMoodChart";
 import ReflectionMoodFilterBar from "../../../components/mcp_core/ReflectionMoodFilterBar";
@@ -56,9 +57,13 @@ export default function RecentReflectionsPage() {
 
               {reflection.tags && reflection.tags.length > 0 && (
                 <div className="mt-2">
-                  {reflection.tags.map(tag => (
-                    <span key={tag} className="badge bg-secondary me-1">{tag}</span>
-                  ))}
+                  {reflection.tags.map((tag, idx) =>
+                    typeof tag === "string" ? (
+                      <span key={idx} className="badge bg-secondary me-1">{tag}</span>
+                    ) : (
+                      <TagBadge key={tag.id || tag.slug || idx} tag={tag} />
+                    )
+                  )}
                 </div>
               )}
             </Link>
