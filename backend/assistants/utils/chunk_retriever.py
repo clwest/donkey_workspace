@@ -104,6 +104,7 @@ def get_relevant_chunks(
     force_chunks: bool = False,
     force_fallback: bool = False,
     min_rag_score: float = 0.3,
+    min_score: float = 0.6,
     debug: bool = False,
 ) -> Tuple[
     List[Dict[str, object]],
@@ -135,7 +136,8 @@ def get_relevant_chunks(
     score filtering and always returns the top 3 chunks. ``force_fallback``
     allows zero-score or weak chunks to be returned when no valid options remain.
     ``min_rag_score`` triggers summary-level fallback when the best score is
-    below the threshold.
+    below the threshold. ``min_score`` controls the minimum score allowed when
+    glossary boosting is applied.
     """
     if not query_text:
         return (
@@ -354,9 +356,22 @@ def get_relevant_chunks(
             or "glossary" in getattr(chunk, "tags", [])
         ):
             score += 0.15
-        # Boost using precomputed glossary_score
+        # Boost using precomputed glossary_score but keep track of glossary hit
         score += getattr(chunk, "glossary_score", 0.0) * GLOSSARY_BOOST_FACTOR
-        score += getattr(chunk, "glossary_boost", 0.0) * 1.5
+        glossary_hit = (
+            contains_glossary
+            or getattr(chunk, "is_glossary", False)
+            or (
+                query_terms
+                and (
+                    getattr(chunk, "is_glossary", False)
+                    or "glossary" in getattr(chunk, "tags", [])
+                )
+            )
+        )
+        glossary_boost = getattr(chunk, "glossary_boost", 0.0)
+        if glossary_hit:
+            score += glossary_boost
         if not getattr(chunk, "fingerprint", ""):
             score -= 0.05
         weak_glossary = (
@@ -381,12 +396,16 @@ def get_relevant_chunks(
                 anchor_confidence = 1.0
             else:
                 anchor_confidence = 0.5
-        logger.debug(
-            "Retrieved chunk score: %.4f | contains_glossary=%s",
+        logger.info(
+            "[RAG] Chunk %s | Raw Score: %.4f | Glossary Boost: %.4f | Final Score: %.4f",
+            chunk.id,
+            raw_score,
+            glossary_boost if glossary_hit else 0.0,
             score,
-            contains_glossary,
         )
-        scored.append((score, chunk, anchor_confidence, raw_score, anchor_weight))
+        scored.append(
+            (score, chunk, anchor_confidence, raw_score, glossary_boost if glossary_hit else 0.0, glossary_hit)
+        )
         debug_candidates.append(
             {
                 "id": str(chunk.id),
@@ -395,12 +414,16 @@ def get_relevant_chunks(
                 ),
                 "raw_score": round(raw_score, 4),
                 "final_score": round(score, 4),
+                "glossary_boost": round(glossary_boost if glossary_hit else 0.0, 4),
+                "glossary_hit": glossary_hit,
             }
         )
 
     scored.sort(key=lambda x: x[0], reverse=True)
     top_score = scored[0][0] if scored else 0.0
     top_chunk_id = str(scored[0][1].id) if scored else None
+    top_raw_score = scored[0][3] if scored else 0.0
+    top_boost = scored[0][4] if scored else 0.0
 
     summary_hits: List[dict] = []
     fallback_type = None
@@ -408,19 +431,19 @@ def get_relevant_chunks(
         summary_hits = _search_summary_hits(query_vec, doc_ids)
         if summary_hits:
             fallback_type = "summary"
-    # ``scored`` contains tuples of ``(score, chunk, anchor_confidence, raw_score, anchor_weight)``
+    # ``scored`` contains tuples of ``(score, chunk, anchor_confidence, raw_score, glossary_boost, glossary_hit)``
     # so we keep all fields intact when filtering.
     filtered = (
         [
-            (s, c, conf, raw, aw)
-            for s, c, conf, raw, aw in scored
-            if s >= score_threshold
+            (s, c, conf, raw, boost, ghit)
+            for s, c, conf, raw, boost, ghit in scored
+            if s >= score_threshold or (ghit and s >= min_score)
         ]
         if not force_chunks
         else scored
     )
     warnings: List[str] = []
-    score_list = [s for s, _c, _conf, _raw, _aw in scored]
+    score_list = [s for s, _c, _conf, _raw, _b, _g in scored]
     max_score = max(score_list) if score_list else 0.0
     if not filtered and score_list and max_score < 0.15:
         warnings.append(
@@ -476,7 +499,7 @@ def get_relevant_chunks(
             logger.warning("⚠️ All candidate chunks rejected; forcing fallback")
             candidates = scored
         pairs = candidates[: max(1, fallback_limit)]
-        for i, (s, c, _conf, _rs, _aw) in enumerate(pairs, 1):
+        for i, (s, c, _conf, _rs, _boost, _ghit) in enumerate(pairs, 1):
             logger.info(
                 "[Fallback] Using Chunk ID %s | Score: %.4f | Reason: %s",
                 c.id,
@@ -568,7 +591,7 @@ def get_relevant_chunks(
     result = []
     fallback_ids: List[str] = []
     fallback_scores: List[float] = []
-    for score, chunk, anchor_conf, raw_score, anchor_weight in pairs:
+    for score, chunk, anchor_conf, raw_score, g_boost, g_hit in pairs:
         if chunk.embedding_status != "embedded":
             logger.warning(
                 "\u26a0\ufe0f Chunk %s selected but not embedded (status=%s)",
@@ -584,6 +607,8 @@ def get_relevant_chunks(
             "score": round(score, 4),
             "score_before_anchor_boost": round(raw_score, 4),
             "score_after_anchor_boost": round(score, 4),
+            "glossary_boost_applied": round(g_boost, 4),
+            "fallback_threshold_used": score_threshold if score >= score_threshold else min_score,
             "text": chunk.text,
             "source_doc": chunk.document.title,
             "is_glossary": getattr(chunk, "is_glossary", False),
@@ -635,6 +660,8 @@ def get_relevant_chunks(
         "weak_chunks_used": fallback,
         "fallback_chunk_ids": fallback_ids,
         "fallback_chunk_scores": fallback_scores,
+        "top_raw_score": top_raw_score,
+        "top_glossary_boost": top_boost,
         "warnings": warnings,
     }
 

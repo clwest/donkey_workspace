@@ -599,6 +599,10 @@ class RAGGroundingLog(models.Model):
     fallback_reason = models.CharField(max_length=100, blank=True, null=True)
     expected_anchor = models.SlugField(blank=True, default="")
     corrected_score = models.FloatField(null=True, blank=True)
+    raw_score = models.FloatField(null=True, blank=True)
+    adjusted_score = models.FloatField(null=True, blank=True)
+    glossary_boost_applied = models.FloatField(default=0.0)
+    fallback_threshold_used = models.FloatField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
