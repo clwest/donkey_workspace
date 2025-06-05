@@ -38,4 +38,6 @@ class RagGroundingLogSerializerTest(TestCase):
         self.assertIn("boosted_from_reflection", data)
         self.assertIn("reflection_boost_score", data)
         self.assertIn("glossary_boost_type", data)
+        self.assertIn("glossary_boost", data)
+        self.assertEqual(data["matched_chunk_ids"], ["1"])
 

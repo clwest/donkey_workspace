@@ -23,6 +23,7 @@ import ReflectNowButton from "../../../components/assistant/ReflectNowButton";
 import CommonModal from "../../../components/CommonModal";
 import AssistantBootPanel from "../../../components/assistants/AssistantBootPanel";
 import RagDebugPanel from "../../../components/assistant/RagDebugPanel";
+import RagPlaybackPanel from "../../../components/assistant/RagPlaybackPanel";
 
 export default function AssistantDetailPage() {
   const { slug } = useParams();
@@ -800,7 +801,12 @@ export default function AssistantDetailPage() {
       {activeTab === "training" && (
         <AgentTrainingManager assistantSlug={slug} />
       )}
-      {activeTab === "ragdebug" && <RagDebugPanel slug={slug} />}
+      {activeTab === "ragdebug" && (
+        <>
+          <RagPlaybackPanel slug={slug} />
+          <RagDebugPanel slug={slug} />
+        </>
+      )}
       <CommonModal
         show={showBoot}
         onClose={() => setShowBoot(false)}
