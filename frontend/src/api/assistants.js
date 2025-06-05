@@ -434,9 +434,10 @@ export async function runSelfTest(slug) {
   return res;
 }
 
-export async function runRagSelfTest(slug) {
+export async function runRagSelfTest(slug, params) {
   const res = await apiFetch(`/assistants/${slug}/rag_self_test/`, {
     method: "POST",
+    body: params,
   });
   return res;
 }
