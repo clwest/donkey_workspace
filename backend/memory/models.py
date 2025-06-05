@@ -444,9 +444,6 @@ class SymbolicMemoryAnchor(models.Model):
     is_focus_term = models.BooleanField(default=False)
     source = models.CharField(max_length=20, default="manual")
     created_from = models.CharField(max_length=20, default="manual")
-    mutation_source = models.CharField(
-        max_length=128, blank=True, null=True, help_text="Origin of anchor mutation"
-    )
     score_weight = models.FloatField(default=1.0)
     tags = models.ManyToManyField("mcp_core.Tag", blank=True)
     reinforced_by = models.ManyToManyField(
