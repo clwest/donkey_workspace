@@ -738,6 +738,10 @@ def get_rag_chunk_debug(
     if not disable_scope:
         assistant = Assistant.objects.filter(id=assistant_id).first()
 
+    memory_context = None
+    if assistant and assistant.memory_context_id is not None:
+        memory_context = str(assistant.memory_context_id)
+
     (
         chunks,
         reason,
@@ -752,7 +756,7 @@ def get_rag_chunk_debug(
     ) = get_relevant_chunks(
         assistant_id,
         query_text,
-        memory_context_id=str(assistant.memory_context_id) if assistant else None,
+        memory_context_id=memory_context,
         debug=True,
     )
 
