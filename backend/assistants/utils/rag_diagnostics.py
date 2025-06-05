@@ -3,6 +3,7 @@ from assistants.models import Assistant
 from memory.models import SymbolicMemoryAnchor
 from assistants.utils.chunk_retriever import get_rag_chunk_debug
 from utils.rag_debug import log_rag_debug
+from tqdm import tqdm
 
 
 def run_assistant_rag_test(
@@ -11,7 +12,7 @@ def run_assistant_rag_test(
     """Simulate RAG retrieval for all glossary anchors."""
     anchors = SymbolicMemoryAnchor.objects.all().order_by("slug")
     issues: List[str] = []
-    for anchor in anchors:
+    for anchor in tqdm(anchors, desc=f"🔍 Testing glossary for {assistant.slug}"):
         debug_info = get_rag_chunk_debug(
             str(assistant.id),
             anchor.label,
