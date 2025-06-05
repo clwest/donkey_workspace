@@ -561,6 +561,11 @@ urlpatterns = [
         name="assistant-self-reflect",
     ),
     path(
+        "<slug:slug>/reflect_on_self/",
+        reflection.reflect_on_self,
+        name="assistant-reflect-on-self",
+    ),
+    path(
         "<slug:slug>/self-assess/",
         assistants.self_assess,
         name="assistant-self-assess",

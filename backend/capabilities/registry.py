@@ -23,6 +23,18 @@ CAPABILITY_REGISTRY = {
         "route": "/api/assistants/fork/",
         "description": "Allow assistant self-forking",
     },
+    "can_reflect_on_self": {
+        "route": "/api/assistants/reflect_on_self/",
+        "description": "Allow self-reflection endpoint",
+    },
+    "can_summarize_delegations": {
+        "route": "/api/assistants/summarize_delegations/",
+        "description": "Summarize delegation memories",
+    },
+    "can_subagent_reflect": {
+        "route": "/api/assistants/subagent_reflect/",
+        "description": "Reflect on subagent output",
+    },
 }
 
 
