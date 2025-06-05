@@ -34,7 +34,8 @@ export default function RagDebugPanel({ slug }) {
         body: { terms },
       });
 
-      alert(`Boosted ${term}`);
+      const termList = Array.isArray(terms) ? terms.join(", ") : terms;
+      alert(`Boosted ${termList}`);
       load();
 
     } catch {
@@ -91,8 +92,8 @@ export default function RagDebugPanel({ slug }) {
         </thead>
         <tbody>
           {logs.map((log) => (
-            <>
-              <tr key={log.id}>
+            <React.Fragment key={log.id}>
+              <tr>
                 <td className="text-break" style={{ maxWidth: 200 }}>{log.query}</td>
                 <td>{log.retrieval_score?.toFixed(2)}</td>
                 <td className="small text-muted">
@@ -115,7 +116,7 @@ export default function RagDebugPanel({ slug }) {
                   </td>
                 </tr>
               )}
-            </>
+            </React.Fragment>
           ))}
         </tbody>
       </table>
