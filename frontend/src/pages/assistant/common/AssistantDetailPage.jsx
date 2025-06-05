@@ -14,6 +14,7 @@ import {
 } from "../../../api/assistants";
 import SelfAssessmentModal from "../../../components/assistant/SelfAssessmentModal";
 import { toast } from "react-toastify";
+import { Button } from "react-bootstrap";
 import "./styles/AssistantDetail.css";
 import AssistantMemoryAuditPanel from "../../../components/assistant/memory/AssistantMemoryAuditPanel";
 import AssistantMemoryPanel from "../../../components/assistant/memory/AssistantMemoryPanel";
@@ -341,6 +342,11 @@ export default function AssistantDetailPage() {
             </Link>
           </li>
         </ul>
+        <div className="mt-2">
+          <Link to={`/anchor/mutations?assistant=${slug}`}>
+            <Button variant="outline-primary">Review Glossary Suggestions</Button>
+          </Link>
+        </div>
       </div>
       {activeTab === "overview" && (
         <>
