@@ -42,6 +42,11 @@ def assistant_diagnostics(request, slug):
     medium = chunks.filter(score__gte=0.4, score__lt=0.8).count()
     low = chunks.filter(score__lt=0.4).count()
 
+    from memory.models import RAGGroundingLog
+    logs = RAGGroundingLog.objects.filter(assistant=assistant)
+    glossary_hit_count = logs.filter(glossary_hits__len__gt=0).count()
+    fallback_count = logs.filter(fallback_triggered=True).count()
+
     data = {
         "assistant_id": str(assistant.id),
         "context_id": context_id,
@@ -50,6 +55,8 @@ def assistant_diagnostics(request, slug):
         "anchors_total": anchors_total,
         "anchors_with_matches": anchors_with_matches,
         "anchors_without_matches": anchors_without_matches,
+        "glossary_hit_count": glossary_hit_count,
+        "fallback_count": fallback_count,
         "chunk_score_distribution": {
             "high": high,
             "medium": medium,

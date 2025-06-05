@@ -47,6 +47,22 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
     ],
   };
 
+  const hitRate = data.anchors_total
+    ? data.glossary_hit_count / data.anchors_total
+    : 0;
+  const fallbackRate = data.anchors_total
+    ? data.fallback_count / data.anchors_total
+    : 0;
+  let healthLabel = "Moderate Match";
+  let badgeClass = "bg-warning";
+  if (fallbackRate > 0.5) {
+    healthLabel = "High Fallback";
+    badgeClass = "bg-danger";
+  } else if (hitRate >= 0.5) {
+    healthLabel = "Strong Match";
+    badgeClass = "bg-success";
+  }
+
 
   const cooldown = () =>
     setTimeout(() => {
@@ -155,6 +171,10 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
         <li>
           📚 Glossary anchors: {data.anchors_total} total / {" "}
           {data.anchors_with_matches} matched
+        </li>
+        <li>Hits: {data.glossary_hit_count} | Fallbacks: {data.fallback_count}</li>
+        <li>
+          Health: <span className={`badge ${badgeClass}`}>{healthLabel}</span>
         </li>
       </ul>
       <div style={{ width: "250px", height: "250px" }}>

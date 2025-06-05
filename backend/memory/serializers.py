@@ -336,6 +336,8 @@ class AnchorConvergenceLogSerializer(serializers.ModelSerializer):
 
 class RAGGroundingLogSerializer(serializers.ModelSerializer):
     assistant_name = serializers.CharField(source="assistant.name", read_only=True)
+    glossary_boost = serializers.FloatField(source="glossary_boost_applied", read_only=True)
+    matched_chunk_ids = serializers.SerializerMethodField()
 
     class Meta:
         model = RAGGroundingLog
@@ -354,7 +356,7 @@ class RAGGroundingLogSerializer(serializers.ModelSerializer):
             "corrected_score",
             "raw_score",
             "adjusted_score",
-            "glossary_boost_applied",
+            "glossary_boost",
             "boosted_from_reflection",
             "reflection_boost_score",
             "glossary_boost_type",
@@ -362,3 +364,6 @@ class RAGGroundingLogSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]
+
+    def get_matched_chunk_ids(self, obj):
+        return obj.used_chunk_ids or []
