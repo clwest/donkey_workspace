@@ -105,6 +105,15 @@ def compute_glossary_score(text: str, anchors=None):
         if m:
             matched.append(anc.slug)
     score = len(matched) / max(len(anchors), 1)
+
+    # Avoid vanishingly small scores when the anchor pool is huge by
+    # normalizing against the number of matches as well. This prevents a
+    # single match among hundreds of anchors from resulting in a near-zero
+    # value, which makes downstream averaging more meaningful.
+    if matched:
+        score = max(score, len(matched) / 10)
+
+    score = min(score, 1.0)
     return round(score, 2), matched
 
 
