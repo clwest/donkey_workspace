@@ -16,18 +16,33 @@ def log_rag_debug(assistant, query, rag_meta, debug=False, expected_anchor=None)
     corrected = rag_meta.get("retrieval_score", 0.0)
     if rag_meta.get("rag_fallback") and rag_meta.get("fallback_chunk_scores"):
         corrected = max(rag_meta.get("fallback_chunk_scores"))
-    return RAGGroundingLog.objects.create(
-        assistant=assistant,
-        query=query,
-        used_chunk_ids=used_ids,
-        fallback_triggered=rag_meta.get("rag_fallback", False),
-        fallback_reason=rag_meta.get("fallback_reason"),
-        expected_anchor=expected_anchor or "",
-        glossary_hits=rag_meta.get("anchor_hits", []),
-        glossary_misses=rag_meta.get("anchor_misses", []),
-        retrieval_score=rag_meta.get("retrieval_score", 0.0),
-        corrected_score=corrected,
-    )
+    try:
+        return RAGGroundingLog.objects.create(
+            assistant=assistant,
+            query=query,
+            used_chunk_ids=used_ids,
+            fallback_triggered=rag_meta.get("rag_fallback", False),
+            fallback_reason=rag_meta.get("fallback_reason"),
+            expected_anchor=expected_anchor or "",
+            glossary_hits=rag_meta.get("anchor_hits", []),
+            glossary_misses=rag_meta.get("anchor_misses", []),
+            retrieval_score=rag_meta.get("retrieval_score", 0.0),
+            corrected_score=corrected,
+        )
+    except Exception as e:  # pragma: no cover - failsafe for missing fields
+        if "expected_anchor" in str(e):
+            return RAGGroundingLog.objects.create(
+                assistant=assistant,
+                query=query,
+                used_chunk_ids=used_ids,
+                fallback_triggered=rag_meta.get("rag_fallback", False),
+                fallback_reason=rag_meta.get("fallback_reason"),
+                glossary_hits=rag_meta.get("anchor_hits", []),
+                glossary_misses=rag_meta.get("anchor_misses", []),
+                retrieval_score=rag_meta.get("retrieval_score", 0.0),
+                corrected_score=corrected,
+            )
+        raise
 
 def get_recent_logs(assistant, hours=24):
     start = timezone.now() - timedelta(hours=hours)
