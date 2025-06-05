@@ -17,7 +17,7 @@ class Command(BaseCommand):
             return
 
         memory_context_id = assistant.memory_context.id
-        chunks = DocumentChunk.objects.filter(memory_context_id=memory_context_id)
+        chunks = DocumentChunk.objects.filter(document__memory_context=assistant.memory_context)
 
         if not chunks.exists():
             self.stdout.write(f"No chunks linked to assistant '{slug}' (context {memory_context_id})")
@@ -28,7 +28,7 @@ class Command(BaseCommand):
         self.stdout.write(f"{'Chunk ID':<10} {'Doc ID':<10} {'Title':<30} {'Status':<10}")
         self.stdout.write("-" * 80)
 
-        for chunk in chunks.select_related("document"):
+        for chunk in DocumentChunk.objects.filter(document__memory_context=assistant.memory_context).select_related("document"):
             status = chunk.embedding_status
             title = chunk.document.title if chunk.document else "No Title"
             self.stdout.write(f"{chunk.id:<10} {chunk.document_id:<10} {title[:30]:<30} {status:<10}")

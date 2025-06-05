@@ -18,6 +18,13 @@ class Document(models.Model):
         null=True,
         blank=True,
     )
+    memory_context = models.ForeignKey(
+        "mcp_core.MemoryContext",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="documents"
+    )
     title = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, null=True, blank=True, max_length=120)
     description = models.TextField(null=True, blank=True)
