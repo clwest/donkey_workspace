@@ -2,15 +2,15 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import HintBubble from "../../../components/HintBubble";
 import useAssistantHints from "../../../hooks/useAssistantHints";
+import apiFetch from "../../../utils/apiClient";
 
 export default function AssistantDemoPage() {
   const [assistants, setAssistants] = useState([]);
   const { hints, dismissHint } = useAssistantHints("demo");
 
   useEffect(() => {
-    fetch("/api/assistants/demos/")
-      .then((res) => res.json())
-      .then((data) => setAssistants(data))
+    apiFetch("/assistants/demos/")
+      .then((data) => setAssistants(Array.isArray(data) ? data : []))
       .catch((err) => console.error("Failed to fetch demo assistants:", err));
   }, []);
 
