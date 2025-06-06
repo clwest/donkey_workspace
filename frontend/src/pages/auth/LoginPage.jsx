@@ -16,12 +16,12 @@ export default function LoginPage() {
       toast.success("✅ Logged in!");
       let user;
       try {
-        user = await apiFetch("/auth/user/");
+        user = await apiFetch("/user/");
       } catch (err) {
         console.error("user fetch failed", err);
       }
-      if (user?.has_assistants === false) {
-        navigate("/onboarding/world");
+      if (user?.assistant_count === 0) {
+        navigate("/assistants/launch");
       } else if (user?.onboarding_complete) {
         try {
           const primary = await apiFetch("/assistants/primary/");
@@ -30,7 +30,7 @@ export default function LoginPage() {
           navigate("/assistants/primary/create");
         }
       } else {
-        navigate("/home");
+        navigate("/onboarding/world");
       }
     } catch (err) {
       toast.error("❌ Login failed");

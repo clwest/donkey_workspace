@@ -19,7 +19,7 @@ export default function PersonalityOnboardingPage() {
 
   useEffect(() => {
     if (!userInfo) return;
-    if (userInfo.onboarding_complete && userInfo.has_assistants) {
+    if (userInfo.onboarding_complete && userInfo.assistant_count > 0) {
       navigate("/home", { replace: true });
       return;
     }

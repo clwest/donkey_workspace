@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import apiFetch from "@/utils/apiClient";
+import { toast } from "react-toastify";
 
 export let cachedUser = null;
 
@@ -21,27 +22,48 @@ export default function useAuthGuard() {
   const location = useLocation();
 
   useEffect(() => {
-    if (cachedUser) return;
-    const token = localStorage.getItem("access");
-    if (!token || tokenExpired(token)) {
-      if (tokenExpired(token)) {
-        localStorage.removeItem("access");
-        localStorage.removeItem("refresh");
+    async function checkAuth() {
+      if (cachedUser) {
+        setChecked(true);
+        setUser(cachedUser);
+        return;
       }
-      setChecked(true);
-      if (/^\/(assistants|onboarding|dashboard|memory|memories)/.test(location.pathname)) {
-        navigate("/login", { replace: true });
+      const token = localStorage.getItem("access");
+      if (!token || tokenExpired(token)) {
+        if (tokenExpired(token)) {
+          localStorage.removeItem("access");
+          localStorage.removeItem("refresh");
+        }
+        setChecked(true);
+        if (/^\/(assistants|onboarding|dashboard|memory|memories)/.test(location.pathname)) {
+          navigate("/login", { replace: true });
+        }
+        return;
       }
-      return;
-    }
-    apiFetch("/auth/user/")
-      .then((data) => {
+      try {
+        const data = await apiFetch("/user/");
         cachedUser = data;
         setUser(data);
         setError(null);
         setChecked(true);
-      })
-      .catch((err) => {
+        if (data.assistant_count === 0) {
+          if (!location.pathname.startsWith("/assistants/launch")) {
+            toast.info("Launch your first assistant to get started");
+            navigate("/assistants/launch", { replace: true });
+          }
+          return;
+        }
+        if (!data.onboarding_complete) {
+          if (!location.pathname.startsWith("/onboarding")) {
+            toast.info("Finish onboarding to unlock your dashboard");
+            navigate("/onboarding/world", { replace: true });
+          }
+          return;
+        }
+        if (location.pathname === "/" || location.pathname === "/home") {
+          navigate("/assistants/primary/dashboard", { replace: true });
+        }
+      } catch (err) {
         console.error("auth check failed", err);
         setError(err);
         localStorage.removeItem("access");
@@ -50,7 +72,9 @@ export default function useAuthGuard() {
         if (/^\/(assistants|onboarding|dashboard|memory|memories)/.test(location.pathname)) {
           navigate("/login", { replace: true });
         }
-      });
+      }
+    }
+    checkAuth();
   }, [navigate, location.pathname]);
 
   return { user, authChecked: checked, authError: error };

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import apiFetch from "../../../utils/apiClient";
 import PrimaryStar from "../../../components/assistant/PrimaryStar";
 import AssistantBadgeIcon from "../../../components/assistant/AssistantBadgeIcon";
@@ -19,6 +20,9 @@ export default function AssistantDashboardPage() {
       try {
         const data = await apiFetch("/assistants/");
         setAssistants(data);
+        if (Array.isArray(data) && data.length === 0) {
+          toast.info("No assistants found. Launch one to get started.");
+        }
       } catch (err) {
         console.error("Failed to fetch assistants:", err);
       }
@@ -30,19 +34,22 @@ export default function AssistantDashboardPage() {
     <div className="container my-5">
       <h1 className="display-5 mb-4">🧑‍💼 Assistant Dashboard</h1>
 
-      <div className="row g-4">
-        {assistants.map((assistant) => (
-          <div className="col-md-6 col-lg-4" key={assistant.id}>
-            <Link
-              to={
-                assistant.current_project
-                  ? `/assistants/projects/${assistant.current_project.id}`
-                  : `/assistants/${assistant.slug}`
-              }
-              className="text-decoration-none"
-            >
-              <div className="card shadow-sm h-100">
-                <div className="card-body">
+      {assistants.length === 0 ? (
+        <p>No assistants available. Launch one to begin.</p>
+      ) : (
+        <div className="row g-4">
+          {assistants.map((assistant) => (
+            <div className="col-md-6 col-lg-4" key={assistant.id}>
+              <Link
+                to={
+                  assistant.current_project
+                    ? `/assistants/projects/${assistant.current_project.id}`
+                    : `/assistants/${assistant.slug}`
+                }
+                className="text-decoration-none"
+              >
+                <div className="card shadow-sm h-100">
+                  <div className="card-body">
                   <h5 className="card-title">
                     <span className="me-1">
                       {AVATAR_EMOJI[assistant.avatar_style] || ""}
@@ -74,7 +81,8 @@ export default function AssistantDashboardPage() {
             </Link>
           </div>
         ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

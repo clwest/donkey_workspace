@@ -18,7 +18,7 @@ export default function AssistantLauncherPage() {
   const [primary, setPrimary] = useState(null);
 
   useEffect(() => {
-    if (userInfo?.has_assistants) {
+    if (userInfo?.assistant_count > 0) {
       fetch("/api/assistants/primary/")
         .then((res) => res.json())
         .then(setPrimary)
