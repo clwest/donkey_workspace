@@ -160,6 +160,7 @@ urlpatterns = [
     ),
     path("api/dj-rest-auth/", include("dj_rest_auth.urls")),
     path("api/dj-rest-auth/registration/", include("dj_rest_auth.registration.urls")),
+    path("api/auth/user/", accounts.auth_user),
     path("api/tts/", include("tts.urls")),
     path("api/stories/", include("story.urls")),
     path("api/videos/", include("videos.urls")),

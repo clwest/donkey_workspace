@@ -7,7 +7,7 @@ from rest_framework.decorators import (
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status, viewsets
 import uuid
@@ -69,7 +69,7 @@ class MemoryEntryViewSet(viewsets.ModelViewSet):
 
     queryset = MemoryEntry.objects.all().order_by("-created_at")
     serializer_class = MemoryEntrySerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     @action(detail=True, methods=["post"])
     def bookmark(self, request, pk=None):
@@ -93,7 +93,7 @@ class MemoryChainViewSet(viewsets.ModelViewSet):
 
     queryset = MemoryChain.objects.all().order_by("-created_at")
     serializer_class = MemoryChainSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     @action(detail=True, methods=["get"])
     def summarize(self, request, pk=None):
@@ -111,11 +111,11 @@ class MemoryChainViewSet(viewsets.ModelViewSet):
 class MemoryFeedbackViewSet(viewsets.ModelViewSet):
     queryset = MemoryFeedback.objects.all().order_by("-created_at")
     serializer_class = MemoryFeedbackSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def create_memory_chain(request):
     warnings.warn(
         "Deprecated: use /api/v1/memory/chains/",
@@ -138,7 +138,7 @@ def create_memory_chain(request):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def get_memory_chain(request, pk):
     try:
         chain = MemoryChain.objects.get(id=pk)
@@ -156,7 +156,7 @@ def get_memory_chain(request, pk):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def list_memory_chains(request):
     chains = MemoryChain.objects.all().order_by("-created_at")
     data = [
@@ -167,7 +167,7 @@ def list_memory_chains(request):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def summarize_chain_view(request, chain_id):
     chain = get_object_or_404(MemoryChain, id=chain_id)
     from .utils.chain_helpers import summarize_memory_chain
@@ -177,7 +177,7 @@ def summarize_chain_view(request, chain_id):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def chain_flowmap_view(request, chain_id):
     chain = get_object_or_404(MemoryChain, id=chain_id)
     from .utils.chain_helpers import generate_flowmap_from_chain
@@ -187,7 +187,7 @@ def chain_flowmap_view(request, chain_id):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def linked_chains_view(request, thread_id):
     thread = get_object_or_404(NarrativeThread, id=thread_id)
     chains = get_linked_chains(thread)
@@ -212,7 +212,7 @@ def linked_chains_view(request, thread_id):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def link_chain_to_thread(request):
     warnings.warn(
         "Deprecated: use /api/v1/memory/chains/link_thread/",
@@ -231,7 +231,7 @@ def link_chain_to_thread(request):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def cross_project_recall_view(request, chain_id):
     chain = get_object_or_404(MemoryChain, id=chain_id)
     memories = recall_from_thread(chain)
@@ -240,7 +240,7 @@ def cross_project_recall_view(request, chain_id):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def reflect_on_memory(request):
     memory_ids = request.data.get("memory_ids", [])
     if not memory_ids:
@@ -283,7 +283,7 @@ def reflect_on_memory(request):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def reflect_on_memories(request):
     """
     Generate a reflection across multiple memories.
@@ -327,7 +327,7 @@ def reflect_on_memories(request):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def save_reflection(request):
     """
     Save a new ReflectionLog from a title, summary, and selected memories.
@@ -349,7 +349,7 @@ def save_reflection(request):
 
 
 @api_view(["GET", "PATCH", "DELETE"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def memory_detail(request, id):
     memory = get_object_or_404(MemoryEntry, id=id)
 
@@ -374,7 +374,7 @@ def memory_detail(request, id):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def bookmark_memory(request, memory_id):
     warnings.warn(
         "Deprecated: use /api/v1/memory/entries/<id>/bookmark/",
@@ -389,7 +389,7 @@ def bookmark_memory(request, memory_id):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def unbookmark_memory(request, memory_id):
     warnings.warn(
         "Deprecated: use /api/v1/memory/entries/<id>/unbookmark/",
@@ -403,7 +403,7 @@ def unbookmark_memory(request, memory_id):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def bookmarked_memories(request):
     queryset = MemoryEntry.objects.filter(is_bookmarked=True).order_by("-created_at")
     assistant_slug = request.GET.get("assistant")
@@ -461,7 +461,7 @@ def recent_memories(request):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def list_memories(request):
     queryset = MemoryEntry.objects.all().order_by("-created_at")
 
@@ -526,7 +526,7 @@ def upload_voice_clip(request):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def submit_memory_feedback(request):
     serializer = MemoryFeedbackSerializer(data=request.data)
     if serializer.is_valid():
@@ -547,7 +547,7 @@ def list_memory_feedback(request, memory_id):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def mutate_memory(request, id):
     warnings.warn(
         "Deprecated: use /api/v1/memory/entries/<id>/mutate/",
@@ -600,7 +600,7 @@ def mutate_memory(request, id):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def train_prompts_from_memories(request):
     memory_ids = request.data.get("memory_ids", [])
     if not memory_ids:
@@ -648,7 +648,7 @@ The prompt should focus on emotions, lessons learned, and goals. Make it inspira
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def create_memory_with_tags(request):
     """
     Create a memory entry and assign tags by name.
@@ -692,7 +692,7 @@ def create_memory_with_tags(request):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def memories_by_tag(request, slug):
     from mcp_core.models import Tag
 
@@ -707,7 +707,7 @@ def memories_by_tag(request, slug):
 
 
 @api_view(["PATCH"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def update_memory_tags(request, id):
     from mcp_core.models import Tag
     from memory.utils.tag_utils import normalize_tag_name
@@ -732,7 +732,7 @@ def update_memory_tags(request, id):
 
 
 @api_view(["PUT"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def replace_memory(request, id):
     from mcp_core.models import Tag
     from memory.utils.tag_utils import normalize_tag_name
@@ -760,7 +760,7 @@ def replace_memory(request, id):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def assistant_memories(request, slug):
     assistant, memories = get_memory_service().get_assistant_memories(slug)
     if assistant is None:
@@ -780,7 +780,7 @@ def vector_memories(request):
 
 
 @api_view(["GET", "POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def shared_memory_pools(request):
     """Create or list shared memory pools."""
     if request.method == "POST":
@@ -796,7 +796,7 @@ def shared_memory_pools(request):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def shared_memory_pool_detail(request, pool_id):
     pool = get_object_or_404(SharedMemoryPool, id=pool_id)
     serializer = SharedMemoryPoolSerializer(pool)
@@ -804,7 +804,7 @@ def shared_memory_pool_detail(request, pool_id):
 
 
 @api_view(["GET", "POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def shared_memory_pool_entries(request, pool_id):
     pool = get_object_or_404(SharedMemoryPool, id=pool_id)
     if request.method == "POST":
@@ -822,7 +822,7 @@ def shared_memory_pool_entries(request, pool_id):
 
 
 @api_view(["GET", "POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def memory_braids(request):
     """List or create BraidedMemoryStrand objects."""
     if request.method == "POST":
@@ -838,7 +838,7 @@ def memory_braids(request):
 
 
 @api_view(["GET", "POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def continuity_anchors(request):
     """List or create ContinuityAnchorPoint objects."""
     if request.method == "POST":
@@ -854,7 +854,7 @@ def continuity_anchors(request):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def symbolic_anchors(request):
     """List SymbolicMemoryAnchor objects with optional search and sorting."""
     anchors = SymbolicMemoryAnchor.objects.all()
@@ -901,7 +901,7 @@ def symbolic_anchors(request):
 
 
 @api_view(["PATCH"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def update_symbolic_anchor(request, pk):
     """Update a SymbolicMemoryAnchor."""
     anchor = get_object_or_404(SymbolicMemoryAnchor, id=pk)
@@ -913,7 +913,7 @@ def update_symbolic_anchor(request, pk):
 
 
 @api_view(["PATCH", "DELETE"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def glossary_anchor_detail(request, slug):
     """Rename or delete a SymbolicMemoryAnchor identified by slug."""
     anchor = get_object_or_404(SymbolicMemoryAnchor, slug=slug)
@@ -950,7 +950,7 @@ def glossary_anchor_detail(request, slug):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def boost_anchor(request):
     """Set glossary_boost on all chunks for a given anchor slug."""
     slug = request.data.get("anchor")
@@ -965,7 +965,7 @@ def boost_anchor(request):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def anamnesis(request):
     """Recover fragmented memory for an assistant."""
     slug = request.data.get("assistant_slug")
@@ -977,7 +977,7 @@ def anamnesis(request):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def public_memory_grove(request):
     """Query public memory groves by codex or tags."""
 
@@ -1008,7 +1008,7 @@ def public_memory_grove(request):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def symbolic_chunk_diff_view(request, document_set_id):
     """Return failed chunks for a document set for comparison."""
     failures = MemoryEmbeddingFailureLog.objects.filter(document_set_id=document_set_id)
@@ -1025,7 +1025,7 @@ def symbolic_chunk_diff_view(request, document_set_id):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def suggest_memory_merge(request):
     """Create a merge suggestion for two memory entries."""
     serializer = MemoryMergeSuggestionSerializer(data=request.data)
@@ -1039,7 +1039,7 @@ def suggest_memory_merge(request):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def glossary_retry_logs(request):
     """Return recent GlossaryRetryLog entries."""
     logs = GlossaryRetryLog.objects.all().order_by("-created_at")[:20]
@@ -1048,7 +1048,7 @@ def glossary_retry_logs(request):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def anchor_convergence_logs(request, slug):
     """Return recent AnchorConvergenceLog entries for an anchor."""
     anchor = get_object_or_404(SymbolicMemoryAnchor, slug=slug)
@@ -1064,7 +1064,7 @@ def anchor_convergence_logs(request, slug):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def assistant_convergence_logs(request):
     """Return recent AnchorConvergenceLog entries for an assistant."""
     assistant_id = request.GET.get("assistant")
@@ -1080,7 +1080,7 @@ def assistant_convergence_logs(request):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def anchor_training(request, slug):
     """Return training memories and chunks for an anchor."""
     anchor = get_object_or_404(SymbolicMemoryAnchor, slug=slug)
@@ -1116,7 +1116,7 @@ def anchor_training(request, slug):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def glossary_mutations(request):
     """Return SymbolicMemoryAnchor records with pending mutations."""
     anchors = SymbolicMemoryAnchor.objects.exclude(
@@ -1148,7 +1148,7 @@ def glossary_mutations(request):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def accept_glossary_mutation(request, id):
     """Apply the suggested label and mark mutation as applied."""
     anchor = get_object_or_404(SymbolicMemoryAnchor, id=id)
@@ -1185,7 +1185,7 @@ def accept_glossary_mutation(request, id):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def reject_glossary_mutation(request, id):
     """Mark a glossary mutation as rejected."""
     anchor = get_object_or_404(SymbolicMemoryAnchor, id=id)
@@ -1201,7 +1201,7 @@ def reject_glossary_mutation(request, id):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def accept_mutation(request, id):
     """Mark a glossary mutation as accepted without applying the label."""
     anchor = get_object_or_404(SymbolicMemoryAnchor, id=id)
@@ -1212,7 +1212,7 @@ def accept_mutation(request, id):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def accept_replay(request, id):
     replay = get_object_or_404(ReflectionReplayLog, id=id)
     if replay.original_reflection and replay.replayed_summary:
@@ -1224,7 +1224,7 @@ def accept_replay(request, id):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def reject_replay(request, id):
     replay = get_object_or_404(ReflectionReplayLog, id=id)
     replay.status = ReflectionReplayLog.ReplayStatus.SKIPPED

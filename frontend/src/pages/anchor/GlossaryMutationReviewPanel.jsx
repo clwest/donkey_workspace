@@ -44,7 +44,7 @@ export default function GlossaryMutationReviewPanel() {
     load();
     async function checkAdmin() {
       try {
-        const user = await apiFetch("/dj-rest-auth/user/");
+        const user = await apiFetch("/auth/user/");
         setIsAdmin(user.is_staff || user.is_superuser);
       } catch {
         setIsAdmin(false);

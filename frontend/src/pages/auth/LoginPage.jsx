@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import apiFetch from "../../utils/apiClient";
+import { loginUser } from "@/api/auth";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -11,16 +12,11 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = await apiFetch("/dj-rest-auth/login/", {
-        method: "POST",
-        body: { username, password },
-      });
-      if (data.access) localStorage.setItem("access", data.access);
-      if (data.refresh) localStorage.setItem("refresh", data.refresh);
+      const data = await loginUser(username, password);
       toast.success("✅ Logged in!");
       let user;
       try {
-        user = await apiFetch("/user/");
+        user = await apiFetch("/auth/user/");
       } catch (err) {
         console.error("user fetch failed", err);
       }

@@ -7,7 +7,7 @@ from assistants.models.project import AssistantPromptLink
 from assistants.serializers import AssistantPromptLinkSerializer
 from prompts.serializers import PromptSerializer
 from mcp_core.models import PromptUsageLog
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 from django.db import models
 from prompts.models import Prompt
 from assistants.models import Assistant, AssistantBootLog
@@ -55,7 +55,7 @@ def recent_prompts(request):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def available_prompts(request, slug):
     """Return prompts linked to this assistant by tag or document."""
     assistant = get_object_or_404(Assistant, slug=slug)
@@ -76,7 +76,7 @@ def available_prompts(request, slug):
 
 
 @api_view(["PATCH"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def update_assistant_prompt(request, slug):
     """Assign a new system prompt to the assistant and reset boot logs."""
     assistant = get_object_or_404(Assistant, slug=slug)

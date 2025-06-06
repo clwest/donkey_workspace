@@ -20,6 +20,7 @@ import MythOSLandingPage from "./pages/MythOSLandingPage";
 import WelcomePage from "./pages/WelcomePage";
 import WelcomeBackPage from "./pages/home/WelcomeBackPage";
 import useUserInfo from "./hooks/useUserInfo";
+import useAuthGuard from "./hooks/useAuthGuard";
 
 import PromptsPage from "./pages/prompts/PromptsPage";
 import PromptDetailView from "./pages/prompts/PromptDetailView";
@@ -277,8 +278,13 @@ const ProjectDetailRoute = () => {
 export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const toggleSidebar = () => setSidebarCollapsed((c) => !c);
+  const { user, authChecked } = useAuthGuard();
   const userInfo = useUserInfo();
   const navigate = useNavigate();
+
+  if (!authChecked) {
+    return <div className="text-center mt-5">Loading...</div>;
+  }
 
   useEffect(() => {
     if (!userInfo) return;
