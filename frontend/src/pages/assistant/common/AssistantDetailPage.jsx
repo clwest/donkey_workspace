@@ -40,6 +40,8 @@ export default function AssistantDetailPage() {
   const [reflectAfter, setReflectAfter] = useState(false);
   const [linking, setLinking] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  const [memoryStats, setMemoryStats] = useState(null);
+  const [latestMemoryId, setLatestMemoryId] = useState(null);
   const [assessment, setAssessment] = useState(null);
   const [showAssess, setShowAssess] = useState(false);
   const [reflecting, setReflecting] = useState(false);
@@ -86,6 +88,29 @@ export default function AssistantDetailPage() {
   useEffect(() => {
     reloadAssistant();
   }, [slug]);
+
+  useEffect(() => {
+    async function loadMemoryStats() {
+      try {
+        const [memRes, reflRes] = await Promise.all([
+          apiFetch(`/assistants/${slug}/memories/`),
+          apiFetch(`/assistants/${slug}/reflections/`),
+        ]);
+        const memList = memRes.results || memRes;
+        const reflList = reflRes.results || reflRes;
+        setMemoryStats({
+          memories: memList.length,
+          reflections: reflList.length,
+        });
+        setLatestMemoryId(memList[0]?.id || null);
+      } catch (err) {
+        console.error("Failed to load memory stats", err);
+      }
+    }
+    if (slug) {
+      loadMemoryStats();
+    }
+  }, [slug, refreshKey]);
 
   useEffect(() => {
     async function loadMutationCount() {
@@ -333,6 +358,14 @@ export default function AssistantDetailPage() {
               onClick={() => setActiveTab("memory")}
             >
               🧠 Memory Audit
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === "memtools" ? "active" : ""}`}
+              onClick={() => setActiveTab("memtools")}
+            >
+              Memory Tools
             </button>
           </li>
           <li className="nav-item">
@@ -735,6 +768,12 @@ export default function AssistantDetailPage() {
           )}
 
           <AssistantMemoryPanel slug={slug} refreshKey={refreshKey} />
+          {memoryStats && (
+            <div className="alert alert-info mt-2">
+              <strong>Memory Entries:</strong> {memoryStats.memories} |{' '}
+              <strong>Recent Reflections:</strong> {memoryStats.reflections}
+            </div>
+          )}
 
           <RecoveryPanel assistantSlug={slug} />
 
@@ -864,6 +903,56 @@ export default function AssistantDetailPage() {
           </div>
           <DelegationSummaryPanel slug={slug} />
           <AssistantMemoryAuditPanel assistant={assistant} />
+        </>
+      )}
+      {activeTab === "memtools" && (
+        <>
+          {memoryStats && (
+            <div className="alert alert-info">
+              <strong>Memories:</strong> {memoryStats.memories} |{' '}
+              <strong>Reflections:</strong> {memoryStats.reflections}
+            </div>
+          )}
+          <div className="d-flex flex-wrap gap-2 mb-3">
+            <Link
+              to={`/assistants/${slug}/memory`}
+              className="btn btn-outline-primary"
+            >
+              Assistant Memory
+            </Link>
+            <Link
+              to={`/assistants/${slug}/timeline`}
+              className="btn btn-outline-secondary"
+            >
+              Memory Timeline
+            </Link>
+            <Link
+              to="/assistants/memory-chains"
+              className="btn btn-outline-secondary"
+            >
+              Memory Chains
+            </Link>
+            {latestMemoryId && (
+              <Link
+                to={`/assistants/memory/${latestMemoryId}/to-task`}
+                className="btn btn-outline-success"
+              >
+                Memory → Task
+              </Link>
+            )}
+            <Link
+              to="/memories/reflect"
+              className="btn btn-outline-info"
+            >
+              Reflect Memories
+            </Link>
+            <Link
+              to={`/memory/sandbox/${assistant.id}`}
+              className="btn btn-outline-warning"
+            >
+              Sandbox
+            </Link>
+          </div>
         </>
       )}
       {activeTab === "training" && (
