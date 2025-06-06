@@ -583,6 +583,12 @@ def get_relevant_chunks(
             )
         fallback_type = fallback_type or "chunk"
     else:
+        logger.warning(
+            "[RAG] Fallback for assistant=%s, context=%s, query=\"%s\" - reason: no matches",
+            getattr(assistant, "slug", assistant_id),
+            memory_context_id,
+            query_text,
+        )
         debug_info = {
             "retrieved_chunk_count": len(debug_candidates),
             "anchor_matched_chunks": [
@@ -744,6 +750,18 @@ def get_relevant_chunks(
         "reflection_hits": [d["id"] for d in debug_candidates if d.get("reflection_hit")],
         "warnings": warnings,
     }
+
+    if fallback or fallback_type == "summary":
+        reason_text = reason or (
+            f"score < {top_score:.2f}" if fallback_type != "summary" else f"score < {min_rag_score}"
+        )
+        logger.warning(
+            "[RAG] Fallback for assistant=%s, context=%s, query=\"%s\" - reason: %s",
+            getattr(assistant, "slug", assistant_id),
+            memory_context_id,
+            query_text,
+            reason_text,
+        )
 
     logger.debug("[RAG Final] Returning chunks: %s", [r["chunk_id"] for r in result])
 

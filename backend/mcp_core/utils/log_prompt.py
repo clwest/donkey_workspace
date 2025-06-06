@@ -20,6 +20,7 @@ def log_prompt_usage(
     rendered_prompt: Optional[str] = None,
     result_output: Optional[str] = None,
     assistant_id: Optional[str] = None,
+    assistant_slug: Optional[str] = None,
     created_by: Optional[User] = None,
     prompt: Optional[Prompt] = None,
     template: Optional[PromptUsageTemplate] = None,
@@ -39,12 +40,13 @@ def log_prompt_usage(
         return None
 
     # Try to resolve the Prompt from slug if not passed directly
+    placeholder_created = False
     if not prompt and prompt_slug:
         try:
             prompt = Prompt.objects.get(slug=prompt_slug)
         except Prompt.DoesNotExist:
             logger.warning(
-                f"⚠️ Prompt not found for slug: {prompt_slug}; creating placeholder"
+                "[PromptUsage] missing slug=%s; creating placeholder", prompt_slug
             )
             prompt, _ = Prompt.objects.get_or_create(
                 slug=prompt_slug,
@@ -55,6 +57,7 @@ def log_prompt_usage(
                     "source": "auto",
                 },
             )
+            placeholder_created = True
 
     # Determine fallback title and slug
     final_slug = prompt_slug or (prompt.slug if prompt else "unknown")
@@ -77,13 +80,19 @@ def log_prompt_usage(
             extra_data=extra_data or {},
         )
 
+        logger.info(
+            "[PromptUsage] assistant=%s prompt=%s fallback=%s",
+            assistant_slug or assistant_id,
+            final_slug,
+            placeholder_created,
+        )
+
         if verbose:
             return {
                 "log_id": str(log.id),
                 "summary": f"📦 Logged prompt `{final_title}` used by `{used_by or 'unknown'}`",
                 "timestamp": str(log.created_at),
             }
-        print("📌 log_prompt_usage():", log)
         return log
 
     except Exception as e:
