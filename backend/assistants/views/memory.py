@@ -226,7 +226,9 @@ def reflection_thoughts(request, id):
 def assistant_reflection_replays(request, slug):
     """List reflection replay logs for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
-    replays = ReflectionReplayLog.objects.filter(assistant=assistant).order_by("-created_at")
+    replays = ReflectionReplayLog.objects.filter(assistant=assistant).order_by(
+        "-created_at"
+    )
     serializer = ReflectionReplayLogSerializer(replays, many=True)
     return Response(serializer.data)
 
@@ -250,7 +252,14 @@ def reflection_replay_diff(request, slug, id):
     replayed = replay.replayed_summary
 
     diff = compare_reflections(original, replayed)
-    diff.update({"original": original, "replayed": replayed, "status": replay.status, "drift_reason": replay.drift_reason})
+    diff.update(
+        {
+            "original": original,
+            "replayed": replayed,
+            "status": replay.status,
+            "drift_reason": replay.drift_reason,
+        }
+    )
     return Response(diff)
 
 
@@ -388,3 +397,37 @@ def assistant_memory_documents(request, slug):
 
     data = [get_document_memory_status(doc) for doc in documents]
     return Response(data)
+
+
+@api_view(["GET"])
+def reflection_review_primer(request, slug):
+    """Return a short reflection review summary for the assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+
+    reflections = AssistantReflectionLog.objects.filter(assistant=assistant)
+    if assistant.current_project_id:
+        reflections = reflections.filter(project_id=assistant.current_project_id)
+    reflections = list(reflections.order_by("-created_at")[:3])
+
+    serializer = AssistantReflectionLogListSerializer(reflections, many=True)
+
+    from collections import Counter
+
+    counter = Counter()
+    for r in reflections:
+        counter.update(r.related_anchors.values_list("slug", flat=True))
+
+    top = [{"slug": slug, "count": count} for slug, count in counter.most_common(5)]
+
+    return Response(
+        {
+            "assistant": {
+                "name": assistant.name,
+                "avatar": assistant.avatar,
+                "avatar_style": assistant.avatar_style,
+            },
+            "reflections": serializer.data,
+            "top_anchors": top,
+            "full_view": f"/assistants/{assistant.slug}/reflections/",
+        }
+    )
