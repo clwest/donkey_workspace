@@ -279,7 +279,10 @@ class AssistantViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["get"], url_path="primary")
     def primary(self, request):
-        assistant = Assistant.objects.filter(is_primary=True).first()
+        user_assistants = Assistant.objects.filter(created_by=request.user)
+        if not user_assistants.exists():
+            return Response({"detail": "No assistants yet"}, status=204)
+        assistant = user_assistants.filter(is_primary=True).first()
         if not assistant:
             return Response({"error": "No primary assistant."}, status=404)
 
@@ -291,7 +294,9 @@ class AssistantViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"], url_path="primary/reflect-now")
     def primary_reflect_now(self, request):
-        assistant = Assistant.objects.filter(is_primary=True).first()
+        assistant = (
+            Assistant.objects.filter(created_by=request.user, is_primary=True).first()
+        )
         if not assistant:
             return Response({"error": "No primary assistant."}, status=404)
 
@@ -321,7 +326,9 @@ class AssistantViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"], url_path="primary/spawn-agent")
     def primary_spawn_agent(self, request):
-        parent = Assistant.objects.filter(is_primary=True).first()
+        parent = (
+            Assistant.objects.filter(created_by=request.user, is_primary=True).first()
+        )
         if not parent:
             return Response({"error": "No primary assistant."}, status=404)
 

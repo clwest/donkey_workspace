@@ -24,6 +24,10 @@ class PrimaryAssistantAPITest(BaseAPITestCase):
         resp = self.client.get("/api/v1/assistants/primary/")
         self.assertEqual(resp.status_code, 404)
 
+    def test_no_assistants_returns_204(self):
+        resp = self.client.get("/api/v1/assistants/primary/")
+        self.assertEqual(resp.status_code, 204)
+
     def test_auto_unset_existing_primary_on_create(self):
         first = Assistant.objects.create(name="A1", specialty="x", is_primary=True)
         second = Assistant.objects.create(name="A2", specialty="y", is_primary=True)

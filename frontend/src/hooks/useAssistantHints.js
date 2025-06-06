@@ -9,7 +9,7 @@ export default function useAssistantHints(slug) {
     if (!slug) return;
     try {
       const data = await apiFetch(`/assistants/${slug}/hints/`);
-      const list = data.hints || [];
+      const list = data?.hints || [];
       list.forEach((h) => {
         if (localStorage.getItem(`hint_dismiss_${slug}_${h.id}`) === "1") {
           h.dismissed = true;

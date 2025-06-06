@@ -113,6 +113,7 @@ def user_info(request):
         acquisition_stage__in=["acquired", "reinforced"],
     ).exists()
     first_assistant = assistants.order_by("created_at").first()
+    primary = assistants.filter(is_primary=True).first()
     data = {
         "username": request.user.username,
         "assistant_count": assistant_count,
@@ -122,6 +123,7 @@ def user_info(request):
         "onboarding_complete": next_step is None,
         "has_taught_anchor": taught_anchor_exists,
         "initial_badges": first_assistant.skill_badges if first_assistant else [],
+        "primary_assistant_slug": primary.slug if primary else None,
     }
     if next_step:
         data["pending_onboarding_step"] = next_step
