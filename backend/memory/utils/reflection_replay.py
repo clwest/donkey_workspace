@@ -36,6 +36,7 @@ def replay_reflection(obj: AssistantReflectionLog | MemoryEntry) -> ReflectionRe
         memory_entry=memory_entry,
         old_score=old_score,
         new_score=new_score,
+        reflection_score=0.0,
         changed_anchors=[],
     )
 

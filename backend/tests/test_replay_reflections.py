@@ -24,6 +24,7 @@ class ReflectionReplayTests(TestCase):
         replay = replay_reflection(self.reflection)
         self.assertIsNotNone(replay)
         self.assertEqual(replay.original_reflection, self.reflection)
+        self.assertEqual(replay.reflection_score, 0.0)
 
     def test_cli_replay(self):
         call_command("replay_reflections", assistant="tester", since="1d")
@@ -31,3 +32,5 @@ class ReflectionReplayTests(TestCase):
             ReflectionReplayLog.objects.filter(assistant=self.assistant).count(),
             1,
         )
+        replay = ReflectionReplayLog.objects.filter(assistant=self.assistant).first()
+        self.assertEqual(replay.reflection_score, 0.0)
