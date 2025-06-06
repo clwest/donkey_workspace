@@ -8,6 +8,7 @@ from .utils import (
     get_next_onboarding_step,
     get_progress_percent,
 )
+from assistants.models import Assistant
 from .config import ONBOARDING_WORLD
 
 
@@ -24,13 +25,28 @@ def onboarding_status(request):
 @permission_classes([IsAuthenticated])
 def onboarding_complete(request):
     step = request.data.get("step")
-    if not step:
-        return Response({"error": "step required"}, status=400)
-    record_step_completion(request.user, step)
+    if step:
+        record_step_completion(request.user, step)
+    else:
+        for s in ONBOARDING_WORLD["nodes"]:
+            record_step_completion(request.user, s["slug"])
+    if not Assistant.objects.filter(created_by=request.user).exists():
+        Assistant.objects.create(
+            name="My Assistant",
+            description="Default assistant",
+            created_by=request.user,
+        )
     progress = get_onboarding_status(request.user)
     next_step = get_next_onboarding_step(request.user)
     percent = get_progress_percent(request.user)
-    return Response({"progress": progress, "next_step": next_step, "percent": percent})
+    return Response(
+        {
+            "progress": progress,
+            "next_step": next_step,
+            "percent": percent,
+            "redirect": "/assistants/primary/dashboard",
+        }
+    )
 
 
 @api_view(["GET"])

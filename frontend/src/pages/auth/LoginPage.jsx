@@ -18,7 +18,19 @@ export default function LoginPage() {
       if (data.access) localStorage.setItem("access", data.access);
       if (data.refresh) localStorage.setItem("refresh", data.refresh);
       toast.success("✅ Logged in!");
-      navigate("/welcome");
+      let user;
+      try {
+        user = await apiFetch("/user/");
+      } catch (err) {
+        console.error("user fetch failed", err);
+      }
+      if (user?.has_assistants === false) {
+        navigate("/onboarding/world");
+      } else if (user?.onboarding_complete) {
+        navigate("/assistants/primary/dashboard");
+      } else {
+        navigate("/home");
+      }
     } catch (err) {
       toast.error("❌ Login failed");
     }

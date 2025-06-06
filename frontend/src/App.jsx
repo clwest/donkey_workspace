@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useParams } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useParams, useNavigate } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
@@ -16,6 +16,8 @@ import CodexBriefingPage from "./pages/codex/CodexBriefingPage";
 import AssistantTutorialPage from "./pages/assistant/tutorial/AssistantTutorialPage";
 import MythOSLandingPage from "./pages/MythOSLandingPage";
 import WelcomePage from "./pages/WelcomePage";
+import WelcomeBackPage from "./pages/home/WelcomeBackPage";
+import useUserInfo from "./hooks/useUserInfo";
 
 import PromptsPage from "./pages/prompts/PromptsPage";
 import PromptDetailView from "./pages/prompts/PromptDetailView";
@@ -245,7 +247,7 @@ import PromptFeedbackPage from "./pages/feedback/PromptFeedbackPage";
 import { ToastContainer } from "react-toastify";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ActivityPage from "./pages/ActivityPage";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -273,6 +275,17 @@ const ProjectDetailRoute = () => {
 export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const toggleSidebar = () => setSidebarCollapsed((c) => !c);
+  const userInfo = useUserInfo();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!userInfo) return;
+    if (userInfo.has_assistants === false) {
+      if (!window.location.pathname.startsWith("/onboarding")) {
+        navigate("/onboarding/world", { replace: true });
+      }
+    }
+  }, [userInfo, navigate]);
 
   return (
     <Router>
@@ -298,6 +311,7 @@ export default function App() {
           <Route path="/assistant/:id/tutorial" element={<AssistantTutorialPage />} />
           {/* Prompts */}
           <Route path="/" element={<MythOSLandingPage />} />
+          <Route path="/home" element={<WelcomeBackPage />} />
           <Route path="/welcome" element={<WelcomePage />} />
           <Route path="/prompts" element={<PromptsPage />} />
           <Route path="/prompts/capsules" element={<PromptCapsuleManagerPage />} />
