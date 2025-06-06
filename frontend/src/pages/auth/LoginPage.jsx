@@ -26,24 +26,8 @@ export default function LoginPage() {
         navigate(nextPath);
         return;
       }
-      let user;
-      try {
-        user = await apiFetch("/user/");
-      } catch (err) {
-        console.error("user fetch failed", err);
-      }
-      if (user?.assistant_count === 0) {
-        navigate("/assistants/launch");
-      } else if (user?.onboarding_complete) {
-        try {
-          const primary = await apiFetch("/assistants/primary/");
-          navigate(`/assistants/${primary.slug}/dashboard`);
-        } catch {
-          navigate("/assistants/primary/create");
-        }
-      } else {
-        navigate("/onboarding/world");
-      }
+      await apiFetch("/auth/user/");
+      navigate("/home");
     } catch (err) {
       toast.error("❌ Login failed");
     }

@@ -29,7 +29,7 @@ export default function RegisterPage() {
 
       await apiFetch("/auth/user/");
       toast.success("✅ Registered!");
-      navigate("/onboarding/world");
+      navigate("/home");
     } catch (err) {
       toast.error("❌ Registration failed");
     }

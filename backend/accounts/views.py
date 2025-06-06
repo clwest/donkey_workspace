@@ -23,11 +23,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def auth_user(request):
     """Return basic user auth info."""
-    if not getattr(request, "user", None) or not request.user.is_authenticated:
-        return Response({"is_authenticated": False})
 
     assistants = Assistant.objects.filter(created_by=request.user)
     return Response(
