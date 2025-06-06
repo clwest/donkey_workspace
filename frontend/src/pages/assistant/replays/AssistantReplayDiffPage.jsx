@@ -15,12 +15,12 @@ export default function AssistantReplayDiffPage() {
 
   const accept = async () => {
     await apiFetch(`/replays/${id}/accept/`, { method: "POST" });
-    navigate(`/assistants/${slug}/replay_reflections`);
+    navigate(`/assistants/${slug}/replays`);
   };
 
   const reject = async () => {
     await apiFetch(`/replays/${id}/reject/`, { method: "POST" });
-    navigate(`/assistants/${slug}/replay_reflections`);
+    navigate(`/assistants/${slug}/replays`);
   };
 
   if (!data) return <div className="container my-5">Loading...</div>;
@@ -54,7 +54,7 @@ export default function AssistantReplayDiffPage() {
       <button onClick={reject} className="btn btn-danger me-2">
         Reject
       </button>
-      <Link to={`/assistants/${slug}/replay_reflections`} className="btn btn-secondary">
+      <Link to={`/assistants/${slug}/replays`} className="btn btn-secondary">
         Back
       </Link>
     </div>

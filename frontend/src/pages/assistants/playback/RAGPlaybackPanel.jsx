@@ -82,7 +82,7 @@ export default function RAGPlaybackPanel({ compareMode = false }) {
           </table>
         </div>
       )}
-      <Link to={`/assistants/${slug}/replay_reflections`} className="btn btn-secondary">
+      <Link to={`/assistants/${slug}/replays`} className="btn btn-secondary">
         Back to Replays
       </Link>
     </div>

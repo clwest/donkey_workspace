@@ -80,7 +80,7 @@ export const routeMap = [
     notes: "List reflections for an assistant",
   },
   {
-    frontend: "/assistants/:slug/replay_reflections",
+    frontend: "/assistants/:slug/replays",
     backend: "/api/assistants/<slug>/replays/",
     view: "assistant_reflection_replays",
     serializer: "ReflectionReplayLogSerializer",
