@@ -125,6 +125,16 @@ python manage.py fix_embeddings_status
 
 to update those chunks to `embedding_status="embedded"` in bulk.
 
+### Exporting Reflection State
+
+Generate a JSON snapshot of current reflection logs and anchor boosts:
+
+```bash
+python manage.py snapshot_reflection_state --assistant=<slug>
+```
+
+The file is saved under `backend/exports/` with a timestamped name.
+
 
 ### Frontend
 
