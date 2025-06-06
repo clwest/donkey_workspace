@@ -18,9 +18,14 @@ def _get_demo_assistant(user):
     )
     return assistant
 
-from assistants.models import Assistant, AssistantHintState
+from assistants.models import (
+    Assistant,
+    AssistantHintState,
+    AssistantTourStartLog,
+)
 from assistants.hint_config import HINTS
 from assistants.utils.hints import get_next_hint_for_user
+from onboarding.guide_logic import get_hint_status
 
 
 @api_view(["GET"])
@@ -82,3 +87,17 @@ def tour_progress(request, slug):
             "percent_complete": percent,
         }
     )
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def tour_started(request, slug):
+    """Mark that the hint tour has started for this assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    obj, created = AssistantTourStartLog.objects.get_or_create(
+        user=request.user,
+        assistant=assistant,
+        defaults={"source": request.data.get("source", "dashboard")},
+    )
+    hint_status = get_hint_status(request.user)
+    return Response({"started": True, "created": created, "hint_status": hint_status})

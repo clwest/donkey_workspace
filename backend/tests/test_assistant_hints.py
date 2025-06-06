@@ -51,3 +51,15 @@ class AssistantHintsAPITest(BaseAPITestCase):
         body = resp.json()
         self.assertEqual(body["completed"], 1)
         self.assertEqual(body["next_hint"], "glossary_tour")
+
+    def test_tour_started_endpoint(self):
+        url = f"/api/assistants/{self.assistant.slug}/tour_started/"
+        resp = self.client.post(url, {"source": "dashboard"}, format="json")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        assert data["started"] is True
+        assert data["created"] is True
+
+        resp = self.client.post(url, {"source": "dashboard"}, format="json")
+        self.assertEqual(resp.status_code, 200)
+        assert self.assistant.tour_start_logs.filter(user=self.user).count() == 1

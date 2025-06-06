@@ -14,6 +14,7 @@ from .glossary import *
 from .boot import *
 from .badge import *
 from .hint import *
+from .tour import *
 
 
 

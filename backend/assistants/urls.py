@@ -889,6 +889,11 @@ urlpatterns = [
         name="assistant-tour-progress",
     ),
     path(
+        "<slug:slug>/tour_started/",
+        hints.tour_started,
+        name="assistant-tour-started",
+    ),
+    path(
         "<slug:slug>/clean_memories/",
         assistants.clean_memories,
         name="assistant-clean-memories",

@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { toast } from "react-toastify";
 import { fetchAssistantDashboard } from "../../../api/assistants";
+import useTourActivation from "../../../hooks/useTourActivation";
 
 export default function AssistantActionDashboardPage() {
   const { slug } = useParams();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const tour = useTourActivation(slug);
 
   useEffect(() => {
     async function load() {
@@ -21,7 +24,8 @@ export default function AssistantActionDashboardPage() {
     if (slug) load();
   }, [slug]);
 
-  if (loading) return <div className="container my-5">Loading...</div>;
+  if (loading || tour.loading)
+    return <div className="container my-5">Loading...</div>;
   if (!data) return <div className="container my-5">No data.</div>;
 
   const { assistant, project, tasks, next_actions, thoughts, reflections, documents } = data;
