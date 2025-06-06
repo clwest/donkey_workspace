@@ -109,6 +109,7 @@ import AssistantRagSelfTestPage from "./pages/assistants/AssistantRagSelfTestPag
 import SubAgentReflectionPage from "./pages/assistants/SubAgentReflectionPage";
 import SkillGraphPage from "./pages/assistant/skills/SkillGraphPage";
 import AssistantBadgesPage from "./pages/assistant/badges/AssistantBadgesPage";
+import BadgesPage from "./pages/badges/BadgesPage";
 import MemoryToTaskPage from "./pages/assistant/objectives/MemoryToTaskPage";
 import MilestonesPage from "./pages/assistant/milestones/MilestonesPage";
 import MilestoneCreatePage from "./pages/assistant/milestones/MilestoneCreatePage";
@@ -543,10 +544,11 @@ export default function App() {
             path="/assistants/:slug/anchor-health"
             element={<AnchorHealthDashboard />}
           />
-          <Route
-            path="/assistants/:slug/badges"
-            element={<AssistantBadgesPage />}
-          />
+            <Route
+              path="/assistants/:slug/badges"
+              element={<AssistantBadgesPage />}
+            />
+            <Route path="/badges" element={<BadgesPage />} />
           <Route
             path="/assistants/:slug/glossary"
             element={<GlossaryConvergencePage />}

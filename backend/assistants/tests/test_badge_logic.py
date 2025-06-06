@@ -23,3 +23,10 @@ class BadgeLogicTest(TestCase):
         assert "semantic_master" in a.skill_badges
         assert "reflection_ready" in a.skill_badges
         assert "delegation_ready" in a.skill_badges
+        assert "vocab_proficient" not in a.skill_badges
+
+        a.glossary_score = 60
+        a.save(update_fields=["glossary_score"])
+        update_assistant_badges(a)
+        a.refresh_from_db()
+        assert "vocab_proficient" in a.skill_badges
