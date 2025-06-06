@@ -6,16 +6,24 @@ export default function SymbolicAnchorAdminPage() {
   const [anchors, setAnchors] = useState([]);
   const [savingId, setSavingId] = useState(null);
   const [searchParams] = useSearchParams();
+  const [query, setQuery] = useState("");
+  const [orderBy, setOrderBy] = useState("label");
 
   useEffect(() => {
     const assistant = searchParams.get("assistant");
-    const url = assistant
-      ? `/memory/symbolic-anchors/?assistant=${assistant}&show_empty=true`
-      : "/memory/symbolic-anchors/";
-    apiFetch(url)
-      .then((d) => setAnchors(d.results || d))
-      .catch(() => setAnchors([]));
-  }, [searchParams]);
+    const params = new URLSearchParams();
+    if (assistant) params.set("assistant", assistant);
+    if (query) params.set("q", query);
+    if (orderBy) params.set("order_by", orderBy);
+    params.set("show_empty", "true");
+    const url = `/memory/glossary/anchors/?${params.toString()}`;
+    const t = setTimeout(() => {
+      apiFetch(url)
+        .then((d) => setAnchors(d.results || d))
+        .catch(() => setAnchors([]));
+    }, 300);
+    return () => clearTimeout(t);
+  }, [searchParams, query, orderBy]);
 
   const handleChange = (id, value) => {
     setAnchors(
@@ -49,10 +57,34 @@ export default function SymbolicAnchorAdminPage() {
   return (
     <div className="container my-4">
       <h1 className="mb-3">Glossary Anchor Admin</h1>
+      <div className="mb-3 d-flex gap-2">
+        <input
+          className="form-control"
+          placeholder="Search anchors..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <select
+          className="form-select w-auto"
+          value={orderBy}
+          onChange={(e) => setOrderBy(e.target.value)}
+        >
+          <option value="label">Label A-Z</option>
+          <option value="-label">Label Z-A</option>
+          <option value="-fallback_score">Fallback Score ↓</option>
+          <option value="fallback_score">Fallback Score ↑</option>
+          <option value="-last_used_in_reflection">Last Used ↓</option>
+          <option value="last_used_in_reflection">Last Used ↑</option>
+        </select>
+      </div>
       <ul className="list-group">
         {anchors.map((a) => (
           <li key={a.id} className="list-group-item">
-            <strong>{a.label}</strong> ({a.slug})
+            <strong dangerouslySetInnerHTML={{
+              __html: query
+                ? a.label.replace(new RegExp(`(${query})`, 'i'), '<b>$1</b>')
+                : a.label,
+            }} /> ({a.slug})
             <div className="mt-1">
               <a href={`/anchor/symbolic/${a.slug}`}>View Training</a>
             </div>

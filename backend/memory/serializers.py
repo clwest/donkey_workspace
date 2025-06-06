@@ -250,6 +250,7 @@ class SymbolicMemoryAnchorSerializer(serializers.ModelSerializer):
     glossary_boost = serializers.SerializerMethodField()
     last_updated = serializers.SerializerMethodField()
     reinforcement_count = serializers.SerializerMethodField()
+    last_used_at = serializers.SerializerMethodField()
     drift_score = serializers.SerializerMethodField()
 
     class Meta:
@@ -307,6 +308,9 @@ class SymbolicMemoryAnchorSerializer(serializers.ModelSerializer):
 
     def get_reinforcement_count(self, obj):
         return obj.reinforcement_logs.count()
+
+    def get_last_used_at(self, obj):
+        return obj.last_used_in_reflection
 
     def get_drift_score(self, obj):
         total = obj.chunks.count()

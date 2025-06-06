@@ -7,11 +7,18 @@ export default function GlossaryConvergencePage() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState({ applied: 0, reviewed: 0 });
+  const [query, setQuery] = useState("");
+  const [orderBy, setOrderBy] = useState("label");
 
   const load = async () => {
     setLoading(true);
     try {
-      const data = await apiFetch(`/assistants/${slug}/glossary/convergence/`);
+      const params = new URLSearchParams();
+      if (query) params.set("q", query);
+      if (orderBy) params.set("order_by", orderBy);
+      const data = await apiFetch(
+        `/assistants/${slug}/glossary/convergence/?${params.toString()}`
+      );
       const anchors = data.anchor_stats || [];
       setRows(anchors);
       const reviewed = anchors.filter((a) => a.mutation_status !== "pending").length;
@@ -27,11 +34,29 @@ export default function GlossaryConvergencePage() {
 
   useEffect(() => {
     load();
-  }, [slug]);
+  }, [slug, query, orderBy]);
 
   return (
     <div className="container my-5">
       <h2 className="mb-3">Glossary Convergence</h2>
+      <div className="mb-2 d-flex gap-2">
+        <input
+          className="form-control"
+          placeholder="Search terms"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <select
+          className="form-select w-auto"
+          value={orderBy}
+          onChange={(e) => setOrderBy(e.target.value)}
+        >
+          <option value="label">Label A-Z</option>
+          <option value="-label">Label Z-A</option>
+          <option value="-fallback_score">Fallback ↓</option>
+          <option value="fallback_score">Fallback ↑</option>
+        </select>
+      </div>
       <div className="d-flex justify-content-end gap-2 mb-2">
         <Link
           to={`/anchor/symbolic?assistant=${slug}`}
@@ -67,7 +92,13 @@ export default function GlossaryConvergencePage() {
         <tbody>
           {rows.map((r) => (
             <tr key={r.label}>
-              <td>{r.label}</td>
+              <td
+                dangerouslySetInnerHTML={{
+                  __html: query
+                    ? r.label.replace(new RegExp(`(${query})`, 'i'), '<b>$1</b>')
+                    : r.label,
+                }}
+              />
               <td>{r.status}</td>
               <td>{r.risk || "-"}</td>
               <td>{r.mutation_source || r.source || "-"}</td>

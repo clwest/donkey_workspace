@@ -855,24 +855,47 @@ def continuity_anchors(request):
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def symbolic_anchors(request):
-    """List SymbolicMemoryAnchor objects."""
-    anchors = SymbolicMemoryAnchor.objects.all().order_by("slug")
+    """List SymbolicMemoryAnchor objects with optional search and sorting."""
+    anchors = SymbolicMemoryAnchor.objects.all()
     assistant = request.GET.get("assistant")
     show_empty = request.GET.get("show_empty") == "true"
+    query = request.GET.get("q")
+    order_by = request.GET.get("order_by")
+    mutation_status = request.GET.get("mutation_status")
+
     if assistant:
         try:
             uuid.UUID(str(assistant))
             anchors = anchors.filter(reinforced_by__id=assistant)
         except ValueError:
             anchors = anchors.filter(reinforced_by__slug=assistant)
+
+    if query:
+        anchors = anchors.filter(label__icontains=query)
+
+    if mutation_status:
+        anchors = anchors.filter(mutation_status=mutation_status)
+
+    anchors = anchors.order_by(order_by or "slug")
     serializer = SymbolicMemoryAnchorSerializer(anchors, many=True)
     data = serializer.data
+
     if not show_empty:
         data = [
             a
             for a in data
             if (a.get("chunks_count") or 0) > 0 or (a.get("retagged_count") or 0) > 0
         ]
+
+    drift_gt = request.GET.get("drift_gt")
+    avg_score_gt = request.GET.get("avg_score_gt")
+
+    if drift_gt:
+        data = [a for a in data if (a.get("drift_score") or 0) >= float(drift_gt)]
+
+    if avg_score_gt:
+        data = [a for a in data if (a.get("avg_score") or 0) >= float(avg_score_gt)]
+
     return Response({"results": data})
 
 
