@@ -1447,7 +1447,12 @@ class AssistantSerializer(serializers.ModelSerializer):
             badge = Badge.objects.filter(slug=obj.primary_badge).first()
             return badge.emoji if badge else None
         return None
-
+    def get_tour_started(self, obj):
+        request = self.context.get("request") if hasattr(self, "context") else None
+        user = getattr(request, "user", None)
+        if not user or user.is_anonymous:
+            return False
+        return AssistantTourStartLog.objects.filter(user=user, assistant=obj).exists()
 
 class AssistantProjectSummarySerializer(serializers.ModelSerializer):
     class Meta:
