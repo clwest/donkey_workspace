@@ -10,6 +10,7 @@ import OnboardingWorldPage from "./pages/onboarding/OnboardingWorldPage";
 import ArchetypeSelectionChamberPage from "./pages/onboarding/ArchetypeSelectionChamberPage";
 import SummoningRitualConsolePage from "./pages/onboarding/SummoningRitualConsolePage";
 import UserMythpathInitializerPage from "./pages/onboarding/UserMythpathInitializerPage";
+import GlossaryBootPage from "./pages/onboarding/GlossaryBootPage";
 import WorldTimelinePage from "./pages/WorldTimelinePage";
 import AssistantMythRebirthPage from "./pages/assistant/myth/AssistantMythRebirthPage";
 import CodexBriefingPage from "./pages/codex/CodexBriefingPage";
@@ -290,6 +291,7 @@ export default function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/onboarding" element={<UserMythpathInitializerPage />} />
           <Route path="/onboarding/world" element={<OnboardingWorldPage />} />
+          <Route path="/onboarding/glossary" element={<GlossaryBootPage />} />
           <Route path="/onboarding/archetype" element={<ArchetypeSelectionChamberPage />} />
           <Route path="/onboarding/summon" element={<SummoningRitualConsolePage />} />
           <Route path="/onboarding/wizard" element={<OnboardingWizardPage />} />
