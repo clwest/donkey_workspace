@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
 
 export default function RagGroundingInspectorPage() {
@@ -39,6 +39,14 @@ export default function RagGroundingInspectorPage() {
   return (
     <div className="container my-5">
       <h2 className="mb-3">RAG Grounding Inspector</h2>
+      <div className="d-flex justify-content-end mb-2">
+        <Link
+          to={`/anchor/mutations?assistant=${slug}`}
+          className="btn btn-sm btn-outline-primary"
+        >
+          🧪 Review Mutation Suggestions
+        </Link>
+      </div>
       <button className="btn btn-outline-primary mb-3" onClick={loadLogs} disabled={loading}>
         {loading ? "Refreshing..." : "Refresh"}
       </button>
