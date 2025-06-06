@@ -10,6 +10,9 @@ from .utils import (
 )
 from assistants.models import Assistant
 from .config import ONBOARDING_WORLD
+from memory.models import SymbolicMemoryAnchor, MemoryEntry
+from memory.services.acquisition import update_anchor_acquisition
+from django.shortcuts import get_object_or_404
 
 
 @api_view(["GET"])
@@ -56,3 +59,43 @@ def onboarding_node_detail(request, step):
     if not node:
         return Response({"error": "not found"}, status=404)
     return Response(node)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def glossary_boot(request):
+    """Return a few sample anchors for onboarding."""
+    anchors = (
+        SymbolicMemoryAnchor.objects.order_by("-fallback_score")[:3]
+        or SymbolicMemoryAnchor.objects.all()[:3]
+    )
+    data = [
+        {
+            "slug": a.slug,
+            "label": a.label,
+            "description": a.description,
+        }
+        for a in anchors
+    ]
+    return Response({"results": data})
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def teach_anchor(request):
+    """Mark an anchor as taught and log a memory entry."""
+    slug = request.data.get("anchor_slug")
+    if not slug:
+        return Response({"error": "anchor_slug required"}, status=400)
+    anchor = get_object_or_404(SymbolicMemoryAnchor, slug=slug)
+    MemoryEntry.objects.create(
+        event=
+            f'User chose to teach the assistant the anchor "{anchor.label}" '
+            f'meaning {anchor.description}. This is a foundational term.',
+        anchor=anchor,
+        source_role="user",
+        source_user=request.user,
+        assistant=anchor.assistant,
+    )
+    update_anchor_acquisition(anchor, "acquired")
+    return Response({"status": "ok"})

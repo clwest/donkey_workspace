@@ -115,6 +115,8 @@ urlpatterns = [
     path("api/onboarding/status/", onboarding_views.onboarding_status),
     path("api/onboarding/complete/", onboarding_views.onboarding_complete),
     path("api/onboarding/node/<slug:step>/", onboarding_views.onboarding_node_detail),
+    path("api/onboarding/glossary_boot/", onboarding_views.glossary_boot),
+    path("api/onboarding/teach_anchor/", onboarding_views.teach_anchor),
 
     path(
         "assistants/from-documents/",

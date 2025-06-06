@@ -4,6 +4,7 @@ import { useMemo } from "react";
 const STEP_ROUTES = [
   "mythpath",
   "world",
+  "glossary",
   "archetype",
   "summon",
   "wizard",

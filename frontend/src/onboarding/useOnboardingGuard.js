@@ -5,6 +5,7 @@ import useOnboardingTracker from "@/hooks/useOnboardingTracker";
 export const STEP_ROUTES = {
   mythpath: "/onboarding",
   world: "/onboarding/world",
+  glossary: "/onboarding/glossary",
   archetype: "/onboarding/archetype",
   summon: "/onboarding/summon",
   wizard: "/onboarding/wizard",
