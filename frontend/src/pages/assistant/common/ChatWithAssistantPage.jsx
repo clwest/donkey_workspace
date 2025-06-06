@@ -2,12 +2,20 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import TagBadge from "../../../components/TagBadge";
 import { suggestAssistant, suggestSwitch, switchAssistant } from "../../../api/assistants";
+
+const AVATAR_EMOJI = {
+  owl: "🦚",
+  fox: "🦊",
+  robot: "🤖",
+  wizard: "🧙‍♂️",
+};
 import "./styles/ChatView.css";
 import ChatDebugPanel from "../../../components/assistant/ChatDebugPanel";
 
 export default function ChatWithAssistantPage() {
   const { slug } = useParams();
   const [messages, setMessages] = useState([]);
+  const [assistantInfo, setAssistantInfo] = useState(null);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -38,6 +46,13 @@ export default function ChatWithAssistantPage() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    fetch(`/api/assistants/${slug}/`)
+      .then((r) => r.json())
+      .then(setAssistantInfo)
+      .catch(() => {});
+  }, [slug]);
 
   useEffect(() => {
     if (messages.length) {
@@ -211,7 +226,10 @@ export default function ChatWithAssistantPage() {
 
   return (
     <div className="container my-5">
-      <h1>💬 Chat with Assistant: <span className="text-primary">{slug}</span></h1>
+      <h1>
+        {AVATAR_EMOJI[assistantInfo?.avatar_style] || "🤖"} Chat with Assistant:
+        <span className="text-primary ms-1">{slug}</span>
+      </h1>
 
       {showRestore && (
         <div className="alert alert-warning d-flex justify-content-between align-items-center">

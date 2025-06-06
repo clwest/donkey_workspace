@@ -1,6 +1,13 @@
 import PrimaryStar from "../../../components/assistant/PrimaryStar";
 import PropTypes from "prop-types";
 
+const AVATAR_EMOJI = {
+  owl: "🦚",
+  fox: "🦊",
+  robot: "🤖",
+  wizard: "🧙‍♂️",
+};
+
 export default function AssistantDashboardHeader({
   assistant,
   memoryCoverage,
@@ -12,7 +19,7 @@ export default function AssistantDashboardHeader({
   return (
     <div className="card mb-4 shadow-sm">
       <div className="card-body d-flex align-items-center">
-        {assistant.avatar && (
+        {assistant.avatar ? (
           <img
             src={assistant.avatar}
             alt="avatar"
@@ -20,6 +27,10 @@ export default function AssistantDashboardHeader({
             width="60"
             height="60"
           />
+        ) : (
+          <div className="fs-1 me-3">
+            {AVATAR_EMOJI[assistant.avatar_style] || "🤖"}
+          </div>
         )}
         <div>
           <h3 className="mb-0">

@@ -18,7 +18,9 @@ PATH_DEFAULTS = {
 }
 
 
-def create_assistant_from_mythpath(path, name, archetype, *, user=None):
+def create_assistant_from_mythpath(
+    path, name, archetype, *, user=None, avatar_style="robot", tone_profile="friendly"
+):
     defaults = PATH_DEFAULTS.get(path, {"tone": "neutral", "tag": "general"})
     tone = defaults["tone"]
     tag = defaults["tag"]
@@ -27,6 +29,8 @@ def create_assistant_from_mythpath(path, name, archetype, *, user=None):
         name=name,
         specialty=tag,
         tone=tone,
+        avatar_style=avatar_style,
+        tone_profile=tone_profile,
         created_by=user,
     )
 
@@ -57,6 +61,8 @@ def onboarding_create_assistant(request):
     name = assistant_info.get("name") or data.get("name")
     path = data.get("path") or identity_info.get("myth_path")
     archetype = identity_info.get("archetype", "")
+    avatar_style = assistant_info.get("avatar_style", "robot")
+    tone_profile = assistant_info.get("tone_profile", "friendly")
 
     if not name or not path:
         return Response({"error": "name and path required"}, status=400)
@@ -66,6 +72,8 @@ def onboarding_create_assistant(request):
         name,
         archetype,
         user=request.user if request.user.is_authenticated else None,
+        avatar_style=avatar_style,
+        tone_profile=tone_profile,
     )
 
     return Response(

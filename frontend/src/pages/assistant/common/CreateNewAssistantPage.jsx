@@ -38,6 +38,12 @@ export default function CreateNewAssistantPage() {
   const [description, setDescription] = useState("");
   const [specialty, setSpecialty] = useState("");
   const [avatar, setAvatar] = useState("");
+  const [avatarStyle, setAvatarStyle] = useState(
+    location.state?.avatar_style || "robot"
+  );
+  const [toneProfile, setToneProfile] = useState(
+    location.state?.tone_profile || "friendly"
+  );
   const [systemPromptId, setSystemPromptId] = useState("");
   const [prompts, setPrompts] = useState([]);
   const [personality, setPersonality] = useState("");
@@ -78,7 +84,7 @@ export default function CreateNewAssistantPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await fetch("/api/assistants/create/", {
+      const res = await fetch("/api/assistants/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -86,6 +92,8 @@ export default function CreateNewAssistantPage() {
           description,
           specialty,
           avatar,
+          avatar_style: avatarStyle,
+          tone_profile: toneProfile,
           system_prompt: systemPromptId,
           personality,
           tone,
