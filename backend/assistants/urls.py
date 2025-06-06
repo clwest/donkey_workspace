@@ -39,6 +39,7 @@ from .views import (
     autonomy,
     check_in,
     subassistant,
+    hints,
     interface as interface_views,
     identity,
     onboarding,
@@ -856,6 +857,16 @@ urlpatterns = [
         "<slug:slug>/update_badges/",
         AssistantBadgesView.as_view(),
         name="assistant-update-badges",
+    ),
+    path(
+        "<slug:slug>/hints/",
+        hints.assistant_hint_list,
+        name="assistant-hints",
+    ),
+    path(
+        "<slug:slug>/hints/<str:hint_id>/dismiss/",
+        hints.dismiss_hint,
+        name="assistant-hint-dismiss",
     ),
     path(
         "<slug:slug>/clean_memories/",

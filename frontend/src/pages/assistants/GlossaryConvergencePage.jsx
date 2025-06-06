@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
+import HintBubble from "../components/HintBubble";
+import useAssistantHints from "../hooks/useAssistantHints";
 
 export default function GlossaryConvergencePage() {
   const { slug } = useParams();
+  const { hints, dismissHint } = useAssistantHints(slug);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState({ applied: 0, reviewed: 0 });
@@ -115,6 +118,13 @@ export default function GlossaryConvergencePage() {
           )}
         </tbody>
       </table>
+      {hints.find((h) => h.id === "glossary_tour" && !h.dismissed) && (
+        <HintBubble
+          content={hints.find((h) => h.id === "glossary_tour").content}
+          position={{ top: 80, right: 20 }}
+          onDismiss={() => dismissHint("glossary_tour")}
+        />
+      )}
     </div>
   );
 }
