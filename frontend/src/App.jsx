@@ -286,7 +286,7 @@ export default function App() {
 
   useEffect(() => {
     if (!userInfo) return;
-    if (userInfo.has_assistants === false) {
+    if (userInfo.assistant_count === 0) {
       if (!window.location.pathname.startsWith("/onboarding")) {
         navigate("/assistants/launch", { replace: true });
       }

@@ -10,11 +10,11 @@ export default function WelcomeBackPage() {
 
   useEffect(() => {
     apiFetch("/assistants/").then(setAssistants).catch(() => {});
-    apiFetch("/auth/user/").then(setStatus).catch(() => {});
+    apiFetch("/user/").then(setStatus).catch(() => {});
   }, []);
 
   useEffect(() => {
-    if (status && status.has_assistants === false) {
+    if (status && status.assistant_count === 0) {
       navigate("/assistants/launch", { replace: true });
     }
   }, [status, navigate]);
