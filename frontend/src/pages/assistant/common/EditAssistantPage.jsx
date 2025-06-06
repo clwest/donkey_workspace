@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import PromptIdeaGenerator from "../../../components/prompts/PromptIdeaGenerator";
+import BadgeSelector from "../../../components/assistant/BadgeSelector";
 
 const mythDefaults = {
   memory: {
@@ -44,6 +45,9 @@ export default function EditAssistantPage() {
   const [personality, setPersonality] = useState("");
   const [tone, setTone] = useState("");
   const [preferredModel, setPreferredModel] = useState("gpt-4o");
+  const [badges, setBadges] = useState([]);
+  const [availableBadges, setAvailableBadges] = useState([]);
+  const [primaryBadge, setPrimaryBadge] = useState("");
   const [saving, setSaving] = useState(false);
   const [mythpath, setMythpath] = useState(
     location.state?.mythpath || "custom"
@@ -76,6 +80,9 @@ export default function EditAssistantPage() {
           setPersonality(data.personality || "");
           setTone(data.tone || "");
           setPreferredModel(data.preferred_model || "gpt-4o");
+          setBadges(data.skill_badges || []);
+          setAvailableBadges(data.available_badges || []);
+          setPrimaryBadge(data.primary_badge || "");
         }
       } catch (err) {
         console.error("Failed to load assistant", err);
@@ -111,10 +118,17 @@ export default function EditAssistantPage() {
           personality,
           tone,
           preferred_model: preferredModel,
+          skill_badges: badges,
+          primary_badge: primaryBadge || null,
         }),
       });
       const data = await res.json();
       if (res.ok) {
+        await fetch(`/api/assistants/${slug}/update_badges/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ badges, primary_badge: primaryBadge, override: true }),
+        });
         toast.success("✅ Assistant updated!");
         navigate(`/assistants/${data.slug}`);
       } else {
@@ -208,6 +222,14 @@ export default function EditAssistantPage() {
             <option value="mistral-7b">Mistral 7B</option>
           </select>
         </div>
+
+        <BadgeSelector
+          available={availableBadges}
+          selected={badges}
+          onChange={setBadges}
+          primary={primaryBadge}
+          onPrimaryChange={setPrimaryBadge}
+        />
 
         <button className="btn btn-success" type="submit" disabled={saving}>
           {saving ? "Saving..." : "💾 Save Assistant"}

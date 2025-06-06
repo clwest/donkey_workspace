@@ -6,6 +6,7 @@ import MoodStabilityGauge from "../../../components/assistant/MoodStabilityGauge
 import DriftScoreChart from "../../../components/assistant/DriftScoreChart";
 import RecoveryPanel from "../../../components/assistant/RecoveryPanel";
 import AssistantDiagnosticsPanel from "../../../components/assistant/AssistantDiagnosticsPanel";
+import AssistantBadgeIcon from "../../../components/assistant/AssistantBadgeIcon";
 import {
   runDriftCheck,
   runSelfAssessment,
@@ -309,6 +310,10 @@ export default function AssistantDetailPage() {
           </>
         )}
         <PrimaryStar isPrimary={assistant.is_primary} />
+        <AssistantBadgeIcon
+          badges={assistant.skill_badges}
+          primaryBadge={assistant.primary_badge}
+        />
         <MoodStabilityGauge score={assistant.health_score} />
         {lastSelfTest && (
           <span

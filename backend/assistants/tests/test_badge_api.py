@@ -9,7 +9,9 @@ class BadgeAPITest(BaseAPITestCase):
         self.user = User.objects.create_user(username="badge", password="pw")
         self.client.force_authenticate(self.user)
         self.assistant = Assistant.objects.create(name="Skill", specialty="t")
-        Badge.objects.create(slug="reflection_ready", label="Ready", criteria="5 reflections")
+        Badge.objects.create(
+            slug="reflection_ready", label="Ready", criteria="reflections>=5"
+        )
 
     def test_list_badges(self):
         resp = self.client.get("/api/v1/assistants/badges/")
@@ -17,6 +19,16 @@ class BadgeAPITest(BaseAPITestCase):
         self.assertEqual(len(resp.json()), 1)
 
     def test_update_badges(self):
-        resp = self.client.post(f"/api/v1/assistants/{self.assistant.slug}/update_badges/")
+        resp = self.client.post(
+            f"/api/v1/assistants/{self.assistant.slug}/update_badges/"
+        )
         self.assertEqual(resp.status_code, 200)
         self.assertIn("updated", resp.json())
+
+    def test_manual_assign(self):
+        resp = self.client.post(
+            f"/api/v1/assistants/{self.assistant.slug}/update_badges/",
+            {"badges": ["reflection_ready"], "override": True},
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertIn("reflection_ready", resp.json()["updated"])
