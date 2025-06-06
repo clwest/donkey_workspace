@@ -110,9 +110,62 @@ def calculate_composite_health(assistant):
 
 
 class BadgeSerializer(serializers.ModelSerializer):
+    earned = serializers.SerializerMethodField()
+    earned_at = serializers.SerializerMethodField()
+    progress_percent = serializers.SerializerMethodField()
+
     class Meta:
         model = Badge
-        fields = ["slug", "label", "emoji", "description", "criteria"]
+        fields = [
+            "slug",
+            "label",
+            "emoji",
+            "description",
+            "criteria",
+            "earned",
+            "earned_at",
+            "progress_percent",
+        ]
+
+    def _get_assistant(self):
+        return self.context.get("assistant")
+
+    def get_earned(self, obj):
+        assistant = self._get_assistant()
+        if not assistant:
+            return False
+        return obj.slug in (assistant.skill_badges or [])
+
+    def get_earned_at(self, obj):
+        assistant = self._get_assistant()
+        if not assistant:
+            return None
+        history = assistant.badge_history or []
+        for entry in history:
+            if obj.slug in entry.get("badges", []):
+                return entry.get("timestamp")
+        return None
+
+    def get_progress_percent(self, obj):
+        assistant = self._get_assistant()
+        if not assistant or not obj.criteria:
+            return None
+        from assistants.utils.badge_logic import _collect_stats
+        import re
+
+        stats = _collect_stats(assistant)
+        m = re.search(r"(\w+)\s*>?=\s*(\d+)", obj.criteria)
+        if not m:
+            return None
+        key, target = m.groups()
+        val = stats.get(key)
+        if val is None:
+            return None
+        try:
+            target = int(target)
+            return min(100, int((val / target) * 100))
+        except Exception:
+            return None
 
 
 from project.serializers import (
@@ -1206,6 +1259,9 @@ class AssistantSerializer(serializers.ModelSerializer):
         source="memory_context.id", read_only=True
     )
     available_badges = serializers.SerializerMethodField()
+    badge_history = serializers.ListField(
+        child=serializers.DictField(), read_only=True
+    )
     flair = serializers.SerializerMethodField()
 
     class Meta:
@@ -1256,6 +1312,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "empathy_tags",
             "preferred_scene_tags",
             "skill_badges",
+            "badge_history",
             "primary_badge",
             "available_badges",
             "flair",
