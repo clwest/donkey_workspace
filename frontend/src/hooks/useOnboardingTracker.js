@@ -5,6 +5,7 @@ export default function useOnboardingTracker() {
   const [status, setStatus] = useState(null);
 
   const refreshStatus = async () => {
+    if (!localStorage.getItem("access")) return;
     try {
       const res = await apiFetch("/onboarding/status/");
       setStatus(res);
@@ -15,6 +16,7 @@ export default function useOnboardingTracker() {
   };
 
   const completeStep = async (step) => {
+    if (!localStorage.getItem("access")) return;
     try {
       const res = await apiFetch("/onboarding/complete/", {
         method: "POST",
@@ -28,7 +30,9 @@ export default function useOnboardingTracker() {
   };
 
   useEffect(() => {
-    refreshStatus();
+    if (localStorage.getItem("access")) {
+      refreshStatus();
+    }
   }, []);
 
   return {
