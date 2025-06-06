@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import apiFetch from "../../../../utils/apiClient";
 import { searchDocumentChunks, storeMemoryFromChat } from "../../../../api/rag";
 import AssistantBadgeIcon from "../../../../components/assistant/AssistantBadgeIcon";
+import HintBubble from "../../../../components/HintBubble";
+import useAssistantHints from "../../../../hooks/useAssistantHints";
 
 export default function ChatWithKnowledge() {
   const { slug } = useParams();
@@ -23,6 +25,9 @@ export default function ChatWithKnowledge() {
   const cachedRef = useRef(null);
   const [showRestore, setShowRestore] = useState(false);
   const messagesEndRef = useRef(null);
+  const { hints, dismissHint } = useAssistantHints(slug);
+  const chatHint = hints.find((h) => h.id === "chat_welcome");
+  const showChatWelcome = chatHint && !chatHint.dismissed;
 
   useEffect(() => {
     apiFetch(`/assistants/${slug}/`)
@@ -80,6 +85,9 @@ export default function ChatWithKnowledge() {
       }
       setMessages(newMessages);
       setInput("");
+      if (showChatWelcome) {
+        dismissHint("chat_welcome");
+      }
     } catch (err) {
       setError("Failed to send message.");
     } finally {
@@ -152,19 +160,31 @@ export default function ChatWithKnowledge() {
             ))}
             <div ref={messagesEndRef} />
           </div>
-          <form onSubmit={handleSend} className="d-flex gap-2">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Ask about the docs..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              disabled={loading}
-            />
-            <button className="btn btn-success" type="submit" disabled={loading}>
-              {loading ? "Sending..." : "Send"}
-            </button>
-          </form>
+          <div className="position-relative">
+            {showChatWelcome && (
+              <HintBubble
+                label={chatHint.label}
+                content={chatHint.content}
+                highlightSelector="#knowledge-chat-input"
+                position={{ top: -80 }}
+                onDismiss={() => dismissHint("chat_welcome")}
+              />
+            )}
+            <form onSubmit={handleSend} className="d-flex gap-2">
+              <input
+                id="knowledge-chat-input"
+                type="text"
+                className="form-control"
+                placeholder="Ask about the docs..."
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                disabled={loading}
+              />
+              <button className="btn btn-success" type="submit" disabled={loading}>
+                {loading ? "Sending..." : "Send"}
+              </button>
+            </form>
+          </div>
           {error && <div className="alert alert-danger mt-2">{error}</div>}
         </div>
         {chunks.length > 0 && (

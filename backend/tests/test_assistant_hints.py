@@ -5,6 +5,7 @@ django.setup()
 
 from assistants.tests import BaseAPITestCase
 from assistants.models import AssistantHintState, Assistant
+from assistants.hint_config import HINTS
 
 
 class AssistantHintsAPITest(BaseAPITestCase):
@@ -17,7 +18,7 @@ class AssistantHintsAPITest(BaseAPITestCase):
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()["hints"]
-        self.assertEqual(len(data), 2)
+        self.assertEqual(len(data), len(HINTS))
         self.assertFalse(any(h["dismissed"] for h in data))
 
         dismiss_url = f"/api/assistants/{self.assistant.slug}/hints/rag_intro/dismiss/"
@@ -37,7 +38,7 @@ class AssistantHintsAPITest(BaseAPITestCase):
         resp = self.client.get(progress_url)
         self.assertEqual(resp.status_code, 200)
         body = resp.json()
-        self.assertEqual(body["total"], 2)
+        self.assertEqual(body["total"], len(HINTS))
         self.assertEqual(body["completed"], 0)
         self.assertEqual(body["percent_complete"], 0)
         self.assertEqual(body["next_hint"], "rag_intro")
