@@ -14,6 +14,8 @@ export default function OnboardingWorldPage() {
   useOnboardingGuard("world");
   const { progress, nextStep } = useOnboardingTracker();
 
+  const userInfo = useUserInfo();
+
   const navigate = useNavigate();
 
   if (!progress || !userInfo) return <div className="container my-5">Loading...</div>;
