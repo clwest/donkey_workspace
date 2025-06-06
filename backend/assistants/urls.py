@@ -609,7 +609,7 @@ urlpatterns = [
     ),
     path(
         "<slug:slug>/rag_playback/<uuid:id>/",
-        assistants.rag_playback_detail,
+        memory.rag_playback_detail,
         name="assistant-rag-playback",
     ),
     path(
