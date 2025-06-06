@@ -1137,3 +1137,14 @@ def reject_glossary_mutation(request, id):
     anchor.mutation_status = "rejected"
     anchor.save(update_fields=["mutation_status"])
     return Response({"status": "rejected"})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def accept_mutation(request, id):
+    """Mark a glossary mutation as accepted without applying the label."""
+    anchor = get_object_or_404(SymbolicMemoryAnchor, id=id)
+    if getattr(anchor, "status", None) == "pending":
+        anchor.status = "accepted"
+        anchor.save(update_fields=["status"])
+    return Response({"status": anchor.status})
