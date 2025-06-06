@@ -26,19 +26,23 @@ from rest_framework_simplejwt.tokens import RefreshToken
 @permission_classes([IsAuthenticated])
 def auth_user(request):
     """Return basic user auth info."""
-    if request.user.is_authenticated:
-        assistants = Assistant.objects.filter(created_by=request.user)
+    if not getattr(request, "user", None) or not request.user.is_authenticated:
+        # If authentication failed, ensure we return a clean 401
         return Response(
-            {
-                "is_authenticated": True,
-                "username": request.user.username,
-                "email": request.user.email,
-                "onboarding_complete": get_next_onboarding_step(request.user)
-                is None,
-                "has_assistants": assistants.exists(),
-            }
+            {"detail": "Authentication credentials were not provided."},
+            status=401,
         )
-    return Response({"is_authenticated": False})
+
+    assistants = Assistant.objects.filter(created_by=request.user)
+    return Response(
+        {
+            "is_authenticated": True,
+            "username": request.user.username,
+            "email": request.user.email,
+            "onboarding_complete": get_next_onboarding_step(request.user) is None,
+            "has_assistants": assistants.exists(),
+        }
+    )
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
