@@ -15,34 +15,52 @@ from memory.services.acquisition import update_anchor_acquisition
 from django.shortcuts import get_object_or_404
 
 
+@api_view(["GET", "POST"])
+@permission_classes([IsAuthenticated])
+def onboarding_intro(request):
+    """Return intro data or dismiss the intro."""
+    if request.method == "POST":
+        request.user.dismissed_onboarding_intro = True
+        request.user.save(update_fields=["dismissed_onboarding_intro"])
+        return Response({"status": "dismissed"})
+
+    steps = [
+        {
+            "slug": n["slug"],
+            "name": n["title"],
+            "emoji": n.get("emoji", ""),
+            "goal": n.get("goal", n.get("description", "")),
+        }
+        for n in ONBOARDING_WORLD["nodes"]
+    ]
+    data = {
+        "title": ONBOARDING_WORLD["title"],
+        "welcome": ONBOARDING_WORLD.get(
+            "welcome", "Welcome to the MythOS Onboarding World!"
+        ),
+        "steps": steps,
+        "video": ONBOARDING_WORLD.get("video"),
+    }
+    return Response(data)
+
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def onboarding_status(request):
     progress = get_onboarding_status(request.user)
     next_step = get_next_onboarding_step(request.user)
     percent = get_progress_percent(request.user)
-    first_anchor = (
-        SymbolicMemoryAnchor.objects.filter(
-            assistant__created_by=request.user,
-            acquisition_stage__in=["acquired", "reinforced"],
-        )
-        .order_by("created_at")
-        .first()
+
+    show_intro = (
+        next_step == "world" and not getattr(request.user, "dismissed_onboarding_intro", False)
     )
-    first_assistant = (
-        Assistant.objects.filter(created_by=request.user)
-        .order_by("created_at")
-        .first()
-    )
-    return Response(
-        {
-            "progress": progress,
-            "next_step": next_step,
-            "percent": percent,
-            "first_anchor_slug": first_anchor.slug if first_anchor else None,
-            "first_assistant_id": str(first_assistant.id) if first_assistant else None,
-        }
-    )
+    return Response({
+        "progress": progress,
+        "next_step": next_step,
+        "percent": percent,
+        "show_intro": show_intro,
+    })
+
 
 
 @api_view(["POST"])
