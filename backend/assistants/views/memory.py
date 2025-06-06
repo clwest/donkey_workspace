@@ -30,6 +30,7 @@ from memory.serializers import (
     PrioritizedMemorySerializer,
     SimulatedMemoryForkSerializer,
 )
+from memory.utils import replay_reflection as replay_reflection_util
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from assistants.utils.memory_filters import get_filtered_memories
 from assistants.helpers.reflection_helpers import simulate_memory_fork
@@ -227,6 +228,15 @@ def assistant_reflection_replays(request, slug):
     replays = ReflectionReplayLog.objects.filter(assistant=assistant).order_by("-created_at")
     serializer = ReflectionReplayLogSerializer(replays, many=True)
     return Response(serializer.data)
+
+
+@api_view(["POST"])
+def replay_reflection(request, id):
+    """Replay a reflection with updated glossary anchors."""
+    reflection = get_object_or_404(AssistantReflectionLog, id=id)
+    replay = replay_reflection_util(reflection)
+    serializer = ReflectionReplayLogSerializer(replay)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 @api_view(["GET"])
