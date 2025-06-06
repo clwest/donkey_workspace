@@ -71,7 +71,11 @@ export default function ChatWithKnowledge() {
     if (!input.trim()) return;
     setLoading(true);
     setError(null);
-    const userMsg = { role: "user", content: input };
+    const userMsg = {
+      role: "user",
+      content: input,
+      firstUser: messages.filter((m) => m.role === "user").length === 0,
+    };
     try {
       const chunkRes = await searchDocumentChunks(input, slug);
       setChunks(chunkRes.results || []);
@@ -147,6 +151,9 @@ export default function ChatWithKnowledge() {
                 className={`mb-3 ${msg.role === "user" ? "text-end" : "text-start"}`}
               >
                 <span className={`badge ${msg.role === "user" ? "bg-primary" : "bg-secondary"}`}>{msg.role}</span>
+                {msg.firstUser && (
+                  <span className="badge bg-info text-dark ms-2">🎯 First Impression</span>
+                )}
                 <div className="mt-1">{msg.content}</div>
                 {msg.role === "assistant" && (
                   <button

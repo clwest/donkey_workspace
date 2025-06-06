@@ -612,6 +612,10 @@ class AssistantChatMessage(models.Model):
 
     search_vector = SearchVectorField(null=True)
 
+    is_first_user_message = models.BooleanField(default=False)
+    drift_score = models.FloatField(null=True, blank=True)
+    glossary_misses = models.JSONField(default=list, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -998,6 +1002,36 @@ class SpecializationDriftLog(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display
         return f"{self.assistant.name} drift {self.drift_score:.2f}"
+
+
+class ChatIntentDriftLog(models.Model):
+    """Track drift or glossary misses for the first user question."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="intent_drift_logs"
+    )
+    session = models.ForeignKey(
+        "assistants.ChatSession",
+        on_delete=models.CASCADE,
+        to_field="session_id",
+        related_name="intent_drift_logs",
+    )
+    user_message = models.ForeignKey(
+        "assistants.AssistantChatMessage",
+        on_delete=models.CASCADE,
+        related_name="intent_drift_logs",
+    )
+    drift_score = models.FloatField()
+    matched_anchors = models.JSONField(default=list, blank=True)
+    glossary_misses = models.JSONField(default=list, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display
+        return f"Intent drift {self.drift_score:.2f}"
 
 
 class DebateSession(models.Model):

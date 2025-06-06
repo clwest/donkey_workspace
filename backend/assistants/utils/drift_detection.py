@@ -7,6 +7,8 @@ from django.db.models import QuerySet
 from django.utils import timezone
 
 from assistants.models.assistant import Assistant, SpecializationDriftLog
+from assistants.models.assistant import ChatIntentDriftLog
+from memory.models import SymbolicMemoryAnchor
 from assistants.models.thoughts import AssistantThoughtLog
 from embeddings.helpers.helpers_io import get_embedding_for_text
 from embeddings.vector_utils import compute_similarity
@@ -104,3 +106,21 @@ def analyze_drift_for_assistant(
         )
 
     return None
+
+
+def detect_drift_or_miss(message: str, assistant: Assistant) -> tuple[float, list[str]]:
+    """Return drift score and matched anchor slugs for a user message."""
+    if not message:
+        return 0.0, []
+
+    anchors = list(SymbolicMemoryAnchor.objects.values_list("slug", flat=True))
+    matched = [a for a in anchors if a.lower() in message.lower()]
+
+    objective_terms = []
+    for obj in assistant.objectives.all():
+        objective_terms.extend(obj.title.lower().split())
+
+    all_terms = set(anchors + objective_terms)
+    hits = [t for t in all_terms if t.lower() in message.lower()]
+    drift_score = 1.0 - len(hits) / len(all_terms) if all_terms else 0.0
+    return drift_score, matched

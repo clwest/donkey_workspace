@@ -32,6 +32,8 @@ from assistants.models.assistant import (
     ChatSession,
     AssistantMessage,
     AssistantSkill,
+    AssistantChatMessage,
+    ChatIntentDriftLog,
 )
 from assistants.models.reflection import AssistantReflectionLog
 from assistants.models.thoughts import AssistantThoughtLog
@@ -48,6 +50,7 @@ from assistants.helpers.deletion import cascade_delete_assistant
 
 from assistants.helpers.chat_helper import get_or_create_chat_session, save_chat_message
 from assistants.utils.delegation import spawn_delegated_assistant, should_delegate
+from assistants.utils.drift_detection import detect_drift_or_miss
 from assistants.helpers.memory_helpers import create_memory_from_chat
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from embeddings.helpers.helpers_io import save_embedding, get_embedding_for_text
@@ -834,8 +837,31 @@ def chat_with_assistant_view(request, slug):
     )
 
     # Save chat log
-    user_chat = save_chat_message(chat_session, "user", message)
+    is_first = not AssistantChatMessage.objects.filter(
+        session=chat_session, role="user"
+    ).exists()
+    drift_score = None
+    anchor_matches = []
+    if is_first:
+        drift_score, anchor_matches = detect_drift_or_miss(message, assistant)
+    user_chat = save_chat_message(
+        chat_session,
+        "user",
+        message,
+        is_first_user_message=is_first,
+        drift_score=drift_score,
+        glossary_misses=rag_meta.get("anchor_misses", []),
+    )
     assistant_chat = save_chat_message(chat_session, "assistant", reply)
+    if is_first:
+        ChatIntentDriftLog.objects.create(
+            assistant=assistant,
+            session=chat_session,
+            user_message=user_chat,
+            drift_score=drift_score or 0.0,
+            matched_anchors=anchor_matches,
+            glossary_misses=rag_meta.get("anchor_misses", []),
+        )
     engine = AssistantThoughtEngine(assistant=assistant)
 
     # Save both messages to thought log
@@ -1457,6 +1483,32 @@ def rag_drift_report(request, slug):
         )
 
     return Response(data)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def first_question_stats(request, slug):
+    """Return summary stats about first user questions."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    logs = ChatIntentDriftLog.objects.filter(assistant=assistant)
+    from django.db.models import Count, Avg
+
+    summary = (
+        logs.values("user_message__content")
+        .annotate(c=Count("id"))
+        .order_by("-c")[:5]
+    )
+    drift_avg = logs.aggregate(avg=Avg("drift_score"))["avg"] or 0.0
+    return Response(
+        {
+            "top_questions": [
+                {"text": row["user_message__content"], "count": row["c"]}
+                for row in summary
+            ],
+            "avg_drift": round(drift_avg, 2),
+            "total": logs.count(),
+        }
+    )
 
 
 @api_view(["GET"])
