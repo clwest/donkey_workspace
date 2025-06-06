@@ -205,6 +205,10 @@ urlpatterns = [
         memory_views.accept_glossary_mutation,
     ),
     path(
+        "api/glossary/mutations/<uuid:id>/accept/",
+        memory_views.accept_mutation,
+    ),
+    path(
         "api/glossary/mutations/<uuid:id>/reject",
         memory_views.reject_glossary_mutation,
     ),
