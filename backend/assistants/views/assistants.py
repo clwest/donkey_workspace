@@ -1461,6 +1461,26 @@ def rag_drift_report(request, slug):
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
+def anchor_health(request, slug):
+    """Return glossary anchor health metrics for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    from memory.services.anchor_health import get_anchor_health_metrics
+
+    status = request.GET.get("status")
+    metrics = get_anchor_health_metrics(assistant)
+
+    if status == "high_drift":
+        metrics = [m for m in metrics if m["drift_score"] >= 0.5]
+    elif status == "no_match":
+        metrics = [m for m in metrics if m["avg_score"] < 0.2 and m["fallback_count"] > 0]
+    elif status == "pending_mutation":
+        metrics = [m for m in metrics if m["mutation_status"] == "pending"]
+
+    return Response({"results": metrics})
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
 def glossary_convergence(request, slug):
     """Return glossary convergence metrics for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)

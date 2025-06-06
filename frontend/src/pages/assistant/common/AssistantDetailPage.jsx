@@ -390,6 +390,11 @@ export default function AssistantDetailPage() {
             </Link>
           </li>
           <li className="nav-item">
+            <Link className="nav-link" to={`/assistants/${slug}/anchor-health`}>
+              Anchor Health
+            </Link>
+          </li>
+          <li className="nav-item">
             <Link className="nav-link" to={`/assistants/${slug}/glossary`}>
               📘 Glossary
               {mutationCount > 0 && (
@@ -571,6 +576,12 @@ export default function AssistantDetailPage() {
                 className="btn btn-sm btn-outline-secondary"
               >
                 🔎 Glossary Drift Report
+              </Link>
+              <Link
+                to={`/assistants/${slug}/anchor-health`}
+                className="btn btn-sm btn-outline-secondary"
+              >
+                📉 View Anchor Health
               </Link>
               <Link
                 to={`/assistants/${slug}/diagnostics`}
