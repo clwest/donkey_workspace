@@ -12,6 +12,8 @@ from memory.models import (
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 
 from intel_core.utils.glossary_tagging import _match_anchor
+from assistants.utils.chunk_retriever import get_relevant_chunks
+from utils.rag_playback import log_rag_playback
 
 
 logger = logging.getLogger(__name__)
@@ -23,6 +25,20 @@ def replay_reflection(obj: AssistantReflectionLog | MemoryEntry) -> ReflectionRe
         assistant = obj.assistant
         engine = AssistantReflectionEngine(assistant)
         prompt = engine.build_reflection_prompt([obj.summary or obj.event])
+        chunk_info, *_ = get_relevant_chunks(
+            str(assistant.id),
+            obj.summary or obj.event or "",
+            memory_context_id=str(assistant.memory_context_id)
+            if assistant.memory_context_id
+            else None,
+            debug=True,
+        )
+        playback = log_rag_playback(
+            obj.summary or obj.event or "",
+            assistant,
+            assistant.memory_context,
+            chunk_info,
+        )
         summary = engine.generate_reflection(prompt)
         old_score = 0.0
         original_reflection = None
@@ -32,6 +48,20 @@ def replay_reflection(obj: AssistantReflectionLog | MemoryEntry) -> ReflectionRe
         assistant = obj.assistant
         engine = AssistantReflectionEngine(assistant)
         prompt = obj.raw_prompt or obj.summary
+        chunk_info, *_ = get_relevant_chunks(
+            str(assistant.id),
+            obj.summary or "",
+            memory_context_id=str(assistant.memory_context_id)
+            if assistant.memory_context_id
+            else None,
+            debug=True,
+        )
+        playback = log_rag_playback(
+            obj.summary or "",
+            assistant,
+            assistant.memory_context,
+            chunk_info,
+        )
         summary = engine.generate_reflection(prompt)
         old_score = 0.0
         original_reflection = obj
@@ -48,6 +78,7 @@ def replay_reflection(obj: AssistantReflectionLog | MemoryEntry) -> ReflectionRe
         reflection_score=0.0,
         changed_anchors=[],
         replayed_summary=summary,
+        rag_playback=playback,
     )
 
     # detect glossary anchors in the reflection text
@@ -73,4 +104,5 @@ def replay_reflection(obj: AssistantReflectionLog | MemoryEntry) -> ReflectionRe
         anchor.save(update_fields=["last_used_in_reflection"])
 
     return replay_log
+
 

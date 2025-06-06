@@ -94,6 +94,13 @@ export const routeMap = [
     notes: "Reflection replay diff view",
   },
   {
+    frontend: "/assistants/:slug/rag_playback/:id",
+    backend: "/api/assistants/<slug>/rag_playback/<uuid:id>/",
+    view: "rag_playback_detail",
+    serializer: "RAGPlaybackLogSerializer",
+    notes: "RAG playback debug info",
+  },
+  {
     frontend: "/reflections",
     backend: "/api/mcp/reflections/",
     view: "list_reflections",

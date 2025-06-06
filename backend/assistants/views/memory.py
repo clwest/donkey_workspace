@@ -254,6 +254,19 @@ def reflection_replay_diff(request, slug, id):
     return Response(diff)
 
 
+@api_view(["GET"])
+def rag_playback_detail(request, slug, id):
+    """Return RAG playback metadata for a replay."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    from memory.models import RAGPlaybackLog
+
+    playback = get_object_or_404(RAGPlaybackLog, id=id, assistant=assistant)
+    from memory.serializers import RAGPlaybackLogSerializer
+
+    data = RAGPlaybackLogSerializer(playback).data
+    return Response(data)
+
+
 @api_view(["POST"])
 def accept_replay(request, id):
     """Accept a replay and update the original reflection."""

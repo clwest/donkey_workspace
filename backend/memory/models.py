@@ -687,6 +687,27 @@ class RAGGroundingLog(models.Model):
         return f"{self.assistant} | {self.query[:20]}"
 
 
+class RAGPlaybackLog(models.Model):
+    """Store raw chunk retrieval scores for a query."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="rag_playbacks"
+    )
+    query = models.TextField()
+    memory_context = models.ForeignKey(
+        "mcp_core.MemoryContext", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    chunks = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Playback for {self.assistant.slug}"
+
+
 class GlossaryChangeEvent(models.Model):
     """Record manual boosts or adjustments to glossary terms."""
 
@@ -725,6 +746,13 @@ class ReflectionReplayLog(models.Model):
     )
     replayed_summary = models.TextField(blank=True, default="")
     drift_reason = models.CharField(max_length=200, null=True, blank=True)
+    rag_playback = models.ForeignKey(
+        "memory.RAGPlaybackLog",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="replay_logs",
+    )
 
     class ReplayStatus(models.TextChoices):
         PENDING = "pending", "Pending"

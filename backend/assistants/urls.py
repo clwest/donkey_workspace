@@ -608,6 +608,11 @@ urlpatterns = [
         name="assistant-rag-debug",
     ),
     path(
+        "<slug:slug>/rag_playback/<uuid:id>/",
+        assistants.rag_playback_detail,
+        name="assistant-rag-playback",
+    ),
+    path(
         "<slug:slug>/rag_drift_report/",
         assistants.rag_drift_report,
         name="assistant-rag-drift-report",
