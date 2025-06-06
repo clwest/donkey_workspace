@@ -46,6 +46,7 @@ class Assistant(models.Model):
     specialty = models.TextField()
     is_active = models.BooleanField(default=True)
     is_demo = models.BooleanField(default=False)
+    is_guide = models.BooleanField(default=False)
     is_primary = models.BooleanField(default=False)
     is_ephemeral = models.BooleanField(default=False)
     expiration_event = models.ForeignKey(

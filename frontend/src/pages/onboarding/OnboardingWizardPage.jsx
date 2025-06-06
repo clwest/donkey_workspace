@@ -5,6 +5,7 @@ import OnboardingProgressBar from "../../components/onboarding/OnboardingProgres
 import useOnboardingGuard from "../../onboarding/useOnboardingGuard";
 import apiFetch from "@/utils/apiClient";
 import AssistantSetupSummary from "../../components/assistant/AssistantSetupSummary";
+import GuideChatPanel from "../../components/onboarding/GuideChatPanel";
 
 export default function OnboardingWizardPage() {
   const [step, setStep] = useState(1);
@@ -31,6 +32,7 @@ export default function OnboardingWizardPage() {
 
   return (
     <div className="container my-5">
+      <GuideChatPanel />
       <OnboardingProgressBar />
       <OnboardingProgressPanel />
       <h2>Onboarding Wizard</h2>

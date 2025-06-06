@@ -7,6 +7,7 @@ from .utils import (
     get_onboarding_status,
     get_next_onboarding_step,
     get_progress_percent,
+    generate_guide_reply,
 )
 from assistants.models import Assistant
 from .config import ONBOARDING_WORLD
@@ -138,3 +139,18 @@ def teach_anchor(request):
     )
     update_anchor_acquisition(anchor, "acquired")
     return Response({"status": "ok"})
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def guide_chat(request):
+    """Return onboarding guide responses or record dismissal."""
+    if request.data.get("dismiss"):
+        request.user.dismissed_guide = True
+        request.user.save(update_fields=["dismissed_guide"])
+        return Response({"status": "dismissed"})
+    message = request.data.get("message", "").strip()
+    if not message:
+        return Response({"error": "message required"}, status=400)
+    reply = generate_guide_reply(message)
+    return Response({"reply": reply})

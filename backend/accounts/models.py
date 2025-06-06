@@ -47,6 +47,10 @@ class CustomUser(AbstractUser):
         default=False,
         help_text="User chose to skip the onboarding world intro",
     )
+    dismissed_guide = models.BooleanField(
+        default=False,
+        help_text="User dismissed the onboarding guide panel",
+    )
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 

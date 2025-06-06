@@ -5,6 +5,7 @@ import OnboardingIntroModal from "../../components/onboarding/OnboardingIntroMod
 import useOnboardingGuard, { STEP_ROUTES } from "../../onboarding/useOnboardingGuard";
 import useOnboardingTracker from "@/hooks/useOnboardingTracker";
 import useUserInfo from "@/hooks/useUserInfo";
+import GuideChatPanel from "../../components/onboarding/GuideChatPanel";
 import { ONBOARDING_WORLD } from "../../onboarding/metadata";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
@@ -24,6 +25,7 @@ export default function OnboardingWorldPage() {
 
   return (
     <div className="container my-4">
+      <GuideChatPanel />
       <OnboardingIntroModal />
       <OnboardingProgressBar />
       <OnboardingProgressPanel />
