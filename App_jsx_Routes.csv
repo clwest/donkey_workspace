@@ -162,7 +162,7 @@ Route Path,Component
 /onboarding/ritual,RitualOnboardingPage
 /onboarding/summon,SummoningRitualConsolePage
 /onboarding/wizard,OnboardingWizardPage
-/onboarding/world,MythOnboardingWorldPage
+/onboarding/world,OnboardingWorldPage
 /orchestration/timeline,OrchestrationTimelinePage
 /plan/assign,TaskAssignmentPage
 /plan/chains,ExecutionChainPage

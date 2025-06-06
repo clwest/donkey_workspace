@@ -6,7 +6,7 @@ import ProfilePage from "./pages/auth/ProfilePage";
 import LogoutPage from "./pages/auth/LogoutPage";
 import OnboardingWizardPage from "./pages/onboarding/OnboardingWizardPage";
 import RitualOnboardingPage from "./pages/onboarding/RitualOnboardingPage";
-import MythOnboardingWorldPage from "./pages/onboarding/MythOnboardingWorldPage";
+import OnboardingWorldPage from "./pages/onboarding/OnboardingWorldPage";
 import ArchetypeSelectionChamberPage from "./pages/onboarding/ArchetypeSelectionChamberPage";
 import SummoningRitualConsolePage from "./pages/onboarding/SummoningRitualConsolePage";
 import UserMythpathInitializerPage from "./pages/onboarding/UserMythpathInitializerPage";
@@ -286,7 +286,7 @@ export default function App() {
           <Route path="/logout" element={<LogoutPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/onboarding" element={<UserMythpathInitializerPage />} />
-          <Route path="/onboarding/world" element={<MythOnboardingWorldPage />} />
+          <Route path="/onboarding/world" element={<OnboardingWorldPage />} />
           <Route path="/onboarding/archetype" element={<ArchetypeSelectionChamberPage />} />
           <Route path="/onboarding/summon" element={<SummoningRitualConsolePage />} />
           <Route path="/onboarding/wizard" element={<OnboardingWizardPage />} />
