@@ -369,6 +369,16 @@ LOGGING = {
             "level": "WARNING",  # or "ERROR" to hide DEBUG messages
             "propagate": False,
         },
+        "litellm": {
+            "handlers": ["file_backend"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+        "LiteLLM": {
+            "handlers": ["file_backend"],
+            "level": "WARNING",
+            "propagate": False,
+        },
     },
 }
 
