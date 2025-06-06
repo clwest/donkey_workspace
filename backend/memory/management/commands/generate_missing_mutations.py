@@ -11,10 +11,12 @@ def generate_missing_mutations_for_assistant(slug, stdout=None):
         assistant__slug=slug,
     )
     updated = []
+
     for anchor in anchors:
         fallback_count = GlossaryFallbackReflectionLog.objects.filter(
             anchor_slug=anchor.slug
         ).count()
+
         if ((anchor.fallback_score or 0.0) > 0.1) or fallback_count > 2:
             prompt = (
                 f'The assistant failed to ground the term "{anchor.label}" in recent memory. '
@@ -26,16 +28,19 @@ def generate_missing_mutations_for_assistant(slug, stdout=None):
                 if stdout:
                     stdout.write(f"Error for {anchor.slug}: {exc}")
                 continue
+
             anchor.suggested_label = suggestion.strip().strip('"')
             anchor.save(update_fields=["suggested_label"])
             updated.append((anchor.label, anchor.suggested_label))
+
     if stdout:
         if updated:
-            stdout.write(f"Updated {len(updated)} anchors:")
+            stdout.write(f"✅ Updated {len(updated)} anchors:")
             for orig, sug in updated:
                 stdout.write(f"- {orig} → {sug}")
         else:
             stdout.write("No anchors updated.")
+
     return updated
 
 
