@@ -1324,7 +1324,10 @@ class AssistantSerializer(serializers.ModelSerializer):
         return BadgeSerializer(Badge.objects.all(), many=True).data
 
     def get_flair(self, obj):
-
+        if obj.primary_badge:
+            badge = Badge.objects.filter(slug=obj.primary_badge).first()
+            return badge.emoji if badge else None
+        return None
 
 class AssistantProjectSummarySerializer(serializers.ModelSerializer):
     class Meta:
