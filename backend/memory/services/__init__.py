@@ -1,6 +1,10 @@
 from django.shortcuts import get_object_or_404
 
 from ..models import MemoryEntry
+from .convergence import (
+    calculate_convergence_stats,
+    recalculate_anchor_convergence,
+)
 
 
 class MemoryService:

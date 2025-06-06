@@ -1064,13 +1064,13 @@ def anchor_training(request, slug):
     from intel_core.models import DocumentChunk, GlossaryFallbackReflectionLog
     from intel_core.serializers import DocumentChunkInfoSerializer
 
-    chunks = (
-        DocumentChunk.objects.filter(anchor=anchor).order_by("-created_at")[:20]
-    )
-    fallbacks = GlossaryFallbackReflectionLog.objects.filter(
-        anchor_slug=slug
-    ).order_by("-created_at")[:20]
-    reinforcements = AnchorReinforcementLog.objects.filter(anchor=anchor).order_by("-created_at")[:20]
+    chunks = DocumentChunk.objects.filter(anchor=anchor).order_by("-created_at")[:20]
+    fallbacks = GlossaryFallbackReflectionLog.objects.filter(anchor_slug=slug).order_by(
+        "-created_at"
+    )[:20]
+    reinforcements = AnchorReinforcementLog.objects.filter(anchor=anchor).order_by(
+        "-created_at"
+    )[:20]
 
     data = {
         "memories": MemoryEntrySlimSerializer(memories, many=True).data,
@@ -1084,7 +1084,9 @@ def anchor_training(request, slug):
             }
             for f in fallbacks
         ],
-        "reinforcements": AnchorReinforcementLogSerializer(reinforcements, many=True).data,
+        "reinforcements": AnchorReinforcementLogSerializer(
+            reinforcements, many=True
+        ).data,
     }
     return Response(data)
 
@@ -1093,27 +1095,28 @@ def anchor_training(request, slug):
 @permission_classes([AllowAny])
 def glossary_mutations(request):
     """Return SymbolicMemoryAnchor records with pending mutations."""
-    anchors = (
-        SymbolicMemoryAnchor.objects.exclude(mutation_source__isnull=True)
-        .exclude(mutation_source="")
-    )
+    anchors = SymbolicMemoryAnchor.objects.exclude(
+        mutation_source__isnull=True
+    ).exclude(mutation_source="")
+    include_all = request.query_params.get("include") == "all"
+    if not include_all:
+        anchors = anchors.filter(mutation_status="pending")
     assistant_slug = request.query_params.get("assistant")
     if assistant_slug:
         anchors = anchors.filter(assistant__slug=assistant_slug)
     data = []
     for a in anchors:
-        from memory.models import RAGGroundingLog
+        from memory.services.convergence import calculate_convergence_stats
 
-        fallback_count = RAGGroundingLog.objects.filter(
-            expected_anchor=a.slug, fallback_triggered=True
-        ).count()
+        stats = calculate_convergence_stats(a)
         data.append(
             {
                 "id": str(a.id),
                 "original_label": a.label,
                 "suggested_label": a.suggested_label,
                 "mutation_source": a.mutation_source,
-                "fallback_count": fallback_count,
+                "fallback_count": stats.get("fallback_count"),
+                "mutation_score": stats.get("mutation_score"),
                 "status": a.mutation_status,
             }
         )
@@ -1138,6 +1141,9 @@ def accept_glossary_mutation(request, id):
             source="mutation_applied",
             score=1.0,
         )
+        from memory.services.convergence import recalculate_anchor_convergence
+
+        recalculate_anchor_convergence(anchor)
     except Exception:
         pass
     return Response({"status": "applied"})
@@ -1150,6 +1156,12 @@ def reject_glossary_mutation(request, id):
     anchor = get_object_or_404(SymbolicMemoryAnchor, id=id)
     anchor.mutation_status = "rejected"
     anchor.save(update_fields=["mutation_status"])
+    try:
+        from memory.services.convergence import recalculate_anchor_convergence
+
+        recalculate_anchor_convergence(anchor)
+    except Exception:
+        pass
     return Response({"status": "rejected"})
 
 
