@@ -295,7 +295,6 @@ class AssistantReflectionLogSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True,
         slug_field="slug",
-        source="related_anchors",
     )
 
     class Meta:
@@ -337,7 +336,6 @@ class AssistantReflectionLogListSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True,
         slug_field="slug",
-        source="related_anchors",
     )
 
     class Meta:
@@ -381,7 +379,6 @@ class AssistantReflectionLogDetailSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True,
         slug_field="slug",
-        source="related_anchors",
     )
     raw_summary = serializers.CharField(
         source="raw_prompt", allow_null=True, read_only=True
@@ -1328,6 +1325,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             badge = Badge.objects.filter(slug=obj.primary_badge).first()
             return badge.emoji if badge else None
         return None
+
 
 class AssistantProjectSummarySerializer(serializers.ModelSerializer):
     class Meta:
