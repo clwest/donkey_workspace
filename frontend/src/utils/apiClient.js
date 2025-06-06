@@ -2,6 +2,8 @@
 // (e.g. only contains a port like ":8000/api"), fall back to using the current
 // page origin.  This prevents "Failed to fetch" errors when the env variable is
 // missing a hostname.
+import { getToken, clearTokens } from "./auth";
+
 let API_URL = import.meta.env.VITE_API_URL;
 
 function isMissingHost(url) {
@@ -25,7 +27,7 @@ export default async function apiFetch(url, options = {}) {
     ? { "Content-Type": "application/json" }
     : {};
 
-  const authToken = localStorage.getItem("access");
+  const authToken = getToken();
 
   let fullUrl = API_URL + url;
   if (params) {
@@ -50,8 +52,7 @@ export default async function apiFetch(url, options = {}) {
   });
 
   if (res.status === 401) {
-    localStorage.removeItem("access");
-    localStorage.removeItem("refresh");
+    clearTokens();
     const next = encodeURIComponent(window.location.pathname);
     window.location.assign(`/login?next=${next}`);
     throw new Error("Unauthorized");

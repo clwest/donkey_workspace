@@ -25,6 +25,7 @@ export default function RegisterPage() {
         password2,
       });
 
+      await apiFetch("/auth/user/");
       toast.success("✅ Registered!");
       navigate("/onboarding/world");
     } catch (err) {
