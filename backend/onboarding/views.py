@@ -92,7 +92,7 @@ def onboarding_complete(request):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def onboarding_node_detail(request, step):
     node = next((n for n in ONBOARDING_WORLD["nodes"] if n["slug"] == step), None)
     if not node:

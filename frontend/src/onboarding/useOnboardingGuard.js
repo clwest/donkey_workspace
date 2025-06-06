@@ -20,7 +20,16 @@ export default function useOnboardingGuard(step) {
   const userInfo = useUserInfo();
 
   useEffect(() => {
-    completeStep(step);
+    if (!localStorage.getItem("access")) {
+      navigate(`/login?next=${STEP_ROUTES[step]}`, { replace: true });
+      return;
+    }
+  }, [navigate, step]);
+
+  useEffect(() => {
+    if (localStorage.getItem("access")) {
+      completeStep(step);
+    }
   }, [completeStep, step]);
 
   useEffect(() => {
