@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchDriftSuggestions, reviewFirstMessageDrift } from "../api/assistants";
+import { fetchDriftSuggestions, reviewFirstMessageDrift } from "../../api/assistants";
 
 export default function DriftSuggestionsPanel({ slug }) {
   const [items, setItems] = useState([]);
