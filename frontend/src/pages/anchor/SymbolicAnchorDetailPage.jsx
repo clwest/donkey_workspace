@@ -8,6 +8,7 @@ export default function SymbolicAnchorDetailPage() {
   const [anchor, setAnchor] = useState(null);
   const [summary, setSummary] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [training, setTraining] = useState({ memories: [], chunks: [], fallbacks: [] });
 
   useEffect(() => {
     async function load() {
@@ -36,6 +37,8 @@ export default function SymbolicAnchorDetailPage() {
           }
         });
         setSummary(Object.values(by));
+        const trainData = await apiFetch(`/anchor/${slug}/training/`);
+        setTraining(trainData);
       } catch (err) {
         console.error("Failed to load anchor detail", err);
       } finally {
@@ -80,6 +83,39 @@ export default function SymbolicAnchorDetailPage() {
           )}
         </tbody>
       </table>
+      <h5 className="mt-4">Training Chunks</h5>
+      <ul className="list-group mb-3">
+        {training.chunks.map((c) => (
+          <li key={c.id} className="list-group-item">
+            {c.text.slice(0, 120)}...
+          </li>
+        ))}
+        {training.chunks.length === 0 && (
+          <li className="list-group-item text-muted">No chunks found.</li>
+        )}
+      </ul>
+      <h5>Related Memories</h5>
+      <ul className="list-group mb-3">
+        {training.memories.map((m) => (
+          <li key={m.id} className="list-group-item">
+            {m.content_preview}
+          </li>
+        ))}
+        {training.memories.length === 0 && (
+          <li className="list-group-item text-muted">No memories found.</li>
+        )}
+      </ul>
+      <h5>Fallback Logs</h5>
+      <ul className="list-group">
+        {training.fallbacks.map((f) => (
+          <li key={f.id} className="list-group-item">
+            {f.chunk_id} score {f.match_score}
+          </li>
+        ))}
+        {training.fallbacks.length === 0 && (
+          <li className="list-group-item text-muted">No fallbacks.</li>
+        )}
+      </ul>
     </div>
   );
 }
