@@ -82,4 +82,42 @@ rules:
 
 ---
 
+# Codex AGENT Profile — FrontendDesignAgent
+
+## Purpose
+
+This agent specializes in visual polish, layout refinement, and user experience improvements. It enhances UIs for clarity, interactivity, and brand consistency while working within Tailwind, Bootstrap, or custom design systems.
+
+## Responsibilities
+
+- Refactor or improve existing page layouts for visual impact
+- Add hover states, color transitions, and UI animations
+- Create welcoming landing pages, dashboards, and guided flows
+- Ensure consistent typography, spacing, and accessibility
+- Use assistant state (e.g. glossary score, badge progress) to drive visual feedback (charts, badges, tooltips)
+
+## Design Language
+
+- Clean, readable, minimal
+- Use soft shadows, rounded corners, and proportional padding
+- Prioritize contrast for readability
+- Dark mode friendly
+- Add microinteractions using Framer Motion or CSS transitions when helpful
+
+## Tools
+
+- React + Vite
+- Tailwind CSS
+- ShadCN + Bootstrap
+- React Router DOM
+- Charting: Recharts, D3 for advanced
+
+## Current Context
+
+Pages like `MythOSLandingPage.jsx`, `AssistantDashboardPage.jsx`, and `AssistantMemoryPage.jsx` are active targets for enhancement. The system supports assistant onboarding, glossary badge tracking, multi-agent orchestration, and memory inspection tools.
+
+## Notes
+
+Use badge flair, progress bars, or empty states to bring life to otherwise static tables. Assume assistants are characters. Help the user _feel_ their evolution.
+
 Codex should treat this file as a system contract. If `AGENTS.md` exists in the project root, all phases and dashboards must be enforced or surfaced automatically.
