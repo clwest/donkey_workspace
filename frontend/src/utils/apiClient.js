@@ -115,8 +115,12 @@ export default async function apiFetch(url, options = {}) {
         redirectCount = 1;
       }
       lastRedirect = now;
-      const next = encodeURIComponent(window.location.pathname);
-      window.location.assign(`/login?next=${next}`);
+      if (window.location.pathname === "/login") {
+        window.location.assign("/login");
+      } else {
+        const next = encodeURIComponent(window.location.pathname);
+        window.location.assign(`/login?next=${next}`);
+      }
     }
     throw new Error("Unauthorized");
   }

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
+import useAuthGuard from "../../hooks/useAuthGuard";
 
 export function getNextPath(search) {
   return new URLSearchParams(search).get("next");
@@ -13,6 +14,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
+  useAuthGuard({ allowUnauthenticated: true });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
