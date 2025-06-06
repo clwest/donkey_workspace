@@ -278,12 +278,22 @@ const ProjectDetailRoute = () => {
 export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const toggleSidebar = () => setSidebarCollapsed((c) => !c);
-  const { user, authChecked } = useAuthGuard();
+  const { user, authChecked, authError } = useAuthGuard();
   const userInfo = useUserInfo();
   const navigate = useNavigate();
 
   if (!authChecked) {
     return <div className="text-center mt-5">Loading...</div>;
+  }
+
+  if (authError) {
+    return (
+      <div className="container mt-5">
+        <div className="alert alert-warning">
+          Authentication error. Please refresh or log in again.
+        </div>
+      </div>
+    );
   }
 
   useEffect(() => {

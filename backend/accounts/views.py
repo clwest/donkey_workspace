@@ -22,19 +22,22 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def auth_user(request):
-    """Return basic user auth info."""
-    assistants = Assistant.objects.filter(created_by=request.user)
-    return Response(
-        {
-            "is_authenticated": True,
-            "username": request.user.username,
-            "email": request.user.email,
-            "onboarding_complete": get_next_onboarding_step(request.user) is None,
-            "has_assistants": assistants.exists(),
-        }
-    )
+    """Return basic user auth info. Publicly accessible."""
+    if request.user.is_authenticated:
+        assistants = Assistant.objects.filter(created_by=request.user)
+        return Response(
+            {
+                "is_authenticated": True,
+                "username": request.user.username,
+                "email": request.user.email,
+                "onboarding_complete": get_next_onboarding_step(request.user)
+                is None,
+                "has_assistants": assistants.exists(),
+            }
+        )
+    return Response({"is_authenticated": False})
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
