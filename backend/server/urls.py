@@ -107,6 +107,8 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
     path("onboarding/", onboarding_views.onboarding_create_assistant),
+    path("api/onboarding/status/", onboarding_views.onboarding_status),
+    path("api/onboarding/complete/", onboarding_views.onboarding_complete),
     path(
         "assistants/from-documents/",
         assistant_views.assistant_from_documents,

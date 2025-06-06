@@ -136,6 +136,7 @@ from .onboarding import (
     create_assistant_from_mythpath,
     assistant_onboard,
 )
+from .onboarding_tracker import onboarding_status, onboarding_complete
 from .symbolic import (
     get_codex_anchors,
     get_belief_history,
@@ -310,5 +311,7 @@ __all__ = [
     "assistant_dream_initiate",
     "reflect_again",
     "repair_documents",
+    "onboarding_status",
+    "onboarding_complete",
 ]
 from .skills import SkillPlanView

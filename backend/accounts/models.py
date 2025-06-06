@@ -132,3 +132,30 @@ class UserInteractionSummary(models.Model):
 
     def __str__(self):
         return f"Interaction Summary for {self.user.username}: {self.period_start.date()} to {self.period_end.date()}"
+
+
+class UserOnboardingProgress(models.Model):
+    """Track completion status for onboarding steps per user."""
+
+    class Meta:
+        app_label = "accounts"
+        unique_together = ["user", "step"]
+
+    STEP_CHOICES = [
+        ("mythpath", "Mythpath"),
+        ("world", "World"),
+        ("archetype", "Archetype"),
+        ("summon", "Summon"),
+        ("wizard", "Wizard"),
+        ("ritual", "Ritual"),
+    ]
+
+    STATUS_CHOICES = [("pending", "Pending"), ("completed", "Completed")]
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    step = models.CharField(max_length=20, choices=STEP_CHOICES)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.step}: {self.status}"
