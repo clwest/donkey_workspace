@@ -23,7 +23,12 @@ export default function LoginPage() {
       if (user?.has_assistants === false) {
         navigate("/onboarding/world");
       } else if (user?.onboarding_complete) {
-        navigate("/assistants/primary/dashboard");
+        try {
+          const primary = await apiFetch("/assistants/primary/");
+          navigate(`/assistants/${primary.slug}/dashboard`);
+        } catch {
+          navigate("/assistants/primary/create");
+        }
       } else {
         navigate("/home");
       }

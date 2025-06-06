@@ -22,9 +22,11 @@ HINTS = [
         "location": "/assistants/demo",
     },
     {
+
         "id": "chat_welcome",
         "label": "Welcome to the Conversation",
         "content": "You can ask your assistant anything, or begin teaching it something new.",
         "location": "/assistants/:slug/chat/",
+
     },
 ]
