@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Button } from "react-bootstrap";
+import { Button, Alert } from "react-bootstrap";
 import { toast } from "react-toastify";
 import {
   fetchGlossaryMutations,
   rejectGlossaryMutation,
   acceptGlossaryMutation,
+  suggestMissingGlossaryMutations,
 } from "../../api/agents";
 import apiFetch from "../../utils/apiClient";
 
@@ -67,10 +68,25 @@ export default function GlossaryMutationReviewPanel() {
     setMutations(mutations.map((m) => (m.id === id ? { ...m, suggested_label: val } : m)));
   };
 
+  const runSuggestionJob = async () => {
+    const assistant = searchParams.get("assistant");
+    if (!assistant) return;
+    try {
+      await suggestMissingGlossaryMutations(assistant);
+      toast.info("Suggestion job triggered");
+      reload();
+    } catch (e) {
+      toast.error("Failed to run job");
+    }
+  };
+
   const total = mutations.length;
   const failing = mutations.filter((m) => m.fallback_count > 3).length;
   const applied = mutations.filter((m) => m.status === "applied").length;
   const convergence = total ? (((total - failing) / total) * 100).toFixed(0) : 0;
+  const pending = mutations.filter((m) => m.status === "pending");
+  const missingSuggestions =
+    pending.length > 0 && pending.every((m) => !m.suggested_label);
 
   if (loading) return <div className="container my-4">Loading...</div>;
 
@@ -83,6 +99,15 @@ export default function GlossaryMutationReviewPanel() {
         <span className="badge bg-success me-2">Applied {applied}</span>
         <span className="badge bg-info text-dark">Convergence {convergence}%</span>
       </div>
+      {missingSuggestions && (
+        <Alert variant="warning" className="mb-3">
+          No suggestions available. Run <code>generate_missing_mutations</code> or
+          click “Auto-Suggest Missing Labels.”
+          <Button className="ms-2" size="sm" onClick={runSuggestionJob}>
+            Auto-Suggest Missing Labels
+          </Button>
+        </Alert>
+      )}
       <table className="table table-sm">
         <thead>
           <tr>
