@@ -4,7 +4,7 @@ warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 from . import views
-from .views.glossary import accept_mutation
+from .views import accept_mutation
 
 router = DefaultRouter()
 router.register("entries", views.MemoryEntryViewSet, basename="memory-entry")
