@@ -1302,9 +1302,7 @@ class AssistantSerializer(serializers.ModelSerializer):
         source="memory_context.id", read_only=True
     )
     available_badges = serializers.SerializerMethodField()
-    badge_history = serializers.ListField(
-        child=serializers.DictField(), read_only=True
-    )
+    badge_history = serializers.ListField(child=serializers.DictField(), read_only=True)
     initial_glossary_anchor = serializers.SerializerMethodField()
     initial_badges = serializers.SerializerMethodField()
     flair = serializers.SerializerMethodField()
@@ -1462,6 +1460,7 @@ class BootstrapResultSerializer(serializers.Serializer):
 class AssistantSetupSummarySerializer(serializers.ModelSerializer):
     initial_glossary_anchor = serializers.SerializerMethodField()
     initial_badges = serializers.SerializerMethodField()
+    has_reflections_ready = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -1474,6 +1473,7 @@ class AssistantSetupSummarySerializer(serializers.ModelSerializer):
             "tone",
             "initial_glossary_anchor",
             "initial_badges",
+            "has_reflections_ready",
         ]
 
     def get_initial_glossary_anchor(self, obj):
@@ -1481,6 +1481,9 @@ class AssistantSetupSummarySerializer(serializers.ModelSerializer):
 
     def get_initial_badges(self, obj):
         return _initial_badges(obj)
+
+    def get_has_reflections_ready(self, obj):
+        return obj.assistant_reflections.exists()
 
 
 from prompts.models import Prompt

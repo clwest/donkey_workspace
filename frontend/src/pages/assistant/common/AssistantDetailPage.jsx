@@ -34,6 +34,8 @@ import { fetchGlossaryMutations } from "../../../api/agents";
 import HintBubble from "../../../components/HintBubble";
 import useAssistantHints from "../../../hooks/useAssistantHints";
 import TourProgressBar from "../../../components/onboarding/TourProgressBar";
+import ReflectionPrimerPanel from "../../../components/assistant/ReflectionPrimerPanel";
+import useUserInfo from "../../../hooks/useUserInfo";
 
 export default function AssistantDetailPage() {
   const { slug } = useParams();
@@ -59,7 +61,9 @@ export default function AssistantDetailPage() {
   const [showBoot, setShowBoot] = useState(false);
   const [lastSelfTest, setLastSelfTest] = useState(null);
   const [mutationCount, setMutationCount] = useState(0);
+  const [showPrimer, setShowPrimer] = useState(false);
   const { hints, dismissHint } = useAssistantHints(slug);
+  const userInfo = useUserInfo();
   const threadId = query.get("thread");
   const projectId = query.get("project");
   const memoryId = query.get("memory");
@@ -67,6 +71,11 @@ export default function AssistantDetailPage() {
   const handleDiagnosticsRefresh = () => {
     setRefreshKey((k) => k + 1);
     reloadAssistant();
+  };
+
+  const handleDismissPrimer = () => {
+    localStorage.setItem(`seen_reflection_primer_${slug}`, "1");
+    setShowPrimer(false);
   };
 
   // Clear state when navigating between assistants so new data loads properly
@@ -111,6 +120,13 @@ export default function AssistantDetailPage() {
           reflections: reflList.length,
         });
         setLatestMemoryId(memList[0]?.id || null);
+        if (
+          reflList.length > 0 &&
+          userInfo?.onboarding_complete &&
+          !localStorage.getItem(`seen_reflection_primer_${slug}`)
+        ) {
+          setShowPrimer(true);
+        }
       } catch (err) {
         console.error("Failed to load memory stats", err);
       }
@@ -119,6 +135,16 @@ export default function AssistantDetailPage() {
       loadMemoryStats();
     }
   }, [slug, refreshKey]);
+
+  useEffect(() => {
+    if (
+      userInfo?.onboarding_complete &&
+      memoryStats?.reflections > 0 &&
+      !localStorage.getItem(`seen_reflection_primer_${slug}`)
+    ) {
+      setShowPrimer(true);
+    }
+  }, [userInfo, memoryStats, slug]);
 
   useEffect(() => {
     async function loadMutationCount() {
@@ -462,7 +488,16 @@ export default function AssistantDetailPage() {
       </div>
       {activeTab === "overview" && (
         <>
-          <AssistantDiagnosticsPanel slug={slug} onRefresh={handleDiagnosticsRefresh} />
+          {showPrimer && (
+            <ReflectionPrimerPanel
+              slug={slug}
+              onDismiss={handleDismissPrimer}
+            />
+          )}
+          <AssistantDiagnosticsPanel
+            slug={slug}
+            onRefresh={handleDiagnosticsRefresh}
+          />
           {assistant.recent_drift && (
             <div className="alert alert-warning">
               🧬 Drift Detected: {assistant.recent_drift.summary}
@@ -676,7 +711,10 @@ export default function AssistantDetailPage() {
             >
               {docLoading ? (
                 <div className="placeholder-glow flex-grow-1">
-                  <div className="placeholder col-12" style={{ height: 32 }}></div>
+                  <div
+                    className="placeholder col-12"
+                    style={{ height: 32 }}
+                  ></div>
                 </div>
               ) : availableDocs.length > 0 ? (
                 <select
@@ -732,11 +770,15 @@ export default function AssistantDetailPage() {
                         className={stale ? "opacity-50" : ""}
                       >
                         <td>
-                          <Link to={`/assistants/projects/${project.id}`}>{project.title}</Link>
+                          <Link to={`/assistants/projects/${project.id}`}>
+                            {project.title}
+                          </Link>
                           {project.objectives?.length > 0 && (
                             <ul className="mt-1 mb-0 small">
                               {project.objectives.map((obj) => (
-                                <li key={obj.id} id={`objective-${obj.id}`}>{obj.title}</li>
+                                <li key={obj.id} id={`objective-${obj.id}`}>
+                                  {obj.title}
+                                </li>
                               ))}
                             </ul>
                           )}
@@ -746,9 +788,13 @@ export default function AssistantDetailPage() {
                             <button
                               className="btn btn-sm btn-outline-danger"
                               onClick={async () => {
-                                if (!window.confirm("Delete stale project?")) return;
+                                if (!window.confirm("Delete stale project?"))
+                                  return;
                                 try {
-                                  await apiFetch(`/assistants/projects/${project.id}/`, { method: "DELETE" });
+                                  await apiFetch(
+                                    `/assistants/projects/${project.id}/`,
+                                    { method: "DELETE" },
+                                  );
                                   reloadAssistant();
                                   toast.success("Project removed");
                                 } catch {
@@ -833,7 +879,7 @@ export default function AssistantDetailPage() {
           <AssistantMemoryPanel slug={slug} refreshKey={refreshKey} />
           {memoryStats && (
             <div className="alert alert-info mt-2">
-              <strong>Memory Entries:</strong> {memoryStats.memories} |{' '}
+              <strong>Memory Entries:</strong> {memoryStats.memories} |{" "}
               <strong>Recent Reflections:</strong> {memoryStats.reflections}
             </div>
           )}
@@ -972,7 +1018,7 @@ export default function AssistantDetailPage() {
         <>
           {memoryStats && (
             <div className="alert alert-info">
-              <strong>Memories:</strong> {memoryStats.memories} |{' '}
+              <strong>Memories:</strong> {memoryStats.memories} |{" "}
               <strong>Reflections:</strong> {memoryStats.reflections}
             </div>
           )}
@@ -1003,10 +1049,7 @@ export default function AssistantDetailPage() {
                 Memory → Task
               </Link>
             )}
-            <Link
-              to="/memories/reflect"
-              className="btn btn-outline-info"
-            >
+            <Link to="/memories/reflect" className="btn btn-outline-info">
               Reflect Memories
             </Link>
             <Link
@@ -1038,9 +1081,7 @@ export default function AssistantDetailPage() {
       {activeTab === "vocab" && (
         <VocabularyProgressPanel assistantSlug={assistant.slug} />
       )}
-      {activeTab === "setup" && (
-        <AssistantSetupSummary assistantId={slug} />
-      )}
+      {activeTab === "setup" && <AssistantSetupSummary assistantId={slug} />}
       {activeTab === "badges" && <BadgePreviewPanel slug={slug} />}
       <CommonModal
         show={showBoot}
