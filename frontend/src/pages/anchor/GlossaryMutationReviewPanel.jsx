@@ -54,7 +54,7 @@ export default function GlossaryMutationReviewPanel() {
 
   const handleReject = async (id) => {
     await rejectGlossaryMutation(id);
-    setMutations(mutations.map((m) => (m.id === id ? { ...m, status: "rejected" } : m)));
+    reload();
   };
 
   const handleEdit = async (id) => {
@@ -80,13 +80,15 @@ export default function GlossaryMutationReviewPanel() {
     }
   };
 
-  const total = mutations.length;
-  const failing = mutations.filter((m) => m.fallback_count > 3).length;
-  const applied = mutations.filter((m) => m.status === "applied").length;
+  const showAll = import.meta.env.DEV || window.location.pathname.startsWith("/anchor/symbolic");
+  const visible = showAll ? mutations : mutations.filter((m) => m.status === "pending");
+
+  const total = visible.length;
+  const failing = visible.filter((m) => m.fallback_count > 3).length;
+  const applied = visible.filter((m) => m.status === "applied").length;
   const convergence = total ? (((total - failing) / total) * 100).toFixed(0) : 0;
-  const pending = mutations.filter((m) => m.status === "pending");
   const missingSuggestions =
-    pending.length > 0 && pending.every((m) => !m.suggested_label);
+    visible.length > 0 && visible.every((m) => !m.suggested_label);
 
   if (loading) return <div className="container my-4">Loading...</div>;
 
@@ -120,13 +122,21 @@ export default function GlossaryMutationReviewPanel() {
           </tr>
         </thead>
         <tbody>
-          {mutations.map((m) => (
+          {visible.map((m) => (
             <tr key={m.id}>
               <td>{m.original_label}</td>
               <td>{m.suggested_label || "-"}</td>
               <td>{m.mutation_source}</td>
               <td>{m.fallback_count}</td>
-              <td>{m.status}</td>
+              <td>
+                {m.status}
+                {showAll && m.status === "applied" && (
+                  <span className="badge bg-success ms-1">✅ Applied</span>
+                )}
+                {showAll && m.status === "rejected" && (
+                  <span className="badge bg-danger ms-1">❌ Rejected</span>
+                )}
+              </td>
               <td>
                 <Button
                   className="bg-green-600 hover:bg-green-700 me-1"
@@ -148,7 +158,7 @@ export default function GlossaryMutationReviewPanel() {
               </td>
             </tr>
           ))}
-          {mutations.length === 0 && (
+          {visible.length === 0 && (
             <tr>
               <td colSpan="6" className="text-muted">
                 No mutations found.
