@@ -14,6 +14,7 @@ from .models import (
     MemoryMergeSuggestion,
     GlossaryRetryLog,
     AnchorConvergenceLog,
+    AnchorReinforcementLog,
     RAGGroundingLog,
 )
 
@@ -330,6 +331,26 @@ class AnchorConvergenceLogSerializer(serializers.ModelSerializer):
             "memory_summary",
             "anchor_label",
             "anchor_slug",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
+class AnchorReinforcementLogSerializer(serializers.ModelSerializer):
+    assistant_name = serializers.CharField(source="assistant.name", read_only=True)
+    anchor_label = serializers.CharField(source="anchor.label", read_only=True)
+
+    class Meta:
+        model = AnchorReinforcementLog
+        fields = [
+            "id",
+            "anchor",
+            "assistant",
+            "memory",
+            "reason",
+            "score",
+            "created_at",
+            "assistant_name",
+            "anchor_label",
         ]
         read_only_fields = ["id", "created_at"]
 

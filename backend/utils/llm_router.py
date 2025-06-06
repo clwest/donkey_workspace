@@ -9,6 +9,10 @@ from memory.models import (
     GlossaryRetryLog,
     AnchorConvergenceLog,
 )
+from memory.services.reinforcement import (
+    reinforce_glossary_anchor,
+    REINFORCEMENT_THRESHOLD,
+)
 
 DEFAULT_MODEL = "gpt-4o-mini"
 client = OpenAI()
@@ -681,6 +685,26 @@ def chat(
                 final_score=rag_meta.get("retrieval_score", 0.0),
             )
             rag_meta["convergence_log_id"] = str(conv_log.id)
+            if rag_meta.get("retrieval_score", 0.0) >= REINFORCEMENT_THRESHOLD:
+                try:
+                    reinforce_glossary_anchor(
+                        anchor_obj,
+                        assistant=assistant,
+                        source="retrieval_match",
+                        score=rag_meta.get("retrieval_score", 0.0),
+                    )
+                except Exception:
+                    pass
+            if rag_meta.get("reflection_boost_score", 0.0) > 0:
+                try:
+                    reinforce_glossary_anchor(
+                        anchor_obj,
+                        assistant=assistant,
+                        source="reflection_boost",
+                        score=rag_meta.get("reflection_boost_score", 0.0),
+                    )
+                except Exception:
+                    pass
             if not anchor_obj.reinforced_by.filter(id=assistant.id).exists():
                 anchor_obj.reinforced_by.add(assistant)
 
