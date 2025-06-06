@@ -33,6 +33,7 @@ import VocabularyProgressPanel from "../../../components/assistant/memory/Vocabu
 import { fetchGlossaryMutations } from "../../../api/agents";
 import HintBubble from "../../../components/HintBubble";
 import useAssistantHints from "../../../hooks/useAssistantHints";
+import TourProgressBar from "../../../components/onboarding/TourProgressBar";
 
 export default function AssistantDetailPage() {
   const { slug } = useParams();
@@ -353,6 +354,7 @@ export default function AssistantDetailPage() {
         )}
       </h1>
       <p className="text-muted">Assistant Details Page</p>
+      <TourProgressBar assistantSlug={slug} />
       <div className="mb-3">
         <ul className="nav nav-tabs">
           <li className="nav-item">

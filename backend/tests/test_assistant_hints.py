@@ -29,3 +29,24 @@ class AssistantHintsAPITest(BaseAPITestCase):
         data = resp.json()["hints"]
         dismissed = next(h for h in data if h["id"] == "rag_intro")
         self.assertTrue(dismissed["dismissed"])
+        state = AssistantHintState.objects.get(user=self.user, assistant=self.assistant, hint_id="rag_intro")
+        assert state.completed_at is not None
+
+    def test_tour_progress(self):
+        progress_url = f"/api/assistants/{self.assistant.slug}/tour_progress/"
+        resp = self.client.get(progress_url)
+        self.assertEqual(resp.status_code, 200)
+        body = resp.json()
+        self.assertEqual(body["total"], 2)
+        self.assertEqual(body["completed"], 0)
+        self.assertEqual(body["percent_complete"], 0)
+        self.assertEqual(body["next_hint"], "rag_intro")
+
+        self.client.post(
+            f"/api/assistants/{self.assistant.slug}/hints/rag_intro/dismiss/"
+        )
+
+        resp = self.client.get(progress_url)
+        body = resp.json()
+        self.assertEqual(body["completed"], 1)
+        self.assertEqual(body["next_hint"], "glossary_tour")
