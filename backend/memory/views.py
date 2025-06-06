@@ -857,7 +857,11 @@ def symbolic_anchors(request):
     assistant = request.GET.get("assistant")
     show_empty = request.GET.get("show_empty") == "true"
     if assistant:
-        anchors = anchors.filter(reinforced_by__id=assistant)
+        try:
+            uuid.UUID(str(assistant))
+            anchors = anchors.filter(reinforced_by__id=assistant)
+        except ValueError:
+            anchors = anchors.filter(reinforced_by__slug=assistant)
     serializer = SymbolicMemoryAnchorSerializer(anchors, many=True)
     data = serializer.data
     if not show_empty:
