@@ -79,3 +79,7 @@ export default function useAuthGuard() {
 
   return { user, authChecked: checked, authError: error };
 }
+
+export function clearCachedUser() {
+  cachedUser = null;
+}
