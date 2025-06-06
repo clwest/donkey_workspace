@@ -810,6 +810,15 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
         index = 1.0 - (high / total)
         return round(index, 2)
 
+    def get_available_badges(self, obj):
+        return BadgeSerializer(Badge.objects.all(), many=True).data
+
+    def get_flair(self, obj):
+        if obj.primary_badge:
+            badge = Badge.objects.filter(slug=obj.primary_badge).first()
+            return badge.emoji if badge else None
+        return None
+
     def get_glossary_health_index(self, obj):
         from django.db.models import Avg, Count
         from memory.models import SymbolicMemoryAnchor
@@ -1198,6 +1207,8 @@ class AssistantSerializer(serializers.ModelSerializer):
     memory_context_id = serializers.UUIDField(
         source="memory_context.id", read_only=True
     )
+    available_badges = serializers.SerializerMethodField()
+    flair = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -1247,6 +1258,8 @@ class AssistantSerializer(serializers.ModelSerializer):
             "preferred_scene_tags",
             "skill_badges",
             "primary_badge",
+            "available_badges",
+            "flair",
         ]
 
     def get_trust(self, obj):
