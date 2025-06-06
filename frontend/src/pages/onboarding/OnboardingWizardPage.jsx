@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import OnboardingProgressPanel from "../../components/onboarding/OnboardingProgressPanel";
+import useOnboardingGuard from "../../onboarding/useOnboardingGuard";
 
 export default function OnboardingWizardPage() {
   const [step, setStep] = useState(1);
   const total = 6;
   const navigate = useNavigate();
+  useOnboardingGuard("wizard");
 
   const next = () => setStep((s) => Math.min(s + 1, total));
   const back = () => setStep((s) => Math.max(s - 1, 1));
@@ -15,6 +18,7 @@ export default function OnboardingWizardPage() {
 
   return (
     <div className="container my-5">
+      <OnboardingProgressPanel />
       <h2>Onboarding Wizard</h2>
       <div className="mb-3">Step {step} of {total}</div>
       {step === 1 && (
