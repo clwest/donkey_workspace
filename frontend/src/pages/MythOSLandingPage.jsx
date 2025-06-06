@@ -1,6 +1,12 @@
 import { Link } from "react-router-dom";
+import useAuth from "@/hooks/useAuth";
+import useAuthGuard from "@/hooks/useAuthGuard";
 
 export default function MythOSLandingPage() {
+  const token = useAuth();
+  if (token) {
+    useAuthGuard({ allowUnauthenticated: true });
+  }
   return (
     <div className="min-h-screen text-white bg-gradient-to-br from-black via-zinc-900 to-black flex flex-col items-center justify-center py-16 px-6 space-y-12">
       <div className="relative p-6 rounded-lg">

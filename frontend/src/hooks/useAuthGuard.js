@@ -39,13 +39,15 @@ export default function useAuthGuard({ allowUnauthenticated = false } = {}) {
       if (!token || tokenExpired(token)) {
         if (authDebug) console.warn("[auth] access token missing or expired");
         clearTokens();
-        toast.warning("Not logged in");
-        setChecked(true);
-        setError(new Error("Unauthorized"));
-        setAuthErrorHandled(true);
-        if (!allowUnauthenticated && /^\/(assistants|onboarding|dashboard|memory|memories)/.test(location.pathname)) {
-          navigate("/login", { replace: true });
+        if (!allowUnauthenticated) {
+          toast.warning("Not logged in");
+          setError(new Error("Unauthorized"));
+          setAuthErrorHandled(true);
+          if (/^\/(assistants|onboarding|dashboard|memory|memories)/.test(location.pathname)) {
+            navigate("/login", { replace: true });
+          }
         }
+        setChecked(true);
         return;
       }
 
@@ -75,14 +77,16 @@ export default function useAuthGuard({ allowUnauthenticated = false } = {}) {
         }
       } catch (err) {
         console.warn("auth_user endpoint failed", err);
-        setError(err);
-        clearTokens();
-        toast.warning("Not logged in");
-        setChecked(true);
-        setAuthErrorHandled(true);
-        if (!allowUnauthenticated && /^\/(assistants|onboarding|dashboard|memory|memories)/.test(location.pathname)) {
-          navigate("/login", { replace: true });
+        if (!allowUnauthenticated) {
+          setError(err);
+          clearTokens();
+          toast.warning("Not logged in");
+          setAuthErrorHandled(true);
+          if (/^\/(assistants|onboarding|dashboard|memory|memories)/.test(location.pathname)) {
+            navigate("/login", { replace: true });
+          }
         }
+        setChecked(true);
       }
     }
     checkAuth();
