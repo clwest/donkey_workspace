@@ -4,6 +4,15 @@ import apiFetch from "@/utils/apiClient";
 
 export let cachedUser = null;
 
+function tokenExpired(token) {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload.exp * 1000 < Date.now();
+  } catch {
+    return true;
+  }
+}
+
 export default function useAuthGuard() {
   const [user, setUser] = useState(cachedUser);
   const [checked, setChecked] = useState(Boolean(cachedUser));
@@ -14,7 +23,11 @@ export default function useAuthGuard() {
   useEffect(() => {
     if (cachedUser) return;
     const token = localStorage.getItem("access");
-    if (!token) {
+    if (!token || tokenExpired(token)) {
+      if (tokenExpired(token)) {
+        localStorage.removeItem("access");
+        localStorage.removeItem("refresh");
+      }
       setChecked(true);
       if (/^\/(assistants|onboarding|dashboard|memory|memories)/.test(location.pathname)) {
         navigate("/login", { replace: true });

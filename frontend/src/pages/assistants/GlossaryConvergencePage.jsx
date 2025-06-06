@@ -4,8 +4,10 @@ import apiFetch from "../../utils/apiClient";
 import HintBubble from "../../components/HintBubble";
 import useAssistantHints from "../../hooks/useAssistantHints";
 import TourProgressBar from "../../components/onboarding/TourProgressBar";
+import useAuthGuard from "../../hooks/useAuthGuard";
 
 export default function GlossaryConvergencePage() {
+  useAuthGuard();
   const { slug } = useParams();
   const { hints, dismissHint } = useAssistantHints(slug);
   const [rows, setRows] = useState([]);

@@ -10,8 +10,10 @@ import {
   testGlossaryMutations,
 } from "../../api/agents";
 import apiFetch from "../../utils/apiClient";
+import useAuthGuard from "../../hooks/useAuthGuard";
 
 export default function GlossaryMutationReviewPanel() {
+  useAuthGuard();
   const [mutations, setMutations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);

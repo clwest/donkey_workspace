@@ -1,5 +1,5 @@
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
@@ -13,7 +13,7 @@ from mcp_core.models import Tag
 
 
 @api_view(["GET", "POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def assistant_myth_layer(request, slug):
     """Retrieve or update myth layer for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
@@ -34,7 +34,7 @@ def assistant_myth_layer(request, slug):
 
 
 @api_view(["GET", "POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def assistant_journals(request, slug):
     """List or create journal entries for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)

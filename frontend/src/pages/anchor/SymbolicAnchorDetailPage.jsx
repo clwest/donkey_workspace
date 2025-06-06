@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
 import { fetchAnchorConvergence } from "../../api/agents";
+import useAuthGuard from "../../hooks/useAuthGuard";
 
 export default function SymbolicAnchorDetailPage() {
+  useAuthGuard();
   const { slug } = useParams();
   const [anchor, setAnchor] = useState(null);
   const [summary, setSummary] = useState([]);

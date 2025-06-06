@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from assistants.models.assistant import Assistant
@@ -11,7 +11,7 @@ from intel_core.utils.document_progress import repair_progress
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def repair_documents(request, slug):
     """Repair linked documents and revalidate embeddings."""
     assistant = get_object_or_404(Assistant, slug=slug)
@@ -34,7 +34,7 @@ def repair_documents(request, slug):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def reflect_again(request, slug):
     """Trigger document reflection rerun for linked documents."""
     assistant = get_object_or_404(Assistant, slug=slug)

@@ -1,5 +1,5 @@
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
@@ -9,7 +9,7 @@ from assistants.models.mythpath import TemporalMythpathRecord, MythpathEvent
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def assistant_identity(request, id):
     assistant = get_object_or_404(Assistant, id=id)
     anchor, _ = IdentityAnchor.objects.get_or_create(
@@ -26,7 +26,7 @@ def assistant_identity(request, id):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def assistant_mythpath(request, id):
     assistant = get_object_or_404(Assistant, id=id)
     record, _ = TemporalMythpathRecord.objects.get_or_create(assistant=assistant)

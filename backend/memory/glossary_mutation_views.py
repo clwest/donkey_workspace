@@ -1,5 +1,5 @@
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from memory.management.commands.generate_missing_mutations import (
     generate_missing_mutations_for_assistant,
@@ -10,7 +10,7 @@ from memory.management.commands.test_glossary_mutations import (
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def suggest_missing_mutations(request):
     slug = request.data.get("assistant")
     if not slug:
@@ -20,7 +20,7 @@ def suggest_missing_mutations(request):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def test_glossary_mutations(request):
     slug = request.data.get("assistant")
     if not slug:

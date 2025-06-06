@@ -49,6 +49,14 @@ export default async function apiFetch(url, options = {}) {
     credentials: "include",
   });
 
+  if (res.status === 401) {
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    const next = encodeURIComponent(window.location.pathname);
+    window.location.assign(`/login?next=${next}`);
+    throw new Error("Unauthorized");
+  }
+
   if (!res.ok) {
     let errorMsg = `API Error ${res.status}`;
     try {

@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
+import useAuthGuard from "../../hooks/useAuthGuard";
 
 export default function AnchorHealthDashboard() {
+  useAuthGuard();
   const { slug } = useParams();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
