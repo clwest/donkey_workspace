@@ -461,3 +461,16 @@ export async function fetchRagDiagnostics(slug) {
   const res = await apiFetch(`/assistants/${slug}/diagnostics/`);
   return res;
 }
+
+export async function fetchDriftSuggestions(slug, params) {
+  const res = await apiFetch(`/assistants/${slug}/drift_suggestions/`, { params });
+  return res.results || res;
+}
+
+export async function reviewFirstMessageDrift(slug) {
+  const res = await apiFetch(`/assistants/${slug}/drift_suggestions/`, {
+    method: "POST",
+  });
+  return res;
+}
+

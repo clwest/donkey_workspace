@@ -9,7 +9,6 @@ from .models.project import (
 )
 from .models.reflection import AssistantReflectionLog
 from .models.assistant import (
-
     ChatSession,
     StructuredMemory,
     TokenUsage,
@@ -24,10 +23,10 @@ from .models.assistant import (
     AssistantHandoffLog,
     SpecializationDriftLog,
     ChatIntentDriftLog,
+    SuggestionLog,
     DebateSession,
     DebateThoughtLog,
     DebateSummary,
-
 )
 from .models.core import AssistantMythLayer
 from .models.thoughts import CollaborationLog, CollaborationThread
@@ -201,6 +200,19 @@ class SpecializationDriftLogAdmin(admin.ModelAdmin):
 class ChatIntentDriftLogAdmin(admin.ModelAdmin):
     list_display = ("assistant", "drift_score", "created_at")
     list_filter = ("assistant",)
+
+
+@admin.register(SuggestionLog)
+class SuggestionLogAdmin(admin.ModelAdmin):
+    list_display = (
+        "assistant",
+        "anchor_slug",
+        "suggested_action",
+        "score",
+        "status",
+        "created_at",
+    )
+    list_filter = ("status", "assistant")
 
 
 @admin.register(DelegationStrategy)

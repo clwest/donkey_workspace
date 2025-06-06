@@ -34,12 +34,13 @@ from assistants.models.assistant import (
     AssistantSkill,
     AssistantChatMessage,
     ChatIntentDriftLog,
+    SuggestionLog,
 )
 from assistants.models.reflection import AssistantReflectionLog
 from assistants.models.thoughts import AssistantThoughtLog
 from prompts.models import PromptMutationLog
 from assistants.utils.session_utils import get_cached_thoughts
-from assistants.serializers import AssistantSerializer
+from assistants.serializers import AssistantSerializer, SuggestionLogSerializer
 from assistants.utils.session_utils import (
     save_message_to_session,
     flush_session_to_db,
@@ -1494,9 +1495,7 @@ def first_question_stats(request, slug):
     from django.db.models import Count, Avg
 
     summary = (
-        logs.values("user_message__content")
-        .annotate(c=Count("id"))
-        .order_by("-c")[:5]
+        logs.values("user_message__content").annotate(c=Count("id")).order_by("-c")[:5]
     )
     drift_avg = logs.aggregate(avg=Avg("drift_score"))["avg"] or 0.0
     return Response(
@@ -1524,7 +1523,9 @@ def anchor_health(request, slug):
     if status == "high_drift":
         metrics = [m for m in metrics if m["drift_score"] >= 0.5]
     elif status == "no_match":
-        metrics = [m for m in metrics if m["avg_score"] < 0.2 and m["fallback_count"] > 0]
+        metrics = [
+            m for m in metrics if m["avg_score"] < 0.2 and m["fallback_count"] > 0
+        ]
     elif status == "pending_mutation":
         metrics = [m for m in metrics if m["mutation_status"] == "pending"]
 
@@ -1539,9 +1540,7 @@ def glossary_stats(request, slug):
     from django.db.models import Count
     from memory.models import SymbolicMemoryAnchor
 
-    qs = SymbolicMemoryAnchor.objects.filter(
-        memory_context=assistant.memory_context
-    )
+    qs = SymbolicMemoryAnchor.objects.filter(memory_context=assistant.memory_context)
     stage_counts = qs.values("acquisition_stage").annotate(count=Count("id"))
     result = {"reinforced": 0, "acquired": 0, "exposed": 0, "unseen": 0}
     for row in stage_counts:
@@ -1705,3 +1704,27 @@ def patch_drifted_reflections(request, slug):
         kwargs["limit"] = limit
     call_command("patch_reflection_summaries", **kwargs)
     return Response({"status": "ok"})
+
+
+@api_view(["GET", "POST"])
+@permission_classes([IsAuthenticated])
+def drift_suggestions(request, slug):
+    """List or refresh drift-based glossary suggestions."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    if request.method == "POST":
+        call_command("review_first_message_drift", assistant=slug)
+        return Response({"status": "queued"})
+
+    qs = SuggestionLog.objects.filter(assistant=assistant, status="pending")
+    anchor = request.GET.get("anchor")
+    severity = request.GET.get("severity")
+    if anchor:
+        qs = qs.filter(anchor_slug=anchor)
+    if severity:
+        try:
+            qs = qs.filter(score__gte=float(severity))
+        except ValueError:
+            pass
+    qs = qs.order_by("-created_at")
+    serializer = SuggestionLogSerializer(qs, many=True)
+    return Response({"results": serializer.data})

@@ -29,6 +29,7 @@ import AssistantBootPanel from "../../../components/assistants/AssistantBootPane
 import RagDebugPanel from "../../../components/assistant/RagDebugPanel";
 import RagPlaybackPanel from "../../../components/assistant/RagPlaybackPanel";
 import BadgePreviewPanel from "../../../components/assistant/BadgePreviewPanel";
+import DriftSuggestionsPanel from "../../../components/assistant/DriftSuggestionsPanel";
 import AssistantGlossaryConvergencePanel from "../../../components/assistant/memory/AssistantGlossaryConvergencePanel";
 import VocabularyProgressPanel from "../../../components/assistant/memory/VocabularyProgressPanel";
 import { fetchGlossaryMutations } from "../../../api/agents";
@@ -446,6 +447,14 @@ export default function AssistantDetailPage() {
               onClick={() => setActiveTab("vocab")}
             >
               Vocabulary Progress
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === "self" ? "active" : ""}`}
+              onClick={() => setActiveTab("self")}
+            >
+              Self-Learning
             </button>
           </li>
           <li className="nav-item">
@@ -1111,6 +1120,7 @@ export default function AssistantDetailPage() {
       {activeTab === "vocab" && (
         <VocabularyProgressPanel assistantSlug={assistant.slug} />
       )}
+      {activeTab === "self" && <DriftSuggestionsPanel slug={slug} />}
       {activeTab === "setup" && <AssistantSetupSummary assistantId={slug} />}
       {activeTab === "badges" && <BadgePreviewPanel slug={slug} />}
       <CommonModal
