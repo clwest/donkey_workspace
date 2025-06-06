@@ -15,7 +15,7 @@ export default function MythOSLandingPage() {
       <div className="flex space-x-4">
         <Link to="/register" className="btn btn-success">Get Started</Link>
         <Link to="/login" className="btn btn-primary">Log In</Link>
-        <Link to="/assistants/demo" className="btn btn-secondary">View Demo</Link>
+        <Link to="/assistants-demos" className="btn btn-secondary">View Demo</Link>
         <a href="#features" className="btn btn-outline-light">Learn More</a>
       </div>
       <div id="features" className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl text-center">
