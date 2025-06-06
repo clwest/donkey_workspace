@@ -1546,5 +1546,15 @@ class SymbolicToolkitRegistrySerializer(serializers.ModelSerializer):
 class ReflectionReplayLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReflectionReplayLog
-        fields = "__all__"
+        fields = [
+            "id",
+            "assistant",
+            "original_reflection",
+            "memory_entry",
+            "old_score",
+            "new_score",
+            "reflection_score",
+            "changed_anchors",
+            "created_at",
+        ]
         read_only_fields = ["id", "created_at"]
