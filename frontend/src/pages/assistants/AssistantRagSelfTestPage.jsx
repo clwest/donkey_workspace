@@ -4,7 +4,7 @@ import { runRagSelfTest } from "../../api/assistants";
 
 export default function AssistantRagSelfTestPage() {
   const { slug } = useParams();
-  const [results, setResults] = useState([]);
+  const [data, setData] = useState(null);
   const [running, setRunning] = useState(false);
   const [limit, setLimit] = useState(0);
 
@@ -12,16 +12,17 @@ export default function AssistantRagSelfTestPage() {
     setRunning(true);
     try {
       const res = await runRagSelfTest(slug, limit ? { limit } : undefined);
-      setResults(res.results || res);
+      setData(res);
     } catch (err) {
       console.error("RAG self test failed", err);
-      setResults([]);
+      setData(null);
     } finally {
       setRunning(false);
     }
   };
 
-  const passedCount = results.filter((r) => r.success).length;
+  const results = data?.results || [];
+  const passedCount = results.filter((r) => r.status === "ok").length;
 
   return (
     <div className="container my-5">
@@ -35,34 +36,86 @@ export default function AssistantRagSelfTestPage() {
           value={limit}
           onChange={(e) => setLimit(parseInt(e.target.value) || 0)}
         />
-        <button className="btn btn-primary" onClick={runTest} disabled={running}>
+        <button
+          className="btn btn-primary"
+          onClick={runTest}
+          disabled={running}
+        >
           {running ? "Running..." : "Run RAG Test"}
         </button>
       </div>
-      {results.length > 0 && (
+      {data && (
         <>
-          <p>
-            {passedCount}/{results.length} passed
-          </p>
+          <div className="mb-2 d-flex align-items-center gap-2">
+            <strong>Assistant:</strong> {data.assistant}
+            <span>Anchors tested: {data.tested}</span>
+            <span>Issues: {data.issues_found}</span>
+            <span>Pass rate: {(data.pass_rate * 100).toFixed(1)}%</span>
+            <span>Time: {data.duration.toFixed(1)}s</span>
+            <button
+              className="btn btn-sm btn-secondary"
+              onClick={runTest}
+              disabled={running}
+            >
+              {running ? "Running..." : "Re-run Last Test"}
+            </button>
+            <button
+              className="btn btn-sm btn-outline-primary"
+              onClick={() => {
+                const blob = new Blob([JSON.stringify(data, null, 2)], {
+                  type: "application/json",
+                });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `${slug}_rag_diagnostic.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+            >
+              Export as JSON
+            </button>
+            {data.issues_found > 0 && (
+              <a
+                className="btn btn-sm btn-outline-info"
+                href={`/assistants/${slug}/rag-inspector`}
+              >
+                View in Inspector
+              </a>
+            )}
+          </div>
           <table className="table table-sm">
             <thead>
               <tr>
-                <th>Glossary Term</th>
-                <th>Matched Chunks</th>
-                <th>Fallback</th>
-                <th>Duration</th>
+                <th>Anchor Term</th>
+                <th>Hits</th>
+                <th>Fallbacks</th>
+                <th>Final Score</th>
+                <th>Glossary Boost</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
               {results.map((r, idx) => (
-                <tr
-                  key={idx}
-                  className={r.success ? "table-success" : r.fallback_reason ? "table-warning" : "table-danger"}
-                >
-                  <td>{r.glossary_term}</td>
-                  <td>{(r.matched_chunks || []).length}</td>
-                  <td>{r.fallback_reason || ""}</td>
-                  <td>{r.duration_ms} ms</td>
+                <tr key={idx}>
+                  <td>{r.anchor}</td>
+                  <td>{r.hits}</td>
+                  <td>{r.fallbacks}</td>
+                  <td>{r.final_score.toFixed(3)}</td>
+                  <td>{r.glossary_boost.toFixed(2)}</td>
+                  <td>
+                    {r.status === "ok" && (
+                      <span className="badge bg-success">✅ OK</span>
+                    )}
+                    {r.status === "fallback" && (
+                      <span className="badge bg-warning text-dark">
+                        ⚠️ Fallback
+                      </span>
+                    )}
+                    {r.status === "miss" && (
+                      <span className="badge bg-danger">❌ Miss</span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
