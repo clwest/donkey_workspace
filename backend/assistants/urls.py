@@ -582,10 +582,8 @@ urlpatterns = [
     ),
     path(
         "<slug:slug>/reflect_on_self/",
-
         reflection.reflect_on_self,
         name="assistant-reflect-on-self",
-
     ),
     path(
         "<slug:slug>/self-assess/",
@@ -612,7 +610,6 @@ urlpatterns = [
         memory.rag_playback_detail,
         name="assistant-rag-playback",
     ),
-
     path(
         "<slug:slug>/rag_drift_report/",
         assistants.rag_drift_report,
@@ -838,6 +835,11 @@ urlpatterns = [
         "<slug:slug>/clean_projects/",
         assistants.clean_projects,
         name="assistant-clean-projects",
+    ),
+    path(
+        "<slug:slug>/patch_drifted_reflections/",
+        assistants.patch_drifted_reflections,
+        name="assistant-patch-reflections",
     ),
     path(
         "<uuid:assistant_id>/check-in/",
