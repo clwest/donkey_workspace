@@ -145,6 +145,12 @@ export const suggestMissingGlossaryMutations = (assistant) =>
     body: { assistant },
   });
 
+export const testGlossaryMutations = (assistant) =>
+  apiFetch(`/glossary/mutations/test/`, {
+    method: "POST",
+    body: { assistant },
+  });
+
 export const fetchGlossaryConvergence = (slug) =>
   apiFetch(`/assistants/${slug}/glossary/convergence/`);
 
