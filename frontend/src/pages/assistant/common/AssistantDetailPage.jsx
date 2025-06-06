@@ -418,6 +418,11 @@ export default function AssistantDetailPage() {
               Diagnostics
             </Link>
           </li>
+          <li className="nav-item">
+            <Link className="nav-link" to={`/assistants/${slug}/badges`}>
+              Badges
+            </Link>
+          </li>
         </ul>
         <div className="mt-2">
           <Link to={`/anchor/mutations?assistant=${assistant.slug}`}>
@@ -461,6 +466,16 @@ export default function AssistantDetailPage() {
               <strong>Created:</strong>{" "}
               {new Date(assistant.created_at).toLocaleString()}
             </p>
+            {assistant.skill_badges && assistant.skill_badges.length > 0 && (
+              <p>
+                <strong>Badges:</strong>{" "}
+                {assistant.skill_badges.map((b) => (
+                  <span key={b} className="badge bg-success me-1">
+                    {b}
+                  </span>
+                ))}
+              </p>
+            )}
           </div>
 
           {assistant.current_project ? (
