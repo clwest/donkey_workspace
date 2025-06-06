@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import TagBadge from "../../../components/TagBadge";
+import HintBubble from "../../../components/HintBubble";
+import useAssistantHints from "../../../hooks/useAssistantHints";
 import { suggestAssistant, suggestSwitch, switchAssistant } from "../../../api/assistants";
 
 const AVATAR_EMOJI = {
@@ -38,6 +40,9 @@ export default function ChatWithAssistantPage() {
   const [contextScore, setContextScore] = useState(null);
   const [glossaryWarning, setGlossaryWarning] = useState(null);
   const [anchorWarning, setAnchorWarning] = useState(null);
+  const { hints, dismissHint } = useAssistantHints(slug);
+  const chatHint = hints.find((h) => h.id === "chat_welcome");
+  const showChatWelcome = chatHint && !chatHint.dismissed;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -152,6 +157,9 @@ export default function ChatWithAssistantPage() {
       setMessages(msgs);
       console.log(data);
       setInput("");
+      if (showChatWelcome) {
+        dismissHint("chat_welcome");
+      }
     } catch (err) {
       setError("⚠️ Failed to send message.");
     } finally {
@@ -331,19 +339,31 @@ export default function ChatWithAssistantPage() {
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={handleSend} className="d-flex gap-2">
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Ask something..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          disabled={loading}
-        />
-        <button className="btn btn-success" type="submit" disabled={loading}>
-          {loading ? "Thinking..." : "Send"}
-        </button>
-      </form>
+      <div className="position-relative">
+        {showChatWelcome && (
+          <HintBubble
+            label={chatHint.label}
+            content={chatHint.content}
+            highlightSelector="#chat-input"
+            position={{ top: -80 }}
+            onDismiss={() => dismissHint("chat_welcome")}
+          />
+        )}
+        <form onSubmit={handleSend} className="d-flex gap-2">
+          <input
+            id="chat-input"
+            type="text"
+            className="form-control"
+            placeholder="Ask something..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            disabled={loading}
+          />
+          <button className="btn btn-success" type="submit" disabled={loading}>
+            {loading ? "Thinking..." : "Send"}
+          </button>
+        </form>
+      </div>
       <div className="form-check form-switch mt-2">
         <input
           className="form-check-input"
