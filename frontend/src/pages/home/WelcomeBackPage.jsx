@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import apiFetch from "@/utils/apiClient";
 import OnboardingProgressPanel from "@/components/onboarding/OnboardingProgressPanel";
 
 export default function WelcomeBackPage() {
+  const navigate = useNavigate();
   const [assistants, setAssistants] = useState([]);
   const [status, setStatus] = useState(null);
 
@@ -11,6 +12,12 @@ export default function WelcomeBackPage() {
     apiFetch("/assistants/").then(setAssistants).catch(() => {});
     apiFetch("/auth/user/").then(setStatus).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (status && status.has_assistants === false) {
+      navigate("/assistants/launch", { replace: true });
+    }
+  }, [status, navigate]);
 
   const onboardingIncomplete = status && !status.onboarding_complete;
 

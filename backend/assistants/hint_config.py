@@ -21,4 +21,16 @@ HINTS = [
         "content": "Click any assistant below to start chatting!",
         "location": "/assistants/demo",
     },
+    {
+        "id": "launcher_intro",
+        "label": "Pick an assistant or start fresh",
+        "content": "Browse demos or create your own to begin.",
+        "location": "/assistants/launch",
+    },
+    {
+        "id": "launcher_choose_path",
+        "label": "Personalize",
+        "content": "Already have a tone in mind? Click 'New Assistant' to personalize.",
+        "location": "/assistants/launch",
+    },
 ]
