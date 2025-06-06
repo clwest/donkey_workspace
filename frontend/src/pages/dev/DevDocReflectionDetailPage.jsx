@@ -57,17 +57,28 @@ export default function DevDocReflectionDetailPage() {
           <p><strong>{reflection.summary}</strong></p>
 
           <div className="mb-3">
-            <h6 className="mb-1">Tags:</h6>
-            {reflection.tags?.map((tag, idx) =>
-              typeof tag === "string" ? (
-                <span key={idx} className="badge bg-secondary me-1">
-                  {tag}
-                </span>
-              ) : (
-                <TagBadge key={tag.id || tag.slug || idx} tag={tag} />
-              )
-            )}
+          <h6 className="mb-1">Tags:</h6>
+          {reflection.tags?.map((tag, idx) =>
+            typeof tag === "string" ? (
+              <span key={idx} className="badge bg-secondary me-1">
+                {tag}
+              </span>
+            ) : (
+              <TagBadge key={tag.id || tag.slug || idx} tag={tag} />
+            )
+          )}
           </div>
+
+          {reflection.related_anchors?.length > 0 && (
+            <div className="mb-3">
+              <h6 className="mb-1">Anchors:</h6>
+              {reflection.related_anchors.map((slug) => (
+                <span key={slug} className="badge bg-info me-1">
+                  {slug}
+                </span>
+              ))}
+            </div>
+          )}
 
           <pre className="bg-light p-2 rounded small overflow-auto">
             {reflection.event}

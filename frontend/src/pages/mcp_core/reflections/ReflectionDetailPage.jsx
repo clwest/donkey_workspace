@@ -74,6 +74,17 @@ export default function ReflectionDetailPage() {
         </div>
       )}
 
+      {reflection.related_anchors?.length > 0 && (
+        <div className="mt-2">
+          <span className="text-muted small me-1">🔗 Anchors:</span>
+          {reflection.related_anchors.map((slug) => (
+            <span key={slug} className="badge bg-info me-1">
+              {slug}
+            </span>
+          ))}
+        </div>
+      )}
+
       {thoughts.length > 0 && (
         <details className="mt-4">
           <summary>Related Thoughts ({thoughts.length})</summary>
