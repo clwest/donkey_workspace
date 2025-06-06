@@ -40,6 +40,7 @@ from intel_core.views import intelligence as intel_views
 import memory.views as memory_views
 
 from tts.urls import router as tts_router
+import memory.glossary_mutation_views as gloss_mut_views
 from story.urls import router as story_router
 from videos.urls import router as videos_router
 from images.urls import router as images_router
@@ -200,6 +201,7 @@ urlpatterns = [
     path("glossary/misses/", intel_views.glossary_misses),
     path("api/glossary/boost_anchor/", memory_views.boost_anchor),
     path("api/glossary/mutations/", memory_views.glossary_mutations),
+    path("api/glossary/mutations/suggest-missing/", gloss_mut_views.suggest_missing_mutations),
     path(
         "api/glossary/mutations/<uuid:id>/accept",
         memory_views.accept_glossary_mutation,

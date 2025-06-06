@@ -3,6 +3,7 @@ import warnings
 warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
 from django.urls import path
 from rest_framework.routers import DefaultRouter
+from .glossary_mutation_views import suggest_missing_mutations
 from . import views
 from .views import accept_mutation
 
@@ -111,6 +112,7 @@ urlpatterns = (
             views.glossary_mutations,
             name="glossary-mutations",
         ),
+        path("glossary/mutations/suggest-missing/", suggest_missing_mutations, name="glossary-mutation-suggest-missing"),
         path(
             "glossary/mutations/<uuid:id>/accept",
             views.accept_glossary_mutation,

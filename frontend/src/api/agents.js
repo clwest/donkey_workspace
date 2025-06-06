@@ -139,6 +139,12 @@ export const acceptGlossaryMutation = (id) =>
 export const rejectGlossaryMutation = (id) =>
   apiFetch(`/glossary/mutations/${id}/reject`, { method: "POST" });
 
+export const suggestMissingGlossaryMutations = (assistant) =>
+  apiFetch(`/glossary/mutations/suggest-missing/`, {
+    method: "POST",
+    body: { assistant },
+  });
+
 export const fetchGlossaryConvergence = (slug) =>
   apiFetch(`/assistants/${slug}/glossary/convergence/`);
 
