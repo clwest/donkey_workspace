@@ -35,6 +35,7 @@ export default function useOnboardingTracker() {
     progress: status?.progress,
     nextStep: status?.next_step,
     percent: status?.percent,
+    showIntro: status?.show_intro,
     refreshStatus,
     completeStep,
   };

@@ -113,6 +113,7 @@ urlpatterns = [
 
     path("onboarding/", assistant_onboarding_views.onboarding_create_assistant),
     path("api/onboarding/status/", onboarding_views.onboarding_status),
+    path("api/onboarding/intro/", onboarding_views.onboarding_intro),
     path("api/onboarding/complete/", onboarding_views.onboarding_complete),
     path("api/onboarding/node/<slug:step>/", onboarding_views.onboarding_node_detail),
     path("api/onboarding/glossary_boot/", onboarding_views.glossary_boot),

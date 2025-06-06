@@ -43,6 +43,10 @@ class CustomUser(AbstractUser):
     bio = models.TextField(max_length=500, blank=True)
     birth_date = models.DateField(null=True, blank=True)
     avatar = models.ImageField(upload_to="avatars/", null=True, blank=True)
+    dismissed_onboarding_intro = models.BooleanField(
+        default=False,
+        help_text="User chose to skip the onboarding world intro",
+    )
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -144,8 +148,10 @@ class UserOnboardingProgress(models.Model):
     STEP_CHOICES = [
         ("mythpath", "Mythpath"),
         ("world", "World"),
+        ("glossary", "Glossary"),
         ("archetype", "Archetype"),
         ("summon", "Summon"),
+        ("personality", "Personality"),
         ("wizard", "Wizard"),
         ("ritual", "Ritual"),
     ]
