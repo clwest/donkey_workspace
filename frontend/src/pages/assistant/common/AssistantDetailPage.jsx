@@ -63,6 +63,7 @@ export default function AssistantDetailPage() {
   const [showBoot, setShowBoot] = useState(false);
   const [lastSelfTest, setLastSelfTest] = useState(null);
   const [mutationCount, setMutationCount] = useState(0);
+  const [firstQuestionSummary, setFirstQuestionSummary] = useState(null);
   const [showPrimer, setShowPrimer] = useState(false);
   const { hints, dismissHint } = useAssistantHints(slug);
   const userInfo = useUserInfo();
@@ -137,6 +138,20 @@ export default function AssistantDetailPage() {
       loadMemoryStats();
     }
   }, [slug, refreshKey]);
+
+  useEffect(() => {
+    async function loadFirstQuestions() {
+      try {
+        const data = await apiFetch(`/assistants/${slug}/first_question_stats/`);
+        setFirstQuestionSummary(data);
+      } catch (err) {
+        console.error("Failed to load question stats", err);
+      }
+    }
+    if (slug) {
+      loadFirstQuestions();
+    }
+  }, [slug]);
 
   useEffect(() => {
     if (
@@ -883,6 +898,19 @@ export default function AssistantDetailPage() {
             <div className="alert alert-info mt-2">
               <strong>Memory Entries:</strong> {memoryStats.memories} |{" "}
               <strong>Recent Reflections:</strong> {memoryStats.reflections}
+            </div>
+          )}
+          {firstQuestionSummary && (
+            <div className="alert alert-secondary mt-2">
+              <h6>First Question Summary</h6>
+              <ul className="mb-1">
+                {firstQuestionSummary.top_questions.map((q, i) => (
+                  <li key={i}>{q.text} ({q.count})</li>
+                ))}
+              </ul>
+              <div className="small text-muted">
+                Avg drift: {firstQuestionSummary.avg_drift}
+              </div>
             </div>
           )}
 

@@ -154,6 +154,11 @@ export default function ChatWithAssistantPage() {
           setGlossarySuggestion(null);
         }
       }
+      const first = messages.filter((m) => m.role === "user").length === 0;
+      if (first && msgs.length) {
+        const userIndex = msgs.findIndex((m) => m.role === "user");
+        if (userIndex >= 0) msgs[userIndex].firstUser = true;
+      }
       setMessages(msgs);
       console.log(data);
       setInput("");
@@ -269,12 +274,15 @@ export default function ChatWithAssistantPage() {
       <div className="chat-box border rounded p-3 mb-4 bg-light" style={{ maxHeight: "500px", overflowY: "auto" }}>
         {messages.map((msg, idx) => (
           <div key={idx} className={`mb-4 ${msg.role === "user" ? "text-end" : "text-start"}`}>
-            <div className="d-flex justify-content-between">
-              <span className={`badge ${msg.role === "user" ? "bg-primary" : "bg-secondary"}`}>
-                {msg.role}
-              </span>
-              <small className="text-muted ms-2">{new Date(msg.timestamp).toLocaleString()}</small>
-            </div>
+          <div className="d-flex justify-content-between">
+            <span className={`badge ${msg.role === "user" ? "bg-primary" : "bg-secondary"}`}>
+              {msg.role}
+            </span>
+            {msg.firstUser && (
+              <span className="badge bg-info text-dark ms-2">🎯 First Impression</span>
+            )}
+            <small className="text-muted ms-2">{new Date(msg.timestamp).toLocaleString()}</small>
+          </div>
 
             <div className="mt-2 text-break">
               {msg.content?.split("\n").map((line, i) =>

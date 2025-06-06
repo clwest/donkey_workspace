@@ -23,6 +23,7 @@ from .models.assistant import (
     AssistantSwitchEvent,
     AssistantHandoffLog,
     SpecializationDriftLog,
+    ChatIntentDriftLog,
     DebateSession,
     DebateThoughtLog,
     DebateSummary,
@@ -194,6 +195,12 @@ class SpecializationDriftLogAdmin(admin.ModelAdmin):
     list_display = ("assistant", "drift_score", "trigger_type", "timestamp")
     list_filter = ("trigger_type", "auto_flagged", "resolved")
     search_fields = ("assistant__name", "summary")
+
+
+@admin.register(ChatIntentDriftLog)
+class ChatIntentDriftLogAdmin(admin.ModelAdmin):
+    list_display = ("assistant", "drift_score", "created_at")
+    list_filter = ("assistant",)
 
 
 @admin.register(DelegationStrategy)
