@@ -129,6 +129,7 @@ import ObjectivesPage from "./pages/assistant/objectives/ObjectivesPage";
 import PrimaryAssistantDashboard from "./pages/assistant/dashboard/PrimaryAssistantDashboard";
 import CreatePrimaryAssistantPage from "./pages/assistant/dashboard/CreatePrimaryAssistantPage";
 import AssistantActionDashboardPage from "./pages/assistant/dashboard/AssistantActionDashboardPage";
+import PrimaryAssistantPage from "./pages/assistant/common/PrimaryAssistantPage";
 
 import AssistantSessionDashboardPage from "./pages/assistant/sessions/AssistantSessionDashboardPage";
 import GroupedReflectionsPage from "./pages/mcp_core/reflections/GroupedReflectionsPage";
@@ -389,7 +390,7 @@ export default function App() {
           />
           <Route
             path="/assistants/primary/dashboard"
-            element={<AssistantSessionDashboardPage slug="primary" />}
+            element={<PrimaryAssistantPage />}
           />
 
           {/* Project and Milestone Routes */}
