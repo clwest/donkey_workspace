@@ -25,6 +25,7 @@ export default function AssistantReplayLogsPage() {
             </div>
             <div>
               <Link className="btn btn-sm btn-outline-primary me-2" to={`/assistants/${slug}/replays/${r.id}`}>View</Link>
+              <Link className="btn btn-sm btn-outline-secondary me-2" to={`/assistants/${slug}/rag_playback/compare/${r.id}`}>📊 Compare RAG Playback</Link>
               <span className="badge bg-secondary">
                 {r.new_score?.toFixed ? r.new_score.toFixed(2) : r.new_score}
               </span>

@@ -220,3 +220,4 @@ Route Path,Component
 /ui/motion,MotionTestPage
 /assistants/:slug/glossary,GlossaryConvergencePage
 /assistants/:slug/rag_playback/:id,RAGPlaybackPanel
+/assistants/:slug/rag_playback/compare/:id,RAGPlaybackPanel

@@ -1,19 +1,24 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import apiFetch from "../../utils/apiClient";
+import { useParams, useLocation, Link } from "react-router-dom";
+import apiFetch from "../../../utils/apiClient";
 
 export default function RAGPlaybackPanel() {
   const { slug, id } = useParams();
+  const location = useLocation();
+  const isCompare = location.pathname.includes("/rag_playback/compare/");
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    apiFetch(`/assistants/${slug}/rag_playback/${id}/`)
+    const url = isCompare
+      ? `/assistants/${slug}/rag_playback/compare/${id}/`
+      : `/assistants/${slug}/rag_playback/${id}/`;
+    apiFetch(url)
       .then((res) => setData(res))
       .catch(() => setData(null))
       .finally(() => setLoading(false));
-  }, [slug, id]);
+  }, [slug, id, isCompare]);
 
   if (loading) return <div className="container my-5">Loading...</div>;
   if (!data) return <div className="container my-5">Not found.</div>;
@@ -36,7 +41,7 @@ export default function RAGPlaybackPanel() {
           </tr>
         </thead>
         <tbody>
-          {data.chunks.map((c) => (
+          {(data.chunks || data.replay_chunks || []).map((c) => (
             <tr key={c.id} className={c.fallback_used ? "table-warning" : ""}>
               <td className="small text-muted">{c.id}</td>
               <td>{c.score?.toFixed(2)}</td>
@@ -54,6 +59,29 @@ export default function RAGPlaybackPanel() {
           ))}
         </tbody>
       </table>
+      {data.original_chunks && (
+        <div className="mt-4">
+          <h5>Anchor Drift</h5>
+          <table className="table table-sm">
+            <thead>
+              <tr>
+                <th>Anchor</th>
+                <th>Old</th>
+                <th>New</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.anchor_drift.map((d, i) => (
+                <tr key={i}>
+                  <td>{d.label}</td>
+                  <td>{d.old_score?.toFixed?.(2)}</td>
+                  <td>{d.new_score?.toFixed?.(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
       <Link to={`/assistants/${slug}/replay_reflections`} className="btn btn-secondary">
         Back to Replays
       </Link>

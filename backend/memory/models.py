@@ -695,10 +695,24 @@ class RAGPlaybackLog(models.Model):
         "assistants.Assistant", on_delete=models.CASCADE, related_name="rag_playbacks"
     )
     query = models.TextField()
+    query_term = models.CharField(max_length=255, blank=True, default="")
     memory_context = models.ForeignKey(
         "mcp_core.MemoryContext", on_delete=models.SET_NULL, null=True, blank=True
     )
     chunks = models.JSONField()
+    score_cutoff = models.FloatField(null=True, blank=True)
+    fallback_reason = models.CharField(max_length=100, null=True, blank=True)
+
+    class PlaybackType(models.TextChoices):
+        REFLECTION = "reflection", "Reflection"
+        REPLAY = "replay", "Replay"
+        MANUAL = "manual", "Manual"
+
+    playback_type = models.CharField(
+        max_length=20,
+        choices=PlaybackType.choices,
+        default=PlaybackType.MANUAL,
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
