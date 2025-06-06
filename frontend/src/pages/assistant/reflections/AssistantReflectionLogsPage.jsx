@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { Button } from "react-bootstrap";
 import { toast } from "react-toastify";
 import apiFetch from "../../../utils/apiClient";
 
@@ -42,6 +43,12 @@ export default function AssistantReflectionLogsPage() {
       >
         🌀 Replay Reflections
       </Link>
+      <Button
+        className="mb-4"
+        onClick={() => navigate(`/assistants/${slug}/replay_reflections`)}
+      >
+        View Replays
+      </Button>
       {logs.length === 0 ? (
         <p>No reflections found.</p>
       ) : (

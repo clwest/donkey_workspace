@@ -131,7 +131,7 @@ import ReflectionsPage from "./pages/assistant/reflections/ReflectionsPage";
 import MemoryReflectionPage from "./pages/memories/reflections/MemoryReflectionPage";
 import AssistantReflectPage from "./pages/assistant/reflections/AssistantReflectPage";
 import AssistantReflectionLogsPage from "./pages/assistant/reflections/AssistantReflectionLogsPage";
-import AssistantReplayLogsPage from "./pages/assistant/replays/AssistantReplayLogsPage";
+import AssistantReplayLogsPage from "@/pages/assistant/replays/AssistantReplayLogsPage";
 import FeedbackSummaryPage from "./pages/assistant/feedback/FeedbackSummaryPage";
 import DevDashboard from "./pages/dev/DevDashboard";
 import RoutesDebugPage from "./pages/dev/RoutesDebugPage";
@@ -478,7 +478,7 @@ export default function App() {
             element={<AssistantReflectionLogsPage />}
           />
           <Route
-            path="/assistants/:slug/replays"
+            path="/assistants/:slug/replay_reflections"
             element={<AssistantReplayLogsPage />}
           />
           <Route
