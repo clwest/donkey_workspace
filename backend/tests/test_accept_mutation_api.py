@@ -18,14 +18,14 @@ class AcceptMutationAPITests(TestCase):
         self.anchor = SymbolicMemoryAnchor.objects.create(
             slug="term-x",
             label="Term X",
-            status="pending",
+            mutation_status="pending",
         )
 
     def test_accept_mutation(self):
         resp = self.client.post(f"/api/glossary/mutations/{self.anchor.id}/accept/")
         self.assertEqual(resp.status_code, 200)
         self.anchor.refresh_from_db()
-        self.assertEqual(self.anchor.status, "accepted")
+        self.assertEqual(self.anchor.mutation_status, "accepted")
 
     def test_invalid_id_404(self):
         bad_id = uuid.uuid4()
