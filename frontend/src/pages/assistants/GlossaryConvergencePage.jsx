@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
-import HintBubble from "../components/HintBubble";
-import useAssistantHints from "../hooks/useAssistantHints";
+import HintBubble from "../../components/HintBubble";
+import useAssistantHints from "../../hooks/useAssistantHints";
 
 export default function GlossaryConvergencePage() {
   const { slug } = useParams();
