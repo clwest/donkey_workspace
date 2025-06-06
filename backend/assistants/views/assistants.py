@@ -1464,6 +1464,92 @@ def rag_drift_report(request, slug):
     return Response(data)
 
 
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def glossary_convergence(request, slug):
+    """Return glossary convergence metrics for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    from django.db.models import Avg, Count
+    from django.utils import timezone
+    from datetime import timedelta
+    from memory.models import SymbolicMemoryAnchor, RAGGroundingLog
+
+    anchors = SymbolicMemoryAnchor.objects.filter(
+        memory_context=assistant.memory_context
+    )
+    total = anchors.count()
+
+    logs = RAGGroundingLog.objects.filter(assistant=assistant).exclude(
+        expected_anchor=""
+    )
+    grounded_slugs = (
+        logs.filter(fallback_triggered=False)
+        .values_list("expected_anchor", flat=True)
+        .distinct()
+    )
+    grounded = anchors.filter(slug__in=grounded_slugs).count()
+    failing = total - grounded
+
+    now = timezone.now()
+    mutated_recently = anchors.filter(
+        created_at__gte=now - timedelta(days=7),
+        mutation_source__isnull=False,
+    ).count()
+    inferred_recently = anchors.filter(
+        source="memory_inferred",
+        created_at__gte=now - timedelta(days=7),
+    ).count()
+
+    stats = []
+    for a in anchors:
+        qs = logs.filter(expected_anchor=a.slug)
+        avg = qs.aggregate(avg=Avg("adjusted_score"))["avg"] or 0.0
+        fallbacks = qs.filter(fallback_triggered=True).count()
+        last = qs.order_by("-created_at").first()
+        last_chunk = last.used_chunk_ids[0] if last and last.used_chunk_ids else None
+        slogs = list(qs.order_by("-created_at")[:2])
+        change = "➖"
+        if len(slogs) >= 2:
+            diff = (slogs[0].adjusted_score or 0) - (slogs[1].adjusted_score or 0)
+            if diff > 0:
+                change = "⬆️"
+            elif diff < 0:
+                change = "⬇️"
+        risk = "low"
+        if avg < 0.2 and fallbacks >= 3:
+            risk = "high"
+        elif 0.2 <= avg <= 0.6:
+            risk = "medium"
+        status = "healthy" if a.slug in grounded_slugs else "failing"
+        stats.append(
+            {
+                "label": a.label,
+                "status": status,
+                "mutation_source": a.mutation_source,
+                "mutation_status": a.mutation_status,
+                "avg_score": round(avg, 2),
+                "fallbacks": fallbacks,
+                "last_used_chunk": last_chunk,
+                "change": change,
+                "risk": risk,
+            }
+        )
+
+    convergence = (grounded / total * 100) if total else 0
+
+    return Response(
+        {
+            "total_anchors": total,
+            "grounded": grounded,
+            "failing": failing,
+            "mutated_recently": mutated_recently,
+            "inferred_recently": inferred_recently,
+            "convergence_score": round(convergence, 1),
+            "anchor_stats": stats,
+        }
+    )
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def boost_anchors(request, slug):

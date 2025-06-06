@@ -139,6 +139,9 @@ export const acceptGlossaryMutation = (id) =>
 export const rejectGlossaryMutation = (id) =>
   apiFetch(`/glossary/mutations/${id}/reject`, { method: "POST" });
 
+export const fetchGlossaryConvergence = (slug) =>
+  apiFetch(`/assistants/${slug}/glossary/convergence/`);
+
 export const fetchMythRecordingSessions = () => apiFetch("/myth/record/");
 export const createMythRecordingSession = (body) =>
   apiFetch("/myth/record/", { method: "POST", body });

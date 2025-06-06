@@ -218,3 +218,4 @@ Route Path,Component
 /timeline/memory,MemoryTimelinePage
 /treaty/forge,TreatyForgePage
 /ui/motion,MotionTestPage
+/assistants/:slug/glossary,GlossaryConvergencePage
