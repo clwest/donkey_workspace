@@ -103,6 +103,11 @@ class Assistant(models.Model):
     preferred_scene_tags = ArrayField(
         models.CharField(max_length=50), default=list, blank=True
     )
+    skill_badges = ArrayField(
+        models.CharField(max_length=64), default=list, blank=True
+    )
+    primary_badge = models.CharField(max_length=64, null=True, blank=True)
+    glossary_score = models.IntegerField(default=0)
     preferred_model = models.CharField(max_length=100, default="gpt-4o")
     memory_mode = models.CharField(
         max_length=200, choices=MEMORY_MODES, default="long_term"

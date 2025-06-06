@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 
 from assistants.models.assistant import Assistant
 
@@ -17,6 +18,11 @@ class TaskAssignment(models.Model):
         Assistant,
         on_delete=models.CASCADE,
         related_name="task_assignments_received",
+    )
+    required_badges = ArrayField(
+        models.CharField(max_length=64),
+        default=list,
+        blank=True,
     )
     description = models.TextField()
     status = models.CharField(max_length=20, default="pending")

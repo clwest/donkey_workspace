@@ -754,6 +754,8 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             "glossary_health_index",
             "child_assistants",
             "skills",
+            "skill_badges",
+            "primary_badge",
             "drift_logs",
             "recent_drift",
             "source_document_title",
@@ -1230,6 +1232,8 @@ class AssistantSerializer(serializers.ModelSerializer):
             "tags",
             "empathy_tags",
             "preferred_scene_tags",
+            "skill_badges",
+            "primary_badge",
         ]
 
     def get_trust(self, obj):
