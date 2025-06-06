@@ -8,7 +8,7 @@ const html = renderToStaticMarkup(
     <AssistantRagSelfTestPage />
   </MemoryRouter>
 );
-if (!html.includes("RAG Diagnostic Runner")) {
+if (!html.includes("RAG Diagnostics")) {
   throw new Error("AssistantRagSelfTestPage render failed");
 }
 console.log("AssistantRagSelfTestPage test passed");
