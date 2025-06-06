@@ -8,7 +8,7 @@ export default function ProfilePage() {
   useEffect(() => {
     async function loadProfile() {
       try {
-        const data = await apiFetch("/dj-rest-auth/user/");
+        const data = await apiFetch("/auth/user/");
         setProfile(data);
       } catch {
         toast.error("❌ Failed to load profile");
@@ -24,7 +24,7 @@ export default function ProfilePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await apiFetch("/dj-rest-auth/user/", {
+      await apiFetch("/auth/user/", {
         method: "PUT",
         body: profile,
       });

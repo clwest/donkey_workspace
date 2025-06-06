@@ -23,6 +23,21 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
+def auth_user(request):
+    """Return basic user auth info."""
+    assistants = Assistant.objects.filter(created_by=request.user)
+    return Response(
+        {
+            "is_authenticated": True,
+            "username": request.user.username,
+            "email": request.user.email,
+            "onboarding_complete": get_next_onboarding_step(request.user) is None,
+            "has_assistants": assistants.exists(),
+        }
+    )
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def me_assistant(request):
     assistant = getattr(request.user, "personal_assistant", None)
     if not assistant:

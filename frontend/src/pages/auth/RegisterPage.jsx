@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import apiFetch from "../../utils/apiClient";
+import { registerUser } from "@/api/auth";
 
 export default function RegisterPage() {
   const [username, setUsername] = useState("");
@@ -17,19 +18,12 @@ export default function RegisterPage() {
       return;
     }
     try {
-      await apiFetch("/dj-rest-auth/registration/", {
-        method: "POST",
-        body: { username, email, password1, password2 },
+      await registerUser({
+        username,
+        email,
+        password1,
+        password2,
       });
-
-      // Automatically log in to obtain auth tokens
-      const loginData = await apiFetch("/dj-rest-auth/login/", {
-        method: "POST",
-        body: { username, password: password1 },
-      });
-
-      if (loginData.access) localStorage.setItem("access", loginData.access);
-      if (loginData.refresh) localStorage.setItem("refresh", loginData.refresh);
 
       toast.success("✅ Registered!");
       navigate("/onboarding/world");

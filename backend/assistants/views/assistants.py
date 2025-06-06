@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework import viewsets
 import uuid
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from rest_framework import status
@@ -96,7 +96,7 @@ class AssistantViewSet(viewsets.ModelViewSet):
 
     queryset = Assistant.objects.all()
     serializer_class = AssistantSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     lookup_field = "slug"
 
     def list(self, request, *args, **kwargs):
@@ -395,7 +395,7 @@ class AssistantViewSet(viewsets.ModelViewSet):
 
 
 @api_view(["GET", "POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def assistants_view(request):
     warnings.warn(
         "assistants_view is deprecated; use AssistantViewSet instead",
@@ -406,7 +406,7 @@ def assistants_view(request):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def assistant_detail_view(request, slug):
     warnings.warn(
         "assistant_detail_view is deprecated; use AssistantViewSet instead",
@@ -424,7 +424,7 @@ def assistant_detail_view(request, slug):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def primary_assistant_view(request):
     warnings.warn(
         "primary_assistant_view is deprecated; use AssistantViewSet.primary",
@@ -435,7 +435,7 @@ def primary_assistant_view(request):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def primary_reflect_now(request):
     """Trigger immediate reflection for the primary assistant."""
     warnings.warn(
@@ -447,7 +447,7 @@ def primary_reflect_now(request):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def primary_spawn_agent(request):
     """Spawn a delegated assistant from memory using the primary assistant."""
     warnings.warn(
@@ -459,7 +459,7 @@ def primary_spawn_agent(request):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def create_assistant_from_thought(request):
     data = request.data
     required = [
@@ -549,7 +549,7 @@ def create_assistant_from_thought(request):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def assistant_from_documents(request):
     """Create an assistant from one or more Documents."""
     data = request.data
@@ -655,7 +655,7 @@ def assistant_from_documents(request):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def chat_with_assistant_view(request, slug):
     assistant = get_object_or_404(Assistant, slug=slug)
     user = request.user if request.user.is_authenticated else None
@@ -967,7 +967,7 @@ def flush_chat_session(request, slug):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def demo_assistant(request):
     assistant = Assistant.objects.filter(is_demo=True)
     data = [
@@ -983,7 +983,7 @@ def demo_assistant(request):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def add_document_to_assistant(request, slug):
     """Attach an existing Document to an Assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
@@ -1156,7 +1156,7 @@ def self_assess(request, slug):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def drift_check(request, slug):
     assistant = get_object_or_404(Assistant, slug=slug)
     from assistants.utils.drift_detection import analyze_drift_for_assistant
@@ -1395,7 +1395,7 @@ def failure_log(request, slug):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def rag_grounding_logs(request, slug):
     """Return recent RAG grounding logs for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
@@ -1416,7 +1416,7 @@ def rag_grounding_logs(request, slug):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def rag_drift_report(request, slug):
     """Return aggregated fallback scores for glossary anchors."""
     assistant = get_object_or_404(Assistant, slug=slug)
@@ -1460,7 +1460,7 @@ def rag_drift_report(request, slug):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def anchor_health(request, slug):
     """Return glossary anchor health metrics for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
@@ -1480,7 +1480,7 @@ def anchor_health(request, slug):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def glossary_stats(request, slug):
     """Return acquisition stage counts for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
@@ -1499,7 +1499,7 @@ def glossary_stats(request, slug):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def glossary_convergence(request, slug):
     """Return glossary convergence metrics for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
@@ -1585,7 +1585,7 @@ def glossary_convergence(request, slug):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def boost_anchors(request, slug):
     """Boost glossary anchors for an assistant."""
     get_object_or_404(Assistant, slug=slug)
@@ -1603,7 +1603,7 @@ def boost_anchors(request, slug):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def suggest_glossary_anchor(request, slug):
     """Proxy anchor suggestion to intel debug view with assistant context."""
     get_object_or_404(Assistant, slug=slug)
@@ -1628,7 +1628,7 @@ def assistant_lineage(request, slug):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def clean_memories(request, slug):
     """Purge weak recent memories for an assistant."""
     call_command("clean_recent_memories", assistant=slug)
@@ -1636,7 +1636,7 @@ def clean_memories(request, slug):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def clean_projects(request, slug):
     """Remove stale assistant projects."""
     call_command("clean_linked_projects", assistant=slug)
@@ -1644,7 +1644,7 @@ def clean_projects(request, slug):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def patch_drifted_reflections(request, slug):
     """Patch reflection summaries that drifted after glossary updates."""
     limit = request.data.get("limit")

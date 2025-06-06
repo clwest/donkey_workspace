@@ -9,7 +9,7 @@ export default function WelcomeBackPage() {
 
   useEffect(() => {
     apiFetch("/assistants/").then(setAssistants).catch(() => {});
-    apiFetch("/user/").then(setStatus).catch(() => {});
+    apiFetch("/auth/user/").then(setStatus).catch(() => {});
   }, []);
 
   const onboardingIncomplete = status && !status.onboarding_complete;

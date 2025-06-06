@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 import logging
 
 from rest_framework import status, viewsets
@@ -585,7 +585,7 @@ def assistant_thought_map(request, slug):
 
 
 class AssistantThoughtLogListView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, slug):
         assistant = get_object_or_404(Assistant, slug=slug)

@@ -1,16 +1,14 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import apiFetch from "../../utils/apiClient";
+import { logoutUser } from "@/api/auth";
 
 export default function LogoutPage() {
   const navigate = useNavigate();
   useEffect(() => {
     async function doLogout() {
       try {
-        await apiFetch("/dj-rest-auth/logout/", { method: "POST" });
-        localStorage.removeItem("access");
-        localStorage.removeItem("refresh");
+        logoutUser();
         toast.success("✅ Logged out");
       } catch {
         toast.error("❌ Logout failed");
