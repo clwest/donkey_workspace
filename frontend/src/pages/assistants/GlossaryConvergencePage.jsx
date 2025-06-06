@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
 import HintBubble from "../../components/HintBubble";
 import useAssistantHints from "../../hooks/useAssistantHints";
+import TourProgressBar from "../../components/onboarding/TourProgressBar";
 
 export default function GlossaryConvergencePage() {
   const { slug } = useParams();
@@ -42,6 +43,7 @@ export default function GlossaryConvergencePage() {
   return (
     <div className="container my-5">
       <h2 className="mb-3">Glossary Convergence</h2>
+      <TourProgressBar assistantSlug={slug} />
       <div className="mb-2 d-flex gap-2">
         <input
           className="form-control"

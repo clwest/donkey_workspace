@@ -869,6 +869,11 @@ urlpatterns = [
         name="assistant-hint-dismiss",
     ),
     path(
+        "<slug:slug>/tour_progress/",
+        hints.tour_progress,
+        name="assistant-tour-progress",
+    ),
+    path(
         "<slug:slug>/clean_memories/",
         assistants.clean_memories,
         name="assistant-clean-memories",

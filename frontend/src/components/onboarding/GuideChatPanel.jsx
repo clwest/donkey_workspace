@@ -2,6 +2,7 @@ import { useState } from "react";
 import apiFetch from "@/utils/apiClient";
 import useUserInfo from "@/hooks/useUserInfo";
 import useAssistantHints from "@/hooks/useAssistantHints";
+import TourProgressBar from "./TourProgressBar";
 
 const QUICK_PROMPTS = [
   "What's a MythPath?",
@@ -68,6 +69,7 @@ export default function GuideChatPanel() {
           <button type="button" className="btn-close" onClick={dismiss}></button>
         </div>
         <div className="card-body" style={{ maxHeight: "260px", overflowY: "auto" }}>
+          <TourProgressBar assistantSlug="primary" />
           {messages.map((m, idx) => (
             <div key={idx} className="mb-2 small">
               {m.content}

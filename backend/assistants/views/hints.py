@@ -20,6 +20,7 @@ def _get_demo_assistant(user):
 
 from assistants.models import Assistant, AssistantHintState
 from assistants.hint_config import HINTS
+from assistants.utils.hints import get_next_hint_for_user
 
 
 @api_view(["GET"])
@@ -58,5 +59,26 @@ def dismiss_hint(request, slug, hint_id):
     )
     obj.dismissed = True
     obj.seen_at = timezone.now()
+    obj.completed_at = timezone.now()
     obj.save()
     return Response({"status": "dismissed"})
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def tour_progress(request, slug):
+    """Return progress data for the assistant's hint tour."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    states = AssistantHintState.objects.filter(user=request.user, assistant=assistant)
+    completed = {s.hint_id for s in states if s.completed_at}
+    total = len(HINTS)
+    next_hint = get_next_hint_for_user(assistant, request.user)
+    percent = int((len(completed) / total) * 100) if total else 0
+    return Response(
+        {
+            "total": total,
+            "completed": len(completed),
+            "next_hint": next_hint,
+            "percent_complete": percent,
+        }
+    )
