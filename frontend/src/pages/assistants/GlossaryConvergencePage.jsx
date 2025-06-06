@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
 
 export default function GlossaryConvergencePage() {
@@ -27,6 +27,20 @@ export default function GlossaryConvergencePage() {
   return (
     <div className="container my-5">
       <h2 className="mb-3">Glossary Convergence</h2>
+      <div className="d-flex justify-content-end gap-2 mb-2">
+        <Link
+          to={`/anchor/symbolic?assistant=${slug}`}
+          className="btn btn-sm btn-outline-secondary"
+        >
+          🧠 Symbolic Glossary Editor
+        </Link>
+        <Link
+          to={`/anchor/mutations?assistant=${slug}`}
+          className="btn btn-sm btn-outline-primary"
+        >
+          🧪 Review Mutation Suggestions
+        </Link>
+      </div>
       <button className="btn btn-outline-primary mb-3" onClick={load} disabled={loading}>
         {loading ? "Refreshing..." : "Refresh"}
       </button>

@@ -26,6 +26,7 @@ import AssistantBootPanel from "../../../components/assistants/AssistantBootPane
 import RagDebugPanel from "../../../components/assistant/RagDebugPanel";
 import RagPlaybackPanel from "../../../components/assistant/RagPlaybackPanel";
 import AssistantGlossaryConvergencePanel from "../../../components/assistant/memory/AssistantGlossaryConvergencePanel";
+import { fetchGlossaryMutations } from "../../../api/agents";
 
 export default function AssistantDetailPage() {
   const { slug } = useParams();
@@ -48,6 +49,7 @@ export default function AssistantDetailPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [showBoot, setShowBoot] = useState(false);
   const [lastSelfTest, setLastSelfTest] = useState(null);
+  const [mutationCount, setMutationCount] = useState(0);
   const threadId = query.get("thread");
   const projectId = query.get("project");
   const memoryId = query.get("memory");
@@ -83,6 +85,23 @@ export default function AssistantDetailPage() {
 
   useEffect(() => {
     reloadAssistant();
+  }, [slug]);
+
+  useEffect(() => {
+    async function loadMutationCount() {
+      try {
+        const res = await fetchGlossaryMutations({ assistant: slug });
+        const items = res.results || res;
+        const pending = items.filter((m) => m.status === "pending").length;
+        setMutationCount(pending);
+      } catch (err) {
+        console.error("Failed to load mutations", err);
+        setMutationCount(0);
+      }
+    }
+    if (slug) {
+      loadMutationCount();
+    }
   }, [slug]);
 
   useEffect(() => {
@@ -335,6 +354,16 @@ export default function AssistantDetailPage() {
           <li className="nav-item">
             <Link className="nav-link" to={`/assistants/${slug}/rag-drift`}>
               Glossary Drift
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link className="nav-link" to={`/assistants/${slug}/glossary`}>
+              📘 Glossary
+              {mutationCount > 0 && (
+                <span className="badge bg-warning text-dark ms-1">
+                  💬 {mutationCount}
+                </span>
+              )}
             </Link>
           </li>
           <li className="nav-item">

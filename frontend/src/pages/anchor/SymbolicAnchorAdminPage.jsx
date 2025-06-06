@@ -1,15 +1,21 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
 
 export default function SymbolicAnchorAdminPage() {
   const [anchors, setAnchors] = useState([]);
   const [savingId, setSavingId] = useState(null);
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    apiFetch("/memory/symbolic-anchors/")
+    const assistant = searchParams.get("assistant");
+    const url = assistant
+      ? `/memory/symbolic-anchors/?assistant=${assistant}&show_empty=true`
+      : "/memory/symbolic-anchors/";
+    apiFetch(url)
       .then((d) => setAnchors(d.results || d))
       .catch(() => setAnchors([]));
-  }, []);
+  }, [searchParams]);
 
   const handleChange = (id, value) => {
     setAnchors(
