@@ -1,0 +1,61 @@
+{
+  "$schema": "https://codex.openai.com/schemas/v1/config.schema.json",
+  "project_name": "donkey_workspace",
+  "primary_language": "python",
+  "frameworks": ["django", "react", "vite"],
+  "api_style": "REST",
+  "entry_points": {
+    "backend": "backend/manage.py",
+    "frontend": "frontend/src/App.jsx"
+  },
+  "environment": {
+    "python_version": "3.11",
+    "package_manager": "pip",
+    "venv_path": ".venv"
+  },
+  "directories": {
+    "backend": "backend/",
+    "frontend": "frontend/",
+    "migrations": "*/migrations/",
+    "tests": ["backend/tests/", "frontend/tests/"]
+  },
+  "testing": {
+    "backend": "pytest",
+    "frontend": "jest"
+  },
+  "linting": {
+    "backend": "flake8",
+    "frontend": "eslint"
+  },
+  "code_style": {
+    "python": "black",
+    "javascript": "prettier"
+  },
+  "special_behaviors": [
+    "All assistant and glossary-related routes must be registered in App.jsx",
+    "Ensure all new CLI commands are idempotent and discoverable via manage.py help",
+    "Reflections, glossary terms, and replays must be traceable via assistant slug",
+    "Never mutate models directly without migrations"
+  ],
+  "related_documents": [
+    "AGENTS.md",
+    "GOALS.md",
+    "README.md",
+    "PREP.md",
+    "MythOS.md",
+    "MythOS-Route.md",
+    "SystemOverview.md"
+  ],
+  "task_guidelines": {
+    "reflection_debug": {
+      "preferred_view": "ReflectionReplayLogsView",
+      "log_model": "ReflectionReplayLog",
+      "diff_helper": "score_reflection_diff"
+    },
+    "glossary_workflows": {
+      "mutation_model": "SymbolicMemoryAnchor",
+      "reinforcement_model": "AnchorReinforcementLog",
+      "required_routes": ["/anchor/symbolic", "/anchor/mutations"]
+    }
+  }
+}

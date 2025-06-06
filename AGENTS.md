@@ -1,111 +1,85 @@
-# 🧠 AGENTS.md — Donkey Workspace Codex System Guide
-
-> Updated: 2025-06-04  
-> Phase: Ω.9.25 Complete — Moving into Ω.9.26: System Sync & Memory UI Polish
+# 🧠 AGENTS.md — Codex Protocol Manifest (2025-06-06)
 
 ---
 
-## 🔁 Codex Integration Philosophy
+## 🔧 AGENT_PROTOCOL
 
-Codex is your co-pilot — it writes, audits, routes, tests, reflects, and syncs the frontend/backend state. Its job is to follow **clear protocols** and **phase guides** to complete feature cycles **without dangling endpoints or unlinked UIs**.
+codename: codex
 
-All Codex tasks should conform to the following expectations:
+capabilities:
 
-- ✅ Routes must be visible in `/dev/route-health`
-- ✅ Routes must have a `name` and linkable `view/module`
-- ✅ Routes must be **discoverable** from the frontend (`App.jsx`, navbars, dashboards)
-- ✅ Any assistant action (reflect, ingest, delegate) must be loggable, testable, and navigable
-- ✅ If a feature has UI components, it must be **connected** to the app via buttons, tabs, or navigation links
+- route_registration
+- glossary_mutation
+- reflection_replay
+- chunk_repair
+- assistant_debug_panel_linkage
 
----
+rules:
 
-## 🗂️ Project Components
-
-- **Assistants** – persistent agents with memory, projects, and reasoning tools
-- **Prompts** – reusable templates with tones, tokens, embeddings
-- **Memory** – full transcript logging, memory chains, reflection summaries
-- **Intel** – document ingestion, smart chunking, glossary tagging, and RAG vector search
-- **Projects** – goals, tasks, milestones, delegation chains
-- **Codex** – the active dev agent performing tests, patching routes, building dashboards
+- all new frontend routes must be registered in `App.jsx`
+- assistant pages must be reachable via buttons, tabs, or nav
+- fallback prompts must auto-resolve from `Prompt` model
+- glossary anchors must support mutation, override, protection
+- replay reflections must generate visible diffs
 
 ---
 
-## ✅ Completed Phases (Highlights)
+## 📜 PHASE_HISTORY
 
-- Ω.9.6.b: Context Sync Enforcement + Reflection Fixes
-- Ω.9.10: Clean Memory, Stale Projects, Repair Contexts
-- Ω.9.15: Codex Sync + Assistant State Freeze + Capability Diagnostic
-- Ω.9.16: RAG Repair + Prompt Reload Enforcement
-- Ω.9.17: Memory + Embedding Link Audit
-- Ω.9.19: Delegation Trace Routing + Reflection Diagnostics
-- Ω.9.20: Reflection Summary Enrichment + Delegation Scope Tags
-- Ω.9.21: Delegation Summary Engine + Transcript Sync
-- Ω.9.22: Self-Reflection/Delegation Summary API + Route Registration
-- Ω.9.25: Route Inspector + App.jsx Link Auditor
-
----
-
-## 🔎 Active UI Dashboards
-
-| Tool                       | Route                    | Linked?                                   |
-| -------------------------- | ------------------------ | ----------------------------------------- |
-| Route Health               | `/dev/route-health`      | ✅ Yes                                    |
-| Assistant Boot Diagnostics | `/assistants/boot/`      | ✅ Yes                                    |
-| Glossary Usage             | `/intel/glossary`        | ✅ Yes                                    |
-| Template Drift             | `/dev/templates`         | ✅ Yes                                    |
-| Delegation Summary Panel   | `/assistants/:slug/`     | ✅ Yes                                    |
-| Sub-Agent Reflections      | `/subagent_reflect/:id/` | 🟡 Manual only (link in delegation trace) |
-| Self Reflection Trigger    | `/reflect_on_self/`      | ✅ Yes (via Assistant page)               |
-| Intel Debug Tools          | `/intel/debug/`          | ❌ Unlinked                               |
-| Chunk Scores + Anchors     | `/intel/chunk-stats/`    | ✅ Yes                                    |
-| MythGraph + Simulation     | `/codex/strategy`        | ❌ Unlinked                               |
-| All App.jsx Routes         | `/dev/app-routes`        | ✅ Yes (post Ω.9.25)                      |
+- Ω.9.28 — RAG Debug Inspector
+- Ω.9.29 — Glossary Drift Repair Sweep
+- Ω.9.30 — Symbolic Anchor Viewer
+- Ω.9.31 — Mutation Review Panel
+- Ω.9.32 — Reflection Replay CLI
+- Ω.9.33 — Glossary Miss Self-Test
+- Ω.9.34 — Scoped RAG Retrieval
+- Ω.9.35 — Anchor Suggestion Logger
+- Ω.9.36 — Glossary Score Inspector
+- Ω.9.37 — Boost Score Diagnostics
+- Ω.9.38 — Mutation Generator with GPT
+- Ω.9.39 — Mutation Review UI
+- Ω.9.40 — Symbolic Anchor Metadata
+- Ω.9.41 — Glossary Panel on Assistant View
+- Ω.9.42 — Protect Flag, Explanations, Toggle UI
+- Ω.9.43 — Reflection Prompt Fallback Catcher
+- Ω.9.44 — Reflection Replay Logging + CLI
+- Ω.9.45 — Anchor Reinforcement Log + Score Impact
+- Ω.9.46 — Reflection Replay Routing + Nav Button
 
 ---
 
-## 🧩 Codex Protocol Reminders
+## 🌟 ACTIVE_OBJECTIVES
 
-1. **Every Route Must Be Registered**
+### phase: Ω.9.47
 
-   - All endpoints must be routed through `urls.py`, named, and visible in `/dev/route-health`.
+**title**: Reflection Replay Drift Viewer
 
-2. **Frontend Links Required**
+**tasks:**
 
-   - Every page in `App.jsx` must have a discoverable link in a navbar, dashboard, or dev panel.
+- [ ] Show side-by-side original and replayed reflection summaries
+- [ ] Display glossary anchors matched before vs after
+- [ ] Highlight fallback delta and glossary convergence
+- [ ] Let user accept updated replay or revert to original
+- [ ] Show reasoning tag for "why reflection changed"
 
-3. **Reflective RAG Flow Must Trigger:**
+**route:** `/assistants/:slug/replays`
 
-   - After document ingest, `/assistants/:id/review-ingest/:doc_id/` should call:
-     - `get_relevant_chunks()`
-     - `reflect_on_document()`
-     - `summarize_chunks_into_memory()`
-     - optionally `build_agent_spawn_artifact()`
-
-4. **Memory Validation**
-
-   - Every `MemoryEntry` must have:
-     - `assistant`, `context`
-     - a non-empty `summary` or `full_transcript`
-     - tagged anchor if glossary-linked
-     - accurate timestamps and types (`reflection`, `delegation`, `conversation`, etc.)
-
-5. **Glossary Anchors**
-   - Chunks with `glossary_score = 0` must trigger glossary miss handling.
-   - Anchor miss counts are visible in `/intel/glossary`.
+**priority:** critical
 
 ---
 
-## 📌 Next Suggested Phases
+## 🔍 DASHBOARDS & ROUTES
 
-### Phase Ω.9.26 — System Sync & Memory UI Polish
-
-- Fix sub-agent reflection buttons and route checks
-- Add link from Assistant page to view full Delegation Summary
-- Polish linked projects table (currently broken)
-- Improve “Recent Memories” panel to filter/sort by type or importance
-- Move Intel Debug Tools to sidebar or top nav
-- Add Test Route buttons to `/dev/route-health`
+| Tool / Panel             | Route                           | Linked? |
+| ------------------------ | ------------------------------- | ------- |
+| Symbolic Glossary Viewer | `/anchor/symbolic`              | ✅ Yes  |
+| Glossary Mutation Panel  | `/anchor/mutations`             | ✅ Yes  |
+| Reflection Logs          | `/assistants/:slug/reflections` | ✅ Yes  |
+| Reflection Replays       | `/assistants/:slug/replays`     | ✅ Yes  |
+| RAG Debug Inspector      | `/assistants/:slug/rag_debug`   | ✅ Yes  |
+| Codex Evolution Hub      | `/codex/evolve`                 | ✅ Yes  |
+| Route Health Dashboard   | `/dev/route-health`             | ✅ Yes  |
 
 ---
 
-Save this as `AGENTS.md` at the root of the monorepo. Let me know if you want it exported as a `.md` file right now.
+Codex should treat this file as a system contract. If `AGENTS.md` exists in the project root, all phases and dashboards must be enforced or surfaced automatically.
