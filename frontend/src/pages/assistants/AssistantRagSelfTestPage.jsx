@@ -1,6 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { runRagSelfTest } from "../../api/assistants";
+import { toast } from "react-toastify";
+import {
+  runRagDiagnostics,
+  fetchRagDiagnostics,
+} from "../../api/assistants";
 
 export default function AssistantRagSelfTestPage() {
   const { slug } = useParams();
@@ -8,25 +12,48 @@ export default function AssistantRagSelfTestPage() {
   const [running, setRunning] = useState(false);
   const [limit, setLimit] = useState(0);
 
+  const load = async () => {
+    try {
+      const res = await fetchRagDiagnostics(slug);
+      setData(res);
+    } catch {
+      setData(null);
+    }
+  };
+
+  useEffect(() => {
+    load();
+  }, [slug]);
+
   const runTest = async () => {
     setRunning(true);
     try {
-      const res = await runRagSelfTest(slug, limit ? { limit } : undefined);
+      const res = await runRagDiagnostics(slug, limit ? { limit } : undefined);
       setData(res);
+      toast.success(`✅ RAG diagnostics completed for ${data?.assistant || slug}`);
     } catch (err) {
-      console.error("RAG self test failed", err);
-      setData(null);
+      console.error("RAG diagnostics failed", err);
+      toast.error("Diagnostics failed");
     } finally {
       setRunning(false);
     }
   };
 
-  const results = data?.results || [];
-  const passedCount = results.filter((r) => r.status === "ok").length;
+  const results = data?.anchor_stats || data?.results || [];
+
+  const header = {
+    total: results.length,
+    pending: results.filter((r) => r.mutation_status === "pending").length,
+    fallbacks: results.filter((r) => r.fallbacks > 0).length,
+    drifted: results.filter((r) => r.status && r.status !== "healthy").length,
+    avgScore:
+      results.reduce((acc, r) => acc + (r.avg_score || 0), 0) /
+        (results.length || 1),
+  };
 
   return (
     <div className="container my-5">
-      <h2 className="mb-3">RAG Diagnostic Runner</h2>
+      <h2 className="mb-3">RAG Diagnostics</h2>
       <div className="d-flex align-items-center mb-3 gap-2">
         <label className="form-label mb-0">Limit</label>
         <input
@@ -43,21 +70,14 @@ export default function AssistantRagSelfTestPage() {
         >
           {running ? "Running..." : "Run RAG Test"}
         </button>
-      </div>
-      {data && (
-        <>
-          <div className="mb-2 d-flex align-items-center gap-2">
-            <strong>Assistant:</strong> {data.assistant}
-            <span>Anchors tested: {data.tested}</span>
-            <span>Issues: {data.issues_found}</span>
-            <span>Pass rate: {(data.pass_rate * 100).toFixed(1)}%</span>
-            <span>Time: {data.duration.toFixed(1)}s</span>
+        {data && (
+          <>
             <button
               className="btn btn-sm btn-secondary"
               onClick={runTest}
               disabled={running}
             >
-              {running ? "Running..." : "Re-run Last Test"}
+              {running ? "Running..." : "Re-run"}
             </button>
             <button
               className="btn btn-sm btn-outline-primary"
@@ -68,54 +88,64 @@ export default function AssistantRagSelfTestPage() {
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement("a");
                 a.href = url;
-                a.download = `${slug}_rag_diagnostic.json`;
+                a.download = `${slug}_rag_diagnostics.json`;
                 a.click();
                 URL.revokeObjectURL(url);
               }}
             >
-              Export as JSON
+              Download JSON
             </button>
-            {data.issues_found > 0 && (
-              <a
-                className="btn btn-sm btn-outline-info"
-                href={`/assistants/${slug}/rag-inspector`}
-              >
-                View in Inspector
-              </a>
-            )}
+          </>
+        )}
+      </div>
+      {data && (
+        <>
+          <div className="mb-3">
+            <span className="me-3">
+              <strong>Total Anchors Tested:</strong> {header.total}
+            </span>
+            <span className="me-3">
+              <strong>Terms with Mutation Suggestions:</strong> {header.pending}
+            </span>
+            <span className="me-3">
+              <strong>Terms with Fallbacks:</strong> {header.fallbacks}
+            </span>
+            <span className="me-3">
+              <strong>Drifted Anchors:</strong> {header.drifted}
+            </span>
+            <span>
+              <strong>Average Glossary Score:</strong> {header.avgScore.toFixed(2)}
+            </span>
           </div>
           <table className="table table-sm">
             <thead>
               <tr>
-                <th>Anchor Term</th>
-                <th>Hits</th>
-                <th>Fallbacks</th>
-                <th>Final Score</th>
-                <th>Glossary Boost</th>
-                <th>Status</th>
+                <th>Glossary Term</th>
+                <th>Anchor Status</th>
+                <th>Mutation Status</th>
+                <th>Avg Score</th>
+                <th>Fallback Count</th>
+                <th>Mutation Score Delta</th>
               </tr>
             </thead>
             <tbody>
               {results.map((r, idx) => (
-                <tr key={idx}>
-                  <td>{r.anchor}</td>
-                  <td>{r.hits}</td>
-                  <td>{r.fallbacks}</td>
-                  <td>{r.final_score.toFixed(3)}</td>
-                  <td>{r.glossary_boost.toFixed(2)}</td>
-                  <td>
-                    {r.status === "ok" && (
-                      <span className="badge bg-success">✅ OK</span>
-                    )}
-                    {r.status === "fallback" && (
-                      <span className="badge bg-warning text-dark">
-                        ⚠️ Fallback
-                      </span>
-                    )}
-                    {r.status === "miss" && (
-                      <span className="badge bg-danger">❌ Miss</span>
-                    )}
-                  </td>
+                <tr
+                  key={idx}
+                  className={
+                    r.status === "failing"
+                      ? "table-danger"
+                      : r.fallbacks > 2
+                      ? "table-warning"
+                      : "table-success"
+                  }
+                >
+                  <td>{r.label || r.anchor}</td>
+                  <td>{r.status || "-"}</td>
+                  <td>{r.mutation_status || "none"}</td>
+                  <td>{(r.avg_score ?? r.final_score)?.toFixed(2)}</td>
+                  <td>{r.fallbacks ?? r.fallback_count ?? 0}</td>
+                  <td>{r.change || "-"}</td>
                 </tr>
               ))}
             </tbody>

@@ -448,3 +448,16 @@ export async function runAllSelfTests() {
   });
   return res;
 }
+
+export async function runRagDiagnostics(slug, body) {
+  const res = await apiFetch(`/assistants/${slug}/diagnostics/`, {
+    method: "POST",
+    body,
+  });
+  return res;
+}
+
+export async function fetchRagDiagnostics(slug) {
+  const res = await apiFetch(`/assistants/${slug}/diagnostics/`);
+  return res;
+}
