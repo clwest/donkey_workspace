@@ -9,8 +9,15 @@ from assistants.utils.badge_logic import update_assistant_badges
 
 class BadgeListView(APIView):
     def get(self, request):
+        slug = request.GET.get("assistant")
+        assistant = None
+        if slug:
+            assistant = get_object_or_404(Assistant, slug=slug)
         badges = Badge.objects.all()
-        return Response(BadgeSerializer(badges, many=True).data)
+        serializer = BadgeSerializer(
+            badges, many=True, context={"assistant": assistant}
+        )
+        return Response(serializer.data)
 
 
 class AssistantBadgesView(APIView):
@@ -50,5 +57,23 @@ class AssistantBadgesView(APIView):
             {
                 "updated": assistant.skill_badges,
                 "primary_badge": assistant.primary_badge,
+            }
+        )
+
+
+class AssistantBadgeProgressView(APIView):
+    """Return badge progress information for an assistant."""
+
+    def get(self, request, slug):
+        assistant = get_object_or_404(Assistant, slug=slug)
+        badges = Badge.objects.all()
+        serializer = BadgeSerializer(
+            badges, many=True, context={"assistant": assistant}
+        )
+        return Response(
+            {
+                "assistant": assistant.slug,
+                "badges": serializer.data,
+                "history": assistant.badge_history,
             }
         )

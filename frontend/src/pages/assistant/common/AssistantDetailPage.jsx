@@ -26,6 +26,7 @@ import CommonModal from "../../../components/CommonModal";
 import AssistantBootPanel from "../../../components/assistants/AssistantBootPanel";
 import RagDebugPanel from "../../../components/assistant/RagDebugPanel";
 import RagPlaybackPanel from "../../../components/assistant/RagPlaybackPanel";
+import BadgePreviewPanel from "../../../components/assistant/BadgePreviewPanel";
 import AssistantGlossaryConvergencePanel from "../../../components/assistant/memory/AssistantGlossaryConvergencePanel";
 import VocabularyProgressPanel from "../../../components/assistant/memory/VocabularyProgressPanel";
 import { fetchGlossaryMutations } from "../../../api/agents";
@@ -424,8 +425,16 @@ export default function AssistantDetailPage() {
             </Link>
           </li>
           <li className="nav-item">
-            <Link className="nav-link" to={`/assistants/${slug}/badges`}>
+            <button
+              className={`nav-link ${activeTab === "badges" ? "active" : ""}`}
+              onClick={() => setActiveTab("badges")}
+            >
               Badges
+            </button>
+          </li>
+          <li className="nav-item">
+            <Link className="nav-link" to={`/assistants/${slug}/badges`}>
+              Badge Settings
             </Link>
           </li>
         </ul>
@@ -1008,6 +1017,7 @@ export default function AssistantDetailPage() {
       {activeTab === "vocab" && (
         <VocabularyProgressPanel assistantSlug={assistant.slug} />
       )}
+      {activeTab === "badges" && <BadgePreviewPanel slug={slug} />}
       <CommonModal
         show={showBoot}
         onClose={() => setShowBoot(false)}
