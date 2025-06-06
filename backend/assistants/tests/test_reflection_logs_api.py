@@ -1,10 +1,10 @@
-
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from datetime import timedelta
 from assistants.tests import BaseAPITestCase
 
 from assistants.models import Assistant, AssistantProject, AssistantReflectionLog
+
 
 class AssistantReflectionLogAPITest(BaseAPITestCase):
     def setUp(self):
@@ -64,3 +64,32 @@ class AssistantReflectionLogAPITest(BaseAPITestCase):
         }
         self.assertTrue(expected.issubset(set(data.keys())))
 
+    def test_patched_flag_in_list(self):
+        self.ref1.insights = "Patched via Ω.9.52"
+        self.ref1.save()
+        url = f"/api/v1/assistants/{self.assistant.slug}/reflections/"
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        entry = next(x for x in data if x["id"] == str(self.ref1.id))
+        self.assertTrue(entry["patched"])
+
+    def test_detail_includes_replay_fields(self):
+        from memory.models import ReflectionReplayLog
+
+        replay = ReflectionReplayLog.objects.create(
+            original_reflection=self.ref1,
+            assistant=self.assistant,
+            replayed_summary="better",
+            reflection_score=0.7,
+        )
+        self.ref1.insights = "Patched via Ω.9.52"
+        self.ref1.save()
+
+        url = f"/api/v1/assistants/reflections/{self.ref1.id}/"
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertTrue(data["patched"])
+        self.assertEqual(data["replayed_summary"], "better")
+        self.assertEqual(data["reflection_score"], replay.reflection_score)

@@ -924,7 +924,6 @@ def chat_with_assistant_view(request, slug):
     if rag_meta.get("anchor_hits") or rag_meta.get("anchor_misses"):
         from mcp_core.models import Tag
 
-
         tag, _ = Tag.objects.get_or_create(
             slug="glossary_insight", defaults={"name": "glossary_insight"}
         )
@@ -932,7 +931,9 @@ def chat_with_assistant_view(request, slug):
 
     debug_flag = request.query_params.get("debug") or request.data.get("debug")
 
-    should_log = str(debug_flag).lower() == "true" or rag_meta.get("rag_fallback", False)
+    should_log = str(debug_flag).lower() == "true" or rag_meta.get(
+        "rag_fallback", False
+    )
     if should_log:
         RAGGroundingLog.objects.create(
             assistant=assistant,
@@ -943,9 +944,7 @@ def chat_with_assistant_view(request, slug):
             glossary_hits=rag_meta.get("anchor_hits", []),
             glossary_misses=rag_meta.get("anchor_misses", []),
             retrieval_score=rag_meta.get("retrieval_score", 0.0),
-
         )
-
 
     return Response(
         {
@@ -1229,9 +1228,11 @@ def recover_assistant_view(request, slug):
                     chunks, reason, *_ = get_relevant_chunks(
                         assistant.slug,
                         query,
-                        memory_context_id=str(assistant.memory_context_id)
-                        if assistant.memory_context_id
-                        else None,
+                        memory_context_id=(
+                            str(assistant.memory_context_id)
+                            if assistant.memory_context_id
+                            else None
+                        ),
                         debug=True,
                     )
                     used = [c.get("chunk_id") for c in chunks]
@@ -1437,14 +1438,8 @@ def rag_drift_report(request, slug):
         anchor = row["expected_anchor"]
         avg_score = round(row["avg"] or 0.0, 2)
         fallback_count = row["count"]
-        last = (
-            qs.filter(expected_anchor=anchor)
-            .order_by("-created_at")
-            .first()
-        )
-        last_chunk = (
-            last.used_chunk_ids[0] if last and last.used_chunk_ids else None
-        )
+        last = qs.filter(expected_anchor=anchor).order_by("-created_at").first()
+        last_chunk = last.used_chunk_ids[0] if last and last.used_chunk_ids else None
         if avg_score < 0.2 and fallback_count >= 3:
             risk = "high"
         elif 0.2 <= avg_score <= 0.6:
@@ -1592,6 +1587,7 @@ def assistant_lineage(request, slug):
 
     return Response(build_tree(assistant))
 
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def clean_memories(request, slug):
@@ -1605,4 +1601,16 @@ def clean_memories(request, slug):
 def clean_projects(request, slug):
     """Remove stale assistant projects."""
     call_command("clean_linked_projects", assistant=slug)
+    return Response({"status": "ok"})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def patch_drifted_reflections(request, slug):
+    """Patch reflection summaries that drifted after glossary updates."""
+    limit = request.data.get("limit")
+    kwargs = {"assistant": slug}
+    if limit:
+        kwargs["limit"] = limit
+    call_command("patch_reflection_summaries", **kwargs)
     return Response({"status": "ok"})

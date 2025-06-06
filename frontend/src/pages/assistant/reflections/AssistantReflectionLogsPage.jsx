@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Button } from "react-bootstrap";
+import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { toast } from "react-toastify";
 import apiFetch from "../../../utils/apiClient";
 
@@ -8,6 +8,7 @@ export default function AssistantReflectionLogsPage() {
   const { slug } = useParams();
   const [logs, setLogs] = useState([]);
   const [latestReplay, setLatestReplay] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,6 +30,15 @@ export default function AssistantReflectionLogsPage() {
     }
     fetchLogs();
     fetchLatestReplay();
+    async function checkAdmin() {
+      try {
+        const user = await apiFetch("/dj-rest-auth/user/");
+        setIsAdmin(user.is_staff || user.is_superuser);
+      } catch {
+        setIsAdmin(false);
+      }
+    }
+    checkAdmin();
   }, [slug]);
 
   const createObjective = async (id) => {
@@ -54,6 +64,23 @@ export default function AssistantReflectionLogsPage() {
     }
   };
 
+  const patchReflections = async () => {
+    try {
+      const res = await apiFetch(
+        `/assistants/${slug}/patch_drifted_reflections/`,
+        {
+          method: "POST",
+        },
+      );
+      const count = res.patched ?? 0;
+      toast.success(`${count} summaries patched successfully`);
+      const data = await apiFetch(`/assistants/${slug}/reflections/`);
+      setLogs(data);
+    } catch (err) {
+      toast.error("Failed to patch reflections");
+    }
+  };
+
   return (
     <div className="container my-5">
       <h2 className="mb-4">🪞 Reflections for {slug}</h2>
@@ -69,6 +96,15 @@ export default function AssistantReflectionLogsPage() {
       >
         View Replays
       </Button>
+      {isAdmin && (
+        <Button
+          className="ms-2 mb-4"
+          variant="warning"
+          onClick={patchReflections}
+        >
+          🧌 Patch Drifted Reflections
+        </Button>
+      )}
       {latestReplay && (
         <div className="mb-3">
           <Link
@@ -96,6 +132,17 @@ export default function AssistantReflectionLogsPage() {
             >
               <div>
                 <strong>{r.title || r.summary.slice(0, 40)}</strong>
+                {r.patched && (
+                  <OverlayTrigger
+                    overlay={
+                      <Tooltip>
+                        This summary was updated due to glossary improvements
+                      </Tooltip>
+                    }
+                  >
+                    <span className="badge bg-info ms-2">✨</span>
+                  </OverlayTrigger>
+                )}
                 <br />
                 <small className="text-muted">
                   {new Date(r.created_at).toLocaleString()}

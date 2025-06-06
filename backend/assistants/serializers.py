@@ -281,6 +281,7 @@ class AssistantSkillSerializer(serializers.ModelSerializer):
 
 class AssistantReflectionLogSerializer(serializers.ModelSerializer):
     linked_event = serializers.SerializerMethodField()
+    patched = serializers.SerializerMethodField()
     anchor_slug = serializers.SlugField(source="anchor.slug", read_only=True)
     tags = TagSerializer(many=True, read_only=True)
     related_anchors = serializers.SlugRelatedField(
@@ -299,6 +300,7 @@ class AssistantReflectionLogSerializer(serializers.ModelSerializer):
             "mood",
             "summary",
             "llm_summary",
+            "patched",
             "linked_event",
             "anchor_slug",
             "related_anchors",
@@ -315,10 +317,14 @@ class AssistantReflectionLogSerializer(serializers.ModelSerializer):
             }
         return None
 
+    def get_patched(self, obj):
+        return obj.insights is not None and "Ω.9.52" in obj.insights
+
 
 class AssistantReflectionLogListSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     linked_event = serializers.SerializerMethodField()
+    patched = serializers.SerializerMethodField()
     anchor_slug = serializers.SlugField(source="anchor.slug", read_only=True)
     related_anchors = serializers.SlugRelatedField(
         many=True,
@@ -336,6 +342,7 @@ class AssistantReflectionLogListSerializer(serializers.ModelSerializer):
             "summary",
             "linked_memory",
             "linked_event",
+            "patched",
             "anchor_slug",
             "related_anchors",
             "tags",
@@ -350,12 +357,18 @@ class AssistantReflectionLogListSerializer(serializers.ModelSerializer):
             }
         return None
 
+    def get_patched(self, obj):
+        return obj.insights is not None and "Ω.9.52" in obj.insights
+
 
 class AssistantReflectionLogDetailSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     linked_memory = MemoryEntrySerializer(read_only=True)
     project = ProjectSerializer(read_only=True)
     linked_event = serializers.SerializerMethodField()
+    patched = serializers.SerializerMethodField()
+    reflection_score = serializers.SerializerMethodField()
+    replayed_summary = serializers.SerializerMethodField()
     anchor_slug = serializers.SlugField(source="anchor.slug", read_only=True)
     related_anchors = serializers.SlugRelatedField(
         many=True,
@@ -378,6 +391,9 @@ class AssistantReflectionLogDetailSerializer(serializers.ModelSerializer):
             "raw_prompt",
             "llm_summary",
             "insights",
+            "patched",
+            "reflection_score",
+            "replayed_summary",
             "linked_memory",
             "linked_event",
             "anchor_slug",
@@ -395,6 +411,17 @@ class AssistantReflectionLogDetailSerializer(serializers.ModelSerializer):
                 "title": obj.linked_event.title,
             }
         return None
+
+    def get_patched(self, obj):
+        return obj.insights is not None and "Ω.9.52" in obj.insights
+
+    def get_reflection_score(self, obj):
+        replay = obj.replays.order_by("-created_at").first()
+        return replay.reflection_score if replay else None
+
+    def get_replayed_summary(self, obj):
+        replay = obj.replays.order_by("-created_at").first()
+        return replay.replayed_summary if replay else None
 
 
 class ProjectPlanningLogSerializer(serializers.ModelSerializer):
