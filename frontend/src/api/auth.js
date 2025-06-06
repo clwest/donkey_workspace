@@ -1,13 +1,21 @@
 import apiFetch from "@/utils/apiClient";
+import { clearCachedUser } from "@/hooks/useAuthGuard";
 
 export async function loginUser(email, password) {
-  const data = await apiFetch("/token/", {
-    method: "POST",
-    body: { username: email, password },
-  });
-  if (data.access) localStorage.setItem("access", data.access);
-  if (data.refresh) localStorage.setItem("refresh", data.refresh);
-  return data;
+  try {
+    const data = await apiFetch("/token/", {
+      method: "POST",
+      body: { username: email, password },
+    });
+    if (data.access) localStorage.setItem("access", data.access);
+    if (data.refresh) localStorage.setItem("refresh", data.refresh);
+    return data;
+  } catch (err) {
+    clearCachedUser();
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    throw err;
+  }
 }
 
 export async function registerUser(payload) {
@@ -18,6 +26,7 @@ export async function registerUser(payload) {
 export function logoutUser() {
   localStorage.removeItem("access");
   localStorage.removeItem("refresh");
+  clearCachedUser();
 }
 
 export async function refreshToken() {
