@@ -2,9 +2,43 @@
 // (e.g. only contains a port like ":8000/api"), fall back to using the current
 // page origin.  This prevents "Failed to fetch" errors when the env variable is
 // missing a hostname.
-import { getToken, clearTokens } from "./auth";
+import {
+  getToken,
+  clearTokens,
+  getRefreshToken,
+  setToken,
+} from "./auth";
 
 let API_URL = import.meta.env.VITE_API_URL;
+
+// Track auth state and redirect behavior to avoid infinite loops
+let authLost = false;
+let lastRedirect = 0;
+let redirectCount = 0;
+const authDebug =
+  new URLSearchParams(window.location.search).get("debug") === "auth";
+
+export async function tryRefreshToken() {
+  const refresh = getRefreshToken();
+  if (!refresh) return false;
+  if (authDebug) console.log("[auth] attempting token refresh");
+  try {
+    const res = await fetch(`${API_URL}/token/refresh/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh }),
+      credentials: "include",
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    setToken({ access: data.access, refresh: data.refresh });
+    if (authDebug) console.log("[auth] refresh succeeded");
+    return true;
+  } catch (err) {
+    if (authDebug) console.warn("[auth] refresh failed", err);
+    return false;
+  }
+}
 
 function isMissingHost(url) {
   if (!url) return true;
@@ -22,12 +56,14 @@ if (isMissingHost(API_URL)) {
 }
 
 export default async function apiFetch(url, options = {}) {
+  if (authLost && !options.allowUnauthenticated) {
+    throw new Error("Unauthorized");
+  }
+
   const { params, ...fetchOptions } = options;
   const defaultHeaders = fetchOptions.body
     ? { "Content-Type": "application/json" }
     : {};
-
-  const authToken = getToken();
 
   let fullUrl = API_URL + url;
   if (params) {
@@ -37,24 +73,51 @@ export default async function apiFetch(url, options = {}) {
     }
   }
 
-  const res = await fetch(fullUrl, {
-    ...fetchOptions,
-    headers: {
-      ...defaultHeaders,
-      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
-      ...(fetchOptions.headers || {}),
-    },
-    body:
-      fetchOptions.body && typeof fetchOptions.body !== "string"
-        ? JSON.stringify(fetchOptions.body)
-        : fetchOptions.body,
-    credentials: "include",
-  });
+  const doFetch = async () => {
+    const token = getToken();
+    if (!token && authDebug) console.warn("[auth] access token missing");
+    return fetch(fullUrl, {
+      ...fetchOptions,
+      headers: {
+        ...defaultHeaders,
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(fetchOptions.headers || {}),
+      },
+      body:
+        fetchOptions.body && typeof fetchOptions.body !== "string"
+          ? JSON.stringify(fetchOptions.body)
+          : fetchOptions.body,
+      credentials: "include",
+    });
+  };
+
+  let res = await doFetch();
 
   if (res.status === 401) {
-    clearTokens();
-    const next = encodeURIComponent(window.location.pathname);
-    window.location.assign(`/login?next=${next}`);
+    if (authDebug) console.warn(`[auth] 401 from ${url}`);
+    const refreshed = await tryRefreshToken();
+    if (refreshed) {
+      res = await doFetch();
+    }
+  }
+
+  if (res.status === 401) {
+    if (!authLost) {
+      authLost = true;
+      clearTokens();
+      const now = Date.now();
+      if (now - lastRedirect < 2000) {
+        redirectCount += 1;
+        if (redirectCount > 2) {
+          console.warn("More than 2 redirects occur within 2s");
+        }
+      } else {
+        redirectCount = 1;
+      }
+      lastRedirect = now;
+      const next = encodeURIComponent(window.location.pathname);
+      window.location.assign(`/login?next=${next}`);
+    }
     throw new Error("Unauthorized");
   }
 
