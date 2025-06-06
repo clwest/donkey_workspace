@@ -17,12 +17,14 @@ export default function RegisterPage() {
       return;
     }
     try {
-      await apiFetch("/dj-rest-auth/registration/", {
+      const data = await apiFetch("/dj-rest-auth/registration/", {
         method: "POST",
         body: { username, email, password1, password2 },
       });
-      toast.success("✅ Registered! Please log in.");
-      navigate("/login");
+      if (data.access) localStorage.setItem("access", data.access);
+      if (data.refresh) localStorage.setItem("refresh", data.refresh);
+      toast.success("✅ Registered!");
+      navigate("/onboarding/world");
     } catch (err) {
       toast.error("❌ Registration failed");
     }

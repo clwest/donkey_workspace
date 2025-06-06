@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import OnboardingProgressPanel from "../../components/onboarding/OnboardingProgressPanel";
+import OnboardingProgressBar from "../../components/onboarding/OnboardingProgressBar";
 import useOnboardingGuard from "../../onboarding/useOnboardingGuard";
 
 export default function OnboardingWizardPage() {
@@ -18,6 +19,7 @@ export default function OnboardingWizardPage() {
 
   return (
     <div className="container my-5">
+      <OnboardingProgressBar />
       <OnboardingProgressPanel />
       <h2>Onboarding Wizard</h2>
       <div className="mb-3">Step {step} of {total}</div>

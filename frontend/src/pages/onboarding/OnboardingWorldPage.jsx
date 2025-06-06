@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import OnboardingProgressPanel from "../../components/onboarding/OnboardingProgressPanel";
+import OnboardingProgressBar from "../../components/onboarding/OnboardingProgressBar";
 import useOnboardingGuard, { STEP_ROUTES } from "../../onboarding/useOnboardingGuard";
 import useOnboardingTracker from "@/hooks/useOnboardingTracker";
 import { ONBOARDING_WORLD } from "../../onboarding/metadata";
@@ -13,10 +14,8 @@ export default function OnboardingWorldPage() {
 
   return (
     <div className="container my-4">
+      <OnboardingProgressBar />
       <OnboardingProgressPanel />
-      <div className="progress mb-3">
-        <div className="progress-bar" style={{ width: `${percent || 0}%` }} />
-      </div>
       <h2>{ONBOARDING_WORLD.title}</h2>
       <div className="d-flex flex-wrap gap-3">
         {ONBOARDING_WORLD.nodes.map((node) => {

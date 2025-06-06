@@ -1,5 +1,6 @@
 import ArchetypeSelectionChamber from "../../components/mythos/ArchetypeSelectionChamber";
 import OnboardingProgressPanel from "../../components/onboarding/OnboardingProgressPanel";
+import OnboardingProgressBar from "../../components/onboarding/OnboardingProgressBar";
 import useOnboardingGuard from "../../onboarding/useOnboardingGuard";
 
 export default function ArchetypeSelectionChamberPage() {
@@ -7,6 +8,7 @@ export default function ArchetypeSelectionChamberPage() {
 
   return (
     <div className="container my-4">
+      <OnboardingProgressBar />
       <OnboardingProgressPanel />
       <ArchetypeSelectionChamber />
     </div>

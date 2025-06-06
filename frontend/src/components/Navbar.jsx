@@ -309,7 +309,7 @@ export default function Navbar({ onToggleSidebar }) {
 
           {/* Right-aligned Links */}
           <span className="navbar-text">
-            <Link className="btn btn-outline-primary btn-sm me-2" to="/">
+            <Link className="btn btn-outline-primary btn-sm me-2" to="/home">
               🏠 Home
             </Link>
             <Link className="btn btn-outline-secondary btn-sm me-2" to="/login">
