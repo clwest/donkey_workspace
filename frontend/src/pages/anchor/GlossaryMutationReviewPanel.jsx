@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Button } from "react-bootstrap";
-import axios from "axios";
 import { toast } from "react-toastify";
-import { fetchGlossaryMutations, rejectGlossaryMutation } from "../../api/agents";
+import {
+  fetchGlossaryMutations,
+  rejectGlossaryMutation,
+  acceptGlossaryMutation,
+} from "../../api/agents";
 import apiFetch from "../../utils/apiClient";
 
 export default function GlossaryMutationReviewPanel() {
@@ -40,7 +43,7 @@ export default function GlossaryMutationReviewPanel() {
 
   const handleAccept = async (id) => {
     try {
-      await axios.post(`/api/glossary/mutations/${id}/accept/`);
+      await acceptGlossaryMutation(id);
       toast.success("Mutation accepted");
       reload();
     } catch (e) {
