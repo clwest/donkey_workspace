@@ -598,6 +598,11 @@ urlpatterns = [
         name="assistant-rag-drift-report",
     ),
     path(
+        "<slug:slug>/glossary/convergence/",
+        assistants.glossary_convergence,
+        name="assistant-glossary-convergence",
+    ),
+    path(
         "<slug:slug>/boost_anchors/",
         assistants.boost_anchors,
         name="assistant-boost-anchors",

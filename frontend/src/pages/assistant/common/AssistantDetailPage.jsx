@@ -25,6 +25,7 @@ import CommonModal from "../../../components/CommonModal";
 import AssistantBootPanel from "../../../components/assistants/AssistantBootPanel";
 import RagDebugPanel from "../../../components/assistant/RagDebugPanel";
 import RagPlaybackPanel from "../../../components/assistant/RagPlaybackPanel";
+import AssistantGlossaryConvergencePanel from "../../../components/assistant/memory/AssistantGlossaryConvergencePanel";
 
 export default function AssistantDetailPage() {
   const { slug } = useParams();
@@ -813,6 +814,7 @@ export default function AssistantDetailPage() {
         <>
           <RagPlaybackPanel slug={slug} />
           <RagDebugPanel slug={slug} />
+          <AssistantGlossaryConvergencePanel />
         </>
       )}
       <CommonModal
