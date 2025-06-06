@@ -50,6 +50,7 @@ def onboarding_status(request):
     progress = get_onboarding_status(request.user)
     next_step = get_next_onboarding_step(request.user)
     percent = get_progress_percent(request.user)
+
     show_intro = (
         next_step == "world" and not getattr(request.user, "dismissed_onboarding_intro", False)
     )
@@ -59,6 +60,7 @@ def onboarding_status(request):
         "percent": percent,
         "show_intro": show_intro,
     })
+
 
 
 @api_view(["POST"])

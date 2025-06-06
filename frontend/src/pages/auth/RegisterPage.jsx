@@ -17,12 +17,20 @@ export default function RegisterPage() {
       return;
     }
     try {
-      const data = await apiFetch("/dj-rest-auth/registration/", {
+      await apiFetch("/dj-rest-auth/registration/", {
         method: "POST",
         body: { username, email, password1, password2 },
       });
-      if (data.access) localStorage.setItem("access", data.access);
-      if (data.refresh) localStorage.setItem("refresh", data.refresh);
+
+      // Automatically log in to obtain auth tokens
+      const loginData = await apiFetch("/dj-rest-auth/login/", {
+        method: "POST",
+        body: { username, password: password1 },
+      });
+
+      if (loginData.access) localStorage.setItem("access", loginData.access);
+      if (loginData.refresh) localStorage.setItem("refresh", loginData.refresh);
+
       toast.success("✅ Registered!");
       navigate("/onboarding/world");
     } catch (err) {

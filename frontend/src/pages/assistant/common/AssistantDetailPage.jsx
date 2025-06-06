@@ -7,6 +7,7 @@ import DriftScoreChart from "../../../components/assistant/DriftScoreChart";
 import RecoveryPanel from "../../../components/assistant/RecoveryPanel";
 import AssistantDiagnosticsPanel from "../../../components/assistant/AssistantDiagnosticsPanel";
 import AssistantBadgeIcon from "../../../components/assistant/AssistantBadgeIcon";
+import AssistantSetupSummary from "../../../components/assistant/AssistantSetupSummary";
 import {
   runDriftCheck,
   runSelfAssessment,
@@ -397,6 +398,14 @@ export default function AssistantDetailPage() {
               onClick={() => setActiveTab("vocab")}
             >
               Vocabulary Progress
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === "setup" ? "active" : ""}`}
+              onClick={() => setActiveTab("setup")}
+            >
+              Setup Summary
             </button>
           </li>
           <li className="nav-item">
@@ -1016,6 +1025,9 @@ export default function AssistantDetailPage() {
       )}
       {activeTab === "vocab" && (
         <VocabularyProgressPanel assistantSlug={assistant.slug} />
+      )}
+      {activeTab === "setup" && (
+        <AssistantSetupSummary assistantId={slug} />
       )}
       {activeTab === "badges" && <BadgePreviewPanel slug={slug} />}
       <CommonModal

@@ -1,14 +1,26 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import OnboardingProgressPanel from "../../components/onboarding/OnboardingProgressPanel";
 import OnboardingProgressBar from "../../components/onboarding/OnboardingProgressBar";
 import useOnboardingGuard from "../../onboarding/useOnboardingGuard";
+import apiFetch from "@/utils/apiClient";
+import AssistantSetupSummary from "../../components/assistant/AssistantSetupSummary";
 
 export default function OnboardingWizardPage() {
   const [step, setStep] = useState(1);
   const total = 6;
   const navigate = useNavigate();
+
   useOnboardingGuard("wizard");
+  const [primary, setPrimary] = useState(null);
+
+  useEffect(() => {
+    if (step !== total) return;
+    apiFetch("/assistants/primary/")
+      .then(setPrimary)
+      .catch(() => {});
+  }, [step]);
+
 
   const next = () => setStep((s) => Math.min(s + 1, total));
   const back = () => setStep((s) => Math.max(s - 1, 1));
@@ -73,6 +85,11 @@ export default function OnboardingWizardPage() {
         <div>
           <h4>Finish &amp; Go!</h4>
           <p>You&apos;re all set—have at it!</p>
+          {primary && (
+            <div className="my-3">
+              <AssistantSetupSummary assistant={primary} />
+            </div>
+          )}
         </div>
       )}
       <div className="mt-4">

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
 import MemoryCard from "../../../components/mcp_core/MemoryCard";
 
 export default function AssistantMemoryPage() {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [tab, setTab] = useState("memories");
   const [memories, setMemories] = useState([]);
   const [reflections, setReflections] = useState([]);
@@ -21,6 +22,7 @@ export default function AssistantMemoryPage() {
         setReflections(refl);
       } catch (err) {
         console.error("Failed to load memories", err);
+        navigate("/home", { replace: true });
       } finally {
         setLoading(false);
       }

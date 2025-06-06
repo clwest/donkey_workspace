@@ -17,6 +17,8 @@ class OnboardingProgressAPITest(BaseAPITestCase):
         data = body["progress"]
         self.assertEqual(body["percent"], 0)
         self.assertEqual(body["next_step"], "mythpath")
+        self.assertIn("first_anchor_slug", body)
+        self.assertIn("first_assistant_id", body)
         self.assertEqual(data[0]["step"], "mythpath")
         self.assertEqual(data[0]["status"], "pending")
 

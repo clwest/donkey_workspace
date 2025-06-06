@@ -88,6 +88,8 @@ class DocumentChunkInfoSerializer(serializers.Serializer):
 
 
 from tools.models import Tool
+from memory.models import MemoryEntry
+from memory.services.acquisition import update_anchor_acquisition
 
 
 def calculate_composite_health(assistant):
@@ -107,6 +109,36 @@ def calculate_composite_health(assistant):
     score += prompt_factor * 0.25
     score += doc_pct * 0.25
     return round(score, 2)
+
+
+def _initial_glossary_anchor(assistant):
+    """Return earliest taught anchor info and ensure acquisition stage."""
+    entry = (
+        MemoryEntry.objects.filter(assistant=assistant, anchor__isnull=False)
+        .select_related("anchor")
+        .order_by("created_at")
+        .first()
+    )
+    if not entry or not entry.anchor:
+        return None
+    anchor = entry.anchor
+    if anchor.acquisition_stage not in ["acquired", "reinforced"]:
+        update_anchor_acquisition(anchor, "acquired")
+    return {
+        "slug": anchor.slug,
+        "label": anchor.label,
+        "description": anchor.description,
+    }
+
+
+def _initial_badges(assistant):
+    history = assistant.badge_history or []
+    if not history:
+        return []
+    first = history[0]
+    badges = first.get("badges", [])
+    ts = first.get("timestamp")
+    return [{"slug": b, "timestamp": ts} for b in badges]
 
 
 class BadgeSerializer(serializers.ModelSerializer):
@@ -769,6 +801,8 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
     health_score = serializers.SerializerMethodField()
     glossary_health_index = serializers.SerializerMethodField()
     glossary_health_index = serializers.SerializerMethodField()
+    initial_glossary_anchor = serializers.SerializerMethodField()
+    initial_badges = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -813,6 +847,8 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             "tone_profile",
             "health_score",
             "glossary_health_index",
+            "initial_glossary_anchor",
+            "initial_badges",
             "child_assistants",
             "skills",
             "skill_badges",
@@ -863,6 +899,12 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
 
     def get_available_badges(self, obj):
         return BadgeSerializer(Badge.objects.all(), many=True).data
+
+    def get_initial_glossary_anchor(self, obj):
+        return _initial_glossary_anchor(obj)
+
+    def get_initial_badges(self, obj):
+        return _initial_badges(obj)
 
     def get_flair(self, obj):
         if obj.primary_badge:
@@ -1262,6 +1304,8 @@ class AssistantSerializer(serializers.ModelSerializer):
     badge_history = serializers.ListField(
         child=serializers.DictField(), read_only=True
     )
+    initial_glossary_anchor = serializers.SerializerMethodField()
+    initial_badges = serializers.SerializerMethodField()
     flair = serializers.SerializerMethodField()
 
     class Meta:
@@ -1313,6 +1357,8 @@ class AssistantSerializer(serializers.ModelSerializer):
             "preferred_scene_tags",
             "skill_badges",
             "badge_history",
+            "initial_glossary_anchor",
+            "initial_badges",
             "primary_badge",
             "available_badges",
             "flair",
@@ -1379,6 +1425,12 @@ class AssistantSerializer(serializers.ModelSerializer):
         """Return all possible :class:`Badge` choices."""
         return BadgeSerializer(Badge.objects.all(), many=True).data
 
+    def get_initial_glossary_anchor(self, obj):
+        return _initial_glossary_anchor(obj)
+
+    def get_initial_badges(self, obj):
+        return _initial_badges(obj)
+
     def get_flair(self, obj):
         if obj.primary_badge:
             badge = Badge.objects.filter(slug=obj.primary_badge).first()
@@ -1403,6 +1455,30 @@ class AssistantProjectSummarySerializer(serializers.ModelSerializer):
 class BootstrapResultSerializer(serializers.Serializer):
     assistant = AssistantSerializer()
     project = AssistantProjectSummarySerializer()
+
+
+class AssistantSetupSummarySerializer(serializers.ModelSerializer):
+    initial_glossary_anchor = serializers.SerializerMethodField()
+    initial_badges = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Assistant
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "avatar_style",
+            "tone_profile",
+            "tone",
+            "initial_glossary_anchor",
+            "initial_badges",
+        ]
+
+    def get_initial_glossary_anchor(self, obj):
+        return _initial_glossary_anchor(obj)
+
+    def get_initial_badges(self, obj):
+        return _initial_badges(obj)
 
 
 from prompts.models import Prompt
