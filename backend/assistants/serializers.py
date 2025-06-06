@@ -1319,6 +1319,12 @@ class AssistantSerializer(serializers.ModelSerializer):
         index = 1.0 - (high / total)
         return round(index, 2)
 
+    def get_available_badges(self, obj):
+        """Return all possible :class:`Badge` choices."""
+        return BadgeSerializer(Badge.objects.all(), many=True).data
+
+    def get_flair(self, obj):
+
 
 class AssistantProjectSummarySerializer(serializers.ModelSerializer):
     class Meta:
