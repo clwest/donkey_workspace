@@ -1130,10 +1130,20 @@ def accept_glossary_mutation(request, id):
     anchor = get_object_or_404(SymbolicMemoryAnchor, id=id)
     if not anchor.suggested_label:
         return Response({"error": "no suggestion"}, status=400)
+    old_label = anchor.label
     anchor.label = anchor.suggested_label
     anchor.suggested_label = None
     anchor.mutation_status = "applied"
     anchor.save(update_fields=["label", "suggested_label", "mutation_status"])
+    if anchor.assistant_id:
+        from memory.services.mutation_memory import generate_mutation_memory_entry
+
+        mem = generate_mutation_memory_entry(
+            anchor, anchor.assistant, original_label=old_label
+        )
+        if mem:
+            anchor.explanation = f"mutation_memory:{mem.id}"
+            anchor.save(update_fields=["explanation"])
     try:
         reinforce_glossary_anchor(
             anchor,
