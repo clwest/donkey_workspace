@@ -26,6 +26,7 @@ from .models import (
     SymbolicMemoryAnchor,
     GlossaryRetryLog,
     AnchorConvergenceLog,
+    AnchorReinforcementLog,
 )
 from .serializers import (
     MemoryEntrySerializer,
@@ -40,6 +41,7 @@ from .serializers import (
     SymbolicMemoryAnchorSerializer,
     GlossaryRetryLogSerializer,
     AnchorConvergenceLogSerializer,
+    AnchorReinforcementLogSerializer,
 )
 from prompts.serializers import PromptSerializer
 from prompts.models import Prompt
@@ -54,6 +56,7 @@ from memory.memory_service import get_memory_service
 from mcp_core.models import NarrativeThread
 from memory.utils.thread_helpers import get_linked_chains, recall_from_thread
 from memory.utils.anamnesis_engine import run_anamnesis_retrieval
+from memory.services.reinforcement import reinforce_glossary_anchor
 
 load_dotenv()
 
@@ -1067,6 +1070,7 @@ def anchor_training(request, slug):
     fallbacks = GlossaryFallbackReflectionLog.objects.filter(
         anchor_slug=slug
     ).order_by("-created_at")[:20]
+    reinforcements = AnchorReinforcementLog.objects.filter(anchor=anchor).order_by("-created_at")[:20]
 
     data = {
         "memories": MemoryEntrySlimSerializer(memories, many=True).data,
@@ -1080,6 +1084,7 @@ def anchor_training(request, slug):
             }
             for f in fallbacks
         ],
+        "reinforcements": AnchorReinforcementLogSerializer(reinforcements, many=True).data,
     }
     return Response(data)
 
@@ -1126,6 +1131,15 @@ def accept_glossary_mutation(request, id):
     anchor.suggested_label = None
     anchor.mutation_status = "applied"
     anchor.save(update_fields=["label", "suggested_label", "mutation_status"])
+    try:
+        reinforce_glossary_anchor(
+            anchor,
+            assistant=anchor.assistant,
+            source="mutation_applied",
+            score=1.0,
+        )
+    except Exception:
+        pass
     return Response({"status": "applied"})
 
 

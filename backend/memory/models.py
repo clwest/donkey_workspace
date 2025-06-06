@@ -617,6 +617,37 @@ class AnchorConvergenceLog(models.Model):
     def __str__(self):  # pragma: no cover - display helper
         return f"{self.anchor.slug} -> {self.assistant.name}"
 
+
+class AnchorReinforcementLog(models.Model):
+    """Record when an anchor is reinforced in memory."""
+
+    anchor = models.ForeignKey(
+        SymbolicMemoryAnchor,
+        on_delete=models.CASCADE,
+        related_name="reinforcement_logs",
+    )
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    memory = models.ForeignKey(
+        MemoryEntry,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
+    reason = models.CharField(max_length=64)
+    score = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"{self.anchor.slug} reinforced"
+
 class RAGGroundingLog(models.Model):
     """Log RAG grounding results for debugging retrieval."""
 

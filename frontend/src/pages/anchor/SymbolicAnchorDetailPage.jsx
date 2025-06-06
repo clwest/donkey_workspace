@@ -8,7 +8,7 @@ export default function SymbolicAnchorDetailPage() {
   const [anchor, setAnchor] = useState(null);
   const [summary, setSummary] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [training, setTraining] = useState({ memories: [], chunks: [], fallbacks: [] });
+  const [training, setTraining] = useState({ memories: [], chunks: [], fallbacks: [], reinforcements: [] });
 
   useEffect(() => {
     async function load() {
@@ -114,6 +114,17 @@ export default function SymbolicAnchorDetailPage() {
         ))}
         {training.fallbacks.length === 0 && (
           <li className="list-group-item text-muted">No fallbacks.</li>
+        )}
+      </ul>
+      <h5 className="mt-4">Reinforcement Logs</h5>
+      <ul className="list-group">
+        {training.reinforcements.map((r) => (
+          <li key={r.id} className="list-group-item">
+            {r.reason} by {r.assistant_name || ""} score {r.score.toFixed(2)}
+          </li>
+        ))}
+        {training.reinforcements.length === 0 && (
+          <li className="list-group-item text-muted">No reinforcements.</li>
         )}
       </ul>
     </div>
