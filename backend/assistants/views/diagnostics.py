@@ -9,9 +9,13 @@ from memory.models import SymbolicMemoryAnchor, MemoryEntry
 from mcp_core.models import MemoryContext
 from intel_core.models import DocumentChunk
 from intel_core.utils.glossary_tagging import retag_glossary_chunks
+
 # ``assistant_boot`` contains generic self-test helpers while
 # ``boot_diagnostics`` builds a richer boot profile used by the UI.
-from assistants.utils.boot_diagnostics import generate_boot_profile, run_assistant_self_test
+from assistants.utils.boot_diagnostics import (
+    generate_boot_profile,
+    run_assistant_self_test,
+)
 from assistants.utils.assistant_boot import run_batch_self_tests
 
 
@@ -31,9 +35,7 @@ def assistant_diagnostics(request, slug):
 
     anchors_total = SymbolicMemoryAnchor.objects.count()
     anchors_with_matches = (
-        SymbolicMemoryAnchor.objects.filter(chunks__isnull=False)
-        .distinct()
-        .count()
+        SymbolicMemoryAnchor.objects.filter(chunks__isnull=False).distinct().count()
     )
     anchors_without_matches = anchors_total - anchors_with_matches
 
@@ -43,6 +45,7 @@ def assistant_diagnostics(request, slug):
     low = chunks.filter(score__lt=0.4).count()
 
     from memory.models import RAGGroundingLog
+
     logs = RAGGroundingLog.objects.filter(assistant=assistant)
     glossary_hit_count = logs.filter(glossary_hits__len__gt=0).count()
     fallback_count = logs.filter(fallback_triggered=True).count()
@@ -79,9 +82,9 @@ def fix_context(request, slug):
         assistant.memory_context = context
         assistant.save(update_fields=["memory_context"])
 
-    count = MemoryEntry.objects.filter(assistant=assistant, context__isnull=True).update(
-        context=context
-    )
+    count = MemoryEntry.objects.filter(
+        assistant=assistant, context__isnull=True
+    ).update(context=context)
     return Response({"updated": count, "context_id": context.id})
 
 
@@ -94,6 +97,7 @@ def retag_glossary_chunks_view(request, slug):
     total = sum(len(v) for v in results.values())
     summary = {k: len(v) for k, v in results.items()}
     return Response({"matched_total": total, "per_anchor": summary})
+
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
@@ -120,7 +124,18 @@ def rag_self_test(request, slug):
     assistant = get_object_or_404(Assistant, slug=slug)
     from assistants.utils.rag_diagnostics import run_assistant_rag_test
 
-    result = run_assistant_rag_test(assistant)
+    limit = None
+    if isinstance(request.data, dict) and "limit" in request.data:
+        try:
+            limit = int(request.data.get("limit"))
+        except (TypeError, ValueError):
+            limit = None
+
+    try:
+        result = run_assistant_rag_test(assistant, limit=limit)
+    except Exception as e:  # pragma: no cover - defensive
+        return Response({"error": str(e)}, status=400)
+
     return Response(result)
 
 

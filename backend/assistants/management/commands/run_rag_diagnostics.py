@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand
 from assistants.models import Assistant
 from assistants.utils.rag_diagnostics import run_assistant_rag_test
 
+
 class Command(BaseCommand):
     """Run RAG self-tests for a specific assistant or all assistants."""
 
@@ -25,25 +26,42 @@ class Command(BaseCommand):
             default=None,
             help="Optional path to write diagnostic output as JSON",
         )
+        parser.add_argument(
+            "--limit",
+            type=int,
+            default=None,
+            help="Limit number of anchors per assistant",
+        )
 
     def handle(self, *args, **options):
         assistant_slug = options.get("assistant")
         disable_scope = options.get("disable_scope", False)
         out_path = options.get("output")
+        limit = options.get("limit")
 
         if assistant_slug:
             try:
                 assistant = Assistant.objects.get(slug=assistant_slug)
             except Assistant.DoesNotExist:
-                self.stdout.write(self.style.ERROR(f"No assistant found with slug '{assistant_slug}'"))
+                self.stdout.write(
+                    self.style.ERROR(f"No assistant found with slug '{assistant_slug}'")
+                )
                 return
 
-            result = run_assistant_rag_test(assistant, disable_scope=disable_scope)
+            result = run_assistant_rag_test(
+                assistant,
+                limit=limit,
+                disable_scope=disable_scope,
+            )
             results = [result]
         else:
             results = []
             for assistant in Assistant.objects.all():
-                result = run_assistant_rag_test(assistant, disable_scope=disable_scope)
+                result = run_assistant_rag_test(
+                    assistant,
+                    limit=limit,
+                    disable_scope=disable_scope,
+                )
                 results.append(result)
 
         if out_path:
@@ -51,9 +69,7 @@ class Command(BaseCommand):
                 json.dump(results, f, indent=2)
 
         for r in results:
-            symbol = "✅" if r["passed"] else "❌"
-            self.stdout.write(f"{symbol} {r['assistant']} ({len(r['issues'])} issues)")
-
-        assistant_label = r.get("assistant", "unknown")
-        issue_count = len(r.get("issues", []))
-        self.stdout.write(f"{symbol} {assistant_label} ({issue_count} issues)")
+            rate = f"{r['pass_rate']*100:.1f}%"
+            self.stdout.write(
+                f"{r['assistant']}: {r['issues_found']} issues across {r['tested']} anchors ({rate})"
+            )

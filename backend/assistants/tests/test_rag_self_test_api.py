@@ -21,7 +21,9 @@ class RagSelfTestAPITest(BaseAPITestCase):
             is_glossary=True,
             glossary_score=0.9,
         )
-        emb = EmbeddingMetadata.objects.create(model_used="t", num_tokens=5, vector=[0.1])
+        emb = EmbeddingMetadata.objects.create(
+            model_used="t", num_tokens=5, vector=[0.1]
+        )
         chunk.embedding = emb
         chunk.save()
         self.assistant.documents.add(doc)
@@ -31,5 +33,6 @@ class RagSelfTestAPITest(BaseAPITestCase):
         resp = self.client.post(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
-        self.assertTrue(data["passed"])
-        self.assertEqual(data["issues"], [])
+        self.assertIn("results", data)
+        self.assertEqual(data["tested"], 1)
+        self.assertEqual(data["issues_found"], 0)
