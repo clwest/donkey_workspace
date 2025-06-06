@@ -1481,6 +1481,25 @@ def anchor_health(request, slug):
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
+def glossary_stats(request, slug):
+    """Return acquisition stage counts for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    from django.db.models import Count
+    from memory.models import SymbolicMemoryAnchor
+
+    qs = SymbolicMemoryAnchor.objects.filter(
+        memory_context=assistant.memory_context
+    )
+    stage_counts = qs.values("acquisition_stage").annotate(count=Count("id"))
+    result = {"reinforced": 0, "acquired": 0, "exposed": 0, "unseen": 0}
+    for row in stage_counts:
+        stage = row["acquisition_stage"] or "unseen"
+        result[stage] = row["count"]
+    return Response(result)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
 def glossary_convergence(request, slug):
     """Return glossary convergence metrics for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)

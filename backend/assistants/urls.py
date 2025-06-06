@@ -621,6 +621,11 @@ urlpatterns = [
         name="assistant-anchor-health",
     ),
     path(
+        "<slug:slug>/glossary_stats/",
+        assistants.glossary_stats,
+        name="assistant-glossary-stats",
+    ),
+    path(
         "<slug:slug>/glossary/convergence/",
         assistants.glossary_convergence,
         name="assistant-glossary-convergence",

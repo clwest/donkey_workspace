@@ -1001,7 +1001,7 @@ export default function AssistantDetailPage() {
         </>
       )}
       {activeTab === "vocab" && (
-        <VocabularyProgressPanel assistantId={assistant.id} />
+        <VocabularyProgressPanel assistantSlug={assistant.slug} />
       )}
       <CommonModal
         show={showBoot}

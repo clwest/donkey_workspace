@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import apiFetch from "../../../../utils/apiClient";
 import { searchDocumentChunks, storeMemoryFromChat } from "../../../../api/rag";
+import AssistantBadgeIcon from "../../../../components/assistant/AssistantBadgeIcon";
 
 export default function ChatWithKnowledge() {
   const { slug } = useParams();
@@ -98,7 +99,14 @@ export default function ChatWithKnowledge() {
   return (
     <div className="container my-4">
       <h1>
-        💬 Chat with Knowledge: <span className="text-primary">{slug}</span>
+        💬 Chat with Knowledge:
+        <span className="text-primary"> {slug}</span>
+        {assistant && (
+          <AssistantBadgeIcon
+            badges={assistant.skill_badges}
+            primaryBadge={assistant.primary_badge}
+          />
+        )}
       </h1>
       {showRestore && (
         <div className="alert alert-warning d-flex justify-content-between align-items-center">

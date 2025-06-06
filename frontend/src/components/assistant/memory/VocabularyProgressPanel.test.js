@@ -1,7 +1,7 @@
 import VocabularyProgressPanel from "./VocabularyProgressPanel";
 import { renderToStaticMarkup } from "react-dom/server";
 
-const html = renderToStaticMarkup(<VocabularyProgressPanel assistantId="1" />);
+const html = renderToStaticMarkup(<VocabularyProgressPanel assistantSlug="a1" />);
 if (!html.includes("Vocabulary Progress")) {
   throw new Error("VocabularyProgressPanel render failed");
 }
