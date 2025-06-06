@@ -68,6 +68,7 @@ from .memory import (
     assistant_reflection_replays,
     replay_reflection,
     rag_playback_detail,
+    rag_playback_compare,
     assistant_memory_documents,
     # memory_to_project,
 )
@@ -206,6 +207,7 @@ __all__ = [
     "assistant_reflection_replays",
     "replay_reflection",
     "rag_playback_detail",
+    "rag_playback_compare",
     "assistant_memory_documents",
     # "memory_to_project",
     "linked_prompts",

@@ -8,12 +8,13 @@ from memory.models import (
     MemoryEntry,
     SymbolicMemoryAnchor,
     ReflectionReplayLog,
+    RAGPlaybackLog,
 )
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 
 from intel_core.utils.glossary_tagging import _match_anchor
 from assistants.utils.chunk_retriever import get_relevant_chunks
-from utils.rag_playback import log_rag_playback
+from utils.rag_playback import record_rag_playback
 
 
 logger = logging.getLogger(__name__)
@@ -33,11 +34,13 @@ def replay_reflection(obj: AssistantReflectionLog | MemoryEntry) -> ReflectionRe
             else None,
             debug=True,
         )
-        playback = log_rag_playback(
+        playback = record_rag_playback(
             obj.summary or obj.event or "",
             assistant,
             assistant.memory_context,
             chunk_info,
+            query_term=obj.summary or obj.event or "",
+            playback_type=RAGPlaybackLog.PlaybackType.REPLAY,
         )
         summary = engine.generate_reflection(prompt)
         old_score = 0.0
@@ -56,11 +59,13 @@ def replay_reflection(obj: AssistantReflectionLog | MemoryEntry) -> ReflectionRe
             else None,
             debug=True,
         )
-        playback = log_rag_playback(
+        playback = record_rag_playback(
             obj.summary or "",
             assistant,
             assistant.memory_context,
             chunk_info,
+            query_term=obj.summary or "",
+            playback_type=RAGPlaybackLog.PlaybackType.REPLAY,
         )
         summary = engine.generate_reflection(prompt)
         old_score = 0.0
