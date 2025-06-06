@@ -187,15 +187,44 @@ class AssistantReflectionEngine:
     Would a different emotional state have produced better results?
     """
 
+    def get_reflection_system_prompt(self) -> str:
+        """Return the system prompt content for reflections, creating a fallback if missing."""
+        slug = "reflection-prompt"
+        try:
+            prompt = Prompt.objects.get(slug=slug)
+            return prompt.content
+        except Prompt.DoesNotExist:
+            fallback = (
+                "You are an AI assistant reflecting on memory. "
+                "Extract useful patterns and summarize insights."
+            )
+            prompt, _ = Prompt.objects.get_or_create(
+                slug=slug,
+                defaults={
+                    "title": "Reflection Prompt",
+                    "type": "system",
+                    "content": fallback,
+                    "source": "fallback",
+                    "token_count": count_tokens(fallback),
+                },
+            )
+            logger.warning(
+                "[ReflectionEngine] Created fallback prompt for slug %s", slug
+            )
+            return prompt.content
+
     def generate_reflection(
         self,
         prompt: str,
         temperature: float = 0.5,
         rag_chunks: Optional[List[str]] = None,
+        system_prompt: Optional[str] = None,
     ) -> str:
         from utils.llm_router import call_llm
 
         messages = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
         if rag_chunks:
             messages.append(
                 {
@@ -265,8 +294,13 @@ class AssistantReflectionEngine:
             prompt = self.build_reflection_prompt(texts)
 
         try:
+            system_prompt = self.get_reflection_system_prompt()
             reflection_text = (
-                self.generate_reflection(prompt, rag_chunks=rag_chunks)
+                self.generate_reflection(
+                    prompt,
+                    rag_chunks=rag_chunks,
+                    system_prompt=system_prompt,
+                )
                 if prompt
                 else "No meaningful content."
             )
@@ -285,6 +319,7 @@ class AssistantReflectionEngine:
                 context_id=str(context.id),
                 rendered_prompt=prompt or "",
                 assistant_id=str(self.assistant.id),
+                assistant_slug=self.assistant.slug,
             )
             if usage:
                 log.prompt_log = usage
@@ -472,7 +507,10 @@ class AssistantReflectionEngine:
     \"\"\""""
 
         try:
-            reflection_text = self.generate_reflection(prompt)
+            system_prompt = self.get_reflection_system_prompt()
+            reflection_text = self.generate_reflection(
+                prompt, system_prompt=system_prompt
+            )
 
             log = AssistantReflectionLog.objects.create(
                 project=self.project,
@@ -490,6 +528,7 @@ class AssistantReflectionEngine:
                 context_id=str(memory.context_id or ""),
                 rendered_prompt=prompt,
                 assistant_id=str(self.assistant.id),
+                assistant_slug=self.assistant.slug,
             )
             if usage:
                 log.prompt_log = usage
@@ -514,7 +553,10 @@ class AssistantReflectionEngine:
                 "Provide constructive feedback on its purpose, tone, and any improvements."\
                 "\nWas your tone appropriate for the tasks assigned?"\
                 "\nWould a different emotional state have produced better results?"""
-        reflection_text = self.generate_reflection(prompt)
+        system_prompt = self.get_reflection_system_prompt()
+        reflection_text = self.generate_reflection(
+            prompt, system_prompt=system_prompt
+        )
         log = AssistantReflectionLog.objects.create(
             assistant=self.assistant,
             project=project,
@@ -529,6 +571,7 @@ class AssistantReflectionEngine:
             context_id=str(project.memory_context_id if project else ""),
             rendered_prompt=prompt,
             assistant_id=str(self.assistant.id),
+            assistant_slug=self.assistant.slug,
         )
         if usage:
             log.prompt_log = usage
@@ -878,6 +921,7 @@ def reflect_on_agent_swarm(assistant: Assistant) -> AssistantReflectionLog:
         used_by="assistant_reflection",
         rendered_prompt=prompt,
         assistant_id=str(assistant.id),
+        assistant_slug=assistant.slug,
     )
     if usage:
         log.prompt_log = usage
@@ -921,6 +965,7 @@ def suggest_agent_resurrections(assistant: Assistant) -> list[str]:
             used_by="assistant_reflection",
             rendered_prompt="\n".join(bullets),
             assistant_id=str(assistant.id),
+            assistant_slug=assistant.slug,
         )
         if usage:
             log.prompt_log = usage
@@ -963,6 +1008,7 @@ def forecast_future_swarm_needs(assistant: Assistant) -> str:
         used_by="assistant_reflection",
         rendered_prompt=prompt,
         assistant_id=str(assistant.id),
+        assistant_slug=assistant.slug,
     )
     if usage:
         log.prompt_log = usage
@@ -1003,6 +1049,7 @@ def reflect_on_dissent_signals(assistant: Assistant) -> str:
         used_by="assistant_reflection",
         rendered_prompt=summary,
         assistant_id=str(assistant.id),
+        assistant_slug=assistant.slug,
     )
     if usage:
         log.prompt_log = usage
