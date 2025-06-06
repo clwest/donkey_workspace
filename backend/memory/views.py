@@ -1162,3 +1162,24 @@ def accept_mutation(request, id):
         anchor.status = "accepted"
         anchor.save(update_fields=["status"])
     return Response({"status": anchor.status})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def accept_replay(request, id):
+    replay = get_object_or_404(ReflectionReplayLog, id=id)
+    if replay.original_reflection and replay.replayed_summary:
+        replay.original_reflection.summary = replay.replayed_summary
+        replay.original_reflection.save(update_fields=["summary"])
+    replay.status = ReflectionReplayLog.ReplayStatus.ACCEPTED
+    replay.save(update_fields=["status"])
+    return Response({"status": "accepted"})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def reject_replay(request, id):
+    replay = get_object_or_404(ReflectionReplayLog, id=id)
+    replay.status = ReflectionReplayLog.ReplayStatus.SKIPPED
+    replay.save(update_fields=["status"])
+    return Response({"status": "skipped"})

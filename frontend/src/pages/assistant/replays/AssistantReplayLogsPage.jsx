@@ -23,9 +23,12 @@ export default function AssistantReplayLogsPage() {
               <br />
               <small className="text-muted">{new Date(r.created_at).toLocaleString()}</small>
             </div>
-            <span className="badge bg-secondary">
-              {r.new_score?.toFixed ? r.new_score.toFixed(2) : r.new_score}
-            </span>
+            <div>
+              <Link className="btn btn-sm btn-outline-primary me-2" to={`/assistants/${slug}/replays/${r.id}`}>View</Link>
+              <span className="badge bg-secondary">
+                {r.new_score?.toFixed ? r.new_score.toFixed(2) : r.new_score}
+              </span>
+            </div>
           </li>
         ))}
         {logs.length === 0 && (

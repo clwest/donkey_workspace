@@ -31,6 +31,7 @@ from memory.serializers import (
     SimulatedMemoryForkSerializer,
 )
 from memory.utils import replay_reflection as replay_reflection_util
+from utils.similarity.compare_reflections import compare_reflections
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from assistants.utils.memory_filters import get_filtered_memories
 from assistants.helpers.reflection_helpers import simulate_memory_fork
@@ -237,6 +238,41 @@ def replay_reflection(request, id):
     replay = replay_reflection_util(reflection)
     serializer = ReflectionReplayLogSerializer(replay)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+@api_view(["GET"])
+def reflection_replay_diff(request, slug, id):
+    """Return diff stats for a reflection replay."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    replay = get_object_or_404(ReflectionReplayLog, id=id, assistant=assistant)
+
+    original = replay.original_reflection.summary if replay.original_reflection else ""
+    replayed = replay.replayed_summary
+
+    diff = compare_reflections(original, replayed)
+    diff.update({"original": original, "replayed": replayed, "status": replay.status, "drift_reason": replay.drift_reason})
+    return Response(diff)
+
+
+@api_view(["POST"])
+def accept_replay(request, id):
+    """Accept a replay and update the original reflection."""
+    replay = get_object_or_404(ReflectionReplayLog, id=id)
+    if replay.original_reflection and replay.replayed_summary:
+        replay.original_reflection.summary = replay.replayed_summary
+        replay.original_reflection.save(update_fields=["summary"])
+    replay.status = ReflectionReplayLog.ReplayStatus.ACCEPTED
+    replay.save(update_fields=["status"])
+    return Response({"status": "accepted"})
+
+
+@api_view(["POST"])
+def reject_replay(request, id):
+    """Reject a replay."""
+    replay = get_object_or_404(ReflectionReplayLog, id=id)
+    replay.status = ReflectionReplayLog.ReplayStatus.SKIPPED
+    replay.save(update_fields=["status"])
+    return Response({"status": "skipped"})
 
 
 @api_view(["GET"])

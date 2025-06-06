@@ -155,5 +155,15 @@ urlpatterns = (
             views.glossary_retry_logs,
             name="glossary-retry-logs",
         ),
+        path(
+            "replays/<uuid:id>/accept/",
+            views.accept_replay,
+            name="replay-accept",
+        ),
+        path(
+            "replays/<uuid:id>/reject/",
+            views.reject_replay,
+            name="replay-reject",
+        ),
     ]
 )

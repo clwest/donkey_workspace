@@ -723,6 +723,19 @@ class ReflectionReplayLog(models.Model):
     changed_anchors = ArrayField(
         models.CharField(max_length=100), default=list, blank=True
     )
+    replayed_summary = models.TextField(blank=True, default="")
+    drift_reason = models.CharField(max_length=200, null=True, blank=True)
+
+    class ReplayStatus(models.TextChoices):
+        PENDING = "pending", "Pending"
+        ACCEPTED = "accepted", "Accepted"
+        SKIPPED = "skipped", "Skipped"
+
+    status = models.CharField(
+        max_length=20,
+        choices=ReplayStatus.choices,
+        default=ReplayStatus.PENDING,
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
