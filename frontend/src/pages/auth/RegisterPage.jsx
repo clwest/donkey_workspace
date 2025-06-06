@@ -29,9 +29,10 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="container my-5">
-      <h2>Register</h2>
-      <form onSubmit={handleSubmit} className="mt-4">
+    <div className="container my-5 text-light bg-dark p-4 rounded">
+      <h2 className="mb-1">Register</h2>
+      <p className="text-secondary mb-4">You don’t prompt MythOS. You grow it.</p>
+      <form onSubmit={handleSubmit} className="mt-2">
         <div className="mb-3">
           <label className="form-label">Username</label>
           <input

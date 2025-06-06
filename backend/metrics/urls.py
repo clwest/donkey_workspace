@@ -12,6 +12,7 @@ from .views import (
     SwarmAlignmentIndexView,
     SwarmTaskEvolutionView,
 )
+from .views.system import SystemSummaryView
 
 urlpatterns = [
     path(
@@ -58,5 +59,10 @@ urlpatterns = [
         "evolve/swarm/",
         SwarmTaskEvolutionView.as_view(),
         name="swarm-task-evolution",
+    ),
+    path(
+        "system/summary/",
+        SystemSummaryView.as_view(),
+        name="system-summary",
     ),
 ]
