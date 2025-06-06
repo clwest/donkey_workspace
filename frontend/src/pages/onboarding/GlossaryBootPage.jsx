@@ -4,6 +4,7 @@ import useOnboardingGuard from "../../onboarding/useOnboardingGuard";
 import useOnboardingTracker from "@/hooks/useOnboardingTracker";
 import GlossaryAnchorCard from "../../components/onboarding/GlossaryAnchorCard";
 import TeachAnchorModal from "../../components/onboarding/TeachAnchorModal";
+import GuideChatPanel from "../../components/onboarding/GuideChatPanel";
 
 export default function GlossaryBootPage() {
   const { progress, completeStep } = useOnboardingGuard("glossary");
@@ -38,6 +39,7 @@ export default function GlossaryBootPage() {
 
   return (
     <div className="container my-4">
+      <GuideChatPanel />
       <h2>Glossary Preview</h2>
       {localStorage.getItem("boot_anchor_slug") && nextStep !== "glossary" && (
         <div className="alert alert-success">

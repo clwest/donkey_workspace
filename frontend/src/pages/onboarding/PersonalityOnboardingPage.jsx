@@ -5,6 +5,7 @@ import useOnboardingGuard from "../../onboarding/useOnboardingGuard";
 import useUserInfo from "@/hooks/useUserInfo";
 import TonePreview from "../../components/onboarding/TonePreview";
 import AvatarSelector from "../../components/onboarding/AvatarSelector";
+import GuideChatPanel from "../../components/onboarding/GuideChatPanel";
 
 const TONES = ["cheerful", "formal", "nerdy", "zen", "friendly", "mysterious"];
 
@@ -44,6 +45,7 @@ export default function PersonalityOnboardingPage() {
 
   return (
     <div className="container my-4">
+      <GuideChatPanel />
       <OnboardingProgressPanel />
       <h2>Choose Personality</h2>
       <div className="mb-3">

@@ -44,6 +44,34 @@ class Command(BaseCommand):
             if created:
                 assistants.append(name)
 
+        # Onboarding guide assistant
+        from prompts.models import Prompt
+
+        prompt, _ = Prompt.objects.get_or_create(
+            title="MythOS Guide Prompt",
+            defaults={
+                "content": (
+                    "You are the MythOS onboarding guide. Explain glossary growth, assistant skills, mythpath, and reflection loops in simple, supportive language."
+                ),
+                "type": "system",
+                "tone": "friendly",
+            },
+        )
+
+        guide, created = Assistant.objects.get_or_create(
+            slug="mythos-guide",
+            defaults={
+                "name": "MythOS Guide",
+                "description": "Built-in onboarding guide",
+                "specialty": "onboarding",
+                "preferred_model": "gpt-4o",
+                "system_prompt": prompt,
+                "is_guide": True,
+            },
+        )
+        if created:
+            assistants.append(guide.name)
+
         self.stdout.write(
             self.style.SUCCESS(
                 f"✅ Seeded {len(assistants)} assistants: {', '.join(assistants)}"

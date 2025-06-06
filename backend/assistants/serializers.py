@@ -816,6 +816,7 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             "avatar",
             "is_active",
             "is_demo",
+            "is_guide",
             "is_primary",
             "is_ephemeral",
             "expiration_event",
@@ -1339,6 +1340,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "health_score",
             "glossary_health_index",
             "is_primary",
+            "is_guide",
             "needs_recovery",
             "live_relay_enabled",
             "collaboration_style",
@@ -1489,6 +1491,7 @@ class AssistantFromPromptSerializer(serializers.Serializer):
     assistant_name = serializers.CharField(required=False)
     preferred_model = serializers.CharField(default="gpt-4o")
     is_demo = serializers.BooleanField(default=False)
+    is_guide = serializers.BooleanField(default=False)
     parent_assistant_id = serializers.UUIDField(required=False, allow_null=True)
     parent_thread_id = serializers.UUIDField(required=False, allow_null=True)
 
@@ -1538,6 +1541,7 @@ class AssistantFromPromptSerializer(serializers.Serializer):
             specialty=prompt.source or "general",
             preferred_model=validated_data["preferred_model"],
             is_demo=validated_data["is_demo"],
+            is_guide=validated_data.get("is_guide", False),
             parent_assistant=parent_assistant,
         )
 

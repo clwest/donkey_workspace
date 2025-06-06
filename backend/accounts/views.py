@@ -3,6 +3,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from django.db.models import Avg, Count
+from django.utils import timezone
 
 from assistants.serializers import AssistantSerializer
 from agents.serializers import AgentSerializer
@@ -124,6 +125,11 @@ def user_info(request):
     }
     if next_step:
         data["pending_onboarding_step"] = next_step
+    show_guide = (
+        not request.user.dismissed_guide
+        and timezone.now() - request.user.created_at <= timezone.timedelta(hours=1)
+    )
+    data["show_guide"] = show_guide
     return Response(data)
 
 

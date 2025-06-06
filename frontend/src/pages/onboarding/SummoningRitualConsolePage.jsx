@@ -1,6 +1,7 @@
 import SummoningRitualConsole from "../../components/mythos/SummoningRitualConsole";
 import OnboardingProgressPanel from "../../components/onboarding/OnboardingProgressPanel";
 import OnboardingProgressBar from "../../components/onboarding/OnboardingProgressBar";
+import GuideChatPanel from "../../components/onboarding/GuideChatPanel";
 import useOnboardingGuard from "../../onboarding/useOnboardingGuard";
 
 export default function SummoningRitualConsolePage() {
@@ -9,6 +10,7 @@ export default function SummoningRitualConsolePage() {
 
   return (
     <div className="container my-4">
+      <GuideChatPanel />
       <OnboardingProgressBar />
       <OnboardingProgressPanel />
       <SummoningRitualConsole />
