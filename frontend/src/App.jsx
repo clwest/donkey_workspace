@@ -480,7 +480,7 @@ export default function App() {
             element={<AssistantReflectionLogsPage />}
           />
           <Route
-            path="/assistants/:slug/replay_reflections"
+            path="/assistants/:slug/replays"
             element={<AssistantReplayLogsPage />}
           />
           <Route

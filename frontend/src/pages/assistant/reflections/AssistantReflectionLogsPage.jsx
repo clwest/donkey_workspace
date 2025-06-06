@@ -48,7 +48,7 @@ export default function AssistantReflectionLogsPage() {
     try {
       await apiFetch(`/reflections/${id}/replay/`, { method: "POST" });
       toast.success("Reflection replayed!");
-      navigate(`/assistants/${slug}/replays/`);
+      navigate(`/assistants/${slug}/replays`);
     } catch (err) {
       toast.error("Failed to replay reflection");
     }
@@ -58,14 +58,14 @@ export default function AssistantReflectionLogsPage() {
     <div className="container my-5">
       <h2 className="mb-4">🪞 Reflections for {slug}</h2>
       <Link
-        to={`/assistants/${slug}/replays/`}
+        to={`/assistants/${slug}/replays`}
         className="btn btn-sm btn-outline-primary mb-3"
       >
         🌀 Replay Reflections
       </Link>
       <Button
         className="mb-4"
-        onClick={() => navigate(`/assistants/${slug}/replay_reflections`)}
+        onClick={() => navigate(`/assistants/${slug}/replays`)}
       >
         View Replays
       </Button>
