@@ -26,6 +26,7 @@ from devtools.views import (
     export_templates,
 )
 from story.views import storyboard_list
+import accounts.views as accounts
 from mcp_core.views import threading as thread_views
 from mcp_core.views import ontology as ontology_views
 from agents.views import agents as agent_views
@@ -164,6 +165,7 @@ urlpatterns = [
     path("api/characters/", include("characters.urls")),
     path("api/mythcasting/", include("mythcasting.urls")),
     path("api/mythos/", include("mythos.urls")),
+    path("api/user/", accounts.views.user_info),
     path("api/users/", include("accounts.urls")),
     path("api/storyboard/", include("storyboard.urls")),
     # Embedding chunk-match endpoint

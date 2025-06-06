@@ -18,16 +18,17 @@ export default function LoginPage() {
       if (data.access) localStorage.setItem("access", data.access);
       if (data.refresh) localStorage.setItem("refresh", data.refresh);
       toast.success("✅ Logged in!");
-      navigate("/onboarding");
+      navigate("/welcome");
     } catch (err) {
       toast.error("❌ Login failed");
     }
   };
 
   return (
-    <div className="container my-5">
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit} className="mt-4">
+    <div className="container my-5 text-light bg-dark p-4 rounded">
+      <h2 className="mb-1">Login</h2>
+      <p className="text-secondary mb-4">You don’t prompt MythOS. You grow it.</p>
+      <form onSubmit={handleSubmit} className="mt-2">
         <div className="mb-3">
           <label className="form-label">Username or Email</label>
           <input

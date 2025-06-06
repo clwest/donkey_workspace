@@ -8,7 +8,7 @@ export default function Navbar({ onToggleSidebar }) {
     <nav className="navbar navbar-expand-lg navbar-light bg-light mb-4">
       <div className="container-fluid">
         <Link className="navbar-brand me-2" to="/">
-          🏠 Donkey
+          🌠 MythOS
         </Link>
         <button
           className="btn btn-outline-secondary btn-sm me-2"

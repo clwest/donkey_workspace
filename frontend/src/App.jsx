@@ -14,7 +14,8 @@ import WorldTimelinePage from "./pages/WorldTimelinePage";
 import AssistantMythRebirthPage from "./pages/assistant/myth/AssistantMythRebirthPage";
 import CodexBriefingPage from "./pages/codex/CodexBriefingPage";
 import AssistantTutorialPage from "./pages/assistant/tutorial/AssistantTutorialPage";
-import MythosLandingPage from "./pages/MythosLandingPage";
+import MythOSLandingPage from "./pages/MythOSLandingPage";
+import WelcomePage from "./pages/WelcomePage";
 
 import PromptsPage from "./pages/prompts/PromptsPage";
 import PromptDetailView from "./pages/prompts/PromptDetailView";
@@ -295,7 +296,8 @@ export default function App() {
           <Route path="/codex/briefing" element={<CodexBriefingPage />} />
           <Route path="/assistant/:id/tutorial" element={<AssistantTutorialPage />} />
           {/* Prompts */}
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<MythOSLandingPage />} />
+          <Route path="/welcome" element={<WelcomePage />} />
           <Route path="/prompts" element={<PromptsPage />} />
           <Route path="/prompts/capsules" element={<PromptCapsuleManagerPage />} />
           <Route path="/feedback/prompts/:id" element={<PromptFeedbackPage />} />

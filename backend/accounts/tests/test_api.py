@@ -88,3 +88,9 @@ class AccountsAPITest(APITestCase):
         data = resp.json()
         self.assertEqual(data["message_count"], 3)
         self.assertEqual(data["interaction_summary"], "Good")
+
+    def test_user_info(self):
+        resp = self.client.get("/api/user/")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.json()
+        self.assertIn("assistant_count", data)

@@ -1,12 +1,17 @@
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+from django.contrib.auth import get_user_model
+from django.db.models import Avg, Count
 
 from assistants.serializers import AssistantSerializer
 from agents.serializers import AgentSerializer
 from intel_core.serializers import DocumentSerializer
 from images.serializers import SourceImageSerializer
 from .models import UserInteractionSummary
+from assistants.models import Assistant
+from assistants.utils.onboarding_tracker import get_onboarding_status
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 @api_view(["GET"])
@@ -65,4 +70,32 @@ def me_summary(request):
         "interaction_summary": summary.interaction_summary,
     }
     return Response(data)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def user_info(request):
+    assistants = Assistant.objects.filter(created_by=request.user)
+    assistant_count = assistants.count()
+    glossary_score = assistants.aggregate(avg=Avg("glossary_score"))[
+        "avg"
+    ] or 0
+    onboarding = get_onboarding_status(request.user)
+    return Response(
+        {
+            "username": request.user.username,
+            "assistant_count": assistant_count,
+            "glossary_score": glossary_score,
+            "onboarding_status": onboarding,
+        }
+    )
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def demo_login(request):
+    User = get_user_model()
+    user, _ = User.objects.get_or_create(username="demo")
+    token = RefreshToken.for_user(user)
+    return Response({"access": str(token.access_token), "refresh": str(token)})
 
