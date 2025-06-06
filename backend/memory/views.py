@@ -1049,6 +1049,38 @@ def assistant_convergence_logs(request):
 
 @api_view(["GET"])
 @permission_classes([AllowAny])
+def anchor_training(request, slug):
+    """Return training memories and chunks for an anchor."""
+    anchor = get_object_or_404(SymbolicMemoryAnchor, slug=slug)
+    memories = anchor.memories.all().order_by("-created_at")[:20]
+    from intel_core.models import DocumentChunk, GlossaryFallbackReflectionLog
+    from intel_core.serializers import DocumentChunkInfoSerializer
+
+    chunks = (
+        DocumentChunk.objects.filter(anchor=anchor).order_by("-created_at")[:20]
+    )
+    fallbacks = GlossaryFallbackReflectionLog.objects.filter(
+        anchor_slug=slug
+    ).order_by("-created_at")[:20]
+
+    data = {
+        "memories": MemoryEntrySlimSerializer(memories, many=True).data,
+        "chunks": DocumentChunkInfoSerializer(chunks, many=True).data,
+        "fallbacks": [
+            {
+                "id": str(f.id),
+                "chunk_id": f.chunk_id,
+                "match_score": f.match_score,
+                "created_at": f.created_at,
+            }
+            for f in fallbacks
+        ],
+    }
+    return Response(data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
 def glossary_mutations(request):
     """Return SymbolicMemoryAnchor records with pending mutations."""
     anchors = (

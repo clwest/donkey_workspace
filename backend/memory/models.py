@@ -480,6 +480,11 @@ class SymbolicMemoryAnchor(models.Model):
     reinforced_by = models.ManyToManyField(
         "assistants.Assistant", blank=True, related_name="reinforced_anchors"
     )
+    explanation = models.TextField(null=True, blank=True)
+    protected = models.BooleanField(default=False)
+    last_fallback = models.DateField(null=True, blank=True)
+    total_uses = models.IntegerField(default=0)
+    avg_score = models.FloatField(default=0.0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

@@ -208,6 +208,11 @@ urlpatterns = [
         "api/glossary/mutations/<uuid:id>/reject",
         memory_views.reject_glossary_mutation,
     ),
+    path(
+        "api/anchor/<slug:slug>/training/",
+        memory_views.anchor_training,
+        name="anchor-training",
+    ),
     path("api/signal-artifacts/", agent_views.signal_artifacts),
     path("api/navigation-vectors/", agent_views.navigation_vectors),
     path("api/flux-index/", agent_views.flux_index),

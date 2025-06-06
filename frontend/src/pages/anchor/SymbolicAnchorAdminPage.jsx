@@ -13,7 +13,20 @@ export default function SymbolicAnchorAdminPage() {
 
   const handleChange = (id, value) => {
     setAnchors(
-      anchors.map((a) => (a.id === id ? { ...a, glossary_guidance: value } : a))
+      anchors.map((a) => (a.id === id ? { ...a, explanation: value } : a))
+    );
+  };
+
+  const toggleProtected = async (id) => {
+    const anchor = anchors.find((a) => a.id === id);
+    await apiFetch(`/memory/symbolic-anchors/${id}/`, {
+      method: "PATCH",
+      body: { protected: !anchor.protected },
+    });
+    setAnchors(
+      anchors.map((a) =>
+        a.id === id ? { ...a, protected: !a.protected } : a
+      )
     );
   };
 
@@ -22,7 +35,7 @@ export default function SymbolicAnchorAdminPage() {
     setSavingId(id);
     await apiFetch(`/memory/symbolic-anchors/${id}/`, {
       method: "PATCH",
-      body: { glossary_guidance: anchor.glossary_guidance },
+      body: { explanation: anchor.explanation },
     });
     setSavingId(null);
   };
@@ -37,10 +50,24 @@ export default function SymbolicAnchorAdminPage() {
             <div className="mt-1">
               <a href={`/anchor/symbolic/${a.slug}`}>View Training</a>
             </div>
+            <div className="small text-muted">
+              Last Fallback: {a.last_fallback || "-"} | Uses: {a.total_uses} |
+              Avg Score: {a.avg_score?.toFixed?.(2) || "0"}
+            </div>
+            <div className="form-check mt-1">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                checked={a.protected || false}
+                onChange={() => toggleProtected(a.id)}
+                id={`prot-${a.id}`}
+              />
+              <label className="form-check-label" htmlFor={`prot-${a.id}`}>Protect Anchor</label>
+            </div>
             <textarea
               className="form-control mt-2"
               rows={2}
-              value={a.glossary_guidance || ""}
+              value={a.explanation || ""}
               onChange={(e) => handleChange(a.id, e.target.value)}
             />
             <button
