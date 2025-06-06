@@ -42,6 +42,10 @@ def get_progress_percent(user):
     return int((completed / len(status)) * 100)
 
 
-def generate_guide_reply(message: str) -> str:
-    """Return a guide response via the default model."""
-    return complete_chat(system=GUIDE_SYSTEM_PROMPT, user=message, model="gpt-4o", max_tokens=250)
+def generate_guide_reply(message: str, hint_status: dict | None = None) -> str:
+    """Return a guide response via the default model with hint context."""
+    system = GUIDE_SYSTEM_PROMPT
+    if hint_status:
+        pairs = ", ".join(f"{k}:{v}" for k, v in hint_status.items())
+        system += f" Hint status: {pairs}."
+    return complete_chat(system=system, user=message, model="gpt-4o", max_tokens=250)
