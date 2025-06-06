@@ -32,6 +32,7 @@ from .models.assistant import (
 )
 from .models.glossary import SuggestionLog
 from .models.badge import Badge
+from .models.tour import AssistantTourStartLog
 from .models.project import (
     AssistantProject,
     AssistantObjective,
@@ -914,6 +915,13 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             return badge.emoji if badge else None
         return None
 
+    def get_tour_started(self, obj):
+        request = self.context.get("request") if hasattr(self, "context") else None
+        user = getattr(request, "user", None)
+        if not user or user.is_anonymous:
+            return False
+        return AssistantTourStartLog.objects.filter(user=user, assistant=obj).exists()
+
     def get_glossary_health_index(self, obj):
         from django.db.models import Avg, Count
         from memory.models import SymbolicMemoryAnchor
@@ -1307,6 +1315,7 @@ class AssistantSerializer(serializers.ModelSerializer):
     initial_glossary_anchor = serializers.SerializerMethodField()
     initial_badges = serializers.SerializerMethodField()
     flair = serializers.SerializerMethodField()
+    tour_started = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -1363,6 +1372,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "primary_badge",
             "available_badges",
             "flair",
+            "tour_started",
         ]
 
     def get_trust(self, obj):

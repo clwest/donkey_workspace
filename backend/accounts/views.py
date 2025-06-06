@@ -115,6 +115,8 @@ def user_info(request):
     first_assistant = assistants.order_by("created_at").first()
     primary = assistants.filter(is_primary=True).first()
     demo_assistant_exists = assistants.filter(is_demo=True).exists()
+    from assistants.models import AssistantTourStartLog
+    any_tour_started = AssistantTourStartLog.objects.filter(user=request.user).exists()
     data = {
         "username": request.user.username,
         "assistant_count": assistant_count,
@@ -126,6 +128,7 @@ def user_info(request):
         "initial_badges": first_assistant.skill_badges if first_assistant else [],
         "primary_assistant_slug": primary.slug if primary else None,
         "demo_assistant": demo_assistant_exists,
+        "any_tour_started": any_tour_started,
     }
     if next_step:
         data["pending_onboarding_step"] = next_step
