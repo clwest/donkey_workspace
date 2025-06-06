@@ -38,8 +38,17 @@ export default function GlossaryMutationReviewPanel() {
   }, [searchParams]);
 
   const handleAccept = async (id) => {
-    await acceptGlossaryMutation(id);
-    setMutations(mutations.map((m) => (m.id === id ? { ...m, status: "applied" } : m)));
+    try {
+      await acceptGlossaryMutation(id);
+      setMutations(
+        mutations.map((m) =>
+          m.id === id ? { ...m, status: "applied" } : m
+        )
+      );
+    } catch (err) {
+      console.error("Failed to accept mutation", err);
+      alert(err.message);
+    }
   };
 
   const handleReject = async (id) => {
@@ -96,7 +105,7 @@ export default function GlossaryMutationReviewPanel() {
               <td>
                 <button
                   className="btn btn-sm btn-success me-1"
-                  disabled={m.status !== "pending"}
+                  disabled={m.status !== "pending" || !m.suggested_label}
                   onClick={() => handleAccept(m.id)}
                 >
                   Accept
