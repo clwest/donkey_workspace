@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import {
-  fetchGlossaryMutations,
-  acceptGlossaryMutation,
-  rejectGlossaryMutation,
-} from "../../api/agents";
+import { Button } from "react-bootstrap";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { fetchGlossaryMutations, rejectGlossaryMutation } from "../../api/agents";
 import apiFetch from "../../utils/apiClient";
 
 export default function GlossaryMutationReviewPanel() {
@@ -37,17 +36,15 @@ export default function GlossaryMutationReviewPanel() {
     load();
   }, [searchParams]);
 
+  const reload = () => load();
+
   const handleAccept = async (id) => {
     try {
-      await acceptGlossaryMutation(id);
-      setMutations(
-        mutations.map((m) =>
-          m.id === id ? { ...m, status: "applied" } : m
-        )
-      );
-    } catch (err) {
-      console.error("Failed to accept mutation", err);
-      alert(err.message);
+      await axios.post(`/api/glossary/mutations/${id}/accept/`);
+      toast.success("Mutation accepted");
+      reload();
+    } catch (e) {
+      toast.error("Failed to accept mutation");
     }
   };
 
@@ -103,13 +100,13 @@ export default function GlossaryMutationReviewPanel() {
               <td>{m.fallback_count}</td>
               <td>{m.status}</td>
               <td>
-                <button
-                  className="btn btn-sm btn-success me-1"
+                <Button
+                  className="bg-green-600 hover:bg-green-700 me-1"
                   disabled={m.status !== "pending" || !m.suggested_label}
                   onClick={() => handleAccept(m.id)}
                 >
                   Accept
-                </button>
+                </Button>
                 <button
                   className="btn btn-sm btn-danger me-1"
                   disabled={m.status !== "pending"}

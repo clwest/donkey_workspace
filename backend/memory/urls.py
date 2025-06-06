@@ -4,6 +4,7 @@ warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 from . import views
+from .views.glossary import accept_mutation
 
 router = DefaultRouter()
 router.register("entries", views.MemoryEntryViewSet, basename="memory-entry")
@@ -114,6 +115,11 @@ urlpatterns = (
             "glossary/mutations/<uuid:id>/accept",
             views.accept_glossary_mutation,
             name="glossary-mutation-accept",
+        ),
+        path(
+            "glossary/mutations/<uuid:id>/accept/",
+            accept_mutation,
+            name="accept_mutation",
         ),
         path(
             "glossary/mutations/<uuid:id>/reject",
