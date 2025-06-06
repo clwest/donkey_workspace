@@ -23,11 +23,11 @@ from .models.assistant import (
     AssistantHandoffLog,
     SpecializationDriftLog,
     ChatIntentDriftLog,
-    SuggestionLog,
     DebateSession,
     DebateThoughtLog,
     DebateSummary,
 )
+from .models.glossary import SuggestionLog
 from .models.core import AssistantMythLayer
 from .models.thoughts import CollaborationLog, CollaborationThread
 from .models.project import AssistantMemoryChain
