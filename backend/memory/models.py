@@ -483,6 +483,7 @@ class SymbolicMemoryAnchor(models.Model):
     explanation = models.TextField(null=True, blank=True)
     protected = models.BooleanField(default=False)
     last_fallback = models.DateField(null=True, blank=True)
+    last_used_in_reflection = models.DateTimeField(null=True, blank=True)
     total_uses = models.IntegerField(default=0)
     avg_score = models.FloatField(default=0.0)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -671,4 +672,30 @@ class GlossaryChangeEvent(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return f"{self.term} boost {self.boost}"
+
+
+class ReflectionReplayLog(models.Model):
+    """Store results of replaying a reflection with updated glossary anchors."""
+
+    original_reflection = models.ForeignKey(
+        "assistants.AssistantReflectionLog",
+        on_delete=models.CASCADE,
+        related_name="replays",
+    )
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    memory_entry = models.ForeignKey(
+        "memory.MemoryEntry", null=True, blank=True, on_delete=models.SET_NULL
+    )
+    old_score = models.FloatField(default=0.0)
+    new_score = models.FloatField(default=0.0)
+    changed_anchors = ArrayField(
+        models.CharField(max_length=100), default=list, blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Replay of {self.original_reflection_id}"
 

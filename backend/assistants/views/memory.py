@@ -16,12 +16,14 @@ from assistants.serializers import (
     AssistantReflectionLogListSerializer,
     AssistantReflectionLogDetailSerializer,
     AssistantThoughtLogSerializer,
+    ReflectionReplayLogSerializer,
 )
 from project.models import ProjectMemoryLink
 from capabilities.utils import log_capability_usage
 from project.serializers import ProjectMemoryLinkSerializer
 
 from memory.services import MemoryService
+from memory.models import ReflectionReplayLog
 from memory.serializers import (
     MemoryEntrySerializer,
     MemoryEntrySlimSerializer,
@@ -215,6 +217,15 @@ def reflection_thoughts(request, id):
         "-created_at"
     )
     serializer = AssistantThoughtLogSerializer(thoughts, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+def assistant_reflection_replays(request, slug):
+    """List reflection replay logs for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    replays = ReflectionReplayLog.objects.filter(assistant=assistant).order_by("-created_at")
+    serializer = ReflectionReplayLogSerializer(replays, many=True)
     return Response(serializer.data)
 
 
