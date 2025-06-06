@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import apiFetch from "@/utils/apiClient";
 import { toast } from "react-toastify";
+import { getToken, clearTokens } from "@/utils/auth";
+import { refreshToken } from "@/api/auth";
 
 export let cachedUser = null;
 
@@ -28,11 +30,10 @@ export default function useAuthGuard() {
         setUser(cachedUser);
         return;
       }
-      const token = localStorage.getItem("access");
+      const token = getToken();
       if (!token || tokenExpired(token)) {
         if (tokenExpired(token)) {
-          localStorage.removeItem("access");
-          localStorage.removeItem("refresh");
+          clearTokens();
         }
         setChecked(true);
         if (/^\/(assistants|onboarding|dashboard|memory|memories)/.test(location.pathname)) {
@@ -65,12 +66,21 @@ export default function useAuthGuard() {
         }
       } catch (err) {
         console.error("auth check failed", err);
-        setError(err);
-        localStorage.removeItem("access");
-        localStorage.removeItem("refresh");
-        setChecked(true);
-        if (/^\/(assistants|onboarding|dashboard|memory|memories)/.test(location.pathname)) {
-          navigate("/login", { replace: true });
+        try {
+          await refreshToken();
+          const data = await apiFetch("/user/");
+          cachedUser = data;
+          setUser(data);
+          setError(null);
+          setChecked(true);
+          return;
+        } catch {
+          setError(err);
+          clearTokens();
+          setChecked(true);
+          if (/^\/(assistants|onboarding|dashboard|memory|memories)/.test(location.pathname)) {
+            navigate("/login", { replace: true });
+          }
         }
       }
     }

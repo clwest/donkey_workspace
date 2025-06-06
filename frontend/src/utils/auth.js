@@ -9,3 +9,21 @@ export function getUserIdFromToken() {
     return null;
   }
 }
+
+export function getToken() {
+  return localStorage.getItem("access") || null;
+}
+
+export function getRefreshToken() {
+  return localStorage.getItem("refresh") || null;
+}
+
+export function setToken({ access, refresh }) {
+  if (access) localStorage.setItem("access", access);
+  if (refresh) localStorage.setItem("refresh", refresh);
+}
+
+export function clearTokens() {
+  localStorage.removeItem("access");
+  localStorage.removeItem("refresh");
+}
