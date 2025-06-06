@@ -6,6 +6,8 @@ import warnings
 import logging
 logging.getLogger("sentence_transformers").setLevel(logging.WARNING)
 logging.getLogger("litellm").setLevel(logging.WARNING)
+logging.getLogger("LiteLLM").setLevel(logging.WARNING)
+logging.getLogger("lite_llm").setLevel(logging.WARNING)
 warnings.filterwarnings("ignore", category=UserWarning, module="dj_rest_auth")
 
 
