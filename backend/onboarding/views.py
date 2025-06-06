@@ -9,6 +9,7 @@ from .utils import (
     get_progress_percent,
     generate_guide_reply,
 )
+from .guide_logic import get_hint_status, suggest_next_hint
 from assistants.models import Assistant
 from .config import ONBOARDING_WORLD
 from memory.models import SymbolicMemoryAnchor, MemoryEntry
@@ -152,5 +153,12 @@ def guide_chat(request):
     message = request.data.get("message", "").strip()
     if not message:
         return Response({"error": "message required"}, status=400)
-    reply = generate_guide_reply(message)
-    return Response({"reply": reply})
+    hint_status = get_hint_status(request.user)
+    reply = generate_guide_reply(message, hint_status=hint_status)
+    hint_id, action = suggest_next_hint(request.user)
+    data = {"reply": reply}
+    if hint_id:
+        data["hint_suggestion"] = hint_id
+    if action:
+        data["ui_action"] = action
+    return Response(data)

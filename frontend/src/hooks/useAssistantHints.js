@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import apiFetch from "@/utils/apiClient";
+import { recordHintSeen } from "@/utils/hints";
 
 export default function useAssistantHints(slug) {
   const [hints, setHints] = useState([]);
@@ -30,9 +31,14 @@ export default function useAssistantHints(slug) {
     }
   };
 
+  const triggerHint = (id) => {
+    if (!slug) return;
+    recordHintSeen(slug, id);
+  };
+
   useEffect(() => {
     load();
   }, [slug]);
 
-  return { hints, dismissHint, refreshHints: load };
+  return { hints, dismissHint, refreshHints: load, triggerHint };
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import apiFetch from "@/utils/apiClient";
 import useUserInfo from "@/hooks/useUserInfo";
+import useAssistantHints from "@/hooks/useAssistantHints";
 
 const QUICK_PROMPTS = [
   "What's a MythPath?",
@@ -11,6 +12,7 @@ const QUICK_PROMPTS = [
 
 export default function GuideChatPanel() {
   const userInfo = useUserInfo();
+  const { triggerHint } = useAssistantHints("primary");
   const [messages, setMessages] = useState([
     {
       role: "assistant",
@@ -34,6 +36,14 @@ export default function GuideChatPanel() {
       });
       if (res.reply) {
         setMessages((m) => [...m, { role: "assistant", content: res.reply }]);
+      }
+      if (res.hint_suggestion) {
+        triggerHint(res.hint_suggestion);
+      }
+      if (res.ui_action) {
+        if (res.ui_action.startsWith("goto:")) {
+          window.location.href = res.ui_action.replace("goto:", "");
+        }
       }
     } catch (err) {
       console.error("guide chat", err);
