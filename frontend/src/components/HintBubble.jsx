@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export default function HintBubble({ content, position = {}, onDismiss, highlightSelector }) {
+export default function HintBubble({ label, content, position = {}, onDismiss, highlightSelector }) {
   const [style, setStyle] = useState(position);
 
   useEffect(() => {
@@ -24,6 +24,7 @@ export default function HintBubble({ content, position = {}, onDismiss, highligh
       style={{ position: "absolute", zIndex: 2000, ...style }}
     >
       <button type="button" className="btn-close float-end" onClick={onDismiss} />
+      {label && <h6 className="mb-1">{label}</h6>}
       <div dangerouslySetInnerHTML={{ __html: content }} />
     </div>
   );
