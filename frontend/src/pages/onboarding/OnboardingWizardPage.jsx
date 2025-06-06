@@ -10,6 +10,7 @@ export default function OnboardingWizardPage() {
   const [step, setStep] = useState(1);
   const total = 6;
   const navigate = useNavigate();
+
   useOnboardingGuard("wizard");
   const [primary, setPrimary] = useState(null);
 
@@ -19,6 +20,7 @@ export default function OnboardingWizardPage() {
       .then(setPrimary)
       .catch(() => {});
   }, [step]);
+
 
   const next = () => setStep((s) => Math.min(s + 1, total));
   const back = () => setStep((s) => Math.max(s - 1, 1));
