@@ -130,6 +130,11 @@ urlpatterns = (
             name="glossary-mutation-reject",
         ),
         path(
+            "glossary/anchors/",
+            views.symbolic_anchors,
+            name="glossary-anchors",
+        ),
+        path(
             "symbolic-anchors/<slug:slug>/convergence/",
             views.anchor_convergence_logs,
             name="anchor-convergence-logs",
