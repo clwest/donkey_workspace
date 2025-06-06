@@ -1,5 +1,9 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
+
+export function getNextPath(search) {
+  return new URLSearchParams(search).get("next");
+}
 import { toast } from "react-toastify";
 import apiFetch from "../../utils/apiClient";
 import { loginUser } from "@/api/auth";
@@ -8,12 +12,18 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const data = await loginUser(username, password);
+      await loginUser(username, password);
       toast.success("✅ Logged in!");
+      const nextPath = getNextPath(location.search);
+      if (nextPath) {
+        navigate(nextPath);
+        return;
+      }
       let user;
       try {
         user = await apiFetch("/user/");
