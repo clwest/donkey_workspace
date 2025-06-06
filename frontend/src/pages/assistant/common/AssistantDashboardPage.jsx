@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
 import PrimaryStar from "../../../components/assistant/PrimaryStar";
+import AssistantBadgeIcon from "../../../components/assistant/AssistantBadgeIcon";
 
 export default function AssistantDashboardPage() {
   const [assistants, setAssistants] = useState([]);
@@ -38,6 +39,10 @@ export default function AssistantDashboardPage() {
                   <h5 className="card-title">
                     {assistant.name}
                     <PrimaryStar isPrimary={assistant.is_primary} />
+                    <AssistantBadgeIcon
+                      badges={assistant.skill_badges}
+                      primaryBadge={assistant.primary_badge}
+                    />
                   </h5>
                   {assistant.role && (
                     <p className="small text-muted">Role: {assistant.role}</p>

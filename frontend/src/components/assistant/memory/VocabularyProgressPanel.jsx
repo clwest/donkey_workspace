@@ -1,21 +1,15 @@
 import { useEffect, useState } from "react";
 import apiFetch from "../../../utils/apiClient";
 
-export default function VocabularyProgressPanel({ assistantId }) {
+export default function VocabularyProgressPanel({ assistantSlug }) {
   const [stats, setStats] = useState(null);
 
   useEffect(() => {
-    if (!assistantId) return;
-    apiFetch(`/assistants/${assistantId}/anchor_health/`)
-      .then((res) => {
-        const stageCounts = { reinforced: 0, acquired: 0, exposed: 0, unseen: 0 };
-        (res.results || res).forEach((a) => {
-          stageCounts[a.acquisition_stage || "unseen"]++;
-        });
-        setStats(stageCounts);
-      })
+    if (!assistantSlug) return;
+    apiFetch(`/assistants/${assistantSlug}/glossary_stats/`)
+      .then(setStats)
       .catch(() => setStats(null));
-  }, [assistantId]);
+  }, [assistantSlug]);
 
   if (!stats) return <div>Loading vocabulary progress...</div>;
 
@@ -27,12 +21,28 @@ export default function VocabularyProgressPanel({ assistantId }) {
       <div className="card-header">Vocabulary Progress</div>
       <div className="card-body">
         <p>{total} glossary terms total</p>
-        <ul>
-          <li>Reinforced: {stats.reinforced}</li>
-          <li>Acquired: {stats.acquired}</li>
-          <li>Exposed: {stats.exposed}</li>
-          <li>Unseen: {stats.unseen}</li>
-        </ul>
+        <div className="progress" style={{ height: "1.5rem" }}>
+          <div
+            className="progress-bar bg-success"
+            style={{ width: `${(stats.reinforced / total) * 100}%` }}
+            title={`Reinforced: ${stats.reinforced}`}
+          />
+          <div
+            className="progress-bar bg-info text-dark"
+            style={{ width: `${(stats.acquired / total) * 100}%` }}
+            title={`Acquired: ${stats.acquired}`}
+          />
+          <div
+            className="progress-bar bg-warning text-dark"
+            style={{ width: `${(stats.exposed / total) * 100}%` }}
+            title={`Exposed: ${stats.exposed}`}
+          />
+          <div
+            className="progress-bar bg-secondary"
+            style={{ width: `${(stats.unseen / total) * 100}%` }}
+            title={`Unseen: ${stats.unseen}`}
+          />
+        </div>
       </div>
     </div>
   );
