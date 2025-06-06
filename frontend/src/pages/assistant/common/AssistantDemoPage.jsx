@@ -52,7 +52,7 @@ export default function AssistantDemoPage() {
                   View Details
                 </Link>
                 <div>
-                <Link to={`/assistants/chat/${assistant.slug}`} className="btn btn-outline-primary btn-sm mt-2">
+                <Link to={`/assistants/${assistant.slug}/chat`} className="btn btn-outline-primary btn-sm mt-2">
                     💬 Chat
                 </Link>
                 </div>

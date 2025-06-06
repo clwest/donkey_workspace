@@ -52,7 +52,7 @@ export default function AgentDemosPage() {
                   View Details
                 </Link>
                 <div>
-                <Link to={`/chat/${agent.slug}`} className="btn btn-outline-primary btn-sm mt-2">
+                <Link to={`/assistants/${agent.slug}/chat`} className="btn btn-outline-primary btn-sm mt-2">
                     💬 Chat
                 </Link>
                 </div>
