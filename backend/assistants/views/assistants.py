@@ -34,8 +34,9 @@ from assistants.models.assistant import (
     AssistantSkill,
     AssistantChatMessage,
     ChatIntentDriftLog,
-    SuggestionLog,
+    
 )
+from assistants.models.glossary import SuggestionLog
 from assistants.models.reflection import AssistantReflectionLog
 from assistants.models.thoughts import AssistantThoughtLog
 from prompts.models import PromptMutationLog
