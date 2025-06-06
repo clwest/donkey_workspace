@@ -10,7 +10,6 @@ from .models.assistant import (
     DebateThoughtLog,
     DebateSummary,
     RoutingSuggestionLog,
-    SuggestionLog,
     DelegationEvent,
     SessionHandoff,
     AssistantHandoffLog,
@@ -31,6 +30,7 @@ from .models.assistant import (
     PurposeRouteMap,
     AutonomyNarrativeModel,
 )
+from .models.glossary import SuggestionLog
 from .models.badge import Badge
 from .models.project import (
     AssistantProject,
