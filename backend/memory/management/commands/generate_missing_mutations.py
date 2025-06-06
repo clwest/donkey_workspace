@@ -13,26 +13,34 @@ def generate_missing_mutations_for_assistant(slug, stdout=None):
     updated = []
 
     for anchor in anchors:
+        
         fallback_count = GlossaryFallbackReflectionLog.objects.filter(
             anchor_slug=anchor.slug
         ).count()
 
-        if ((anchor.fallback_score or 0.0) > 0.1) or fallback_count > 2:
+        if True:
+            stdout.write(f"🧪 Checking: {anchor.label} | fallback_score={anchor.fallback_score} | fallback_count={fallback_count}")
             prompt = (
                 f'The assistant failed to ground the term "{anchor.label}" in recent memory. '
                 'Suggest a clearer or more precise replacement term. Avoid explanations. Keep it under 3 words.'
             )
             try:
                 suggestion = call_gpt4(prompt)
+
+                cleaned = suggestion.strip().strip('"').strip(".")
+                if cleaned:
+                    anchor.suggested_label = cleaned
+                    anchor.save(update_fields=["suggested_label"])
+                    updated.append((anchor.label, cleaned))
+                    if stdout:
+                        stdout.write(f"💡 {anchor.label} → {cleaned}")
+                else:
+                    if stdout:
+                        stdout.write(f"⚠️ Empty suggestion for {anchor.label} — skipping.")
             except Exception as exc:
                 if stdout:
-                    stdout.write(f"Error for {anchor.slug}: {exc}")
-                continue
-
-            anchor.suggested_label = suggestion.strip().strip('"')
-            anchor.save(update_fields=["suggested_label"])
-            updated.append((anchor.label, anchor.suggested_label))
-
+                    stdout.write(f"❌ GPT error for {anchor.label}: {exc}")
+            
     if stdout:
         if updated:
             stdout.write(f"✅ Updated {len(updated)} anchors:")
