@@ -5,6 +5,7 @@ import "./styles/Sidebar.css";
 
 export default function Sidebar({ collapsed }) {
   const [assistants, setAssistants] = useState([]);
+  const [memoryOpen, setMemoryOpen] = useState(false);
 
   useEffect(() => {
     apiFetch("/assistants/")
@@ -91,6 +92,44 @@ export default function Sidebar({ collapsed }) {
             </NavLink>
           </li>
         </ul>
+        <div className="mb-2 fw-bold d-flex align-items-center">
+          <span className="flex-grow-1">Memory</span>
+          <button
+            className="btn btn-sm btn-link"
+            onClick={() => setMemoryOpen(!memoryOpen)}
+          >
+            {memoryOpen ? "▼" : "▶"}
+          </button>
+        </div>
+        {memoryOpen && (
+          <ul className="list-unstyled mb-3">
+            <li>
+              <NavLink to="/memories" className="d-block">
+                🧠 Browser
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/memories/reflect" className="d-block">
+                ✨ Reflect
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/memory/predict" className="d-block">
+                🔮 Predict
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/memory/synthesize" className="d-block">
+                🧬 Synthesize
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/timeline/memory" className="d-block">
+                📅 Timeline
+              </NavLink>
+            </li>
+          </ul>
+        )}
       </div>
     </div>
   );
