@@ -17,6 +17,8 @@ def create_personal_assistant(sender, instance, created, **kwargs):
         specialty="general support",
         personality=instance.assistant_personality or "helpful",
         created_by=instance,
+        is_primary=True,
+        is_guide=True,
     )
     instance.personal_assistant = assistant
     instance.save(update_fields=["personal_assistant"])

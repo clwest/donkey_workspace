@@ -13,7 +13,7 @@ const QUICK_PROMPTS = [
 
 export default function GuideChatPanel() {
   const userInfo = useUserInfo();
-  const { triggerHint } = useAssistantHints("primary");
+  const { triggerHint } = useAssistantHints(userInfo?.primary_assistant_slug);
   const [messages, setMessages] = useState([
     {
       role: "assistant",
@@ -69,7 +69,7 @@ export default function GuideChatPanel() {
           <button type="button" className="btn-close" onClick={dismiss}></button>
         </div>
         <div className="card-body" style={{ maxHeight: "260px", overflowY: "auto" }}>
-          <TourProgressBar assistantSlug="primary" />
+          <TourProgressBar assistantSlug={userInfo?.primary_assistant_slug} />
           {messages.map((m, idx) => (
             <div key={idx} className="mb-2 small">
               {m.content}
