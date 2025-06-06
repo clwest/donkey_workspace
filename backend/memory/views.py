@@ -57,6 +57,7 @@ from mcp_core.models import NarrativeThread
 from memory.utils.thread_helpers import get_linked_chains, recall_from_thread
 from memory.utils.anamnesis_engine import run_anamnesis_retrieval
 from memory.services.reinforcement import reinforce_glossary_anchor
+from memory.services.acquisition import update_anchor_acquisition
 
 load_dotenv()
 
@@ -1174,6 +1175,7 @@ def accept_glossary_mutation(request, id):
             source="mutation_applied",
             score=1.0,
         )
+        update_anchor_acquisition(anchor, "reinforced")
         from memory.services.convergence import recalculate_anchor_convergence
 
         recalculate_anchor_convergence(anchor)

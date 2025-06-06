@@ -482,6 +482,16 @@ class SymbolicMemoryAnchor(models.Model):
     )
     explanation = models.TextField(null=True, blank=True)
     protected = models.BooleanField(default=False)
+    acquisition_stage = models.CharField(
+        max_length=20,
+        choices=[
+            ("unseen", "unseen"),
+            ("exposed", "exposed"),
+            ("acquired", "acquired"),
+            ("reinforced", "reinforced"),
+        ],
+        default="unseen",
+    )
     last_fallback = models.DateField(null=True, blank=True)
     last_used_in_reflection = models.DateTimeField(null=True, blank=True)
     total_uses = models.IntegerField(default=0)

@@ -15,6 +15,7 @@ from assistants.utils.assistant_reflection_engine import AssistantReflectionEngi
 from intel_core.utils.glossary_tagging import _match_anchor
 from assistants.utils.chunk_retriever import get_relevant_chunks
 from utils.rag_playback import record_rag_playback
+from memory.services.acquisition import update_anchor_acquisition
 
 
 logger = logging.getLogger(__name__)
@@ -101,12 +102,15 @@ def replay_reflection(obj: AssistantReflectionLog | MemoryEntry) -> ReflectionRe
         original_reflection.related_anchors.set(matched)
         replay_log.changed_anchors = [a.slug for a in matched]
         replay_log.save(update_fields=["changed_anchors"])
+        for a in matched:
+            update_anchor_acquisition(a, "acquired")
 
     # update anchor usage
     if original_reflection and original_reflection.anchor:
         anchor = original_reflection.anchor
         anchor.last_used_in_reflection = timezone.now()
         anchor.save(update_fields=["last_used_in_reflection"])
+        update_anchor_acquisition(anchor, "acquired")
 
     return replay_log
 
