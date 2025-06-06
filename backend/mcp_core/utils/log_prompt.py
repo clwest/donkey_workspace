@@ -43,8 +43,18 @@ def log_prompt_usage(
         try:
             prompt = Prompt.objects.get(slug=prompt_slug)
         except Prompt.DoesNotExist:
-            logger.warning(f"⚠️ Prompt not found for slug: {prompt_slug}")
-            prompt = None
+            logger.warning(
+                f"⚠️ Prompt not found for slug: {prompt_slug}; creating placeholder"
+            )
+            prompt, _ = Prompt.objects.get_or_create(
+                slug=prompt_slug,
+                defaults={
+                    "title": prompt_title or prompt_slug.replace("-", " ").title(),
+                    "type": "system",
+                    "content": rendered_prompt or "",
+                    "source": "auto",
+                },
+            )
 
     # Determine fallback title and slug
     final_slug = prompt_slug or (prompt.slug if prompt else "unknown")
