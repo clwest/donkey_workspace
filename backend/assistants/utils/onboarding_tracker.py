@@ -1,7 +1,15 @@
 from django.utils import timezone
 from accounts.models import UserOnboardingProgress
 
-STEPS = ["mythpath", "world", "archetype", "summon", "wizard", "ritual"]
+STEPS = [
+    "mythpath",
+    "world",
+    "archetype",
+    "summon",
+    "personality",
+    "wizard",
+    "ritual",
+]
 
 
 def record_step_completion(user, step):

@@ -4,6 +4,13 @@ import apiFetch from "../../../utils/apiClient";
 import PrimaryStar from "../../../components/assistant/PrimaryStar";
 import AssistantBadgeIcon from "../../../components/assistant/AssistantBadgeIcon";
 
+const AVATAR_EMOJI = {
+  owl: "🦚",
+  fox: "🦊",
+  robot: "🤖",
+  wizard: "🧙‍♂️",
+};
+
 export default function AssistantDashboardPage() {
   const [assistants, setAssistants] = useState([]);
 
@@ -37,6 +44,9 @@ export default function AssistantDashboardPage() {
               <div className="card shadow-sm h-100">
                 <div className="card-body">
                   <h5 className="card-title">
+                    <span className="me-1">
+                      {AVATAR_EMOJI[assistant.avatar_style] || ""}
+                    </span>
                     {assistant.name}
                     <PrimaryStar isPrimary={assistant.is_primary} />
                     <AssistantBadgeIcon

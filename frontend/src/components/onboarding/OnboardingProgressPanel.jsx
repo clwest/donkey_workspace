@@ -7,6 +7,7 @@ const STEP_ROUTES = [
   "glossary",
   "archetype",
   "summon",
+  "personality",
   "wizard",
   "ritual",
 ];

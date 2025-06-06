@@ -97,7 +97,10 @@ class Assistant(models.Model):
     mood_stability_index = models.FloatField(default=1.0)
     last_mood_shift = models.DateTimeField(null=True, blank=True)
     glossary_score = models.IntegerField(default=0)
-    avatar_style = models.CharField(max_length=50, blank=True, null=True)
+    avatar_style = models.CharField(
+        max_length=50, blank=True, null=True, default="robot"
+    )
+    tone_profile = models.CharField(max_length=50, default="friendly")
     # Empathy metrics
     avg_empathy_score = models.FloatField(default=0.0)
     empathy_tags = ArrayField(models.CharField(max_length=50), default=list, blank=True)

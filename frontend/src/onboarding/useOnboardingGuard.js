@@ -8,6 +8,7 @@ export const STEP_ROUTES = {
   glossary: "/onboarding/glossary",
   archetype: "/onboarding/archetype",
   summon: "/onboarding/summon",
+  personality: "/onboarding/personality",
   wizard: "/onboarding/wizard",
   ritual: "/onboarding/ritual",
 };
