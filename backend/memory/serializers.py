@@ -249,6 +249,8 @@ class SymbolicMemoryAnchorSerializer(serializers.ModelSerializer):
     fallback_count = serializers.SerializerMethodField()
     glossary_boost = serializers.SerializerMethodField()
     last_updated = serializers.SerializerMethodField()
+    reinforcement_count = serializers.SerializerMethodField()
+    drift_score = serializers.SerializerMethodField()
 
     class Meta:
         model = SymbolicMemoryAnchor
@@ -302,6 +304,14 @@ class SymbolicMemoryAnchorSerializer(serializers.ModelSerializer):
 
     def get_last_updated(self, obj):
         return self._conv_stats(obj).get("last_updated")
+
+    def get_reinforcement_count(self, obj):
+        return obj.reinforcement_logs.count()
+
+    def get_drift_score(self, obj):
+        total = obj.chunks.count()
+        drifted = obj.chunks.filter(is_drifting=True).count()
+        return round(drifted / total, 2) if total else 0.0
 
 
 class MemoryMergeSuggestionSerializer(serializers.ModelSerializer):

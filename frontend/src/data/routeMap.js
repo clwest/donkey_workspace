@@ -122,6 +122,13 @@ export const routeMap = [
     notes: "Glossary drift report",
   },
   {
+    frontend: "/assistants/:slug/anchor-health",
+    backend: "/api/assistants/<slug>/anchor_health/",
+    view: "AnchorHealthDashboard",
+    serializer: "-",
+    notes: "Anchor health dashboard",
+  },
+  {
     frontend: "/reflections",
     backend: "/api/mcp/reflections/",
     view: "list_reflections",

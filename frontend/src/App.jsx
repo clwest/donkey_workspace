@@ -103,6 +103,7 @@ import DelegationSummaryPage from "./pages/assistants/DelegationSummaryPage";
 import RagGroundingInspectorPage from "./pages/assistants/RagGroundingInspectorPage";
 import GlossaryDriftPage from "./pages/assistants/GlossaryDriftPage";
 import GlossaryConvergencePage from "./pages/assistants/GlossaryConvergencePage";
+import AnchorHealthDashboard from "./pages/assistants/AnchorHealthDashboard";
 import AssistantRagSelfTestPage from "./pages/assistants/AssistantRagSelfTestPage";
 import SubAgentReflectionPage from "./pages/assistants/SubAgentReflectionPage";
 import SkillGraphPage from "./pages/assistant/skills/SkillGraphPage";
@@ -534,6 +535,10 @@ export default function App() {
           <Route
             path="/assistants/:slug/rag-drift"
             element={<GlossaryDriftPage />}
+          />
+          <Route
+            path="/assistants/:slug/anchor-health"
+            element={<AnchorHealthDashboard />}
           />
           <Route
             path="/assistants/:slug/glossary"
