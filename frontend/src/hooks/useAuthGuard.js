@@ -15,7 +15,7 @@ function tokenExpired(token) {
   }
 }
 
-export default function useAuthGuard() {
+export default function useAuthGuard({ allowUnauthenticated = false } = {}) {
   const [user, setUser] = useState(cachedUser);
   const [checked, setChecked] = useState(Boolean(cachedUser));
   const [error, setError] = useState(null);
@@ -43,14 +43,14 @@ export default function useAuthGuard() {
         setChecked(true);
         setError(new Error("Unauthorized"));
         setAuthErrorHandled(true);
-        if (/^\/(assistants|onboarding|dashboard|memory|memories)/.test(location.pathname)) {
+        if (!allowUnauthenticated && /^\/(assistants|onboarding|dashboard|memory|memories)/.test(location.pathname)) {
           navigate("/login", { replace: true });
         }
         return;
       }
 
       try {
-        const data = await apiFetch("/auth/user/");
+        const data = await apiFetch("/auth/user/", { allowUnauthenticated });
         cachedUser = data;
         setUser(data);
         setError(null);
@@ -80,13 +80,13 @@ export default function useAuthGuard() {
         toast.warning("Not logged in");
         setChecked(true);
         setAuthErrorHandled(true);
-        if (/^\/(assistants|onboarding|dashboard|memory|memories)/.test(location.pathname)) {
+        if (!allowUnauthenticated && /^\/(assistants|onboarding|dashboard|memory|memories)/.test(location.pathname)) {
           navigate("/login", { replace: true });
         }
       }
     }
     checkAuth();
-  }, [navigate, location.pathname, authErrorHandled]);
+  }, [navigate, location.pathname, authErrorHandled, allowUnauthenticated]);
 
   return { user, authChecked: checked, authError: error };
 }

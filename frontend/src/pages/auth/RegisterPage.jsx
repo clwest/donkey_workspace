@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import useAuthGuard from "../../hooks/useAuthGuard";
 import { toast } from "react-toastify";
 import apiFetch from "../../utils/apiClient";
 import { registerUser } from "@/api/auth";
@@ -10,6 +11,7 @@ export default function RegisterPage() {
   const [password1, setPassword1] = useState("");
   const [password2, setPassword2] = useState("");
   const navigate = useNavigate();
+  useAuthGuard({ allowUnauthenticated: true });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
