@@ -632,6 +632,11 @@ urlpatterns = [
         name="assistant-first-question-stats",
     ),
     path(
+        "<slug:slug>/drift_suggestions/",
+        assistants.drift_suggestions,
+        name="assistant-drift-suggestions",
+    ),
+    path(
         "<slug:slug>/anchor_health/",
         assistants.anchor_health,
         name="assistant-anchor-health",

@@ -10,6 +10,7 @@ from .models.assistant import (
     DebateThoughtLog,
     DebateSummary,
     RoutingSuggestionLog,
+    SuggestionLog,
     DelegationEvent,
     SessionHandoff,
     AssistantHandoffLog,
@@ -1789,3 +1790,23 @@ class ReflectionReplayLogSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]
+
+
+class SuggestionLogSerializer(serializers.ModelSerializer):
+    assistant = serializers.CharField(source="assistant.name", read_only=True)
+    assistant_slug = serializers.CharField(source="assistant.slug", read_only=True)
+
+    class Meta:
+        model = SuggestionLog
+        fields = [
+            "id",
+            "assistant",
+            "assistant_slug",
+            "trigger_type",
+            "anchor_slug",
+            "suggested_action",
+            "score",
+            "status",
+            "created_at",
+        ]
+        read_only_fields = fields
