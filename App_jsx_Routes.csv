@@ -219,3 +219,4 @@ Route Path,Component
 /treaty/forge,TreatyForgePage
 /ui/motion,MotionTestPage
 /assistants/:slug/glossary,GlossaryConvergencePage
+/assistants/:slug/rag_playback/:id,RAGPlaybackPanel

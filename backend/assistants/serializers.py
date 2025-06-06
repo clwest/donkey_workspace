@@ -1578,6 +1578,7 @@ class ReflectionReplayLogSerializer(serializers.ModelSerializer):
             "changed_anchors",
             "replayed_summary",
             "drift_reason",
+            "rag_playback",
             "status",
             "created_at",
         ]

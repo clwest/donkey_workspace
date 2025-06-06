@@ -16,6 +16,7 @@ from .models import (
     AnchorConvergenceLog,
     AnchorReinforcementLog,
     RAGGroundingLog,
+    RAGPlaybackLog,
 )
 
 from assistants.models.thoughts import AssistantThoughtLog
@@ -389,3 +390,10 @@ class RAGGroundingLogSerializer(serializers.ModelSerializer):
 
     def get_matched_chunk_ids(self, obj):
         return obj.used_chunk_ids or []
+
+
+class RAGPlaybackLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RAGPlaybackLog
+        fields = ["id", "assistant", "query", "memory_context", "chunks", "created_at"]
+        read_only_fields = ["id", "created_at"]
