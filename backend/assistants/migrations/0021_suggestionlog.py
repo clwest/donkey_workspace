@@ -3,9 +3,9 @@ import uuid
 
 
 class Migration(migrations.Migration):
-    initial = True
-
-    dependencies = []
+    dependencies = [
+        ("assistants", "0020_assistantchatmessage_drift_score_and_more"),
+    ]
 
     operations = [
         migrations.CreateModel(
