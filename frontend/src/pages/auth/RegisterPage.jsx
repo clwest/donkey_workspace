@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import apiFetch from "../../utils/apiClient";
 import { registerUser } from "@/api/auth";
@@ -84,6 +84,12 @@ export default function RegisterPage() {
         <button type="submit" className="btn btn-success">
           Register
         </button>
+        <p className="mt-3">
+          Already have an account?{' '}
+          <Link to="/login" className="text-info">
+            Log In
+          </Link>
+        </p>
       </form>
     </div>
   );
