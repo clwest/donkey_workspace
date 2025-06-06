@@ -13,6 +13,7 @@ from .benchmark import *
 from .glossary import *
 from .boot import *
 from .badge import *
+from .hint import *
 
 
 

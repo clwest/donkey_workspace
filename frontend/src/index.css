@@ -72,3 +72,6 @@ button:hover {
   100% { box-shadow: 0 0 0 0 rgba(13,110,253,0); }
 }
 
+
+.hint-bubble { max-width: 260px; }
+

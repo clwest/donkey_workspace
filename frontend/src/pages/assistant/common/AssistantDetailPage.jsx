@@ -31,6 +31,8 @@ import BadgePreviewPanel from "../../../components/assistant/BadgePreviewPanel";
 import AssistantGlossaryConvergencePanel from "../../../components/assistant/memory/AssistantGlossaryConvergencePanel";
 import VocabularyProgressPanel from "../../../components/assistant/memory/VocabularyProgressPanel";
 import { fetchGlossaryMutations } from "../../../api/agents";
+import HintBubble from "../../../components/HintBubble";
+import useAssistantHints from "../../../hooks/useAssistantHints";
 
 export default function AssistantDetailPage() {
   const { slug } = useParams();
@@ -56,6 +58,7 @@ export default function AssistantDetailPage() {
   const [showBoot, setShowBoot] = useState(false);
   const [lastSelfTest, setLastSelfTest] = useState(null);
   const [mutationCount, setMutationCount] = useState(0);
+  const { hints, dismissHint } = useAssistantHints(slug);
   const threadId = query.get("thread");
   const projectId = query.get("project");
   const memoryId = query.get("memory");
@@ -1021,6 +1024,13 @@ export default function AssistantDetailPage() {
           <RagPlaybackPanel slug={slug} />
           <RagDebugPanel slug={slug} />
           <AssistantGlossaryConvergencePanel />
+          {hints.find((h) => h.id === "rag_intro" && !h.dismissed) && (
+            <HintBubble
+              content={hints.find((h) => h.id === "rag_intro").content}
+              position={{ top: 80, right: 20 }}
+              onDismiss={() => dismissHint("rag_intro")}
+            />
+          )}
         </>
       )}
       {activeTab === "vocab" && (
