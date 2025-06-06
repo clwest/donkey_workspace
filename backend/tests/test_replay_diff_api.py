@@ -25,6 +25,8 @@ class ReplayDiffAPITests(TestCase):
         self.replay = replay_reflection(self.reflection)
         self.replay.replayed_summary = "Updated summary about the EVM upgrade"
         self.replay.save(update_fields=["replayed_summary"])
+        self.anchor.refresh_from_db()
+        self.assertEqual(self.anchor.acquisition_stage, "acquired")
 
     def test_diff_endpoint(self):
         resp = self.client.get(

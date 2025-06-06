@@ -26,6 +26,7 @@ import AssistantBootPanel from "../../../components/assistants/AssistantBootPane
 import RagDebugPanel from "../../../components/assistant/RagDebugPanel";
 import RagPlaybackPanel from "../../../components/assistant/RagPlaybackPanel";
 import AssistantGlossaryConvergencePanel from "../../../components/assistant/memory/AssistantGlossaryConvergencePanel";
+import VocabularyProgressPanel from "../../../components/assistant/memory/VocabularyProgressPanel";
 import { fetchGlossaryMutations } from "../../../api/agents";
 
 export default function AssistantDetailPage() {
@@ -382,6 +383,14 @@ export default function AssistantDetailPage() {
               onClick={() => setActiveTab("ragdebug")}
             >
               RAG Debug
+            </button>
+          </li>
+          <li className="nav-item">
+            <button
+              className={`nav-link ${activeTab === "vocab" ? "active" : ""}`}
+              onClick={() => setActiveTab("vocab")}
+            >
+              Vocabulary Progress
             </button>
           </li>
           <li className="nav-item">
@@ -975,6 +984,9 @@ export default function AssistantDetailPage() {
           <RagDebugPanel slug={slug} />
           <AssistantGlossaryConvergencePanel />
         </>
+      )}
+      {activeTab === "vocab" && (
+        <VocabularyProgressPanel assistantId={assistant.id} />
       )}
       <CommonModal
         show={showBoot}

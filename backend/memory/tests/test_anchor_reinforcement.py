@@ -25,6 +25,8 @@ class AnchorReinforcementTests(TestCase):
         self.assertEqual(log.anchor, anchor)
         self.assertIsNotNone(log.memory)
         self.assertTrue(log.memory.tags.filter(slug="reinforcement").exists())
+        anchor.refresh_from_db()
+        self.assertEqual(anchor.acquisition_stage, "reinforced")
 
     def test_reflection_reinforcement(self):
         assistant = Assistant.objects.create(name="B", specialty="s")
@@ -34,3 +36,5 @@ class AnchorReinforcementTests(TestCase):
         self.assertIsNotNone(log)
         self.assertEqual(log.reason, "reflection_boost")
         self.assertEqual(log.memory.anchor, anchor)
+        anchor.refresh_from_db()
+        self.assertEqual(anchor.acquisition_stage, "reinforced")

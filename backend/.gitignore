@@ -58,3 +58,4 @@ venv/
 !memory/migrations/0004_replay_diff_fields.py
 !memory/migrations/0005_rag_playback.py
 !memory/migrations/0006_rag_playback_extra_fields.py
+!memory/migrations/0007_anchor_acquisition.py

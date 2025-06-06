@@ -96,6 +96,9 @@ class Assistant(models.Model):
     values = models.JSONField(default=list, blank=True)
     mood_stability_index = models.FloatField(default=1.0)
     last_mood_shift = models.DateTimeField(null=True, blank=True)
+    glossary_score = models.IntegerField(default=0)
+    skill_badges = ArrayField(models.CharField(max_length=50), default=list, blank=True)
+    avatar_style = models.CharField(max_length=50, blank=True, null=True)
 
     # Empathy metrics
     avg_empathy_score = models.FloatField(default=0.0)

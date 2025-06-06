@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from assistants.models.assistant import Assistant
+from memory.models import SymbolicMemoryAnchor
+from memory.services.acquisition import update_anchor_acquisition
 from agents.models.identity import SymbolicIdentityCard
 from assistants.models.thoughts import AssistantThoughtLog
 from assistants.serializers import AssistantSerializer
@@ -87,5 +89,11 @@ def assistant_onboard(request, id):
         "init_reflection", assistant.init_reflection
     )
     assistant.save()
+
+    text = assistant.init_reflection or ""
+    if text:
+        for anchor in SymbolicMemoryAnchor.objects.all():
+            if anchor.label.lower() in text.lower() or anchor.slug in text.lower():
+                update_anchor_acquisition(anchor, "exposed")
 
     return Response(AssistantSerializer(assistant).data)
