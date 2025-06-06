@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import apiFetch from "@/utils/apiClient";
 
 export default function useOnboardingTracker() {
-  const [progress, setProgress] = useState(null);
+  const [status, setStatus] = useState(null);
 
   const refreshStatus = async () => {
     try {
       const res = await apiFetch("/onboarding/status/");
-      setProgress(res.progress);
-      return res.progress;
+      setStatus(res);
+      return res;
     } catch (err) {
       console.error("onboarding status error", err);
     }
@@ -20,8 +20,8 @@ export default function useOnboardingTracker() {
         method: "POST",
         body: { step },
       });
-      setProgress(res.progress);
-      return res.progress;
+      setStatus(res);
+      return res;
     } catch (err) {
       console.error("complete step error", err);
     }
@@ -31,5 +31,11 @@ export default function useOnboardingTracker() {
     refreshStatus();
   }, []);
 
-  return { progress, refreshStatus, completeStep };
+  return {
+    progress: status?.progress,
+    nextStep: status?.next_step,
+    percent: status?.percent,
+    refreshStatus,
+    completeStep,
+  };
 }

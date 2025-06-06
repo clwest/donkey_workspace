@@ -13,7 +13,10 @@ class OnboardingProgressAPITest(BaseAPITestCase):
     def test_progress_endpoints(self):
         resp = self.client.get("/api/onboarding/status/")
         self.assertEqual(resp.status_code, 200)
-        data = resp.json()["progress"]
+        body = resp.json()
+        data = body["progress"]
+        self.assertEqual(body["percent"], 0)
+        self.assertEqual(body["next_step"], "mythpath")
         self.assertEqual(data[0]["step"], "mythpath")
         self.assertEqual(data[0]["status"], "pending")
 
@@ -23,10 +26,15 @@ class OnboardingProgressAPITest(BaseAPITestCase):
             format="json",
         )
         self.assertEqual(resp.status_code, 200)
-        data = resp.json()["progress"]
+        body = resp.json()
+        data = body["progress"]
+        self.assertEqual(body["percent"], 16)
+        self.assertEqual(body["next_step"], "world")
         self.assertEqual(data[0]["status"], "completed")
 
         resp = self.client.get("/api/onboarding/status/")
         self.assertEqual(resp.status_code, 200)
-        data = resp.json()["progress"]
+        body = resp.json()
+        data = body["progress"]
+        self.assertEqual(body["next_step"], "world")
         self.assertEqual(data[0]["status"], "completed")

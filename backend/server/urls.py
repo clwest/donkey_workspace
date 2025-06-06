@@ -31,8 +31,10 @@ from mcp_core.views import ontology as ontology_views
 from agents.views import agents as agent_views
 from agents.views import stabilization as stabilization_views
 from capabilities import urls as capability_urls
-from assistants.views import onboarding as onboarding_views
-from assistants.views import onboarding_tracker as onboarding_tracker_views
+
+from onboarding import views as onboarding_views
+from assistants.views import onboarding as assistant_onboarding_views
+
 from assistants.views import assistants as assistant_views
 
 from assistants.views import diagnostics as diagnostic_views
@@ -107,9 +109,12 @@ urlpatterns = [
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
-    path("onboarding/", onboarding_views.onboarding_create_assistant),
-    path("api/onboarding/status/", onboarding_tracker_views.onboarding_status),
-    path("api/onboarding/complete/", onboarding_tracker_views.onboarding_complete),
+
+    path("onboarding/", assistant_onboarding_views.onboarding_create_assistant),
+    path("api/onboarding/status/", onboarding_views.onboarding_status),
+    path("api/onboarding/complete/", onboarding_views.onboarding_complete),
+    path("api/onboarding/node/<slug:step>/", onboarding_views.onboarding_node_detail),
+
     path(
         "assistants/from-documents/",
         assistant_views.assistant_from_documents,

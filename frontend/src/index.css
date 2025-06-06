@@ -62,3 +62,13 @@ button:hover {
 }
 .recent-memory { background-color: #f1f3f5; border: 1px solid #dee2e6; }
 
+.pulse {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(13,110,253,0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(13,110,253,0); }
+  100% { box-shadow: 0 0 0 0 rgba(13,110,253,0); }
+}
+
