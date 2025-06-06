@@ -1,5 +1,5 @@
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -86,7 +86,7 @@ def onboarding_create_assistant(request):
 
 
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def assistant_onboard(request, id):
     """Save identity card details for an assistant."""
     assistant = get_object_or_404(Assistant, id=id)

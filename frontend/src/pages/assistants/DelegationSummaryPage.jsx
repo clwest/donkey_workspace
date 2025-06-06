@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
+import useAuthGuard from "../../hooks/useAuthGuard";
 
 export default function DelegationSummaryPage() {
+  useAuthGuard();
   const { slug } = useParams();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);

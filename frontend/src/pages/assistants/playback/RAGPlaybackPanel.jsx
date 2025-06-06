@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useLocation, Link } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
+import useAuthGuard from "../../../hooks/useAuthGuard";
 
 export default function RAGPlaybackPanel({ compareMode = false }) {
+  useAuthGuard();
   const { slug, id } = useParams();
   const location = useLocation();
   const isCompare = compareMode || location.pathname.includes("/rag_playback/compare/");

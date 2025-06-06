@@ -5,8 +5,10 @@ import { searchDocumentChunks, storeMemoryFromChat } from "../../../../api/rag";
 import AssistantBadgeIcon from "../../../../components/assistant/AssistantBadgeIcon";
 import HintBubble from "../../../../components/HintBubble";
 import useAssistantHints from "../../../../hooks/useAssistantHints";
+import useAuthGuard from "../../../../hooks/useAuthGuard";
 
 export default function ChatWithKnowledge() {
+  useAuthGuard();
   const { slug } = useParams();
   const [assistant, setAssistant] = useState(null);
   const [messages, setMessages] = useState([]);

@@ -5,8 +5,10 @@ import {
   runRagDiagnostics,
   fetchRagDiagnostics,
 } from "../../api/assistants";
+import useAuthGuard from "../../hooks/useAuthGuard";
 
 export default function AssistantRagSelfTestPage() {
+  useAuthGuard();
   const { slug } = useParams();
   const [data, setData] = useState(null);
   const [running, setRunning] = useState(false);

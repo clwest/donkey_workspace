@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
+import useAuthGuard from "../../hooks/useAuthGuard";
 
 export default function SubAgentReflectionPage() {
+  useAuthGuard();
   const { slug, event_id } = useParams();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);

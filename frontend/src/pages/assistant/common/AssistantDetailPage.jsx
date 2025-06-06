@@ -8,6 +8,7 @@ import RecoveryPanel from "../../../components/assistant/RecoveryPanel";
 import AssistantDiagnosticsPanel from "../../../components/assistant/AssistantDiagnosticsPanel";
 import AssistantBadgeIcon from "../../../components/assistant/AssistantBadgeIcon";
 import AssistantSetupSummary from "../../../components/assistant/AssistantSetupSummary";
+import useAuthGuard from "../../../hooks/useAuthGuard";
 import {
   runDriftCheck,
   runSelfAssessment,
@@ -38,6 +39,7 @@ import ReflectionPrimerPanel from "../../../components/assistant/ReflectionPrime
 import useUserInfo from "../../../hooks/useUserInfo";
 
 export default function AssistantDetailPage() {
+  useAuthGuard();
   const { slug } = useParams();
   const [assistant, setAssistant] = useState(null);
   const location = useLocation();

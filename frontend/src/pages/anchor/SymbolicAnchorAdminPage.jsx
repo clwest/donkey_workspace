@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
+import useAuthGuard from "../../hooks/useAuthGuard";
 
 export default function SymbolicAnchorAdminPage() {
+  useAuthGuard();
   const [anchors, setAnchors] = useState([]);
   const [savingId, setSavingId] = useState(null);
   const [searchParams] = useSearchParams();

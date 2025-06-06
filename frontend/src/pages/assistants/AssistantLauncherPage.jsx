@@ -5,10 +5,12 @@ import HintBubble from "../../components/HintBubble";
 import useAssistantHints from "../../hooks/useAssistantHints";
 import useOnboardingTracker from "../../hooks/useOnboardingTracker";
 import useUserInfo from "../../hooks/useUserInfo";
+import useAuthGuard from "../../hooks/useAuthGuard";
 import OnboardingProgressBar from "../../components/onboarding/OnboardingProgressBar";
 import AssistantSetupSummary from "../../components/assistant/AssistantSetupSummary";
 
 export default function AssistantLauncherPage() {
+  useAuthGuard();
   const navigate = useNavigate();
   const userInfo = useUserInfo();
   const { progress } = useOnboardingTracker();
