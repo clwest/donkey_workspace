@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import HintBubble from "../../../components/HintBubble";
+import useAssistantHints from "../../../hooks/useAssistantHints";
 
 export default function AssistantDemoPage() {
   const [assistants, setAssistants] = useState([]);
+  const { hints, dismissHint } = useAssistantHints("demo");
 
   useEffect(() => {
     fetch("/api/assistants/demos/")
@@ -12,9 +15,17 @@ export default function AssistantDemoPage() {
   }, []);
 
   return (
-    <div className="container py-5">
+    <div className="container py-5 position-relative">
       <h1 className="mb-4">🧪 AI Assistant Demos</h1>
-      <div className="row">
+      {hints.find((h) => h.id === "demo_intro" && !h.dismissed) && (
+        <HintBubble
+          label={hints.find((h) => h.id === "demo_intro").label}
+          content={hints.find((h) => h.id === "demo_intro").content}
+          position={{ top: 60, right: 20 }}
+          onDismiss={() => dismissHint("demo_intro")}
+        />
+      )}
+      <div className="row" id="demo-assistant-cards">
         {assistants.map((assistant) => (
           <div key={assistant.id} className="col-md-4 mb-4">
             <div className="card h-100 shadow-sm border-0">
@@ -64,6 +75,14 @@ export default function AssistantDemoPage() {
           <p className="text-muted text-center">No demo assistants available yet.</p>
         )}
       </div>
+      {hints.find((h) => h.id === "demo_start_chat" && !h.dismissed) && (
+        <HintBubble
+          label={hints.find((h) => h.id === "demo_start_chat").label}
+          content={hints.find((h) => h.id === "demo_start_chat").content}
+          highlightSelector="#demo-assistant-cards"
+          onDismiss={() => dismissHint("demo_start_chat")}
+        />
+      )}
     </div>
   );
 }

@@ -4,6 +4,20 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
+
+def _get_demo_assistant(user):
+    """Return or create a placeholder Assistant record for demo hints."""
+    assistant, _ = Assistant.objects.get_or_create(
+        slug="demo",
+        defaults={
+            "name": "Demo",
+            "description": "Placeholder for demo hints",
+            "specialty": "demo",
+            "created_by": user,
+        },
+    )
+    return assistant
+
 from assistants.models import Assistant, AssistantHintState
 from assistants.hint_config import HINTS
 
@@ -11,7 +25,10 @@ from assistants.hint_config import HINTS
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def assistant_hint_list(request, slug):
-    assistant = get_object_or_404(Assistant, slug=slug)
+    if slug == "demo":
+        assistant = _get_demo_assistant(request.user)
+    else:
+        assistant = get_object_or_404(Assistant, slug=slug)
     states = AssistantHintState.objects.filter(user=request.user, assistant=assistant)
     state_map = {s.hint_id: s for s in states}
     hints = []
@@ -32,7 +49,10 @@ def assistant_hint_list(request, slug):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def dismiss_hint(request, slug, hint_id):
-    assistant = get_object_or_404(Assistant, slug=slug)
+    if slug == "demo":
+        assistant = _get_demo_assistant(request.user)
+    else:
+        assistant = get_object_or_404(Assistant, slug=slug)
     obj, _ = AssistantHintState.objects.get_or_create(
         user=request.user, assistant=assistant, hint_id=hint_id
     )
