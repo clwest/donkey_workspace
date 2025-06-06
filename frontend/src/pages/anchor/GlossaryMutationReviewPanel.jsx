@@ -19,9 +19,11 @@ export default function GlossaryMutationReviewPanel() {
   const load = async () => {
     try {
       const assistant = searchParams.get("assistant");
-      const res = await fetchGlossaryMutations(
-        assistant ? { assistant } : undefined
-      );
+      const showAll =
+        import.meta.env.DEV || window.location.pathname.startsWith("/anchor/symbolic");
+      const params = assistant ? { assistant } : {};
+      if (showAll) params.include = "all";
+      const res = await fetchGlossaryMutations(params);
       const data = res.results || res;
       if (!data || data.length === 0) {
         navigate("/anchor/symbolic", { replace: true });
@@ -46,7 +48,7 @@ export default function GlossaryMutationReviewPanel() {
     try {
       await acceptGlossaryMutation(id);
       toast.success("Mutation accepted");
-      reload();
+      setMutations((m) => m.filter((x) => x.id !== id));
     } catch (e) {
       toast.error("Failed to accept mutation");
     }
@@ -54,7 +56,7 @@ export default function GlossaryMutationReviewPanel() {
 
   const handleReject = async (id) => {
     await rejectGlossaryMutation(id);
-    reload();
+    setMutations((m) => m.filter((x) => x.id !== id));
   };
 
   const handleEdit = async (id) => {
@@ -117,6 +119,7 @@ export default function GlossaryMutationReviewPanel() {
             <th>Suggested Replacement</th>
             <th>Source</th>
             <th>Fallback Count</th>
+            <th>Score</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
@@ -128,6 +131,14 @@ export default function GlossaryMutationReviewPanel() {
               <td>{m.suggested_label || "-"}</td>
               <td>{m.mutation_source}</td>
               <td>{m.fallback_count}</td>
+              <td>
+                <span
+                  className="badge bg-secondary"
+                  title="Calculated from fallback logs and RAG diff score"
+                >
+                  {m.mutation_score?.toFixed(2)}
+                </span>
+              </td>
               <td>
                 {m.status}
                 {showAll && m.status === "applied" && (

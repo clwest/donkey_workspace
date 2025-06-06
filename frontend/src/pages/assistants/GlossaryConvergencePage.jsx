@@ -6,12 +6,17 @@ export default function GlossaryConvergencePage() {
   const { slug } = useParams();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [summary, setSummary] = useState({ applied: 0, reviewed: 0 });
 
   const load = async () => {
     setLoading(true);
     try {
       const data = await apiFetch(`/assistants/${slug}/glossary/convergence/`);
-      setRows(data.anchor_stats || []);
+      const anchors = data.anchor_stats || [];
+      setRows(anchors);
+      const reviewed = anchors.filter((a) => a.mutation_status !== "pending").length;
+      const applied = anchors.filter((a) => a.mutation_status === "applied").length;
+      setSummary({ applied, reviewed });
     } catch (err) {
       console.error("Failed to load convergence", err);
       setRows([]);
@@ -44,6 +49,10 @@ export default function GlossaryConvergencePage() {
       <button className="btn btn-outline-primary mb-3" onClick={load} disabled={loading}>
         {loading ? "Refreshing..." : "Refresh"}
       </button>
+      <div className="mb-2">
+        <span className="badge bg-success me-2">Applied {summary.applied}</span>
+        <span className="badge bg-secondary">Reviewed {summary.reviewed}</span>
+      </div>
       <table className="table table-sm table-bordered">
         <thead className="table-light">
           <tr>

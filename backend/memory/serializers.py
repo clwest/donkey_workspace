@@ -245,6 +245,10 @@ class SymbolicMemoryAnchorSerializer(serializers.ModelSerializer):
     retagged_count = serializers.SerializerMethodField()
     first_used_at = serializers.SerializerMethodField()
     total_matches = serializers.SerializerMethodField()
+    mutation_score = serializers.SerializerMethodField()
+    fallback_count = serializers.SerializerMethodField()
+    glossary_boost = serializers.SerializerMethodField()
+    last_updated = serializers.SerializerMethodField()
 
     class Meta:
         model = SymbolicMemoryAnchor
@@ -279,6 +283,25 @@ class SymbolicMemoryAnchorSerializer(serializers.ModelSerializer):
 
     def get_total_matches(self, obj):
         return self.get_chunks_count(obj)
+
+    def _conv_stats(self, obj):
+        if not hasattr(obj, "_conv_cache"):
+            from .services.convergence import calculate_convergence_stats
+
+            obj._conv_cache = calculate_convergence_stats(obj)
+        return obj._conv_cache
+
+    def get_mutation_score(self, obj):
+        return self._conv_stats(obj).get("mutation_score")
+
+    def get_fallback_count(self, obj):
+        return self._conv_stats(obj).get("fallback_count")
+
+    def get_glossary_boost(self, obj):
+        return self._conv_stats(obj).get("glossary_boost")
+
+    def get_last_updated(self, obj):
+        return self._conv_stats(obj).get("last_updated")
 
 
 class MemoryMergeSuggestionSerializer(serializers.ModelSerializer):
@@ -358,7 +381,9 @@ class AnchorReinforcementLogSerializer(serializers.ModelSerializer):
 
 class RAGGroundingLogSerializer(serializers.ModelSerializer):
     assistant_name = serializers.CharField(source="assistant.name", read_only=True)
-    glossary_boost = serializers.FloatField(source="glossary_boost_applied", read_only=True)
+    glossary_boost = serializers.FloatField(
+        source="glossary_boost_applied", read_only=True
+    )
     matched_chunk_ids = serializers.SerializerMethodField()
 
     class Meta:
