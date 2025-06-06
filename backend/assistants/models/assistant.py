@@ -97,9 +97,7 @@ class Assistant(models.Model):
     mood_stability_index = models.FloatField(default=1.0)
     last_mood_shift = models.DateTimeField(null=True, blank=True)
     glossary_score = models.IntegerField(default=0)
-    skill_badges = ArrayField(models.CharField(max_length=50), default=list, blank=True)
     avatar_style = models.CharField(max_length=50, blank=True, null=True)
-
     # Empathy metrics
     avg_empathy_score = models.FloatField(default=0.0)
     empathy_tags = ArrayField(models.CharField(max_length=50), default=list, blank=True)
@@ -110,7 +108,7 @@ class Assistant(models.Model):
         models.CharField(max_length=64), default=list, blank=True
     )
     primary_badge = models.CharField(max_length=64, null=True, blank=True)
-    glossary_score = models.IntegerField(default=0)
+    badge_history = models.JSONField(default=list, blank=True)
     preferred_model = models.CharField(max_length=100, default="gpt-4o")
     memory_mode = models.CharField(
         max_length=200, choices=MEMORY_MODES, default="long_term"

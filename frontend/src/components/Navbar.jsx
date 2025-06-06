@@ -101,6 +101,11 @@ export default function Navbar({ onToggleSidebar }) {
                   </Link>
                 </li>
                 <li>
+                  <Link className="dropdown-item" to="/badges">
+                    🏷️ Badges
+                  </Link>
+                </li>
+                <li>
                   <hr className="dropdown-divider" />
                 </li>
                 <li>

@@ -11,10 +11,17 @@ class TaskDelegateView(APIView):
         assistant = get_object_or_404(Assistant, pk=assistant_id)
         task_desc = request.data["task_description"]
         target_id = request.data["target_assistant_id"]
+        required_badges = request.data.get("required_badges", [])
         target = get_object_or_404(Assistant, pk=target_id)
+        missing = [b for b in required_badges if b not in target.skill_badges]
+        if missing:
+            return Response(
+                {"error": "Target missing badges", "missing": missing}, status=400
+            )
         assignment = TaskAssignment.objects.create(
             from_assistant=assistant,
             to_assistant=target,
             description=task_desc,
+            required_badges=required_badges,
         )
         return Response({"assignment_id": str(assignment.id)})

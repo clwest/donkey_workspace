@@ -12,6 +12,7 @@ from .mythpath import *
 from .benchmark import *
 from .glossary import *
 from .boot import *
+from .badge import *
 
 
 

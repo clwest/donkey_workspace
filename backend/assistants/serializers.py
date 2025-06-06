@@ -30,6 +30,7 @@ from .models.assistant import (
     PurposeRouteMap,
     AutonomyNarrativeModel,
 )
+from .models.badge import Badge
 from .models.project import (
     AssistantProject,
     AssistantObjective,
@@ -106,6 +107,12 @@ def calculate_composite_health(assistant):
     score += prompt_factor * 0.25
     score += doc_pct * 0.25
     return round(score, 2)
+
+
+class BadgeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Badge
+        fields = ["slug", "label", "emoji", "description", "criteria"]
 
 
 from project.serializers import (

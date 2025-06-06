@@ -45,6 +45,7 @@ from .views import (
     symbolic,
 )
 from tasks.views.delegate import TaskDelegateView
+from assistants.views.badges import BadgeListView, AssistantBadgesView
 from insights.views.plan import InsightPlanView
 
 from scheduler.views import standup
@@ -835,6 +836,17 @@ urlpatterns = [
         "<slug:slug>/reputation/",
         reputation.assistant_reputation,
         name="assistant-reputation",
+    ),
+    path("badges/", BadgeListView.as_view(), name="badge-list"),
+    path(
+        "<slug:slug>/badges/",
+        AssistantBadgesView.as_view(),
+        name="assistant-badges",
+    ),
+    path(
+        "<slug:slug>/update_badges/",
+        AssistantBadgesView.as_view(),
+        name="assistant-update-badges",
     ),
     path(
         "<slug:slug>/clean_memories/",
