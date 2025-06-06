@@ -51,6 +51,12 @@ class ReflectionLogSerializer(serializers.ModelSerializer):
     raw_summary = serializers.CharField(
         source="raw_prompt", allow_null=True, read_only=True
     )
+    related_anchors = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field="slug",
+        source="related_anchors",
+    )
 
     class Meta:
         model = AssistantReflectionLog  # or whatever model you're using

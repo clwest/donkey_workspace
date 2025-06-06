@@ -4,8 +4,13 @@ from typing import Optional, List
 from django.utils import timezone
 
 from assistants.models.reflection import AssistantReflectionLog
-from memory.models import MemoryEntry, SymbolicMemoryAnchor, ReflectionReplayLog
+from memory.models import (
+    MemoryEntry,
+    SymbolicMemoryAnchor,
+    ReflectionReplayLog,
+)
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
+from intel_core.utils.glossary_tagging import _match_anchor
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +43,22 @@ def replay_reflection(obj: AssistantReflectionLog | MemoryEntry) -> ReflectionRe
         new_score=new_score,
         changed_anchors=[],
     )
+
+    # detect glossary anchors in the reflection text
+    if isinstance(obj, MemoryEntry):
+        text = " ".join(filter(None, [summary, obj.event, obj.summary]))
+    else:
+        text = " ".join(filter(None, [summary, obj.summary, obj.llm_summary, obj.raw_prompt]))
+    matched = []
+    for anchor in SymbolicMemoryAnchor.objects.all():
+        found, _ = _match_anchor(anchor, text)
+        if found:
+            matched.append(anchor)
+
+    if original_reflection and matched:
+        original_reflection.related_anchors.set(matched)
+        replay_log.changed_anchors = [a.slug for a in matched]
+        replay_log.save(update_fields=["changed_anchors"])
 
     # update anchor usage
     if original_reflection and original_reflection.anchor:

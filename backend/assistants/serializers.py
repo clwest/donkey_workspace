@@ -283,6 +283,12 @@ class AssistantReflectionLogSerializer(serializers.ModelSerializer):
     linked_event = serializers.SerializerMethodField()
     anchor_slug = serializers.SlugField(source="anchor.slug", read_only=True)
     tags = TagSerializer(many=True, read_only=True)
+    related_anchors = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field="slug",
+        source="related_anchors",
+    )
 
     class Meta:
         model = AssistantReflectionLog
@@ -295,6 +301,7 @@ class AssistantReflectionLogSerializer(serializers.ModelSerializer):
             "llm_summary",
             "linked_event",
             "anchor_slug",
+            "related_anchors",
             "tags",
             "created_at",
         ]
@@ -313,6 +320,12 @@ class AssistantReflectionLogListSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     linked_event = serializers.SerializerMethodField()
     anchor_slug = serializers.SlugField(source="anchor.slug", read_only=True)
+    related_anchors = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field="slug",
+        source="related_anchors",
+    )
 
     class Meta:
         model = AssistantReflectionLog
@@ -324,6 +337,7 @@ class AssistantReflectionLogListSerializer(serializers.ModelSerializer):
             "linked_memory",
             "linked_event",
             "anchor_slug",
+            "related_anchors",
             "tags",
         ]
         read_only_fields = ["id", "created_at"]
@@ -343,6 +357,12 @@ class AssistantReflectionLogDetailSerializer(serializers.ModelSerializer):
     project = ProjectSerializer(read_only=True)
     linked_event = serializers.SerializerMethodField()
     anchor_slug = serializers.SlugField(source="anchor.slug", read_only=True)
+    related_anchors = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field="slug",
+        source="related_anchors",
+    )
     raw_summary = serializers.CharField(
         source="raw_prompt", allow_null=True, read_only=True
     )
@@ -361,6 +381,7 @@ class AssistantReflectionLogDetailSerializer(serializers.ModelSerializer):
             "linked_memory",
             "linked_event",
             "anchor_slug",
+            "related_anchors",
             "tags",
             "mood",
             "created_at",

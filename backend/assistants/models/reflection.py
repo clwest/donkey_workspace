@@ -32,6 +32,9 @@ class AssistantReflectionLog(models.Model):
     related_chunks = models.ManyToManyField(
         "intel_core.DocumentChunk", blank=True, related_name="reflection_logs"
     )
+    related_anchors = models.ManyToManyField(
+        "memory.SymbolicMemoryAnchor", blank=True, related_name="related_reflections"
+    )
     anchor = models.ForeignKey(
         "memory.SymbolicMemoryAnchor",
         on_delete=models.SET_NULL,
