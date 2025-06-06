@@ -2,8 +2,12 @@ from django.db import models
 from django.conf import settings
 import uuid
 
+
+
 class AssistantTourStartLog(models.Model):
     """Record when a user begins the assistant hint tour."""
+
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     assistant = models.ForeignKey(
