@@ -7,6 +7,7 @@ export let cachedUser = null;
 export default function useAuthGuard() {
   const [user, setUser] = useState(cachedUser);
   const [checked, setChecked] = useState(Boolean(cachedUser));
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -24,9 +25,12 @@ export default function useAuthGuard() {
       .then((data) => {
         cachedUser = data;
         setUser(data);
+        setError(null);
         setChecked(true);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("auth check failed", err);
+        setError(err);
         localStorage.removeItem("access");
         localStorage.removeItem("refresh");
         setChecked(true);
@@ -36,5 +40,5 @@ export default function useAuthGuard() {
       });
   }, [navigate, location.pathname]);
 
-  return { user, authChecked: checked };
+  return { user, authChecked: checked, authError: error };
 }

@@ -12,7 +12,9 @@ export default function useUserInfo() {
     }
     apiFetch("/auth/user/")
       .then((data) => {
-        cachedUser = data;
+        if (data.is_authenticated) {
+          cachedUser = data;
+        }
         setUser(data);
       })
       .catch(() => {});
