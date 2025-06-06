@@ -55,7 +55,6 @@ class ReflectionLogSerializer(serializers.ModelSerializer):
         many=True,
         read_only=True,
         slug_field="slug",
-        source="related_anchors",
     )
 
     class Meta:
