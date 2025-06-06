@@ -486,6 +486,9 @@ class SymbolicMemoryAnchor(models.Model):
     last_used_in_reflection = models.DateTimeField(null=True, blank=True)
     total_uses = models.IntegerField(default=0)
     avg_score = models.FloatField(default=0.0)
+    mutation_score_before = models.FloatField(null=True, blank=True)
+    mutation_score_after = models.FloatField(null=True, blank=True)
+    mutation_score_delta = models.FloatField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -493,6 +496,16 @@ class SymbolicMemoryAnchor(models.Model):
 
     def __str__(self):
         return self.label
+
+    def save(self, *args, **kwargs):
+        if (
+            self.mutation_score_before is not None
+            and self.mutation_score_after is not None
+        ):
+            self.mutation_score_delta = (
+                self.mutation_score_after - self.mutation_score_before
+            )
+        super().save(*args, **kwargs)
 
 
 class MemoryEmbeddingFailureLog(models.Model):

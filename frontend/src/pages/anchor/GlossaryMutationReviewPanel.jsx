@@ -7,12 +7,14 @@ import {
   rejectGlossaryMutation,
   acceptGlossaryMutation,
   suggestMissingGlossaryMutations,
+  testGlossaryMutations,
 } from "../../api/agents";
 import apiFetch from "../../utils/apiClient";
 
 export default function GlossaryMutationReviewPanel() {
   const [mutations, setMutations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -40,6 +42,15 @@ export default function GlossaryMutationReviewPanel() {
 
   useEffect(() => {
     load();
+    async function checkAdmin() {
+      try {
+        const user = await apiFetch("/dj-rest-auth/user/");
+        setIsAdmin(user.is_staff || user.is_superuser);
+      } catch {
+        setIsAdmin(false);
+      }
+    }
+    checkAdmin();
   }, [searchParams]);
 
   const reload = () => load();
@@ -82,6 +93,18 @@ export default function GlossaryMutationReviewPanel() {
     }
   };
 
+  const runTestJob = async () => {
+    const assistant = searchParams.get("assistant");
+    if (!assistant) return;
+    try {
+      await testGlossaryMutations(assistant);
+      toast.info("Mutation test started");
+      reload();
+    } catch (e) {
+      toast.error("Failed to run tests");
+    }
+  };
+
   const showAll = import.meta.env.DEV || window.location.pathname.startsWith("/anchor/symbolic");
   const visible = showAll ? mutations : mutations.filter((m) => m.status === "pending");
 
@@ -102,6 +125,11 @@ export default function GlossaryMutationReviewPanel() {
         <span className="badge bg-warning text-dark me-2">Failing {failing}</span>
         <span className="badge bg-success me-2">Applied {applied}</span>
         <span className="badge bg-info text-dark">Convergence {convergence}%</span>
+        {isAdmin && (
+          <Button className="ms-2" size="sm" variant="outline-secondary" onClick={runTestJob}>
+            Test Mutations
+          </Button>
+        )}
       </div>
       {missingSuggestions && (
         <Alert variant="warning" className="mb-3">
@@ -119,7 +147,9 @@ export default function GlossaryMutationReviewPanel() {
             <th>Suggested Replacement</th>
             <th>Source</th>
             <th>Fallback Count</th>
-            <th>Score</th>
+            <th>Score Before</th>
+            <th>Score After</th>
+            <th>Δ</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
@@ -131,13 +161,20 @@ export default function GlossaryMutationReviewPanel() {
               <td>{m.suggested_label || "-"}</td>
               <td>{m.mutation_source}</td>
               <td>{m.fallback_count}</td>
+              <td>{m.mutation_score_before?.toFixed(2)}</td>
+              <td>{m.mutation_score_after?.toFixed(2)}</td>
               <td>
-                <span
-                  className="badge bg-secondary"
-                  title="Calculated from fallback logs and RAG diff score"
-                >
-                  {m.mutation_score?.toFixed(2)}
-                </span>
+                {m.mutation_score_delta !== null && (
+                  <span
+                    className={
+                      m.mutation_score_delta > 0
+                        ? "badge bg-success"
+                        : "badge bg-danger"
+                    }
+                  >
+                    {m.mutation_score_delta.toFixed(2)}
+                  </span>
+                )}
               </td>
               <td>
                 {m.status}
@@ -171,7 +208,7 @@ export default function GlossaryMutationReviewPanel() {
           ))}
           {visible.length === 0 && (
             <tr>
-              <td colSpan="6" className="text-muted">
+              <td colSpan="9" className="text-muted">
                 No mutations found.
               </td>
             </tr>
