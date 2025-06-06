@@ -219,6 +219,7 @@ class AssistantReflectionEngine:
         temperature: float = 0.5,
         rag_chunks: Optional[List[str]] = None,
         system_prompt: Optional[str] = None,
+        glossary_override: Optional[dict[str, str]] = None,
     ) -> str:
         from utils.llm_router import call_llm
 
@@ -236,6 +237,14 @@ class AssistantReflectionEngine:
             for i, text in enumerate(rag_chunks, 1):
                 lines.append(f'[Chunk {i}] "{text[:200]}"')
             messages.append({"role": "system", "content": "\n".join(lines)})
+        if glossary_override:
+            import json
+            messages.append(
+                {
+                    "role": "system",
+                    "content": json.dumps({"glossary": glossary_override}),
+                }
+            )
         messages.append({"role": "user", "content": prompt})
         logger.debug("Reflection messages: %s", messages)
         return call_llm(

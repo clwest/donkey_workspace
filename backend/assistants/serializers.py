@@ -47,6 +47,7 @@ from .models.reflection import (
     AssistantReflectionLog,
     AssistantReflectionInsight,
 )
+from memory.models import ReflectionReplayLog
 from .models.thoughts import (
     AssistantThoughtLog,
     EmotionalResonanceLog,
@@ -1538,5 +1539,12 @@ class RoleDrivenUITemplateSerializer(serializers.ModelSerializer):
 class SymbolicToolkitRegistrySerializer(serializers.ModelSerializer):
     class Meta:
         model = SymbolicToolkitRegistry
+        fields = "__all__"
+        read_only_fields = ["id", "created_at"]
+
+
+class ReflectionReplayLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReflectionReplayLog
         fields = "__all__"
         read_only_fields = ["id", "created_at"]

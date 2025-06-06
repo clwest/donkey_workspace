@@ -36,6 +36,12 @@ export default function AssistantReflectionLogsPage() {
   return (
     <div className="container my-5">
       <h2 className="mb-4">🪞 Reflections for {slug}</h2>
+      <Link
+        to={`/assistants/${slug}/replays/`}
+        className="btn btn-sm btn-outline-primary mb-3"
+      >
+        🌀 Replay Reflections
+      </Link>
       {logs.length === 0 ? (
         <p>No reflections found.</p>
       ) : (

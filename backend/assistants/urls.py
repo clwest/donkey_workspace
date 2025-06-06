@@ -501,6 +501,11 @@ urlpatterns = [
         name="assistant-reflection-logs",
     ),
     path(
+        "<slug:slug>/replays/",
+        memory.assistant_reflection_replays,
+        name="assistant-reflection-replays",
+    ),
+    path(
         "reflections/<uuid:id>/",
         memory.assistant_reflection_detail,
         name="assistant-reflection-detail",
