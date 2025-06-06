@@ -10,13 +10,13 @@ export default function GlossaryBootPage() {
   const { nextStep } = useOnboardingTracker();
   const [anchors, setAnchors] = useState([]);
   const [taught, setTaught] = useState(false);
-  if (!progress) return <div className="container my-5">Loading...</div>;
 
   useEffect(() => {
+    if (!progress) return;
     apiFetch("/onboarding/glossary_boot/")
       .then((res) => setAnchors(res.results))
       .catch((err) => console.error("glossary boot", err));
-  }, []);
+  }, [progress]);
 
   const teach = async (anchor) => {
     try {
@@ -31,6 +31,10 @@ export default function GlossaryBootPage() {
       console.error("teach anchor", err);
     }
   };
+
+  if (!progress) {
+    return <div className="container my-5">Loading...</div>;
+  }
 
   return (
     <div className="container my-4">

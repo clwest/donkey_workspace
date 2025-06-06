@@ -44,6 +44,7 @@ export default function LoginPage() {
             className="form-control"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            autoComplete="username"
             required
           />
         </div>
@@ -54,6 +55,7 @@ export default function LoginPage() {
             className="form-control"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
             required
           />
         </div>
