@@ -8,6 +8,7 @@ import {
   getRefreshToken,
   setToken,
 } from "./auth";
+import { toast } from "react-toastify";
 
 let API_URL = import.meta.env.VITE_API_URL;
 
@@ -15,6 +16,7 @@ let API_URL = import.meta.env.VITE_API_URL;
 let authLost = false;
 let lastRedirect = 0;
 let redirectCount = 0;
+let sessionExpiredNotified = false;
 const authDebug =
   new URLSearchParams(window.location.search).get("debug") === "auth";
 
@@ -95,14 +97,20 @@ export default async function apiFetch(url, options = {}) {
 
   if (res.status === 401) {
     if (authDebug) console.warn(`[auth] 401 from ${url}`);
-    const refreshed = await tryRefreshToken();
-    if (refreshed) {
-      res = await doFetch();
+    if (!url.startsWith("/auth/user")) {
+      const refreshed = await tryRefreshToken();
+      if (refreshed) {
+        res = await doFetch();
+      }
     }
   }
 
   if (res.status === 401) {
-    if (!authLost) {
+    if (!sessionExpiredNotified && !options.allowUnauthenticated) {
+      toast.warning("Session expired. Please log in again.");
+      sessionExpiredNotified = true;
+    }
+    if (!authLost && !options.allowUnauthenticated) {
       authLost = true;
       clearTokens();
       const now = Date.now();
