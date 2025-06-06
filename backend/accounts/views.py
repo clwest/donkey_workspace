@@ -10,6 +10,7 @@ from intel_core.serializers import DocumentSerializer
 from images.serializers import SourceImageSerializer
 from .models import UserInteractionSummary
 from assistants.models import Assistant
+from memory.models import SymbolicMemoryAnchor
 from onboarding.utils import (
     get_onboarding_status,
     get_next_onboarding_step,
@@ -88,6 +89,11 @@ def user_info(request):
     ] or 0
     onboarding = get_onboarding_status(request.user)
     next_step = get_next_onboarding_step(request.user)
+    taught_anchor_exists = SymbolicMemoryAnchor.objects.filter(
+        assistant__created_by=request.user,
+        acquisition_stage__in=["acquired", "reinforced"],
+    ).exists()
+    first_assistant = assistants.order_by("created_at").first()
     data = {
         "username": request.user.username,
         "assistant_count": assistant_count,
@@ -95,6 +101,8 @@ def user_info(request):
         "onboarding_status": onboarding,
         "has_assistants": assistant_count > 0,
         "onboarding_complete": next_step is None,
+        "has_taught_anchor": taught_anchor_exists,
+        "initial_badges": first_assistant.skill_badges if first_assistant else [],
     }
     if next_step:
         data["pending_onboarding_step"] = next_step

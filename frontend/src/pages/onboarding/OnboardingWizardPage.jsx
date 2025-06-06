@@ -8,7 +8,8 @@ export default function OnboardingWizardPage() {
   const [step, setStep] = useState(1);
   const total = 6;
   const navigate = useNavigate();
-  useOnboardingGuard("wizard");
+  const { progress } = useOnboardingGuard("wizard");
+  if (!progress) return <div className="container my-5">Loading...</div>;
 
   const next = () => setStep((s) => Math.min(s + 1, total));
   const back = () => setStep((s) => Math.max(s - 1, 1));

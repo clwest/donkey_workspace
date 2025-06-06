@@ -4,7 +4,8 @@ import OnboardingProgressBar from "../../components/onboarding/OnboardingProgres
 import useOnboardingGuard from "../../onboarding/useOnboardingGuard";
 
 export default function SummoningRitualConsolePage() {
-  useOnboardingGuard("summon");
+  const { progress } = useOnboardingGuard("summon");
+  if (!progress) return <div className="container my-5">Loading...</div>;
 
   return (
     <div className="container my-4">

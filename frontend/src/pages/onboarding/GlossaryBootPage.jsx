@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import apiFetch from "@/utils/apiClient";
 import useOnboardingGuard from "../../onboarding/useOnboardingGuard";
+import useOnboardingTracker from "@/hooks/useOnboardingTracker";
 import GlossaryAnchorCard from "../../components/onboarding/GlossaryAnchorCard";
 import TeachAnchorModal from "../../components/onboarding/TeachAnchorModal";
 
 export default function GlossaryBootPage() {
-  const { completeStep } = useOnboardingGuard("glossary");
+  const { progress, completeStep } = useOnboardingGuard("glossary");
+  const { nextStep } = useOnboardingTracker();
   const [anchors, setAnchors] = useState([]);
   const [taught, setTaught] = useState(false);
+  if (!progress) return <div className="container my-5">Loading...</div>;
 
   useEffect(() => {
     apiFetch("/onboarding/glossary_boot/")
@@ -32,6 +35,11 @@ export default function GlossaryBootPage() {
   return (
     <div className="container my-4">
       <h2>Glossary Preview</h2>
+      {localStorage.getItem("boot_anchor_slug") && nextStep !== "glossary" && (
+        <div className="alert alert-success">
+          You taught: {localStorage.getItem("boot_anchor_slug")}
+        </div>
+      )}
       <div className="d-flex flex-wrap gap-3">
         {anchors.map((a) => (
           <GlossaryAnchorCard key={a.slug} anchor={a} onTeach={teach} />
