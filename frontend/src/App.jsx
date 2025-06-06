@@ -282,6 +282,15 @@ export default function App() {
   const userInfo = useUserInfo();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!userInfo) return;
+    if (userInfo.has_assistants === false) {
+      if (!window.location.pathname.startsWith("/onboarding")) {
+        navigate("/onboarding/world", { replace: true });
+      }
+    }
+  }, [userInfo, navigate]);
+
   if (!authChecked) {
     return <div className="text-center mt-5">Loading...</div>;
   }
@@ -295,15 +304,6 @@ export default function App() {
       </div>
     );
   }
-
-  useEffect(() => {
-    if (!userInfo) return;
-    if (userInfo.has_assistants === false) {
-      if (!window.location.pathname.startsWith("/onboarding")) {
-        navigate("/onboarding/world", { replace: true });
-      }
-    }
-  }, [userInfo, navigate]);
 
   return (
       <div className="d-flex">
