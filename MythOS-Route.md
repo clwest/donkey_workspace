@@ -48,6 +48,7 @@ Frontend Path Backend URL View Serializer Notes
 /assistants/:id/dream/debug /api/assistants/:id/dream/debug/ DreamTriggerDebugger DreamTriggerLogSerializer Dreamframe state debugger
 /replay/engine /api/replay/engine/ SymbolicReplayEnginePage SymbolicReplayEngineSerializer Full scenario memory playback with codex echo
 /assistants/:id/fork/replay /api/assistants/:id/fork-replay/ ForkDrivenMemoryPlayback MemoryForkPlaybackSerializer Memory fork comparison
+/reflections/:id/replay /api/assistants/reflections/<uuid>/replay/ reflection-replay ReflectionReplayLogSerializer Replay a single reflection with updated anchors
 /swarm/playback /api/simulation/swarm-reflection-playback/ SwarmReflectionPlaybackPage SwarmReflectionPlaybackLogSerializer Multi-assistant reflection timeline
 /swarm/alignment /api/metrics/swarm/alignment/ SwarmAlignmentPage SwarmAlignmentIndexSerializer Swarm belief stability index
 /swarm/rewire /api/swarm/rewire/ SwarmAgentRewirePage SwarmAgentRouteSerializer Swarm relationship map

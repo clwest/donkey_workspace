@@ -516,6 +516,11 @@ urlpatterns = [
         name="assistant-reflection-thoughts",
     ),
     path(
+        "reflections/<uuid:id>/replay/",
+        memory.replay_reflection,
+        name="reflection-replay",
+    ),
+    path(
         "<slug:slug>/feedback/",
         thoughts.recent_feedback,
         name="assistant-feedback",

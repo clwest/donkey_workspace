@@ -719,6 +719,7 @@ class ReflectionReplayLog(models.Model):
     )
     old_score = models.FloatField(default=0.0)
     new_score = models.FloatField(default=0.0)
+    reflection_score = models.FloatField(default=0.0)
     changed_anchors = ArrayField(
         models.CharField(max_length=100), default=list, blank=True
     )

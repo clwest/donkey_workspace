@@ -54,3 +54,4 @@ venv/
 !agents/migrations/0001_mythchain_models.py
 !agents/migrations/0002_rename_broadcast_channel.py
 !capabilities/migrations/0001_initial.py
+!memory/migrations/0003_reflection_score.py

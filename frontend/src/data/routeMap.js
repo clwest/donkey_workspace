@@ -101,6 +101,13 @@ export const routeMap = [
     notes: "Reflection detail by ID",
   },
   {
+    frontend: "/reflections/:id/replay",
+    backend: "/api/assistants/reflections/<uuid>/replay/",
+    view: "reflection-replay",
+    serializer: "ReflectionReplayLogSerializer",
+    notes: "Replay a specific reflection",
+  },
+  {
     frontend: "/grouped-reflection",
     backend: "/api/mcp/dev_docs/summarize/",
     view: "summarize_and_group_devdocs_view",

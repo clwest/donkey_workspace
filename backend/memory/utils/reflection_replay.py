@@ -10,7 +10,9 @@ from memory.models import (
     ReflectionReplayLog,
 )
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
+
 from intel_core.utils.glossary_tagging import _match_anchor
+
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +26,7 @@ def replay_reflection(obj: AssistantReflectionLog | MemoryEntry) -> ReflectionRe
         summary = engine.generate_reflection(prompt)
         old_score = 0.0
         original_reflection = None
+        original_text = obj.summary or obj.event or ""
         memory_entry = obj
     else:
         assistant = obj.assistant
@@ -32,15 +35,17 @@ def replay_reflection(obj: AssistantReflectionLog | MemoryEntry) -> ReflectionRe
         summary = engine.generate_reflection(prompt)
         old_score = 0.0
         original_reflection = obj
+        original_text = obj.summary or ""
         memory_entry = obj.linked_memory
 
-    new_score = old_score  # Placeholder until scoring implemented
+    new_score = score_reflection_diff(original_text, summary)
     replay_log = ReflectionReplayLog.objects.create(
         original_reflection=original_reflection,
         assistant=assistant,
         memory_entry=memory_entry,
         old_score=old_score,
         new_score=new_score,
+        reflection_score=0.0,
         changed_anchors=[],
     )
 

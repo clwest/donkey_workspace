@@ -34,6 +34,16 @@ export default function AssistantReflectionLogsPage() {
     }
   };
 
+  const replayReflection = async (id) => {
+    try {
+      await apiFetch(`/reflections/${id}/replay/`, { method: "POST" });
+      toast.success("Reflection replayed!");
+      navigate(`/assistants/${slug}/replays/`);
+    } catch (err) {
+      toast.error("Failed to replay reflection");
+    }
+  };
+
   return (
     <div className="container my-5">
       <h2 className="mb-4">🪞 Reflections for {slug}</h2>
@@ -54,15 +64,31 @@ export default function AssistantReflectionLogsPage() {
       ) : (
         <ul className="list-group mb-3">
           {logs.map((r) => (
-            <li key={r.id} className="list-group-item d-flex justify-content-between align-items-start">
+            <li
+              key={r.id}
+              className="list-group-item d-flex justify-content-between align-items-start"
+            >
               <div>
                 <strong>{r.title || r.summary.slice(0, 40)}</strong>
                 <br />
-                <small className="text-muted">{new Date(r.created_at).toLocaleString()}</small>
+                <small className="text-muted">
+                  {new Date(r.created_at).toLocaleString()}
+                </small>
               </div>
-              <button className="btn btn-sm btn-outline-primary" onClick={() => createObjective(r.id)}>
-                ➕ Create Objective
-              </button>
+              <div>
+                <button
+                  className="btn btn-sm btn-outline-info me-2"
+                  onClick={() => replayReflection(r.id)}
+                >
+                  🔄 Replay
+                </button>
+                <button
+                  className="btn btn-sm btn-outline-primary"
+                  onClick={() => createObjective(r.id)}
+                >
+                  ➕ Create Objective
+                </button>
+              </div>
             </li>
           ))}
         </ul>
