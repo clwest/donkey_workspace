@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useParams, useNavigate } from "react-router-dom";
+import { Routes, Route, useParams, useNavigate } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
@@ -289,7 +289,6 @@ export default function App() {
   }, [userInfo, navigate]);
 
   return (
-    <Router>
       <div className="d-flex">
         <Sidebar collapsed={sidebarCollapsed} />
         <div className="flex-grow-1">
@@ -778,6 +777,5 @@ export default function App() {
         </Routes>
         </div>
       </div>
-    </Router>
   );
 }
