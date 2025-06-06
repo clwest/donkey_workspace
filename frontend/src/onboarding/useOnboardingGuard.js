@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import useOnboardingTracker from "@/hooks/useOnboardingTracker";
+import useUserInfo from "@/hooks/useUserInfo";
 
 export const STEP_ROUTES = {
   mythpath: "/onboarding",
@@ -15,14 +16,26 @@ export const STEP_ROUTES = {
 
 export default function useOnboardingGuard(step) {
   const navigate = useNavigate();
-  const { progress, completeStep } = useOnboardingTracker();
+  const { progress, nextStep, completeStep } = useOnboardingTracker();
+  const userInfo = useUserInfo();
 
   useEffect(() => {
     completeStep(step);
   }, [completeStep, step]);
 
   useEffect(() => {
-    if (!progress) return;
+    if (!progress || !userInfo) return;
+    if (userInfo.has_assistants) {
+      if (userInfo.onboarding_complete) {
+        navigate("/home", { replace: true });
+        return;
+      }
+      const stepSlug = userInfo.pending_onboarding_step || nextStep;
+      if (stepSlug && stepSlug !== step) {
+        navigate(STEP_ROUTES[stepSlug], { replace: true });
+        return;
+      }
+    }
     const firstIncomplete = progress.find((p) => p.status !== "completed");
     if (!firstIncomplete) {
       navigate("/assistants/create", { replace: true });
@@ -31,7 +44,7 @@ export default function useOnboardingGuard(step) {
     if (firstIncomplete.step !== step) {
       navigate(STEP_ROUTES[firstIncomplete.step], { replace: true });
     }
-  }, [progress, navigate, step]);
+  }, [progress, userInfo, nextStep, navigate, step]);
 
   return { progress };
 }

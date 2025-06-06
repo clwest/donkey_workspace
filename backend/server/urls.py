@@ -167,7 +167,7 @@ urlpatterns = [
     path("api/characters/", include("characters.urls")),
     path("api/mythcasting/", include("mythcasting.urls")),
     path("api/mythos/", include("mythos.urls")),
-    # path("api/user/", accounts.views.user_info),
+    path("api/user/", accounts.views.user_info),
     path("api/users/", include("accounts.urls")),
     path("api/storyboard/", include("storyboard.urls")),
     # Embedding chunk-match endpoint

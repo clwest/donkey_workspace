@@ -1,18 +1,40 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import OnboardingProgressPanel from "../../components/onboarding/OnboardingProgressPanel";
 import useOnboardingGuard from "../../onboarding/useOnboardingGuard";
+import useUserInfo from "@/hooks/useUserInfo";
 import TonePreview from "../../components/onboarding/TonePreview";
 import AvatarSelector from "../../components/onboarding/AvatarSelector";
 
 const TONES = ["cheerful", "formal", "nerdy", "zen", "friendly", "mysterious"];
 
 export default function PersonalityOnboardingPage() {
-  useOnboardingGuard("personality");
+  const { progress } = useOnboardingGuard("personality");
   const navigate = useNavigate();
   const location = useLocation();
+  const userInfo = useUserInfo();
   const [tone, setTone] = useState(location.state?.tone_profile || "friendly");
   const [avatar, setAvatar] = useState(location.state?.avatar_style || "robot");
+
+  useEffect(() => {
+    if (!userInfo) return;
+    if (userInfo.onboarding_complete && userInfo.has_assistants) {
+      navigate("/home", { replace: true });
+      return;
+    }
+    if (userInfo.avatar_style || userInfo.tone_profile) {
+      setTone(userInfo.tone_profile || "friendly");
+      setAvatar(userInfo.avatar_style || "robot");
+      if (userInfo.avatar_style && userInfo.tone_profile) {
+        navigate("/assistants/create", {
+          replace: true,
+          state: { tone_profile: userInfo.tone_profile, avatar_style: userInfo.avatar_style },
+        });
+      }
+    }
+  }, [userInfo, navigate]);
+
+  if (!progress) return <div className="container my-5">Loading...</div>;
 
   const handleNext = () => {
     navigate("/assistants/create", {

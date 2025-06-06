@@ -4,7 +4,8 @@ import OnboardingProgressBar from "../../components/onboarding/OnboardingProgres
 import useOnboardingGuard from "../../onboarding/useOnboardingGuard";
 
 export default function RitualOnboardingPage() {
-  useOnboardingGuard("ritual");
+  const { progress } = useOnboardingGuard("ritual");
+  if (!progress) return <div className="container my-5">Loading...</div>;
 
   return (
     <CinematicUILayer title="Ritual Onboarding">

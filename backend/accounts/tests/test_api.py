@@ -94,3 +94,5 @@ class AccountsAPITest(APITestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.json()
         self.assertIn("assistant_count", data)
+        self.assertIn("has_taught_anchor", data)
+        self.assertIn("initial_badges", data)

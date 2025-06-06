@@ -21,7 +21,28 @@ def onboarding_status(request):
     progress = get_onboarding_status(request.user)
     next_step = get_next_onboarding_step(request.user)
     percent = get_progress_percent(request.user)
-    return Response({"progress": progress, "next_step": next_step, "percent": percent})
+    first_anchor = (
+        SymbolicMemoryAnchor.objects.filter(
+            assistant__created_by=request.user,
+            acquisition_stage__in=["acquired", "reinforced"],
+        )
+        .order_by("created_at")
+        .first()
+    )
+    first_assistant = (
+        Assistant.objects.filter(created_by=request.user)
+        .order_by("created_at")
+        .first()
+    )
+    return Response(
+        {
+            "progress": progress,
+            "next_step": next_step,
+            "percent": percent,
+            "first_anchor_slug": first_anchor.slug if first_anchor else None,
+            "first_assistant_id": str(first_assistant.id) if first_assistant else None,
+        }
+    )
 
 
 @api_view(["POST"])

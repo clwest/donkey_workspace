@@ -4,7 +4,8 @@ import OnboardingProgressBar from "../../components/onboarding/OnboardingProgres
 import useOnboardingGuard from "../../onboarding/useOnboardingGuard";
 
 export default function ArchetypeSelectionChamberPage() {
-  useOnboardingGuard("archetype");
+  const { progress } = useOnboardingGuard("archetype");
+  if (!progress) return <div className="container my-5">Loading...</div>;
 
   return (
     <div className="container my-4">
