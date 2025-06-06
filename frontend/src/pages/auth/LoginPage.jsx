@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import apiFetch from "../../utils/apiClient";
 import { loginUser } from "@/api/auth";
@@ -67,6 +67,12 @@ export default function LoginPage() {
         <button type="submit" className="btn btn-primary">
           Login
         </button>
+        <p className="mt-3">
+          Don’t have an account?{' '}
+          <Link to="/register" className="text-info">
+            Register
+          </Link>
+        </p>
       </form>
     </div>
   );
