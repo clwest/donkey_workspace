@@ -524,6 +524,36 @@ export default function AssistantDetailPage() {
             </Link>
           </div>
 
+          <div className="card p-3 mb-3">
+            <h6 className="mb-2">RAG Debug Tools</h6>
+            <div className="d-flex flex-wrap gap-2">
+              <Link
+                to={`/assistants/${slug}/rag-inspector`}
+                className="btn btn-sm btn-outline-primary"
+              >
+                ⚖️ RAG Grounding Inspector
+              </Link>
+              <Link
+                to={`/assistants/${slug}/rag-drift`}
+                className="btn btn-sm btn-outline-secondary"
+              >
+                🔎 Glossary Drift Report
+              </Link>
+              <Link
+                to={`/assistants/${slug}/diagnostics`}
+                className="btn btn-sm btn-outline-danger"
+              >
+                ⚡️ RAG Diagnostics Runner
+              </Link>
+              <Link
+                to={`/assistants/${slug}/replays/`}
+                className="btn btn-sm btn-outline-info"
+              >
+                🔹 RAG Playback Logs
+              </Link>
+            </div>
+          </div>
+
           <hr />
           {assistant.documents?.length > 0 && (
             <details className="mt-4">

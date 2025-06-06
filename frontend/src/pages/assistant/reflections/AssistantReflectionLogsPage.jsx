@@ -7,6 +7,7 @@ import apiFetch from "../../../utils/apiClient";
 export default function AssistantReflectionLogsPage() {
   const { slug } = useParams();
   const [logs, setLogs] = useState([]);
+  const [latestReplay, setLatestReplay] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,7 +19,16 @@ export default function AssistantReflectionLogsPage() {
         console.error("Failed to load reflections", err);
       }
     }
+    async function fetchLatestReplay() {
+      try {
+        const data = await apiFetch(`/assistants/${slug}/replays/`);
+        setLatestReplay(data[0] || null);
+      } catch (err) {
+        console.error("Failed to load replays", err);
+      }
+    }
     fetchLogs();
+    fetchLatestReplay();
   }, [slug]);
 
   const createObjective = async (id) => {
@@ -59,6 +69,22 @@ export default function AssistantReflectionLogsPage() {
       >
         View Replays
       </Button>
+      {latestReplay && (
+        <div className="mb-3">
+          <Link
+            to={`/assistants/${slug}/rag_playback/${latestReplay.rag_playback}`}
+            className="btn btn-sm btn-outline-info me-2"
+          >
+            View Latest RAG Playback
+          </Link>
+          <Link
+            to={`/assistants/${slug}/rag_playback/compare/${latestReplay.id}`}
+            className="btn btn-sm btn-outline-primary"
+          >
+            Compare Playback
+          </Link>
+        </div>
+      )}
       {logs.length === 0 ? (
         <p>No reflections found.</p>
       ) : (

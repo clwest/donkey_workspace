@@ -108,6 +108,20 @@ export const routeMap = [
     notes: "RAG playback comparison",
   },
   {
+    frontend: "/assistants/:slug/rag-inspector",
+    backend: "/api/assistants/<slug>/rag_debug/",
+    view: "assistant-rag-debug",
+    serializer: "RAGGroundingLogSerializer",
+    notes: "RAG grounding inspector",
+  },
+  {
+    frontend: "/assistants/:slug/rag-drift",
+    backend: "/api/assistants/<slug>/rag_drift_report/",
+    view: "assistant-rag-drift-report",
+    serializer: "-",
+    notes: "Glossary drift report",
+  },
+  {
     frontend: "/reflections",
     backend: "/api/mcp/reflections/",
     view: "list_reflections",
@@ -480,7 +494,7 @@ export const routeMap = [
   },
   {
     frontend: "/assistants/:slug/diagnostics",
-    backend: "/api/assistants/<slug>/rag_self_test/",
+    backend: "/api/assistants/<slug>/diagnostics/",
     view: "AssistantRagSelfTestPage",
     serializer: "-",
     notes: "Assistant RAG diagnostic runner",
