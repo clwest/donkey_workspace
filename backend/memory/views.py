@@ -29,6 +29,7 @@ from .models import (
 )
 from .serializers import (
     MemoryEntrySerializer,
+    MemoryEntrySlimSerializer,
     MemoryFeedbackSerializer,
     MemoryChainSerializer,
     SharedMemoryPoolSerializer,
