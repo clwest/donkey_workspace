@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
@@ -8,6 +9,7 @@ import ChunkDriftPanel from "../intel/ChunkDriftPanel";
 import {
   cleanRecentMemories,
   cleanStaleProjects,
+  runRagSelfTest,
   runAllSelfTests,
 } from "../../api/assistants";
 
@@ -161,6 +163,21 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
     }
   };
 
+  const handleRunRag = async () => {
+    if (action) return;
+    setAction("rag");
+    try {
+      await runRagSelfTest(slug);
+      toast.success("RAG diagnostic started");
+      setRefreshKey((k) => k + 1);
+      onRefresh && onRefresh();
+    } catch {
+      toast.error("Failed to run RAG diagnostic");
+    } finally {
+      cooldown();
+    }
+  };
+
   return (
     <div className="p-2 border rounded mb-3">
       <h5 className="mb-3">Assistant Diagnostics</h5>
@@ -173,6 +190,15 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
           {data.anchors_with_matches} matched
         </li>
         <li>Hits: {data.glossary_hit_count} | Fallbacks: {data.fallback_count}</li>
+        {data.total_queries_tested && (
+          <li>Total queries tested: {data.total_queries_tested}</li>
+        )}
+        {data.last_diagnostic_run && (
+          <li>
+            Last diagnostic run:{" "}
+            {new Date(data.last_diagnostic_run).toLocaleString()}
+          </li>
+        )}
         <li>
           Health: <span className={`badge ${badgeClass}`}>{healthLabel}</span>
         </li>
@@ -253,6 +279,26 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
             "🗑️ Clear Stale Projects"
           )}
         </button>
+        <button
+          className="btn btn-sm btn-outline-info ms-1"
+          onClick={handleRunRag}
+          disabled={!!action}
+        >
+          {action === "rag" ? (
+            <>
+              <span className="spinner-border spinner-border-sm me-1" role="status" />
+              Running...
+            </>
+          ) : (
+            "⚡ Run RAG Diagnostic"
+          )}
+        </button>
+        <Link
+          to={`/assistants/${slug}/rag-inspector`}
+          className="btn btn-sm btn-outline-primary ms-1"
+        >
+          Grounding Inspector
+        </Link>
       <button
         className="btn btn-sm btn-outline-primary ms-1"
         onClick={handleGlobalBoot}

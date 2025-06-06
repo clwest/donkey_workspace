@@ -493,7 +493,7 @@ export default function App() {
           />
           <Route
             path="/assistants/:slug/rag_playback/compare/:id"
-            element={<RAGPlaybackPanel />}
+            element={<RAGPlaybackPanel compareMode />}
           />
           <Route
             path="/assistants/:slug/reflect"
