@@ -77,6 +77,7 @@ import AssistantDetailPage from "./pages/assistant/common/AssistantDetailPage";
 import AssistantThoughtsPage from "./pages/assistant/common/AssistantThoughtsPage";
 import AssistantThoughtDetailPage from "./pages/assistant/common/AssistantThoughtDetailPage";
 import AssistantDemoPage from "./pages/assistant/common/AssistantDemoPage";
+import AssistantLauncherPage from "./pages/assistants/AssistantLauncherPage";
 import ChatWithAssistantPage from "./pages/assistant/common/ChatWithAssistantPage";
 import ChatWithKnowledge from "./pages/assistants/[slug]/chat/ChatWithKnowledge";
 import CreateNewAssistantPage from "./pages/assistant/common/CreateNewAssistantPage";
@@ -286,7 +287,7 @@ export default function App() {
     if (!userInfo) return;
     if (userInfo.has_assistants === false) {
       if (!window.location.pathname.startsWith("/onboarding")) {
-        navigate("/onboarding/world", { replace: true });
+        navigate("/assistants/launch", { replace: true });
       }
     }
   }, [userInfo, navigate]);
@@ -481,6 +482,7 @@ export default function App() {
           <Route path="/assistants/routing-history" element={<RoutingHistoryPage />} />
           <Route path="/assistants/council/:id" element={<CouncilDashboardPage />} />
           <Route path="/assistants-demos" element={<AssistantDemoPage />} />
+          <Route path="/assistants/launch" element={<AssistantLauncherPage />} />
 
           {/* Assistant Detail Subroutes */}
           <Route

@@ -16,6 +16,7 @@ Route Path,Component
 /assistant/:id/tutorial,AssistantTutorialPage
 /assistants,AssistantList
 /assistants-demos,AssistantDemoPage
+/assistants/launch,AssistantLauncherPage
 /assistants/:id/aura,AssistantAuraPage
 /assistants/:id/deck,PersonalityDeckBuilder
 /assistants/:id/deploy,AssistantDeployPage
