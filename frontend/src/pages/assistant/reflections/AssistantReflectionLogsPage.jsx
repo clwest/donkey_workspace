@@ -45,7 +45,7 @@ export default function AssistantReflectionLogsPage() {
       </Link>
       <Button
         className="mb-4"
-        onClick={() => navigate(`/assistants/${slug}/replay_reflections`)}
+        onClick={() => navigate(`/assistants/${slug}/replays`)}
       >
         View Replays
       </Button>
