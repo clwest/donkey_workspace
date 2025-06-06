@@ -1,4 +1,4 @@
-import { Routes, Route, useParams, useNavigate } from "react-router-dom";
+import { Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
@@ -280,7 +280,10 @@ const ProjectDetailRoute = () => {
 export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const toggleSidebar = () => setSidebarCollapsed((c) => !c);
-  const { user, authChecked, authError } = useAuthGuard();
+  const location = useLocation();
+  const publicPaths = ["/login", "/register", "/", "/welcome"];
+  const allowUnauth = publicPaths.includes(location.pathname);
+  const { user, authChecked, authError } = useAuthGuard({ allowUnauthenticated: allowUnauth });
   const userInfo = useUserInfo();
   const navigate = useNavigate();
 

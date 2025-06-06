@@ -1,10 +1,16 @@
 import useOnboardingTracker from "@/hooks/useOnboardingTracker";
 import { Link } from "react-router-dom";
+import useAuth from "@/hooks/useAuth";
+import useAuthGuard from "@/hooks/useAuthGuard";
 import { useEffect, useState } from "react";
 import apiFetch from "@/utils/apiClient";
 import AssistantSetupSummary from "../components/assistant/AssistantSetupSummary";
 
 export default function WelcomePage() {
+  const token = useAuth();
+  if (token) {
+    useAuthGuard({ allowUnauthenticated: true });
+  }
   const { progress } = useOnboardingTracker();
   const [primary, setPrimary] = useState(null);
 

@@ -23,15 +23,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def auth_user(request):
     """Return basic user auth info."""
     if not getattr(request, "user", None) or not request.user.is_authenticated:
-        # If authentication failed, ensure we return a clean 401
-        return Response(
-            {"detail": "Authentication credentials were not provided."},
-            status=401,
-        )
+        return Response({"is_authenticated": False})
 
     assistants = Assistant.objects.filter(created_by=request.user)
     return Response(
@@ -103,8 +99,10 @@ def me_summary(request):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def user_info(request):
+    if not request.user.is_authenticated:
+        return Response({"is_authenticated": False})
     assistants = Assistant.objects.filter(created_by=request.user)
     assistant_count = assistants.count()
     glossary_score = assistants.aggregate(avg=Avg("glossary_score"))[
@@ -171,4 +169,6 @@ def demo_user(request):
     )
     token = RefreshToken.for_user(user)
     return Response({"access": str(token.access_token), "refresh": str(token)})
+
+
 
