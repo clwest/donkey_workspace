@@ -6,12 +6,14 @@ export default function GlossaryAnchorCard({ anchor, onTeach }) {
       {anchor.location && (
         <small className="text-muted">{anchor.location}</small>
       )}
-      <button
-        className="btn btn-sm btn-primary mt-2"
-        onClick={() => onTeach(anchor)}
-      >
-        Teach This
-      </button>
+      {onTeach && (
+        <button
+          className="btn btn-sm btn-primary mt-2"
+          onClick={() => onTeach(anchor)}
+        >
+          Teach This
+        </button>
+      )}
     </div>
   );
 }

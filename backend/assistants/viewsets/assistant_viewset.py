@@ -187,3 +187,11 @@ class AssistantViewSet(viewsets.ViewSet):
             logger.debug("Marked responded %s", relay_msg.id)
         serializer = AssistantRelayMessageSerializer(relay_msg)
         return Response(serializer.data, status=201)
+
+    @action(detail=True, methods=["get"], url_path="setup_summary")
+    def setup_summary(self, request, pk=None):
+        assistant = get_object_or_404(Assistant, slug=pk)
+        from assistants.serializers import AssistantSetupSummarySerializer
+
+        serializer = AssistantSetupSummarySerializer(assistant)
+        return Response(serializer.data)

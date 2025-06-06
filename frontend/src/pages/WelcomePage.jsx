@@ -1,8 +1,18 @@
 import useOnboardingTracker from "@/hooks/useOnboardingTracker";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import apiFetch from "@/utils/apiClient";
+import AssistantSetupSummary from "../components/assistant/AssistantSetupSummary";
 
 export default function WelcomePage() {
   const { progress } = useOnboardingTracker();
+  const [primary, setPrimary] = useState(null);
+
+  useEffect(() => {
+    apiFetch("/assistants/primary/")
+      .then(setPrimary)
+      .catch(() => {});
+  }, []);
   const steps = [
     "Name your assistant",
     "Choose an archetype",
@@ -33,6 +43,12 @@ export default function WelcomePage() {
               </li>
             ))}
           </ul>
+        </div>
+      )}
+      {primary && (
+        <div className="mt-4">
+          <h5>Your Assistant</h5>
+          <AssistantSetupSummary assistant={primary} />
         </div>
       )}
     </div>
