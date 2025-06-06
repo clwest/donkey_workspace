@@ -87,6 +87,13 @@ export const routeMap = [
     notes: "List reflection replay logs",
   },
   {
+    frontend: "/assistants/:slug/replays/:id",
+    backend: "/api/assistants/<slug>/replays/<uuid:id>/diff/",
+    view: "reflection_replay_diff",
+    serializer: "ReflectionReplayDiffSerializer",
+    notes: "Reflection replay diff view",
+  },
+  {
     frontend: "/reflections",
     backend: "/api/mcp/reflections/",
     view: "list_reflections",

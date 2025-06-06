@@ -47,6 +47,7 @@ def replay_reflection(obj: AssistantReflectionLog | MemoryEntry) -> ReflectionRe
         new_score=new_score,
         reflection_score=0.0,
         changed_anchors=[],
+        replayed_summary=summary,
     )
 
     # detect glossary anchors in the reflection text

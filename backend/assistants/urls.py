@@ -506,6 +506,11 @@ urlpatterns = [
         name="assistant-reflection-replays",
     ),
     path(
+        "<slug:slug>/replays/<uuid:id>/diff/",
+        memory.reflection_replay_diff,
+        name="reflection-replay-diff",
+    ),
+    path(
         "reflections/<uuid:id>/",
         memory.assistant_reflection_detail,
         name="assistant-reflection-detail",

@@ -55,3 +55,4 @@ venv/
 !agents/migrations/0002_rename_broadcast_channel.py
 !capabilities/migrations/0001_initial.py
 !memory/migrations/0003_reflection_score.py
+!memory/migrations/0004_replay_diff_fields.py

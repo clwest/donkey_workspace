@@ -1576,6 +1576,9 @@ class ReflectionReplayLogSerializer(serializers.ModelSerializer):
             "new_score",
             "reflection_score",
             "changed_anchors",
+            "replayed_summary",
+            "drift_reason",
+            "status",
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]
