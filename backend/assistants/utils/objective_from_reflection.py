@@ -1,11 +1,12 @@
-from assistants.models.thoughts import AssistantThoughtLog
-from assistants.models. reflection import AssistantReflectionLog
+from assistants.models.reflection import AssistantReflectionLog
 from assistants.models.project import AssistantObjective
-from memory.models import MemoryEntry
+from assistants.helpers.logging_helper import log_assistant_thought
 from prompts.utils.openai_utils import complete_chat
 
 
-def generate_objective_from_reflection(reflection: AssistantReflectionLog) -> AssistantObjective:
+def generate_objective_from_reflection(
+    reflection: AssistantReflectionLog,
+) -> AssistantObjective:
     """Generate a project objective based on a reflection."""
     system = "You summarize reflections into concise project objectives."
     user = (
@@ -26,12 +27,12 @@ def generate_objective_from_reflection(reflection: AssistantReflectionLog) -> As
         source_memory=reflection.linked_memory,
     )
 
-    AssistantThoughtLog.objects.create(
-        assistant=reflection.assistant,
+    log_assistant_thought(
+        reflection.assistant,
+        "objective evolved",
         project=reflection.project,
-        thought="objective evolved",
-        thought_type="planning",
         linked_reflection=reflection,
+        thought_type="planning",
     )
 
     return objective
