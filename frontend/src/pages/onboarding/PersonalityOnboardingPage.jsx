@@ -7,6 +7,7 @@ import useUserInfo from "@/hooks/useUserInfo";
 import TonePreview from "../../components/onboarding/TonePreview";
 import AvatarSelector from "../../components/onboarding/AvatarSelector";
 import GuideChatPanel from "../../components/onboarding/GuideChatPanel";
+import OnboardingHelpButton from "../../components/onboarding/OnboardingHelpButton";
 
 const TONES = ["cheerful", "formal", "nerdy", "zen", "friendly", "mysterious"];
 
@@ -72,6 +73,7 @@ export default function PersonalityOnboardingPage() {
       <button className="btn btn-success" onClick={handleNext}>
         Save &amp; Continue
       </button>
+      <OnboardingHelpButton />
     </div>
   );
 }

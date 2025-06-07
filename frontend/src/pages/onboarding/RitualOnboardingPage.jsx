@@ -2,6 +2,7 @@ import CinematicUILayer from "../../components/cinematic/CinematicUILayer";
 import OnboardingProgressPanel from "../../components/onboarding/OnboardingProgressPanel";
 import OnboardingProgressBar from "../../components/onboarding/OnboardingProgressBar";
 import GuideChatPanel from "../../components/onboarding/GuideChatPanel";
+import OnboardingHelpButton from "../../components/onboarding/OnboardingHelpButton";
 import useOnboardingGuard from "../../onboarding/useOnboardingGuard";
 import useOnboardingTracker from "@/hooks/useOnboardingTracker";
 import { useState } from "react";
@@ -49,6 +50,7 @@ export default function RitualOnboardingPage() {
           <h2 className="ritual-welcome">Welcome</h2>
         </div>
       )}
+      <OnboardingHelpButton />
     </CinematicUILayer>
   );
 }

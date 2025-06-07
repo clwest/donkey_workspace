@@ -7,10 +7,11 @@ export const ONBOARDING_WORLD = {
       description: "Define your guiding instinct",
       emoji: "\uD83E\uDDED",
       goal: "Define your guiding instinct",
-      aliases: {
-        fantasy: "Mythpath",
-        plain: "Assistant Role",
-      },
+
+      ui_label: "Assistant Role",
+      tooltip:
+        "Pick what kind of assistant you're creating — like a planner, researcher, or teacher.",
+
     },
     {
       slug: "world",
@@ -18,6 +19,8 @@ export const ONBOARDING_WORLD = {
       description: "Orient your assistant in a domain",
       emoji: "\uD83D\uDDFA\uFE0F",
       goal: "Orient your assistant in a domain",
+      ui_label: "Domain",
+      tooltip: "Give your assistant some background context for its expertise.",
     },
     {
       slug: "glossary",
@@ -25,6 +28,8 @@ export const ONBOARDING_WORLD = {
       description: "Start teaching key terms",
       emoji: "\uD83D\uDCD8",
       goal: "Start teaching key terms",
+      ui_label: "Key Terms",
+      tooltip: "Introduce important terminology so the assistant speaks your language.",
     },
     {
       slug: "archetype",
@@ -32,6 +37,8 @@ export const ONBOARDING_WORLD = {
       description: "Pick a behavior/personality profile",
       emoji: "\uD83E\uDDEC",
       goal: "Pick a behavior/personality profile",
+      ui_label: "Personality",
+      tooltip: "Choose a style or persona that matches your needs.",
     },
     {
       slug: "summon",
@@ -39,6 +46,8 @@ export const ONBOARDING_WORLD = {
       description: "Create your assistant",
       emoji: "\uD83C\uDF00",
       goal: "Create your assistant",
+      ui_label: "Create Assistant",
+      tooltip: "Bring your assistant to life with a name and description.",
     },
     {
       slug: "personality",
@@ -46,6 +55,8 @@ export const ONBOARDING_WORLD = {
       description: "Choose avatar and tone",
       emoji: "\uD83E\uDDE0",
       goal: "Choose avatar and tone",
+      ui_label: "Avatar & Tone",
+      tooltip: "Pick how your assistant looks and communicates.",
     },
     {
       slug: "wizard",
@@ -53,6 +64,8 @@ export const ONBOARDING_WORLD = {
       description: "Configure advanced skills",
       emoji: "\uD83E\uDDD9",
       goal: "Configure advanced skills (optional)",
+      ui_label: "Setup Wizard",
+      tooltip: "Walk through setup with helpful suggestions from your AI.",
     },
     {
       slug: "ritual",
@@ -60,6 +73,8 @@ export const ONBOARDING_WORLD = {
       description: "Final review and launch",
       emoji: "\uD83E\uDA84",
       goal: "Final review and launch",
+      ui_label: "Final Step",
+      tooltip: "The last step that completes your assistant's setup.",
     },
   ],
 };

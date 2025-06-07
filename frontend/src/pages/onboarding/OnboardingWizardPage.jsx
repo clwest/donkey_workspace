@@ -7,6 +7,7 @@ import useOnboardingTracker from "@/hooks/useOnboardingTracker";
 import apiFetch from "@/utils/apiClient";
 import AssistantSetupSummary from "../../components/assistant/AssistantSetupSummary";
 import GuideChatPanel from "../../components/onboarding/GuideChatPanel";
+import OnboardingHelpButton from "../../components/onboarding/OnboardingHelpButton";
 
 export default function OnboardingWizardPage() {
   const [step, setStep] = useState(1);
@@ -113,6 +114,7 @@ export default function OnboardingWizardPage() {
           </button>
         )}
       </div>
+      <OnboardingHelpButton />
     </div>
   );
 }

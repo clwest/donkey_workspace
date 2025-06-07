@@ -9,6 +9,8 @@ import GuideChatPanel from "../../components/onboarding/GuideChatPanel";
 import { ONBOARDING_WORLD } from "../../onboarding/metadata";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import OnboardingHelpButton from "../../components/onboarding/OnboardingHelpButton";
+import useOnboardingTheme from "../../onboarding/useOnboardingTheme";
 
 import { useState } from "react";
 
@@ -21,12 +23,14 @@ export default function OnboardingWorldPage() {
   const { progress, nextStep, aliases, refreshStatus } = useOnboardingTracker(theme);
 
   const userInfo = useUserInfo();
+  const { theme, toggle } = useOnboardingTheme();
 
   const navigate = useNavigate();
 
   if (!progress || !userInfo) return <div className="container my-5">Loading...</div>;
 
   const getStatus = (slug) => progress?.find((p) => p.step === slug)?.status || "pending";
+  const mythIncomplete = progress.find((p) => p.step === "mythpath" && p.status !== "completed");
 
   const toggleTheme = () => {
     const newTheme = theme === "fantasy" ? "plain" : "fantasy";
@@ -46,7 +50,30 @@ export default function OnboardingWorldPage() {
       <OnboardingIntroModal />
       <OnboardingProgressBar />
       <OnboardingProgressPanel />
-      <h2>{ONBOARDING_WORLD.title}</h2>
+      <div className="d-flex justify-content-between align-items-center">
+        <h2>{ONBOARDING_WORLD.title}</h2>
+        <div className="btn-group">
+          <button
+            className={`btn btn-sm ${
+              theme === "fantasy" ? "btn-primary" : "btn-outline-primary"
+            }`}
+            onClick={() => toggle("fantasy")}
+          >
+            🧙 Fantasy
+          </button>
+          <button
+            className={`btn btn-sm ${
+              theme === "practical" ? "btn-primary" : "btn-outline-primary"
+            }`}
+            onClick={() => toggle("practical")}
+          >
+            💼 Practical
+          </button>
+        </div>
+      </div>
+      {mythIncomplete && (
+        <div className="alert alert-info mt-3">Start Here → Mythpath</div>
+      )}
       <div className="d-flex flex-wrap gap-3">
         {ONBOARDING_WORLD.nodes.map((node) => {
           const status = getStatus(node.slug);
@@ -65,13 +92,17 @@ export default function OnboardingWorldPage() {
                 style={{ cursor: "pointer", width: "160px" }}
               >
                 <h5 className="mb-1">
-                  {node.emoji} {aliases?.[node.slug] || node.title}
+
+                  {node.emoji} {theme === "fantasy" ? node.title : node.ui_label || node.title}
+
                 </h5>
                 <small className="text-muted">{status}</small>
               </div>
               <OverlayTrigger
                 placement="top"
-                overlay={<Tooltip>{node.aliases?.[theme === "fantasy" ? "plain" : "fantasy"] || node.description}</Tooltip>}
+
+                overlay={<Tooltip>{node.tooltip || node.description}</Tooltip>}
+
               >
                 <span className="position-absolute top-0 end-0 me-1 mt-1 text-muted" style={{ cursor: 'help' }}>?</span>
               </OverlayTrigger>
@@ -90,6 +121,7 @@ export default function OnboardingWorldPage() {
         )}
         <button className="btn btn-success" onClick={() => navigate("/home")}>Launch Your Assistant!</button>
       </div>
+      <OnboardingHelpButton />
     </div>
   );
 }
