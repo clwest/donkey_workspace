@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 
 export default function MemoryChainBuilderPage() {
   const [memories, setMemories] = useState([]);
@@ -9,8 +10,7 @@ export default function MemoryChainBuilderPage() {
 
   useEffect(() => {
     async function fetchMemories() {
-      const res = await fetch("/api/memory/list/");
-      const data = await res.json();
+      const data = await apiFetch("/memory/list/");
       setMemories(data);
     }
     fetchMemories();
@@ -27,12 +27,11 @@ export default function MemoryChainBuilderPage() {
       alert("Please enter a title and select memories.");
       return;
     }
-    const res = await fetch("/api/memory/chains/create/", {
+    const res = await apiFetch("/memory/chains/create/", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, memory_ids: selected }),
+      body: { title, memory_ids: selected },
     });
-    if (res.ok) {
+    if (res) {
       alert("✅ Memory Chain created!");
       navigate("/memories"); // Or build a chains list later
     } else {

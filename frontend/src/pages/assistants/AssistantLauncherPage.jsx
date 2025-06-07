@@ -8,6 +8,7 @@ import useUserInfo from "../../hooks/useUserInfo";
 import useAuthGuard from "../../hooks/useAuthGuard";
 import OnboardingProgressBar from "../../components/onboarding/OnboardingProgressBar";
 import AssistantSetupSummary from "../../components/assistant/AssistantSetupSummary";
+import apiFetch from "@/utils/apiClient";
 
 export default function AssistantLauncherPage() {
   useAuthGuard();
@@ -19,8 +20,7 @@ export default function AssistantLauncherPage() {
 
   useEffect(() => {
     if (userInfo?.assistant_count > 0) {
-      fetch("/api/assistants/primary/")
-        .then((res) => res.json())
+      apiFetch("/assistants/primary/")
         .then(setPrimary)
         .catch(() => {});
     }

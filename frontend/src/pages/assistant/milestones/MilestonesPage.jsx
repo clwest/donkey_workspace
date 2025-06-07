@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 import MilestoneCard from "../../../components/assistant/milestones/MilestoneCard";
 import MilestoneQuickCreate from "../../../components/assistant/milestones/MilestoneQuickCreate";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -11,20 +12,18 @@ export default function MilestonesPage() {
 
   useEffect(() => {
     async function fetchMilestones() {
-      const res = await fetch(`/api/assistants/projects/${projectId}/milestones/`);
-      const data = await res.json();
+      const data = await apiFetch(`/assistants/projects/${projectId}/milestones/`);
       setMilestones(data);
     }
     fetchMilestones();
   }, [projectId]);
 
   async function updateMilestoneDescription(id, newDescription) {
-    const res = await fetch(`/api/assistants/milestones/${id}/`, {
+    const res = await apiFetch(`/assistants/milestones/${id}/`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ description: newDescription }),
+      body: { description: newDescription },
     });
-    if (res.ok) {
+    if (res) {
       setMilestones(prev =>
         prev.map(m => (m.id === id ? { ...m, description: newDescription } : m))
       );

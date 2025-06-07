@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 
 export default function AgentDemosPage() {
   const [agents, setAgents] = useState([]);
 
   useEffect(() => {
-    fetch("/api/assistants/demos/")
-      .then((res) => res.json())
+    apiFetch("/assistants/demos/")
       .then((data) => setAgents(data))
       .catch((err) => console.error("Failed to fetch demo agents:", err));
   }, []);

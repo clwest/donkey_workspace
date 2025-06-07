@@ -1,6 +1,7 @@
 // src/pages/assistant/tasks/MemoryToTaskPage.jsx
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 
 export default function MemoryToTaskPage() {
   const { memoryId } = useParams();
@@ -12,13 +13,11 @@ export default function MemoryToTaskPage() {
 
   useEffect(() => {
     async function fetchMemory() {
-      const res = await fetch(`/api/memory/${memoryId}/`);
-      const data = await res.json();
+      const data = await apiFetch(`/memory/${memoryId}/`);
       setMemory(data);
     }
     async function fetchProjects() {
-      const res = await fetch(`/api/assistants/projects/`);
-      const data = await res.json();
+      const data = await apiFetch(`/assistants/projects/`);
       setProjects(data);
     }
     fetchMemory();
@@ -31,16 +30,15 @@ export default function MemoryToTaskPage() {
       return;
     }
 
-    const res = await fetch(`/api/assistants/projects/${selectedProjectId}/tasks/`, {
+    const res = await apiFetch(`/assistants/projects/${selectedProjectId}/tasks/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+      body: {
         title: taskTitle,
         description: memory?.event || "",
-      }),
+      },
     });
 
-    if (res.ok) {
+    if (res) {
       alert("✅ Task created from memory!");
       navigate(`/projects/${selectedProjectId}`);
     } else {

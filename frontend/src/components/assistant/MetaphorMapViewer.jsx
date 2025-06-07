@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card } from "react-bootstrap";
+import apiFetch from "@/utils/apiClient";
 
 export default function MetaphorMapViewer({ memoryId }) {
   const [metaphors, setMetaphors] = useState([]);
@@ -7,11 +8,8 @@ export default function MetaphorMapViewer({ memoryId }) {
   useEffect(() => {
     async function fetchMap() {
       try {
-        const res = await fetch(`/api/memory/${memoryId}/metaphors/`);
-        if (res.ok) {
-          const data = await res.json();
-          setMetaphors(data.metaphor_tags || []);
-        }
+        const data = await apiFetch(`/memory/${memoryId}/metaphors/`);
+        setMetaphors(data.metaphor_tags || []);
       } catch (err) {
         console.error("Failed to load metaphor map", err);
       }

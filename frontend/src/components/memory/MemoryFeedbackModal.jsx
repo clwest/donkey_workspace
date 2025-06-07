@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { toast } from "react-toastify";
+import apiFetch from "@/utils/apiClient";
 
 export default function MemoryFeedbackModal({ memoryId, show, onHide, onSubmitted }) {
   const [comment, setComment] = useState("");
@@ -15,12 +16,11 @@ export default function MemoryFeedbackModal({ memoryId, show, onHide, onSubmitte
     }
     setSaving(true);
     try {
-      const res = await fetch(`/api/memory/${memoryId}/feedback/`, {
+      const res = await apiFetch(`/memory/${memoryId}/feedback/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ comment, context }),
+        body: { comment, context },
       });
-      if (res.ok) {
+      if (res) {
         toast.success("✅ Feedback submitted");
         setComment("");
         setContext("");

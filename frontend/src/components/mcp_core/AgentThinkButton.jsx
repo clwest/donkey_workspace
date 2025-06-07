@@ -1,4 +1,5 @@
 import { useState } from "react";
+import apiFetch from "@/utils/apiClient";
 
 export default function AssistantThinkButton({ slug, onThought }) {
   const [loading, setLoading] = useState(false);
@@ -9,14 +10,10 @@ export default function AssistantThinkButton({ slug, onThought }) {
     setError(null);
 
     try {
-      const res = await fetch(`/api/assistants/${slug}/dream/`, {
+      const data = await apiFetch(`/assistants/${slug}/dream/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
       });
-
-      if (!res.ok) throw new Error("Failed to generate thought");
-
-      const data = await res.json();
+      if (!data) throw new Error("Failed to generate thought");
       if (onThought) onThought(data);
     } catch (err) {
       setError("Error generating thought.");

@@ -8,6 +8,7 @@ import PromptUsageLogList from "../../components/prompts/PromptUsageLogList";
 import PromptDiagnosticsPanel from "../../components/prompts/PromptDiagnosticPanel";
 import PrimaryStar from "../../components/assistant/PrimaryStar";
 import PromptDangerZone from "../../components/prompts/PromptDangerZone";
+import apiFetch from "@/utils/apiClient";
 
 export default function PromptDetailView() {
   const { slug } = useParams();
@@ -27,9 +28,8 @@ export default function PromptDetailView() {
 
   async function fetchPrompt() {
     try {
-      const res = await fetch(`/api/prompts/${slug}/`);
-      const data = await res.json();
-      if (res.ok) {
+      const data = await apiFetch(`/prompts/${slug}/`);
+      if (data) {
         setPrompt(data);
         setSelectedAssistantId(data.assistant?.id || "");
       } else {
@@ -44,9 +44,8 @@ export default function PromptDetailView() {
 
   async function fetchAssistants() {
     try {
-      const res = await fetch("/api/assistants/");
-      const data = await res.json();
-      if (res.ok) setAssistants(data);
+      const data = await apiFetch("/assistants/");
+      setAssistants(data);
     } catch (err) {
       console.error("Error loading assistants:", err);
     }
@@ -54,12 +53,11 @@ export default function PromptDetailView() {
 
   async function handleAssign() {
     try {
-      const res = await fetch(`/api/prompts/${slug}/assign/`, {
+      const res = await apiFetch(`/prompts/${slug}/assign/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ assistant_id: selectedAssistantId }),
+        body: { assistant_id: selectedAssistantId },
       });
-      if (res.ok) {
+      if (res) {
         toast.success("✅ Prompt assigned to assistant!");
         fetchPrompt();
       } else {

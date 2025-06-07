@@ -1,6 +1,7 @@
 // src/pages/assistant/milestones/MilestoneCreatePage.jsx
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 
 export default function MilestoneCreatePage() {
   const { projectId } = useParams();
@@ -13,12 +14,11 @@ export default function MilestoneCreatePage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const res = await fetch(`/api/assistants/projects/${projectId}/milestones/`, {
+    const res = await apiFetch(`/assistants/projects/${projectId}/milestones/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
+      body: formData,
     });
-    if (res.ok) {
+    if (res) {
       navigate(`/projects/${projectId}/milestones`);
     } else {
       alert("Failed to create milestone");

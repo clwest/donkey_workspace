@@ -1,5 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import apiFetch from "@/utils/apiClient";
 import TagBadge from "../../../components/TagBadge";
 import { Spinner } from "react-bootstrap";
 
@@ -15,8 +16,7 @@ export default function AssistantThoughtDetailPage() {
     }
     const fetchThought = async () => {
       try {
-        const res = await fetch(`/api/assistants/thoughts/${id}/`);
-        const data = await res.json();
+        const data = await apiFetch(`/assistants/thoughts/${id}/`);
         setThought(data);
       } catch (err) {
         console.error("Error fetching thought:", err);

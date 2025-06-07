@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 
 export default function ProjectTimelinePage() {
   const { projectId } = useParams();
@@ -9,8 +10,7 @@ export default function ProjectTimelinePage() {
 
   useEffect(() => {
     async function fetchMilestones() {
-      const res = await fetch(`/api/assistants/projects/${projectId}/milestones/`);
-      const data = await res.json();
+      const data = await apiFetch(`/assistants/projects/${projectId}/milestones/`);
       setMilestones(
         data
           .filter(m => m.due_date)               // 🧹 Only milestones with due dates

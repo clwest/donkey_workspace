@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import apiFetch from "@/utils/apiClient";
 import { logPromptUsage } from "../../../utils/logging";
 
 export default function PromptCreationAssistant() {
@@ -21,19 +22,18 @@ export default function PromptCreationAssistant() {
     setResult(null);
 
     try {
-      const res = await fetch("/api/prompts/generate-from-idea/", {
+      const res = await apiFetch("/prompts/generate-from-idea/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           goal,
           audience,
           tone,
           key_points: `${keyPoints} ${keywords} ${messyIdea}`,
-        }),
+        },
       });
 
-      const data = await res.json();
-      if (res.ok) {
+      const data = res;
+      if (data) {
         setResult(data.prompt);
         toast.success("✅ Prompt generated!");
 

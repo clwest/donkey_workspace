@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 import { toast } from "react-toastify";
 import PromptIdeaGenerator from "../../../components/prompts/PromptIdeaGenerator";
 import BadgeSelector from "../../../components/assistant/BadgeSelector";
@@ -57,8 +58,7 @@ export default function EditAssistantPage() {
   useEffect(() => {
     async function fetchPrompts() {
       try {
-        const res = await fetch("/api/prompts/?type=system&show_all=true");
-        const data = await res.json();
+        const data = await apiFetch("/prompts/?type=system&show_all=true");
         setPrompts(data);
       } catch (err) {
         console.error("Failed to load prompts", err);
@@ -69,21 +69,18 @@ export default function EditAssistantPage() {
 
     async function fetchAssistant() {
       try {
-        const res = await fetch(`/api/assistants/${slug}/`);
-        const data = await res.json();
-        if (res.ok) {
-          setName(data.name || "");
-          setDescription(data.description || "");
-          setSpecialty(data.specialty || "");
-          setAvatar(data.avatar || "");
-          setSystemPromptId(data.system_prompt?.id || "");
-          setPersonality(data.personality || "");
-          setTone(data.tone || "");
-          setPreferredModel(data.preferred_model || "gpt-4o");
-          setBadges(data.skill_badges || []);
-          setAvailableBadges(data.available_badges || []);
-          setPrimaryBadge(data.primary_badge || "");
-        }
+        const data = await apiFetch(`/assistants/${slug}/`);
+        setName(data.name || "");
+        setDescription(data.description || "");
+        setSpecialty(data.specialty || "");
+        setAvatar(data.avatar || "");
+        setSystemPromptId(data.system_prompt?.id || "");
+        setPersonality(data.personality || "");
+        setTone(data.tone || "");
+        setPreferredModel(data.preferred_model || "gpt-4o");
+        setBadges(data.skill_badges || []);
+        setAvailableBadges(data.available_badges || []);
+        setPrimaryBadge(data.primary_badge || "");
       } catch (err) {
         console.error("Failed to load assistant", err);
       }
@@ -106,10 +103,9 @@ export default function EditAssistantPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await fetch(`/api/assistants/${slug}/`, {
+      const res = await apiFetch(`/assistants/${slug}/`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           name,
           description,
           specialty,
@@ -120,14 +116,13 @@ export default function EditAssistantPage() {
           preferred_model: preferredModel,
           skill_badges: badges,
           primary_badge: primaryBadge || null,
-        }),
+        },
       });
-      const data = await res.json();
-      if (res.ok) {
-        await fetch(`/api/assistants/${slug}/update_badges/`, {
+      const data = res;
+      if (data) {
+        await apiFetch(`/assistants/${slug}/update_badges/`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ badges, primary_badge: primaryBadge, override: true }),
+          body: { badges, primary_badge: primaryBadge, override: true },
         });
         toast.success("✅ Assistant updated!");
         navigate(`/assistants/${data.slug}`);

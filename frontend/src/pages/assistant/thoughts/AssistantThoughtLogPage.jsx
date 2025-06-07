@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import apiFetch from "@/utils/apiClient";
 
 export default function AssistantThoughtLogPage() {
   const { slug } = useParams();
@@ -13,8 +14,7 @@ export default function AssistantThoughtLogPage() {
   useEffect(() => {
     async function fetchEvents() {
       try {
-        const res = await fetch("/api/storyboard/");
-        const data = await res.json();
+        const data = await apiFetch("/storyboard/");
         setEvents(data);
       } catch (err) {
         console.error("Failed to load events", err);
@@ -28,14 +28,11 @@ export default function AssistantThoughtLogPage() {
 
     setLoading(true);
     try {
-      const res = await fetch(`/api/assistants/${slug}/log_thought/`, {
+      const data = await apiFetch(`/assistants/${slug}/log_thought/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ thought, narrative_event_id: eventId }),
+        body: { thought, narrative_event_id: eventId },
       });
-
-      const data = await res.json();
-      if (res.ok) {
+      if (data) {
         setResponse(data.thought);
         toast.success("🧠 Thought logged!");
         setThought(""); // optional: clear textarea

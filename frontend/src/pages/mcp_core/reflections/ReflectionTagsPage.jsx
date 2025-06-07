@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 
 export default function ReflectionTagsPage() {
   const { tag } = useParams();
@@ -7,9 +8,8 @@ export default function ReflectionTagsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`/api/mcp/reflection-tags/${tag}/`)
-      .then(res => res.json())
-      .then(data => {
+    apiFetch(`/mcp/reflection-tags/${tag}/`)
+      .then((data) => {
         setReflections(data);
         setLoading(false);
       });

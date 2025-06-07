@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import useRealtimeAssistant from "../../../hooks/useRealtimeAssistant";
 import { Link, useNavigate } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 import '../styles/MemoryReflectionPage.css'
 
 export default function MemoryReflectionPage() {
@@ -14,8 +15,7 @@ export default function MemoryReflectionPage() {
 
   useEffect(() => {
     async function fetchMemories() {
-      const res = await fetch("/api/memory/list/");
-      const data = await res.json();
+      const data = await apiFetch("/memory/list/");
       setMemories(data.filter(m => m.is_conversation)); // Only show convo memories
     }
     fetchMemories();
@@ -36,16 +36,15 @@ export default function MemoryReflectionPage() {
 
   async function saveReflection() {
     if (!title || !reflection) return alert("Please enter title and summary.");
-    const res = await fetch("/api/memory/reflection/", {
+    const res = await apiFetch("/memory/reflection/", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+      body: {
         title,
         summary: reflection,
         memory_ids: selected,
-      }),
+      },
     });
-    if (res.ok) {
+    if (res) {
       alert("Reflection saved!");
       navigate("/memories");
     } else {

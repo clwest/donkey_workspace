@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 import { toast } from "react-toastify";
 
 export default function ProjectTaskBuilderPage() {
@@ -14,7 +15,7 @@ export default function ProjectTaskBuilderPage() {
     setError("");
 
     try {
-      const res = await fetch(`/api/assistants/projects/${id}/generate_tasks/`, {
+      const res = await apiFetch(`/assistants/projects/${id}/generate_tasks/`, {
         method: "POST",
       });
 

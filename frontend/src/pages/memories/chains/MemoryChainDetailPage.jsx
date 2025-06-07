@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 
 export default function MemoryChainDetailPage() {
   const { id } = useParams();
@@ -8,10 +9,9 @@ export default function MemoryChainDetailPage() {
 
   useEffect(() => {
     async function fetchChain() {
-      const res = await fetch(`/api/memory/chain/${id}/`);
-      const data = await res.json();
+      const data = await apiFetch(`/memory/chain/${id}/`);
       setChain(data);
-      
+
       setLoading(false);
     }
     fetchChain();

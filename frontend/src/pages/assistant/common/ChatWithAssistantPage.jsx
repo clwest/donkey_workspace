@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 import TagBadge from "../../../components/TagBadge";
 import HintBubble from "../../../components/HintBubble";
 import useAssistantHints from "../../../hooks/useAssistantHints";
@@ -53,8 +54,7 @@ export default function ChatWithAssistantPage() {
   }, [messages]);
 
   useEffect(() => {
-    fetch(`/api/assistants/${slug}/`)
-      .then((r) => r.json())
+    apiFetch(`/assistants/${slug}/`)
       .then(setAssistantInfo)
       .catch(() => {});
   }, [slug]);
@@ -79,13 +79,10 @@ export default function ChatWithAssistantPage() {
       }
     } else {
       const fetchSession = async () => {
-        const res = await fetch(`/api/assistants/${slug}/chat/`, {
+        const data = await apiFetch(`/assistants/${slug}/chat/`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: "__ping__", session_id: sessionId }),
+          body: { message: "__ping__", session_id: sessionId },
         });
-
-        const data = await res.json();
         setMessages(data.messages || []);
       };
       fetchSession();
@@ -106,14 +103,10 @@ export default function ChatWithAssistantPage() {
     setError(null);
 
     try {
-      const res = await fetch(`/api/assistants/${slug}/chat/`, {
+      const data = await apiFetch(`/assistants/${slug}/chat/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input, session_id: sessionId, focus_only: focusOnly }),
+        body: { message: input, session_id: sessionId, focus_only: focusOnly },
       });
-
-      if (!res.ok) throw new Error("Failed to send message");
-      const data = await res.json();
       const msgs = data.messages || [];
       if (msgs.length && data.rag_meta) {
         const last = msgs[msgs.length - 1];
@@ -210,12 +203,10 @@ export default function ChatWithAssistantPage() {
 
   const handleCheckSource = async (text) => {
     try {
-      const res = await fetch("/api/rag/check-source/", {
+      const data = await apiFetch("/rag/check-source/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ assistant_id: slug, content: text, mode: "response" }),
+        body: { assistant_id: slug, content: text, mode: "response" },
       });
-      const data = await res.json();
       if (data.results && data.results.length > 0) {
         const lines = data.results.slice(0, 3).map((c, i) => {
           const score = c.score || c.similarity_score || 0;

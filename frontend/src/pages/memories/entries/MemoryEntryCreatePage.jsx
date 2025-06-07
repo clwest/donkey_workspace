@@ -1,17 +1,16 @@
 import { useState } from "react";
 import MemoryRecordingButton from "../../../components/memory/MemoryRecordingButton"; // update path if needed
+import apiFetch from "@/utils/apiClient";
 
 export default function MemoryEntryCreatePage() {
   const [event, setEvent] = useState("");
   const [memoryId, setMemoryId] = useState(null);
 
   async function handleSaveMemory() {
-    const res = await fetch("/api/memory/save/", {
+    const data = await apiFetch("/memory/save/", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ event }),
+      body: { event },
     });
-    const data = await res.json();
     setMemoryId(data.memory_id);
     alert("Memory saved! Now you can record audio.");
   }
@@ -27,11 +26,11 @@ export default function MemoryEntryCreatePage() {
     formData.append("memory_id", memoryId);
 
     try {
-      const res = await fetch("/api/memory/upload-voice/", {
+      const res = await apiFetch("/memory/upload-voice/", {
         method: "POST",
         body: formData,
       });
-      if (res.ok) {
+      if (res) {
         alert("Audio uploaded successfully!");
       } else {
         alert("Audio upload failed.");

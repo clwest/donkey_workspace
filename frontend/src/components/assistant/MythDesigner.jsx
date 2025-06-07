@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Form } from "react-bootstrap";
+import apiFetch from "@/utils/apiClient";
 
 export default function MythDesigner() {
   const [entries, setEntries] = useState([]);
@@ -12,11 +13,8 @@ export default function MythDesigner() {
   useEffect(() => {
     async function loadLore() {
       try {
-        const res = await fetch(`/api/lore/`);
-        if (res.ok) {
-          const data = await res.json();
-          setEntries(data.results || []);
-        }
+        const data = await apiFetch(`/lore/`);
+        setEntries(data.results || []);
       } catch (err) {
         console.error("Failed to load lore entries", err);
       }
@@ -26,18 +24,17 @@ export default function MythDesigner() {
 
   const createAssistant = async () => {
     try {
-      const res = await fetch(`/api/assistants/design-from-myth/`, {
+      const res = await apiFetch(`/assistants/design-from-myth/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           lore_id: selected,
           epithets: epithets.split(/\s*,\s*/),
           traits: traits.split(/\s*,\s*/),
           tone,
-        }),
+        },
       });
-      if (res.ok) {
-        const data = await res.json();
+      if (res) {
+        const data = res;
         setResult(data);
       }
     } catch (err) {

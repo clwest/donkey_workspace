@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 
 export default function HotTagsPage() {
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`/api/mcp/top-tags/`)
-      .then(res => res.json())
-      .then(data => {
+    apiFetch(`/mcp/top-tags/`)
+      .then((data) => {
         setTags(data);
         setLoading(false);
       });
