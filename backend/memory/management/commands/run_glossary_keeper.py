@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from assistants.models import Assistant
+
 from memory.glossary_keeper import run_keeper_tasks
 
 
@@ -14,6 +15,7 @@ class Command(BaseCommand):
         parser.add_argument("--limit", type=int)
         parser.add_argument("--min-drift", type=float, default=0.5)
 
+
     def handle(self, *args, **options):
         slug = options.get("assistant")
         assistant = None
@@ -21,6 +23,7 @@ class Command(BaseCommand):
             try:
                 assistant = Assistant.objects.get(slug=slug)
             except Assistant.DoesNotExist:
+
                 self.stdout.write(self.style.ERROR(f"Assistant '{slug}' not found"))
                 return
         count = run_keeper_tasks(
@@ -30,4 +33,5 @@ class Command(BaseCommand):
             min_drift=options.get("min_drift", 0.5),
         )
         self.stdout.write(self.style.SUCCESS(f"Processed {count} anchors"))
+
 

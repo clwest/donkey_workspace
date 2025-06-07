@@ -1,8 +1,11 @@
 import os
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.test_settings")
+
 import django
 
 django.setup()
+
 
 from django.test import TestCase
 from unittest.mock import patch
@@ -59,4 +62,5 @@ class GlossaryKeeperTests(TestCase):
         self.assertTrue(MemoryEntry.objects.filter(anchor=self.anchor, tags__slug="glossary_drift").exists())
         self.assertEqual(GlossaryKeeperLog.objects.filter(action_taken="reflection_written").count(), 1)
         mock_call.assert_called()
+
 

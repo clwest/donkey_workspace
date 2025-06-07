@@ -814,6 +814,7 @@ class ReflectionReplayLog(models.Model):
 
 
 class GlossaryKeeperLog(models.Model):
+
     """Log actions taken by the Glossary Keeper daemon."""
 
     anchor = models.ForeignKey(
@@ -838,4 +839,5 @@ class GlossaryKeeperLog(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return f"{self.anchor.slug} | {self.action_taken}"
+
 

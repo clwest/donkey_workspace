@@ -1,14 +1,17 @@
 from django.db import migrations, models
+
 import django.db.models.deletion
 
 class Migration(migrations.Migration):
     dependencies = [
         ('memory', '0008_display_tooltip_location'),
         ('assistants', '0001_initial'),
+
     ]
 
     operations = [
         migrations.CreateModel(
+
             name='GlossaryKeeperLog',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
@@ -25,4 +28,5 @@ class Migration(migrations.Migration):
             },
         ),
     ]
+
 
