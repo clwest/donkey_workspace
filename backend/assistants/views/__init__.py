@@ -298,6 +298,7 @@ __all__ = [
     "clean_memories",
     "clean_projects",
     "patch_drifted_reflections",
+    "drift_heatmap",
     "conscience_profiles",
     "reflexive_epistemology",
     "decision_frameworks",

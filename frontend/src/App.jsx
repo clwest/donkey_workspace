@@ -112,6 +112,7 @@ import RagGroundingInspectorPage from "./pages/assistants/RagGroundingInspectorP
 import GlossaryDriftPage from "./pages/assistants/GlossaryDriftPage";
 import GlossaryConvergencePage from "./pages/assistants/GlossaryConvergencePage";
 import AnchorHealthDashboard from "./pages/assistants/AnchorHealthDashboard";
+import ReflectionDriftHeatmapPage from "./pages/assistant/reflections/ReflectionDriftHeatmapPage";
 import AssistantRagSelfTestPage from "./pages/assistants/AssistantRagSelfTestPage";
 import SubAgentReflectionPage from "./pages/assistants/SubAgentReflectionPage";
 import SkillGraphPage from "./pages/assistant/skills/SkillGraphPage";
@@ -585,10 +586,14 @@ export default function App() {
             path="/assistants/:slug/anchor-health"
             element={<AnchorHealthDashboard />}
           />
-            <Route
-              path="/assistants/:slug/badges"
-              element={<AssistantBadgesPage />}
-            />
+          <Route
+            path="/assistants/:slug/reflections/drift_map"
+            element={<ReflectionDriftHeatmapPage />}
+          />
+          <Route
+            path="/assistants/:slug/badges"
+            element={<AssistantBadgesPage />}
+          />
             <Route path="/badges" element={<BadgesPage />} />
           <Route
             path="/assistants/:slug/glossary"

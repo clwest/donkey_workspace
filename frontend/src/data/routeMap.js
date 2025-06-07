@@ -122,6 +122,13 @@ export const routeMap = [
     notes: "Glossary drift report",
   },
   {
+    frontend: "/assistants/:slug/reflections/drift_map",
+    backend: "/api/assistants/<slug>/drift_heatmap/",
+    view: "reflection-drift-heatmap",
+    serializer: "DriftHeatmapEntrySerializer",
+    notes: "Reflection drift heatmap",
+  },
+  {
     frontend: "/assistants/:slug/anchor-health",
     backend: "/api/assistants/<slug>/anchor_health/",
     view: "AnchorHealthDashboard",

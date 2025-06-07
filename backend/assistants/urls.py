@@ -642,6 +642,11 @@ urlpatterns = [
         name="assistant-drift-suggestions",
     ),
     path(
+        "<slug:slug>/drift_heatmap/",
+        assistants.drift_heatmap,
+        name="assistant-drift-heatmap",
+    ),
+    path(
         "<slug:slug>/anchor_health/",
         assistants.anchor_health,
         name="assistant-anchor-health",

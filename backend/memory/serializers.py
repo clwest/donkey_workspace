@@ -436,3 +436,12 @@ class RAGPlaybackLogSerializer(serializers.ModelSerializer):
         model = RAGPlaybackLog
         fields = ["id", "assistant", "query", "memory_context", "chunks", "created_at"]
         read_only_fields = ["id", "created_at"]
+
+class DriftHeatmapEntrySerializer(serializers.Serializer):
+    reflection_id = serializers.UUIDField()
+    anchor_slug = serializers.CharField()
+    anchor_label = serializers.CharField()
+    drift_score = serializers.FloatField()
+    timestamp = serializers.DateTimeField(allow_null=True)
+    milestone_title = serializers.CharField(allow_null=True, required=False)
+
