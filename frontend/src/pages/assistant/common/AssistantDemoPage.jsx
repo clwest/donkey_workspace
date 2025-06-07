@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import HintBubble from "../../../components/HintBubble";
 import useAssistantHints from "../../../hooks/useAssistantHints";
 import apiFetch from "../../../utils/apiClient";
+import AssistantCard from "../../../components/assistant/AssistantCard";
 
 export default function AssistantDemoPage() {
   const [assistants, setAssistants] = useState([]);
@@ -28,47 +29,12 @@ export default function AssistantDemoPage() {
       <div className="row" id="demo-assistant-cards">
         {assistants.map((assistant) => (
           <div key={assistant.id} className="col-md-4 mb-4">
-            <div className="card h-100 shadow-sm border-0">
-              <div className="card-body">
-                <div className="d-flex align-items-center mb-3">
-                  {assistant.avatar ? (
-                    <img
-                      src={assistant.avatar}
-                      alt={assistant.name}
-                      className="rounded-circle me-3"
-                      style={{ width: "50px", height: "50px", objectFit: "cover" }}
-                    />
-                  ) : (
-                    <div
-                      className="rounded-circle bg-secondary me-3 d-flex justify-content-center align-items-center"
-                      style={{ width: "50px", height: "50px", color: "white" }}
-                    >
-                      🤖
-                    </div>
-                  )}
-                  <h5 className="mb-0">{assistant.name}</h5>
-                </div>
-                <p className="text-muted" style={{ fontSize: "0.9rem" }}>
-                  {assistant.description || "No description provided."}
-                </p>
-                {assistant.specialty && (
-                  <span className="badge bg-info text-dark">{assistant.specialty}</span>
-                )}
-              </div>
-              <div className="card-footer bg-transparent border-0 text-end">
-                <Link
-                  to={`/assistants/${assistant.slug}`}
-                  className="btn btn-outline-primary btn-sm"
-                >
-                  View Details
-                </Link>
-                <div>
-                <Link to={`/assistants/${assistant.slug}/chat`} className="btn btn-outline-primary btn-sm mt-2">
-                    💬 Chat
-                </Link>
-                </div>
-              </div>
-            </div>
+            <AssistantCard
+              assistant={assistant}
+              demo
+              to={`/assistants/${assistant.slug}`}
+              chatLink={`/assistants/${assistant.slug}/chat`}
+            />
           </div>
         ))}
         {assistants.length === 0 && (
