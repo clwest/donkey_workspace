@@ -1,6 +1,6 @@
 from django.utils import timezone
 from accounts.models import UserOnboardingProgress
-from .config import STEPS
+from .config import STEPS, ONBOARDING_WORLD
 from prompts.utils.openai_utils import complete_chat
 
 GUIDE_SYSTEM_PROMPT = (
@@ -23,8 +23,14 @@ def get_onboarding_status(user):
     progress_map = {
         p.step: p.status for p in UserOnboardingProgress.objects.filter(user=user)
     }
+    node_map = {n["slug"]: n for n in ONBOARDING_WORLD["nodes"]}
     return [
-        {"step": s, "status": progress_map.get(s, "pending")}
+        {
+            "step": s,
+            "status": progress_map.get(s, "pending"),
+            "ui_label": node_map.get(s, {}).get("ui_label"),
+            "tooltip": node_map.get(s, {}).get("tooltip"),
+        }
         for s in STEPS
     ]
 

@@ -2,6 +2,7 @@ import ArchetypeSelectionChamber from "../../components/mythos/ArchetypeSelectio
 import OnboardingProgressPanel from "../../components/onboarding/OnboardingProgressPanel";
 import OnboardingProgressBar from "../../components/onboarding/OnboardingProgressBar";
 import GuideChatPanel from "../../components/onboarding/GuideChatPanel";
+import OnboardingHelpButton from "../../components/onboarding/OnboardingHelpButton";
 import useOnboardingGuard from "../../onboarding/useOnboardingGuard";
 import useOnboardingTracker from "@/hooks/useOnboardingTracker";
 
@@ -16,6 +17,7 @@ export default function ArchetypeSelectionChamberPage() {
       <OnboardingProgressBar />
       <OnboardingProgressPanel />
       <ArchetypeSelectionChamber />
+      <OnboardingHelpButton />
     </div>
   );
 }

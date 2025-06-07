@@ -1,19 +1,13 @@
 import useOnboardingTracker from "@/hooks/useOnboardingTracker";
 import { useMemo } from "react";
+import { ONBOARDING_WORLD } from "../../onboarding/metadata";
+import useOnboardingTheme from "../../onboarding/useOnboardingTheme";
 
-const STEP_ROUTES = [
-  "mythpath",
-  "world",
-  "glossary",
-  "archetype",
-  "summon",
-  "personality",
-  "wizard",
-  "ritual",
-];
+const STEP_ORDER = ONBOARDING_WORLD.nodes.map((n) => n.slug);
 
 export default function OnboardingProgressPanel() {
   const { progress } = useOnboardingTracker();
+  const { theme } = useOnboardingTheme();
 
   const firstIncomplete = useMemo(() => {
     if (!progress) return null;
@@ -22,13 +16,17 @@ export default function OnboardingProgressPanel() {
 
   return (
     <ul className="list-unstyled mb-3">
-      {STEP_ROUTES.map((step, idx) => {
+      {STEP_ORDER.map((step, idx) => {
         const entry = progress?.find((p) => p.step === step);
         const status = entry?.status || "pending";
         let icon = "⬜";
         if (status === "completed") icon = "✅";
         else if (firstIncomplete && firstIncomplete.step === step) icon = "🔄";
-        const label = step.charAt(0).toUpperCase() + step.slice(1);
+        const node = ONBOARDING_WORLD.nodes.find((n) => n.slug === step);
+        const label =
+          theme === "fantasy"
+            ? node.title
+            : node.ui_label || node.title;
         return (
           <li key={step}>
             {icon} Step {idx + 1}: {label}

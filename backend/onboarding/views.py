@@ -34,6 +34,8 @@ def onboarding_intro(request):
             "name": n["title"],
             "emoji": n.get("emoji", ""),
             "goal": n.get("goal", n.get("description", "")),
+            "ui_label": n.get("ui_label"),
+            "tooltip": n.get("tooltip"),
         }
         for n in ONBOARDING_WORLD["nodes"]
     ]

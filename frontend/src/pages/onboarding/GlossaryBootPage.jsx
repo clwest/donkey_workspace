@@ -5,6 +5,7 @@ import useOnboardingTracker from "@/hooks/useOnboardingTracker";
 import GlossaryAnchorCard from "../../components/onboarding/GlossaryAnchorCard";
 import TeachAnchorModal from "../../components/onboarding/TeachAnchorModal";
 import GuideChatPanel from "../../components/onboarding/GuideChatPanel";
+import OnboardingHelpButton from "../../components/onboarding/OnboardingHelpButton";
 
 export default function GlossaryBootPage() {
   const { progress, completeStep } = useOnboardingGuard("glossary");
@@ -52,6 +53,7 @@ export default function GlossaryBootPage() {
         ))}
       </div>
       <TeachAnchorModal show={taught} onClose={() => setTaught(false)} />
+      <OnboardingHelpButton />
     </div>
   );
 }
