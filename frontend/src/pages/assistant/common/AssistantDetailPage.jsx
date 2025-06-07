@@ -40,6 +40,7 @@ import ReflectionPrimerPanel from "../../../components/assistant/ReflectionPrime
 import useUserInfo from "../../../hooks/useUserInfo";
 import useGlossaryOverlay from "../../../hooks/glossary";
 import GlossaryOverlayTooltip from "../../../components/GlossaryOverlayTooltip";
+import AssistantSummaryCards from "../../../components/assistant/AssistantSummaryCards";
 
 export default function AssistantDetailPage() {
   useAuthGuard();
@@ -69,6 +70,7 @@ export default function AssistantDetailPage() {
   const [lastSelfTest, setLastSelfTest] = useState(null);
   const [mutationCount, setMutationCount] = useState(0);
   const [firstQuestionSummary, setFirstQuestionSummary] = useState(null);
+  const [summary, setSummary] = useState(null);
   const [showPrimer, setShowPrimer] = useState(false);
   const { hints, dismissHint } = useAssistantHints(slug);
   const userInfo = useUserInfo();
@@ -117,6 +119,20 @@ export default function AssistantDetailPage() {
 
   useEffect(() => {
     reloadAssistant();
+  }, [slug]);
+
+  useEffect(() => {
+    async function loadSummary() {
+      try {
+        const data = await apiFetch(`/assistants/${slug}/summary/`);
+        setSummary(data);
+      } catch {
+        setSummary(null);
+      }
+    }
+    if (slug) {
+      loadSummary();
+    }
   }, [slug]);
 
   useEffect(() => {
@@ -415,6 +431,7 @@ export default function AssistantDetailPage() {
         ))}
       </div>
       <TourProgressBar assistantSlug={slug} />
+      <AssistantSummaryCards summary={summary} slug={slug} />
       <div className="mb-3">
         <ul className="nav nav-tabs">
           <li className="nav-item">

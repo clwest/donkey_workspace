@@ -1761,3 +1761,15 @@ def drift_suggestions(request, slug):
     qs = qs.order_by("-created_at")
     serializer = SuggestionLogSerializer(qs, many=True)
     return Response({"results": serializer.data})
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def assistant_summary(request, slug):
+    """Return high-level metrics for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    from assistants.serializers import AssistantOverviewSerializer
+
+    serializer = AssistantOverviewSerializer(assistant)
+    return Response(serializer.data)
+
