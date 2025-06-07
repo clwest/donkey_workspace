@@ -1,6 +1,6 @@
 import apiFetch from "@/utils/apiClient";
 import { clearCachedUser } from "@/hooks/useAuthGuard";
-import { setToken, clearTokens, getRefreshToken } from "@/utils/auth";
+import { saveAuthTokens, clearTokens, getRefreshToken } from "@/utils/auth";
 
 export async function loginUser(email, password) {
   try {
@@ -8,7 +8,7 @@ export async function loginUser(email, password) {
       method: "POST",
       body: { username: email, password },
     });
-    setToken({ access: data.access, refresh: data.refresh });
+    saveAuthTokens({ access: data.access, refresh: data.refresh });
     return data;
   } catch (err) {
     clearCachedUser();
@@ -23,7 +23,7 @@ export async function registerUser(payload) {
     body: payload,
   });
   if (data.access || data.refresh) {
-    setToken({ access: data.access, refresh: data.refresh });
+    saveAuthTokens({ access: data.access, refresh: data.refresh });
     return data;
   }
   return loginUser(payload.username || payload.email, payload.password1);
@@ -41,6 +41,6 @@ export async function refreshToken() {
     method: "POST",
     body: { refresh },
   });
-  setToken({ access: data.access, refresh: data.refresh });
+  saveAuthTokens({ access: data.access, refresh: data.refresh });
   return data;
 }
