@@ -124,7 +124,12 @@ from .repair import repair_documents, reflect_again
 from .training import assign_training, evaluate_agent, promote_trained_agent
 from .myth import assistant_myth_layer, assistant_journals
 from .reputation import assistant_reputation
-from .assistants import clean_memories, clean_projects, patch_drifted_reflections
+from .assistants import (
+    clean_memories,
+    clean_projects,
+    patch_drifted_reflections,
+    seed_chat_memory,
+)
 from .conscience import (
     conscience_profiles,
     reflexive_epistemology,
@@ -300,6 +305,7 @@ __all__ = [
     "clean_memories",
     "clean_projects",
     "patch_drifted_reflections",
+    "seed_chat_memory",
     "drift_heatmap",
     "conscience_profiles",
     "reflexive_epistemology",

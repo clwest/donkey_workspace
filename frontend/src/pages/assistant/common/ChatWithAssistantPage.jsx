@@ -45,6 +45,7 @@ export default function ChatWithAssistantPage() {
   const [contextScore, setContextScore] = useState(null);
   const [glossaryWarning, setGlossaryWarning] = useState(null);
   const [anchorWarning, setAnchorWarning] = useState(null);
+  const [showPreloaded, setShowPreloaded] = useState(false);
   const [primerDone, setPrimerDone] = useState(
     !!localStorage.getItem(`primer_done_${slug}`)
   );
@@ -91,7 +92,23 @@ export default function ChatWithAssistantPage() {
           method: "POST",
           body: { message: "__ping__", session_id: sessionId },
         });
-        setMessages(data.messages || []);
+        if (data.messages && data.messages.length) {
+          setMessages(data.messages);
+        } else {
+          const mems = await apiFetch(
+            `/memory/list/?assistant_slug=${slug}&session_id=starter-demo&is_conversation=true`
+          );
+          if (mems.length > 0 && mems[0].full_transcript) {
+            const parsed = mems[0].full_transcript.split("\n").map((line) => {
+              const idx = line.indexOf(":");
+              if (idx === -1) return null;
+              const role = line.slice(0, idx).trim().toLowerCase();
+              return { role, content: line.slice(idx + 1).trim() };
+            }).filter(Boolean);
+            setMessages(parsed);
+            setShowPreloaded(true);
+          }
+        }
       };
       fetchSession();
     }
@@ -273,6 +290,15 @@ export default function ChatWithAssistantPage() {
             }}
           >
             Restore
+          </button>
+        </div>
+      )}
+
+      {showPreloaded && (
+        <div className="alert alert-info d-flex justify-content-between align-items-center">
+          <span>💬 Preloaded chat from memory</span>
+          <button className="btn btn-sm btn-outline-secondary" onClick={() => setShowPreloaded(false)}>
+            Dismiss
           </button>
         </div>
       )}
