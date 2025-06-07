@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import apiFetch from "@/utils/apiClient";
 
-export default function useOnboardingTracker() {
+export default function useOnboardingTracker(theme = "fantasy") {
   const [status, setStatus] = useState(null);
 
   const refreshStatus = async () => {
     if (!localStorage.getItem("access")) return;
     try {
-      const res = await apiFetch("/onboarding/status/");
+      const res = await apiFetch(`/onboarding/status/?theme=${theme}`);
       setStatus(res);
       return res;
     } catch (err) {
@@ -33,13 +33,14 @@ export default function useOnboardingTracker() {
     if (localStorage.getItem("access")) {
       refreshStatus();
     }
-  }, []);
+  }, [theme]);
 
   return {
     progress: status?.progress,
     nextStep: status?.next_step,
     percent: status?.percent,
     showIntro: status?.show_intro,
+    aliases: status?.aliases,
     refreshStatus,
     completeStep,
   };

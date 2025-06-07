@@ -7,6 +7,10 @@ export const ONBOARDING_WORLD = {
       description: "Define your guiding instinct",
       emoji: "\uD83E\uDDED",
       goal: "Define your guiding instinct",
+      aliases: {
+        fantasy: "Mythpath",
+        plain: "Assistant Role",
+      },
     },
     {
       slug: "world",
