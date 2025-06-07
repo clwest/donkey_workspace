@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import OnboardingProgressPanel from "../../components/onboarding/OnboardingProgressPanel";
 import OnboardingProgressBar from "../../components/onboarding/OnboardingProgressBar";
 import useOnboardingGuard from "../../onboarding/useOnboardingGuard";
+import useOnboardingTracker from "@/hooks/useOnboardingTracker";
 import apiFetch from "@/utils/apiClient";
 import AssistantSetupSummary from "../../components/assistant/AssistantSetupSummary";
 import GuideChatPanel from "../../components/onboarding/GuideChatPanel";
@@ -13,6 +14,7 @@ export default function OnboardingWizardPage() {
   const navigate = useNavigate();
 
   useOnboardingGuard("wizard");
+  useOnboardingTracker();
   const [primary, setPrimary] = useState(null);
 
   useEffect(() => {

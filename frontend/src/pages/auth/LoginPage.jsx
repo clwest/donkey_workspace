@@ -26,8 +26,12 @@ export default function LoginPage() {
         navigate(nextPath);
         return;
       }
-      await apiFetch("/auth/user/");
-      navigate("/home");
+      const info = await apiFetch("/auth/user/");
+      if (info.onboarding_complete) {
+        navigate("/home");
+      } else {
+        navigate("/onboarding/world");
+      }
     } catch (err) {
       toast.error("❌ Login failed");
     }
