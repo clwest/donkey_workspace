@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { Button, Alert } from "react-bootstrap";
 import { toast } from "react-toastify";
 import {
@@ -127,6 +127,9 @@ export default function GlossaryMutationReviewPanel() {
         <span className="badge bg-warning text-dark me-2">Failing {failing}</span>
         <span className="badge bg-success me-2">Applied {applied}</span>
         <span className="badge bg-info text-dark">Convergence {convergence}%</span>
+        <Link to="/keeper/logs" className="btn btn-sm btn-outline-secondary ms-2">
+          Keeper Logs
+        </Link>
         {isAdmin && (
           <Button className="ms-2" size="sm" variant="outline-secondary" onClick={runTestJob}>
             Test Mutations

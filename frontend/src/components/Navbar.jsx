@@ -179,6 +179,11 @@ export default function Navbar({ onToggleSidebar }) {
                     🔀 Glossary Mutations
                   </Link>
                 </li>
+                <li>
+                  <Link className="dropdown-item" to="/keeper/logs">
+                    📜 Keeper Logs
+                  </Link>
+                </li>
               </ul>
             </li>
             <li className="nav-item dropdown">

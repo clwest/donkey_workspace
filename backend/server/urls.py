@@ -69,6 +69,7 @@ extend_router("characters", characters_router)
 extend_router("storyboard", storyboard_router)
 extend_router("simulation", simulation_router)
 
+
 def _collect_routes(patterns, prefix=""):
     """Return a flat list of URL patterns without duplicated prefixes."""
     urls = []
@@ -110,7 +111,6 @@ urlpatterns = [
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
-
     path("onboarding/", assistant_onboarding_views.onboarding_create_assistant),
     path("api/onboarding/status/", onboarding_views.onboarding_status),
     path("api/onboarding/intro/", onboarding_views.onboarding_intro),
@@ -120,7 +120,6 @@ urlpatterns = [
     path("api/onboarding/glossary_boot/", onboarding_views.glossary_boot),
     path("api/onboarding/teach_anchor/", onboarding_views.teach_anchor),
     path("api/onboarding/guide_chat/", onboarding_views.guide_chat),
-
     path(
         "assistants/from-documents/",
         assistant_views.assistant_from_documents,
@@ -172,7 +171,6 @@ urlpatterns = [
     path("api/characters/", include("characters.urls")),
     path("api/mythcasting/", include("mythcasting.urls")),
     path("api/mythos/", include("mythos.urls")),
-    
     path("api/users/", include("accounts.urls")),
     path("api/storyboard/", include("storyboard.urls")),
     # Embedding chunk-match endpoint
@@ -218,7 +216,10 @@ urlpatterns = [
     path("glossary/misses/", intel_views.glossary_misses),
     path("api/glossary/boost_anchor/", memory_views.boost_anchor),
     path("api/glossary/mutations/", memory_views.glossary_mutations),
-    path("api/glossary/mutations/suggest-missing/", gloss_mut_views.suggest_missing_mutations),
+    path(
+        "api/glossary/mutations/suggest-missing/",
+        gloss_mut_views.suggest_missing_mutations,
+    ),
     path(
         "api/glossary/mutations/<uuid:id>/accept",
         memory_views.accept_glossary_mutation,
@@ -231,6 +232,7 @@ urlpatterns = [
         "api/glossary/mutations/<uuid:id>/reject",
         memory_views.reject_glossary_mutation,
     ),
+    path("api/keeper/logs/", memory_views.keeper_log_list),
     path(
         "api/anchor/<slug:slug>/training/",
         memory_views.anchor_training,
