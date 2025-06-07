@@ -19,6 +19,12 @@ let lastRedirect = 0;
 let redirectCount = 0;
 let sessionExpiredNotified = false;
 let isRedirecting = false;
+
+export function resetAuthState() {
+  authLost = false;
+  isRedirecting = false;
+  sessionExpiredNotified = false;
+}
 const authDebug =
   new URLSearchParams(window.location.search).get("debug") === "auth";
 
@@ -49,9 +55,23 @@ export async function tryRefreshToken() {
   })();
 
   try {
-    return await refreshInProgress;
-  } finally {
-    refreshInProgress = null;
+
+    const res = await fetch(`${API_URL}/token/refresh/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh }),
+      credentials: "include",
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    saveAuthTokens({ access: data.access, refresh: data.refresh });
+    resetAuthState();
+    if (authDebug) console.log("[auth] refresh succeeded");
+    return true;
+  } catch (err) {
+    if (authDebug) console.warn("[auth] refresh failed", err);
+    return false;
+
   }
 }
 
