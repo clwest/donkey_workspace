@@ -2,6 +2,8 @@
 echo '🧪 Running all seed and backfill commands in order...'
 echo '🚀 Running: seed_assistants'
 python manage.py seed_assistants
+echo '🚀 Running: seed_demo_assistants'
+python manage.py seed_demo_assistants
 echo '🚀 Running: seed_agents'
 python manage.py seed_agents
 echo '🚀 Running: seed_embeddings'

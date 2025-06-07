@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import apiFetch from "@/utils/apiClient";
 import TagBadge from "../../../components/TagBadge";
 import HintBubble from "../../../components/HintBubble";
@@ -21,6 +21,8 @@ import GlossaryOverlayTooltip from "../../../components/GlossaryOverlayTooltip";
 
 export default function ChatWithAssistantPage() {
   const { slug } = useParams();
+  const [searchParams] = useSearchParams();
+  const starter = searchParams.get("starter");
   const [messages, setMessages] = useState([]);
   const [assistantInfo, setAssistantInfo] = useState(null);
   const [input, setInput] = useState("");
@@ -92,27 +94,25 @@ export default function ChatWithAssistantPage() {
           method: "POST",
           body: { message: "__ping__", session_id: sessionId },
         });
-        if (data.messages && data.messages.length) {
-          setMessages(data.messages);
-        } else {
-          const mems = await apiFetch(
-            `/memory/list/?assistant_slug=${slug}&session_id=starter-demo&is_conversation=true`
-          );
-          if (mems.length > 0 && mems[0].full_transcript) {
-            const parsed = mems[0].full_transcript.split("\n").map((line) => {
-              const idx = line.indexOf(":");
-              if (idx === -1) return null;
-              const role = line.slice(0, idx).trim().toLowerCase();
-              return { role, content: line.slice(idx + 1).trim() };
-            }).filter(Boolean);
-            setMessages(parsed);
-            setShowPreloaded(true);
-          }
+
+        let msgs = data.messages || [];
+        if (starter) {
+          const demoData = await apiFetch(`/assistants/${slug}/chat/`, {
+            method: "POST",
+            body: { message: starter, session_id: sessionId },
+          });
+          msgs = [
+            ...msgs,
+            { role: "user", content: starter },
+            ...(demoData.messages || []),
+          ];
         }
+        setMessages(msgs);
+
       };
       fetchSession();
     }
-  }, [slug, sessionId]);
+  }, [slug, sessionId, starter]);
 
   useEffect(() => {
     return () => {

@@ -1008,17 +1008,10 @@ def flush_chat_session(request, slug):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def demo_assistant(request):
-    assistant = Assistant.objects.filter(is_demo=True)
-    data = [
-        {
-            "name": a.name,
-            "slug": a.slug,
-            "description": a.description,
-            "avatar": a.avatar,
-        }
-        for a in assistant
-    ]
-    return Response(data)
+    """Return demo assistants using the main serializer."""
+    assistants = Assistant.objects.filter(is_demo=True)
+    serializer = AssistantSerializer(assistants, many=True)
+    return Response(serializer.data)
 
 
 @api_view(["POST"])
