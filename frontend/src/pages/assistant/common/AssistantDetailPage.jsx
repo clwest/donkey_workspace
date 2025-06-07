@@ -526,6 +526,9 @@ export default function AssistantDetailPage() {
               Review Glossary Suggestions
             </Button>
           </Link>
+          <Link to={`/keeper/logs?assistant=${assistant.slug}`}>
+            <Button variant="outline" className="mt-2 ms-2">Keeper Logs</Button>
+          </Link>
         </div>
       </div>
       {activeTab === "overview" && (

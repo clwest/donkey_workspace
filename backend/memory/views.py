@@ -10,6 +10,7 @@ from django.db.models import Q
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status, viewsets
+from rest_framework.pagination import PageNumberPagination
 import uuid
 import warnings
 from assistants.models import Assistant
@@ -25,6 +26,7 @@ from .models import (
     MemoryEmbeddingFailureLog,
     SymbolicMemoryAnchor,
     GlossaryRetryLog,
+    GlossaryKeeperLog,
     AnchorConvergenceLog,
     AnchorReinforcementLog,
 )
@@ -40,6 +42,7 @@ from .serializers import (
     MemoryMergeSuggestionSerializer,
     SymbolicMemoryAnchorSerializer,
     GlossaryRetryLogSerializer,
+    GlossaryKeeperLogSerializer,
     AnchorConvergenceLogSerializer,
     AnchorReinforcementLogSerializer,
 )
@@ -1045,6 +1048,24 @@ def glossary_retry_logs(request):
     logs = GlossaryRetryLog.objects.all().order_by("-created_at")[:20]
     data = GlossaryRetryLogSerializer(logs, many=True).data
     return Response({"results": data})
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def keeper_log_list(request):
+    """List GlossaryKeeperLog entries."""
+    qs = GlossaryKeeperLog.objects.select_related("anchor", "assistant")
+    assistant_slug = request.GET.get("assistant")
+    if assistant_slug:
+        qs = qs.filter(assistant__slug=assistant_slug)
+    action = request.GET.get("action")
+    if action:
+        qs = qs.filter(action_taken=action)
+    logs = qs.order_by("-timestamp")
+    paginator = PageNumberPagination()
+    page = paginator.paginate_queryset(logs, request)
+    serializer = GlossaryKeeperLogSerializer(page, many=True)
+    return paginator.get_paginated_response(serializer.data)
 
 
 @api_view(["GET"])

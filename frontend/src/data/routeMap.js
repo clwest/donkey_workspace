@@ -437,6 +437,13 @@ export const routeMap = [
     notes: "Glossary mutations",
   },
   {
+    frontend: "/keeper/logs",
+    backend: "/api/keeper/logs/",
+    view: "KeeperLogViewer",
+    serializer: "GlossaryKeeperLogSerializer",
+    notes: "Glossary keeper logs",
+  },
+  {
     frontend: "/anchor/symbolic",
     backend: "/api/memory/symbolic-anchors/",
     view: "SymbolicAnchorAdminPage",

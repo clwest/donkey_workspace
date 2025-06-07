@@ -17,6 +17,7 @@ from .models import (
     AnchorReinforcementLog,
     RAGGroundingLog,
     RAGPlaybackLog,
+    GlossaryKeeperLog,
 )
 
 from assistants.models.thoughts import AssistantThoughtLog
@@ -437,6 +438,7 @@ class RAGPlaybackLogSerializer(serializers.ModelSerializer):
         fields = ["id", "assistant", "query", "memory_context", "chunks", "created_at"]
         read_only_fields = ["id", "created_at"]
 
+
 class DriftHeatmapEntrySerializer(serializers.Serializer):
     reflection_id = serializers.UUIDField()
     anchor_slug = serializers.CharField()
@@ -445,3 +447,36 @@ class DriftHeatmapEntrySerializer(serializers.Serializer):
     timestamp = serializers.DateTimeField(allow_null=True)
     milestone_title = serializers.CharField(allow_null=True, required=False)
 
+
+class GlossaryKeeperLogSerializer(serializers.ModelSerializer):
+    """Serializer for GlossaryKeeperLog entries."""
+
+    anchor_slug = serializers.CharField(source="anchor.slug", read_only=True)
+    anchor_label = serializers.CharField(source="anchor.label", read_only=True)
+    assistant_slug = serializers.CharField(source="assistant.slug", read_only=True)
+    memory_id = serializers.SerializerMethodField()
+    suggested_label = serializers.CharField(
+        source="anchor.suggested_label", read_only=True
+    )
+
+    class Meta:
+        model = GlossaryKeeperLog
+        fields = [
+            "id",
+            "anchor",
+            "assistant",
+            "action_taken",
+            "score_before",
+            "score_after",
+            "notes",
+            "timestamp",
+            "anchor_slug",
+            "anchor_label",
+            "assistant_slug",
+            "memory_id",
+            "suggested_label",
+        ]
+        read_only_fields = ["id", "timestamp"]
+
+    def get_memory_id(self, obj):
+        return getattr(obj, "memory_id", None)
