@@ -23,12 +23,9 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def auth_user(request):
-    """Return basic user auth info."""
-
-    if request.user.is_anonymous:
-        return Response({"authenticated": False})
+    """Return basic user auth info for the authenticated user."""
 
     assistants = Assistant.objects.filter(created_by=request.user)
     return Response(
@@ -101,10 +98,9 @@ def me_summary(request):
 
 
 @api_view(["GET"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def user_info(request):
-    if not request.user.is_authenticated:
-        return Response({"is_authenticated": False})
+    """Return onboarding and assistant details for the authenticated user."""
     assistants = Assistant.objects.filter(created_by=request.user)
     assistant_count = assistants.count()
     glossary_score = assistants.aggregate(avg=Avg("glossary_score"))[
