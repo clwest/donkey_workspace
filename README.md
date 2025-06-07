@@ -80,6 +80,10 @@ If a migration adds a new model field and you see an error such as
 run `python manage.py makemigrations` again followed by
 `python manage.py migrate`. This updates your database schema with the missing
 column before executing management commands like `mutate_glossary_anchors`.
+If the error mentions `display_tooltip` or `display_location`, you likely pulled
+new glossary overlay changes without migrating. Running `python manage.py
+migrate` will apply `0008_display_tooltip_location` so the API can load anchors
+without crashing.
 
 ### Running Tests
 
