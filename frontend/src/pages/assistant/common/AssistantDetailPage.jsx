@@ -9,6 +9,7 @@ import AssistantDiagnosticsPanel from "../../../components/assistant/AssistantDi
 import AssistantOriginPanel from "../../../components/assistant/AssistantOriginPanel";
 import AssistantBadgeIcon from "../../../components/assistant/AssistantBadgeIcon";
 import AssistantSetupSummary from "../../../components/assistant/AssistantSetupSummary";
+import AssistantPersonalizationPrompt from "../../../components/assistant/AssistantPersonalizationPrompt";
 import useAuthGuard from "../../../hooks/useAuthGuard";
 import {
   runDriftCheck,
@@ -70,6 +71,7 @@ export default function AssistantDetailPage() {
   const [showBoot, setShowBoot] = useState(false);
   const [lastSelfTest, setLastSelfTest] = useState(null);
   const [mutationCount, setMutationCount] = useState(0);
+  const [showPersonalize, setShowPersonalize] = useState(false);
   const [firstQuestionSummary, setFirstQuestionSummary] = useState(null);
   const [summary, setSummary] = useState(null);
   const [showPrimer, setShowPrimer] = useState(false);
@@ -558,6 +560,12 @@ export default function AssistantDetailPage() {
             />
           )}
           <AssistantOriginPanel assistant={assistant} />
+          <button
+            className="btn btn-sm btn-outline-secondary mb-2"
+            onClick={() => setShowPersonalize(true)}
+          >
+            Rename &amp; Personalize
+          </button>
           <AssistantDiagnosticsPanel
             slug={slug}
             onRefresh={handleDiagnosticsRefresh}
@@ -1198,6 +1206,14 @@ export default function AssistantDetailPage() {
         onClose={() => setShowAssess(false)}
         result={assessment}
       />
+      {assistant && (
+        <AssistantPersonalizationPrompt
+          assistant={assistant}
+          show={showPersonalize}
+          onClose={() => setShowPersonalize(false)}
+          onSaved={reloadAssistant}
+        />
+      )}
     </div>
   );
 }
