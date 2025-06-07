@@ -10,7 +10,8 @@ import {
 } from "./auth";
 import { toast } from "react-toastify";
 
-let API_URL = import.meta.env.VITE_API_URL;
+let API_URL = import.meta.env?.VITE_API_URL || process.env.VITE_API_URL;
+let refreshInProgress = null;
 
 // Track auth state and redirect behavior to avoid infinite loops
 let authLost = false;
@@ -28,10 +29,33 @@ const authDebug =
   new URLSearchParams(window.location.search).get("debug") === "auth";
 
 export async function tryRefreshToken() {
+  if (refreshInProgress) return refreshInProgress;
+
   const refresh = getRefreshToken();
   if (!refresh) return false;
-  if (authDebug) console.log("[auth] attempting token refresh");
+
+  refreshInProgress = (async () => {
+    if (authDebug) console.log("[auth] attempting token refresh");
+    try {
+      const res = await fetch(`${API_URL}/token/refresh/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refresh }),
+        credentials: "include",
+      });
+      if (!res.ok) return false;
+      const data = await res.json();
+      saveAuthTokens({ access: data.access, refresh: data.refresh });
+      if (authDebug) console.log("[auth] refresh succeeded");
+      return true;
+    } catch (err) {
+      if (authDebug) console.warn("[auth] refresh failed", err);
+      return false;
+    }
+  })();
+
   try {
+
     const res = await fetch(`${API_URL}/token/refresh/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -47,6 +71,7 @@ export async function tryRefreshToken() {
   } catch (err) {
     if (authDebug) console.warn("[auth] refresh failed", err);
     return false;
+
   }
 }
 
@@ -174,5 +199,9 @@ export const generateImage = (payload) =>
 export const fetchCharacters = () => apiFetch(`/characters/profiles/`);
 
 export const fetchStories = () => apiFetch(`/stories/`);
+
+export function getAuthLost() {
+  return authLost;
+}
 
 export { API_URL };

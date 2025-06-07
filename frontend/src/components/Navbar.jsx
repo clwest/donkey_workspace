@@ -232,6 +232,11 @@ export default function Navbar({ onToggleSidebar }) {
               </Link>
             </li>
             <li className="nav-item">
+              <Link className="nav-link" to="/dev/auth-debug">
+                🔑 Auth Debug
+              </Link>
+            </li>
+            <li className="nav-item">
               <Link className="nav-link" to="/project/composer">
                 🛠️ Project Composer
               </Link>
