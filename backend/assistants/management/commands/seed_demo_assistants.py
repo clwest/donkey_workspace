@@ -64,12 +64,20 @@ class Command(BaseCommand):
                     ],
                     "intro_text": data["intro"],
                     "is_demo": True,
+                    "demo_slug": slugify(data["name"]),
                 },
             )
             if made:
                 created += 1
             # ensure badges exist
             for b in data["badges"]:
-                Badge.objects.get_or_create(slug=b, defaults={"label": b.title(), "emoji": "🏅"})
+                Badge.objects.get_or_create(
+                    slug=b, defaults={"label": b.title(), "emoji": "🏅"}
+                )
+
+            if not assistant.memories.exists():
+                from assistants.utils.starter_chat import seed_chat_starter_memory
+
+                seed_chat_starter_memory(assistant)
 
         self.stdout.write(self.style.SUCCESS(f"Seeded {created} demo assistants"))

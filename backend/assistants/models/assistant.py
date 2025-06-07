@@ -41,6 +41,13 @@ class Assistant(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     slug = models.SlugField(unique=True, blank=True, null=True, max_length=255)
+    demo_slug = models.SlugField(
+        unique=True,
+        blank=True,
+        null=True,
+        max_length=100,
+        help_text="Stable slug for demo routing",
+    )
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     specialty = models.TextField()
@@ -108,9 +115,7 @@ class Assistant(models.Model):
     preferred_scene_tags = ArrayField(
         models.CharField(max_length=50), default=list, blank=True
     )
-    skill_badges = ArrayField(
-        models.CharField(max_length=64), default=list, blank=True
-    )
+    skill_badges = ArrayField(models.CharField(max_length=64), default=list, blank=True)
     primary_badge = models.CharField(max_length=64, null=True, blank=True)
     badge_history = models.JSONField(default=list, blank=True)
     preferred_model = models.CharField(max_length=100, default="gpt-4o")
@@ -231,6 +236,9 @@ class Assistant(models.Model):
                 slug = f"{base_slug}-{i}"
                 i += 1
             self.slug = slug
+
+        if self.is_demo and not self.demo_slug:
+            self.demo_slug = slugify(self.name)
 
         self.full_clean()
 
@@ -1012,7 +1020,9 @@ class ChatIntentDriftLog(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     assistant = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.CASCADE, related_name="intent_drift_logs"
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="intent_drift_logs",
     )
     session = models.ForeignKey(
         "assistants.ChatSession",
