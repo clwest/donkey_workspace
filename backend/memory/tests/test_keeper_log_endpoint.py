@@ -41,6 +41,9 @@ class KeeperLogEndpointTests(TestCase):
         self.assertEqual(data[0]["assistant_slug"], "claritybot")
         self.assertEqual(data[0]["anchor_slug"], "term")
         self.assertIn("suggested_label", data[0])
+        self.assertIn("anchor_drift", data[0])
+        self.assertIn("fallback_score", data[0])
+        self.assertIn("glossary_state", data[0])
 
     def test_action_filter(self):
         resp = self.client.get("/api/keeper/logs/?action=suggest_mutation")

@@ -458,6 +458,13 @@ class GlossaryKeeperLogSerializer(serializers.ModelSerializer):
     suggested_label = serializers.CharField(
         source="anchor.suggested_label", read_only=True
     )
+    anchor_drift = serializers.SerializerMethodField()
+    fallback_score = serializers.FloatField(
+        source="anchor.fallback_score", read_only=True
+    )
+    glossary_state = serializers.CharField(
+        source="anchor.acquisition_stage", read_only=True
+    )
 
     class Meta:
         model = GlossaryKeeperLog
@@ -475,8 +482,17 @@ class GlossaryKeeperLogSerializer(serializers.ModelSerializer):
             "assistant_slug",
             "memory_id",
             "suggested_label",
+            "anchor_drift",
+            "fallback_score",
+            "glossary_state",
         ]
         read_only_fields = ["id", "timestamp"]
 
     def get_memory_id(self, obj):
         return getattr(obj, "memory_id", None)
+
+    def get_anchor_drift(self, obj):
+        anchor = obj.anchor
+        total = anchor.chunks.count()
+        drifted = anchor.chunks.filter(is_drifting=True).count()
+        return round(drifted / total, 2) if total else 0.0
