@@ -1549,6 +1549,8 @@ class AssistantSetupSummarySerializer(serializers.ModelSerializer):
 class AssistantIntroSerializer(serializers.ModelSerializer):
     flair = serializers.SerializerMethodField()
     theme_colors = serializers.SerializerMethodField()
+    suggest_personalization = serializers.SerializerMethodField()
+    personalization_prompt = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -1564,6 +1566,8 @@ class AssistantIntroSerializer(serializers.ModelSerializer):
             "flair",
             "tone_profile",
             "theme_colors",
+            "suggest_personalization",
+            "personalization_prompt",
         ]
 
     def get_flair(self, obj):
@@ -1578,6 +1582,22 @@ class AssistantIntroSerializer(serializers.ModelSerializer):
         from assistants.helpers.intro import TONE_COLORS
 
         return TONE_COLORS.get(obj.tone_profile or "", {})
+
+    def get_suggest_personalization(self, obj):
+        if obj.spawned_by and obj.spawned_by.is_demo:
+            unchanged = (
+                obj.name == obj.spawned_by.name
+                and obj.avatar == obj.spawned_by.avatar
+                and obj.tone == obj.spawned_by.tone
+                and obj.primary_badge == obj.spawned_by.primary_badge
+            )
+            return unchanged
+        return False
+
+    def get_personalization_prompt(self, obj):
+        from assistants.helpers.intro import get_personalization_prompt
+
+        return get_personalization_prompt(obj)
 
 
 class AssistantPreviewSerializer(serializers.ModelSerializer):

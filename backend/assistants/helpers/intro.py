@@ -29,3 +29,25 @@ def get_intro_splash_payload(assistant: Assistant) -> dict:
         "flair": flair,
         "theme_colors": colors,
     }
+
+
+def get_personalization_prompt(assistant: Assistant) -> dict:
+    """Return rename and trait suggestions for a cloned assistant."""
+    demo = assistant.spawned_by if assistant.spawned_by and assistant.spawned_by.is_demo else None
+    if not demo:
+        return {}
+
+    base = demo.name
+    suggestions = [f"My {base}", f"{base} Pro", f"{base} Plus"]
+
+    description = demo.personality_description or demo.specialty or ""
+
+    return {
+        "suggested_names": suggestions,
+        "traits": {
+            "tone": assistant.tone or demo.tone,
+            "badge": assistant.primary_badge or demo.primary_badge,
+            "avatar": assistant.avatar or "",
+        },
+        "inherit_description": description,
+    }
