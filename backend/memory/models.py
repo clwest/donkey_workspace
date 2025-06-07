@@ -448,7 +448,11 @@ class SymbolicMemoryAnchor(models.Model):
     suggested_label = models.CharField(max_length=100, blank=True, null=True)
     mutation_status = models.CharField(
         max_length=20,
-        choices=[("pending", "pending"), ("applied", "applied"), ("rejected", "rejected")],
+        choices=[
+            ("pending", "pending"),
+            ("applied", "applied"),
+            ("rejected", "rejected"),
+        ],
         default="pending",
     )
     mutation_source = models.CharField(max_length=64, blank=True, null=True)
@@ -501,6 +505,9 @@ class SymbolicMemoryAnchor(models.Model):
     mutation_score_before = models.FloatField(null=True, blank=True)
     mutation_score_after = models.FloatField(null=True, blank=True)
     mutation_score_delta = models.FloatField(null=True, blank=True)
+    is_stable = models.BooleanField(default=False)
+    stabilized_at = models.DateTimeField(null=True, blank=True)
+    drift_priority_score = models.FloatField(default=0.0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -673,6 +680,7 @@ class AnchorReinforcementLog(models.Model):
     def __str__(self):  # pragma: no cover - display helper
         return f"{self.anchor.slug} reinforced"
 
+
 class RAGGroundingLog(models.Model):
     """Log RAG grounding results for debugging retrieval."""
 
@@ -812,9 +820,7 @@ class ReflectionReplayLog(models.Model):
         return f"Replay of {self.original_reflection_id}"
 
 
-
 class GlossaryKeeperLog(models.Model):
-
     """Log actions taken by the Glossary Keeper daemon."""
 
     anchor = models.ForeignKey(
@@ -839,5 +845,3 @@ class GlossaryKeeperLog(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return f"{self.anchor.slug} | {self.action_taken}"
-
-

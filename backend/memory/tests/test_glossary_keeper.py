@@ -27,7 +27,10 @@ class GlossaryKeeperTests(TestCase):
     def setUp(self):
         self.assistant = Assistant.objects.create(name="A", slug="claritybot")
         self.anchor = SymbolicMemoryAnchor.objects.create(
-            slug="term", label="Term", assistant=self.assistant, memory_context=self.assistant.memory_context
+            slug="term",
+            label="Term",
+            assistant=self.assistant,
+            memory_context=self.assistant.memory_context,
         )
 
     @patch("memory.glossary_keeper.call_gpt4", return_value="Better")
@@ -47,20 +50,58 @@ class GlossaryKeeperTests(TestCase):
         run_keeper_tasks(self.assistant)
         self.anchor.refresh_from_db()
         self.assertEqual(self.anchor.suggested_label, "Better")
-        self.assertEqual(GlossaryKeeperLog.objects.filter(anchor=self.anchor).count(), 2)
-        self.assertTrue(MemoryEntry.objects.filter(anchor=self.anchor, tags__slug="glossary_drift").exists())
+        self.assertEqual(
+            GlossaryKeeperLog.objects.filter(anchor=self.anchor).count(), 2
+        )
+        self.assertTrue(
+            MemoryEntry.objects.filter(
+                anchor=self.anchor, tags__slug="glossary_drift"
+            ).exists()
+        )
         mock_call.assert_called()
 
     @patch("memory.glossary_keeper.call_gpt4", return_value="Better")
     def test_stale_reinforcement_creates_reflection(self, mock_call):
-        log = AnchorReinforcementLog.objects.create(anchor=self.anchor, assistant=self.assistant, reason="t")
+        log = AnchorReinforcementLog.objects.create(
+            anchor=self.anchor, assistant=self.assistant, reason="t"
+        )
         log.created_at = timezone.now() - timedelta(days=40)
         log.save(update_fields=["created_at"])
         self.anchor.avg_score = 0.1
         self.anchor.save(update_fields=["avg_score"])
         run_keeper_tasks(self.assistant)
-        self.assertTrue(MemoryEntry.objects.filter(anchor=self.anchor, tags__slug="glossary_drift").exists())
-        self.assertEqual(GlossaryKeeperLog.objects.filter(action_taken="reflection_written").count(), 1)
+        self.assertTrue(
+            MemoryEntry.objects.filter(
+                anchor=self.anchor, tags__slug="glossary_drift"
+            ).exists()
+        )
+        self.assertEqual(
+            GlossaryKeeperLog.objects.filter(action_taken="reflection_written").count(),
+            1,
+        )
         mock_call.assert_called()
 
-
+    @patch("memory.glossary_keeper.call_gpt4", return_value="Better")
+    def test_auto_promote_stable_anchor(self, mock_call):
+        self.anchor.suggested_label = "Better"
+        self.anchor.mutation_status = "pending"
+        self.anchor.save(update_fields=["suggested_label", "mutation_status"])
+        for _ in range(4):
+            AnchorReinforcementLog.objects.create(
+                anchor=self.anchor, assistant=self.assistant, reason="t"
+            )
+        for _ in range(5):
+            GlossaryKeeperLog.objects.create(
+                anchor=self.anchor,
+                assistant=self.assistant,
+                action_taken="priority_scored",
+                score_before=0.1,
+                score_after=0.2,
+            )
+        run_keeper_tasks(self.assistant, auto_promote=True)
+        self.anchor.refresh_from_db()
+        self.assertEqual(self.anchor.mutation_status, "applied")
+        self.assertTrue(self.anchor.is_stable)
+        self.assertTrue(
+            GlossaryKeeperLog.objects.filter(action_taken="auto_promote").exists()
+        )
