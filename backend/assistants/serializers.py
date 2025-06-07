@@ -1558,6 +1558,66 @@ class AssistantIntroSerializer(serializers.ModelSerializer):
         return TONE_COLORS.get(obj.tone_profile or "", {})
 
 
+class AssistantPreviewSerializer(serializers.ModelSerializer):
+    """Lightweight preview for dashboard cards."""
+
+    memory_count = serializers.SerializerMethodField()
+    starter_memory_excerpt = serializers.SerializerMethodField()
+    latest_reflection = serializers.SerializerMethodField()
+    flair = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Assistant
+        fields = [
+            "id",
+            "slug",
+            "name",
+            "description",
+            "primary_badge",
+            "avatar",
+            "avatar_style",
+            "glossary_score",
+            "memory_count",
+            "starter_memory_excerpt",
+            "latest_reflection",
+            "flair",
+        ]
+
+    def get_flair(self, obj):
+        if obj.primary_badge:
+            badge = Badge.objects.filter(slug=obj.primary_badge).first()
+            return badge.emoji if badge else None
+        return None
+
+    def get_memory_count(self, obj):
+        from memory.models import MemoryEntry
+
+        return MemoryEntry.objects.filter(assistant=obj).count()
+
+    def get_starter_memory_excerpt(self, obj):
+        from memory.models import MemoryEntry
+
+        mem = (
+            MemoryEntry.objects.filter(assistant=obj, tags__slug="starter-chat")
+            .order_by("created_at")
+            .first()
+        )
+        if not mem:
+            return None
+        text = mem.full_transcript or mem.event
+        return text[:160]
+
+    def get_latest_reflection(self, obj):
+        from assistants.models.reflection import AssistantReflectionLog
+
+        ref = (
+            AssistantReflectionLog.objects.filter(assistant=obj)
+            .order_by("-created_at")
+            .first()
+        )
+        return ref.summary[:160] if ref else None
+
+
 from prompts.models import Prompt
 
 

@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import { OverlayTrigger, Tooltip } from "react-bootstrap";
 import PrimaryStar from "./PrimaryStar";
 import AssistantBadgeIcon from "./AssistantBadgeIcon";
 import PropTypes from "prop-types";
+import PreviewPopover from "./PreviewPopover";
 import "./styles/AssistantCard.css";
 
 const AVATAR_EMOJI = {
@@ -14,7 +14,6 @@ const AVATAR_EMOJI = {
 
 export default function AssistantCard({ assistant, to, chatLink, demo }) {
   if (!assistant) return null;
-  const tooltipText = assistant.description || assistant.specialty || "No description.";
 
   const card = (
     <div className="assistant-card card h-100 shadow-sm border-0">
@@ -70,14 +69,16 @@ export default function AssistantCard({ assistant, to, chatLink, demo }) {
     </div>
   );
 
+  const wrapped = to && !chatLink ? (
+    <Link to={to} className="text-decoration-none">{card}</Link>
+  ) : (
+    card
+  );
+
   return (
-    <OverlayTrigger placement="top" overlay={<Tooltip>{tooltipText}</Tooltip>}>
-      {to && !chatLink ? (
-        <Link to={to} className="text-decoration-none">{card}</Link>
-      ) : (
-        card
-      )}
-    </OverlayTrigger>
+    <PreviewPopover slug={assistant.slug}>
+      {wrapped}
+    </PreviewPopover>
   );
 }
 

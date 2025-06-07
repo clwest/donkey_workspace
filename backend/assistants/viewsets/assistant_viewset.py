@@ -195,3 +195,12 @@ class AssistantViewSet(viewsets.ViewSet):
 
         serializer = AssistantSetupSummarySerializer(assistant)
         return Response(serializer.data)
+
+    @action(detail=True, methods=["get"], url_path="preview")
+    def preview(self, request, pk=None):
+        assistant = get_object_or_404(Assistant, slug=pk)
+        from assistants.serializers import AssistantPreviewSerializer
+
+        serializer = AssistantPreviewSerializer(assistant)
+        return Response(serializer.data)
+
