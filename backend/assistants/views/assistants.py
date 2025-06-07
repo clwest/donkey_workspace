@@ -199,6 +199,10 @@ class AssistantViewSet(viewsets.ModelViewSet):
                 return Response({"error": "Invalid system_prompt"}, status=400)
             assistant.system_prompt = prompt_obj
 
+        show_intro_splash = request.data.get("show_intro_splash")
+        if show_intro_splash is not None:
+            assistant.show_intro_splash = bool(show_intro_splash)
+
         capabilities = request.data.get("capabilities")
         if isinstance(capabilities, dict):
             existing = assistant.capabilities or {}

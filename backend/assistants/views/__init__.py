@@ -14,6 +14,7 @@ from .assistants import (
     failure_log,
 )
 from .setup import AssistantSetupSummaryView
+from .intro import AssistantIntroView
 from .knowledge import diff_knowledge
 from .dashboard import assistant_dashboard
 from .diagnostics import (
@@ -311,6 +312,7 @@ __all__ = [
     "create_assistant_from_mythpath",
     "assistant_onboard",
     "SkillPlanView",
+    "AssistantIntroView",
     "assistant_dream_initiate",
     "reflect_again",
     "repair_documents",

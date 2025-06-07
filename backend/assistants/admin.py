@@ -60,13 +60,26 @@ class AssistantAdmin(admin.ModelAdmin):
                     "system_prompt",
                     "tone",
                     "personality",
+                    "intro_text",
+                    "archetype_summary",
                     "preferred_model",
                     "memory_mode",
                     "thinking_style",
                 )
             },
         ),
-        ("Meta", {"fields": ("is_active", "is_demo", "created_by", "created_at")}),
+        (
+            "Meta",
+            {
+                "fields": (
+                    "is_active",
+                    "is_demo",
+                    "show_intro_splash",
+                    "created_by",
+                    "created_at",
+                )
+            },
+        ),
     )
 
 
