@@ -1546,6 +1546,23 @@ def anchor_health(request, slug):
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
+def drift_heatmap(request, slug):
+    """Return aggregated reflection drift data for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    from utils.reflection_drift import aggregate_drift_by_anchor
+
+    days = request.GET.get("days")
+    try:
+        days = int(days) if days else None
+    except ValueError:
+        days = None
+
+    results = aggregate_drift_by_anchor(assistant, days)
+    return Response({"results": results})
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def glossary_stats(request, slug):
     """Return acquisition stage counts for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)

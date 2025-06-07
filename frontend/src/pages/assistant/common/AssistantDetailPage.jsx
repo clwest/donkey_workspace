@@ -707,6 +707,12 @@ export default function AssistantDetailPage() {
                 🔎 Glossary Drift Report
               </Link>
               <Link
+                to={`/assistants/${slug}/reflections/drift_map`}
+                className="btn btn-sm btn-outline-secondary"
+              >
+                🌡️ Drift Heatmap
+              </Link>
+              <Link
                 to={`/assistants/${slug}/anchor-health`}
                 className="btn btn-sm btn-outline-secondary"
               >

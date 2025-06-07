@@ -90,6 +90,12 @@ export default function AssistantReflectionLogsPage() {
       >
         🌀 Replay Reflections
       </Link>
+      <Link
+        to={`/assistants/${slug}/reflections/drift_map`}
+        className="btn btn-sm btn-outline-secondary mb-3 ms-2"
+      >
+        Drift Heatmap
+      </Link>
       <Button
         className="mb-4"
         onClick={() => navigate(`/assistants/${slug}/replays`)}
