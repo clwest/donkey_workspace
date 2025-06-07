@@ -1,4 +1,5 @@
 import { useState } from "react";
+import apiFetch from "@/utils/apiClient";
 
 export default function AssistantThinkButton({ projectId, onThought }) {
   const [loading, setLoading] = useState(false);
@@ -8,17 +9,13 @@ export default function AssistantThinkButton({ projectId, onThought }) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(
-        `/api/assistants/projects/${projectId}/thoughts/generate/`,
+      const data = await apiFetch(
+        `/assistants/projects/${projectId}/thoughts/generate/`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: "__think__" }),
+          body: { message: "__think__" },
         }
       );
-
-      if (!res.ok) throw new Error("Failed to generate thought");
-      const data = await res.json();
 
       if (onThought) {
         // Add role tag for CoT + classification

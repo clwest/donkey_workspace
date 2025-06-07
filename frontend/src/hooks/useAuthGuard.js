@@ -36,8 +36,16 @@ export default function useAuthGuard({ allowUnauthenticated = false } = {}) {
       }
 
       const token = getToken();
-      if (!token || tokenExpired(token)) {
-        if (authDebug) console.warn("[auth] access token missing or expired");
+      console.log("\ud83d\udd10 Auth Check \u2192 JWT found?", Boolean(token));
+      if (!token) {
+        setChecked(true);
+        if (!allowUnauthenticated) {
+          navigate("/login", { replace: true });
+        }
+        return;
+      }
+      if (tokenExpired(token)) {
+        if (authDebug) console.warn("[auth] access token expired");
         clearTokens();
         if (!allowUnauthenticated) {
           toast.warning("Session expired. Please log in again.");

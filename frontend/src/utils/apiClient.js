@@ -17,6 +17,7 @@ let authLost = false;
 let lastRedirect = 0;
 let redirectCount = 0;
 let sessionExpiredNotified = false;
+let isRedirecting = false;
 const authDebug =
   new URLSearchParams(window.location.search).get("debug") === "auth";
 
@@ -110,8 +111,9 @@ export default async function apiFetch(url, options = {}) {
       toast.warning("Session expired. Please log in again.");
       sessionExpiredNotified = true;
     }
-    if (!authLost && !options.allowUnauthenticated) {
+    if (!authLost && !options.allowUnauthenticated && !isRedirecting) {
       authLost = true;
+      isRedirecting = true;
       clearTokens();
       const now = Date.now();
       if (now - lastRedirect < 2000) {

@@ -46,11 +46,7 @@ export default function DocumentBrowserPage() {
   const handleDeleteDocument = async (docId) => {
     if (!window.confirm("Delete this document?")) return;
     try {
-      const res = await fetch(`${API_URL}/intel/documents/${docId}/`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Delete failed");
+      await apiFetch(`/intel/documents/${docId}/`, { method: "DELETE" });
       await loadDocuments();
     } catch (err) {
       console.error("Failed to delete document", err);
