@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { getToken, clearTokens } from "@/utils/auth";
 
 export let cachedUser = null;
+let authUserFailCount = 0;
 
 function tokenExpired(token) {
   try {
@@ -62,6 +63,7 @@ export default function useAuthGuard({ allowUnauthenticated = false } = {}) {
       try {
         const data = await apiFetch("/auth/user/", { allowUnauthenticated });
         cachedUser = data;
+        authUserFailCount = 0;
         setUser(data);
         setError(null);
         setChecked(true);
@@ -85,7 +87,8 @@ export default function useAuthGuard({ allowUnauthenticated = false } = {}) {
         }
       } catch (err) {
         console.warn("auth_user endpoint failed", err);
-        if (!allowUnauthenticated) {
+        authUserFailCount += 1;
+        if (!allowUnauthenticated && authUserFailCount >= 2) {
           setError(err);
           clearTokens();
           toast.warning("Session expired. Please log in again.");
@@ -93,12 +96,14 @@ export default function useAuthGuard({ allowUnauthenticated = false } = {}) {
           if (/^\/(assistants|onboarding|dashboard|memory|memories)/.test(location.pathname)) {
             navigate("/login", { replace: true });
           }
+        } else if (!allowUnauthenticated) {
+          setError(err);
         }
         setChecked(true);
       }
     }
     checkAuth();
-  }, [navigate, location.pathname, authErrorHandled, allowUnauthenticated]);
+  }, [navigate, authErrorHandled, allowUnauthenticated]);
 
   return { user, authChecked: checked, authError: error };
 }
