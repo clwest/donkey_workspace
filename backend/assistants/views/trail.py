@@ -1,9 +1,13 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework import status
 from django.shortcuts import get_object_or_404
 
 from assistants.models import Assistant
+from assistants.models.trail import TrailMarkerLog
 from memory.models import MemoryEntry
+from assistants.utils.trail import get_trail_editable_fields
 
 
 class AssistantTrailRecapView(APIView):
@@ -13,7 +17,13 @@ class AssistantTrailRecapView(APIView):
         assistant = get_object_or_404(Assistant, slug=slug)
         markers = list(
             assistant.trail_markers.order_by("timestamp").values(
-                "marker_type", "timestamp", "notes"
+                "id",
+                "marker_type",
+                "timestamp",
+                "notes",
+                "user_note",
+                "user_emotion",
+                "is_starred",
             )
         )
         summary = (
@@ -34,4 +44,31 @@ class AssistantTrailRecapView(APIView):
                 "reflections": reflections,
             }
         )
+
+
+@api_view(["PATCH"])
+def update_trail_marker(request, id):
+    """Update user-facing fields on a TrailMarkerLog."""
+    marker = get_object_or_404(TrailMarkerLog, id=id)
+    editable = get_trail_editable_fields(marker, request.user)
+    if not editable:
+        return Response({"error": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
+
+    updates = {field: request.data.get(field) for field in editable if field in request.data}
+    for field, value in updates.items():
+        setattr(marker, field, value)
+    if updates:
+        marker.save(update_fields=list(updates.keys()))
+
+    return Response(
+        {
+            "id": str(marker.id),
+            "marker_type": marker.marker_type,
+            "timestamp": marker.timestamp,
+            "notes": marker.notes,
+            "user_note": marker.user_note,
+            "user_emotion": marker.user_emotion,
+            "is_starred": marker.is_starred,
+        }
+    )
 
