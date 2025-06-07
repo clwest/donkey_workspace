@@ -79,6 +79,7 @@ import AssistantThoughtDetailPage from "./pages/assistant/common/AssistantThough
 import AssistantDemoPage from "./pages/assistant/common/AssistantDemoPage";
 import AssistantLauncherPage from "./pages/assistants/AssistantLauncherPage";
 import AssistantIntroSplash from "./pages/assistant/common/AssistantIntroSplash";
+import AssistantTrailRecap from "./pages/assistant/common/AssistantTrailRecap";
 import ChatWithAssistantPage from "./pages/assistant/common/ChatWithAssistantPage";
 import ChatWithKnowledge from "./pages/assistants/[slug]/chat/ChatWithKnowledge";
 import CreateNewAssistantPage from "./pages/assistant/common/CreateNewAssistantPage";
@@ -491,6 +492,7 @@ export default function App() {
           <Route path="/assistants-demos" element={<AssistantDemoPage />} />
           <Route path="/assistants/launch" element={<AssistantLauncherPage />} />
           <Route path="/assistants/:slug/intro" element={<AssistantIntroSplash />} />
+          <Route path="/assistants/:slug/trail" element={<AssistantTrailRecap />} />
 
           {/* Assistant Detail Subroutes */}
           <Route

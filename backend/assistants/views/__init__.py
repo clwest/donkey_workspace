@@ -17,6 +17,7 @@ from .assistants import (
 )
 from .setup import AssistantSetupSummaryView
 from .intro import AssistantIntroView
+from .trail import AssistantTrailRecapView
 from .knowledge import diff_knowledge
 from .dashboard import assistant_dashboard
 from .diagnostics import (
@@ -333,5 +334,6 @@ __all__ = [
     "onboarding_status",
     "onboarding_complete",
     "assistant_summary",
+    "AssistantTrailRecapView",
 ]
 from .skills import SkillPlanView

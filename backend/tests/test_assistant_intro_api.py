@@ -26,3 +26,4 @@ class AssistantIntroAPITest(BaseAPITestCase):
         self.assertEqual(data["name"], "IntroBot")
         self.assertEqual(data["archetype"], "Helper")
         self.assertEqual(data["intro_text"], "Hello there!")
+        self.assertIn("trail_summary_ready", data)

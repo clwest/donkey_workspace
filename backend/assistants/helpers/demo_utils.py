@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404
 from assistants.models import Assistant
 from assistants.helpers.memory_helpers import create_memory_from_chat
 from memory.models import MemoryEntry
+from assistants.helpers.logging_helper import log_trail_marker
 
 
 def generate_assistant_from_demo(demo_slug: str, user, transcript=None):
@@ -50,6 +51,11 @@ def generate_assistant_from_demo(demo_slug: str, user, transcript=None):
         is_demo_clone=True,
         is_demo=False,
     )
+
+    # mark conversion from demo
+    from assistants.helpers.logging_helper import log_trail_marker
+
+    log_trail_marker(assistant, "demo_converted")
 
     if transcript:
         pairs = []
