@@ -6,6 +6,7 @@ from project.models import Project
 from .mood import detect_mood, update_mood_stability
 from memory.models import MemoryEntry
 from mcp_core.models import Tag
+from assistants.models.trail import TrailMarkerLog
 from django.utils.text import slugify
 import logging
 
@@ -54,6 +55,17 @@ def log_assistant_thought(
     return log
 
 
+def log_trail_marker(assistant, marker_type: str, memory=None, notes=None):
+    """Record a lifecycle milestone for an assistant."""
+
+    return TrailMarkerLog.objects.create(
+        assistant=assistant,
+        marker_type=marker_type,
+        related_memory=memory,
+        notes=notes or "",
+    )
+
+
 def log_assistant_birth_event(assistant, user):
     """Record an origin memory when a new assistant is created or personalized."""
     spawned_by_label = getattr(assistant, "spawned_by_label", None) or (
@@ -74,6 +86,7 @@ def log_assistant_birth_event(assistant, user):
             slug=slugify(label), defaults={"name": label}
         )
         memory.tags.add(tag)
+    log_trail_marker(assistant, "birth", memory)
     return memory
 
 
@@ -116,5 +129,6 @@ def reflect_on_birth(assistant):
         raw_prompt=prompt,
         category="meta",
     )
+    log_trail_marker(assistant, "first_reflection", origin)
 
     return thought

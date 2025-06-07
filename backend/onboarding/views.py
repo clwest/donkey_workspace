@@ -18,6 +18,7 @@ from .config import ONBOARDING_WORLD
 from memory.models import SymbolicMemoryAnchor, MemoryEntry
 from memory.services.acquisition import update_anchor_acquisition
 from django.shortcuts import get_object_or_404
+from assistants.helpers.logging_helper import log_trail_marker
 
 
 @api_view(["GET", "POST"])
@@ -190,6 +191,7 @@ def ritual_complete(request):
         assistant.capstone_completed_at = timezone.now()
     assistant.save()
     record_step_completion(request.user, "ritual")
+    log_trail_marker(assistant, "personalization")
     PublicEventLog.objects.create(
         actor_name=request.user.username,
         event_details="onboarding_step=capstone_complete",

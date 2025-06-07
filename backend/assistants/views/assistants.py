@@ -29,6 +29,7 @@ from assistants.helpers.logging_helper import (
     log_assistant_thought,
     log_assistant_birth_event,
     reflect_on_birth,
+    log_trail_marker,
 )
 from assistants.helpers.demo_utils import generate_assistant_from_demo
 from assistants.models.assistant import (
@@ -937,6 +938,9 @@ def chat_with_assistant_view(request, slug):
         anchor_slug=anchor_slug,
         fallback_reason=rag_meta.get("fallback_reason"),
     )
+
+    if is_first:
+        log_trail_marker(assistant, "first_chat", memory)
 
     if rag_meta.get("convergence_log_id"):
         from memory.models import AnchorConvergenceLog
