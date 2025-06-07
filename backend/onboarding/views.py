@@ -11,6 +11,8 @@ from .utils import (
 )
 from .guide_logic import get_hint_status, suggest_next_hint
 from assistants.models import Assistant
+from django.utils import timezone
+from mcp_core.models import PublicEventLog
 from .config import ONBOARDING_WORLD
 from memory.models import SymbolicMemoryAnchor, MemoryEntry
 from memory.services.acquisition import update_anchor_acquisition
@@ -162,3 +164,28 @@ def guide_chat(request):
     if action:
         data["ui_action"] = action
     return Response(data)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def ritual_complete(request):
+    """Finalize onboarding and return assistant slug."""
+    assistant = (
+        Assistant.objects.filter(created_by=request.user)
+        .order_by("-created_at")
+        .first()
+    )
+    if not assistant:
+        return Response({"error": "assistant not found"}, status=404)
+    assistant.is_guide = False
+    if hasattr(assistant, "onboarding_complete"):
+        assistant.onboarding_complete = True
+    if hasattr(assistant, "capstone_completed_at"):
+        assistant.capstone_completed_at = timezone.now()
+    assistant.save()
+    record_step_completion(request.user, "ritual")
+    PublicEventLog.objects.create(
+        actor_name=request.user.username,
+        event_details="onboarding_step=capstone_complete",
+    )
+    return Response({"slug": assistant.slug})
