@@ -39,6 +39,8 @@ class MemoryEntry(models.Model):
         related_name="memory_entries",
     )
     type = models.CharField(max_length=100, default="general")
+    is_summary = models.BooleanField(default=False)
+    memory_type = models.CharField(max_length=50, blank=True, default="")
     auto_tagged = models.BooleanField(default=False)
     is_bookmarked = models.BooleanField(default=False)
     bookmark_label = models.CharField(max_length=100, blank=True, null=True)
