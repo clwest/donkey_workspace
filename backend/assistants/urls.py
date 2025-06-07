@@ -9,6 +9,7 @@ from .views import (
     thoughts,
     projects,
     memory,
+    playback,
     prompts,
     sessions,
     delegations,
@@ -625,6 +626,11 @@ urlpatterns = [
         "<slug:slug>/rag_playback/<uuid:id>/",
         memory.rag_playback_detail,
         name="assistant-rag-playback",
+    ),
+    path(
+        "<slug:slug>/rag_playback/compare/<uuid:id>/",
+        playback.rag_playback_compare,
+        name="assistant-rag-playback-compare",
     ),
     path(
         "<slug:slug>/rag_drift_report/",
