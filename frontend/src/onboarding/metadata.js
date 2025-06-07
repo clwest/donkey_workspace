@@ -7,9 +7,11 @@ export const ONBOARDING_WORLD = {
       description: "Define your guiding instinct",
       emoji: "\uD83E\uDDED",
       goal: "Define your guiding instinct",
+
       ui_label: "Assistant Role",
       tooltip:
         "Pick what kind of assistant you're creating — like a planner, researcher, or teacher.",
+
     },
     {
       slug: "world",
