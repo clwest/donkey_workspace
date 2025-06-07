@@ -34,6 +34,7 @@ export default function AssistantDashboardPage() {
             <div className="col-md-6 col-lg-4" key={assistant.id}>
               <AssistantCard
                 assistant={assistant}
+                demo={assistant.is_demo}
                 to={
                   assistant.current_project
                     ? `/assistants/projects/${assistant.current_project.id}`

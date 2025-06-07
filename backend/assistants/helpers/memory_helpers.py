@@ -28,6 +28,7 @@ def create_memory_from_chat(
     tool_response=None,
     anchor_slug=None,
     fallback_reason=None,
+    is_demo=False,
 ):
     transcript = "\n".join(
         [
@@ -62,6 +63,7 @@ def create_memory_from_chat(
         narrative_thread=narrative_thread,
         thread=thread,
         tool_response=tool_response,
+        is_demo=is_demo,
     )
 
     if anchor_slug:

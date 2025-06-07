@@ -6,3 +6,19 @@
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+.confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle at 10% 20%, #ffecb3 2px, transparent 2px),
+    radial-gradient(circle at 80% 30%, #ffd6e7 2px, transparent 2px),
+    radial-gradient(circle at 50% 80%, #cce5ff 2px, transparent 2px);
+  background-size: 8px 8px;
+  animation: fadeOut 1.5s forwards;
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}

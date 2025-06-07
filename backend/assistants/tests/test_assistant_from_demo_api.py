@@ -28,4 +28,5 @@ class AssistantFromDemoAPITest(BaseAPITestCase):
         self.assertEqual(asst.spawn_reason, "demo:prompt_pal")
         self.assertEqual(asst.spawned_by, self.demo)
         self.assertListEqual(asst.spawned_traits, ["badge", "tone", "avatar"])
+        self.assertTrue(asst.is_demo_clone)
         self.assertGreater(asst.memories.count(), 0)

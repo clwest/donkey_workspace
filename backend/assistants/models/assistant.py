@@ -211,6 +211,10 @@ class Assistant(models.Model):
         blank=True,
         help_text="Traits inherited from the source assistant",
     )
+    is_demo_clone = models.BooleanField(
+        default=False,
+        help_text="True if this assistant was spawned from a demo",
+    )
 
     belief_vector = models.JSONField(default=dict, blank=True)
 

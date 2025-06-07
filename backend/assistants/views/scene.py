@@ -79,6 +79,7 @@ def chat_with_scene(request, slug):
         project=chat_session.project,
         narrative_thread=thread,
         thread=thread,
+        is_demo=assistant.is_demo,
     )
 
     AssistantThoughtLog.objects.create(

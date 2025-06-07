@@ -18,6 +18,7 @@ class DemoAssistantAPITest(BaseAPITestCase):
         self.assertIn("demo_slug", data[0])
         demo = Assistant.objects.get(slug=data[0]["slug"])
         self.assertTrue(demo.memories.exists())
+        self.assertTrue(all(m.is_demo for m in demo.memories.all()))
 
     def test_demo_protected(self):
         demo = Assistant.objects.filter(is_demo=True).first()

@@ -22,6 +22,7 @@ def seed_chat_starter_memory(assistant, session_id="starter-demo"):
             messages=[{"role": "user", "content": user_msg}],
             reply=assistant_msg,
             assistant=assistant,
+            is_demo=assistant.is_demo,
         )
         memory.tags.add(tag)
         created.append(memory)

@@ -937,6 +937,7 @@ def chat_with_assistant_view(request, slug):
         tool_response=tool_result,
         anchor_slug=anchor_slug,
         fallback_reason=rag_meta.get("fallback_reason"),
+        is_demo=assistant.is_demo,
     )
 
     if is_first:

@@ -39,6 +39,7 @@ export default function ChatWithAssistantPage() {
   const [error, setError] = useState(null);
   const [switchSuggestion, setSwitchSuggestion] = useState(null);
   const [demoCount, setDemoCount] = useState(0);
+  const [showCustomize, setShowCustomize] = useState(false);
   const [sessionId] = useState(() => {
     const key = `chat_session_${slug}`;
     const stored = localStorage.getItem(key);
@@ -71,6 +72,13 @@ export default function ChatWithAssistantPage() {
     if (assistantInfo?.is_demo) {
       const count = messages.filter((m) => m.role === "user").length;
       setDemoCount(count);
+    }
+    if (
+      assistantInfo?.is_demo_clone &&
+      assistantInfo.name === assistantInfo.spawned_by_label &&
+      messages.filter((m) => m.role === "user").length >= 4
+    ) {
+      setShowCustomize(true);
     }
   }, [assistantInfo, messages]);
 
@@ -720,6 +728,16 @@ export default function ChatWithAssistantPage() {
           <button className="btn btn-primary mt-2" onClick={handleCreateFromDemo}>
             Create My Assistant
           </button>
+        </div>
+      )}
+
+      {assistantInfo?.is_demo_clone && showCustomize && (
+        <div className="position-fixed bottom-0 end-0 m-4 p-3 bg-light border rounded shadow" style={{ zIndex: 1000 }}>
+          <div className="fw-bold mb-1">Give me a unique identity!</div>
+          <div>Customize this assistant's name or avatar.</div>
+          <Link className="btn btn-primary mt-2" to={`/assistants/${assistantInfo.slug}/edit`}>
+            Customize Me
+          </Link>
         </div>
       )}
 
