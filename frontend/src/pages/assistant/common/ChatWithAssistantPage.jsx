@@ -14,6 +14,7 @@ const AVATAR_EMOJI = {
 };
 import "./styles/ChatView.css";
 import ChatDebugPanel from "../../../components/assistant/ChatDebugPanel";
+import AssistantBadgeIcon from "../../../components/assistant/AssistantBadgeIcon";
 
 import useGlossaryOverlay from "../../../hooks/glossary";
 import GlossaryOverlayTooltip from "../../../components/GlossaryOverlayTooltip";
@@ -25,6 +26,7 @@ export default function ChatWithAssistantPage() {
   const starter = searchParams.get("starter");
   const [messages, setMessages] = useState([]);
   const [assistantInfo, setAssistantInfo] = useState(null);
+  const [identity, setIdentity] = useState(null);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -48,6 +50,7 @@ export default function ChatWithAssistantPage() {
   const [glossaryWarning, setGlossaryWarning] = useState(null);
   const [anchorWarning, setAnchorWarning] = useState(null);
   const [showPreloaded, setShowPreloaded] = useState(false);
+  const firstAssistantIndex = messages.findIndex((m) => m.role === "assistant");
   const [primerDone, setPrimerDone] = useState(
     !!localStorage.getItem(`primer_done_${slug}`)
   );
@@ -67,6 +70,12 @@ export default function ChatWithAssistantPage() {
   useEffect(() => {
     apiFetch(`/assistants/${slug}/`)
       .then(setAssistantInfo)
+      .catch(() => {});
+  }, [slug]);
+
+  useEffect(() => {
+    apiFetch(`/assistants/${slug}/identity/`)
+      .then(setIdentity)
       .catch(() => {});
   }, [slug]);
 
@@ -270,8 +279,14 @@ export default function ChatWithAssistantPage() {
   return (
     <div className="container my-5">
       <h1>
-        {AVATAR_EMOJI[assistantInfo?.avatar_style] || "🤖"} Chat with Assistant:
-        <span className="text-primary ms-1">{slug}</span>
+        <span
+          role="img"
+          className="me-2"
+          title={`${identity?.tone || ""} ${identity?.persona || ""}`}
+        >
+          {identity?.avatar || AVATAR_EMOJI[assistantInfo?.avatar_style] || "🤖"}
+        </span>
+        {identity?.name || slug}
       </h1>
       <div className="mb-2">
         {glossaryOverlays.map((o) => (
@@ -318,6 +333,16 @@ export default function ChatWithAssistantPage() {
       <div className="chat-box border rounded p-3 mb-4 bg-light" style={{ maxHeight: "500px", overflowY: "auto" }}>
         {messages.map((msg, idx) => (
           <div key={idx} className={`mb-4 ${msg.role === "user" ? "text-end" : "text-start"}`}>
+          {idx === firstAssistantIndex && msg.role === "assistant" && identity && (
+            <div className="mb-1 small bg-white border rounded p-2">
+              <div>{identity.motto || "Here's how I think:"}</div>
+              <div>
+                {identity.badges.map((b) => (
+                  <AssistantBadgeIcon key={b} badges={[b]} />
+                ))}
+              </div>
+            </div>
+          )}
           <div className="d-flex justify-content-between">
             <span className={`badge ${msg.role === "user" ? "bg-primary" : "bg-secondary"}`}>
               {msg.role}

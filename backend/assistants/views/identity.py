@@ -45,3 +45,14 @@ def assistant_mythpath(request, id):
             "created_at": record.created_at,
         }
     )
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def assistant_identity_summary(request, slug):
+    """Return concise identity metadata for the assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug, created_by=request.user)
+    from assistants.serializers import AssistantSerializer
+
+    serializer = AssistantSerializer(assistant, context={"request": request})
+    return Response(serializer.data.get("identity_summary"))

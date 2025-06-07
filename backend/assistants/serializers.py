@@ -928,6 +928,17 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             return False
         return AssistantTourStartLog.objects.filter(user=user, assistant=obj).exists()
 
+    def get_identity_summary(self, obj):
+        return {
+            "name": obj.name,
+            "avatar": obj.avatar or "",
+            "tone": obj.tone or "",
+            "persona": obj.persona_summary or "",
+            "motto": obj.motto or "",
+            "badges": obj.skill_badges or [],
+            "glossary_score": obj.glossary_score,
+        }
+
     def get_glossary_health_index(self, obj):
         from django.db.models import Avg, Count
         from memory.models import SymbolicMemoryAnchor
@@ -1322,6 +1333,7 @@ class AssistantSerializer(serializers.ModelSerializer):
     initial_badges = serializers.SerializerMethodField()
     flair = serializers.SerializerMethodField()
     tour_started = serializers.SerializerMethodField()
+    identity_summary = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -1382,6 +1394,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "available_badges",
             "flair",
             "tour_started",
+            "identity_summary",
         ]
 
     def get_trust(self, obj):
