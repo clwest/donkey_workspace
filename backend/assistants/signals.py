@@ -5,7 +5,7 @@ from .models.project import AssistantObjective
 from project.models.task import ProjectTask
 from project.models.core import Project
 from .models.assistant import Assistant
-from assistants.helpers.logging_helper import log_assistant_birth_event
+from assistants.helpers.logging_helper import log_assistant_birth_event, reflect_on_birth
 
 
 @receiver(post_save, sender=AssistantReflectionLog)
@@ -37,3 +37,4 @@ def record_birth_memory(sender, instance, created, **kwargs):
     if created and instance.spawned_by and instance.created_by:
         if not instance.memories.filter(type="origin").exists():
             log_assistant_birth_event(instance, instance.created_by)
+            reflect_on_birth(instance)

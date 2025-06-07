@@ -1,10 +1,13 @@
 from assistants.models.thoughts import AssistantThoughtLog
 from assistants.models.project import AssistantProject
+from assistants.models.reflection import AssistantReflectionLog
+from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from project.models import Project
 from .mood import detect_mood, update_mood_stability
 from memory.models import MemoryEntry
 from mcp_core.models import Tag
 from django.utils.text import slugify
+import logging
 
 
 def log_assistant_thought(
@@ -72,3 +75,46 @@ def log_assistant_birth_event(assistant, user):
         )
         memory.tags.add(tag)
     return memory
+
+
+def reflect_on_birth(assistant):
+    """Generate an initial reflection when an assistant is first created."""
+
+    origin = (
+        MemoryEntry.objects.filter(assistant=assistant, type="origin")
+        .order_by("created_at")
+        .first()
+    )
+    spawned_by_label = getattr(assistant, "spawned_by_label", None) or (
+        assistant.spawned_by.name if assistant.spawned_by else "scratch"
+    )
+    prompt = (
+        f"You are {assistant.name}. You were just created from {spawned_by_label}.\n"
+        "Reflect on your purpose, your expected role, and any immediate goals you want to achieve for your user.\n"
+        "Write 3–5 bullet points as internal thoughts."
+    )
+
+    engine = AssistantReflectionEngine(assistant)
+    try:
+        text = engine.generate_reflection(prompt)
+    except Exception as e:
+        logging.getLogger(__name__).error("Failed to generate birth reflection: %s", e)
+        return None
+
+    thought = AssistantThoughtLog.objects.create(
+        assistant=assistant,
+        thought=text,
+        thought_type="reflection",
+        linked_memory=origin,
+    )
+
+    AssistantReflectionLog.objects.create(
+        assistant=assistant,
+        summary=text,
+        title="Origin Reflection",
+        linked_memory=origin,
+        raw_prompt=prompt,
+        category="meta",
+    )
+
+    return thought

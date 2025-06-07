@@ -28,6 +28,7 @@ from memory.serializers import RAGGroundingLogSerializer
 from assistants.helpers.logging_helper import (
     log_assistant_thought,
     log_assistant_birth_event,
+    reflect_on_birth,
 )
 from assistants.helpers.demo_utils import generate_assistant_from_demo
 from assistants.models.assistant import (
@@ -220,6 +221,7 @@ class AssistantViewSet(viewsets.ModelViewSet):
 
         if first_personalization and assistant.created_by and assistant.spawned_by:
             log_assistant_birth_event(assistant, assistant.created_by)
+            reflect_on_birth(assistant)
 
         logger.info("Assistant %s edited", assistant.slug)
 
