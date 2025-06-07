@@ -800,6 +800,7 @@ class ReflectionReplayLog(models.Model):
         on_delete=models.SET_NULL,
         related_name="replay_logs",
     )
+    is_priority = models.BooleanField(default=False)
 
     class ReplayStatus(models.TextChoices):
         PENDING = "pending", "Pending"

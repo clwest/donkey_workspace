@@ -6,6 +6,12 @@ export default function AssistantReplayLogsPage() {
   const { slug } = useParams();
   const [logs, setLogs] = useState([]);
 
+  const queueDrifted = async () => {
+    await apiFetch(`/assistants/${slug}/replay_drifted/`, { method: "POST" });
+    const res = await apiFetch(`/assistants/${slug}/replays/`);
+    setLogs(res);
+  };
+
   useEffect(() => {
     apiFetch(`/assistants/${slug}/replays/`)
       .then((res) => setLogs(res))
@@ -15,6 +21,9 @@ export default function AssistantReplayLogsPage() {
   return (
     <div className="container my-5">
       <h2 className="mb-4">🌀 Reflection Replays</h2>
+      <button onClick={queueDrifted} className="btn btn-sm btn-warning mb-3">
+        Queue Drifted Replays
+      </button>
       <ul className="list-group mb-3">
         {logs.map((r) => (
           <li key={r.id} className="list-group-item d-flex justify-content-between align-items-start">

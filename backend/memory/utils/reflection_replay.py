@@ -115,3 +115,33 @@ def replay_reflection(obj: AssistantReflectionLog | MemoryEntry) -> ReflectionRe
     return replay_log
 
 
+def queue_drifted_reflections(assistant_slug: str | None = None) -> int:
+    """Queue reflections with high drift or pending anchors for replay."""
+    from django.db.models import Count, Q
+
+    qs = AssistantReflectionLog.objects.all()
+    if assistant_slug:
+        qs = qs.filter(assistant__slug=assistant_slug)
+
+    qs = qs.annotate(
+        pending_count=Count(
+            "related_anchors",
+            filter=Q(related_anchors__mutation_status="pending"),
+        )
+    ).filter(
+        Q(replays__reflection_score__gt=0.6) | Q(pending_count__gt=0)
+    ).distinct()
+
+    queued = 0
+    for ref in qs:
+        try:
+            replay = replay_reflection(ref)
+            if replay:
+                replay.is_priority = True
+                replay.save(update_fields=["is_priority"])
+                queued += 1
+        except Exception as exc:  # pragma: no cover - safeguard
+            logger.exception("Queue drifted replay failed: %s", exc)
+    return queued
+
+

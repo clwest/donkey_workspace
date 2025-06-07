@@ -63,3 +63,4 @@ venv/
 !memory/migrations/0008_display_tooltip_location.py
 !memory/migrations/0009_glossary_keeper_log.py
 !memory/migrations/0010_anchor_stability_priority.py
+!memory/migrations/0011_replay_priority.py
