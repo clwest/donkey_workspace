@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import OnboardingProgressPanel from "../../components/onboarding/OnboardingProgressPanel";
 import useOnboardingGuard from "../../onboarding/useOnboardingGuard";
+import useOnboardingTracker from "@/hooks/useOnboardingTracker";
 import useUserInfo from "@/hooks/useUserInfo";
 import TonePreview from "../../components/onboarding/TonePreview";
 import AvatarSelector from "../../components/onboarding/AvatarSelector";
@@ -11,6 +12,7 @@ const TONES = ["cheerful", "formal", "nerdy", "zen", "friendly", "mysterious"];
 
 export default function PersonalityOnboardingPage() {
   const { progress } = useOnboardingGuard("personality");
+  useOnboardingTracker();
   const navigate = useNavigate();
   const location = useLocation();
   const userInfo = useUserInfo();

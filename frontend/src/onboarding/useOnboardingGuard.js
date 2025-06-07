@@ -16,7 +16,7 @@ export const STEP_ROUTES = {
 
 export default function useOnboardingGuard(step) {
   const navigate = useNavigate();
-  const { progress, nextStep, completeStep } = useOnboardingTracker();
+  const { progress, completeStep } = useOnboardingTracker();
   const userInfo = useUserInfo();
 
   useEffect(() => {
@@ -34,26 +34,16 @@ export default function useOnboardingGuard(step) {
 
   useEffect(() => {
     if (!progress || !userInfo) return;
-    if (userInfo.has_assistants) {
-      if (userInfo.onboarding_complete) {
-        navigate("/home", { replace: true });
-        return;
-      }
-      const stepSlug = userInfo.pending_onboarding_step || nextStep;
-      if (stepSlug && stepSlug !== step) {
-        navigate(STEP_ROUTES[stepSlug], { replace: true });
-        return;
-      }
-    }
-    const firstIncomplete = progress.find((p) => p.status !== "completed");
-    if (!firstIncomplete) {
-      navigate("/assistants/create", { replace: true });
+
+    if (progress.every((p) => p.status === "pending") && step !== "mythpath") {
+      navigate("/onboarding", { replace: true });
       return;
     }
-    if (firstIncomplete.step !== step) {
-      navigate(STEP_ROUTES[firstIncomplete.step], { replace: true });
+
+    if (userInfo.onboarding_complete) {
+      navigate("/home", { replace: true });
     }
-  }, [progress, userInfo, nextStep, navigate, step]);
+  }, [progress, userInfo, navigate, step]);
 
   return { progress };
 }
