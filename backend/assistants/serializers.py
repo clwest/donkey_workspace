@@ -1327,6 +1327,8 @@ class AssistantSerializer(serializers.ModelSerializer):
             "archetype",
             "dream_symbol",
             "init_reflection",
+            "intro_text",
+            "archetype_summary",
             "tone",
             "persona_summary",
             "traits",
@@ -1348,6 +1350,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "health_score",
             "glossary_health_index",
             "is_primary",
+            "show_intro_splash",
             "is_guide",
             "needs_recovery",
             "live_relay_enabled",
@@ -1500,6 +1503,40 @@ class AssistantSetupSummarySerializer(serializers.ModelSerializer):
 
     def get_has_reflections_ready(self, obj):
         return obj.assistant_reflections.exists()
+
+
+class AssistantIntroSerializer(serializers.ModelSerializer):
+    flair = serializers.SerializerMethodField()
+    theme_colors = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Assistant
+        fields = [
+            "name",
+            "avatar",
+            "avatar_style",
+            "archetype",
+            "intro_text",
+            "archetype_summary",
+            "skill_badges",
+            "primary_badge",
+            "flair",
+            "tone_profile",
+            "theme_colors",
+        ]
+
+    def get_flair(self, obj):
+        if obj.primary_badge:
+            from assistants.models.badge import Badge
+
+            badge = Badge.objects.filter(slug=obj.primary_badge).first()
+            return badge.emoji if badge else None
+        return None
+
+    def get_theme_colors(self, obj):
+        from assistants.helpers.intro import TONE_COLORS
+
+        return TONE_COLORS.get(obj.tone_profile or "", {})
 
 
 from prompts.models import Prompt

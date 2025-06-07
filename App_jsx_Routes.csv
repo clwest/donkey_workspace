@@ -32,6 +32,7 @@ Route Path,Component
 /assistants/:id/thoughts,ThoughtLogPanel
 /assistants/:id/tools,AssistantToolsPage
 /assistants/:slug,AssistantDetailRoute
+/assistants/:slug/intro,AssistantIntroSplash
 /assistants/:slug/affinity,ArchetypeAffinityPage
 /assistants/:slug/belief,BeliefEvolutionPage
 /assistants/:slug/capabilities,AssistantCapabilityEditor

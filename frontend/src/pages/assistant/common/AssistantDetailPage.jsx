@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link, useLocation } from "react-router-dom";
+import { useParams, Link, useLocation, useNavigate } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
 import PrimaryStar from "../../../components/assistant/PrimaryStar";
 import MoodStabilityGauge from "../../../components/assistant/MoodStabilityGauge";
@@ -42,6 +42,7 @@ import useUserInfo from "../../../hooks/useUserInfo";
 export default function AssistantDetailPage() {
   useAuthGuard();
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [assistant, setAssistant] = useState(null);
   const location = useLocation();
   const query = new URLSearchParams(location.search);
@@ -99,6 +100,10 @@ export default function AssistantDetailPage() {
   const reloadAssistant = async () => {
     try {
       const data = await apiFetch(`/assistants/${slug}/`);
+      if (data.show_intro_splash) {
+        navigate(`/assistants/${slug}/intro`, { replace: true });
+        return;
+      }
       setAssistant(data);
       setNameInput(data.name);
     } catch (err) {

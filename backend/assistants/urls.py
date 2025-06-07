@@ -862,6 +862,11 @@ urlpatterns = [
         views.AssistantSetupSummaryView.as_view(),
         name="assistant-setup-summary",
     ),
+    path(
+        "<slug:slug>/intro/",
+        views.AssistantIntroView.as_view(),
+        name="assistant-intro",
+    ),
     path("badges/", BadgeListView.as_view(), name="badge-list"),
     path(
         "<slug:slug>/badges/",
