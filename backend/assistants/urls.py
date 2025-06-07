@@ -896,11 +896,7 @@ urlpatterns = [
         views.AssistantTrailRecapView.as_view(),
         name="assistant-trail-recap",
     ),
-    path(
-        "trail/<uuid:id>/",
-        views.update_trail_marker,
-        name="trail-marker-update",
-    ),
+
     path("badges/", BadgeListView.as_view(), name="badge-list"),
     path(
         "<slug:slug>/badges/",
