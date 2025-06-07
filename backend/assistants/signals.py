@@ -4,6 +4,8 @@ from .models.reflection import AssistantReflectionLog
 from .models.project import AssistantObjective
 from project.models.task import ProjectTask
 from project.models.core import Project
+from .models.assistant import Assistant
+from assistants.helpers.logging_helper import log_assistant_birth_event
 
 
 @receiver(post_save, sender=AssistantReflectionLog)
@@ -18,7 +20,9 @@ def spawn_objectives_from_reflection(sender, instance, created, **kwargs):
             description=instance.summary,
             generated_from_reflection=instance,
         )
-        core_project = Project.objects.filter(assistant_project=instance.project).first()
+        core_project = Project.objects.filter(
+            assistant_project=instance.project
+        ).first()
         if core_project:
             ProjectTask.objects.create(
                 project=core_project,
@@ -26,3 +30,10 @@ def spawn_objectives_from_reflection(sender, instance, created, **kwargs):
                 content=instance.summary,
             )
 
+
+@receiver(post_save, sender=Assistant)
+def record_birth_memory(sender, instance, created, **kwargs):
+    """Log an origin memory when a spawned assistant is first created."""
+    if created and instance.spawned_by and instance.created_by:
+        if not instance.memories.filter(type="origin").exists():
+            log_assistant_birth_event(instance, instance.created_by)

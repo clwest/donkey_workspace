@@ -13,17 +13,22 @@ function MemoryRow({ entry, onRate }) {
       <div>
         {entry.is_delegated && <span className="me-1">🎯</span>}
         {entry.type === "reflection" && <span className="me-1">🔍</span>}
+        {entry.type === "origin" && <span className="me-1">🌟</span>}
         <strong>{entry.summary || entry.event}</strong>
         <div className="text-muted small">
           {entry.assistant} {entry.parent && `↳ from ${entry.parent}`}
         </div>
       </div>
       <div className="small">
-        <Link to={`/assistants/${entry.assistant_slug}`}>View Source Assistant</Link>
+        <Link to={`/assistants/${entry.assistant_slug}`}>
+          View Source Assistant
+        </Link>
         {entry.delegation_event_id && (
           <>
             {" | "}
-            <Link to={`/delegations/${entry.delegation_event_id}`}>Jump to Delegation Event</Link>
+            <Link to={`/delegations/${entry.delegation_event_id}`}>
+              Jump to Delegation Event
+            </Link>
             {" | "}
             <button
               className="btn btn-sm btn-link p-0"
@@ -41,7 +46,9 @@ function MemoryRow({ entry, onRate }) {
               size="sm"
               className="p-0"
               onClick={() =>
-                navigate(`/delegation/subagent_reflect/${entry.delegation_event_id}`)
+                navigate(
+                  `/delegation/subagent_reflect/${entry.delegation_event_id}`,
+                )
               }
             >
               Reflect on Sub-Agent Output
@@ -89,7 +96,11 @@ export default function DelegationTracePage() {
       ) : (
         <ul className="list-unstyled">
           {entries.map((m) => (
-            <MemoryRow key={m.id} entry={m} onRate={(id) => setFeedbackId(id)} />
+            <MemoryRow
+              key={m.id}
+              entry={m}
+              onRate={(id) => setFeedbackId(id)}
+            />
           ))}
         </ul>
       )}
