@@ -1,4 +1,6 @@
 from rest_framework.decorators import api_view
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
@@ -261,6 +263,17 @@ def replay_reflection(request, id):
     replay = replay_reflection_util(reflection)
     serializer = ReflectionReplayLogSerializer(replay)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+@api_view(["POST"])
+@permission_classes([IsAdminUser])
+def replay_drifted_reflections(request, slug):
+    """Queue drifted reflections for replay."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    from memory.utils import queue_drifted_reflections
+
+    count = queue_drifted_reflections(assistant_slug=assistant.slug)
+    return Response({"queued": count})
 
 
 @api_view(["GET"])

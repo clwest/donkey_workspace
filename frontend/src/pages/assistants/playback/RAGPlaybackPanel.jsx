@@ -5,7 +5,7 @@ import useAuthGuard from "../../../hooks/useAuthGuard";
 
 export default function RAGPlaybackPanel({ compareMode = false }) {
   useAuthGuard();
-  const { slug, id } = useParams();
+  const { slug, uuid } = useParams();
   const location = useLocation();
   const isCompare = compareMode || location.pathname.includes("/rag_playback/compare/");
   const [data, setData] = useState(null);
@@ -14,13 +14,13 @@ export default function RAGPlaybackPanel({ compareMode = false }) {
   useEffect(() => {
     setLoading(true);
     const url = isCompare
-      ? `/assistants/${slug}/rag_playback/compare/${id}/`
-      : `/assistants/${slug}/rag_playback/${id}/`;
+      ? `/assistants/${slug}/rag_playback/compare/${uuid}/`
+      : `/assistants/${slug}/rag_playback/${uuid}/`;
     apiFetch(url)
       .then((res) => setData(res))
       .catch(() => setData(null))
       .finally(() => setLoading(false));
-  }, [slug, id, isCompare]);
+  }, [slug, uuid, isCompare]);
 
   if (loading) return <div className="container my-5">Loading...</div>;
   if (!data) return <div className="container my-5">Not found.</div>;

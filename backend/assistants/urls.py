@@ -528,6 +528,11 @@ urlpatterns = [
         name="reflection-replay-diff",
     ),
     path(
+        "<slug:slug>/replay_drifted/",
+        memory.replay_drifted_reflections,
+        name="assistant-replay-drifted",
+    ),
+    path(
         "reflections/<uuid:id>/",
         memory.assistant_reflection_detail,
         name="assistant-reflection-detail",
@@ -629,7 +634,9 @@ urlpatterns = [
     ),
     path(
         "<slug:slug>/rag_playback/compare/<uuid:id>/",
-        playback.rag_playback_compare,
+
+        memory.rag_playback_compare,
+
         name="assistant-rag-playback-compare",
     ),
     path(

@@ -3,23 +3,23 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
 
 export default function AssistantReplayDiffPage() {
-  const { slug, id } = useParams();
+  const { slug, uuid } = useParams();
   const [data, setData] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    apiFetch(`/assistants/${slug}/replays/${id}/diff/`)
+    apiFetch(`/assistants/${slug}/replays/${uuid}/diff/`)
       .then((res) => setData(res))
       .catch(() => setData(null));
-  }, [slug, id]);
+  }, [slug, uuid]);
 
   const accept = async () => {
-    await apiFetch(`/replays/${id}/accept/`, { method: "POST" });
+    await apiFetch(`/replays/${uuid}/accept/`, { method: "POST" });
     navigate(`/assistants/${slug}/replays`);
   };
 
   const reject = async () => {
-    await apiFetch(`/replays/${id}/reject/`, { method: "POST" });
+    await apiFetch(`/replays/${uuid}/reject/`, { method: "POST" });
     navigate(`/assistants/${slug}/replays`);
   };
 

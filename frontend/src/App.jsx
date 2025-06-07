@@ -532,15 +532,15 @@ export default function App() {
             element={<AssistantReplayLogsPage />}
           />
           <Route
-            path="/assistants/:slug/replays/:id"
+            path="/assistants/:slug/replays/:uuid"
             element={<AssistantReplayDiffPage />}
           />
           <Route
-            path="/assistants/:slug/rag_playback/:id"
+            path="/assistants/:slug/rag_playback/:uuid"
             element={<RAGPlaybackPanel />}
           />
           <Route
-            path="/assistants/:slug/rag_playback/compare/:id"
+            path="/assistants/:slug/rag_playback/compare/:uuid"
             element={<RAGPlaybackPanel compareMode />}
           />
           <Route
