@@ -19,15 +19,29 @@ def get_intro_splash_payload(assistant: Assistant) -> dict:
 
         badge = Badge.objects.filter(slug=assistant.primary_badge).first()
         flair = badge.emoji if badge else None
+    elif assistant.spawned_by and assistant.spawned_by.primary_badge:
+        from assistants.models.badge import Badge
+
+        badge = Badge.objects.filter(slug=assistant.spawned_by.primary_badge).first()
+        flair = badge.emoji if badge else None
+    badges = assistant.skill_badges or []
+    if not badges and assistant.spawned_by and assistant.spawned_by.skill_badges:
+        badges = assistant.spawned_by.skill_badges
     return {
         "name": assistant.name,
         "avatar_url": assistant.avatar,
         "archetype": assistant.archetype,
-        "badges": assistant.skill_badges or [],
+        "badges": badges,
         "intro_text": assistant.intro_text or "",
         "archetype_summary": assistant.archetype_summary or "",
         "flair": flair,
         "theme_colors": colors,
+        "demo_origin": assistant.spawned_by.name if assistant.spawned_by and assistant.spawned_by.is_demo else None,
+        "preview_traits": {
+            "badge": assistant.primary_badge or getattr(assistant.spawned_by, "primary_badge", None),
+            "tone": assistant.tone_profile or assistant.tone or getattr(assistant.spawned_by, "tone_profile", None),
+            "avatar": assistant.avatar_style or getattr(assistant.spawned_by, "avatar_style", None),
+        },
     }
 
 

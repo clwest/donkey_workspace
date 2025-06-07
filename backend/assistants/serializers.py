@@ -951,6 +951,22 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
     def get_is_cloned_from_demo(self, obj):
         return bool(obj.spawned_by and obj.spawned_by.is_demo)
 
+    def get_is_demo_clone(self, obj):
+        return obj.is_demo_clone
+
+    def get_demo_origin(self, obj):
+        if obj.spawned_by and obj.spawned_by.is_demo:
+            return obj.spawned_by.demo_slug or obj.spawned_by.slug
+        return None
+
+    def get_preview_traits(self, obj):
+        source = obj.spawned_by if obj.spawned_by and obj.spawned_by.is_demo else None
+        return {
+            "badge": obj.primary_badge or getattr(source, "primary_badge", None),
+            "tone": obj.tone_profile or obj.tone or getattr(source, "tone_profile", None),
+            "avatar": obj.avatar_style or getattr(source, "avatar_style", None),
+        }
+
     def get_glossary_health_index(self, obj):
         from django.db.models import Avg, Count
         from memory.models import SymbolicMemoryAnchor
@@ -1349,6 +1365,8 @@ class AssistantSerializer(serializers.ModelSerializer):
     spawned_by_slug = serializers.SerializerMethodField()
     spawned_by_label = serializers.SerializerMethodField()
     is_cloned_from_demo = serializers.SerializerMethodField()
+    demo_origin = serializers.SerializerMethodField()
+    preview_traits = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -1414,6 +1432,9 @@ class AssistantSerializer(serializers.ModelSerializer):
             "spawned_by_slug",
             "spawned_by_label",
             "is_cloned_from_demo",
+            "is_demo_clone",
+            "demo_origin",
+            "preview_traits",
             "spawned_traits",
         ]
 
@@ -1551,6 +1572,7 @@ class AssistantIntroSerializer(serializers.ModelSerializer):
     theme_colors = serializers.SerializerMethodField()
     suggest_personalization = serializers.SerializerMethodField()
     personalization_prompt = serializers.SerializerMethodField()
+    demo_origin = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -1568,6 +1590,7 @@ class AssistantIntroSerializer(serializers.ModelSerializer):
             "theme_colors",
             "suggest_personalization",
             "personalization_prompt",
+            "demo_origin",
         ]
 
     def get_flair(self, obj):
@@ -1575,6 +1598,11 @@ class AssistantIntroSerializer(serializers.ModelSerializer):
             from assistants.models.badge import Badge
 
             badge = Badge.objects.filter(slug=obj.primary_badge).first()
+            return badge.emoji if badge else None
+        if obj.spawned_by and obj.spawned_by.primary_badge:
+            from assistants.models.badge import Badge
+
+            badge = Badge.objects.filter(slug=obj.spawned_by.primary_badge).first()
             return badge.emoji if badge else None
         return None
 
@@ -1599,6 +1627,11 @@ class AssistantIntroSerializer(serializers.ModelSerializer):
 
         return get_personalization_prompt(obj)
 
+    def get_demo_origin(self, obj):
+        if obj.spawned_by and obj.spawned_by.is_demo:
+            return obj.spawned_by.name
+        return None
+
 
 class AssistantPreviewSerializer(serializers.ModelSerializer):
     """Lightweight preview for dashboard cards."""
@@ -1607,6 +1640,9 @@ class AssistantPreviewSerializer(serializers.ModelSerializer):
     starter_memory_excerpt = serializers.SerializerMethodField()
     latest_reflection = serializers.SerializerMethodField()
     flair = serializers.SerializerMethodField()
+    is_demo_clone = serializers.BooleanField(read_only=True)
+    demo_origin = serializers.SerializerMethodField()
+    preview_traits = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -1623,6 +1659,9 @@ class AssistantPreviewSerializer(serializers.ModelSerializer):
             "starter_memory_excerpt",
             "latest_reflection",
             "flair",
+            "is_demo_clone",
+            "demo_origin",
+            "preview_traits",
         ]
 
     def get_flair(self, obj):
@@ -1658,6 +1697,19 @@ class AssistantPreviewSerializer(serializers.ModelSerializer):
             .first()
         )
         return ref.summary[:160] if ref else None
+
+    def get_demo_origin(self, obj):
+        if obj.spawned_by and obj.spawned_by.is_demo:
+            return obj.spawned_by.demo_slug or obj.spawned_by.slug
+        return None
+
+    def get_preview_traits(self, obj):
+        source = obj.spawned_by if obj.spawned_by and obj.spawned_by.is_demo else None
+        return {
+            "badge": obj.primary_badge or getattr(source, "primary_badge", None),
+            "tone": obj.tone_profile or obj.tone or getattr(source, "tone_profile", None),
+            "avatar": obj.avatar_style or getattr(source, "avatar_style", None),
+        }
 
 
 from prompts.models import Prompt

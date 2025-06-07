@@ -47,6 +47,7 @@ def generate_assistant_from_demo(demo_slug: str, user, transcript=None):
         spawn_reason=f"demo:{demo_slug}",
         spawned_by=demo,
         spawned_traits=["badge", "tone", "avatar"],
+        is_demo_clone=True,
         is_demo=False,
     )
 
@@ -74,5 +75,6 @@ def generate_assistant_from_demo(demo_slug: str, user, transcript=None):
                     messages=user_msgs,
                     reply=reply,
                     assistant=assistant,
+                    is_demo=False,
                 )
     return assistant

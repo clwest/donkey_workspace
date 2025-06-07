@@ -15,6 +15,8 @@ const AVATAR_EMOJI = {
 export default function AssistantCard({ assistant, to, chatLink, demo }) {
   if (!assistant) return null;
 
+  const isDemo = demo || assistant.is_demo;
+
   const card = (
     <div className="assistant-card card h-100 shadow-sm border-0">
       <div className="card-body">
@@ -40,7 +42,14 @@ export default function AssistantCard({ assistant, to, chatLink, demo }) {
             <AssistantBadgeIcon badges={assistant.skill_badges} primaryBadge={assistant.primary_badge} />
           </h5>
         </div>
-        {demo && <span className="badge bg-info text-dark mb-2">✨ Demo Assistant</span>}
+        {isDemo && (
+          <span className="badge bg-info text-dark mb-2">✨ Demo Assistant</span>
+        )}
+        {assistant.is_demo_clone && assistant.spawned_by_label && (
+          <span className="badge bg-warning text-dark mb-2 ms-2">
+            Inspired by {assistant.spawned_by_label}
+          </span>
+        )}
         {assistant.specialty && <p className="text-muted mb-1 small">{assistant.specialty}</p>}
         <p className="card-text small">
           {assistant.description?.slice(0, 100) || "No description."}

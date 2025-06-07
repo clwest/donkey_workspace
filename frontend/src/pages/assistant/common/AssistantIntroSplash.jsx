@@ -13,12 +13,17 @@ export default function AssistantIntroSplash() {
   const [loading, setLoading] = useState(true);
   const [detail, setDetail] = useState(null);
   const [showPersonalize, setShowPersonalize] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
     apiFetch(`/assistants/${slug}/intro/`)
       .then((res) => {
         setData(res);
         setLoading(false);
+        if (res.demo_origin) {
+          setShowConfetti(true);
+          setTimeout(() => setShowConfetti(false), 1500);
+        }
         if (res.suggest_personalization) {
           apiFetch(`/assistants/${slug}/`).then(setDetail);
           setShowPersonalize(true);
@@ -57,9 +62,13 @@ export default function AssistantIntroSplash() {
   );
 
   return (
-    <div className="container my-5 fade-in text-center">
+    <div className="container my-5 fade-in text-center position-relative">
+      {showConfetti && <div className="confetti" />}
       {avatar}
       <h1 className="display-5">{data.name}</h1>
+      {data.demo_origin && (
+        <div className="text-muted mb-2 fade-in">Inspired by {data.demo_origin} 🌟</div>
+      )}
       {data.archetype && <h5 className="text-muted">{data.archetype}</h5>}
       {data.badges && data.badges.length > 0 && (
         <div className="d-flex justify-content-center gap-2 mt-2">

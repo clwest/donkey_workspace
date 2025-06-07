@@ -53,6 +53,7 @@ class MemoryEntry(models.Model):
         blank=True,
         related_name="memory_entries",
     )
+    is_demo = models.BooleanField(default=False)
     anchor = models.ForeignKey(
         "memory.SymbolicMemoryAnchor",
         on_delete=models.SET_NULL,

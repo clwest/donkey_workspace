@@ -61,6 +61,7 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
             "tags",
             "voice_clip",
             "created_at",
+            "is_demo",
             "linked_thought",
             "content_preview",
             "triggered_by",
