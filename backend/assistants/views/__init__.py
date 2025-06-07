@@ -12,6 +12,7 @@ from .assistants import (
     reflect_on_assistant,
     clarify_prompt,
     failure_log,
+    assistant_summary,
 )
 from .setup import AssistantSetupSummaryView
 from .intro import AssistantIntroView
@@ -329,5 +330,6 @@ __all__ = [
     "repair_documents",
     "onboarding_status",
     "onboarding_complete",
+    "assistant_summary",
 ]
 from .skills import SkillPlanView

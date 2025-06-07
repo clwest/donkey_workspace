@@ -880,6 +880,11 @@ urlpatterns = [
         name="assistant-setup-summary",
     ),
     path(
+        "<slug:slug>/summary/",
+        assistants.assistant_summary,
+        name="assistant-summary",
+    ),
+    path(
         "<slug:slug>/intro/",
         views.AssistantIntroView.as_view(),
         name="assistant-intro",

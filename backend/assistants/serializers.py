@@ -1868,3 +1868,56 @@ class SuggestionLogSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         read_only_fields = fields
+
+
+class AssistantOverviewSerializer(serializers.ModelSerializer):
+    memory_count = serializers.SerializerMethodField()
+    reflection_count = serializers.SerializerMethodField()
+    drifted_anchors = serializers.SerializerMethodField()
+    reinforced_anchors = serializers.SerializerMethodField()
+    badge_count = serializers.SerializerMethodField()
+    first_question_drift_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Assistant
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "glossary_score",
+            "memory_count",
+            "reflection_count",
+            "drifted_anchors",
+            "reinforced_anchors",
+            "badge_count",
+            "first_question_drift_count",
+        ]
+        read_only_fields = fields
+
+    def get_memory_count(self, obj):
+        from memory.models import MemoryEntry
+        return MemoryEntry.objects.filter(assistant=obj).count()
+
+    def get_reflection_count(self, obj):
+        return obj.assistant_reflections.count()
+
+    def get_drifted_anchors(self, obj):
+        from memory.models import SymbolicMemoryAnchor
+        return (
+            SymbolicMemoryAnchor.objects.filter(
+                memory_context=obj.memory_context, chunks__is_drifting=True
+            )
+            .distinct()
+            .count()
+        )
+
+    def get_reinforced_anchors(self, obj):
+        return obj.reinforced_anchors.count()
+
+    def get_badge_count(self, obj):
+        return len(obj.skill_badges or [])
+
+    def get_first_question_drift_count(self, obj):
+        from assistants.models.assistant import ChatIntentDriftLog
+        return ChatIntentDriftLog.objects.filter(assistant=obj).count()
+
