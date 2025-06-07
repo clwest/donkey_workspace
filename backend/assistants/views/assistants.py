@@ -34,7 +34,6 @@ from assistants.models.assistant import (
     AssistantSkill,
     AssistantChatMessage,
     ChatIntentDriftLog,
-    
 )
 from assistants.models.glossary import SuggestionLog
 from assistants.models.reflection import AssistantReflectionLog
@@ -153,6 +152,8 @@ class AssistantViewSet(viewsets.ModelViewSet):
 
     def partial_update(self, request, slug=None, *args, **kwargs):
         assistant = get_object_or_404(Assistant, slug=slug)
+        if assistant.is_demo:
+            return Response({"error": "Demo assistants cannot be modified"}, status=403)
         old_name = assistant.name
 
         new_name = request.data.get("name")
@@ -229,6 +230,9 @@ class AssistantViewSet(viewsets.ModelViewSet):
             logger.info("Assistant %s already deleted", slug)
             return Response(status=204)
 
+        if assistant.is_demo:
+            return Response({"error": "Demo assistants cannot be deleted"}, status=403)
+
         qp = request.query_params
         force = qp.get("force") == "true" or request.data.get("force")
         cascade = qp.get("cascade") == "true" or request.data.get("cascade")
@@ -300,9 +304,9 @@ class AssistantViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"], url_path="primary/reflect-now")
     def primary_reflect_now(self, request):
-        assistant = (
-            Assistant.objects.filter(created_by=request.user, is_primary=True).first()
-        )
+        assistant = Assistant.objects.filter(
+            created_by=request.user, is_primary=True
+        ).first()
         if not assistant:
             return Response({"error": "No primary assistant."}, status=404)
 
@@ -332,9 +336,9 @@ class AssistantViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"], url_path="primary/spawn-agent")
     def primary_spawn_agent(self, request):
-        parent = (
-            Assistant.objects.filter(created_by=request.user, is_primary=True).first()
-        )
+        parent = Assistant.objects.filter(
+            created_by=request.user, is_primary=True
+        ).first()
         if not parent:
             return Response({"error": "No primary assistant."}, status=404)
 
@@ -1009,7 +1013,12 @@ def flush_chat_session(request, slug):
 @permission_classes([IsAuthenticated])
 def demo_assistant(request):
     """Return demo assistants using the main serializer."""
-    assistants = Assistant.objects.filter(is_demo=True)
+    assistants = Assistant.objects.filter(is_demo=True).order_by("demo_slug")
+    for a in assistants:
+        if not a.memories.exists():
+            from assistants.utils.starter_chat import seed_chat_starter_memory
+
+            seed_chat_starter_memory(a)
     serializer = AssistantSerializer(assistants, many=True)
     return Response(serializer.data)
 
@@ -1772,4 +1781,3 @@ def assistant_summary(request, slug):
 
     serializer = AssistantOverviewSerializer(assistant)
     return Response(serializer.data)
-

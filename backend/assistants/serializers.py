@@ -817,6 +817,7 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "slug",
+            "demo_slug",
             "name",
             "archetype_path",
             "description",
@@ -1341,6 +1342,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "slug",
+            "demo_slug",
             "archetype_path",
             "archetype",
             "dream_symbol",
@@ -1469,12 +1471,14 @@ class AssistantSerializer(serializers.ModelSerializer):
             badge = Badge.objects.filter(slug=obj.primary_badge).first()
             return badge.emoji if badge else None
         return None
+
     def get_tour_started(self, obj):
         request = self.context.get("request") if hasattr(self, "context") else None
         user = getattr(request, "user", None)
         if not user or user.is_anonymous:
             return False
         return AssistantTourStartLog.objects.filter(user=user, assistant=obj).exists()
+
 
 class AssistantProjectSummarySerializer(serializers.ModelSerializer):
     class Meta:
@@ -1969,6 +1973,7 @@ class AssistantOverviewSerializer(serializers.ModelSerializer):
 
     def get_memory_count(self, obj):
         from memory.models import MemoryEntry
+
         return MemoryEntry.objects.filter(assistant=obj).count()
 
     def get_reflection_count(self, obj):
@@ -1976,6 +1981,7 @@ class AssistantOverviewSerializer(serializers.ModelSerializer):
 
     def get_drifted_anchors(self, obj):
         from memory.models import SymbolicMemoryAnchor
+
         return (
             SymbolicMemoryAnchor.objects.filter(
                 memory_context=obj.memory_context, chunks__is_drifting=True
@@ -1992,5 +1998,5 @@ class AssistantOverviewSerializer(serializers.ModelSerializer):
 
     def get_first_question_drift_count(self, obj):
         from assistants.models.assistant import ChatIntentDriftLog
-        return ChatIntentDriftLog.objects.filter(assistant=obj).count()
 
+        return ChatIntentDriftLog.objects.filter(assistant=obj).count()

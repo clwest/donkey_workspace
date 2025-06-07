@@ -4,7 +4,11 @@ import apiFetch from "@/utils/apiClient";
 import TagBadge from "../../../components/TagBadge";
 import HintBubble from "../../../components/HintBubble";
 import useAssistantHints from "../../../hooks/useAssistantHints";
-import { suggestAssistant, suggestSwitch, switchAssistant } from "../../../api/assistants";
+import {
+  suggestAssistant,
+  suggestSwitch,
+  switchAssistant,
+} from "../../../api/assistants";
 
 const AVATAR_EMOJI = {
   owl: "🦚",
@@ -19,11 +23,11 @@ import AssistantBadgeIcon from "../../../components/assistant/AssistantBadgeIcon
 import useGlossaryOverlay from "../../../hooks/glossary";
 import GlossaryOverlayTooltip from "../../../components/GlossaryOverlayTooltip";
 
-
 export default function ChatWithAssistantPage() {
   const { slug } = useParams();
   const [searchParams] = useSearchParams();
-  const starter = searchParams.get("starter");
+  const starter =
+    searchParams.get("starter") || searchParams.get("starter_query");
   const [messages, setMessages] = useState([]);
   const [assistantInfo, setAssistantInfo] = useState(null);
   const [identity, setIdentity] = useState(null);
@@ -52,12 +56,12 @@ export default function ChatWithAssistantPage() {
   const [showPreloaded, setShowPreloaded] = useState(false);
   const firstAssistantIndex = messages.findIndex((m) => m.role === "assistant");
   const [primerDone, setPrimerDone] = useState(
-    !!localStorage.getItem(`primer_done_${slug}`)
+    !!localStorage.getItem(`primer_done_${slug}`),
   );
   const { hints, dismissHint } = useAssistantHints(slug);
   const chatHint = hints.find((h) => h.id === "chat_welcome");
   const showChatWelcome = chatHint && !chatHint.dismissed;
-  const glossaryOverlays = useGlossaryOverlay('chat');
+  const glossaryOverlays = useGlossaryOverlay("chat");
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -83,7 +87,7 @@ export default function ChatWithAssistantPage() {
     if (messages.length) {
       localStorage.setItem(
         `chat_${slug}_${sessionId}`,
-        JSON.stringify(messages)
+        JSON.stringify(messages),
       );
     }
   }, [messages, slug, sessionId]);
@@ -117,7 +121,6 @@ export default function ChatWithAssistantPage() {
           ];
         }
         setMessages(msgs);
-
       };
       fetchSession();
     }
@@ -160,14 +163,14 @@ export default function ChatWithAssistantPage() {
         setNoContextMatch(!(data.rag_meta.used_chunks?.length > 0));
         if (!data.rag_meta.glossary_present) {
           setGlossaryWarning(
-            "No glossary loaded. Glossary terms improve retrieval accuracy."
+            "No glossary loaded. Glossary terms improve retrieval accuracy.",
           );
         } else {
           setGlossaryWarning(null);
         }
         if (!data.rag_meta.anchors || data.rag_meta.anchors.length === 0) {
           setAnchorWarning(
-            "You can define anchors to help assistants recognize key concepts."
+            "You can define anchors to help assistants recognize key concepts.",
           );
         } else {
           setAnchorWarning(null);
@@ -175,7 +178,7 @@ export default function ChatWithAssistantPage() {
         setSourceInfo(data.rag_meta);
         if (data.rag_meta.glossary_present && !data.rag_meta.rag_used) {
           setGlossarySuggestion(
-            "Try asking: 'What does MCP mean in this document?' or 'Summarize this glossary.'"
+            "Try asking: 'What does MCP mean in this document?' or 'Summarize this glossary.'",
           );
         } else {
           setGlossarySuggestion(null);
@@ -194,7 +197,7 @@ export default function ChatWithAssistantPage() {
       }
 
       const userCount = msgs.filter((m) => m.role === "user").length;
-      if (!primerDone && userCount >= 3) {
+      if (!assistantInfo?.is_demo && !primerDone && userCount >= 3) {
         try {
           const res = await apiFetch(`/assistants/${slug}/reflect_first_use/`, {
             method: "POST",
@@ -213,7 +216,6 @@ export default function ChatWithAssistantPage() {
     }
   };
 
-
   const handleSuggest = async () => {
     try {
       const summary = messages.map((m) => m.content).join(" ");
@@ -223,7 +225,9 @@ export default function ChatWithAssistantPage() {
         recent_messages: messages.slice(-5),
       });
       if (data.suggested_assistant) {
-        alert(`Try: ${data.suggested_assistant.name}\nReason: ${data.reasoning}`);
+        alert(
+          `Try: ${data.suggested_assistant.name}\nReason: ${data.reasoning}`,
+        );
       } else {
         alert("No suggestion available");
       }
@@ -258,14 +262,23 @@ export default function ChatWithAssistantPage() {
       if (data.results && data.results.length > 0) {
         const lines = data.results.slice(0, 3).map((c, i) => {
           const score = c.score || c.similarity_score || 0;
-          const warn = c.embedding_status && c.embedding_status !== "embedded" ? " ⚠️" : "";
+          const warn =
+            c.embedding_status && c.embedding_status !== "embedded"
+              ? " ⚠️"
+              : "";
           return `${i + 1}. ${c.chunk_id || c.id} | ${score.toFixed(2)} | ${c.text.slice(0, 80)}${warn}`;
         });
         let note = "";
-        const bestScore = data.results[0].score || data.results[0].similarity_score || 0;
+        const bestScore =
+          data.results[0].score || data.results[0].similarity_score || 0;
         if (bestScore < 0.3) note = "\n⚠️ Using fallback due to low score";
-        if (data.results.some((c) => c.embedding_status && c.embedding_status !== "embedded")) {
-          note += "\n⚠️ Some matches are unembedded. RAG accuracy may be degraded.";
+        if (
+          data.results.some(
+            (c) => c.embedding_status && c.embedding_status !== "embedded",
+          )
+        ) {
+          note +=
+            "\n⚠️ Some matches are unembedded. RAG accuracy may be degraded.";
         }
         alert(lines.join("\n") + note);
       } else {
@@ -284,10 +297,18 @@ export default function ChatWithAssistantPage() {
           className="me-2"
           title={`${identity?.tone || ""} ${identity?.persona || ""}`}
         >
-          {identity?.avatar || AVATAR_EMOJI[assistantInfo?.avatar_style] || "🤖"}
+          {identity?.avatar ||
+            AVATAR_EMOJI[assistantInfo?.avatar_style] ||
+            "🤖"}
         </span>
         {identity?.name || slug}
+        {assistantInfo?.is_demo && (
+          <span className="badge bg-info text-dark ms-2">Demo</span>
+        )}
       </h1>
+      {assistantInfo?.is_demo && identity?.motto && (
+        <p className="text-muted">{identity.motto}</p>
+      )}
       <div className="mb-2">
         {glossaryOverlays.map((o) => (
           <GlossaryOverlayTooltip key={o.slug} {...o} />
@@ -312,7 +333,10 @@ export default function ChatWithAssistantPage() {
       {showPreloaded && (
         <div className="alert alert-info d-flex justify-content-between align-items-center">
           <span>💬 Preloaded chat from memory</span>
-          <button className="btn btn-sm btn-outline-secondary" onClick={() => setShowPreloaded(false)}>
+          <button
+            className="btn btn-sm btn-outline-secondary"
+            onClick={() => setShowPreloaded(false)}
+          >
             Dismiss
           </button>
         </div>
@@ -320,7 +344,8 @@ export default function ChatWithAssistantPage() {
 
       {noContextMatch && (
         <div className="alert alert-warning mt-3">
-          ⚠️ No strong matches found. Assistant is replying without confirmed context.
+          ⚠️ No strong matches found. Assistant is replying without confirmed
+          context.
         </div>
       )}
       {glossaryWarning && (
@@ -330,32 +355,52 @@ export default function ChatWithAssistantPage() {
         <div className="alert alert-info mt-2">{anchorWarning}</div>
       )}
 
-      <div className="chat-box border rounded p-3 mb-4 bg-light" style={{ maxHeight: "500px", overflowY: "auto" }}>
+      <div
+        className="chat-box border rounded p-3 mb-4 bg-light"
+        style={{ maxHeight: "500px", overflowY: "auto" }}
+      >
         {messages.map((msg, idx) => (
-          <div key={idx} className={`mb-4 ${msg.role === "user" ? "text-end" : "text-start"}`}>
-          {idx === firstAssistantIndex && msg.role === "assistant" && identity && (
-            <div className="mb-1 small bg-white border rounded p-2">
-              <div>{identity.motto || "Here's how I think:"}</div>
-              <div>
-                {identity.badges.map((b) => (
-                  <AssistantBadgeIcon key={b} badges={[b]} />
-                ))}
-              </div>
+          <div
+            key={idx}
+            className={`mb-4 ${msg.role === "user" ? "text-end" : "text-start"}`}
+          >
+            {idx === firstAssistantIndex &&
+              msg.role === "assistant" &&
+              identity && (
+                <div className="mb-1 small bg-white border rounded p-2">
+                  <div>{identity.motto || "Here's how I think:"}</div>
+                  <div>
+                    {identity.badges.map((b) => (
+                      <AssistantBadgeIcon key={b} badges={[b]} />
+                    ))}
+                  </div>
+                </div>
+              )}
+            <div className="d-flex justify-content-between">
+              <span
+                className={`badge ${msg.role === "user" ? "bg-primary" : "bg-secondary"}`}
+              >
+                {msg.role}
+              </span>
+              {msg.firstUser && (
+                <span className="badge bg-info text-dark ms-2">
+                  🎯 First Impression
+                </span>
+              )}
+              <small className="text-muted ms-2">
+                {new Date(msg.timestamp).toLocaleString()}
+              </small>
             </div>
-          )}
-          <div className="d-flex justify-content-between">
-            <span className={`badge ${msg.role === "user" ? "bg-primary" : "bg-secondary"}`}>
-              {msg.role}
-            </span>
-            {msg.firstUser && (
-              <span className="badge bg-info text-dark ms-2">🎯 First Impression</span>
-            )}
-            <small className="text-muted ms-2">{new Date(msg.timestamp).toLocaleString()}</small>
-          </div>
 
             <div className="mt-2 text-break">
               {msg.content?.split("\n").map((line, i) =>
-                line.trim() === "" ? <br key={i} /> : <p key={i} className="mb-1">{line}</p>
+                line.trim() === "" ? (
+                  <br key={i} />
+                ) : (
+                  <p key={i} className="mb-1">
+                    {line}
+                  </p>
+                ),
               )}
             </div>
 
@@ -379,8 +424,11 @@ export default function ChatWithAssistantPage() {
 
             {msg.role === "assistant" && (
               <div className="mt-1">
-                {msg.rag_fallback && (msg.used_chunks?.[0]?.score || 0) < 0.6 ? (
-                  <span className="badge bg-warning text-dark">⚠️ Weak Context</span>
+                {msg.rag_fallback &&
+                (msg.used_chunks?.[0]?.score || 0) < 0.6 ? (
+                  <span className="badge bg-warning text-dark">
+                    ⚠️ Weak Context
+                  </span>
                 ) : msg.rag_used ? (
                   (msg.used_chunks?.[0]?.score || 0) >= 0.75 ? (
                     <span className="badge bg-success">🔗 Good Source</span>
@@ -398,7 +446,10 @@ export default function ChatWithAssistantPage() {
               📄 Check Source
             </button>
             {msg.role === "assistant" && msg.context_score != null && (
-              <span className="badge bg-secondary ms-2" title="Top context score">
+              <span
+                className="badge bg-secondary ms-2"
+                title="Top context score"
+              >
                 Context Score: {msg.context_score.toFixed(4)}
                 {msg.context_score < 0.65 ? " (weak)" : ""}
               </span>
@@ -406,7 +457,10 @@ export default function ChatWithAssistantPage() {
 
             {msg.memory_id && (
               <div className="mt-2">
-                <Link to={`/memory/${msg.memory_id}`} className="btn btn-sm btn-outline-dark">
+                <Link
+                  to={`/memory/${msg.memory_id}`}
+                  className="btn btn-sm btn-outline-dark"
+                >
                   🧠 View Memory
                 </Link>
               </div>
@@ -464,24 +518,29 @@ export default function ChatWithAssistantPage() {
             ) : null
           ) : (
             <span className="badge bg-danger">🚫 No Source Used</span>
-          )}
-          {" "}
+          )}{" "}
           {sourceInfo.glossary_present && !sourceInfo.rag_used ? (
-            <span className="badge bg-warning text-dark">⚠️ Ignored Glossary</span>
+            <span className="badge bg-warning text-dark">
+              ⚠️ Ignored Glossary
+            </span>
           ) : (
             <span className="badge bg-secondary">
               📘 Glossary Present: {sourceInfo.glossary_present ? "✅" : "❌"}
             </span>
           )}
           {sourceInfo.prompt_appended_glossary && (
-            <span className="badge bg-info text-dark ms-2">✅ Guidance Appended</span>
+            <span className="badge bg-info text-dark ms-2">
+              ✅ Guidance Appended
+            </span>
           )}
           {sourceInfo.guidance_appended &&
             sourceInfo.glossary_ignored?.length > 0 && (
               <span className="badge bg-danger ms-2">🚨 Glossary Ignored</span>
             )}
           {sourceInfo.escalated_retry && (
-            <span className="badge bg-info text-dark ms-2">🔁 Escalated Retry Used</span>
+            <span className="badge bg-info text-dark ms-2">
+              🔁 Escalated Retry Used
+            </span>
           )}
           {sourceInfo.glossary_retry_id && (
             <a
@@ -491,7 +550,9 @@ export default function ChatWithAssistantPage() {
             >
               🔄 Glossary Retry
               {sourceInfo.glossary_retry_score_diff > 0 && (
-                <span className="ms-1 text-success">+{sourceInfo.glossary_retry_score_diff}</span>
+                <span className="ms-1 text-success">
+                  +{sourceInfo.glossary_retry_score_diff}
+                </span>
               )}
             </a>
           )}
@@ -500,7 +561,10 @@ export default function ChatWithAssistantPage() {
       <button className="btn btn-outline-primary mt-2" onClick={handleSuggest}>
         🤖 Suggest Assistant
       </button>
-      <button className="btn btn-outline-warning mt-2 ms-2" onClick={handleSwitchSuggest}>
+      <button
+        className="btn btn-outline-warning mt-2 ms-2"
+        onClick={handleSwitchSuggest}
+      >
         🔄 Suggest Switch
       </button>
       {glossarySuggestion && (
@@ -512,20 +576,39 @@ export default function ChatWithAssistantPage() {
           <h6>Debug</h6>
           <ul className="list-unstyled">
             <li>📚 Source Used: {sourceInfo.rag_used ? "✅" : "❌"}</li>
-            <li>🧠 Glossary Present: {sourceInfo.glossary_present ? "✅" : "❌"}</li>
-            <li>🧷 Symbolic Anchors: {JSON.stringify(sourceInfo.anchors || [])}</li>
-            <li>✅ Anchor Hits: {JSON.stringify(sourceInfo.anchor_hits || [])}</li>
-            <li>❌ Anchor Misses: {JSON.stringify(sourceInfo.anchor_misses || [])}</li>
-            <li>📎 Chunk Match Scores: {JSON.stringify(sourceInfo.chunk_scores || [])}</li>
-            <li>🔍 Filtered Anchors: {JSON.stringify(sourceInfo.filtered_anchor_terms || [])}</li>
-            <li>📓 Glossary Chunk IDs: {JSON.stringify(sourceInfo.glossary_chunk_ids || [])}</li>
-          <li>
+            <li>
+              🧠 Glossary Present: {sourceInfo.glossary_present ? "✅" : "❌"}
+            </li>
+            <li>
+              🧷 Symbolic Anchors: {JSON.stringify(sourceInfo.anchors || [])}
+            </li>
+            <li>
+              ✅ Anchor Hits: {JSON.stringify(sourceInfo.anchor_hits || [])}
+            </li>
+            <li>
+              ❌ Anchor Misses: {JSON.stringify(sourceInfo.anchor_misses || [])}
+            </li>
+            <li>
+              📎 Chunk Match Scores:{" "}
+              {JSON.stringify(sourceInfo.chunk_scores || [])}
+            </li>
+            <li>
+              🔍 Filtered Anchors:{" "}
+              {JSON.stringify(sourceInfo.filtered_anchor_terms || [])}
+            </li>
+            <li>
+              📓 Glossary Chunk IDs:{" "}
+              {JSON.stringify(sourceInfo.glossary_chunk_ids || [])}
+            </li>
+            <li>
               📄 Used Chunks:
               {sourceInfo.used_chunks?.map((c) => (
                 <div key={c.chunk_id}>
                   <span className="badge bg-secondary me-1">{c.chunk_id}</span>
                   {c.anchor_slug && (
-                    <span className="badge bg-info text-dark me-1">{c.anchor_slug}</span>
+                    <span className="badge bg-info text-dark me-1">
+                      {c.anchor_slug}
+                    </span>
                   )}
                   {c.anchor_confidence !== undefined && (
                     <span className="badge bg-light text-dark me-1">
@@ -543,15 +626,18 @@ export default function ChatWithAssistantPage() {
                   {c.text ? c.text.slice(0, 30) : ""}
                 </div>
               ))}
-          </li>
-          {sourceInfo.used_chunks?.some((c) => c.embedding_status !== "embedded") && (
-            <div className="alert alert-danger mt-2">
-              Some chunks have invalid embedding status
-            </div>
-          )}
+            </li>
+            {sourceInfo.used_chunks?.some(
+              (c) => c.embedding_status !== "embedded",
+            ) && (
+              <div className="alert alert-danger mt-2">
+                Some chunks have invalid embedding status
+              </div>
+            )}
             {sourceInfo.glossary_definitions?.length > 0 && (
               <li>
-                🧠 Glossary Definition Injected: "{sourceInfo.glossary_definitions[0]}"
+                🧠 Glossary Definition Injected: "
+                {sourceInfo.glossary_definitions[0]}"
               </li>
             )}
             {sourceInfo.glossary_guidance?.length > 0 && (
@@ -562,14 +648,14 @@ export default function ChatWithAssistantPage() {
             {sourceInfo.prompt_appended_glossary && (
               <li>✅ Guidance Appended</li>
             )}
-            {sourceInfo.guidance_appended && sourceInfo.glossary_ignored?.length > 0 && (
-              <li className="text-danger">
-                🚨 Glossary Ignored: {JSON.stringify(sourceInfo.glossary_ignored)}
-              </li>
-            )}
-            {sourceInfo.escalated_retry && (
-              <li>🔁 Escalated Retry Used</li>
-            )}
+            {sourceInfo.guidance_appended &&
+              sourceInfo.glossary_ignored?.length > 0 && (
+                <li className="text-danger">
+                  🚨 Glossary Ignored:{" "}
+                  {JSON.stringify(sourceInfo.glossary_ignored)}
+                </li>
+              )}
+            {sourceInfo.escalated_retry && <li>🔁 Escalated Retry Used</li>}
           </ul>
           {sourceInfo.glossary_ignored?.length > 0 && (
             <div className="alert alert-warning mt-2">
@@ -580,6 +666,13 @@ export default function ChatWithAssistantPage() {
       )}
 
       {sourceInfo && <ChatDebugPanel ragMeta={sourceInfo} slug={slug} />}
+
+      {assistantInfo?.is_demo && (
+        <div className="alert alert-secondary mt-4">
+          Want to create your own assistant?{" "}
+          <Link to="/assistants/create">Get started</Link>.
+        </div>
+      )}
 
       {error && <div className="alert alert-danger mt-3">{error}</div>}
     </div>
