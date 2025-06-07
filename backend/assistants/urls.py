@@ -507,6 +507,11 @@ urlpatterns = [
         name="assistant-reflection-primer",
     ),
     path(
+        "<slug:slug>/reflect_first_use/",
+        memory.reflect_first_use,
+        name="assistant-reflect-first-use",
+    ),
+    path(
         "<slug:slug>/reflections/",
         memory.assistant_reflection_logs,
         name="assistant-reflection-logs",

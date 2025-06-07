@@ -35,6 +35,8 @@ from embeddings.helpers.helpers_io import save_embedding
 from agents.utils.swarm_analytics import generate_temporal_swarm_report
 import json
 from typing import Optional, List
+from intel_core.utils.glossary_tagging import _match_anchor
+from memory.models import SymbolicMemoryAnchor
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +49,45 @@ def _skill_names(skills: list) -> list[str]:
         elif isinstance(s, str):
             names.append(s)
     return names
+
+
+def generate_first_reflection(assistant: Assistant) -> tuple[str, list[str]]:
+    """Generate a short reflection on the assistant's earliest memories."""
+    entries = list(
+        MemoryEntry.objects.filter(assistant=assistant).order_by("created_at")[:10]
+    )
+    if not entries:
+        return "", []
+
+    anchors = SymbolicMemoryAnchor.objects.all()
+    matched = set()
+    drift = 0
+    user_msgs = 0
+
+    for mem in entries:
+        text = mem.summary or mem.event or ""
+        if mem.source_role == "user":
+            user_msgs += 1
+        for anc in anchors:
+            found, _ = _match_anchor(anc, text)
+            if found:
+                matched.add(anc.slug)
+                if mem.anchor_id and str(mem.anchor_id) != str(anc.id):
+                    drift += 1
+
+    parts = []
+    if user_msgs:
+        parts.append(f"Exchanged {user_msgs} early user messages.")
+    if matched:
+        parts.append("Recognized anchors: " + ", ".join(sorted(matched)) + ".")
+    if drift:
+        parts.append(f"Detected {drift} potential glossary mismatches.")
+    if not parts:
+        parts.append("No notable glossary activity yet.")
+
+    summary = " ".join(parts)
+    ids = [str(m.id) for m in entries]
+    return summary, ids
 
 
 def reflect_on_agent_training(assistant: Assistant, agent: Agent) -> str:
