@@ -2,16 +2,23 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import apiFetch from "@/utils/apiClient";
 import OnboardingProgressPanel from "@/components/onboarding/OnboardingProgressPanel";
+import useAuth from "@/hooks/useAuth";
+import useAuthGuard from "@/hooks/useAuthGuard";
 
 export default function WelcomeBackPage() {
+  const token = useAuth();
+  if (token) {
+    useAuthGuard({ allowUnauthenticated: true });
+  }
   const navigate = useNavigate();
   const [assistants, setAssistants] = useState([]);
   const [status, setStatus] = useState(null);
 
   useEffect(() => {
+    if (!token) return;
     apiFetch("/assistants/").then(setAssistants).catch(() => {});
     apiFetch("/user/").then(setStatus).catch(() => {});
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     if (status && status.assistant_count === 0) {
