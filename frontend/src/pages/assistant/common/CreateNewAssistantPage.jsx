@@ -35,6 +35,8 @@ const mythSummaries = {
 export default function CreateNewAssistantPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const cloneFrom = params.get("clone_from");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [specialty, setSpecialty] = useState("");
@@ -55,6 +57,24 @@ export default function CreateNewAssistantPage() {
     location.state?.mythpath || "custom"
   );
   const lockedPath = Boolean(location.state?.mythpath);
+
+  useEffect(() => {
+    if (!cloneFrom) return;
+    apiFetch("/assistants/demos/").then((list) => {
+      const demo = (list || []).find((d) => d.demo_slug === cloneFrom);
+      if (demo) {
+        setName(demo.name);
+        setTone(demo.tone || "");
+        setAvatar(demo.avatar || "");
+        if (demo.primary_badge) {
+          setSpecialty(demo.primary_badge);
+        }
+        if (demo.avatar_style) {
+          setAvatarStyle(demo.avatar_style);
+        }
+      }
+    });
+  }, [cloneFrom]);
 
   useEffect(() => {
     async function fetchPrompts() {

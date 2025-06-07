@@ -391,6 +391,13 @@ export async function createAssistantFromDocuments(body, opts = {}) {
   });
 }
 
+export async function createAssistantFromDemo(demoSlug, transcript = []) {
+  return apiFetch(`/assistants/from_demo/`, {
+    method: "POST",
+    body: { demo_slug: demoSlug, transcript },
+  });
+}
+
 export function onboardAssistant(id, body) {
   return apiFetch(`/assistants/${id}/onboard/`, {
     method: "POST",
