@@ -10,13 +10,20 @@ from assistants.utils.badge_logic import update_assistant_badges
 class BadgeListView(APIView):
     def get(self, request):
         slug = request.GET.get("assistant")
-        assistant = None
+        badges = Badge.objects.all()
         if slug:
             assistant = get_object_or_404(Assistant, slug=slug)
-        badges = Badge.objects.all()
-        serializer = BadgeSerializer(
-            badges, many=True, context={"assistant": assistant}
-        )
+            serializer = BadgeSerializer(
+                badges, many=True, context={"assistant": assistant}
+            )
+            return Response(
+                {
+                    "assistant": assistant.slug,
+                    "badges": serializer.data,
+                    "history": assistant.badge_history,
+                }
+            )
+        serializer = BadgeSerializer(badges, many=True)
         return Response(serializer.data)
 
 

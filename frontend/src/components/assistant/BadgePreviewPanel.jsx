@@ -5,17 +5,26 @@ import { OverlayTrigger, Tooltip } from "react-bootstrap";
 export default function BadgePreviewPanel({ slug }) {
   const [badges, setBadges] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
     setLoading(true);
     apiFetch(`/badges/?assistant=${slug}`)
-      .then(setBadges)
-      .catch(() => setBadges([]))
+      .then((res) => {
+        const items = res.badges || res; // support old format
+        setBadges(items);
+        setError(false);
+      })
+      .catch(() => {
+        setBadges([]);
+        setError(true);
+      })
       .finally(() => setLoading(false));
   }, [slug]);
 
   if (loading) return <div>Loading badges...</div>;
+  if (error) return <div className="alert alert-warning">Failed to load badges.</div>;
   if (!badges.length) return <div className="text-muted">No badges yet.</div>;
 
   return (

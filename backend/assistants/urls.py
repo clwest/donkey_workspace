@@ -857,6 +857,11 @@ urlpatterns = [
         reputation.assistant_reputation,
         name="assistant-reputation",
     ),
+    path(
+        "<slug:slug>/setup_summary/",
+        views.AssistantSetupSummaryView.as_view(),
+        name="assistant-setup-summary",
+    ),
     path("badges/", BadgeListView.as_view(), name="badge-list"),
     path(
         "<slug:slug>/badges/",

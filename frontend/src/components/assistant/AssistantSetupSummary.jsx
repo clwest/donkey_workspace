@@ -14,14 +14,16 @@ const AVATAR_EMOJI = {
 
 export default function AssistantSetupSummary({ assistantId, assistant }) {
   const [data, setData] = useState(assistant || null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     if (assistant || !assistantId) return;
     apiFetch(`/assistants/${assistantId}/setup_summary/`)
       .then(setData)
-      .catch(() => {});
+      .catch(() => setError(true));
   }, [assistantId, assistant]);
 
+  if (error) return <div className="alert alert-warning">Failed to load setup summary.</div>;
   if (!data) return <div>Loading...</div>;
 
   const avatar = data.avatar ? (

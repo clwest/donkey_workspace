@@ -13,6 +13,7 @@ from .assistants import (
     clarify_prompt,
     failure_log,
 )
+from .setup import AssistantSetupSummaryView
 from .knowledge import diff_knowledge
 from .dashboard import assistant_dashboard
 from .diagnostics import (

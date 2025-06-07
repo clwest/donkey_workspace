@@ -13,10 +13,17 @@ const badgeInfo = {
 export default function AssistantBadgesPage() {
   const { slug } = useParams();
   const [assistant, setAssistant] = useState(null);
+  const [badgeData, setBadgeData] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    apiFetch(`/assistants/${slug}/`).then(setAssistant);
+    apiFetch(`/assistants/${slug}/`)
+      .then(setAssistant)
+      .catch(() => setError(true));
+    apiFetch(`/badges/?assistant=${slug}`)
+      .then(setBadgeData)
+      .catch(() => setBadgeData({ badges: [] }));
   }, [slug]);
 
   const handlePrimary = async (e) => {
@@ -34,20 +41,17 @@ export default function AssistantBadgesPage() {
       setSaving(false);
     }
   };
-
-  if (!assistant) return <div className="container my-4">Loading...</div>;
+  if (error) return <div className="container my-4 text-warning">Failed to load badges.</div>;
+  if (!assistant || !badgeData) return <div className="container my-4">Loading...</div>;
+  const badges = badgeData.badges || [];
 
   return (
     <div className="container my-4">
       <h3>{assistant.name} Badges</h3>
       <div className="mb-3">
-        {Object.entries(badgeInfo).map(([key, desc]) => (
-          <OverlayTrigger key={key} placement="top" overlay={<Tooltip>{desc}</Tooltip>}>
-            <span
-              className={`badge me-2 mb-2 ${assistant.skill_badges.includes(key) ? "bg-success" : "bg-secondary"}`}
-            >
-              {key}
-            </span>
+        {badges.map((b) => (
+          <OverlayTrigger key={b.slug} placement="top" overlay={<Tooltip>{b.description}</Tooltip>}>
+            <span className={`badge me-2 mb-2 ${b.earned ? "bg-success" : "bg-secondary"}`}>{b.slug}</span>
           </OverlayTrigger>
         ))}
       </div>
