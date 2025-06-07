@@ -9,7 +9,7 @@ export default function AssistantDemoPage() {
   const { hints, dismissHint } = useAssistantHints("demo");
 
   useEffect(() => {
-    apiFetch("/assistants/demos/")
+    apiFetch("/api/assistants/demos/")
       .then((data) => setAssistants(Array.isArray(data) ? data : []))
       .catch((err) => console.error("Failed to fetch demo assistants:", err));
   }, []);
@@ -28,7 +28,7 @@ export default function AssistantDemoPage() {
       <div className="row" id="demo-assistant-cards">
         {assistants.map((assistant) => (
           <div key={assistant.id} className="col-md-4 mb-4">
-            <div className="card h-100 shadow-sm border-0">
+            <div className="card h-100 shadow-sm border-0 sparkle-hover">
               <div className="card-body">
                 <div className="d-flex align-items-center mb-3">
                   {assistant.avatar ? (
@@ -63,9 +63,24 @@ export default function AssistantDemoPage() {
                   View Details
                 </Link>
                 <div>
-                <Link to={`/assistants/${assistant.slug}/chat`} className="btn btn-outline-primary btn-sm mt-2">
+                <Link
+                  to={`/assistants/${assistant.slug}/chat?starter=${encodeURIComponent(
+                    assistant.intro_text || "hello"
+                  )}`}
+                  className="btn btn-outline-primary btn-sm mt-2"
+                >
                     💬 Chat
                 </Link>
+                <button
+                  className="btn btn-success btn-sm ms-2 mt-2"
+                  onClick={() =>
+                    (window.location.href = `/assistants/${assistant.slug}/chat?starter=${encodeURIComponent(
+                      assistant.intro_text || "hello"
+                    )}`)
+                  }
+                >
+                  Try This
+                </button>
                 </div>
               </div>
             </div>

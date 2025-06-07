@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import apiFetch from "@/utils/apiClient";
 import TagBadge from "../../../components/TagBadge";
 import HintBubble from "../../../components/HintBubble";
@@ -21,6 +21,8 @@ import GlossaryOverlayTooltip from "../../../components/GlossaryOverlayTooltip";
 
 export default function ChatWithAssistantPage() {
   const { slug } = useParams();
+  const [searchParams] = useSearchParams();
+  const starter = searchParams.get("starter");
   const [messages, setMessages] = useState([]);
   const [assistantInfo, setAssistantInfo] = useState(null);
   const [input, setInput] = useState("");
@@ -91,11 +93,23 @@ export default function ChatWithAssistantPage() {
           method: "POST",
           body: { message: "__ping__", session_id: sessionId },
         });
-        setMessages(data.messages || []);
+        let msgs = data.messages || [];
+        if (starter) {
+          const demoData = await apiFetch(`/assistants/${slug}/chat/`, {
+            method: "POST",
+            body: { message: starter, session_id: sessionId },
+          });
+          msgs = [
+            ...msgs,
+            { role: "user", content: starter },
+            ...(demoData.messages || []),
+          ];
+        }
+        setMessages(msgs);
       };
       fetchSession();
     }
-  }, [slug, sessionId]);
+  }, [slug, sessionId, starter]);
 
   useEffect(() => {
     return () => {
