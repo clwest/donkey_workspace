@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 import ReflectionMoodChart from "../../../components/mcp_core/ReflectionMoodChart";
 import ReflectionMoodFilterBar from "../../../components/mcp_core/ReflectionMoodFilterBar";
 
@@ -24,8 +25,7 @@ export default function ReflectionHistoryPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/mcp/reflections/")
-      .then((res) => res.json())
+    apiFetch("/mcp/reflections/")
       .then((data) => {
         // Handle paginated results from DRF list endpoints
         const items = Array.isArray(data) ? data : data.results || [];

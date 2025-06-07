@@ -1,6 +1,7 @@
 // src/pages/assistant/projects/ProjectStatusBoardPage.jsx
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 
 export default function ProjectStatusBoardPage() {
   const { id } = useParams(); // project ID
@@ -8,18 +9,16 @@ export default function ProjectStatusBoardPage() {
 
   useEffect(() => {
     async function fetchTasks() {
-      const res = await fetch(`/api/assistants/projects/${id}/tasks/`);
-      const data = await res.json();
+      const data = await apiFetch(`/assistants/projects/${id}/tasks/`);
       setTasks(data);
     }
     fetchTasks();
   }, [id]);
 
   async function updateTaskStatus(taskId, newStatus) {
-    await fetch(`/api/assistants/tasks/${taskId}/update_status/`, {
+    await apiFetch(`/assistants/tasks/${taskId}/update_status/`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: newStatus }),
+      body: { status: newStatus },
     });
 
     setTasks(prev => 

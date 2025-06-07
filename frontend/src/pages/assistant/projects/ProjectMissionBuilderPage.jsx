@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 
 export default function ProjectMissionBuilderPage() {
   const { id } = useParams(); // project ID
@@ -15,8 +16,7 @@ export default function ProjectMissionBuilderPage() {
     }
     async function fetchProject() {
       try {
-        const res = await fetch(`/api/assistants/projects/${id}/`);
-        const data = await res.json();
+        const data = await apiFetch(`/assistants/projects/${id}/`);
         setProject(data);
       } catch (err) {
         console.error("Failed to load project", err);
@@ -28,12 +28,10 @@ export default function ProjectMissionBuilderPage() {
   async function handleGenerateMission() {
     setLoading(true);
     try {
-      const res = await fetch(`/api/assistants/projects/generate-mission/`, {
+      const data = await apiFetch(`/assistants/projects/generate-mission/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ project_id: id }),
+        body: { project_id: id },
       });
-      const data = await res.json();
       setMission(data.mission);
     } catch (error) {
       console.error("Mission generation failed", error);

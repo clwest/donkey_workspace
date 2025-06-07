@@ -1,6 +1,7 @@
 // src/pages/assistants/sessions/AssistantSessionDetailPage.jsx
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 import MessageCard from "../../../components/assistant/sessions/MessageCard";
 import { downloadFile } from "../../../utils/downloadFile";
 import CommonModal from "../../../components/CommonModal";
@@ -20,12 +21,12 @@ export default function AssistantSessionDetailPage() {
   useEffect(() => {
     async function fetchSessionDetail() {
       try {
-        const res = await fetch(`/api/assistants/sessions/detail/${sessionId}/`);
-        if (!res.ok) throw new Error("Failed to fetch session details");
-        const data = await res.json();
+        const data = await apiFetch(
+          `/assistants/sessions/detail/${sessionId}/`
+        );
         setSession(data);
-        const hres = await fetch(`/api/assistants/handoff/${sessionId}/`);
-        if (hres.ok) setHandoffs(await hres.json());
+        const handData = await apiFetch(`/assistants/handoff/${sessionId}/`);
+        setHandoffs(handData || []);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -37,10 +38,9 @@ export default function AssistantSessionDetailPage() {
   
   function handleFeedback(uuid, value) {
     if (!uuid) return;
-    fetch(`/api/assistants/messages/${uuid}/update/`, {
+    apiFetch(`/assistants/messages/${uuid}/update/`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ feedback: value }),
+      body: { feedback: value },
     }).then(() => {
       setSession((prev) => {
         const updated = {
@@ -50,20 +50,14 @@ export default function AssistantSessionDetailPage() {
           ),
         };
         if (prev.token_usage) {
-          fetch(
-            `/api/assistants/${prev.assistant_slug}/evaluate-delegation/`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                session_id: prev.session_id,
-                token_count: prev.token_usage.total_tokens,
-                feedback_flag: value,
-              }),
-            }
-          )
-            .then((r) => r.json())
-            .then((data) => {
+          apiFetch(`/assistants/${prev.assistant_slug}/evaluate-delegation/`, {
+            method: "POST",
+            body: {
+              session_id: prev.session_id,
+              token_count: prev.token_usage.total_tokens,
+              feedback_flag: value,
+            },
+          }).then((data) => {
               if (data.should_delegate && data.suggested_agent) {
                 alert(`Suggested agent: ${data.suggested_agent}`);
               }
@@ -77,10 +71,9 @@ export default function AssistantSessionDetailPage() {
   async function handleTopicChange(uuid, topic) {
     if (!uuid) return;
     try {
-      await fetch(`/api/assistants/messages/${uuid}/update/`, {
+      await apiFetch(`/assistants/messages/${uuid}/update/`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic }),
+        body: { topic },
       });
   
       // Update state in real-time
@@ -97,10 +90,9 @@ export default function AssistantSessionDetailPage() {
   
   function handleTopicSubmit(uuid, value) {
     if (!uuid) return;
-    fetch(`/api/assistants/messages/${uuid}/update/`, {
+    apiFetch(`/assistants/messages/${uuid}/update/`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ topic: value }),
+      body: { topic: value },
     }).then(() => {
       setSession((prev) => ({
         ...prev,
@@ -140,9 +132,9 @@ export default function AssistantSessionDetailPage() {
   const loadSummary = async () => {
     if (!session) return;
     try {
-      const data = await fetch(
-        `/api/assistants/${session.assistant_slug}/session-summary/${sessionId}/`
-      ).then((r) => r.json());
+      const data = await apiFetch(
+        `/assistants/${session.assistant_slug}/session-summary/${sessionId}/`
+      );
       setSummary(data.entries || []);
       setShowSummary(true);
     } catch (err) {
@@ -156,22 +148,16 @@ export default function AssistantSessionDetailPage() {
     if (!target) return;
     const reason = prompt("Reason for handoff?", "deep reasoning required") || "";
     try {
-      await fetch(
-        `/api/assistants/${session.assistant_slug}/handoff/`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            target_slug: target,
-            reason,
-            session_id: sessionId,
-          }),
-        }
-      );
+      await apiFetch(`/assistants/${session.assistant_slug}/handoff/`, {
+        method: "POST",
+        body: {
+          target_slug: target,
+          reason,
+          session_id: sessionId,
+        },
+      });
       alert(`Session handed off to ${target}`);
-      const res = await fetch(
-        `/api/assistants/sessions/detail/${sessionId}/`
-      ).then((r) => r.json());
+      const res = await apiFetch(`/assistants/sessions/detail/${sessionId}/`);
       setSession(res);
     } catch (err) {
       alert("Handoff failed");
@@ -306,7 +292,7 @@ export default function AssistantSessionDetailPage() {
         onClose={(didCreate) => {
           setShowHandoff(false);
           if (didCreate) {
-            fetch(`/api/assistants/handoff/${sessionId}/`).then((r) => r.json()).then(setHandoffs);
+            apiFetch(`/assistants/handoff/${sessionId}/`).then(setHandoffs);
           }
         }}
       />

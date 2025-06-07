@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 
 export default function ProjectDetailPage() {
   const { id } = useParams();
@@ -7,8 +8,7 @@ export default function ProjectDetailPage() {
 
   useEffect(() => {
     async function fetchProject() {
-      const res = await fetch(`/api/assistants/projects/${id}/`);
-      const data = await res.json();
+      const data = await apiFetch(`/assistants/projects/${id}/`);
       setProject(data);
     }
     fetchProject();

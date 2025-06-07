@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 import MemoryFlagPanel from "../../../components/memory/MemoryFlagPanel";
 import MemoryForkButton from "../../../components/memory/MemoryForkButton";
 import TagBadge from "../../../components/TagBadge";
@@ -17,8 +18,7 @@ export default function MemoryDetailPage() {
   const navigate = useNavigate();
 
   async function fetchMemory() {
-    const res = await fetch(`/api/memory/${id}/`);
-    const data = await res.json();
+    const data = await apiFetch(`/memory/${id}/`);
     setMemory(data);
     setFormData({
       title: data.title || "",
@@ -42,14 +42,12 @@ export default function MemoryDetailPage() {
       console.warn("MemoryDetailPage: missing assistant slug for project creation");
       return;
     }
-    const res = await fetch(`/api/assistants/${slug}/projects/from-memory/`, {
+    const data = await apiFetch(`/assistants/${slug}/projects/from-memory/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ memory_id: id }),
+      body: { memory_id: id },
     });
 
-    if (res.ok) {
-      const data = await res.json();
+    if (data) {
       navigate(`/projects/${data.project_id}`);
     } else {
       alert("Failed to create project from memory.");
@@ -76,16 +74,14 @@ export default function MemoryDetailPage() {
 
   async function handleCheckSource() {
     try {
-      const res = await fetch("/api/rag/check-source/", {
+      const data = await apiFetch("/rag/check-source/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          assistant_id: memory.linked_thought?.assistant_slug || "", 
+        body: {
+          assistant_id: memory.linked_thought?.assistant_slug || "",
           content: memory.event,
           mode: "memory",
-        }),
+        },
       });
-      const data = await res.json();
       if (data.results && data.results.length > 0) {
         const top = data.results[0];
         const score = top.similarity_score || top.score || 0;
@@ -104,15 +100,12 @@ export default function MemoryDetailPage() {
   }
 
   async function handleSaveEdit() {
-    const res = await fetch(`/api/memory/${id}`, {
+    const updated = await apiFetch(`/memory/${id}`, {
       method: "PATCH",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify(formData),
-
+      body: formData,
     });
 
-    if (res.ok) {
-      const updated = await res.json();
+    if (updated) {
       setMemory(updated);
       setEditMode(false);
     } else {

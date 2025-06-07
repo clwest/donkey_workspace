@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import GlobalSuccessModal from "../../../components/GlobalSuccessModal";
+import apiFetch from "@/utils/apiClient";
 
 export default function CustomReflectionPage() {
   const [goal, setGoal] = useState("");
@@ -21,9 +22,8 @@ export default function CustomReflectionPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('/api/mcp/memories/')
-      .then(res => res.json())
-      .then(data => {
+    apiFetch('/mcp/memories/')
+      .then((data) => {
         // API returns paginated results under `results`
         const results = Array.isArray(data) ? data : data.results;
         setMemories(results || []);
@@ -45,17 +45,16 @@ export default function CustomReflectionPage() {
     setReflecting(true);
 
     try {
-      const response = await fetch('/api/mcp/reflect/custom/', {
+      const response = await apiFetch('/mcp/reflect/custom/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: {
           memory_ids: selectedMemories,
           goal: goal.trim() || undefined,
-        }),
+        },
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      if (response) {
+        const data = response;
 
         // Show Global Success Modal
         setSuccessTitle("Custom Reflection Created! 🎯");

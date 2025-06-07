@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 
 export default function TrainPromptsFromMemoriesPage() {
   const [memories, setMemories] = useState([]);
@@ -10,8 +11,7 @@ export default function TrainPromptsFromMemoriesPage() {
 
   useEffect(() => {
     async function fetchMemories() {
-      const res = await fetch("/api/memory/list/");
-      const data = await res.json();
+      const data = await apiFetch("/memory/list/");
       setMemories(data);
     }
     fetchMemories();
@@ -29,13 +29,11 @@ export default function TrainPromptsFromMemoriesPage() {
     if (!selectedMemories.length) return;
     setLoading(true);
     try {
-      const res = await fetch("/api/memory/train-prompts/", {
+      const data = await apiFetch("/memory/train-prompts/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ memory_ids: selectedMemories }),
+        body: { memory_ids: selectedMemories },
       });
-      const data = await res.json();
-      if (res.slug) {
+      if (data.slug) {
         navigate(`/prompts/${data.slug}`);
       } else {
         setTrainedPrompt(data.content);

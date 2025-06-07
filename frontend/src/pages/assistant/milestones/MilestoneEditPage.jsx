@@ -1,6 +1,7 @@
 // src/pages/assistant/milestones/MilestoneEditPage.jsx
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 
 export default function MilestoneEditPage() {
   const { projectId, milestoneId } = useParams();
@@ -9,8 +10,7 @@ export default function MilestoneEditPage() {
 
   useEffect(() => {
     async function fetchMilestone() {
-      const res = await fetch(`/api/assistants/projects/${projectId}/milestones/${milestoneId}/`);
-      const data = await res.json();
+      const data = await apiFetch(`/assistants/projects/${projectId}/milestones/${milestoneId}/`);
       setFormData({ title: data.title, description: data.description, due_date: data.due_date?.split("T")[0] || "" });
     }
     fetchMilestone();
@@ -22,12 +22,11 @@ export default function MilestoneEditPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const res = await fetch(`/api/assistants/projects/${projectId}/milestones/${milestoneId}/`, {
+    const res = await apiFetch(`/assistants/projects/${projectId}/milestones/${milestoneId}/`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
+      body: formData,
     });
-    if (res.ok) {
+    if (res) {
       navigate(`/projects/${projectId}/milestones`);
     } else {
       alert("Failed to update milestone");

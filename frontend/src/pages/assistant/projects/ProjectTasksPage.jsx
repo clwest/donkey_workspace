@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 
 export default function ProjectTasksPage() {
   const { id } = useParams();
@@ -12,13 +13,11 @@ export default function ProjectTasksPage() {
 
   useEffect(() => {
     async function fetchProject() {
-      const res = await fetch(`/api/assistants/projects/${id}/`);
-      const data = await res.json();
+      const data = await apiFetch(`/assistants/projects/${id}/`);
       setProject(data);
     }
     async function fetchTasks() {
-      const res = await fetch(`/api/assistants/projects/${id}/tasks/`);
-      const data = await res.json();
+      const data = await apiFetch(`/assistants/projects/${id}/tasks/`);
       setTasks(data);
     }
     fetchProject();
@@ -27,10 +26,9 @@ export default function ProjectTasksPage() {
 
   async function handlePlan() {
     setPlanning(true);
-    const res = await fetch(`/api/assistants/projects/${id}/ai_plan/`, {
+    const data = await apiFetch(`/assistants/projects/${id}/ai_plan/`, {
       method: "POST",
     });
-    const data = await res.json();
     setTasks(prev => [...prev, ...data]);
     setPlanning(false);
   }
@@ -46,10 +44,9 @@ export default function ProjectTasksPage() {
   }
 
   async function saveTask(taskId) {
-    await fetch(`/api/assistants/tasks/${taskId}/`, {
+    await apiFetch(`/assistants/tasks/${taskId}/`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: editedTitle }),
+      body: { title: editedTitle },
     });
     setTasks(prev =>
       prev.map(t => (t.id === taskId ? { ...t, title: editedTitle } : t))
@@ -60,7 +57,7 @@ export default function ProjectTasksPage() {
   async function deleteTask(taskId) {
     if (!window.confirm("Are you sure you want to delete this task?")) return;
 
-    await fetch(`/api/assistants/tasks/${taskId}/`, {
+    await apiFetch(`/assistants/tasks/${taskId}/`, {
       method: "DELETE",
     });
     setTasks(prev => prev.filter(t => t.id !== taskId));

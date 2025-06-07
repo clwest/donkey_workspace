@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 import MoodBadge from "../../../components/mcp_core/MoodBadge";
 import { moodColors } from "../../../components/mcp_core/MoodBadge";
 
@@ -14,21 +15,19 @@ export default function ReflectionDetailPage() {
       console.warn("ReflectionDetailPage: missing reflection id");
       return;
     }
-    fetch(`/api/mcp/reflections/${id}/`)
-      .then(res => res.json())
-      .then(data => {
+    apiFetch(`/mcp/reflections/${id}/`)
+      .then((data) => {
         setReflection(data);
         setLoading(false);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error("Failed to fetch reflection:", err);
         setLoading(false);
       });
 
-    fetch(`/api/assistants/reflections/${id}/thoughts/`)
-      .then(res => res.json())
+    apiFetch(`/assistants/reflections/${id}/thoughts/`)
       .then(setThoughts)
-      .catch(err => console.error("Failed to load thoughts", err));
+      .catch((err) => console.error("Failed to load thoughts", err));
   }, [id]);
 
   if (loading) return <div className="container mt-5">Loading reflection...</div>;

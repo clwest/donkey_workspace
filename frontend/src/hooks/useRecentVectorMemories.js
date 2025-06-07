@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import apiFetch from "@/utils/apiClient";
 
 export function useRecentVectorMemories() {
   const [memories, setMemories] = useState([]);
@@ -7,9 +8,7 @@ export function useRecentVectorMemories() {
   useEffect(() => {
     async function fetchVectorMemories() {
       try {
-        const response = await fetch("/api/memory/vector/");
-        if (!response.ok) throw new Error("Failed to load vector memories");
-        const data = await response.json();
+        const data = await apiFetch("/memory/vector/");
         setMemories(data);
       } catch (err) {
         console.error("Error fetching vector memories:", err);

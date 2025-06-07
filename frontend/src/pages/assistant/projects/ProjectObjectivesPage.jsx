@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 
 export default function ProjectObjectivesPage() {
   const { projectId } = useParams();
@@ -12,12 +13,10 @@ export default function ProjectObjectivesPage() {
 
   useEffect(() => {
     async function fetchData() {
-      const [projRes, objRes] = await Promise.all([
-        fetch(`/api/assistants/projects/${projectId}/`),
-        fetch(`/api/assistants/projects/${projectId}/objectives/`)
+      const [projData, objData] = await Promise.all([
+        apiFetch(`/assistants/projects/${projectId}/`),
+        apiFetch(`/assistants/projects/${projectId}/objectives/`),
       ]);
-      const projData = await projRes.json();
-      const objData = await objRes.json();
       setProject(projData);
       setObjectives(objData);
     }
@@ -27,10 +26,9 @@ export default function ProjectObjectivesPage() {
   async function createObjective() {
     if (!newTitle.trim()) return;
 
-    const res = await fetch(`/api/assistants/projects/${projectId}/objectives/`, {
+    const res = await apiFetch(`/assistants/projects/${projectId}/objectives/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: newTitle, description: newDescription }),
+      body: { title: newTitle, description: newDescription },
     });
 
     if (res.ok) {
@@ -42,10 +40,9 @@ export default function ProjectObjectivesPage() {
   }
 
   async function toggleComplete(id, isCompleted) {
-    await fetch(`/api/assistants/projects/${projectId}/objectives/`, {
+    await apiFetch(`/assistants/projects/${projectId}/objectives/`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, is_completed: !isCompleted }),
+      body: { id, is_completed: !isCompleted },
     });
 
     setObjectives(prev =>
@@ -58,7 +55,7 @@ export default function ProjectObjectivesPage() {
   async function deleteObjective(id) {
     if (!window.confirm("Delete this objective?")) return;
 
-    await fetch(`/api/assistants/projects/${projectId}/objectives/${id}/`, {
+    await apiFetch(`/assistants/projects/${projectId}/objectives/${id}/`, {
       method: "DELETE",
     });
 
@@ -67,16 +64,14 @@ export default function ProjectObjectivesPage() {
 
   async function inferObjectives() {
     if (!project?.assistant?.slug) return;
-    const res = await fetch(
-      `/api/assistants/${project.assistant.slug}/reflect-to-objectives/`,
+    const data = await apiFetch(
+      `/assistants/${project.assistant.slug}/reflect-to-objectives/`,
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ project_id: projectId }),
+        body: { project_id: projectId },
       }
     );
-    if (res.ok) {
-      const data = await res.json();
+    if (data) {
       if (data.length) {
         window.alert(`Created ${data.length} objectives.`);
         setObjectives(prev => [...data, ...prev]);

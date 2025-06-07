@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import apiFetch from '@/utils/apiClient';
 
 export default function ReflectionPage() {
   const [reflection, setReflection] = useState(null);
@@ -13,21 +14,10 @@ export default function ReflectionPage() {
     setError("");
 
     try {
-      const response = await fetch('/api/mcp/reflect/', {
+      const data = await apiFetch('/mcp/reflect/', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          limit: 5, // default to 5 memories
-        }),
+        body: { limit: 5 },
       });
-
-      if (!response.ok) {
-        throw new Error(`Reflection failed with status ${response.status}`);
-      }
-
-      const data = await response.json();
 
       // ✅ Update all states properly
       setReflection(data);
@@ -48,12 +38,11 @@ export default function ReflectionPage() {
   
     setLoading(true);
     try {
-      const res = await fetch(`/api/mcp/reflections/${reflectionId}/expand/`, {
+      const data = await apiFetch(`/mcp/reflections/${reflectionId}/expand/`, {
         method: 'POST',
       });
-  
-      if (res.ok) {
-        const data = await res.json();
+
+      if (data) {
         setReflection(prev => ({
           ...prev,
           llm_summary: data.updated_summary,
@@ -76,11 +65,11 @@ export default function ReflectionPage() {
 
     setIsSaving(true);
     try {
-      const res = await fetch(`/api/mcp/reflections/${reflectionId}/save/`, {
+      const res = await apiFetch(`/mcp/reflections/${reflectionId}/save/`, {
         method: 'POST',
       });
 
-      if (res.ok) {
+      if (res) {
         alert("Reflection saved successfully! 🎉");
       } else {
         alert("Failed to save reflection.");

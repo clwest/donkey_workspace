@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 
 export default function MemoryChainsListPage() {
   const [chains, setChains] = useState([]);
@@ -7,14 +8,8 @@ export default function MemoryChainsListPage() {
   useEffect(() => {
     async function fetchChains() {
       try {
-        const res = await fetch("/api/v1/memory/chains/list/");
-        const data = await res.json();
-        if (res.ok) {
-          setChains(data);
-        } else {
-          console.error("Failed to load memory chains", data);
-          setChains([]);
-        }
+        const data = await apiFetch("/v1/memory/chains/list/");
+        setChains(data);
       } catch (err) {
         console.error("Error fetching memory chains:", err);
       }

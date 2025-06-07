@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
+import apiFetch from "@/utils/apiClient";
 
 export default function SignalCatchesPage() {
   const [catches, setCatches] = useState([]);
 
   useEffect(() => {
     async function fetchCatches() {
-      const res = await fetch("/api/assistants/signals/");
-      const data = await res.json();
+      const data = await apiFetch("/assistants/signals/");
       setCatches(data);
     }
     fetchCatches();

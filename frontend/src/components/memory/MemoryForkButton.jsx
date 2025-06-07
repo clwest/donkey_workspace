@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
+import apiFetch from "@/utils/apiClient";
 
 export default function MemoryForkButton({ memoryId, assistantSlug, onForked }) {
   const [show, setShow] = useState(false);
@@ -11,11 +12,8 @@ export default function MemoryForkButton({ memoryId, assistantSlug, onForked }) 
   useEffect(() => {
     async function fetchSlug() {
       if (!slug && show) {
-        const res = await fetch(`/api/memory/${memoryId}/`);
-        if (res.ok) {
-          const data = await res.json();
-          setSlug(data.linked_thought?.assistant_slug || null);
-        }
+        const data = await apiFetch(`/memory/${memoryId}/`);
+        setSlug(data.linked_thought?.assistant_slug || null);
       }
     }
     fetchSlug();
@@ -23,17 +21,15 @@ export default function MemoryForkButton({ memoryId, assistantSlug, onForked }) 
 
   const handleSubmit = async () => {
     if (!slug) return;
-    const res = await fetch(`/api/assistants/${slug}/simulate-memory/`, {
+    const data = await apiFetch(`/assistants/${slug}/simulate-memory/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+      body: {
         memory_id: memoryId,
         alternative_action: action,
         notes,
-      }),
+      },
     });
-    if (res.ok) {
-      const data = await res.json();
+    if (data) {
       setOutcome(data.simulated_outcome);
       onForked && onForked();
     } else {

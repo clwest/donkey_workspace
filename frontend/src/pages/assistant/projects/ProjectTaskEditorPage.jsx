@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 
 export default function ProjectTaskEditorPage() {
   const { id } = useParams();
@@ -9,27 +10,23 @@ export default function ProjectTaskEditorPage() {
 
   useEffect(() => {
     async function fetchTasks() {
-      const res = await fetch(`/api/assistants/projects/${id}/tasks/`);
-      if (res.ok) {
-        const data = await res.json();
-        setTasks(data);
-      }
+      const data = await apiFetch(`/assistants/projects/${id}/tasks/`);
+      setTasks(data);
     }
     fetchTasks();
   }, [id]);
 
   async function handleDelete(taskId) {
-    await fetch(`/api/assistants/projects/tasks/${taskId}/`, {
+    await apiFetch(`/assistants/projects/tasks/${taskId}/`, {
       method: "DELETE",
     });
     setTasks(prev => prev.filter(task => task.id !== taskId));
   }
 
   async function handleSave(taskId, newContent) {
-    const res = await fetch(`/api/assistants/projects/tasks/${taskId}/`, {
+    const res = await apiFetch(`/assistants/projects/tasks/${taskId}/`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: newContent }),
+      body: { title: newContent },
     });
 
     if (res.ok) {
@@ -44,10 +41,9 @@ export default function ProjectTaskEditorPage() {
   async function handleAddNewTask() {
     if (!newTaskContent.trim()) return;
 
-    const res = await fetch(`/api/assistants/projects/${id}/tasks/`, {
+    const res = await apiFetch(`/assistants/projects/${id}/tasks/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: newTaskContent }),
+      body: { title: newTaskContent },
     });
 
     if (res.ok) {

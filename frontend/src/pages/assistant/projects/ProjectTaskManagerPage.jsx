@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 
 export default function ProjectTaskManagerPage() {
   const { id: projectId } = useParams();
@@ -13,9 +14,7 @@ export default function ProjectTaskManagerPage() {
       try {
         let url = `/assistants/projects/${projectId}/assistant-tasks/`;
         if (filterAssistant) url += `?assistant_id=${filterAssistant}`;
-        const res = await fetch(`/api${url}`);
-        if (!res.ok) throw new Error("Task fetch failed");
-        const data = await res.json();
+        const data = await apiFetch(url);
         setTasks(data);
       } catch (error) {
         console.error("Failed to fetch tasks:", error);
@@ -25,17 +24,14 @@ export default function ProjectTaskManagerPage() {
     }
 
     fetchTasks();
-    fetch(`/api/assistants/projects/${projectId}/roles/`)
-      .then((r) => r.json())
-      .then(setRoles);
+    apiFetch(`/assistants/projects/${projectId}/roles/`).then(setRoles);
   }, [projectId, filterAssistant]);
 
   async function handleStatusChange(taskId, newStatus) {
     try {
-      await fetch(`/api/assistants/tasks/${taskId}/`, {
+      await apiFetch(`/assistants/tasks/${taskId}/`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
+        body: { status: newStatus },
       });
 
       setTasks(prevTasks =>

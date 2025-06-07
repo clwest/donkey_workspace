@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button } from "react-bootstrap";
+import apiFetch from "@/utils/apiClient";
 
 export default function OracleLayerPanel({ assistantSlug }) {
   const [layers, setLayers] = useState([]);
@@ -7,11 +8,8 @@ export default function OracleLayerPanel({ assistantSlug }) {
   useEffect(() => {
     async function loadLayers() {
       try {
-        const res = await fetch(`/api/assistants/${assistantSlug}/oracle-layers/`);
-        if (res.ok) {
-          const data = await res.json();
-          setLayers(data.results || []);
-        }
+        const data = await apiFetch(`/assistants/${assistantSlug}/oracle-layers/`);
+        setLayers(data.results || []);
       } catch (err) {
         console.error("Failed to load oracle layers", err);
       }
@@ -21,15 +19,12 @@ export default function OracleLayerPanel({ assistantSlug }) {
 
   const generateLayer = async () => {
     try {
-      await fetch(`/api/assistants/${assistantSlug}/oracle-layers/`, {
+      await apiFetch(`/assistants/${assistantSlug}/oracle-layers/`, {
         method: "POST",
       });
       await new Promise((r) => setTimeout(r, 300));
-      const res = await fetch(`/api/assistants/${assistantSlug}/oracle-layers/`);
-      if (res.ok) {
-        const data = await res.json();
-        setLayers(data.results || []);
-      }
+      const data = await apiFetch(`/assistants/${assistantSlug}/oracle-layers/`);
+      setLayers(data.results || []);
     } catch (err) {
       console.error("Failed to generate oracle layer", err);
     }

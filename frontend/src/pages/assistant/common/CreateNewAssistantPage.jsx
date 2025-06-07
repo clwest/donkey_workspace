@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import PromptIdeaGenerator from "../../../components/prompts/PromptIdeaGenerator";
+import apiFetch from "@/utils/apiClient";
 
 const mythDefaults = {
   memory: {
@@ -58,8 +59,7 @@ export default function CreateNewAssistantPage() {
   useEffect(() => {
     async function fetchPrompts() {
       try {
-        const res = await fetch("/api/prompts/?type=system&show_all=true");
-        const data = await res.json();
+        const data = await apiFetch("/prompts/?type=system&show_all=true");
         setPrompts(data);
       } catch (err) {
         console.error("Failed to load prompts", err);
@@ -84,10 +84,9 @@ export default function CreateNewAssistantPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await fetch("/api/assistants/", {
+      const res = await apiFetch("/assistants/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+        body: {
           name,
           description,
           specialty,
@@ -99,10 +98,10 @@ export default function CreateNewAssistantPage() {
           tone,
           preferred_model: preferredModel,
           archetype_path: mythpath !== "custom" ? mythpath : null,
-        }),
+        },
       });
-      const data = await res.json();
-      if (res.ok) {
+      const data = res;
+      if (data) {
         toast.success("✅ Assistant created!");
         navigate(`/assistants/${data.slug}`);
       } else {
