@@ -38,6 +38,8 @@ import useAssistantHints from "../../../hooks/useAssistantHints";
 import TourProgressBar from "../../../components/onboarding/TourProgressBar";
 import ReflectionPrimerPanel from "../../../components/assistant/ReflectionPrimerPanel";
 import useUserInfo from "../../../hooks/useUserInfo";
+import useGlossaryOverlay from "../../../hooks/glossary";
+import GlossaryOverlayTooltip from "../../../components/GlossaryOverlayTooltip";
 
 export default function AssistantDetailPage() {
   useAuthGuard();
@@ -70,6 +72,7 @@ export default function AssistantDetailPage() {
   const [showPrimer, setShowPrimer] = useState(false);
   const { hints, dismissHint } = useAssistantHints(slug);
   const userInfo = useUserInfo();
+  const glossaryOverlays = useGlossaryOverlay('assistant_detail');
   const threadId = query.get("thread");
   const projectId = query.get("project");
   const memoryId = query.get("memory");
@@ -406,6 +409,11 @@ export default function AssistantDetailPage() {
         )}
       </h1>
       <p className="text-muted">Assistant Details Page</p>
+      <div className="mb-2">
+        {glossaryOverlays.map((o) => (
+          <GlossaryOverlayTooltip key={o.slug} {...o} />
+        ))}
+      </div>
       <TourProgressBar assistantSlug={slug} />
       <div className="mb-3">
         <ul className="nav nav-tabs">

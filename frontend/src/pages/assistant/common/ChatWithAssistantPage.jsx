@@ -14,7 +14,10 @@ const AVATAR_EMOJI = {
 };
 import "./styles/ChatView.css";
 import ChatDebugPanel from "../../../components/assistant/ChatDebugPanel";
-import { toast } from "react-toastify";
+
+import useGlossaryOverlay from "../../../hooks/glossary";
+import GlossaryOverlayTooltip from "../../../components/GlossaryOverlayTooltip";
+
 
 export default function ChatWithAssistantPage() {
   const { slug } = useParams();
@@ -48,6 +51,7 @@ export default function ChatWithAssistantPage() {
   const { hints, dismissHint } = useAssistantHints(slug);
   const chatHint = hints.find((h) => h.id === "chat_welcome");
   const showChatWelcome = chatHint && !chatHint.dismissed;
+  const glossaryOverlays = useGlossaryOverlay('chat');
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -252,6 +256,11 @@ export default function ChatWithAssistantPage() {
         {AVATAR_EMOJI[assistantInfo?.avatar_style] || "🤖"} Chat with Assistant:
         <span className="text-primary ms-1">{slug}</span>
       </h1>
+      <div className="mb-2">
+        {glossaryOverlays.map((o) => (
+          <GlossaryOverlayTooltip key={o.slug} {...o} />
+        ))}
+      </div>
 
       {showRestore && (
         <div className="alert alert-warning d-flex justify-content-between align-items-center">
