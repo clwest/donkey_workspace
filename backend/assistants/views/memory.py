@@ -280,7 +280,11 @@ def replay_drifted_reflections(request, slug):
 def reflection_replay_diff(request, slug, id):
     """Return diff stats for a reflection replay."""
     assistant = get_object_or_404(Assistant, slug=slug)
-    replay = get_object_or_404(ReflectionReplayLog, id=id, assistant=assistant)
+    from uuid import UUID
+
+    replay = get_object_or_404(
+        ReflectionReplayLog, id=UUID(str(id)), assistant=assistant
+    )
 
     original = replay.original_reflection.summary if replay.original_reflection else ""
     replayed = replay.replayed_summary
@@ -303,7 +307,10 @@ def rag_playback_detail(request, slug, id):
     assistant = get_object_or_404(Assistant, slug=slug)
     from memory.models import RAGPlaybackLog
 
-    playback = get_object_or_404(RAGPlaybackLog, id=id, assistant=assistant)
+    from uuid import UUID
+    playback = get_object_or_404(
+        RAGPlaybackLog, id=UUID(str(id)), assistant=assistant
+    )
     from memory.serializers import RAGPlaybackLogSerializer
 
     data = RAGPlaybackLogSerializer(playback).data
@@ -313,7 +320,9 @@ def rag_playback_detail(request, slug, id):
 @api_view(["POST"])
 def accept_replay(request, id):
     """Accept a replay and update the original reflection."""
-    replay = get_object_or_404(ReflectionReplayLog, id=id)
+    from uuid import UUID
+
+    replay = get_object_or_404(ReflectionReplayLog, id=UUID(str(id)))
     if replay.original_reflection and replay.replayed_summary:
         replay.original_reflection.summary = replay.replayed_summary
         replay.original_reflection.save(update_fields=["summary"])
@@ -325,7 +334,9 @@ def accept_replay(request, id):
 @api_view(["POST"])
 def reject_replay(request, id):
     """Reject a replay."""
-    replay = get_object_or_404(ReflectionReplayLog, id=id)
+    from uuid import UUID
+
+    replay = get_object_or_404(ReflectionReplayLog, id=UUID(str(id)))
     replay.status = ReflectionReplayLog.ReplayStatus.SKIPPED
     replay.save(update_fields=["status"])
     return Response({"status": "skipped"})

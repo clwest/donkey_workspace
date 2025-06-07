@@ -189,6 +189,7 @@ import TemporalReflectionLogsPage from "./pages/reflection/TemporalReflectionLog
 import MotionTestPage from "./pages/ui/MotionTestPage";
 import MemoryEchoPage from "./pages/memories/entries/MemoryEchoPage";
 import AssistantAuraPage from "./pages/assistant/common/AssistantAuraPage";
+import KeeperLogViewer from "./pages/keeper/KeeperLogViewer";
 import ProphecyEnginePage from "./pages/prophecy/ProphecyEnginePage";
 import MemoryPredictionPage from "./pages/memory/MemoryPredictionPage";
 import RitualForecastPage from "./pages/ritual/RitualForecastPage";
@@ -777,6 +778,7 @@ export default function App() {
           <Route path="/anchor/mutations" element={<GlossaryMutationReviewPanel />} />
           <Route path="/anchor/symbolic" element={<SymbolicAnchorAdminPage />} />
           <Route path="/anchor/symbolic/:slug" element={<SymbolicAnchorDetailPage />} />
+          <Route path="/keeper/logs" element={<KeeperLogViewer />} />
           <Route path="/assistants/:id/economy" element={<AssistantEconomyPage />} />
           <Route path="/assistants/:id/deploy" element={<AssistantDeployPage />} />
           <Route path="/assistants/:id/tools" element={<AssistantToolsPage />} />

@@ -25,7 +25,9 @@ export default function AssistantReplayLogsPage() {
         Queue Drifted Replays
       </button>
       <ul className="list-group mb-3">
-        {logs.map((r) => (
+        {logs.map((r) => {
+          const validId = typeof r.id === "string" && r.id.length > 0;
+          return (
           <li key={r.id} className="list-group-item d-flex justify-content-between align-items-start">
             <div>
               <strong>{r.original_reflection}</strong>
@@ -33,14 +35,24 @@ export default function AssistantReplayLogsPage() {
               <small className="text-muted">{new Date(r.created_at).toLocaleString()}</small>
             </div>
             <div>
-              <Link className="btn btn-sm btn-outline-primary me-2" to={`/assistants/${slug}/replays/${r.id}`}>View</Link>
-              <Link className="btn btn-sm btn-outline-secondary me-2" to={`/assistants/${slug}/rag_playback/compare/${r.id}`}>📊 Compare RAG Playback</Link>
+              {validId ? (
+                <>
+                  <Link className="btn btn-sm btn-outline-primary me-2" to={`/assistants/${slug}/replays/${r.id}/diff/`}>
+                    View
+                  </Link>
+                  <Link className="btn btn-sm btn-outline-secondary me-2" to={`/assistants/${slug}/rag_playback/compare/${r.id}/`}>
+                    📊 Compare RAG Playback
+                  </Link>
+                </>
+              ) : (
+                <span className="text-danger">Invalid ID</span>
+              )}
               <span className="badge bg-secondary">
                 {r.new_score?.toFixed ? r.new_score.toFixed(2) : r.new_score}
               </span>
             </div>
           </li>
-        ))}
+        );})}
         {logs.length === 0 && (
           <li className="list-group-item text-muted">No replays found.</li>
         )}
