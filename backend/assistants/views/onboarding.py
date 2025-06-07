@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from assistants.models.assistant import Assistant
+from assistants.utils.starter_chat import seed_chat_starter_memory
 from memory.models import SymbolicMemoryAnchor
 from memory.services.acquisition import update_anchor_acquisition
 from agents.models.identity import SymbolicIdentityCard
@@ -47,6 +48,9 @@ def create_assistant_from_mythpath(
         thought="\U0001faa9 No reflections yet. Tap ‘Reflect’ to begin",
         thought_type="meta",
     )
+
+    if not assistant.memories.exists():
+        seed_chat_starter_memory(assistant)
 
     return assistant, card
 

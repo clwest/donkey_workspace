@@ -3,6 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from assistants.utils.starter_chat import seed_chat_starter_memory
 
 
 def _get_demo_assistant(user):
@@ -16,6 +17,8 @@ def _get_demo_assistant(user):
             "created_by": user,
         },
     )
+    if not assistant.memories.exists():
+        seed_chat_starter_memory(assistant)
     return assistant
 
 from assistants.models import (

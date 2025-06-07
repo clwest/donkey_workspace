@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework import viewsets
 import uuid
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from rest_framework import status
@@ -1726,6 +1726,17 @@ def patch_drifted_reflections(request, slug):
         kwargs["limit"] = limit
     call_command("patch_reflection_summaries", **kwargs)
     return Response({"status": "ok"})
+
+
+@api_view(["POST"])
+@permission_classes([IsAdminUser])
+def seed_chat_memory(request, slug):
+    """Reseed starter chat memories for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    from assistants.utils.starter_chat import seed_chat_starter_memory
+
+    mems = seed_chat_starter_memory(assistant)
+    return Response({"created": [str(m.id) for m in mems]})
 
 
 @api_view(["GET", "POST"])

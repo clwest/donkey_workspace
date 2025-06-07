@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import HintBubble from "../../../components/HintBubble";
 import useAssistantHints from "../../../hooks/useAssistantHints";
 import apiFetch from "../../../utils/apiClient";
+import AssistantCard from "../../../components/assistant/AssistantCard";
 
 export default function AssistantDemoPage() {
   const [assistants, setAssistants] = useState([]);
@@ -28,6 +29,7 @@ export default function AssistantDemoPage() {
       <div className="row" id="demo-assistant-cards">
         {assistants.map((assistant) => (
           <div key={assistant.id} className="col-md-4 mb-4">
+
             <div className="card h-100 shadow-sm border-0 sparkle-hover">
               <div className="card-body">
                 <div className="d-flex align-items-center mb-3">
@@ -84,6 +86,7 @@ export default function AssistantDemoPage() {
                 </div>
               </div>
             </div>
+
           </div>
         ))}
         {assistants.length === 0 && (

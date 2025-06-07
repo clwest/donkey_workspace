@@ -47,6 +47,7 @@ export default function ChatWithAssistantPage() {
   const [contextScore, setContextScore] = useState(null);
   const [glossaryWarning, setGlossaryWarning] = useState(null);
   const [anchorWarning, setAnchorWarning] = useState(null);
+  const [showPreloaded, setShowPreloaded] = useState(false);
   const [primerDone, setPrimerDone] = useState(
     !!localStorage.getItem(`primer_done_${slug}`)
   );
@@ -93,6 +94,7 @@ export default function ChatWithAssistantPage() {
           method: "POST",
           body: { message: "__ping__", session_id: sessionId },
         });
+
         let msgs = data.messages || [];
         if (starter) {
           const demoData = await apiFetch(`/assistants/${slug}/chat/`, {
@@ -106,6 +108,7 @@ export default function ChatWithAssistantPage() {
           ];
         }
         setMessages(msgs);
+
       };
       fetchSession();
     }
@@ -287,6 +290,15 @@ export default function ChatWithAssistantPage() {
             }}
           >
             Restore
+          </button>
+        </div>
+      )}
+
+      {showPreloaded && (
+        <div className="alert alert-info d-flex justify-content-between align-items-center">
+          <span>💬 Preloaded chat from memory</span>
+          <button className="btn btn-sm btn-outline-secondary" onClick={() => setShowPreloaded(false)}>
+            Dismiss
           </button>
         </div>
       )}
