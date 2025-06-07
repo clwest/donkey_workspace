@@ -811,3 +811,31 @@ class ReflectionReplayLog(models.Model):
     def __str__(self):  # pragma: no cover - display helper
         return f"Replay of {self.original_reflection_id}"
 
+
+
+class GlossaryKeeperLog(models.Model):
+    """Log actions taken by the Glossary Keeper daemon."""
+
+    anchor = models.ForeignKey(
+        SymbolicMemoryAnchor,
+        on_delete=models.CASCADE,
+        related_name="keeper_logs",
+    )
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    action_taken = models.CharField(max_length=64)
+    score_before = models.FloatField(null=True, blank=True)
+    score_after = models.FloatField(null=True, blank=True)
+    notes = models.TextField(blank=True, default="")
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-timestamp"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"{self.anchor.slug} | {self.action_taken}"
+
