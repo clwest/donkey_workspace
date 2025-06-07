@@ -8,6 +8,7 @@ from .utils import (
     get_next_onboarding_step,
     get_progress_percent,
     generate_guide_reply,
+    get_alias_map,
 )
 from .guide_logic import get_hint_status, suggest_next_hint
 from assistants.models import Assistant
@@ -54,6 +55,8 @@ def onboarding_status(request):
     progress = get_onboarding_status(request.user)
     next_step = get_next_onboarding_step(request.user)
     percent = get_progress_percent(request.user)
+    theme = request.query_params.get("theme", "fantasy")
+    aliases = get_alias_map(theme)
 
     show_intro = (
         next_step == "world" and not getattr(request.user, "dismissed_onboarding_intro", False)
@@ -63,6 +66,7 @@ def onboarding_status(request):
         "next_step": next_step,
         "percent": percent,
         "show_intro": show_intro,
+        "aliases": aliases,
     })
 
 

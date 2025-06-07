@@ -10,10 +10,15 @@ import { ONBOARDING_WORLD } from "../../onboarding/metadata";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 
+import { useState } from "react";
+
 export default function OnboardingWorldPage() {
 
   useOnboardingGuard("world");
-  const { progress, nextStep } = useOnboardingTracker();
+  const [theme, setTheme] = useState(
+    localStorage.getItem("onboardingTheme") || "fantasy"
+  );
+  const { progress, nextStep, aliases, refreshStatus } = useOnboardingTracker(theme);
 
   const userInfo = useUserInfo();
 
@@ -23,8 +28,20 @@ export default function OnboardingWorldPage() {
 
   const getStatus = (slug) => progress?.find((p) => p.step === slug)?.status || "pending";
 
+  const toggleTheme = () => {
+    const newTheme = theme === "fantasy" ? "plain" : "fantasy";
+    localStorage.setItem("onboardingTheme", newTheme);
+    setTheme(newTheme);
+    refreshStatus();
+  };
+
   return (
     <div className="container my-4">
+      <div className="d-flex justify-content-end mb-2">
+        <button className="btn btn-sm btn-outline-secondary" onClick={toggleTheme}>
+          {theme === "fantasy" ? "\uD83D\uDCBC Plain English" : "\uD83E\uDDD9 Wizard Terms"}
+        </button>
+      </div>
       <GuideChatPanel />
       <OnboardingIntroModal />
       <OnboardingProgressBar />
@@ -48,13 +65,13 @@ export default function OnboardingWorldPage() {
                 style={{ cursor: "pointer", width: "160px" }}
               >
                 <h5 className="mb-1">
-                  {node.emoji} {node.title}
+                  {node.emoji} {aliases?.[node.slug] || node.title}
                 </h5>
                 <small className="text-muted">{status}</small>
               </div>
               <OverlayTrigger
                 placement="top"
-                overlay={<Tooltip>{node.description}</Tooltip>}
+                overlay={<Tooltip>{node.aliases?.[theme === "fantasy" ? "plain" : "fantasy"] || node.description}</Tooltip>}
               >
                 <span className="position-absolute top-0 end-0 me-1 mt-1 text-muted" style={{ cursor: 'help' }}>?</span>
               </OverlayTrigger>

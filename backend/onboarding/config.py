@@ -8,6 +8,10 @@ ONBOARDING_WORLD = {
             "description": "Define your guiding instinct",
             "emoji": "\U0001f9ed",
             "goal": "Define your guiding instinct",
+            "aliases": {
+                "fantasy": "Mythpath",
+                "plain": "Assistant Role",
+            },
         },
         {
             "slug": "world",

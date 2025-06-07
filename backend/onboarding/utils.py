@@ -1,6 +1,6 @@
 from django.utils import timezone
 from accounts.models import UserOnboardingProgress
-from .config import STEPS
+from .config import STEPS, ONBOARDING_WORLD
 from prompts.utils.openai_utils import complete_chat
 
 GUIDE_SYSTEM_PROMPT = (
@@ -49,3 +49,13 @@ def generate_guide_reply(message: str, hint_status: dict | None = None) -> str:
         pairs = ", ".join(f"{k}:{v}" for k, v in hint_status.items())
         system += f" Hint status: {pairs}."
     return complete_chat(system=system, user=message, model="gpt-4o", max_tokens=250)
+
+
+def get_alias_map(theme: str) -> dict:
+    """Return a mapping of step slug -> alias label for the given theme."""
+    alias_map = {}
+    for node in ONBOARDING_WORLD["nodes"]:
+        aliases = node.get("aliases", {})
+        if theme in aliases:
+            alias_map[node["slug"]] = aliases[theme]
+    return alias_map
