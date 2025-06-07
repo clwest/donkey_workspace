@@ -814,23 +814,30 @@ class ReflectionReplayLog(models.Model):
 
 
 class GlossaryKeeperLog(models.Model):
-    """Record actions taken by the Glossary Keeper."""
+
+    """Log actions taken by the Glossary Keeper daemon."""
 
     anchor = models.ForeignKey(
-        SymbolicMemoryAnchor, on_delete=models.CASCADE, related_name="keeper_logs"
+        SymbolicMemoryAnchor,
+        on_delete=models.CASCADE,
+        related_name="keeper_logs",
     )
     assistant = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.SET_NULL, null=True, blank=True
+        "assistants.Assistant",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
     action_taken = models.CharField(max_length=64)
-    score_before = models.FloatField(default=0.0)
-    score_after = models.FloatField(default=0.0)
-    notes = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    score_before = models.FloatField(null=True, blank=True)
+    score_after = models.FloatField(null=True, blank=True)
+    notes = models.TextField(blank=True, default="")
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ["-created_at"]
+        ordering = ["-timestamp"]
 
     def __str__(self):  # pragma: no cover - display helper
-        return f"Keeper {self.action_taken} {self.anchor.slug}"
+        return f"{self.anchor.slug} | {self.action_taken}"
+
 
