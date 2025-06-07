@@ -14,6 +14,7 @@ from .assistants import (
     failure_log,
 )
 from .setup import AssistantSetupSummaryView
+from .intro import AssistantIntroView
 from .knowledge import diff_knowledge
 from .dashboard import assistant_dashboard
 from .diagnostics import (
@@ -69,6 +70,7 @@ from .memory import (
     assistant_reflection_replays,
     replay_reflection,
     reflection_review_primer,
+    reflect_first_use,
     rag_playback_detail,
     assistant_memory_documents,
     # memory_to_project,
@@ -209,6 +211,7 @@ __all__ = [
     "reflection_thoughts",
     "assistant_reflection_replays",
     "reflection_review_primer",
+    "reflect_first_use",
     "replay_reflection",
     "rag_playback_detail",
     "rag_playback_compare",
@@ -311,6 +314,7 @@ __all__ = [
     "create_assistant_from_mythpath",
     "assistant_onboard",
     "SkillPlanView",
+    "AssistantIntroView",
     "assistant_dream_initiate",
     "reflect_again",
     "repair_documents",

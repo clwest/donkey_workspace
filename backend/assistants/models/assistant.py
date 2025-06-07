@@ -121,6 +121,9 @@ class Assistant(models.Model):
     archetype = models.CharField(max_length=100, null=True, blank=True)
     dream_symbol = models.CharField(max_length=50, null=True, blank=True)
     init_reflection = models.TextField(null=True, blank=True)
+    intro_text = models.TextField(null=True, blank=True)
+    archetype_summary = models.TextField(null=True, blank=True)
+    show_intro_splash = models.BooleanField(default=True)
     embedding = VectorField(
         dimensions=1536, null=True, blank=True
     )  # adjust dim if needed

@@ -12,18 +12,14 @@ import Tooltip from "react-bootstrap/Tooltip";
 import OnboardingHelpButton from "../../components/onboarding/OnboardingHelpButton";
 import useOnboardingTheme from "../../onboarding/useOnboardingTheme";
 
-import { useState } from "react";
 
 export default function OnboardingWorldPage() {
 
   useOnboardingGuard("world");
-  const [theme, setTheme] = useState(
-    localStorage.getItem("onboardingTheme") || "fantasy"
-  );
-  const { progress, nextStep, aliases, refreshStatus } = useOnboardingTracker(theme);
+  const { theme, toggle } = useOnboardingTheme();
+  const { progress, nextStep, aliases } = useOnboardingTracker(theme);
 
   const userInfo = useUserInfo();
-  const { theme, toggle } = useOnboardingTheme();
 
   const navigate = useNavigate();
 
@@ -32,17 +28,15 @@ export default function OnboardingWorldPage() {
   const getStatus = (slug) => progress?.find((p) => p.step === slug)?.status || "pending";
   const mythIncomplete = progress.find((p) => p.step === "mythpath" && p.status !== "completed");
 
-  const toggleTheme = () => {
-    const newTheme = theme === "fantasy" ? "plain" : "fantasy";
-    localStorage.setItem("onboardingTheme", newTheme);
-    setTheme(newTheme);
-    refreshStatus();
-  };
+
 
   return (
     <div className="container my-4">
       <div className="d-flex justify-content-end mb-2">
-        <button className="btn btn-sm btn-outline-secondary" onClick={toggleTheme}>
+        <button
+          className="btn btn-sm btn-outline-secondary"
+          onClick={() => toggle()}
+        >
           {theme === "fantasy" ? "\uD83D\uDCBC Plain English" : "\uD83E\uDDD9 Wizard Terms"}
         </button>
       </div>

@@ -42,6 +42,8 @@ class AssistantReflectionLog(models.Model):
         blank=True,
         related_name="reflection_logs",
     )
+    is_primer = models.BooleanField(default=False)
+    generated_from_memory_ids = models.JSONField(default=list, blank=True)
     linked_memory = models.ForeignKey(
         "memory.MemoryEntry",
         on_delete=models.SET_NULL,

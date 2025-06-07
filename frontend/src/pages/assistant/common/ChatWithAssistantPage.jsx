@@ -14,8 +14,10 @@ const AVATAR_EMOJI = {
 };
 import "./styles/ChatView.css";
 import ChatDebugPanel from "../../../components/assistant/ChatDebugPanel";
+
 import useGlossaryOverlay from "../../../hooks/glossary";
 import GlossaryOverlayTooltip from "../../../components/GlossaryOverlayTooltip";
+
 
 export default function ChatWithAssistantPage() {
   const { slug } = useParams();
@@ -43,6 +45,9 @@ export default function ChatWithAssistantPage() {
   const [contextScore, setContextScore] = useState(null);
   const [glossaryWarning, setGlossaryWarning] = useState(null);
   const [anchorWarning, setAnchorWarning] = useState(null);
+  const [primerDone, setPrimerDone] = useState(
+    !!localStorage.getItem(`primer_done_${slug}`)
+  );
   const { hints, dismissHint } = useAssistantHints(slug);
   const chatHint = hints.find((h) => h.id === "chat_welcome");
   const showChatWelcome = chatHint && !chatHint.dismissed;
@@ -160,6 +165,20 @@ export default function ChatWithAssistantPage() {
       setInput("");
       if (showChatWelcome) {
         dismissHint("chat_welcome");
+      }
+
+      const userCount = msgs.filter((m) => m.role === "user").length;
+      if (!primerDone && userCount >= 3) {
+        try {
+          const res = await apiFetch(`/assistants/${slug}/reflect_first_use/`, {
+            method: "POST",
+          });
+          toast.info(res.summary || "Reflection generated");
+          setPrimerDone(true);
+          localStorage.setItem(`primer_done_${slug}`, "1");
+        } catch (err) {
+          console.error("Failed to run first reflection", err);
+        }
       }
     } catch (err) {
       setError("⚠️ Failed to send message.");

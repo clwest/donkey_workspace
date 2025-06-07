@@ -103,7 +103,7 @@ export default function CreateNewAssistantPage() {
       const data = res;
       if (data) {
         toast.success("✅ Assistant created!");
-        navigate(`/assistants/${data.slug}`);
+        navigate(`/assistants/${data.slug}/intro`);
       } else {
         toast.error("❌ Failed to create assistant.");
       }

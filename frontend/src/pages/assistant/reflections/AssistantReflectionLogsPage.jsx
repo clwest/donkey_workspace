@@ -143,6 +143,9 @@ export default function AssistantReflectionLogsPage() {
                     <span className="badge bg-info ms-2">✨</span>
                   </OverlayTrigger>
                 )}
+                {r.is_primer && (
+                  <span className="badge bg-warning text-dark ms-2">🧪 primer</span>
+                )}
                 <br />
                 <small className="text-muted">
                   {new Date(r.created_at).toLocaleString()}
