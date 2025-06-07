@@ -1,12 +1,13 @@
-import apiFetch from "@/utils/apiClient";
-import { clearCachedUser } from "@/hooks/useAuthGuard";
-import { saveAuthTokens, clearTokens, getRefreshToken } from "@/utils/auth";
+import apiFetch from "../utils/apiClient";
+import { clearCachedUser } from "../hooks/useAuthGuard";
+import { saveAuthTokens, clearTokens, getRefreshToken } from "../utils/auth";
 
 export async function loginUser(email, password) {
   try {
     const data = await apiFetch("/token/", {
       method: "POST",
       body: { username: email, password },
+      allowUnauthenticated: true,
     });
     saveAuthTokens({ access: data.access, refresh: data.refresh });
     return data;
@@ -21,6 +22,7 @@ export async function registerUser(payload) {
   const data = await apiFetch("/dj-rest-auth/registration/", {
     method: "POST",
     body: payload,
+    allowUnauthenticated: true,
   });
   if (data.access || data.refresh) {
     saveAuthTokens({ access: data.access, refresh: data.refresh });
@@ -40,6 +42,7 @@ export async function refreshToken() {
   const data = await apiFetch("/token/refresh/", {
     method: "POST",
     body: { refresh },
+    allowUnauthenticated: true,
   });
   saveAuthTokens({ access: data.access, refresh: data.refresh });
   return data;
