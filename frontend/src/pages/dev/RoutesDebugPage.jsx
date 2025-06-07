@@ -40,8 +40,13 @@ export default function RoutesDebugPage() {
       ? `${API_URL}${route.slice(4)}`
       : route;
     try {
-      const res = await fetch(url, { credentials: "include" });
-      setStatus((prev) => ({ ...prev, [route]: res.status }));
+      if (url.startsWith("/api")) {
+        await apiFetch(route.slice(4));
+        setStatus((prev) => ({ ...prev, [route]: 200 }));
+      } else {
+        const res = await fetch(url, { credentials: "include" });
+        setStatus((prev) => ({ ...prev, [route]: res.status }));
+      }
     } catch (err) {
       console.error("Ping failed", err);
       setStatus((prev) => ({ ...prev, [route]: "err" }));

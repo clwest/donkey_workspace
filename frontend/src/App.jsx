@@ -285,7 +285,7 @@ export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const toggleSidebar = () => setSidebarCollapsed((c) => !c);
   const location = useLocation();
-  const publicPaths = ["/login", "/register", "/", "/welcome"];
+  const publicPaths = ["/login", "/register", "/", "/welcome", "/assistants/launch"];
   const allowUnauth = publicPaths.includes(location.pathname);
   const { user, authChecked, authError } = useAuthGuard({ allowUnauthenticated: allowUnauth });
   const userInfo = useUserInfo();

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 
 export default function ChatWithAgentPage() {
   const { slug } = useParams();
@@ -19,17 +20,13 @@ export default function ChatWithAgentPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(
-        `/api/assistants/projects/${projectId}/thoughts/generate/`,
+      const data = await apiFetch(
+        `/assistants/projects/${projectId}/thoughts/generate/`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({}),
+          body: {},
         }
       );
-      if (!res.ok) throw new Error("Failed to get response");
-
-      const data = await res.json();
       const assistantMessage = { role: "assistant", content: data.thought };
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (err) {

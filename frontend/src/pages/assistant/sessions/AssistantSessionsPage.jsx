@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 import './styles/sessions.css'
 
 export default function AssistantSessionsPage() {
@@ -16,8 +17,7 @@ export default function AssistantSessionsPage() {
           ? `/api/assistants/sessions/list/?assistant=${assistantSlug}`
           : `/api/assistants/sessions/list/`;
     
-        const res = await fetch(url);
-        const data = await res.json();
+        const data = await apiFetch(url.replace('/api', ''), { allowUnauthenticated: false });
         setSessions(data);
       } catch (err) {
         console.error("Failed to load sessions", err);

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import apiFetch from "@/utils/apiClient";
 import MemoryForkButton from "../../../components/memory/MemoryForkButton";
 import "../styles/MemoryBrowserPage.css";
 
@@ -11,10 +12,7 @@ export default function MemoryBrowserPage() {
   useEffect(() => {
     async function fetchMemories() {
       try {
-        const res = await fetch(
-          `/api/memory/list/?scope=${scope}`
-        );
-        const data = await res.json();
+        const data = await apiFetch(`/memory/list/`, { params: { scope } });
         console.log(data)
         const grouped = {};
         for (const memory of data) {

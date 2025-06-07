@@ -1893,12 +1893,14 @@ def codex_contributions(request):
 
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def onboarding_ritual(request):
     """Trigger cinematic ritual onboarding flow."""
     return Response({"message": "Ritual onboarding initiated"})
 
 
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def codex_briefing(request):
     """Provide codex briefing overlay."""
     return Response({"message": "Codex briefing"})

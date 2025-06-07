@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Modal, Button } from "react-bootstrap";
 import { toast } from "react-toastify";
+import apiFetch from "@/utils/apiClient";
 import { mutateThought } from "../../../api/assistants";
 import TagBadge from "../../TagBadge"; // ✅ Display badge-style tags
 import "./styles/AssistantCardStyle.css";
@@ -141,13 +142,11 @@ export default function AssistantThoughtCard({
 
     setSaving(true);
     try {
-      const res = await fetch(apiPath, {
+      const data = await apiFetch(apiPath, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ thought: editValue }),
+        body: { thought: editValue },
       });
-      const data = await res.json();
-      if (res.ok) {
+      if (data) {
         onUpdate(thought.id, data.updated_text || editValue);
         toast.success("💾 Thought updated!");
         setIsEditing(false);
@@ -172,13 +171,11 @@ export default function AssistantThoughtCard({
 
     setDeleting(true);
     try {
-      const res = await fetch(apiPath, { method: "DELETE" });
-      if (res.ok) {
+      await apiFetch(apiPath, { method: "DELETE" });
+      {
         onDelete(thought.id);
         toast.success("🗑️ Thought deleted!");
         setShowModal(false);
-      } else {
-        toast.error("❌ Failed to delete thought.");
       }
     } catch (err) {
       console.error("Delete error:", err);

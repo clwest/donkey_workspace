@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import apiFetch, { API_URL } from "../../utils/apiClient";
+import apiFetch from "../../utils/apiClient";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
@@ -60,18 +60,10 @@ export default function DocumentIngestionForm({ onSuccess }) {
       if (urlInput.trim()) formData.append("urls", urlInput);
       if (videoInput.trim()) formData.append("videos", videoInput);
       pdfFiles.forEach((file) => formData.append("files", file));
-      const uploadRes = await fetch(`${API_URL}/intel/ingest/`, {
+      const data = await apiFetch(`/intel/ingest/`, {
         method: "POST",
         body: formData,
-        credentials: "include",
       });
-      if (!uploadRes.ok) throw new Error("API Error");
-      let data = null;
-      try {
-        data = await uploadRes.json();
-      } catch {
-        data = null;
-      }
       if (!data) {
         toast.error("Ingestion failed: invalid response");
         setLoading(false);

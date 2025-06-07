@@ -13,6 +13,10 @@ export default function useAuth() {
 
   const loadUser = useCallback(async () => {
     const tk = getToken();
+    console.log(
+      "\ud83d\udd10 Auth Check \u2192 JWT found?",
+      Boolean(tk)
+    );
     if (!tk) {
       setTokenState(null);
       setUser(null);
@@ -61,5 +65,7 @@ export default function useAuth() {
     setUser(null);
   }, []);
 
-  return { token, user, loading, login, register, logout };
+  const isAuthenticated = Boolean(token && user);
+
+  return { token, user, loading, isAuthenticated, login, register, logout };
 }

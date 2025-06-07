@@ -3,7 +3,7 @@ import { ASSISTANTS_API } from "../config/api";
 import apiFetch from "../utils/apiClient";
 
 export async function generateAssistantThought(slug) {
-  const res = await fetch(
+  const res = await apiFetch(
     `${ASSISTANTS_API}/${slug}/log_thought/`,
     {
       method: "POST",
@@ -19,7 +19,7 @@ export async function generateAssistantThought(slug) {
 }
 
 export async function mutateThought(id, style = "clarify") {
-  const res = await fetch(
+  const res = await apiFetch(
     `${ASSISTANTS_API}/thoughts/${id}/mutate/`,
     {
       method: "POST",
@@ -35,7 +35,7 @@ export async function mutateThought(id, style = "clarify") {
   return res.json();
 }
 export async function planProjectFromMemory(slug, body) {
-  const res = await fetch(
+  const res = await apiFetch(
     `${ASSISTANTS_API}/${slug}/memory-to-project/`,
     {
       method: "POST",
@@ -51,7 +51,7 @@ export async function planProjectFromMemory(slug, body) {
 }
 
 export async function suggestDelegation(slug, body) {
-  const res = await fetch(
+  const res = await apiFetch(
     `${ASSISTANTS_API}/${slug}/suggest-delegation/`,
     {
       method: "POST",
@@ -67,7 +67,7 @@ export async function suggestDelegation(slug, body) {
 }
 
 export async function suggestAssistant(body) {
-  const res = await fetch(`${ASSISTANTS_API}/suggest/`, {
+  const res = await apiFetch(`${ASSISTANTS_API}/suggest/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -80,7 +80,7 @@ export async function suggestAssistant(body) {
 }
 
 export async function clarifyPrompt(slug, text) {
-  const res = await fetch(
+  const res = await apiFetch(
     `${ASSISTANTS_API}/${slug}/clarify_prompt/`,
     {
       method: "POST",
@@ -96,7 +96,7 @@ export async function clarifyPrompt(slug, text) {
 }
 
 export async function fetchFailureLog(slug) {
-  const res = await fetch(
+  const res = await apiFetch(
     `${ASSISTANTS_API}/${slug}/failure_log/`,
   );
   if (!res.ok) {
@@ -106,7 +106,7 @@ export async function fetchFailureLog(slug) {
 }
 
 export async function runDriftCheck(slug) {
-  const res = await fetch(
+  const res = await apiFetch(
     `${ASSISTANTS_API}/${slug}/drift-check/`,
     {
       method: "POST",
@@ -122,7 +122,7 @@ export async function runDriftCheck(slug) {
 
 
 export async function runSelfAssessment(slug) {
-  const res = await fetch(
+  const res = await apiFetch(
     `${ASSISTANTS_API}/${slug}/self-assess/`,
     {
       method: "POST",
@@ -137,7 +137,7 @@ export async function runSelfAssessment(slug) {
 }
 
 export async function recoverAssistant(slug) {
-  const res = await fetch(
+  const res = await apiFetch(
     `${ASSISTANTS_API}/${slug}/recover/`,
     {
       method: "POST",
@@ -152,7 +152,7 @@ export async function recoverAssistant(slug) {
 }
 
 export async function regeneratePlan(slug, body = {}) {
-  const res = await fetch(
+  const res = await apiFetch(
     `${ASSISTANTS_API}/${slug}/regenerate_plan/`,
     {
       method: "POST",
@@ -168,7 +168,7 @@ export async function regeneratePlan(slug, body = {}) {
 }
 
 export async function summarizeDelegations(slug) {
-  const res = await fetch(
+  const res = await apiFetch(
     `${ASSISTANTS_API}/${slug}/summarize_delegations/`,
     {
       method: "POST",
@@ -183,7 +183,7 @@ export async function summarizeDelegations(slug) {
 }
 
 export async function suggestSwitch(sessionId) {
-  const res = await fetch(
+  const res = await apiFetch(
     `${ASSISTANTS_API}/suggest_switch/`,
     {
       method: "POST",
@@ -203,7 +203,7 @@ export async function switchAssistant(
   assistantSlug,
   reason = "switch",
 ) {
-  const res = await fetch(`${ASSISTANTS_API}/switch/`, {
+  const res = await apiFetch(`${ASSISTANTS_API}/switch/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -220,7 +220,7 @@ export async function switchAssistant(
 }
 
 export async function evaluateCollaboration(slug, body) {
-  const res = await fetch(
+  const res = await apiFetch(
     `${ASSISTANTS_API}/${slug}/evaluate-collaboration/`,
     {
       method: "POST",
@@ -236,7 +236,7 @@ export async function evaluateCollaboration(slug, body) {
 }
 
 export async function evaluateContinuity(slug, body = {}) {
-  const res = await fetch(
+  const res = await apiFetch(
     `${ASSISTANTS_API}/${slug}/evaluate-continuity/`,
     {
       method: "POST",
@@ -252,7 +252,7 @@ export async function evaluateContinuity(slug, body = {}) {
 }
 
 export async function fetchCollaborationLogs(projectId) {
-  const res = await fetch(
+  const res = await apiFetch(
     `${ASSISTANTS_API}/projects/${projectId}/collaboration_logs/`,
   );
   if (!res.ok) {
@@ -262,7 +262,7 @@ export async function fetchCollaborationLogs(projectId) {
 }
 
 export async function fetchCollaborationProfile(slug) {
-  const res = await fetch(
+  const res = await apiFetch(
     `${ASSISTANTS_API}/${slug}/collaboration_profile/`,
   );
   if (!res.ok) {
@@ -272,7 +272,7 @@ export async function fetchCollaborationProfile(slug) {
 }
 
 export async function planFromThread(slug, body) {
-  const res = await fetch(
+  const res = await apiFetch(
     `${ASSISTANTS_API}/${slug}/plan-from-thread/`,
     {
       method: "POST",
@@ -288,7 +288,7 @@ export async function planFromThread(slug, body) {
 }
 
 export async function assignTrainingDocuments(slug, agentId, documentIds) {
-  const res = await fetch(
+  const res = await apiFetch(
     `${ASSISTANTS_API}/${slug}/assign-training/`,
     {
       method: "POST",
@@ -304,7 +304,7 @@ export async function assignTrainingDocuments(slug, agentId, documentIds) {
 }
 
 export async function evaluateAgentTraining(slug, agentId) {
-  const res = await fetch(
+  const res = await apiFetch(
     `${ASSISTANTS_API}/${slug}/evaluate-agent/${agentId}/`,
   );
   if (!res.ok) {
@@ -322,7 +322,7 @@ export function cleanStaleProjects(slug) {
 }
 
 export async function fetchRecentReflections(slug) {
-  const res = await fetch(`${ASSISTANTS_API}/${slug}/reflections/recent/`);
+  const res = await apiFetch(`${ASSISTANTS_API}/${slug}/reflections/recent/`);
   if (!res.ok) {
     throw new Error("Failed to load recent reflections");
   }

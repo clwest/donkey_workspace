@@ -22,7 +22,7 @@ from assistants.helpers.logging_helper import log_trail_marker
 
 
 @api_view(["GET", "POST"])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def onboarding_intro(request):
     """Return intro data or dismiss the intro."""
     if request.method == "POST":
@@ -103,7 +103,7 @@ def onboarding_complete(request):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def onboarding_node_detail(request, step):
     node = next((n for n in ONBOARDING_WORLD["nodes"] if n["slug"] == step), None)
     if not node:
@@ -112,7 +112,7 @@ def onboarding_node_detail(request, step):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def glossary_boot(request):
     """Return a few sample anchors for onboarding."""
     anchors = (

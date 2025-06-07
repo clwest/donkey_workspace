@@ -11,7 +11,7 @@ import AssistantSetupSummary from "../../components/assistant/AssistantSetupSumm
 import apiFetch from "@/utils/apiClient";
 
 export default function AssistantLauncherPage() {
-  useAuthGuard();
+  useAuthGuard({ allowUnauthenticated: true });
   const navigate = useNavigate();
   const userInfo = useUserInfo();
   const { progress } = useOnboardingTracker();
