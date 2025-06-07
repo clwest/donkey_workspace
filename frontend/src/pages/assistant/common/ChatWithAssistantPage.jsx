@@ -35,6 +35,7 @@ export default function ChatWithAssistantPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [switchSuggestion, setSwitchSuggestion] = useState(null);
+  const [demoCount, setDemoCount] = useState(0);
   const [sessionId] = useState(() => {
     const key = `chat_session_${slug}`;
     const stored = localStorage.getItem(key);
@@ -62,6 +63,13 @@ export default function ChatWithAssistantPage() {
   const chatHint = hints.find((h) => h.id === "chat_welcome");
   const showChatWelcome = chatHint && !chatHint.dismissed;
   const glossaryOverlays = useGlossaryOverlay("chat");
+
+  useEffect(() => {
+    if (assistantInfo?.is_demo) {
+      const count = messages.filter((m) => m.role === "user").length;
+      setDemoCount(count);
+    }
+  }, [assistantInfo, messages]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -197,6 +205,9 @@ export default function ChatWithAssistantPage() {
       }
 
       const userCount = msgs.filter((m) => m.role === "user").length;
+      if (assistantInfo?.is_demo) {
+        setDemoCount(userCount);
+      }
       if (!assistantInfo?.is_demo && !primerDone && userCount >= 3) {
         try {
           const res = await apiFetch(`/assistants/${slug}/reflect_first_use/`, {
@@ -303,7 +314,7 @@ export default function ChatWithAssistantPage() {
         </span>
         {identity?.name || slug}
         {assistantInfo?.is_demo && (
-          <span className="badge bg-info text-dark ms-2">Demo</span>
+          <span className="badge bg-info text-dark ms-2">🧪 Demo Assistant</span>
         )}
       </h1>
       {assistantInfo?.is_demo && identity?.motto && (
@@ -342,16 +353,16 @@ export default function ChatWithAssistantPage() {
         </div>
       )}
 
-      {noContextMatch && (
+      {!assistantInfo?.is_demo && noContextMatch && (
         <div className="alert alert-warning mt-3">
           ⚠️ No strong matches found. Assistant is replying without confirmed
           context.
         </div>
       )}
-      {glossaryWarning && (
+      {!assistantInfo?.is_demo && glossaryWarning && (
         <div className="alert alert-info mt-2">{glossaryWarning}</div>
       )}
-      {anchorWarning && (
+      {!assistantInfo?.is_demo && anchorWarning && (
         <div className="alert alert-info mt-2">{anchorWarning}</div>
       )}
 
@@ -439,12 +450,14 @@ export default function ChatWithAssistantPage() {
               </div>
             )}
 
-            <button
-              className="btn btn-sm btn-outline-info mt-1"
-              onClick={() => handleCheckSource(msg.content)}
-            >
-              📄 Check Source
-            </button>
+            {!assistantInfo?.is_demo && (
+              <button
+                className="btn btn-sm btn-outline-info mt-1"
+                onClick={() => handleCheckSource(msg.content)}
+              >
+                📄 Check Source
+              </button>
+            )}
             {msg.role === "assistant" && msg.context_score != null && (
               <span
                 className="badge bg-secondary ms-2"
@@ -455,7 +468,7 @@ export default function ChatWithAssistantPage() {
               </span>
             )}
 
-            {msg.memory_id && (
+            {!assistantInfo?.is_demo && msg.memory_id && (
               <div className="mt-2">
                 <Link
                   to={`/memory/${msg.memory_id}`}
@@ -507,7 +520,7 @@ export default function ChatWithAssistantPage() {
           Focus Anchors Only
         </label>
       </div>
-      {sourceInfo && (
+      {!assistantInfo?.is_demo && sourceInfo && (
         <div className="mt-2">
           {sourceInfo.rag_fallback &&
           (sourceInfo.used_chunks?.[0]?.score || 0) < 0.6 ? (
@@ -558,20 +571,24 @@ export default function ChatWithAssistantPage() {
           )}
         </div>
       )}
-      <button className="btn btn-outline-primary mt-2" onClick={handleSuggest}>
-        🤖 Suggest Assistant
-      </button>
-      <button
-        className="btn btn-outline-warning mt-2 ms-2"
-        onClick={handleSwitchSuggest}
-      >
-        🔄 Suggest Switch
-      </button>
-      {glossarySuggestion && (
+      {!assistantInfo?.is_demo && (
+        <>
+          <button className="btn btn-outline-primary mt-2" onClick={handleSuggest}>
+            🤖 Suggest Assistant
+          </button>
+          <button
+            className="btn btn-outline-warning mt-2 ms-2"
+            onClick={handleSwitchSuggest}
+          >
+            🔄 Suggest Switch
+          </button>
+        </>
+      )}
+      {!assistantInfo?.is_demo && glossarySuggestion && (
         <div className="alert alert-info mt-3">{glossarySuggestion}</div>
       )}
 
-      {sourceInfo && (
+      {!assistantInfo?.is_demo && sourceInfo && (
         <div className="mt-3 small border-top pt-2">
           <h6>Debug</h6>
           <ul className="list-unstyled">
@@ -665,12 +682,24 @@ export default function ChatWithAssistantPage() {
         </div>
       )}
 
-      {sourceInfo && <ChatDebugPanel ragMeta={sourceInfo} slug={slug} />}
+      {!assistantInfo?.is_demo && sourceInfo && (
+        <ChatDebugPanel ragMeta={sourceInfo} slug={slug} />
+      )}
 
       {assistantInfo?.is_demo && (
         <div className="alert alert-secondary mt-4">
-          Want to create your own assistant?{" "}
+          Want to create your own assistant?{' '}
           <Link to="/assistants/create">Get started</Link>.
+        </div>
+      )}
+
+      {assistantInfo?.is_demo && demoCount >= 3 && (
+        <div className="position-fixed bottom-0 end-0 m-4 p-3 bg-light border rounded shadow" style={{ zIndex: 1000 }}>
+          <div className="fw-bold mb-1">🎉 Liking this assistant?</div>
+          <div>Create your own to save conversations, memories, and reflections!</div>
+          <Link to="/assistants/create" className="btn btn-primary mt-2">
+            Create My Assistant
+          </Link>
         </div>
       )}
 

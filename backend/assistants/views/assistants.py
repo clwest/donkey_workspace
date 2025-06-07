@@ -845,6 +845,14 @@ def chat_with_assistant_view(request, slug):
 
     # Save assistant message
     save_message_to_session(session_id, "assistant", reply)
+
+    if assistant.is_demo:
+        # Skip memory saving and logging for demo assistants
+        return Response({
+            "messages": load_session_messages(session_id),
+            "rag_meta": rag_meta,
+        })
+
     AssistantThoughtLog.objects.create(
         assistant=assistant,
         project=None,
