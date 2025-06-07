@@ -1497,6 +1497,18 @@ class AssistantSerializer(serializers.ModelSerializer):
             return False
         return AssistantTourStartLog.objects.filter(user=user, assistant=obj).exists()
 
+    def get_identity_summary(self, obj):
+        """Return a compact summary of key identity fields."""
+        return {
+            "name": obj.name,
+            "avatar": obj.avatar or "",
+            "tone": obj.tone or "",
+            "persona": obj.persona_summary or "",
+            "motto": obj.motto or "",
+            "badges": obj.skill_badges or [],
+            "glossary_score": obj.glossary_score,
+        }
+
 
 class AssistantProjectSummarySerializer(serializers.ModelSerializer):
     class Meta:
