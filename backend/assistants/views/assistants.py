@@ -26,6 +26,7 @@ from memory.models import MemoryEntry, RAGGroundingLog
 from utils.rag_debug import log_rag_debug
 from memory.serializers import RAGGroundingLogSerializer
 from assistants.helpers.logging_helper import log_assistant_thought
+from assistants.helpers.demo_utils import generate_assistant_from_demo
 from assistants.models.assistant import (
     Assistant,
     TokenUsage,
@@ -1029,6 +1030,19 @@ def demo_assistant(request):
             seed_chat_starter_memory(a)
     serializer = AssistantSerializer(assistants, many=True)
     return Response(serializer.data)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def assistant_from_demo(request):
+    """Clone a demo assistant for the current user."""
+    demo_slug = request.data.get("demo_slug")
+    transcript = request.data.get("transcript") or []
+    if not demo_slug:
+        return Response({"error": "demo_slug required"}, status=400)
+
+    assistant = generate_assistant_from_demo(demo_slug, request.user, transcript)
+    return Response({"slug": assistant.slug}, status=201)
 
 
 @api_view(["POST"])

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, Link, useSearchParams } from "react-router-dom";
+import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
 import apiFetch from "@/utils/apiClient";
 import TagBadge from "../../../components/TagBadge";
 import HintBubble from "../../../components/HintBubble";
@@ -8,7 +8,9 @@ import {
   suggestAssistant,
   suggestSwitch,
   switchAssistant,
+  createAssistantFromDemo,
 } from "../../../api/assistants";
+import { toast } from "react-toastify";
 
 const AVATAR_EMOJI = {
   owl: "🦚",
@@ -25,6 +27,7 @@ import GlossaryOverlayTooltip from "../../../components/GlossaryOverlayTooltip";
 
 export default function ChatWithAssistantPage() {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const starter =
     searchParams.get("starter") || searchParams.get("starter_query");
@@ -261,6 +264,23 @@ export default function ChatWithAssistantPage() {
       }
     } catch (err) {
       alert("Failed to suggest switch");
+    }
+  };
+
+  const handleCreateFromDemo = async () => {
+    if (!assistantInfo?.demo_slug) return;
+    toast.info("Generating your assistant...");
+    try {
+      const transcript = messages.slice(0, 6).map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
+      const res = await createAssistantFromDemo(assistantInfo.demo_slug, transcript);
+      if (res.slug) {
+        navigate(`/assistants/${res.slug}/intro`);
+      }
+    } catch (err) {
+      toast.error("Failed to create assistant");
     }
   };
 
@@ -697,9 +717,9 @@ export default function ChatWithAssistantPage() {
         <div className="position-fixed bottom-0 end-0 m-4 p-3 bg-light border rounded shadow" style={{ zIndex: 1000 }}>
           <div className="fw-bold mb-1">🎉 Liking this assistant?</div>
           <div>Create your own to save conversations, memories, and reflections!</div>
-          <Link to="/assistants/create" className="btn btn-primary mt-2">
+          <button className="btn btn-primary mt-2" onClick={handleCreateFromDemo}>
             Create My Assistant
-          </Link>
+          </button>
         </div>
       )}
 

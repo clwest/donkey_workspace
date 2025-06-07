@@ -125,6 +125,10 @@ urlpatterns = [
         assistant_views.assistant_from_documents,
     ),
     path(
+        "api/assistants/from_demo/",
+        assistant_views.assistant_from_demo,
+    ),
+    path(
         "assistants/self_tests/run_all/",
         diagnostic_views.run_all_self_tests,
     ),
