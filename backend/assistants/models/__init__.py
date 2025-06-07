@@ -15,6 +15,7 @@ from .boot import *
 from .badge import *
 from .hint import *
 from .tour import *
+from .trail import *
 
 
 
