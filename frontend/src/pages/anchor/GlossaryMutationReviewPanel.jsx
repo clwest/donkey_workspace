@@ -166,7 +166,7 @@ export default function GlossaryMutationReviewPanel() {
               <td>{m.mutation_score_before?.toFixed(2)}</td>
               <td>{m.mutation_score_after?.toFixed(2)}</td>
               <td>
-                {m.mutation_score_delta !== null && (
+                {m.mutation_score_delta != null && (
                   <span
                     className={
                       m.mutation_score_delta > 0
