@@ -18,6 +18,12 @@ let lastRedirect = 0;
 let redirectCount = 0;
 let sessionExpiredNotified = false;
 let isRedirecting = false;
+
+export function resetAuthState() {
+  authLost = false;
+  isRedirecting = false;
+  sessionExpiredNotified = false;
+}
 const authDebug =
   new URLSearchParams(window.location.search).get("debug") === "auth";
 
@@ -35,6 +41,7 @@ export async function tryRefreshToken() {
     if (!res.ok) return false;
     const data = await res.json();
     saveAuthTokens({ access: data.access, refresh: data.refresh });
+    resetAuthState();
     if (authDebug) console.log("[auth] refresh succeeded");
     return true;
   } catch (err) {

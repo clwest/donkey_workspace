@@ -1,3 +1,5 @@
+import { resetAuthState } from "./apiClient.js";
+
 export function getUserIdFromToken() {
   const token = localStorage.getItem("access");
   if (!token) return null;
@@ -25,6 +27,7 @@ export function getRefreshToken() {
 export function saveAuthTokens({ access, refresh }) {
   if (access) localStorage.setItem("access", access);
   if (refresh) localStorage.setItem("refresh", refresh);
+  resetAuthState();
 }
 
 export function setToken(tokens) {
