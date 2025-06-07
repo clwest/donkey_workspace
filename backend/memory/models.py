@@ -482,6 +482,8 @@ class SymbolicMemoryAnchor(models.Model):
     )
     explanation = models.TextField(null=True, blank=True)
     protected = models.BooleanField(default=False)
+    display_tooltip = models.BooleanField(default=False)
+    display_location = models.JSONField(default=list, blank=True)
     acquisition_stage = models.CharField(
         max_length=20,
         choices=[

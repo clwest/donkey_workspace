@@ -1049,6 +1049,28 @@ def glossary_retry_logs(request):
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
+def glossary_overlay(request):
+    """Return anchors configured for tooltip display."""
+    location = request.query_params.get("location")
+    anchors = SymbolicMemoryAnchor.objects.filter(display_tooltip=True)
+    if location:
+        anchors = anchors.filter(display_location__contains=[location])
+    data = [
+        {
+            "label": a.label,
+            "definition": a.description,
+            "tooltip": a.glossary_guidance,
+            "slug": a.slug,
+            "anchor_id": str(a.id),
+            "location": location,
+        }
+        for a in anchors
+    ]
+    return Response({"results": data})
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def anchor_convergence_logs(request, slug):
     """Return recent AnchorConvergenceLog entries for an anchor."""
     anchor = get_object_or_404(SymbolicMemoryAnchor, slug=slug)

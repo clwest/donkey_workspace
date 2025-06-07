@@ -13,6 +13,13 @@ DEFAULT_ANCHORS = [
     {"slug": "summon", "label": "Summon"},
     {"slug": "zk-rollup", "label": "ZK-Rollup", "is_focus_term": True},
     {"slug": "evm", "label": "Ethereum Virtual Machine", "is_focus_term": True},
+    {
+        "slug": "mythpath",
+        "label": "MythPath",
+        "tooltip": "Your assistant's journey and personality archetype.",
+        "display_location": ["dashboard", "assistant_detail"],
+        "display_tooltip": True,
+    },
 ]
 
 
@@ -28,6 +35,9 @@ class Command(BaseCommand):
                     "label": data.get("label", data["slug"]),
                     "description": data.get("description", ""),
                     "is_focus_term": data.get("is_focus_term", False),
+                    "glossary_guidance": data.get("tooltip", ""),
+                    "display_location": data.get("display_location", []),
+                    "display_tooltip": data.get("display_tooltip", False),
                 },
             )
             if was_created:
