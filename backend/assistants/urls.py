@@ -73,6 +73,7 @@ urlpatterns = [
     path("codex/voice/", views.codex_voice_command, name="codex-voice"),
     path("rituals/haptic/", views.haptic_ritual, name="haptic-ritual"),
     path("<uuid:id>/identity/", identity.assistant_identity, name="assistant-identity"),
+    path("<slug:slug>/identity/", identity.assistant_identity_summary, name="assistant-identity-summary"),
     path("<uuid:id>/mythpath/", identity.assistant_mythpath, name="assistant-mythpath"),
     path("<uuid:id>/onboard/", onboarding.assistant_onboard, name="assistant-onboard"),
     path(
