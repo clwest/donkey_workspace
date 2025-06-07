@@ -940,6 +940,17 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             "glossary_score": obj.glossary_score,
         }
 
+    def get_spawned_by_slug(self, obj):
+        return obj.spawned_by.slug if obj.spawned_by else None
+
+    def get_spawned_by_label(self, obj):
+        if obj.spawned_by:
+            return obj.spawned_by.name
+        return None
+
+    def get_is_cloned_from_demo(self, obj):
+        return bool(obj.spawned_by and obj.spawned_by.is_demo)
+
     def get_glossary_health_index(self, obj):
         from django.db.models import Avg, Count
         from memory.models import SymbolicMemoryAnchor
@@ -1335,6 +1346,9 @@ class AssistantSerializer(serializers.ModelSerializer):
     flair = serializers.SerializerMethodField()
     tour_started = serializers.SerializerMethodField()
     identity_summary = serializers.SerializerMethodField()
+    spawned_by_slug = serializers.SerializerMethodField()
+    spawned_by_label = serializers.SerializerMethodField()
+    is_cloned_from_demo = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -1397,6 +1411,10 @@ class AssistantSerializer(serializers.ModelSerializer):
             "flair",
             "tour_started",
             "identity_summary",
+            "spawned_by_slug",
+            "spawned_by_label",
+            "is_cloned_from_demo",
+            "spawned_traits",
         ]
 
     def get_trust(self, obj):

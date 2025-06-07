@@ -80,7 +80,7 @@ def bootstrap_assistant_from_doc(doc_id: str) -> str | None:
             slug=base_slug,
             specialty="bootstrap",
             system_prompt=prompt,
-            spawned_by="bootstrap_task",
+            spawn_reason="bootstrap_task",
         )
     return str(assistant.id)
 

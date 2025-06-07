@@ -27,4 +27,5 @@ def test_spawn_trigger_tracked(db):
     p = Prompt.objects.create(title="p3", content="c", source="test")
     a = Assistant.objects.create(name="Trig", system_prompt=p)
     child = fork_assistant_from_prompt(a, "x", spawn_trigger="glossary_miss")
-    assert child.spawned_by == "glossary_miss"
+    assert child.spawn_reason == "glossary_miss"
+    assert child.spawned_by == a

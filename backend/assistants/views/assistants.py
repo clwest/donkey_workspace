@@ -530,7 +530,8 @@ def create_assistant_from_thought(request):
             created_by=creator,
             preferred_model="gpt-4o",
             parent_assistant=parent_assistant,
-            spawned_by="manual",
+            spawn_reason="manual",
+            spawned_by=parent_assistant,
         )
 
     AssistantThoughtLog.objects.create(
@@ -639,7 +640,7 @@ def assistant_from_documents(request):
             system_prompt=codex_prompt,
             document_set=doc_set,
             embedding_index={"vector": vector},
-            spawned_by="manual",
+            spawn_reason="manual",
         )
     assistant.documents.set(doc_set.documents.all())
 

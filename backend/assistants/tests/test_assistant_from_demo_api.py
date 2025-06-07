@@ -25,5 +25,7 @@ class AssistantFromDemoAPITest(BaseAPITestCase):
         slug = resp.json()["slug"]
         self.assertTrue(Assistant.objects.filter(slug=slug, is_demo=False).exists())
         asst = Assistant.objects.get(slug=slug)
-        self.assertEqual(asst.spawned_by, "demo:prompt_pal")
+        self.assertEqual(asst.spawn_reason, "demo:prompt_pal")
+        self.assertEqual(asst.spawned_by, self.demo)
+        self.assertListEqual(asst.spawned_traits, ["badge", "tone", "avatar"])
         self.assertGreater(asst.memories.count(), 0)
