@@ -954,9 +954,6 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
     def get_is_cloned_from_demo(self, obj):
         return bool(obj.spawned_by and obj.spawned_by.is_demo)
 
-    def get_is_demo_clone(self, obj):
-        return obj.is_demo_clone
-
     def get_demo_origin(self, obj):
         if obj.spawned_by and obj.spawned_by.is_demo:
             return obj.spawned_by.demo_slug or obj.spawned_by.slug
@@ -1534,6 +1531,33 @@ class AssistantSerializer(serializers.ModelSerializer):
             "motto": obj.motto or "",
             "badges": obj.skill_badges or [],
             "glossary_score": obj.glossary_score,
+        }
+
+    def get_trail_summary_ready(self, obj):
+        return obj.trail_summary_ready
+
+    def get_spawned_by_slug(self, obj):
+        return obj.spawned_by.slug if obj.spawned_by else None
+
+    def get_spawned_by_label(self, obj):
+        if obj.spawned_by:
+            return obj.spawned_by.name
+        return None
+
+    def get_is_cloned_from_demo(self, obj):
+        return bool(obj.spawned_by and obj.spawned_by.is_demo)
+
+    def get_demo_origin(self, obj):
+        if obj.spawned_by and obj.spawned_by.is_demo:
+            return obj.spawned_by.demo_slug or obj.spawned_by.slug
+        return None
+
+    def get_preview_traits(self, obj):
+        source = obj.spawned_by if obj.spawned_by and obj.spawned_by.is_demo else None
+        return {
+            "badge": obj.primary_badge or getattr(source, "primary_badge", None),
+            "tone": obj.tone_profile or obj.tone or getattr(source, "tone_profile", None),
+            "avatar": obj.avatar_style or getattr(source, "avatar_style", None),
         }
 
 
