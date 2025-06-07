@@ -891,6 +891,11 @@ urlpatterns = [
         views.AssistantIntroView.as_view(),
         name="assistant-intro",
     ),
+    path(
+        "<slug:slug>/trail/",
+        views.AssistantTrailRecapView.as_view(),
+        name="assistant-trail-recap",
+    ),
     path("badges/", BadgeListView.as_view(), name="badge-list"),
     path(
         "<slug:slug>/badges/",

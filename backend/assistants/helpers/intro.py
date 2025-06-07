@@ -1,4 +1,6 @@
 from assistants.models.assistant import Assistant
+from assistants.models.trail import TrailMarkerLog
+from memory.models import MemoryEntry
 
 TONE_COLORS = {
     "cheerful": {"bg": "#fff7e6", "fg": "#d9480f"},
@@ -27,6 +29,15 @@ def get_intro_splash_payload(assistant: Assistant) -> dict:
     badges = assistant.skill_badges or []
     if not badges and assistant.spawned_by and assistant.spawned_by.skill_badges:
         badges = assistant.spawned_by.skill_badges
+    summary_entry = (
+        MemoryEntry.objects.filter(assistant=assistant, type="milestone_summary")
+        .order_by("-created_at")
+        .first()
+    )
+    milestones = list(
+        assistant.trail_markers.order_by("-timestamp")
+        .values("marker_type", "timestamp", "notes")[:3]
+    )
     return {
         "name": assistant.name,
         "avatar_url": assistant.avatar,
@@ -42,6 +53,8 @@ def get_intro_splash_payload(assistant: Assistant) -> dict:
             "tone": assistant.tone_profile or assistant.tone or getattr(assistant.spawned_by, "tone_profile", None),
             "avatar": assistant.avatar_style or getattr(assistant.spawned_by, "avatar_style", None),
         },
+        "trail_summary": summary_entry.summary if summary_entry else None,
+        "recent_milestones": milestones,
     }
 
 

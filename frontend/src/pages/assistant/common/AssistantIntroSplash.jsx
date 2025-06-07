@@ -35,9 +35,9 @@ export default function AssistantIntroSplash() {
   const handleContinue = async () => {
     await apiFetch(`/assistants/${slug}/`, {
       method: "PATCH",
-      body: { show_intro_splash: false },
+      body: { show_intro_splash: false, show_trail_recap: true },
     });
-    navigate(`/assistants/${slug}`);
+    navigate(`/assistants/${slug}/trail`);
   };
 
   const handleSaved = async () => {
@@ -78,6 +78,18 @@ export default function AssistantIntroSplash() {
         </div>
       )}
       {data.intro_text && <p className="mt-4 fs-5">{data.intro_text}</p>}
+      {data.trail_summary && (
+        <div className="alert alert-light mx-auto" style={{ maxWidth: 500 }}>
+          <p className="mb-2">{data.trail_summary}</p>
+          {data.recent_milestones && (
+            <ul className="list-unstyled mb-0">
+              {data.recent_milestones.map((m, i) => (
+                <li key={i}>📍 {m.marker_type} – {new Date(m.timestamp).toLocaleDateString()}</li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
       <AssistantOriginPanel assistant={data} />
       <button className="btn btn-primary mt-4" onClick={handleContinue}>
         Let&apos;s Begin

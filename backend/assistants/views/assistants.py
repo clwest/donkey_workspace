@@ -210,6 +210,10 @@ class AssistantViewSet(viewsets.ModelViewSet):
         if show_intro_splash is not None:
             assistant.show_intro_splash = bool(show_intro_splash)
 
+        show_trail_recap = request.data.get("show_trail_recap")
+        if show_trail_recap is not None:
+            assistant.show_trail_recap = bool(show_trail_recap)
+
         capabilities = request.data.get("capabilities")
         if isinstance(capabilities, dict):
             existing = assistant.capabilities or {}

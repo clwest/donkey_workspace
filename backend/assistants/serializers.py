@@ -929,6 +929,9 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             return False
         return AssistantTourStartLog.objects.filter(user=user, assistant=obj).exists()
 
+    def get_trail_summary_ready(self, obj):
+        return obj.trail_summary_ready
+
     def get_identity_summary(self, obj):
         return {
             "name": obj.name,
@@ -1361,6 +1364,7 @@ class AssistantSerializer(serializers.ModelSerializer):
     initial_badges = serializers.SerializerMethodField()
     flair = serializers.SerializerMethodField()
     tour_started = serializers.SerializerMethodField()
+    trail_summary_ready = serializers.SerializerMethodField()
     identity_summary = serializers.SerializerMethodField()
     spawned_by_slug = serializers.SerializerMethodField()
     spawned_by_label = serializers.SerializerMethodField()
@@ -1403,6 +1407,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "glossary_health_index",
             "is_primary",
             "show_intro_splash",
+            "show_trail_recap",
             "is_guide",
             "needs_recovery",
             "live_relay_enabled",
@@ -1436,6 +1441,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "demo_origin",
             "preview_traits",
             "spawned_traits",
+            "trail_summary_ready",
         ]
 
     def get_trust(self, obj):
@@ -1585,6 +1591,7 @@ class AssistantIntroSerializer(serializers.ModelSerializer):
     suggest_personalization = serializers.SerializerMethodField()
     personalization_prompt = serializers.SerializerMethodField()
     demo_origin = serializers.SerializerMethodField()
+    trail_summary_ready = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -1603,6 +1610,7 @@ class AssistantIntroSerializer(serializers.ModelSerializer):
             "suggest_personalization",
             "personalization_prompt",
             "demo_origin",
+            "trail_summary_ready",
         ]
 
     def get_flair(self, obj):

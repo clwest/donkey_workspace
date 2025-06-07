@@ -113,6 +113,10 @@ export default function AssistantDetailPage() {
         navigate(`/assistants/${slug}/intro`, { replace: true });
         return;
       }
+      if (data.show_trail_recap) {
+        navigate(`/assistants/${slug}/trail`, { replace: true });
+        return;
+      }
       setAssistant(data);
       setNameInput(data.name);
     } catch (err) {
@@ -560,6 +564,12 @@ export default function AssistantDetailPage() {
             />
           )}
           <AssistantOriginPanel assistant={assistant} />
+          <Link
+            to={`/assistants/${slug}/trail`}
+            className="btn btn-sm btn-secondary ms-2"
+          >
+            View Journey Recap
+          </Link>
           <button
             className="btn btn-sm btn-outline-secondary mb-2"
             onClick={() => setShowPersonalize(true)}

@@ -129,6 +129,7 @@ class Assistant(models.Model):
     intro_text = models.TextField(null=True, blank=True)
     archetype_summary = models.TextField(null=True, blank=True)
     show_intro_splash = models.BooleanField(default=True)
+    show_trail_recap = models.BooleanField(default=False)
     embedding = VectorField(
         dimensions=1536, null=True, blank=True
     )  # adjust dim if needed
@@ -373,6 +374,15 @@ class Assistant(models.Model):
             else "Review recent insights"
         )
         return [base, "Outline key tasks", "Share plan with team"]
+
+    @property
+    def trail_summary_ready(self) -> bool:
+        """Return True if a milestone summary memory exists."""
+        from memory.models import MemoryEntry
+
+        return MemoryEntry.objects.filter(
+            assistant=self, type="milestone_summary"
+        ).exists()
 
 
 class DelegationStrategy(models.Model):
