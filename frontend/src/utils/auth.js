@@ -10,17 +10,25 @@ export function getUserIdFromToken() {
   }
 }
 
-export function getToken() {
+export function getAccessToken() {
   return localStorage.getItem("access") || null;
+}
+
+export function getToken() {
+  return getAccessToken();
 }
 
 export function getRefreshToken() {
   return localStorage.getItem("refresh") || null;
 }
 
-export function setToken({ access, refresh }) {
+export function saveAuthTokens({ access, refresh }) {
   if (access) localStorage.setItem("access", access);
   if (refresh) localStorage.setItem("refresh", refresh);
+}
+
+export function setToken(tokens) {
+  saveAuthTokens(tokens);
 }
 
 export function clearTokens() {

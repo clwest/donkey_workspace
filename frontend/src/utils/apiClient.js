@@ -3,10 +3,10 @@
 // page origin.  This prevents "Failed to fetch" errors when the env variable is
 // missing a hostname.
 import {
-  getToken,
+  getAccessToken,
   clearTokens,
   getRefreshToken,
-  setToken,
+  saveAuthTokens,
 } from "./auth";
 import { toast } from "react-toastify";
 
@@ -33,7 +33,7 @@ export async function tryRefreshToken() {
     });
     if (!res.ok) return false;
     const data = await res.json();
-    setToken({ access: data.access, refresh: data.refresh });
+    saveAuthTokens({ access: data.access, refresh: data.refresh });
     if (authDebug) console.log("[auth] refresh succeeded");
     return true;
   } catch (err) {
@@ -76,7 +76,7 @@ export default async function apiFetch(url, options = {}) {
   }
 
   const doFetch = async () => {
-    const token = getToken();
+    const token = getAccessToken();
     if (!token && authDebug) console.warn("[auth] access token missing");
     return fetch(fullUrl, {
       ...fetchOptions,
