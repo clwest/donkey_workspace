@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
+import { toast } from "react-toastify";
 import Modal from "../CommonModal";
 import AvatarSelector from "../onboarding/AvatarSelector";
 import BadgeSelector from "./BadgeSelector";
@@ -15,7 +16,9 @@ export default function AssistantPersonalizationPrompt({
   onSaved,
 }) {
   const [name, setName] = useState(assistant.name || "");
-  const [tone, setTone] = useState(assistant.tone_profile || assistant.tone || "");
+  const [tone, setTone] = useState(
+    assistant.tone_profile || assistant.tone || "",
+  );
   const [avatar, setAvatar] = useState(assistant.avatar_style || "robot");
   const [badge, setBadge] = useState(assistant.primary_badge || "");
   const suggestions = assistant.personalization_prompt?.suggested_names || [];
@@ -39,6 +42,7 @@ export default function AssistantPersonalizationPrompt({
           primary_badge: badge || null,
         },
       });
+      toast.info("\ud83e\udde0 Welcome memory saved!");
       onSaved && onSaved();
       onClose();
     } catch (err) {
@@ -66,7 +70,12 @@ export default function AssistantPersonalizationPrompt({
   );
 
   return (
-    <Modal show={show} onClose={onClose} title="Personalize Assistant" footer={footer}>
+    <Modal
+      show={show}
+      onClose={onClose}
+      title="Personalize Assistant"
+      footer={footer}
+    >
       <div className="mb-3">
         <label className="form-label">Assistant Name</label>
         <input
@@ -90,7 +99,11 @@ export default function AssistantPersonalizationPrompt({
       </div>
       <div className="mb-3">
         <label className="form-label">Tone</label>
-        <select className="form-select" value={tone} onChange={(e) => setTone(e.target.value)}>
+        <select
+          className="form-select"
+          value={tone}
+          onChange={(e) => setTone(e.target.value)}
+        >
           {TONES.map((t) => (
             <option key={t} value={t}>
               {t}

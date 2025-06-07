@@ -2,6 +2,9 @@ from assistants.models.thoughts import AssistantThoughtLog
 from assistants.models.project import AssistantProject
 from project.models import Project
 from .mood import detect_mood, update_mood_stability
+from memory.models import MemoryEntry
+from mcp_core.models import Tag
+from django.utils.text import slugify
 
 
 def log_assistant_thought(
@@ -22,9 +25,10 @@ def log_assistant_thought(
     mood = detect_mood(thought)
     core_project = project
     if isinstance(project, AssistantProject):
-        core_project = project.linked_projects.first() or Project.objects.filter(
-            assistant_project=project
-        ).first()
+        core_project = (
+            project.linked_projects.first()
+            or Project.objects.filter(assistant_project=project).first()
+        )
     log = AssistantThoughtLog.objects.create(
         assistant=assistant,
         thought=thought,
@@ -45,3 +49,26 @@ def log_assistant_thought(
         linked_memory.bookmark_label = bookmark_label
         linked_memory.save()
     return log
+
+
+def log_assistant_birth_event(assistant, user):
+    """Record an origin memory when a new assistant is created or personalized."""
+    spawned_by_label = getattr(assistant, "spawned_by_label", None) or (
+        assistant.spawned_by.name if assistant.spawned_by else "scratch"
+    )
+    content = f"{assistant.name} was created from {spawned_by_label} and personalized by {user.username}."
+    memory = MemoryEntry.objects.create(
+        assistant=assistant,
+        context=assistant.memory_context,
+        event=content,
+        title="Assistant Created",
+        type="origin",
+        source_role="system",
+        source_user=user,
+    )
+    for label in ["birth", "demo", "personalization"]:
+        tag, _ = Tag.objects.get_or_create(
+            slug=slugify(label), defaults={"name": label}
+        )
+        memory.tags.add(tag)
+    return memory

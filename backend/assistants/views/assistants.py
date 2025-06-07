@@ -25,7 +25,10 @@ from memory.services import MemoryService
 from memory.models import MemoryEntry, RAGGroundingLog
 from utils.rag_debug import log_rag_debug
 from memory.serializers import RAGGroundingLogSerializer
-from assistants.helpers.logging_helper import log_assistant_thought
+from assistants.helpers.logging_helper import (
+    log_assistant_thought,
+    log_assistant_birth_event,
+)
 from assistants.helpers.demo_utils import generate_assistant_from_demo
 from assistants.models.assistant import (
     Assistant,
@@ -211,7 +214,12 @@ class AssistantViewSet(viewsets.ModelViewSet):
             existing.update(capabilities)
             assistant.capabilities = existing
 
+        first_personalization = not assistant.memories.filter(type="origin").exists()
+
         assistant.save()
+
+        if first_personalization and assistant.created_by and assistant.spawned_by:
+            log_assistant_birth_event(assistant, assistant.created_by)
 
         logger.info("Assistant %s edited", assistant.slug)
 
@@ -850,10 +858,12 @@ def chat_with_assistant_view(request, slug):
 
     if assistant.is_demo:
         # Skip memory saving and logging for demo assistants
-        return Response({
-            "messages": load_session_messages(session_id),
-            "rag_meta": rag_meta,
-        })
+        return Response(
+            {
+                "messages": load_session_messages(session_id),
+                "rag_meta": rag_meta,
+            }
+        )
 
     AssistantThoughtLog.objects.create(
         assistant=assistant,
