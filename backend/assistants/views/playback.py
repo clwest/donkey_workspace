@@ -10,7 +10,11 @@ from memory.models import ReflectionReplayLog, RAGPlaybackLog
 def rag_playback_compare(request, slug, id):
     """Return comparison between the first and latest playback for a replay."""
     assistant = get_object_or_404(Assistant, slug=slug)
-    replay = get_object_or_404(ReflectionReplayLog, id=id, assistant=assistant)
+    from uuid import UUID
+
+    replay = get_object_or_404(
+        ReflectionReplayLog, id=UUID(str(id)), assistant=assistant
+    )
     latest = replay.rag_playback
     if not latest:
         return Response({"detail": "No playback"}, status=404)
