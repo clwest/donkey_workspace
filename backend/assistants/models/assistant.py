@@ -192,11 +192,24 @@ class Assistant(models.Model):
         default="pause_and_reflect",
     )
 
-    spawned_by = models.CharField(
+    spawn_reason = models.CharField(
         max_length=100,
         blank=True,
         default="manual",
         help_text="Origin trigger for this assistant",
+    )
+    spawned_by = models.ForeignKey(
+        "self",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="spawned_children",
+    )
+    spawned_traits = ArrayField(
+        models.CharField(max_length=20),
+        default=list,
+        blank=True,
+        help_text="Traits inherited from the source assistant",
     )
 
     belief_vector = models.JSONField(default=dict, blank=True)

@@ -42,7 +42,8 @@ def create_assistant(
         created_by=creator,
         preferred_model="gpt-4o",
         parent_assistant=parent_assistant,
-        spawned_by="bootstrap_ui",
+        spawn_reason="bootstrap_ui",
+        spawned_by=parent_assistant,
     )
 
     print("🧠 Assistant Created:", assistant.name)
@@ -157,7 +158,8 @@ def spawn_delegated_assistant(
         preferred_model=parent.preferred_model,
         created_from_mood=mood,
         inherited_tone=tone,
-        spawned_by=reason,
+        spawn_reason=reason,
+        spawned_by=parent,
     )
 
     print("🧠 Assistant Created:", child.name)

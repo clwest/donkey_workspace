@@ -44,7 +44,9 @@ def generate_assistant_from_demo(demo_slug: str, user, transcript=None):
         preferred_model=demo.preferred_model,
         primary_badge=demo.primary_badge,
         created_by=user,
-        spawned_by=f"demo:{demo_slug}",
+        spawn_reason=f"demo:{demo_slug}",
+        spawned_by=demo,
+        spawned_traits=["badge", "tone", "avatar"],
         is_demo=False,
     )
 

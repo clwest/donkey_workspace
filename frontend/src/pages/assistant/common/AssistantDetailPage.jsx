@@ -6,6 +6,7 @@ import MoodStabilityGauge from "../../../components/assistant/MoodStabilityGauge
 import DriftScoreChart from "../../../components/assistant/DriftScoreChart";
 import RecoveryPanel from "../../../components/assistant/RecoveryPanel";
 import AssistantDiagnosticsPanel from "../../../components/assistant/AssistantDiagnosticsPanel";
+import AssistantOriginPanel from "../../../components/assistant/AssistantOriginPanel";
 import AssistantBadgeIcon from "../../../components/assistant/AssistantBadgeIcon";
 import AssistantSetupSummary from "../../../components/assistant/AssistantSetupSummary";
 import useAuthGuard from "../../../hooks/useAuthGuard";
@@ -556,6 +557,7 @@ export default function AssistantDetailPage() {
               onDismiss={handleDismissPrimer}
             />
           )}
+          <AssistantOriginPanel assistant={assistant} />
           <AssistantDiagnosticsPanel
             slug={slug}
             onRefresh={handleDiagnosticsRefresh}

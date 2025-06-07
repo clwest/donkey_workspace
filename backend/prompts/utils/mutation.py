@@ -164,7 +164,8 @@ def fork_assistant_from_prompt(
         system_prompt=mutated_prompt,
         parent_assistant=original,
         specialty=original.specialty or "General AI Support",
-        spawned_by=spawn_trigger,
+        spawn_reason=spawn_trigger,
+        spawned_by=original,
     )
 
     print("🧠 Assistant Created:", child.name)

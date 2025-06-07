@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import apiFetch from "@/utils/apiClient";
 import AssistantBadgeIcon from "../../../components/assistant/AssistantBadgeIcon";
+import AssistantOriginPanel from "../../../components/assistant/AssistantOriginPanel";
 import "../../../components/assistant/styles/AssistantIntroSplash.css";
 
 export default function AssistantIntroSplash() {
@@ -55,6 +56,7 @@ export default function AssistantIntroSplash() {
         </div>
       )}
       {data.intro_text && <p className="mt-4 fs-5">{data.intro_text}</p>}
+      <AssistantOriginPanel assistant={data} />
       <button className="btn btn-primary mt-4" onClick={handleContinue}>
         Let&apos;s Begin
       </button>
