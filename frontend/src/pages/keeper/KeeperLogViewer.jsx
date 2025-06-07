@@ -94,6 +94,11 @@ export default function KeeperLogViewer() {
                 <tr key={`${log.id}-exp`}>
                   <td colSpan="5" className="bg-light">
                     {log.notes || "No notes"}
+                    <div className="mt-2 small text-muted">
+                      Drift: {log.anchor_drift}
+                      {" | "}Fallback Score: {log.fallback_score ?? "-"}
+                      {" | "}State: {log.glossary_state}
+                    </div>
                     {log.memory_id && (
                       <div className="mt-2">
                         <Link to={`/memory/${log.memory_id}`}>View Memory</Link>
