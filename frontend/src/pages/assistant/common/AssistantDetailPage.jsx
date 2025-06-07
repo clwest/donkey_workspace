@@ -54,6 +54,7 @@ export default function AssistantDetailPage() {
   const [activeTab, setActiveTab] = useState("overview");
   const [memoryStats, setMemoryStats] = useState(null);
   const [latestMemoryId, setLatestMemoryId] = useState(null);
+  const [primerReflection, setPrimerReflection] = useState(null);
   const [assessment, setAssessment] = useState(null);
   const [showAssess, setShowAssess] = useState(false);
   const [reflecting, setReflecting] = useState(false);
@@ -123,6 +124,8 @@ export default function AssistantDetailPage() {
           memories: memList.length,
           reflections: reflList.length,
         });
+        const primer = reflList.find((r) => r.is_primer);
+        setPrimerReflection(primer || null);
         setLatestMemoryId(memList[0]?.id || null);
         if (
           reflList.length > 0 &&
@@ -907,6 +910,14 @@ export default function AssistantDetailPage() {
             <div className="alert alert-info mt-2">
               <strong>Memory Entries:</strong> {memoryStats.memories} |{" "}
               <strong>Recent Reflections:</strong> {memoryStats.reflections}
+              {primerReflection && (
+                <Link
+                  to={`/assistants/${slug}/reflections/`}
+                  className="ms-2 badge bg-warning text-dark"
+                >
+                  🧠 first reflection
+                </Link>
+              )}
             </div>
           )}
           {firstQuestionSummary && (
@@ -1059,6 +1070,14 @@ export default function AssistantDetailPage() {
             <div className="alert alert-info">
               <strong>Memories:</strong> {memoryStats.memories} |{" "}
               <strong>Reflections:</strong> {memoryStats.reflections}
+              {primerReflection && (
+                <Link
+                  to={`/assistants/${slug}/reflections/`}
+                  className="ms-2 badge bg-warning text-dark"
+                >
+                  🧠 first reflection
+                </Link>
+              )}
             </div>
           )}
           <div className="d-flex flex-wrap gap-2 mb-3">

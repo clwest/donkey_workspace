@@ -32,7 +32,10 @@ from memory.serializers import (
 )
 from memory.utils import replay_reflection as replay_reflection_util
 from utils.similarity.compare_reflections import compare_reflections
-from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
+from assistants.utils.assistant_reflection_engine import (
+    AssistantReflectionEngine,
+    generate_first_reflection,
+)
 from assistants.utils.memory_filters import get_filtered_memories
 from assistants.helpers.reflection_helpers import simulate_memory_fork
 from intel_core.models import Document
@@ -165,6 +168,24 @@ def reflect_now(request, slug):
     if not ref_log:
         return Response({"status": "skipped", "summary": ""})
     return Response({"status": "ok", "summary": ref_log.summary})
+
+
+@api_view(["POST"])
+def reflect_first_use(request, slug):
+    """Generate a primer reflection on first memories."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+
+    engine = AssistantReflectionEngine(assistant)
+    summary, mem_ids = generate_first_reflection(assistant)
+    log = AssistantReflectionLog.objects.create(
+        assistant=assistant,
+        project=assistant.current_project,
+        title="First Use Reflection",
+        summary=summary,
+        is_primer=True,
+        generated_from_memory_ids=mem_ids,
+    )
+    return Response({"summary": log.summary, "id": str(log.id)})
 
 
 @api_view(["POST"])
