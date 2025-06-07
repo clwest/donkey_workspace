@@ -61,3 +61,4 @@ venv/
 !memory/migrations/0006_rag_playback_extra_fields.py
 !memory/migrations/0007_anchor_acquisition.py
 !memory/migrations/0008_display_tooltip_location.py
+!memory/migrations/0009_glossary_keeper_log.py
