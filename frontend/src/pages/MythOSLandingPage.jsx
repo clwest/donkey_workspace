@@ -3,7 +3,7 @@ import useAuth from "@/hooks/useAuth";
 import useAuthGuard from "@/hooks/useAuthGuard";
 
 export default function MythOSLandingPage() {
-  const token = useAuth();
+  const { token } = useAuth();
   if (token) {
     useAuthGuard({ allowUnauthenticated: true });
   }

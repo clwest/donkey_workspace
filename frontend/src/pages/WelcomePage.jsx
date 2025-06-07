@@ -7,7 +7,7 @@ import apiFetch from "@/utils/apiClient";
 import AssistantSetupSummary from "../components/assistant/AssistantSetupSummary";
 
 export default function WelcomePage() {
-  const token = useAuth();
+  const { token } = useAuth();
   if (token) {
     useAuthGuard({ allowUnauthenticated: true });
   }
