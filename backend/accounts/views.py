@@ -117,6 +117,7 @@ def user_info(request):
     demo_assistant_exists = assistants.filter(is_demo=True).exists()
     from assistants.models import AssistantTourStartLog
     any_tour_started = AssistantTourStartLog.objects.filter(user=request.user).exists()
+    latest = assistants.order_by("-created_at").first()
     data = {
         "username": request.user.username,
         "assistant_count": assistant_count,
@@ -127,6 +128,7 @@ def user_info(request):
         "has_taught_anchor": taught_anchor_exists,
         "initial_badges": first_assistant.skill_badges if first_assistant else [],
         "primary_assistant_slug": primary.slug if primary else None,
+        "latest_assistant": latest.slug if latest else None,
         "demo_assistant": demo_assistant_exists,
         "any_tour_started": any_tour_started,
     }
