@@ -91,6 +91,12 @@ export default function Sidebar({ collapsed }) {
               <span className="link-text ms-1">Route Explorer</span>
             </NavLink>
           </li>
+          <li>
+            <NavLink to="/dev/auth-debug" className="d-block">
+              <span role="img" aria-label="Auth">🔑</span>
+              <span className="link-text ms-1">Auth Debug</span>
+            </NavLink>
+          </li>
         </ul>
         <div className="mb-2 fw-bold d-flex align-items-center">
           <span className="flex-grow-1">Memory</span>

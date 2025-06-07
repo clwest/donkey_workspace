@@ -180,4 +180,8 @@ export const fetchCharacters = () => apiFetch(`/characters/profiles/`);
 
 export const fetchStories = () => apiFetch(`/stories/`);
 
+export function getAuthLost() {
+  return authLost;
+}
+
 export { API_URL };
