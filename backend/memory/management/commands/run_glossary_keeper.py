@@ -10,11 +10,14 @@ class Command(BaseCommand):
     help = "Analyze glossary anchors for drift and propose mutations"
 
     def add_arguments(self, parser):
-        parser.add_argument("--assistant", help="Assistant slug to scan", required=False)
+        parser.add_argument(
+            "--assistant", help="Assistant slug to scan", required=False
+        )
         parser.add_argument("--dry-run", action="store_true")
         parser.add_argument("--limit", type=int)
         parser.add_argument("--min-drift", type=float, default=0.5)
-
+        parser.add_argument("--auto-promote", action="store_true")
+        parser.add_argument("--drift-top", type=int)
 
     def handle(self, *args, **options):
         slug = options.get("assistant")
@@ -31,7 +34,7 @@ class Command(BaseCommand):
             dry_run=options.get("dry_run", False),
             limit=options.get("limit"),
             min_drift=options.get("min_drift", 0.5),
+            auto_promote=options.get("auto_promote", False),
+            drift_top=options.get("drift_top"),
         )
         self.stdout.write(self.style.SUCCESS(f"Processed {count} anchors"))
-
-
