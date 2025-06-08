@@ -5,6 +5,8 @@ import useAssistantHints from "../../../hooks/useAssistantHints";
 import apiFetch from "../../../utils/apiClient";
 import AssistantCard from "../../../components/assistant/AssistantCard";
 import DemoAssistantShowcase from "../../../components/demo/DemoAssistantShowcase";
+import DemoTipsModal from "../../../components/demo/DemoTipsModal";
+import useDemoSession from "../../../hooks/useDemoSession";
 
 export default function AssistantDemoPage() {
   const [assistants, setAssistants] = useState([]);
@@ -12,10 +14,20 @@ export default function AssistantDemoPage() {
   const [showBanner, setShowBanner] = useState(
     () => localStorage.getItem("demo_banner_seen") !== "1",
   );
+  const { demoSessionId } = useDemoSession();
+  const [showTips, setShowTips] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(
+    () => localStorage.getItem("demo_welcome_dismiss") !== "1",
+  );
 
   const dismissBanner = () => {
     localStorage.setItem("demo_banner_seen", "1");
     setShowBanner(false);
+  };
+
+  const dismissWelcome = () => {
+    localStorage.setItem("demo_welcome_dismiss", "1");
+    setShowWelcome(false);
   };
 
   useEffect(() => {
@@ -34,6 +46,17 @@ export default function AssistantDemoPage() {
   return (
     <div className="container py-5 position-relative">
       <h1 className="mb-4">🧪 AI Assistant Demos</h1>
+      {import.meta.env.DEV && (
+        <button
+          className="btn btn-warning btn-sm mb-3"
+          onClick={async () => {
+            await apiFetch("/assistants/demos/?force_seed=1");
+            window.location.reload();
+          }}
+        >
+          Reset Demos
+        </button>
+      )}
       <DemoAssistantShowcase assistants={featured} />
       {assistants.length > 1 && (
         <div className="mb-3 text-end d-flex justify-content-end gap-2">
@@ -154,7 +177,9 @@ export default function AssistantDemoPage() {
           </div>
         ))}
         {assistants.length === 0 && (
-          <p className="text-muted text-center">No demos found.</p>
+          <p className="text-muted text-center">
+            No demos found. Try running the demo seed again.
+          </p>
         )}
       </div>
       {hints.find((h) => h.id === "demo_start_chat" && !h.dismissed) && (
@@ -165,23 +190,47 @@ export default function AssistantDemoPage() {
           onDismiss={() => dismissHint("demo_start_chat")}
         />
       )}
-      <div
-        className="position-fixed bottom-0 end-0 m-4 bg-light border rounded p-3 shadow"
-        style={{ zIndex: 2000 }}
-      >
-        <strong>Welcome!</strong>
-        <div className="mt-2 d-flex flex-column">
-          <button className="btn btn-sm btn-outline-primary mb-1">
-            What can I ask?
-          </button>
-          <button className="btn btn-sm btn-outline-primary mb-1">
-            Show me a cool example
-          </button>
-          <Link className="btn btn-sm btn-success" to="/assistants/create">
-            How do I create my own?
-          </Link>
+      {showWelcome && (
+        <div
+          className="position-fixed bottom-0 end-0 m-4 bg-light border rounded p-3 shadow"
+          style={{ zIndex: 2000 }}
+        >
+          <div className="d-flex justify-content-between align-items-start">
+            <strong>Welcome!</strong>
+            <button className="btn-close" onClick={dismissWelcome}></button>
+          </div>
+          <div className="mt-2 d-flex flex-column">
+            <button
+              className="btn btn-sm btn-outline-primary mb-1"
+              onClick={() => setShowTips(true)}
+            >
+              What can I ask?
+            </button>
+            <button
+              className="btn btn-sm btn-outline-primary mb-1"
+              onClick={() => {
+                const slug = assistants[0]?.demo_slug || "prompt_pal";
+                const starter =
+                  assistants[0]?.intro_text || "Need a better prompt?";
+                window.location.href = `/assistants/${slug}/chat?starter=${encodeURIComponent(
+                  starter,
+                )}&demo=1`;
+              }}
+            >
+              Show me a cool example
+            </button>
+            <Link className="btn btn-sm btn-success" to="/assistants/create">
+              How do I create my own?
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
+      <DemoTipsModal
+        show={showTips}
+        onClose={() => setShowTips(false)}
+        slug={assistants[0]?.demo_slug || "prompt_pal"}
+        sessionId={demoSessionId}
+      />
     </div>
   );
 }

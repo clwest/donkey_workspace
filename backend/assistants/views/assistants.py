@@ -1112,7 +1112,13 @@ def flush_chat_session(request, slug):
 @permission_classes([IsAuthenticated])
 def get_demo_assistants(request):
     """Return all demo assistants using the main serializer."""
+    force = request.GET.get("force_seed") == "1"
     assistants = Assistant.objects.filter(is_demo=True).order_by("demo_slug")
+    if force or not assistants.exists():
+        from django.core.management import call_command
+
+        call_command("seed_demo_assistants")
+        assistants = Assistant.objects.filter(is_demo=True).order_by("demo_slug")
     for a in assistants:
         if not a.memories.exists():
             from assistants.utils.starter_chat import seed_chat_starter_memory
@@ -1233,7 +1239,9 @@ def assistant_from_demo(request):
 
         boost_prompt_from_demo(assistant, transcript)
         DemoUsageLog.objects.filter(session_id=demo_session_id).update(
-            converted_to_real_assistant=True
+            converted_to_real_assistant=True,
+            user=request.user,
+            converted_at=timezone.now(),
         )
 
         bump_demo_score(demo_session_id, 10)
