@@ -83,6 +83,10 @@ def generate_assistant_from_demo(demo_slug: str, user, transcript=None):
                     assistant=assistant,
                     is_demo=False,
                 )
+    if not assistant.memories.exists():
+        from assistants.utils.starter_chat import seed_chat_starter_memory
+
+        seed_chat_starter_memory(assistant)
     return assistant
 
 

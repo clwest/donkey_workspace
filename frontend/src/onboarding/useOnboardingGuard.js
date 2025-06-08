@@ -43,7 +43,7 @@ export default function useOnboardingGuard(step) {
     }
 
     if (userInfo.onboarding_complete || onboardingComplete) {
-      navigate("/home", { replace: true });
+      navigate("/assistants/create", { replace: true });
     }
   }, [progress, userInfo, onboardingComplete, navigate, step]);
 

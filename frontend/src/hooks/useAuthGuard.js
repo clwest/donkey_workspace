@@ -68,10 +68,19 @@ export default function useAuthGuard({ allowUnauthenticated = false } = {}) {
         setError(null);
         setChecked(true);
 
-        if (data.assistant_count === 0 && !location.pathname.startsWith("/onboarding")) {
-          if (!location.pathname.startsWith("/assistants/launch")) {
-            toast.info("Launch your first assistant to get started");
-            navigate("/assistants/launch", { replace: true });
+        if (data.assistant_count === 0) {
+          if (data.onboarding_complete) {
+            if (!location.pathname.startsWith("/assistants/create")) {
+              toast.info("Create your first assistant to get started");
+              navigate("/assistants/create", { replace: true });
+            }
+            return;
+          }
+          if (!location.pathname.startsWith("/onboarding")) {
+            if (!location.pathname.startsWith("/assistants/launch")) {
+              toast.info("Launch your first assistant to get started");
+              navigate("/assistants/launch", { replace: true });
+            }
           }
           return;
         }
