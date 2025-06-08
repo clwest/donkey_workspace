@@ -16,7 +16,7 @@ export const STEP_ROUTES = {
 
 export default function useOnboardingGuard(step) {
   const navigate = useNavigate();
-  const { progress, completeStep } = useOnboardingTracker();
+  const { progress, completeStep, onboardingComplete } = useOnboardingTracker();
   const userInfo = useUserInfo();
 
   useEffect(() => {
@@ -27,10 +27,12 @@ export default function useOnboardingGuard(step) {
   }, [navigate, step]);
 
   useEffect(() => {
-    if (localStorage.getItem("access")) {
+    if (!localStorage.getItem("access")) return;
+    const status = progress?.find((p) => p.step === step)?.status;
+    if (status !== "completed") {
       completeStep(step);
     }
-  }, [completeStep, step]);
+  }, [completeStep, step, progress]);
 
   useEffect(() => {
     if (!progress || !userInfo) return;
@@ -40,10 +42,10 @@ export default function useOnboardingGuard(step) {
       return;
     }
 
-    if (userInfo.onboarding_complete) {
+    if (userInfo.onboarding_complete || onboardingComplete) {
       navigate("/home", { replace: true });
     }
-  }, [progress, userInfo, navigate, step]);
+  }, [progress, userInfo, onboardingComplete, navigate, step]);
 
   return { progress };
 }
