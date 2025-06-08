@@ -138,7 +138,7 @@ from .assistants import (
     patch_drifted_reflections,
     seed_chat_memory,
     reset_demo_assistant,
-    record_demo_feedback,
+    
 )
 from .conscience import (
     conscience_profiles,
@@ -322,7 +322,7 @@ __all__ = [
     "seed_chat_memory",
     "reset_demo_assistant",
     "replay_demo_boost",
-    "record_demo_feedback",
+    
     "drift_heatmap",
     "conscience_profiles",
     "reflexive_epistemology",

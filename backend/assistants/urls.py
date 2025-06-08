@@ -361,7 +361,7 @@ urlpatterns = [
     path("demos/", assistants.get_demo_assistants, name="demo_assistant"),
     path("demo_usage/overview/", assistants.demo_usage_overview, name="demo_usage_overview"),
 
-    path("demo_feedback/", assistants.record_demo_feedback, name="demo_feedback"),
+    
 
     # Sessions
     path("sessions/list/", sessions.list_chat_sessions, name="chat_session_list"),
@@ -937,11 +937,7 @@ urlpatterns = [
         demo.demo_tips,
         name="assistant-demo-tips",
     ),
-    path(
-        "demo_recap/<str:session_id>/",
-        demo.demo_recap,
-        name="demo-recap",
-    ),
+
     path(
         "<slug:slug>/hints/<str:hint_id>/dismiss/",
         hints.dismiss_hint,

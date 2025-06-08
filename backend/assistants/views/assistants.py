@@ -1,4 +1,4 @@
-from rest_framework.decorators import api_view, permission_classes, action
+from rest_framework.decorators import api_view, permission_classes, action, throttle_classes
 from rest_framework import viewsets
 import uuid
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
@@ -36,7 +36,7 @@ from assistants.helpers.logging_helper import (
 )
 from assistants.helpers.demo_utils import generate_assistant_from_demo
 
-from assistants.models.demo_usage import DemoUsageLog
+from assistants.models.demo import DemoUsageLog
 from assistants.views.demo import bump_demo_score
 
 from assistants.models.assistant import (
