@@ -1756,6 +1756,40 @@ class AssistantPreviewSerializer(serializers.ModelSerializer):
         }
 
 
+class DemoComparisonSerializer(serializers.ModelSerializer):
+    """Slim serializer for demo comparison cards."""
+
+    flair = serializers.SerializerMethodField()
+    preview_chat = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Assistant
+        fields = [
+            "name",
+            "demo_slug",
+            "flair",
+            "tone",
+            "traits",
+            "motto",
+            "preview_chat",
+        ]
+
+    def get_flair(self, obj):
+        if obj.primary_badge:
+            badge = Badge.objects.filter(slug=obj.primary_badge).first()
+            return badge.emoji if badge else None
+        return None
+
+    def get_preview_chat(self, obj):
+        from memory.models import MemoryEntry
+
+        mems = (
+            MemoryEntry.objects.filter(assistant=obj, tags__slug="starter-chat")
+            .order_by("created_at")[:3]
+        )
+        return [m.full_transcript or m.event for m in mems]
+
+
 from prompts.models import Prompt
 
 

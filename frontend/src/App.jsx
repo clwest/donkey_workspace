@@ -77,6 +77,7 @@ import AssistantDetailPage from "./pages/assistant/common/AssistantDetailPage";
 import AssistantThoughtsPage from "./pages/assistant/common/AssistantThoughtsPage";
 import AssistantThoughtDetailPage from "./pages/assistant/common/AssistantThoughtDetailPage";
 import AssistantDemoPage from "./pages/assistant/common/AssistantDemoPage";
+import DemoComparisonPage from "./pages/assistant/common/DemoComparisonPage";
 import AssistantLauncherPage from "./pages/assistants/AssistantLauncherPage";
 import AssistantIntroSplash from "./pages/assistant/common/AssistantIntroSplash";
 import AssistantTrailRecap from "./pages/assistant/common/AssistantTrailRecap";
@@ -491,6 +492,7 @@ export default function App() {
           <Route path="/assistants/routing-history" element={<RoutingHistoryPage />} />
           <Route path="/assistants/council/:id" element={<CouncilDashboardPage />} />
           <Route path="/assistants-demos" element={<AssistantDemoPage />} />
+          <Route path="/assistants/demos/compare" element={<DemoComparisonPage />} />
           <Route path="/assistants/launch" element={<AssistantLauncherPage />} />
           <Route path="/assistants/:slug/intro" element={<AssistantIntroSplash />} />
           <Route path="/assistants/:slug/trail" element={<AssistantTrailRecap />} />
