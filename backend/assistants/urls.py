@@ -954,6 +954,11 @@ urlpatterns = [
         name="assistant-seed-chat-memory",
     ),
     path(
+        "<slug:slug>/reset_demo/",
+        assistants.reset_demo_assistant,
+        name="assistant-reset-demo",
+    ),
+    path(
         "<uuid:assistant_id>/check-in/",
         check_in.AssistantCheckInView.as_view(),
         name="assistant-check-in",

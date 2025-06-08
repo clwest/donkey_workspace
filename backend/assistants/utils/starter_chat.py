@@ -27,3 +27,14 @@ def seed_chat_starter_memory(assistant, session_id="starter-demo"):
         memory.tags.add(tag)
         created.append(memory)
     return created
+
+
+def reset_demo_memory(assistant):
+    """Reset demo assistant memories and reseed starter chat."""
+    from memory.models import MemoryEntry
+
+    if not assistant.is_demo:
+        raise ValueError("Not a demo assistant")
+
+    MemoryEntry.objects.filter(assistant=assistant).delete()
+    return seed_chat_starter_memory(assistant)

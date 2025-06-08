@@ -132,6 +132,7 @@ from .assistants import (
     clean_projects,
     patch_drifted_reflections,
     seed_chat_memory,
+    reset_demo_assistant,
 )
 from .conscience import (
     conscience_profiles,
@@ -310,6 +311,7 @@ __all__ = [
     "clean_projects",
     "patch_drifted_reflections",
     "seed_chat_memory",
+    "reset_demo_assistant",
     "drift_heatmap",
     "conscience_profiles",
     "reflexive_epistemology",
