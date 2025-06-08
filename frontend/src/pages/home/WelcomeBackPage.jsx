@@ -19,7 +19,10 @@ export default function WelcomeBackPage() {
   }, []);
 
   useEffect(() => {
-    if (status && status.assistant_count === 0) {
+    if (!status) return;
+    if (status.assistant_count === 0 && status.onboarding_complete) {
+      navigate("/assistants/create", { replace: true });
+    } else if (status.assistant_count === 0) {
       navigate("/assistants/launch", { replace: true });
     }
   }, [status, navigate]);
@@ -53,6 +56,11 @@ export default function WelcomeBackPage() {
           ))}
         </ul>
       )}
+      <div className="mt-3">
+        <Link to="/assistants/create" className="btn btn-success">
+          Create Your First Assistant
+        </Link>
+      </div>
     </div>
   );
 }

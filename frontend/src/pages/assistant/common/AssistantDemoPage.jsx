@@ -34,10 +34,22 @@ export default function AssistantDemoPage() {
 
   useEffect(() => {
     apiFetch("/assistants/demos/")
-      .then((data) => setAssistants(Array.isArray(data) ? data : []))
-      .catch((err) => {
+      .then(async (data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setAssistants(data);
+        } else {
+          const seeded = await apiFetch("/assistants/demos/?force_seed=1");
+          setAssistants(Array.isArray(seeded) ? seeded : []);
+        }
+      })
+      .catch(async (err) => {
         console.error("Failed to fetch demo assistants:", err);
-        setAssistants([]);
+        try {
+          const seeded = await apiFetch("/assistants/demos/?force_seed=1");
+          setAssistants(Array.isArray(seeded) ? seeded : []);
+        } catch {
+          setAssistants([]);
+        }
       });
     apiFetch("/assistants/demo_success/")
       .then((data) => setSuccesses(Array.isArray(data) ? data : []))
@@ -58,6 +70,7 @@ export default function AssistantDemoPage() {
             await apiFetch("/assistants/demos/?force_seed=1");
             window.location.reload();
           }}
+          disabled={assistants.length === 0}
         >
           Reset Demos
         </button>
@@ -190,7 +203,7 @@ export default function AssistantDemoPage() {
         ))}
         {assistants.length === 0 && (
           <p className="text-muted text-center">
-            No demos found. Try running the demo seed again.
+            Demos are being loaded, please refresh soon.
           </p>
         )}
       </div>

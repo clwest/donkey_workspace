@@ -113,7 +113,7 @@ export default function OnboardingWorldPage() {
         {userInfo.initial_badges?.length > 0 && (
           <p>Badge unlocked: {userInfo.initial_badges[0]}</p>
         )}
-        <button className="btn btn-success" onClick={() => navigate("/home")}>Launch Your Assistant!</button>
+        <button className="btn btn-success" onClick={() => navigate("/assistants/create")}>Launch Your Assistant!</button>
       </div>
       <OnboardingHelpButton />
     </div>

@@ -1114,7 +1114,7 @@ def get_demo_assistants(request):
     """Return all demo assistants using the main serializer."""
     force = request.GET.get("force_seed") == "1"
     assistants = Assistant.objects.filter(is_demo=True).order_by("demo_slug")
-    if force or not assistants.exists():
+    if force or assistants.count() < 3:
         from django.core.management import call_command
 
         call_command("seed_demo_assistants")
