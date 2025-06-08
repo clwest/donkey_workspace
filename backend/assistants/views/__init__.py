@@ -6,6 +6,7 @@ from .assistants import (
     chat_with_assistant_view,
     flush_chat_session,
     demo_assistant,
+    get_demo_assistants,
     assistant_from_demo,
     add_document_to_assistant,
     self_reflect,
@@ -14,6 +15,7 @@ from .assistants import (
     clarify_prompt,
     failure_log,
     assistant_summary,
+    create_primary_assistant_view,
 )
 from .setup import AssistantSetupSummaryView
 from .intro import AssistantIntroView
@@ -182,6 +184,7 @@ __all__ = [
     "chat_with_assistant_view",
     "flush_chat_session",
     "demo_assistant",
+    "get_demo_assistants",
     "assistant_from_demo",
     "add_document_to_assistant",
     "self_reflect",
@@ -335,5 +338,6 @@ __all__ = [
     "onboarding_complete",
     "assistant_summary",
     "AssistantTrailRecapView",
+    "create_primary_assistant_view",
 ]
 from .skills import SkillPlanView

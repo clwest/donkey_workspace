@@ -46,3 +46,10 @@ class PrimaryAssistantAPITest(BaseAPITestCase):
         a2.refresh_from_db()
         self.assertFalse(a1.is_primary)
         self.assertTrue(a2.is_primary)
+
+    def test_create_primary_assistant(self):
+        resp = self.client.post("/api/assistants/primary/create/")
+        self.assertIn(resp.status_code, [200, 201])
+        data = resp.json()
+        self.assertTrue(data["is_primary"])
+        self.assertEqual(Assistant.objects.filter(is_primary=True).count(), 1)
