@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import apiFetch from "@/utils/apiClient";
+import { getAccessToken } from "@/utils/auth";
 import OnboardingProgressPanel from "@/components/onboarding/OnboardingProgressPanel";
 
 export default function WelcomeBackPage() {
@@ -9,6 +10,8 @@ export default function WelcomeBackPage() {
   const [status, setStatus] = useState(null);
 
   useEffect(() => {
+    const token = getAccessToken();
+    if (!token) return;
     apiFetch("/assistants/").then(setAssistants).catch(() => {});
     apiFetch("/user/", { allowUnauthenticated: true })
       .then(setStatus)

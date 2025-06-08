@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import useAuthGuard from "@/hooks/useAuthGuard";
 import { useEffect, useState } from "react";
 import apiFetch from "@/utils/apiClient";
+import { getAccessToken } from "@/utils/auth";
 import AssistantSetupSummary from "../components/assistant/AssistantSetupSummary";
 
 export default function WelcomePage() {
@@ -11,6 +12,7 @@ export default function WelcomePage() {
   const [primary, setPrimary] = useState(null);
 
   useEffect(() => {
+    if (!getAccessToken()) return;
     apiFetch("/assistants/primary/")
       .then(setPrimary)
       .catch(() => {});

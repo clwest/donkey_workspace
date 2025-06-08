@@ -48,7 +48,7 @@ export default function useAuthGuard({ allowUnauthenticated = false } = {}) {
       if (tokenExpired(token)) {
         if (authDebug) console.warn("[auth] access token expired");
         clearTokens();
-        if (!allowUnauthenticated) {
+        if (!allowUnauthenticated && !["/login", "/register"].includes(location.pathname)) {
           toast.warning("Session expired. Please log in again.");
           setError(new Error("Unauthorized"));
           setAuthErrorHandled(true);
@@ -91,7 +91,9 @@ export default function useAuthGuard({ allowUnauthenticated = false } = {}) {
         if (!allowUnauthenticated && authUserFailCount >= 2) {
           setError(err);
           clearTokens();
-          toast.warning("Session expired. Please log in again.");
+          if (!["/login", "/register"].includes(location.pathname)) {
+            toast.warning("Session expired. Please log in again.");
+          }
           setAuthErrorHandled(true);
           if (/^\/(assistants|onboarding|dashboard|memory|memories)/.test(location.pathname)) {
             navigate("/login", { replace: true });
