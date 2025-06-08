@@ -18,6 +18,7 @@ import os
 import re
 from django.conf import settings
 from django.utils.text import slugify
+import random
 from django.core.management import call_command
 from pathlib import Path
 from assistants.services import AssistantService
@@ -1077,6 +1078,22 @@ def get_demo_assistants(request):
 
 # Backwards compatibility alias
 demo_assistant = get_demo_assistants
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def demo_comparison(request):
+    """Return a small random set of demo assistants with preview chat."""
+    demos = list(Assistant.objects.filter(is_demo=True))
+    random.shuffle(demos)
+    demos = demos[:3]
+    for a in demos:
+        if not a.memories.exists():
+            from assistants.utils.starter_chat import seed_chat_starter_memory
+
+            seed_chat_starter_memory(a)
+    serializer = DemoComparisonSerializer(demos, many=True)
+    return Response(serializer.data)
 
 
 @api_view(["POST"])
