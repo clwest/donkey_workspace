@@ -16,7 +16,9 @@ from .badge import *
 from .hint import *
 from .tour import *
 from .trail import *
-from .demo_usage import *
+
+from .demo import *
+
 
 
 

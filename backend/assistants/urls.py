@@ -68,7 +68,9 @@ urlpatterns = [
     path("promote/", training.promote_trained_agent, name="assistant-promote"),
     path("from-documents/", assistants.assistant_from_documents),
     path("from_demo/", assistants.assistant_from_demo),
-    path("from_demo/preview/", assistants.assistant_from_demo_preview),
+
+    path("demo_feedback/", assistants.demo_feedback),
+
     path("thoughts/reflect-on-assistant/", assistants.reflect_on_assistant),
     path("conscience/", conscience.conscience_profiles),
     path("reflexive-epistemology/", conscience.reflexive_epistemology),

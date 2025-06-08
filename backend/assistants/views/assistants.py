@@ -1,7 +1,8 @@
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework import viewsets
 import uuid
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from rest_framework.throttling import AnonRateThrottle
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from rest_framework import status
@@ -1133,17 +1134,38 @@ def assistant_from_demo(request):
     """Clone a demo assistant for the current user."""
     demo_slug = request.data.get("demo_slug")
     transcript = request.data.get("transcript") or []
-    system_prompt = request.data.get("system_prompt")
+
+    session_id = request.data.get("demo_session_id")
+    variant = request.data.get("comparison_variant")
+    feedback_text = request.data.get("feedback_text")
+    rating = request.data.get("rating")
+
     if not demo_slug:
         return Response({"error": "demo_slug required"}, status=400)
 
     demo_session_id = request.data.get("demo_session_id")
     assistant = generate_assistant_from_demo(demo_slug, request.user, transcript)
 
-    if demo_session_id:
-        DemoUsageLog.objects.filter(session_id=demo_session_id).update(
-            converted_to_real_assistant=True
+
+    if session_id:
+        from assistants.models.demo import DemoUsageLog
+        log, _ = DemoUsageLog.objects.get_or_create(
+            session_id=session_id,
+            defaults={"demo_slug": demo_slug, "user": request.user},
         )
+        log.demo_slug = demo_slug
+        if variant:
+            log.comparison_variant = variant
+        if feedback_text:
+            log.feedback_text = feedback_text
+        if rating:
+            try:
+                log.user_rating = int(rating)
+            except (TypeError, ValueError):
+                pass
+        log.converted_at = timezone.now()
+        log.save()
+
 
     return Response({"slug": assistant.slug}, status=201)
 
@@ -1911,13 +1933,31 @@ def reset_demo_assistant(request, slug):
 
 
 @api_view(["POST"])
-def record_demo_feedback(request):
-    """Store optional feedback for a demo session."""
-    session_id = request.data.get("demo_session_id")
-    feedback = request.data.get("feedback", "")
+
+@permission_classes([AllowAny])
+@throttle_classes([AnonRateThrottle])
+def demo_feedback(request):
+    """Record feedback for a demo session."""
+    session_id = request.data.get("session_id")
+    feedback_text = request.data.get("feedback_text")
+    rating = request.data.get("rating")
     if not session_id:
-        return Response({"error": "session required"}, status=400)
-    DemoUsageLog.objects.filter(session_id=session_id).update(feedback=feedback)
+        return Response({"error": "session_id required"}, status=400)
+    from assistants.models.demo import DemoUsageLog
+
+    log, _ = DemoUsageLog.objects.get_or_create(
+        session_id=session_id,
+        defaults={"demo_slug": request.data.get("demo_slug", "")},
+    )
+    if feedback_text:
+        log.feedback_text = feedback_text
+    if rating:
+        try:
+            log.user_rating = int(rating)
+        except (TypeError, ValueError):
+            pass
+    log.save()
+
     return Response({"status": "ok"})
 
 
