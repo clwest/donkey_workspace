@@ -10,7 +10,9 @@ export default function WelcomeBackPage() {
 
   useEffect(() => {
     apiFetch("/assistants/").then(setAssistants).catch(() => {});
-    apiFetch("/user/").then(setStatus).catch(() => {});
+    apiFetch("/user/", { allowUnauthenticated: true })
+      .then(setStatus)
+      .catch(() => {});
   }, []);
 
   useEffect(() => {

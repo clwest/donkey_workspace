@@ -5,13 +5,20 @@ import { toast } from "react-toastify";
 import apiFetch from "../../utils/apiClient";
 import { registerUser } from "@/api/auth";
 
+export function getPostRegisterPath(info) {
+  return info.onboarding_complete ? "/home" : "/onboarding/world";
+}
+
 export default function RegisterPage() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password1, setPassword1] = useState("");
   const [password2, setPassword2] = useState("");
   const navigate = useNavigate();
-  useAuthGuard({ allowUnauthenticated: true });
+  const { authChecked } = useAuthGuard({ allowUnauthenticated: true });
+  if (!authChecked) {
+    return <div className="container my-5">Loading...</div>;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,13 +34,9 @@ export default function RegisterPage() {
         password2,
       });
 
-      const info = await apiFetch("/auth/user/");
+      const info = await apiFetch("/auth/user/", { allowUnauthenticated: true });
       toast.success("✅ Registered!");
-      if (info.onboarding_complete) {
-        navigate("/home");
-      } else {
-        navigate("/onboarding/world");
-      }
+      navigate(getPostRegisterPath(info));
     } catch (err) {
       toast.error("❌ Registration failed");
     }

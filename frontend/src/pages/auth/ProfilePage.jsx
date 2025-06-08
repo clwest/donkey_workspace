@@ -8,7 +8,7 @@ export default function ProfilePage() {
   useEffect(() => {
     async function loadProfile() {
       try {
-        const data = await apiFetch("/auth/user/");
+        const data = await apiFetch("/auth/user/", { allowUnauthenticated: true });
         setProfile(data);
       } catch {
         toast.error("❌ Failed to load profile");
@@ -27,6 +27,7 @@ export default function ProfilePage() {
       await apiFetch("/auth/user/", {
         method: "PUT",
         body: profile,
+        allowUnauthenticated: true,
       });
       toast.success("✅ Profile updated");
     } catch {

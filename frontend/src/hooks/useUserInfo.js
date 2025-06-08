@@ -10,7 +10,7 @@ export default function useUserInfo() {
       setUser(cachedUser);
       return;
     }
-    apiFetch("/user/")
+    apiFetch("/user/", { allowUnauthenticated: true })
       .then((data) => {
         cachedUser = data;
         setUser(data);
