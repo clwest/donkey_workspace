@@ -4,6 +4,7 @@ import HintBubble from "../../../components/HintBubble";
 import useAssistantHints from "../../../hooks/useAssistantHints";
 import apiFetch from "../../../utils/apiClient";
 import AssistantCard from "../../../components/assistant/AssistantCard";
+import { toast } from "react-toastify";
 import DemoAssistantShowcase from "../../../components/demo/DemoAssistantShowcase";
 import DemoSuccessCarousel from "../../../components/demo/DemoSuccessCarousel";
 import DemoTipsModal from "../../../components/demo/DemoTipsModal";
@@ -14,6 +15,7 @@ export default function AssistantDemoPage() {
   const [assistants, setAssistants] = useState([]);
   const [successes, setSuccesses] = useState(null);
   const [loadingAssistants, setLoadingAssistants] = useState(true);
+  const [resetting, setResetting] = useState(false);
   const { hints, dismissHint } = useAssistantHints("demo");
   const [showBanner, setShowBanner] = useState(
     () => localStorage.getItem("demo_banner_seen") !== "1",
@@ -41,13 +43,15 @@ export default function AssistantDemoPage() {
         if (Array.isArray(data) && data.length > 0) {
           setAssistants(data);
         } else {
-          const seeded = await apiFetch("/assistants/demos/?force_seed=1");
+          await apiFetch("/assistants/check_demo_seed/", { method: "POST" });
+          const seeded = await apiFetch("/assistants/demos/");
           setAssistants(Array.isArray(seeded) ? seeded : []);
         }
       } catch (err) {
         console.error("Failed to fetch demo assistants:", err);
         try {
-          const seeded = await apiFetch("/assistants/demos/?force_seed=1");
+          await apiFetch("/assistants/check_demo_seed/", { method: "POST" });
+          const seeded = await apiFetch("/assistants/demos/");
           setAssistants(Array.isArray(seeded) ? seeded : []);
         } catch {
           setAssistants([]);
@@ -81,13 +85,29 @@ export default function AssistantDemoPage() {
       {import.meta.env.DEV && (
         <button
           className="btn btn-warning btn-sm mb-3"
+          title="Use if demos stop responding or seem empty."
           onClick={async () => {
+            setResetting(true);
             await apiFetch("/assistants/demos/?force_seed=1");
+            const seeded = await apiFetch("/assistants/demos/");
+            if (Array.isArray(seeded)) {
+              for (const d of seeded) {
+                await apiFetch(
+                  `/assistants/${d.demo_slug || d.slug}/reset_demo/?force_seed=true`,
+                  { method: "POST", allowUnauthenticated: true },
+                );
+              }
+            }
+            toast.success("✅ Demos reseeded and starter chats reset.");
             window.location.reload();
           }}
-          disabled={assistants.length >= 3}
+          disabled={resetting}
         >
-          Reset Demos
+          {resetting ? (
+            <span className="spinner-border spinner-border-sm" />
+          ) : (
+            "Reset Demos"
+          )}
         </button>
       )}
       <DemoAssistantShowcase assistants={featured} />
@@ -223,7 +243,7 @@ export default function AssistantDemoPage() {
         ) : (
           assistants.length === 0 && (
             <p className="text-muted text-center">
-              Demos are being loaded, please refresh soon.
+              Demos are being reloaded. Please check back in a moment.
             </p>
           )
         )}
