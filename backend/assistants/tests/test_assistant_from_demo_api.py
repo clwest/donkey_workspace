@@ -30,3 +30,19 @@ class AssistantFromDemoAPITest(BaseAPITestCase):
         self.assertListEqual(asst.spawned_traits, ["badge", "tone", "avatar"])
         self.assertTrue(asst.is_demo_clone)
         self.assertGreater(asst.memories.count(), 0)
+
+    def test_clone_with_prompt_override(self):
+        resp = self.client.post(
+            self.url,
+            {
+                "demo_slug": "prompt_pal",
+                "transcript": [],
+                "system_prompt": "You are helpful",
+            },
+            format="json",
+        )
+        self.assertEqual(resp.status_code, 201)
+        slug = resp.json()["slug"]
+        asst = Assistant.objects.get(slug=slug)
+        self.assertIsNotNone(asst.system_prompt)
+        self.assertEqual(asst.system_prompt.content, "You are helpful")

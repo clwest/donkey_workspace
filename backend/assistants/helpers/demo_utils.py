@@ -84,3 +84,13 @@ def generate_assistant_from_demo(demo_slug: str, user, transcript=None):
                     is_demo=False,
                 )
     return assistant
+
+
+def generate_demo_prompt_preview(demo_assistant) -> str:
+    """Return a short system prompt preview for a demo assistant."""
+    if demo_assistant.specialty:
+        return (
+            f"You’re a creative, helpful assistant focused on {demo_assistant.specialty}."
+        )
+    return "You’re a creative, helpful assistant ready to help the user."
+
