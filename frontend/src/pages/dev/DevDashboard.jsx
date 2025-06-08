@@ -143,6 +143,9 @@ export default function DevDashboard() {
         <Link to="/assistants/demos/insights" className="btn btn-outline-secondary my-3 ms-2">
           📊 Demo Insights
         </Link>
+        <Link to="/assistants/demos/leaderboard" className="btn btn-outline-secondary my-3 ms-2">
+          🏆 Demo Leaderboard
+        </Link>
         <ul className="nav nav-tabs mt-2">
           <li className="nav-item">
             <button

@@ -43,6 +43,12 @@ export default function AssistantDemoPage() {
           >
             View Insights
           </Link>
+          <Link
+            to="/assistants/demos/leaderboard"
+            className="btn btn-outline-secondary btn-sm"
+          >
+            Leaderboard
+          </Link>
         </div>
       )}
       {showBanner && (

@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
+from assistants.models.demo_usage import DemoSessionLog
 
 
 from assistants.models import Assistant, DemoUsageLog
@@ -56,4 +57,82 @@ def replay_demo_boost(request):
     )
     summary = boost_prompt_from_demo(assistant, transcript)
     return Response({"slug": assistant.slug, "summary": summary})
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def demo_leaderboard(request):
+    """Return aggregated demo metrics ranked by conversion rate."""
+    session_logs = DemoSessionLog.objects.select_related("assistant")
+    usage_logs = DemoUsageLog.objects.all()
+
+    data = {}
+    for log in session_logs:
+        slug = log.assistant.demo_slug or log.assistant.slug
+        entry = data.setdefault(
+            slug,
+            {
+                "demo_slug": slug,
+                "label": log.assistant.name,
+                "total_sessions": 0,
+                "conversion_count": 0,
+                "_interaction_total": 0,
+                "_message_total": 0,
+                "_bounce_count": 0,
+                "rating_distribution": {str(i): 0 for i in range(1, 6)},
+                "latest_session_date": None,
+            },
+        )
+        entry["total_sessions"] += 1
+        if log.converted_to_real_assistant:
+            entry["conversion_count"] += 1
+        entry["_interaction_total"] += log.demo_interaction_score
+        entry["_message_total"] += log.message_count
+        if log.message_count <= 1:
+            entry["_bounce_count"] += 1
+        if not entry["latest_session_date"] or log.started_at > entry["latest_session_date"]:
+            entry["latest_session_date"] = log.started_at
+
+    for log in usage_logs:
+        if not log.user_rating:
+            continue
+        slug = log.demo_slug
+        if slug not in data:
+            asst = Assistant.objects.filter(demo_slug=slug).first()
+            data[slug] = {
+                "demo_slug": slug,
+                "label": asst.name if asst else slug,
+                "total_sessions": 0,
+                "conversion_count": 0,
+                "_interaction_total": 0,
+                "_message_total": 0,
+                "_bounce_count": 0,
+                "rating_distribution": {str(i): 0 for i in range(1, 6)},
+                "latest_session_date": log.created_at,
+            }
+        dist = data[slug]["rating_distribution"]
+        dist[str(log.user_rating)] = dist.get(str(log.user_rating), 0) + 1
+        if not data[slug]["latest_session_date"] or log.created_at > data[slug]["latest_session_date"]:
+            data[slug]["latest_session_date"] = log.created_at
+
+    results = []
+    for slug, entry in data.items():
+        total = entry["total_sessions"]
+        if total:
+            entry["avg_interaction_score"] = entry.pop("_interaction_total") / total
+            entry["avg_message_count"] = entry.pop("_message_total") / total
+            entry["bounce_rate"] = entry.pop("_bounce_count") / total
+            entry["conversion_rate"] = entry["conversion_count"] / total
+        else:
+            entry["avg_interaction_score"] = 0
+            entry["avg_message_count"] = 0
+            entry["bounce_rate"] = 0
+            entry["conversion_rate"] = 0
+            entry.pop("_interaction_total")
+            entry.pop("_message_total")
+            entry.pop("_bounce_count")
+        results.append(entry)
+
+    results.sort(key=lambda r: (r["conversion_rate"], r["total_sessions"]), reverse=True)
+    return Response(results)
 
