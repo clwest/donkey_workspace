@@ -4,6 +4,7 @@ import HintBubble from "../../../components/HintBubble";
 import useAssistantHints from "../../../hooks/useAssistantHints";
 import apiFetch from "../../../utils/apiClient";
 import AssistantCard from "../../../components/assistant/AssistantCard";
+import DemoAssistantShowcase from "../../../components/demo/DemoAssistantShowcase";
 
 export default function AssistantDemoPage() {
   const [assistants, setAssistants] = useState([]);
@@ -26,9 +27,14 @@ export default function AssistantDemoPage() {
       });
   }, []);
 
+  const featured = assistants
+    .filter((a) => a.is_featured)
+    .sort((a, b) => (a.featured_rank || 0) - (b.featured_rank || 0));
+
   return (
     <div className="container py-5 position-relative">
       <h1 className="mb-4">🧪 AI Assistant Demos</h1>
+      <DemoAssistantShowcase assistants={featured} />
       {assistants.length > 1 && (
         <div className="mb-3 text-end d-flex justify-content-end gap-2">
           <Link
@@ -42,6 +48,12 @@ export default function AssistantDemoPage() {
             className="btn btn-outline-secondary btn-sm"
           >
             View Insights
+          </Link>
+          <Link
+            to="/assistants/demos/leaderboard"
+            className="btn btn-outline-secondary btn-sm"
+          >
+            Leaderboard
           </Link>
         </div>
       )}
@@ -62,7 +74,17 @@ export default function AssistantDemoPage() {
       <div className="row" id="demo-assistant-cards">
         {assistants.map((assistant) => (
           <div key={assistant.id} className="col-md-4 mb-4">
-            <div className="card h-100 shadow-sm border-0 sparkle-hover">
+            <div className="card h-100 shadow-sm border-0 sparkle-hover position-relative">
+              {assistant.is_featured && (
+                <span className="badge bg-warning position-absolute top-0 start-0">
+                  🏆 Featured
+                </span>
+              )}
+              {!assistant.is_featured && assistant.metrics?.conversion_rate > 0.25 && (
+                <span className="badge bg-danger position-absolute top-0 start-0">
+                  🔥 Trending
+                </span>
+              )}
               <div className="card-body">
                 <div className="d-flex align-items-center mb-3">
                   {assistant.avatar ? (
@@ -89,6 +111,11 @@ export default function AssistantDemoPage() {
                 <p className="text-muted" style={{ fontSize: "0.9rem" }}>
                   {assistant.description || "No description provided."}
                 </p>
+                {assistant.metrics && (
+                  <div className="small text-muted mb-1">
+                    💬 {assistant.metrics.avg_messages?.toFixed(1)} chats/session
+                  </div>
+                )}
                 {assistant.specialty && (
                   <span className="badge bg-info text-dark">
                     {assistant.specialty}

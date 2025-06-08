@@ -44,6 +44,8 @@ class AssistantAdmin(admin.ModelAdmin):
         "preferred_model",
         "is_active",
         "is_demo",
+        "is_featured",
+        "featured_rank",
         "created_at",
     )
     search_fields = ("name", "slug", "specialty")
@@ -74,6 +76,8 @@ class AssistantAdmin(admin.ModelAdmin):
                 "fields": (
                     "is_active",
                     "is_demo",
+                    "is_featured",
+                    "featured_rank",
                     "show_intro_splash",
                     "created_by",
                     "created_at",
