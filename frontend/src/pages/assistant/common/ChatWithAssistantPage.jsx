@@ -1,5 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
+import {
+  useParams,
+  Link,
+  useSearchParams,
+  useNavigate,
+} from "react-router-dom";
 import apiFetch from "@/utils/apiClient";
 import TagBadge from "../../../components/TagBadge";
 import HintBubble from "../../../components/HintBubble";
@@ -27,7 +32,10 @@ import AssistantBadgeIcon from "../../../components/assistant/AssistantBadgeIcon
 
 import useGlossaryOverlay from "../../../hooks/glossary";
 import GlossaryOverlayTooltip from "../../../components/GlossaryOverlayTooltip";
+
 import DemoTipsSidebar from "../../../components/demo/DemoTipsSidebar";
+import DemoRecapModal from "../../../components/demo/DemoRecapModal";
+
 
 export default function ChatWithAssistantPage() {
   const { slug } = useParams();
@@ -35,6 +43,7 @@ export default function ChatWithAssistantPage() {
   const [searchParams] = useSearchParams();
   const starter =
     searchParams.get("starter") || searchParams.get("starter_query");
+  const variant = searchParams.get("variant");
   const [messages, setMessages] = useState([]);
   const [assistantInfo, setAssistantInfo] = useState(null);
   const [identity, setIdentity] = useState(null);
@@ -45,7 +54,11 @@ export default function ChatWithAssistantPage() {
   const [demoCount, setDemoCount] = useState(0);
   const [showReset, setShowReset] = useState(false);
   const [showCustomize, setShowCustomize] = useState(false);
+
+  const [showRecap, setShowRecap] = useState(false);
+  const [helpfulCount, setHelpfulCount] = useState(0);
   const { demoSessionId } = useDemoSession();
+
   const [sessionId] = useState(() => {
     const key = `chat_session_${slug}`;
     const stored = localStorage.getItem(key);
@@ -81,8 +94,13 @@ export default function ChatWithAssistantPage() {
     if (assistantInfo?.is_demo) {
       const count = messages.filter((m) => m.role === "user").length;
       setDemoCount(count);
-      if (count >= 3) {
-        setShowFeedbackButton(true);
+
+      if (count >= 2 && !showFeedback) {
+        setShowFeedback(true);
+
+      }
+      if (count >= 5) {
+        setShowRecap(true);
       }
     }
     if (
@@ -93,6 +111,12 @@ export default function ChatWithAssistantPage() {
       setShowCustomize(true);
     }
   }, [assistantInfo, messages]);
+
+  useEffect(() => {
+    if (helpfulCount > 0) {
+      setShowRecap(true);
+    }
+  }, [helpfulCount]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -309,9 +333,18 @@ export default function ChatWithAssistantPage() {
         role: m.role,
         content: m.content,
       }));
-      const data = await prepareCreationFromDemo(slug, transcript);
-      localStorage.setItem("demo_prefill", JSON.stringify(data));
-      navigate("/assistants/create?prefill=demo");
+
+      const res = await createAssistantFromDemo(
+        assistantInfo.demo_slug,
+        transcript,
+        demoSessionId,
+        variant,
+      );
+      setShowFeedback(true);
+      if (res.slug) {
+        navigate(`/assistants/${res.slug}/intro`);
+      }
+
     } catch (err) {
       toast.error("Failed to prepare assistant");
     }
@@ -411,7 +444,9 @@ export default function ChatWithAssistantPage() {
         </span>
         {identity?.name || slug}
         {assistantInfo?.is_demo && (
-          <span className="badge bg-info text-dark ms-2">🧪 Demo Assistant</span>
+          <span className="badge bg-info text-dark ms-2">
+            🧪 Demo Assistant
+          </span>
         )}
       </h1>
       {assistantInfo?.is_demo && identity?.motto && (
@@ -604,6 +639,15 @@ export default function ChatWithAssistantPage() {
             {loading ? "Thinking..." : "Send"}
           </button>
         </form>
+        {assistantInfo?.is_demo && (
+          <button
+            className="btn btn-outline-secondary ms-2"
+            type="button"
+            onClick={() => setShowRecap(true)}
+          >
+            End Session
+          </button>
+        )}
       </div>
       <div className="form-check form-switch mt-2">
         <input
@@ -618,7 +662,9 @@ export default function ChatWithAssistantPage() {
         </label>
       </div>
       {assistantInfo?.is_demo && (
-        <div className="alert alert-info mt-3">🧪 You’re chatting with a demo assistant. This chat won’t be saved.</div>
+        <div className="alert alert-info mt-3">
+          🧪 You’re chatting with a demo assistant. This chat won’t be saved.
+        </div>
       )}
       {!assistantInfo?.is_demo && sourceInfo && (
         <div className="mt-2">
@@ -673,7 +719,10 @@ export default function ChatWithAssistantPage() {
       )}
       {!assistantInfo?.is_demo && (
         <>
-          <button className="btn btn-outline-primary mt-2" onClick={handleSuggest}>
+          <button
+            className="btn btn-outline-primary mt-2"
+            onClick={handleSuggest}
+          >
             🤖 Suggest Assistant
           </button>
           <button
@@ -789,25 +838,42 @@ export default function ChatWithAssistantPage() {
       {assistantInfo?.is_demo && (
         <div className="alert alert-secondary mt-4 d-flex justify-content-between align-items-center">
           <span>Like this assistant? Customize it to make your own.</span>
-          <button className="btn btn-sm btn-primary" onClick={handleCreateFromDemo}>
+          <button
+            className="btn btn-sm btn-primary"
+            onClick={handleCreateFromDemo}
+          >
             Create My Assistant
           </button>
         </div>
       )}
 
       {assistantInfo?.is_demo && demoCount >= 3 && (
-        <div className="position-fixed bottom-0 end-0 m-4 p-3 bg-light border rounded shadow" style={{ zIndex: 1000 }}>
+        <div
+          className="position-fixed bottom-0 end-0 m-4 p-3 bg-light border rounded shadow"
+          style={{ zIndex: 1000 }}
+        >
           <div className="fw-bold mb-1">🎉 Liking this assistant?</div>
-          <div>Create your own to save conversations, memories, and reflections!</div>
-          <button className="btn btn-primary mt-2" onClick={handleCreateFromDemo}>
+          <div>
+            Create your own to save conversations, memories, and reflections!
+          </div>
+          <button
+            className="btn btn-primary mt-2"
+            onClick={handleCreateFromDemo}
+          >
             Create My Assistant
           </button>
         </div>
       )}
 
       {assistantInfo?.is_demo && showFeedbackButton && (
-        <div className="position-fixed bottom-0 start-0 m-4" style={{ zIndex: 1000 }}>
-          <button className="btn btn-outline-secondary" onClick={() => setShowFeedbackModal(true)}>
+        <div
+          className="position-fixed bottom-0 start-0 m-4"
+          style={{ zIndex: 1000 }}
+        >
+          <button
+            className="btn btn-outline-secondary"
+            onClick={() => setShowFeedbackModal(true)}
+          >
             Feedback
           </button>
         </div>
@@ -821,11 +887,25 @@ export default function ChatWithAssistantPage() {
                 <h5 className="modal-title">Demo Feedback</h5>
               </div>
               <div className="modal-body">
-                <textarea className="form-control" value={feedbackText} onChange={(e) => setFeedbackText(e.target.value)} />
+                <textarea
+                  className="form-control"
+                  value={feedbackText}
+                  onChange={(e) => setFeedbackText(e.target.value)}
+                />
               </div>
               <div className="modal-footer">
-                <button className="btn btn-secondary" onClick={() => setShowFeedbackModal(false)}>Close</button>
-                <button className="btn btn-primary" onClick={handleSubmitFeedback}>Submit</button>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setShowFeedbackModal(false)}
+                >
+                  Close
+                </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={handleSubmitFeedback}
+                >
+                  Submit
+                </button>
               </div>
             </div>
           </div>
@@ -833,10 +913,16 @@ export default function ChatWithAssistantPage() {
       )}
 
       {assistantInfo?.is_demo_clone && showCustomize && (
-        <div className="position-fixed bottom-0 end-0 m-4 p-3 bg-light border rounded shadow" style={{ zIndex: 1000 }}>
+        <div
+          className="position-fixed bottom-0 end-0 m-4 p-3 bg-light border rounded shadow"
+          style={{ zIndex: 1000 }}
+        >
           <div className="fw-bold mb-1">Give me a unique identity!</div>
           <div>Customize this assistant's name or avatar.</div>
-          <Link className="btn btn-primary mt-2" to={`/assistants/${assistantInfo.slug}/edit`}>
+          <Link
+            className="btn btn-primary mt-2"
+            to={`/assistants/${assistantInfo.slug}/edit`}
+          >
             Customize Me
           </Link>
         </div>
@@ -850,10 +936,14 @@ export default function ChatWithAssistantPage() {
                 <h5 className="modal-title">Reset Demo</h5>
               </div>
               <div className="modal-body">
-                Resetting the demo will clear all messages. Ready to start fresh?
+                Resetting the demo will clear all messages. Ready to start
+                fresh?
               </div>
               <div className="modal-footer">
-                <button className="btn btn-secondary" onClick={() => setShowReset(false)}>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setShowReset(false)}
+                >
                   Cancel
                 </button>
                 <button className="btn btn-primary" onClick={handleResetDemo}>
@@ -865,8 +955,28 @@ export default function ChatWithAssistantPage() {
         </div>
       )}
 
+      <DemoFeedbackModal
+        show={showFeedback}
+        onClose={() => setShowFeedback(false)}
+        onSubmit={(r, t) => sendDemoFeedback(demoSessionId, t, r)}
+      />
+
       {error && <div className="alert alert-danger mt-3">{error}</div>}
-      {assistantInfo?.is_demo && <DemoTipsSidebar slug={slug} />}
+      {assistantInfo?.is_demo && (
+        <DemoTipsSidebar
+          slug={slug}
+          sessionId={demoSessionId}
+          onHelpful={() => setHelpfulCount((c) => c + 1)}
+        />
+      )}
+      {assistantInfo?.is_demo && (
+        <DemoRecapModal
+          show={showRecap}
+          onClose={() => setShowRecap(false)}
+          demoSlug={assistantInfo.demo_slug}
+          sessionId={demoSessionId}
+        />
+      )}
     </div>
   );
 }

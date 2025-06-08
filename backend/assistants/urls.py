@@ -68,8 +68,10 @@ urlpatterns = [
     path("promote/", training.promote_trained_agent, name="assistant-promote"),
     path("from-documents/", assistants.assistant_from_documents),
     path("from_demo/", assistants.assistant_from_demo),
+
     path("from_demo/preview/", assistants.assistant_from_demo_preview),
     path("demo_boost/", demo.replay_demo_boost, name="assistant-demo-boost"),
+
     path("thoughts/reflect-on-assistant/", assistants.reflect_on_assistant),
     path("conscience/", conscience.conscience_profiles),
     path("reflexive-epistemology/", conscience.reflexive_epistemology),
@@ -357,6 +359,7 @@ urlpatterns = [
     path("signals/<uuid:pk>/", signals.update_signal_catch, name="update-signal-catch"),
     # Demo Agents
     path("demos/", assistants.get_demo_assistants, name="demo_assistant"),
+    path("demo_usage/overview/", assistants.demo_usage_overview, name="demo_usage_overview"),
 
     path("demo_feedback/", assistants.record_demo_feedback, name="demo_feedback"),
 
@@ -933,6 +936,11 @@ urlpatterns = [
         "<slug:slug>/demo_tips/",
         demo.demo_tips,
         name="assistant-demo-tips",
+    ),
+    path(
+        "demo_recap/<str:session_id>/",
+        demo.demo_recap,
+        name="demo-recap",
     ),
     path(
         "<slug:slug>/hints/<str:hint_id>/dismiss/",

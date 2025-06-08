@@ -37,3 +37,11 @@ class DemoAssistantAPITest(BaseAPITestCase):
         data = resp.json()
         self.assertEqual(len(data), 1)
         self.assertTrue(data[0]["is_demo"])
+        self.assertIn("metrics", data[0])
+
+    def test_demo_usage_overview_endpoint(self):
+        resp = self.client.get("/api/assistants/demo_usage/overview/")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertIn("total_sessions", data)
+        self.assertIn("conversion_rate", data)

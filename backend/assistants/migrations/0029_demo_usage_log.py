@@ -1,6 +1,12 @@
 from django.db import migrations, models
 
+import django.db.models.deletion
+from django.conf import settings
+
+
 class Migration(migrations.Migration):
+
+
     dependencies = [
         ("assistants", "0028_trail_user_fields"),
     ]
@@ -9,22 +15,21 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="DemoUsageLog",
             fields=[
-                ("id", models.AutoField(primary_key=True, serialize=False)),
-                ("session_id", models.CharField(max_length=64, db_index=True)),
-                ("started_at", models.DateTimeField(auto_now_add=True)),
-                ("ended_at", models.DateTimeField(null=True, blank=True)),
-                ("message_count", models.IntegerField(default=0)),
-                ("starter_query", models.TextField(blank=True)),
-                ("first_message", models.TextField(blank=True)),
-                ("first_message_score", models.FloatField(null=True, blank=True)),
-                ("converted_to_real_assistant", models.BooleanField(default=False)),
-                ("created_from_ip", models.CharField(max_length=64, blank=True)),
-                ("user_agent", models.TextField(blank=True)),
-                ("feedback", models.TextField(blank=True)),
-                ("assistant", models.ForeignKey(on_delete=models.deletion.CASCADE, related_name="demo_logs", to="assistants.assistant")),
+
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("session_id", models.CharField(max_length=64, unique=True)),
+                (
+                    "user",
+                    models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL),
+                ),
+                ("demo_slug", models.CharField(max_length=100)),
+                ("comparison_variant", models.CharField(blank=True, max_length=50)),
+                ("feedback_text", models.TextField(blank=True)),
+                ("user_rating", models.IntegerField(blank=True, null=True)),
+                ("converted_at", models.DateTimeField(blank=True, null=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
-            options={
-                "ordering": ["-started_at"],
-            },
+            options={"ordering": ["-created_at"]},
+
         ),
     ]

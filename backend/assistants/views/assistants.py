@@ -1,7 +1,8 @@
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework import viewsets
 import uuid
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from rest_framework.throttling import AnonRateThrottle
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from rest_framework import status
@@ -34,7 +35,10 @@ from assistants.helpers.logging_helper import (
     log_trail_marker,
 )
 from assistants.helpers.demo_utils import generate_assistant_from_demo
+
 from assistants.models.demo_usage import DemoUsageLog
+from assistants.views.demo import bump_demo_score
+
 from assistants.models.assistant import (
     Assistant,
     TokenUsage,
@@ -407,6 +411,7 @@ class AssistantViewSet(viewsets.ModelViewSet):
         """Return preview info for converting a demo assistant."""
         assistant = get_object_or_404(Assistant, slug=slug, is_demo=True)
         transcript = request.data.get("transcript") or []
+        demo_session_id = request.data.get("demo_session_id")
         from assistants.helpers.demo_utils import generate_demo_prompt_preview
 
         preview = {
@@ -421,6 +426,8 @@ class AssistantViewSet(viewsets.ModelViewSet):
             "recent_messages": transcript[:6],
             "suggested_system_prompt": generate_demo_prompt_preview(assistant),
         }
+        if demo_session_id:
+            bump_demo_score(demo_session_id, 10)
         return Response(preview)
 
     @action(detail=True, methods=["patch"], url_path="assign-primary")
@@ -728,7 +735,7 @@ def chat_with_assistant_view(request, slug):
 
     if message == "__ping__":
         if assistant.is_demo and demo_session_id:
-            DemoUsageLog.objects.get_or_create(
+            DemoSessionLog.objects.get_or_create(
                 session_id=demo_session_id,
                 defaults={
                     "assistant": assistant,
@@ -768,7 +775,7 @@ def chat_with_assistant_view(request, slug):
     chat_session = get_or_create_chat_session(session_id, assistant=assistant)
 
     if assistant.is_demo and demo_session_id:
-        log, created = DemoUsageLog.objects.get_or_create(
+        log, created = DemoSessionLog.objects.get_or_create(
             session_id=demo_session_id,
             defaults={
                 "assistant": assistant,
@@ -783,6 +790,7 @@ def chat_with_assistant_view(request, slug):
         log.message_count = F("message_count") + 1
         log.ended_at = timezone.now()
         log.save()
+        bump_demo_score(demo_session_id, 1)
 
     if assistant.is_primary and assistant.live_relay_enabled:
         delegate = assistant.sub_assistants.filter(is_active=True).first()
@@ -1106,11 +1114,61 @@ def get_demo_assistants(request):
 
             seed_chat_starter_memory(a)
     serializer = AssistantSerializer(assistants, many=True)
-    return Response(serializer.data)
+
+    data = serializer.data
+    for obj, a in zip(data, assistants):
+        logs = DemoUsageLog.objects.filter(assistant=a)
+        total = logs.count()
+        conversions = logs.filter(converted_to_real_assistant=True).count()
+        bounce = logs.filter(message_count=0).count()
+        obj["metrics"] = {
+            "total_sessions": total,
+            "avg_messages": logs.aggregate(models.Avg("message_count"))["message_count__avg"]
+            or 0,
+            "conversion_rate": conversions / total if total else 0,
+            "bounce_rate": bounce / total if total else 0,
+            "most_common_starter": (
+                logs.values("starter_query")
+                .annotate(c=models.Count("id"))
+                .order_by("-c")
+                .first()
+            )
+            or {}
+        }
+        if obj["metrics"]["most_common_starter"]:
+            obj["metrics"]["most_common_starter"] = obj["metrics"]["most_common_starter"]["starter_query"]
+        else:
+            obj["metrics"]["most_common_starter"] = ""
+    return Response(data)
 
 
 # Backwards compatibility alias
 demo_assistant = get_demo_assistants
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def demo_usage_overview(request):
+    """Return aggregate usage metrics across all demo assistants."""
+    logs = DemoUsageLog.objects.all()
+    total = logs.count()
+    conversions = logs.filter(converted_to_real_assistant=True).count()
+    bounce = logs.filter(message_count=0).count()
+    top = (
+        logs.values("starter_query")
+        .annotate(count=models.Count("id"))
+        .order_by("-count")[:5]
+    )
+    return Response(
+        {
+            "total_sessions": total,
+            "avg_session_length": logs.aggregate(models.Avg("message_count"))["message_count__avg"]
+            or 0,
+            "conversion_rate": conversions / total if total else 0,
+            "bounce_rate": bounce / total if total else 0,
+            "top_starters": list(top),
+        }
+    )
 
 
 @api_view(["GET"])
@@ -1135,12 +1193,18 @@ def assistant_from_demo(request):
     """Clone a demo assistant for the current user."""
     demo_slug = request.data.get("demo_slug")
     transcript = request.data.get("transcript") or []
-    system_prompt = request.data.get("system_prompt")
+
+    session_id = request.data.get("demo_session_id")
+    variant = request.data.get("comparison_variant")
+    feedback_text = request.data.get("feedback_text")
+    rating = request.data.get("rating")
+
     if not demo_slug:
         return Response({"error": "demo_slug required"}, status=400)
 
     demo_session_id = request.data.get("demo_session_id")
     assistant = generate_assistant_from_demo(demo_slug, request.user, transcript)
+
 
     if demo_session_id:
         from assistants.helpers.demo_utils import boost_prompt_from_demo
@@ -1148,7 +1212,11 @@ def assistant_from_demo(request):
         boost_prompt_from_demo(assistant, transcript)
         DemoUsageLog.objects.filter(session_id=demo_session_id).update(
             converted_to_real_assistant=True
+
         )
+
+        bump_demo_score(demo_session_id, 10)
+
 
     return Response({"slug": assistant.slug}, status=201)
 
@@ -1916,13 +1984,31 @@ def reset_demo_assistant(request, slug):
 
 
 @api_view(["POST"])
-def record_demo_feedback(request):
-    """Store optional feedback for a demo session."""
-    session_id = request.data.get("demo_session_id")
-    feedback = request.data.get("feedback", "")
+
+@permission_classes([AllowAny])
+@throttle_classes([AnonRateThrottle])
+def demo_feedback(request):
+    """Record feedback for a demo session."""
+    session_id = request.data.get("session_id")
+    feedback_text = request.data.get("feedback_text")
+    rating = request.data.get("rating")
     if not session_id:
-        return Response({"error": "session required"}, status=400)
-    DemoUsageLog.objects.filter(session_id=session_id).update(feedback=feedback)
+        return Response({"error": "session_id required"}, status=400)
+    from assistants.models.demo import DemoUsageLog
+
+    log, _ = DemoUsageLog.objects.get_or_create(
+        session_id=session_id,
+        defaults={"demo_slug": request.data.get("demo_slug", "")},
+    )
+    if feedback_text:
+        log.feedback_text = feedback_text
+    if rating:
+        try:
+            log.user_rating = int(rating)
+        except (TypeError, ValueError):
+            pass
+    log.save()
+
     return Response({"status": "ok"})
 
 
