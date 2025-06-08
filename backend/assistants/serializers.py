@@ -1670,6 +1670,10 @@ class AssistantIntroSerializer(serializers.ModelSerializer):
     personalization_prompt = serializers.SerializerMethodField()
     demo_origin = serializers.SerializerMethodField()
     trail_summary_ready = serializers.SerializerMethodField()
+    spawned_by_label = serializers.SerializerMethodField()
+    is_cloned_from_demo = serializers.SerializerMethodField()
+    birth_reflection = serializers.CharField(source="init_reflection", read_only=True)
+    is_primary = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Assistant
@@ -1689,6 +1693,10 @@ class AssistantIntroSerializer(serializers.ModelSerializer):
             "personalization_prompt",
             "demo_origin",
             "trail_summary_ready",
+            "spawned_by_label",
+            "is_cloned_from_demo",
+            "birth_reflection",
+            "is_primary",
         ]
 
     def get_flair(self, obj):
@@ -1733,6 +1741,14 @@ class AssistantIntroSerializer(serializers.ModelSerializer):
     def get_trail_summary_ready(self, obj):
         """Indicate if the assistant has a milestone trail summary."""
         return obj.trail_summary_ready
+
+    def get_spawned_by_label(self, obj):
+        if obj.spawned_by:
+            return obj.spawned_by.name
+        return None
+
+    def get_is_cloned_from_demo(self, obj):
+        return bool(obj.spawned_by and obj.spawned_by.is_demo)
 
 
 class AssistantPreviewSerializer(serializers.ModelSerializer):

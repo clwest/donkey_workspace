@@ -1,5 +1,6 @@
 from assistants.models.assistant import Assistant
 from assistants.models.trail import TrailMarkerLog
+from assistants.models.reflection import AssistantReflectionLog
 from memory.models import MemoryEntry
 
 TONE_COLORS = {
@@ -34,6 +35,9 @@ def get_intro_splash_payload(assistant: Assistant) -> dict:
         .order_by("-created_at")
         .first()
     )
+    birth_reflection = assistant.init_reflection or AssistantReflectionLog.objects.filter(
+        assistant=assistant, title="Origin Reflection"
+    ).values_list("summary", flat=True).first()
     milestones = list(
         assistant.trail_markers.order_by("-timestamp")
         .values("marker_type", "timestamp", "notes")[:3]
@@ -53,6 +57,10 @@ def get_intro_splash_payload(assistant: Assistant) -> dict:
             "tone": assistant.tone_profile or assistant.tone or getattr(assistant.spawned_by, "tone_profile", None),
             "avatar": assistant.avatar_style or getattr(assistant.spawned_by, "avatar_style", None),
         },
+        "spawned_by_label": assistant.spawned_by.name if assistant.spawned_by else None,
+        "is_cloned_from_demo": bool(assistant.spawned_by and assistant.spawned_by.is_demo),
+        "is_primary": assistant.is_primary,
+        "birth_reflection": birth_reflection,
         "trail_summary": summary_entry.summary if summary_entry else None,
         "recent_milestones": milestones,
     }
