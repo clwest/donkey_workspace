@@ -241,6 +241,16 @@ class Assistant(models.Model):
     boosted_from_demo = models.BooleanField(default=False)
     boost_prompt_in_system = models.BooleanField(default=True)
 
+    mentor_assistant = models.ForeignKey(
+        "self",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="mentees",
+    )
+    mentor_for_demo_clone = models.BooleanField(default=False)
+    nurture_started_at = models.DateTimeField(null=True, blank=True)
+
     def capabilities_dict(self) -> dict:
         """Return capabilities as a dictionary even if stored as a string."""
         data = self.capabilities

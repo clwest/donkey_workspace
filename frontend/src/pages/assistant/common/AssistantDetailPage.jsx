@@ -7,6 +7,7 @@ import DriftScoreChart from "../../../components/assistant/DriftScoreChart";
 import RecoveryPanel from "../../../components/assistant/RecoveryPanel";
 import AssistantDiagnosticsPanel from "../../../components/assistant/AssistantDiagnosticsPanel";
 import AssistantOriginPanel from "../../../components/assistant/AssistantOriginPanel";
+import NurturePanel from "../../../components/assistant/NurturePanel";
 import AssistantBadgeIcon from "../../../components/assistant/AssistantBadgeIcon";
 import AssistantSetupSummary from "../../../components/assistant/AssistantSetupSummary";
 import AssistantPersonalizationPrompt from "../../../components/assistant/AssistantPersonalizationPrompt";
@@ -573,6 +574,7 @@ export default function AssistantDetailPage() {
             />
           )}
           <AssistantOriginPanel assistant={assistant} />
+          <NurturePanel assistant={assistant} />
           <Link
             to={`/assistants/${slug}/trail`}
             className="btn btn-sm btn-secondary ms-2"

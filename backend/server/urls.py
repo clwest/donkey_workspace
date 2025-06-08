@@ -129,6 +129,10 @@ urlpatterns = [
         assistant_views.assistant_from_demo,
     ),
     path(
+        "api/assistants/<slug:slug>/start_nurture/",
+        assistant_views.start_nurture,
+    ),
+    path(
         "assistants/self_tests/run_all/",
         diagnostic_views.run_all_self_tests,
     ),

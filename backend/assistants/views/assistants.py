@@ -1234,6 +1234,13 @@ def assistant_from_demo(request):
     demo_session_id = request.data.get("demo_session_id")
     assistant = generate_assistant_from_demo(demo_slug, request.user, transcript)
 
+    mentor_slug = request.data.get("mentor_slug")
+    if mentor_slug:
+        mentor = Assistant.objects.filter(slug=mentor_slug).first()
+        if mentor:
+            assistant.mentor_assistant = mentor
+            assistant.save(update_fields=["mentor_assistant"])
+
     if demo_session_id:
         from assistants.helpers.demo_utils import boost_prompt_from_demo
 
@@ -2136,3 +2143,17 @@ def create_primary_assistant_view(request):
     """Create the primary assistant for the requesting user."""
     view = AssistantViewSet.as_view({"post": "create_primary"})
     return view(request)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def start_nurture(request, slug):
+    """Begin nurture flow for a demo-cloned assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    if assistant.nurture_started_at:
+        return Response({"status": "already_started"})
+    assistant.nurture_started_at = timezone.now()
+    assistant.save(update_fields=["nurture_started_at"])
+    from assistants.helpers.logging_helper import log_trail_marker
+    log_trail_marker(assistant, "nurture_started")
+    return Response({"status": "ok"})

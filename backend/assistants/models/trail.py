@@ -11,6 +11,7 @@ class TrailMarkerLog(models.Model):
         FIRST_CHAT = "first_chat", "First Chat"
         FIRST_REFLECTION = "first_reflection", "First Reflection"
         DEMO_CONVERTED = "demo_converted", "Demo Converted"
+        NURTURE_STARTED = "nurture_started", "Nurture Started"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     assistant = models.ForeignKey(
