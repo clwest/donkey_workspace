@@ -26,6 +26,7 @@ class Command(BaseCommand):
                 "prompt": "You assist with crafting effective prompts.",
                 "badges": ["glossary_apprentice"],
                 "intro": "Need a better prompt? Let's craft one!",
+                "mentor": True,
             },
             {
                 "name": "Memory Weaver",
@@ -34,6 +35,7 @@ class Command(BaseCommand):
                 "prompt": "You connect conversations into coherent memories.",
                 "badges": ["vocab_proficient"],
                 "intro": "I'll weave your chats into lasting insights.",
+                "mentor": True,
             },
         ]
 
@@ -65,6 +67,7 @@ class Command(BaseCommand):
                     "intro_text": data["intro"],
                     "is_demo": True,
                     "demo_slug": slugify(data["name"]),
+                    "mentor_for_demo_clone": data.get("mentor", False),
                 },
             )
             if made:

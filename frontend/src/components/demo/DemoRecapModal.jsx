@@ -4,10 +4,19 @@ import { useNavigate, Link } from "react-router-dom";
 import apiFetch from "@/utils/apiClient";
 import { createAssistantFromDemo } from "@/api/assistants";
 
+const suggestions = [
+  "Reflect on birth",
+  "Create a first objective",
+  "Start a memory chain",
+];
+
 export default function DemoRecapModal({ show, onClose, demoSlug, sessionId }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showNurture, setShowNurture] = useState(
+    localStorage.getItem("demoNurtureDismissed") !== "true"
+  );
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,6 +54,11 @@ export default function DemoRecapModal({ show, onClose, demoSlug, sessionId }) {
     }
   };
 
+  const dismissNurture = () => {
+    localStorage.setItem("demoNurtureDismissed", "true");
+    setShowNurture(false);
+  };
+
   return (
     <Modal show={show} onHide={onClose} centered>
       <Modal.Header closeButton>
@@ -58,6 +72,19 @@ export default function DemoRecapModal({ show, onClose, demoSlug, sessionId }) {
             <p>Helpful Tips: {data.tips_helpful}</p>
             <p>Score: {data.score}</p>
             {data.starter_query && <p>Starter: {data.starter_query}</p>}
+            {showNurture && (
+              <div className="mt-3 border-top pt-2">
+                <p className="mb-1">Next steps to nurture your clone:</p>
+                <ul className="mb-2">
+                  {suggestions.map((s) => (
+                    <li key={s}>{s}</li>
+                  ))}
+                </ul>
+                <button className="btn btn-sm btn-outline-secondary" onClick={dismissNurture}>
+                  Dismiss
+                </button>
+              </div>
+            )}
           </div>
         )}
         {!loading && !data && <p>Failed to load recap.</p>}

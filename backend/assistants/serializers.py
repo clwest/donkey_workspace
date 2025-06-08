@@ -865,6 +865,9 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             "primary_badge",
             "drift_logs",
             "recent_drift",
+            "mentor_assistant",
+            "nurture_recommendations",
+            "nurture_started_at",
             "source_document_title",
             "source_document_url",
             "created_at",
@@ -968,6 +971,28 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             or getattr(source, "tone_profile", None),
             "avatar": obj.avatar_style or getattr(source, "avatar_style", None),
         }
+
+    def get_mentor_assistant(self, obj):
+        mentor = obj.mentor_assistant
+        if mentor:
+            return {"slug": mentor.slug, "name": mentor.name, "avatar": mentor.avatar}
+        return None
+
+    def get_nurture_recommendations(self, obj):
+        from assistants.helpers.nurture import get_nurture_recommendations
+
+        return get_nurture_recommendations(obj)
+
+    def get_mentor_assistant(self, obj):
+        mentor = obj.mentor_assistant
+        if mentor:
+            return {"slug": mentor.slug, "name": mentor.name, "avatar": mentor.avatar}
+        return None
+
+    def get_nurture_recommendations(self, obj):
+        from assistants.helpers.nurture import get_nurture_recommendations
+
+        return get_nurture_recommendations(obj)
 
     def get_glossary_health_index(self, obj):
         from django.db.models import Avg, Count
@@ -1370,6 +1395,8 @@ class AssistantSerializer(serializers.ModelSerializer):
     is_cloned_from_demo = serializers.SerializerMethodField()
     demo_origin = serializers.SerializerMethodField()
     preview_traits = serializers.SerializerMethodField()
+    mentor_assistant = serializers.SerializerMethodField()
+    nurture_recommendations = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -1444,6 +1471,9 @@ class AssistantSerializer(serializers.ModelSerializer):
             "prompt_notes",
             "boosted_from_demo",
             "boost_prompt_in_system",
+            "mentor_assistant",
+            "nurture_recommendations",
+            "nurture_started_at",
         ]
 
     def get_trust(self, obj):

@@ -99,6 +99,11 @@ urlpatterns = [
         views.create_primary_assistant_view,
         name="create-primary-assistant",
     ),
+    path(
+        "<slug:slug>/start_nurture/",
+        views.start_nurture,
+        name="assistant-start-nurture",
+    ),
     path("suggest/", delegation.suggest_delegate, name="assistant-suggest"),
     path(
         "suggest_delegate/",
