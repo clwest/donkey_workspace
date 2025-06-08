@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import PromptIdeaGenerator from "../../../components/prompts/PromptIdeaGenerator";
 import apiFetch from "@/utils/apiClient";
+import { previewAssistantFromDemo } from "../../../api/assistants";
 
 const mythDefaults = {
   memory: {
@@ -37,6 +38,7 @@ export default function CreateNewAssistantPage() {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const cloneFrom = params.get("clone_from");
+  const prefill = params.get("prefill");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [specialty, setSpecialty] = useState("");
@@ -48,6 +50,9 @@ export default function CreateNewAssistantPage() {
     location.state?.tone_profile || "friendly"
   );
   const [systemPromptId, setSystemPromptId] = useState("");
+  const [systemPromptText, setSystemPromptText] = useState("");
+  const [prefillTranscript, setPrefillTranscript] = useState([]);
+  const [demoSlug, setDemoSlug] = useState(cloneFrom);
   const [prompts, setPrompts] = useState([]);
   const [personality, setPersonality] = useState("");
   const [tone, setTone] = useState("");
@@ -77,6 +82,26 @@ export default function CreateNewAssistantPage() {
   }, [cloneFrom]);
 
   useEffect(() => {
+    if (prefill !== "demo") return;
+    const stored = localStorage.getItem("demo_prefill");
+    if (!stored) return;
+    const data = JSON.parse(stored);
+    setDemoSlug(data.assistant.demo_slug);
+    setName(data.assistant.name || "");
+    setDescription(data.assistant.description || "");
+    setTone(data.assistant.tone || "");
+    setAvatar(data.assistant.avatar || "");
+    if (data.assistant.flair) setSpecialty(data.assistant.flair);
+    setSystemPromptText(data.suggested_system_prompt || "");
+    setPrefillTranscript(data.recent_messages || []);
+    previewAssistantFromDemo(data.assistant.demo_slug, data.recent_messages).then(
+      (resp) => {
+        setSystemPromptText(resp.suggested_system_prompt || "");
+      },
+    );
+  }, [prefill]);
+
+  useEffect(() => {
     async function fetchPrompts() {
       try {
         const data = await apiFetch("/prompts/?type=system&show_all=true");
@@ -104,22 +129,34 @@ export default function CreateNewAssistantPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await apiFetch("/assistants/", {
-        method: "POST",
-        body: {
-          name,
-          description,
-          specialty,
-          avatar,
-          avatar_style: avatarStyle,
-          tone_profile: toneProfile,
-          system_prompt: systemPromptId,
-          personality,
-          tone,
-          preferred_model: preferredModel,
-          archetype_path: mythpath !== "custom" ? mythpath : null,
-        },
-      });
+      let res;
+      if (prefill === "demo") {
+        res = await apiFetch("/assistants/from_demo/", {
+          method: "POST",
+          body: {
+            demo_slug: demoSlug,
+            transcript: prefillTranscript,
+            system_prompt: systemPromptText,
+          },
+        });
+      } else {
+        res = await apiFetch("/assistants/", {
+          method: "POST",
+          body: {
+            name,
+            description,
+            specialty,
+            avatar,
+            avatar_style: avatarStyle,
+            tone_profile: toneProfile,
+            system_prompt: systemPromptId,
+            personality,
+            tone,
+            preferred_model: preferredModel,
+            archetype_path: mythpath !== "custom" ? mythpath : null,
+          },
+        });
+      }
       const data = res;
       if (data) {
         toast.success("✅ Assistant created!");
@@ -184,13 +221,24 @@ export default function CreateNewAssistantPage() {
             className="form-select"
             value={systemPromptId}
             onChange={(e) => setSystemPromptId(e.target.value)}
-          >    
+          >
             <option value="">Select a prompt</option>
             {prompts.map((p) => (
               <option key={p.id} value={p.id}>{p.title}</option>
             ))}
           </select>
         </div>
+        {prefill === "demo" && (
+          <div className="mb-3">
+            <label className="form-label">Prompt Preview</label>
+            <textarea
+              className="form-control"
+              rows={4}
+              value={systemPromptText}
+              onChange={(e) => setSystemPromptText(e.target.value)}
+            />
+          </div>
+        )}
 
         <div className="mb-3">
           <label className="form-label">Personality</label>

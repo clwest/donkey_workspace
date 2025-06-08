@@ -18,6 +18,7 @@ import os
 import re
 from django.conf import settings
 from django.utils.text import slugify
+import random
 from django.core.management import call_command
 from pathlib import Path
 from assistants.services import AssistantService
@@ -400,6 +401,27 @@ class AssistantViewSet(viewsets.ModelViewSet):
             },
             status=201,
         )
+
+    @action(detail=True, methods=["post"], url_path="prepare_creation_from_demo")
+    def prepare_creation_from_demo(self, request, slug=None):
+        """Return preview info for converting a demo assistant."""
+        assistant = get_object_or_404(Assistant, slug=slug, is_demo=True)
+        transcript = request.data.get("transcript") or []
+        from assistants.helpers.demo_utils import generate_demo_prompt_preview
+
+        preview = {
+            "assistant": {
+                "name": assistant.name,
+                "description": assistant.description,
+                "tone": assistant.tone,
+                "avatar": assistant.avatar,
+                "flair": assistant.primary_badge,
+                "demo_slug": assistant.demo_slug,
+            },
+            "recent_messages": transcript[:6],
+            "suggested_system_prompt": generate_demo_prompt_preview(assistant),
+        }
+        return Response(preview)
 
     @action(detail=True, methods=["patch"], url_path="assign-primary")
     def assign_primary(self, request, slug=None):
@@ -1089,22 +1111,68 @@ def get_demo_assistants(request):
 demo_assistant = get_demo_assistants
 
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def demo_comparison(request):
+    """Return a small random set of demo assistants with preview chat."""
+    demos = list(Assistant.objects.filter(is_demo=True))
+    random.shuffle(demos)
+    demos = demos[:3]
+    for a in demos:
+        if not a.memories.exists():
+            from assistants.utils.starter_chat import seed_chat_starter_memory
+
+            seed_chat_starter_memory(a)
+    serializer = DemoComparisonSerializer(demos, many=True)
+    return Response(serializer.data)
+
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def assistant_from_demo(request):
     """Clone a demo assistant for the current user."""
     demo_slug = request.data.get("demo_slug")
     transcript = request.data.get("transcript") or []
+    system_prompt = request.data.get("system_prompt")
     if not demo_slug:
         return Response({"error": "demo_slug required"}, status=400)
 
     demo_session_id = request.data.get("demo_session_id")
     assistant = generate_assistant_from_demo(demo_slug, request.user, transcript)
+
     if demo_session_id:
         DemoUsageLog.objects.filter(session_id=demo_session_id).update(
             converted_to_real_assistant=True
         )
+
     return Response({"slug": assistant.slug}, status=201)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def assistant_from_demo_preview(request):
+    """Return preview data for demo conversion."""
+    demo_slug = request.data.get("demo_slug")
+    transcript = request.data.get("transcript") or []
+    if not demo_slug:
+        return Response({"error": "demo_slug required"}, status=400)
+
+    demo = get_object_or_404(Assistant, demo_slug=demo_slug, is_demo=True)
+    from assistants.helpers.demo_utils import generate_demo_prompt_preview
+
+    preview = {
+        "assistant": {
+            "name": demo.name,
+            "description": demo.description,
+            "tone": demo.tone,
+            "avatar": demo.avatar,
+            "flair": demo.primary_badge,
+            "demo_slug": demo.demo_slug,
+        },
+        "recent_messages": transcript[:6],
+        "suggested_system_prompt": generate_demo_prompt_preview(demo),
+    }
+    return Response(preview)
 
 
 @api_view(["POST"])
