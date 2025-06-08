@@ -2,6 +2,7 @@ from assistants.tests import BaseAPITestCase
 from assistants.models import Assistant
 from assistants.utils.session_utils import save_message_to_session
 
+
 class PrepareCreationFromDemoAPITest(BaseAPITestCase):
     def setUp(self):
         self.user = self.authenticate()
@@ -20,9 +21,13 @@ class PrepareCreationFromDemoAPITest(BaseAPITestCase):
         save_message_to_session(self.session_id, "assistant", "Hello")
 
     def test_preview_endpoint_returns_data(self):
-        resp = self.client.post(self.url, {"transcript": [{"role": "user", "content": "Hi"}]}, format="json")
+        resp = self.client.post(
+            self.url, {"transcript": [{"role": "user", "content": "Hi"}]}, format="json"
+        )
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         self.assertEqual(data["assistant"]["name"], "Prompt Pal")
         self.assertIn("suggested_system_prompt", data)
         self.assertIsInstance(data["recent_messages"], list)
+        self.assertIn("boost_summary", data)
+        self.assertIn("origin_traits", data)

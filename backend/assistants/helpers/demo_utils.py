@@ -137,3 +137,47 @@ def boost_prompt_from_demo(
         source_role="system",
     )
     return summary
+
+
+def preview_boost_summary(demo: Assistant, transcript: list[dict] | None = None) -> str:
+    """Return the boost summary without saving anything."""
+
+    messages = []
+    if transcript:
+        messages += [
+            m.get("content", "") for m in transcript if m.get("role") != "system"
+        ]
+    starters = (
+        MemoryEntry.objects.filter(assistant=demo).order_by("timestamp")[:3]
+        if demo
+        else []
+    )
+    for m in starters:
+        messages.append(m.summary or m.event)
+
+    if not messages:
+        return "Based on the demo chat, the assistant showcased its default skills."
+
+    joined = " ".join(messages)[:500]
+    return f"This assistant demonstrated: {joined}".strip()
+
+
+def get_origin_traits(demo: Assistant) -> list[str]:
+    """Return badges, tone, or glossary traits cloned from the demo."""
+
+    traits: list[str] = []
+    if demo.primary_badge:
+        traits.append(demo.primary_badge)
+    if demo.tone:
+        traits.append(demo.tone)
+
+    entry = (
+        MemoryEntry.objects.filter(assistant=demo, anchor__isnull=False)
+        .select_related("anchor")
+        .order_by("created_at")
+        .first()
+    )
+    if entry and entry.anchor:
+        traits.append(entry.anchor.label)
+
+    return traits

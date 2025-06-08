@@ -320,27 +320,9 @@ export default function ChatWithAssistantPage() {
     }
   };
 
-  const handleCreateFromDemo = async () => {
+  const handleCreateFromDemo = () => {
     if (!assistantInfo?.demo_slug) return;
-    try {
-      const transcript = messages.slice(0, 6).map((m) => ({
-        role: m.role,
-        content: m.content,
-      }));
-
-      const res = await createAssistantFromDemo(
-        assistantInfo.demo_slug,
-        transcript,
-        demoSessionId,
-        variant,
-      );
-      setShowFeedback(true);
-      if (res.slug) {
-        navigate(`/assistants/${res.slug}/intro`);
-      }
-    } catch (err) {
-      toast.error("Failed to prepare assistant");
-    }
+    navigate(`/assistants/create/?clone_from=${assistantInfo.demo_slug}`);
   };
 
   const handleCheckSource = async (text) => {

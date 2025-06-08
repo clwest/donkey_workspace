@@ -55,6 +55,9 @@ export default function CreateNewAssistantPage() {
   );
   const [systemPromptId, setSystemPromptId] = useState("");
   const [systemPromptText, setSystemPromptText] = useState("");
+  const [boostSummary, setBoostSummary] = useState("");
+  const [originTraits, setOriginTraits] = useState([]);
+  const [retainPrompt, setRetainPrompt] = useState(true);
   const [prefillTranscript, setPrefillTranscript] = useState([]);
   const [demoSlug, setDemoSlug] = useState(cloneFrom);
   const [prompts, setPrompts] = useState([]);
@@ -85,6 +88,12 @@ export default function CreateNewAssistantPage() {
         if (demo.tone_profile) {
           setToneProfile(demo.tone_profile);
         }
+        previewAssistantFromDemo(cloneFrom, []).then((resp) => {
+          setSystemPromptText(resp.suggested_system_prompt || "");
+          setBoostSummary(resp.boost_summary || "");
+          setOriginTraits(resp.origin_traits || []);
+          setRetainPrompt(!!resp.suggested_system_prompt);
+        });
       }
     });
   }, [cloneFrom]);
@@ -112,6 +121,9 @@ export default function CreateNewAssistantPage() {
       data.recent_messages,
     ).then((resp) => {
       setSystemPromptText(resp.suggested_system_prompt || "");
+      setBoostSummary(resp.boost_summary || "");
+      setOriginTraits(resp.origin_traits || []);
+      setRetainPrompt(!!resp.suggested_system_prompt);
       setLoadingDemo(false);
     });
   }, [prefill]);
@@ -186,8 +198,8 @@ export default function CreateNewAssistantPage() {
           body: {
             demo_slug: demoSlug,
             transcript: prefillTranscript,
-            system_prompt: systemPromptText,
             demo_session_id: demoSessionId,
+            retain_starter_prompt: retainPrompt,
           },
         });
       } else {
@@ -210,9 +222,12 @@ export default function CreateNewAssistantPage() {
       }
       const data = res;
       if (data) {
-        toast.success("✅ Assistant created!");
         if (prefill === "demo") {
-          toast.info("Prompt boosted with your demo session \uD83D\uDCA1");
+          toast.success(
+            "✅ New Assistant Created — Prompt boosted from your demo session",
+          );
+        } else {
+          toast.success("✅ Assistant created!");
         }
         localStorage.removeItem("assistant_draft");
         const firstPrompt = prefillTranscript[0]?.content || "";
@@ -325,29 +340,36 @@ export default function CreateNewAssistantPage() {
               </select>
             </div>
             {prefill === "demo" && (
-              <div className="mb-3">
-                <label className="form-label">Prompt Preview</label>
-                <textarea
-                  className="form-control"
-                  rows={4}
-                  value={systemPromptText}
-                  onChange={(e) => setSystemPromptText(e.target.value)}
-                />
-                <div className="form-check mt-1">
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    checked={!!systemPromptText}
-                    onChange={(e) =>
-                      setSystemPromptText(e.target.checked ? systemPromptText : "")
-                    }
-                    id="retainPrompt"
+              <details className="mb-3">
+                <summary>🔍 Boosted from Demo</summary>
+                <div className="mt-2">
+                  {boostSummary && <p className="mb-2">{boostSummary}</p>}
+                  <label className="form-label">Boosted Prompt</label>
+                  <textarea
+                    className="form-control"
+                    rows={4}
+                    value={systemPromptText}
+                    readOnly
                   />
-                  <label className="form-check-label" htmlFor="retainPrompt">
-                    Retain starter prompt
-                  </label>
+                  <div className="form-check mt-1">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      checked={retainPrompt}
+                      onChange={(e) => setRetainPrompt(e.target.checked)}
+                      id="retainPrompt"
+                    />
+                    <label className="form-check-label" htmlFor="retainPrompt">
+                      Retain this as system prompt
+                    </label>
+                  </div>
+                  {originTraits.length > 0 && (
+                    <div className="mt-2">
+                      <strong>Traits Inherited:</strong> {originTraits.join(", ")}
+                    </div>
+                  )}
                 </div>
-              </div>
+              </details>
             )}
 
             <div className="mb-3">

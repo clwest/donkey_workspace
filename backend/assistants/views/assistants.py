@@ -417,7 +417,11 @@ class AssistantViewSet(viewsets.ModelViewSet):
         assistant = get_object_or_404(Assistant, slug=slug, is_demo=True)
         transcript = request.data.get("transcript") or []
         demo_session_id = request.data.get("demo_session_id")
-        from assistants.helpers.demo_utils import generate_demo_prompt_preview
+        from assistants.helpers.demo_utils import (
+            generate_demo_prompt_preview,
+            preview_boost_summary,
+            get_origin_traits,
+        )
 
         preview = {
             "assistant": {
@@ -430,6 +434,8 @@ class AssistantViewSet(viewsets.ModelViewSet):
             },
             "recent_messages": transcript[:6],
             "suggested_system_prompt": generate_demo_prompt_preview(assistant),
+            "boost_summary": preview_boost_summary(assistant, transcript),
+            "origin_traits": get_origin_traits(assistant),
         }
         if demo_session_id:
             bump_demo_score(demo_session_id, 10)
@@ -1231,8 +1237,34 @@ def assistant_from_demo(request):
     if not demo_slug:
         return Response({"error": "demo_slug required"}, status=400)
 
+    from assistants.models.demo_usage import DemoSessionLog
+
     demo_session_id = request.data.get("demo_session_id")
+    retain_prompt = str(request.data.get("retain_starter_prompt", "false")).lower() in [
+        "1",
+        "true",
+        "yes",
+    ]
     assistant = generate_assistant_from_demo(demo_slug, request.user, transcript)
+
+    if not retain_prompt:
+        assistant.system_prompt = None
+        assistant.prompt_title = None
+        assistant.save(update_fields=["system_prompt", "prompt_title"])
+    else:
+        original_query = ""
+        for msg in transcript:
+            if msg.get("role") == "user" and msg.get("content"):
+                original_query = msg["content"]
+                break
+        if not original_query and demo_session_id:
+            sess = DemoSessionLog.objects.filter(session_id=demo_session_id).first()
+            if sess:
+                original_query = sess.starter_query or sess.first_message or ""
+        if original_query:
+            note = f"Boosted from demo session with query: {original_query}"
+            assistant.prompt_notes = (assistant.prompt_notes or "") + "\n" + note
+            assistant.save(update_fields=["prompt_notes"])
 
     mentor_slug = request.data.get("mentor_slug")
     if mentor_slug:
@@ -1275,7 +1307,11 @@ def assistant_from_demo_preview(request):
         return Response({"error": "demo_slug required"}, status=400)
 
     demo = get_object_or_404(Assistant, demo_slug=demo_slug, is_demo=True)
-    from assistants.helpers.demo_utils import generate_demo_prompt_preview
+    from assistants.helpers.demo_utils import (
+        generate_demo_prompt_preview,
+        preview_boost_summary,
+        get_origin_traits,
+    )
 
     preview = {
         "assistant": {
@@ -1288,6 +1324,8 @@ def assistant_from_demo_preview(request):
         },
         "recent_messages": transcript[:6],
         "suggested_system_prompt": generate_demo_prompt_preview(demo),
+        "boost_summary": preview_boost_summary(demo, transcript),
+        "origin_traits": get_origin_traits(demo),
     }
     return Response(preview)
 
@@ -2166,24 +2204,26 @@ def start_nurture(request, slug):
 
     log_trail_marker(assistant, "nurture_started")
     return Response({"status": "ok"})
+
+
 @api_view(["GET"])
 def default_template(request):
     """Return starter assistant template data based on onboarding."""
     user = request.user
     from memory.models import SymbolicMemoryAnchor
-    latest = (
-        Assistant.objects.filter(created_by=user).order_by("-created_at").first()
-    )
+
+    latest = Assistant.objects.filter(created_by=user).order_by("-created_at").first()
     name = (latest.name if latest else user.assistant_name) or "My Assistant"
     description = (latest.description if latest else user.goals) or ""
     personality = (
-        latest.personality if latest and latest.personality else user.assistant_personality
+        latest.personality
+        if latest and latest.personality
+        else user.assistant_personality
     ) or "helpful"
-    tone = (latest.tone if latest and latest.tone else "friendly")
+    tone = latest.tone if latest and latest.tone else "friendly"
     anchors = (
         SymbolicMemoryAnchor.objects.filter(
-            models.Q(memories__source_user=user)
-            | models.Q(assistant__created_by=user)
+            models.Q(memories__source_user=user) | models.Q(assistant__created_by=user)
         )
         .distinct()
         .order_by("slug")[:3]
@@ -2214,4 +2254,3 @@ def default_template(request):
             "mentor": mentor,
         }
     )
-
