@@ -1,15 +1,22 @@
 from django.core.management.base import BaseCommand
-from django.utils import timezone
-from django.utils.text import slugify
+# from django.utils import timezone
+# from django.utils.text import slugify
 
-from assistants.models import Assistant, Badge
-from prompts.models import Prompt
+# from assistants.models import Assistant, Badge
+# from prompts.models import Prompt
 
 
 class Command(BaseCommand):
     help = "Seed demo assistants with simple prompts and badges"
 
     def handle(self, *args, **options):
+        from django.utils.text import slugify
+        from assistants.models import Assistant, Badge
+        from prompts.models import Prompt
+
+        force = options.get("force", False)
+        verbosity = options.get("verbosity", 1)
+
         demos = [
             {
                 "name": "Reflection Sage",
@@ -21,66 +28,60 @@ class Command(BaseCommand):
             },
             {
                 "name": "Prompt Pal",
-                "specialty": "prompt engineering",
-                "avatar": "https://example.com/promptpal.png",
-                "prompt": "You assist with crafting effective prompts.",
-                "badges": ["glossary_apprentice"],
-                "intro": "Need a better prompt? Let's craft one!",
-                "mentor": True,
+                "specialty": "prompt_design",
+                "avatar": "https://example.com/prompt-pal.png",
+                "prompt": "You help users craft clear and creative prompts for AI systems.",
+                "badges": ["prompt_helper"],
+                "intro": "Let’s shape your next prompt together.",
             },
             {
                 "name": "Memory Weaver",
-                "specialty": "memory",
-                "avatar": "https://example.com/weaver.png",
-                "prompt": "You connect conversations into coherent memories.",
-                "badges": ["vocab_proficient"],
-                "intro": "I'll weave your chats into lasting insights.",
-                "mentor": True,
+                "specialty": "memory_management",
+                "avatar": "https://example.com/memory-weaver.png",
+                "prompt": "You help users organize and connect insights over time.",
+                "badges": ["memory_archivist"],
+                "intro": "Ask me to thread memories into useful insights.",
             },
         ]
 
-        created = 0
-        for data in demos:
-            prompt_obj, _ = Prompt.objects.get_or_create(
-                title=f"{data['name']} Demo Prompt",
-                defaults={
-                    "content": data["prompt"],
-                    "type": "system",
-                    "source": "demo",
-                },
+        created_count = 0
+
+        for demo in demos:
+            slug = slugify(demo["name"])
+            assistant = Assistant.objects.filter(name=demo["name"], is_demo=True).first()
+
+            if assistant and not force:
+                if verbosity >= 2:
+                    self.stdout.write(f"❌ Skipping {demo['name']} (already exists)")
+                continue
+
+            if assistant and force:
+                assistant.delete()
+                if verbosity >= 2:
+                    self.stdout.write(f"🔁 Recreating {demo['name']}")
+
+            assistant = Assistant.objects.create(
+                name=demo["name"],
+                demo_slug=slug,
+                specialty=demo["specialty"],
+                avatar_url=demo["avatar"],
+                system_prompt=demo["prompt"],
+                intro=demo["intro"],
+                is_demo=True,
+                is_active=True,
             )
-            assistant, made = Assistant.objects.get_or_create(
-                slug=slugify(data["name"]),
-                defaults={
-                    "name": data["name"],
-                    "specialty": data["specialty"],
-                    "description": data["prompt"],
-                    "system_prompt": prompt_obj,
-                    "avatar": data["avatar"],
-                    "skill_badges": data["badges"],
-                    "badge_history": [
-                        {
-                            "timestamp": timezone.now().isoformat(),
-                            "badges": data["badges"],
-                        }
-                    ],
-                    "intro_text": data["intro"],
-                    "is_demo": True,
-                    "demo_slug": slugify(data["name"]),
-                    "mentor_for_demo_clone": data.get("mentor", False),
-                },
-            )
-            if made:
-                created += 1
-            # ensure badges exist
-            for b in data["badges"]:
-                Badge.objects.get_or_create(
-                    slug=b, defaults={"label": b.title(), "emoji": "🏅"}
-                )
+            created_count += 1
 
-            if not assistant.memories.exists():
-                from assistants.utils.starter_chat import seed_chat_starter_memory
+            # Add badges if they exist
+            for badge_slug in demo.get("badges", []):
+                badge = Badge.objects.filter(slug=badge_slug).first()
+                if badge:
+                    assistant.skill_badges.add(badge)
 
-                seed_chat_starter_memory(assistant)
+            if verbosity >= 1:
+                self.stdout.write(self.style.SUCCESS(f"✅ Created demo: {demo['name']}"))
 
-        self.stdout.write(self.style.SUCCESS(f"Seeded {created} demo assistants"))
+        if created_count == 0:
+            self.stdout.write("⚠️ No demo assistants were created.")
+        else:
+            self.stdout.write(self.style.SUCCESS(f"\n🌱 Seeded {created_count} demo assistants."))
