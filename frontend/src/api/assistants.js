@@ -398,6 +398,7 @@ export async function createAssistantFromDemo(
   variant,
   feedbackText,
   rating,
+  retainPrompt = true,
 ) {
   return apiFetch(`/assistants/from_demo/`, {
     method: "POST",
@@ -408,6 +409,7 @@ export async function createAssistantFromDemo(
       comparison_variant: variant,
       feedback_text: feedbackText,
       rating,
+      retain_starter_prompt: retainPrompt,
     },
   });
 }

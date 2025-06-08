@@ -38,7 +38,7 @@ export default function DemoComparisonCard({ assistant }) {
           </div>
         )}
         <Link
-          to={`/assistants/create?prefill=${assistant.demo_slug}`}
+          to={`/assistants/create/?clone_from=${assistant.demo_slug}`}
           className="btn btn-success btn-sm"
         >
           Customize This
