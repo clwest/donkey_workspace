@@ -55,6 +55,15 @@ class Assistant(models.Model):
     is_demo = models.BooleanField(default=False)
     is_guide = models.BooleanField(default=False)
     is_primary = models.BooleanField(default=False)
+    is_featured = models.BooleanField(
+        default=False,
+        help_text="Showcase this demo assistant on the demos page",
+    )
+    featured_rank = models.IntegerField(
+        null=True,
+        blank=True,
+        help_text="Ordering for featured assistants",
+    )
     is_ephemeral = models.BooleanField(default=False)
     expiration_event = models.ForeignKey(
         SwarmMemoryEntry,

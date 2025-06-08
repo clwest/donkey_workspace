@@ -1116,16 +1116,18 @@ def get_demo_assistants(request):
     serializer = AssistantSerializer(assistants, many=True)
 
     data = serializer.data
-    for obj, a in zip(data, assistants):
+    rates = []
+    for idx, (obj, a) in enumerate(zip(data, assistants)):
         logs = DemoUsageLog.objects.filter(assistant=a)
         total = logs.count()
         conversions = logs.filter(converted_to_real_assistant=True).count()
         bounce = logs.filter(message_count=0).count()
+        rate = conversions / total if total else 0
         obj["metrics"] = {
             "total_sessions": total,
             "avg_messages": logs.aggregate(models.Avg("message_count"))["message_count__avg"]
             or 0,
-            "conversion_rate": conversions / total if total else 0,
+            "conversion_rate": rate,
             "bounce_rate": bounce / total if total else 0,
             "most_common_starter": (
                 logs.values("starter_query")
@@ -1139,6 +1141,16 @@ def get_demo_assistants(request):
             obj["metrics"]["most_common_starter"] = obj["metrics"]["most_common_starter"]["starter_query"]
         else:
             obj["metrics"]["most_common_starter"] = ""
+        obj["is_featured"] = a.is_featured
+        obj["featured_rank"] = a.featured_rank
+        rates.append((idx, rate))
+
+    top = [r for r in rates if r[1] > 0.25]
+    top.sort(key=lambda x: x[1], reverse=True)
+    for rank, (idx, _) in enumerate(top[:3], start=1):
+        data[idx]["is_featured"] = True
+        data[idx]["featured_rank"] = rank
+
     return Response(data)
 
 
