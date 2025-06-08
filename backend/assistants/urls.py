@@ -70,6 +70,7 @@ urlpatterns = [
     path("from_demo/", assistants.assistant_from_demo),
     path("from_demo/preview/", assistants.assistant_from_demo_preview),
     path("demo_boost/", demo.replay_demo_boost, name="assistant-demo-boost"),
+    path("default_template/", assistants.default_template),
     path("thoughts/reflect-on-assistant/", assistants.reflect_on_assistant),
     path("conscience/", conscience.conscience_profiles),
     path("reflexive-epistemology/", conscience.reflexive_epistemology),

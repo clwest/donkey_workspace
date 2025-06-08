@@ -2166,3 +2166,52 @@ def start_nurture(request, slug):
 
     log_trail_marker(assistant, "nurture_started")
     return Response({"status": "ok"})
+@api_view(["GET"])
+def default_template(request):
+    """Return starter assistant template data based on onboarding."""
+    user = request.user
+    from memory.models import SymbolicMemoryAnchor
+    latest = (
+        Assistant.objects.filter(created_by=user).order_by("-created_at").first()
+    )
+    name = (latest.name if latest else user.assistant_name) or "My Assistant"
+    description = (latest.description if latest else user.goals) or ""
+    personality = (
+        latest.personality if latest and latest.personality else user.assistant_personality
+    ) or "helpful"
+    tone = (latest.tone if latest and latest.tone else "friendly")
+    anchors = (
+        SymbolicMemoryAnchor.objects.filter(
+            models.Q(memories__source_user=user)
+            | models.Q(assistant__created_by=user)
+        )
+        .distinct()
+        .order_by("slug")[:3]
+    )
+    starter_terms = [
+        {"slug": a.slug, "label": a.label, "description": a.description}
+        for a in anchors
+    ]
+    demo_clone = (
+        Assistant.objects.filter(created_by=user, is_demo_clone=True)
+        .select_related("spawned_by")
+        .order_by("-created_at")
+        .first()
+    )
+    mentor = None
+    if demo_clone and demo_clone.spawned_by:
+        mentor = {
+            "demo_slug": demo_clone.spawned_by.demo_slug,
+            "name": demo_clone.spawned_by.name,
+        }
+    return Response(
+        {
+            "name": name,
+            "description": description,
+            "personality": personality,
+            "tone": tone,
+            "starter_terms": starter_terms,
+            "mentor": mentor,
+        }
+    )
+

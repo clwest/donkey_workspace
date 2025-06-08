@@ -42,6 +42,7 @@ export default function CreateNewAssistantPage() {
   const params = new URLSearchParams(location.search);
   const cloneFrom = params.get("clone_from");
   const prefill = params.get("prefill");
+  const fromOnboarding = location.state?.fromOnboarding;
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [specialty, setSpecialty] = useState("");
@@ -116,6 +117,26 @@ export default function CreateNewAssistantPage() {
   }, [prefill]);
 
   useEffect(() => {
+    if (cloneFrom || prefill === "demo") return;
+    const saved = localStorage.getItem("assistant_draft");
+    if (saved) {
+      const d = JSON.parse(saved);
+      setName(d.name || "");
+      setDescription(d.description || "");
+      setPersonality(d.personality || "");
+      setTone(d.tone || "");
+    } else if (fromOnboarding) {
+      apiFetch("/assistants/default_template/").then((t) => {
+        if (!t) return;
+        setName(t.name || "");
+        setDescription(t.description || "");
+        setPersonality(t.personality || "");
+        setTone(t.tone || "");
+      });
+    }
+  }, []);
+
+  useEffect(() => {
     async function fetchPrompts() {
       try {
         const data = await apiFetch("/prompts/?type=system&show_all=true");
@@ -138,6 +159,17 @@ export default function CreateNewAssistantPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mythpath]);
+
+  useEffect(() => {
+    if (prefill === "demo" || cloneFrom) return;
+    const data = {
+      name,
+      description,
+      personality,
+      tone,
+    };
+    localStorage.setItem("assistant_draft", JSON.stringify(data));
+  }, [name, description, personality, tone, cloneFrom, prefill]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -178,6 +210,7 @@ export default function CreateNewAssistantPage() {
         if (prefill === "demo") {
           toast.info("Prompt boosted with your demo session \uD83D\uDCA1");
         }
+        localStorage.removeItem("assistant_draft");
         const firstPrompt = prefillTranscript[0]?.content || "";
         navigate(`/assistants/${data.slug}/intro`, {
           state: { showConfetti: true, starter: firstPrompt },
@@ -202,9 +235,14 @@ export default function CreateNewAssistantPage() {
       )}
       <h1 className="mb-4">
         {prefill === "demo"
-          ? "Personalize Your Assistant"
+          ? "Personalize your clone"
           : "🧠 Create New Assistant"}
       </h1>
+      {fromOnboarding && (
+        <div className="alert alert-info" role="alert">
+          You’re almost there — let’s bring your assistant to life.
+        </div>
+      )}
       <div className="row">
         <div className="col-md-8">
           <form onSubmit={handleSubmit}>
@@ -291,6 +329,20 @@ export default function CreateNewAssistantPage() {
                   value={systemPromptText}
                   onChange={(e) => setSystemPromptText(e.target.value)}
                 />
+                <div className="form-check mt-1">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    checked={!!systemPromptText}
+                    onChange={(e) =>
+                      setSystemPromptText(e.target.checked ? systemPromptText : "")
+                    }
+                    id="retainPrompt"
+                  />
+                  <label className="form-check-label" htmlFor="retainPrompt">
+                    Retain starter prompt
+                  </label>
+                </div>
               </div>
             )}
 
