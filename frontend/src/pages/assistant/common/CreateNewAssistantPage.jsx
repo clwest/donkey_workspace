@@ -178,7 +178,10 @@ export default function CreateNewAssistantPage() {
         if (prefill === "demo") {
           toast.info("Prompt boosted with your demo session \uD83D\uDCA1");
         }
-        navigate(`/assistants/${data.slug}/intro`);
+        const firstPrompt = prefillTranscript[0]?.content || "";
+        navigate(`/assistants/${data.slug}/intro`, {
+          state: { showConfetti: true, starter: firstPrompt },
+        });
       } else {
         toast.error("❌ Failed to create assistant.");
       }
