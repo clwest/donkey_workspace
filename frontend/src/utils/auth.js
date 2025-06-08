@@ -38,3 +38,18 @@ export function clearTokens() {
   localStorage.removeItem("access");
   localStorage.removeItem("refresh");
 }
+
+export function getAuthInfo() {
+  return {
+    access: getAccessToken(),
+    refresh: getRefreshToken(),
+  };
+}
+
+export function printAuthState(prefix = "[auth]") {
+  const info = getAuthInfo();
+  console.log(prefix, {
+    access: Boolean(info.access),
+    refresh: Boolean(info.refresh),
+  });
+}
