@@ -89,8 +89,47 @@ def generate_assistant_from_demo(demo_slug: str, user, transcript=None):
 def generate_demo_prompt_preview(demo_assistant) -> str:
     """Return a short system prompt preview for a demo assistant."""
     if demo_assistant.specialty:
-        return (
-            f"You’re a creative, helpful assistant focused on {demo_assistant.specialty}."
-        )
+        return f"You’re a creative, helpful assistant focused on {demo_assistant.specialty}."
     return "You’re a creative, helpful assistant ready to help the user."
 
+
+def boost_prompt_from_demo(
+    assistant: Assistant, transcript: list[dict] | None = None
+) -> str:
+    """Generate a short boost summary from demo chat messages."""
+
+    messages = []
+    if transcript:
+        messages = [
+            m.get("content", "") for m in transcript if m.get("role") != "system"
+        ]
+
+    demo = (
+        assistant.spawned_by
+        if assistant.spawned_by and assistant.spawned_by.is_demo
+        else None
+    )
+    if demo:
+        starters = MemoryEntry.objects.filter(assistant=demo).order_by("timestamp")[:3]
+        for m in starters:
+            messages.append(m.summary or m.event)
+
+    if not messages:
+        summary = "Based on the demo chat, the assistant showcased its default skills."
+    else:
+        joined = " ".join(messages)[:500]
+        summary = f"This assistant demonstrated: {joined}".strip()
+
+    assistant.prompt_notes = (assistant.prompt_notes or "") + "\n" + summary
+    assistant.boosted_from_demo = True
+    assistant.save(update_fields=["prompt_notes", "boosted_from_demo"])
+
+    MemoryEntry.objects.create(
+        assistant=assistant,
+        context=assistant.memory_context,
+        event="Demo prompt boost",
+        summary=summary,
+        type="system_note",
+        source_role="system",
+    )
+    return summary

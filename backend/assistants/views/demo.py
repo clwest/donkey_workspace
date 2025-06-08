@@ -1,10 +1,14 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
-from assistants.models import Assistant
+from assistants.models import Assistant, DemoUsageLog
 from assistants.demo_config import DEMO_TIPS
+from assistants.helpers.demo_utils import (
+    generate_assistant_from_demo,
+    boost_prompt_from_demo,
+)
 
 
 @api_view(["GET"])
@@ -15,3 +19,21 @@ def demo_tips(request, slug):
     if not assistant.is_demo:
         return Response({"tips": []})
     return Response({"tips": DEMO_TIPS})
+
+
+@api_view(["POST"])
+@permission_classes([IsAdminUser])
+def replay_demo_boost(request):
+    """Clone a demo session and run the boost routine."""
+    session_id = request.data.get("demo_session_id")
+    if not session_id:
+        return Response({"error": "demo_session_id required"}, status=400)
+    log = get_object_or_404(DemoUsageLog, session_id=session_id)
+    from assistants.utils.session_utils import load_session_messages
+
+    transcript = load_session_messages(session_id)
+    assistant = generate_assistant_from_demo(
+        log.assistant.demo_slug, request.user, transcript
+    )
+    summary = boost_prompt_from_demo(assistant, transcript)
+    return Response({"slug": assistant.slug, "summary": summary})

@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import PromptIdeaGenerator from "../../../components/prompts/PromptIdeaGenerator";
 import apiFetch from "@/utils/apiClient";
 import { previewAssistantFromDemo } from "../../../api/assistants";
+import useDemoSession from "../../../hooks/useDemoSession";
 
 const mythDefaults = {
   memory: {
@@ -36,6 +37,7 @@ const mythSummaries = {
 export default function CreateNewAssistantPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { demoSessionId } = useDemoSession();
   const params = new URLSearchParams(location.search);
   const cloneFrom = params.get("clone_from");
   const prefill = params.get("prefill");
@@ -137,6 +139,7 @@ export default function CreateNewAssistantPage() {
             demo_slug: demoSlug,
             transcript: prefillTranscript,
             system_prompt: systemPromptText,
+            demo_session_id: demoSessionId,
           },
         });
       } else {
@@ -160,6 +163,9 @@ export default function CreateNewAssistantPage() {
       const data = res;
       if (data) {
         toast.success("✅ Assistant created!");
+        if (prefill === "demo") {
+          toast.info("Prompt boosted with your demo session \uD83D\uDCA1");
+        }
         navigate(`/assistants/${data.slug}/intro`);
       } else {
         toast.error("❌ Failed to create assistant.");

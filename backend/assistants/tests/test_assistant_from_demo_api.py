@@ -1,6 +1,7 @@
 from assistants.tests import BaseAPITestCase
 from assistants.models import Assistant
 
+
 class AssistantFromDemoAPITest(BaseAPITestCase):
     def setUp(self):
         self.user = self.authenticate()
@@ -20,7 +21,11 @@ class AssistantFromDemoAPITest(BaseAPITestCase):
             {"role": "user", "content": "Hi"},
             {"role": "assistant", "content": "Hello"},
         ]
-        resp = self.client.post(self.url, {"demo_slug": "prompt_pal", "transcript": transcript}, format="json")
+        resp = self.client.post(
+            self.url,
+            {"demo_slug": "prompt_pal", "transcript": transcript},
+            format="json",
+        )
         self.assertEqual(resp.status_code, 201)
         slug = resp.json()["slug"]
         self.assertTrue(Assistant.objects.filter(slug=slug, is_demo=False).exists())
@@ -46,3 +51,23 @@ class AssistantFromDemoAPITest(BaseAPITestCase):
         asst = Assistant.objects.get(slug=slug)
         self.assertIsNotNone(asst.system_prompt)
         self.assertEqual(asst.system_prompt.content, "You are helpful")
+
+    def test_clone_with_boost(self):
+        transcript = [
+            {"role": "user", "content": "Hi"},
+            {"role": "assistant", "content": "Hello"},
+        ]
+        resp = self.client.post(
+            self.url,
+            {
+                "demo_slug": "prompt_pal",
+                "transcript": transcript,
+                "demo_session_id": "s1",
+            },
+            format="json",
+        )
+        self.assertEqual(resp.status_code, 201)
+        slug = resp.json()["slug"]
+        asst = Assistant.objects.get(slug=slug)
+        self.assertTrue(asst.boosted_from_demo)
+        self.assertTrue(asst.prompt_notes)
