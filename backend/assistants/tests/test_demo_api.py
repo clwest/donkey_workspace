@@ -30,3 +30,10 @@ class DemoAssistantAPITest(BaseAPITestCase):
         self.assertEqual(resp.status_code, 403)
         resp = self.client.delete(f"/api/v1/assistants/{demo.slug}/")
         self.assertEqual(resp.status_code, 403)
+
+    def test_get_demo_assistants_endpoint(self):
+        resp = self.client.get("/api/assistants/demos/")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(len(data), 1)
+        self.assertTrue(data[0]["is_demo"])

@@ -18,9 +18,12 @@ export default function AssistantDemoPage() {
   };
 
   useEffect(() => {
-    apiFetch("/api/assistants/demos/")
+    apiFetch("/assistants/demos/")
       .then((data) => setAssistants(Array.isArray(data) ? data : []))
-      .catch((err) => console.error("Failed to fetch demo assistants:", err));
+      .catch((err) => {
+        console.error("Failed to fetch demo assistants:", err);
+        setAssistants([]);
+      });
   }, []);
 
   return (
@@ -108,9 +111,7 @@ export default function AssistantDemoPage() {
           </div>
         ))}
         {assistants.length === 0 && (
-          <p className="text-muted text-center">
-            No demo assistants available yet.
-          </p>
+          <p className="text-muted text-center">No demos found.</p>
         )}
       </div>
       {hints.find((h) => h.id === "demo_start_chat" && !h.dismissed) && (

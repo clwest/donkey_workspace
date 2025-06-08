@@ -12,8 +12,12 @@ export default function PrimaryAssistantPage() {
       try {
         const res = await apiFetch("/assistants/primary/");
         navigate(`/assistants/${res.slug}/dashboard`);
-      } catch {
-        navigate("/assistants/primary/create");
+      } catch (err) {
+        if (err.message && err.message.includes("404")) {
+          navigate("/assistants/primary/create");
+        } else {
+          console.error("Primary endpoint unreachable", err);
+        }
       }
     }
     go();

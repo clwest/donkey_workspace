@@ -87,6 +87,11 @@ urlpatterns = [
         delegations.primary_delegations,
         name="primary-delegations",
     ),
+    path(
+        "primary/create/",
+        views.create_primary_assistant_view,
+        name="create-primary-assistant",
+    ),
     path("suggest/", delegation.suggest_delegate, name="assistant-suggest"),
     path(
         "suggest_delegate/",
@@ -348,7 +353,7 @@ urlpatterns = [
     ),  # POST
     path("signals/<uuid:pk>/", signals.update_signal_catch, name="update-signal-catch"),
     # Demo Agents
-    path("demos/", assistants.demo_assistant, name="demo_assistant"),
+    path("demos/", assistants.get_demo_assistants, name="demo_assistant"),
     # Sessions
     path("sessions/list/", sessions.list_chat_sessions, name="chat_session_list"),
     path(

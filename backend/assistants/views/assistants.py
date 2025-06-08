@@ -1042,8 +1042,8 @@ def flush_chat_session(request, slug):
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-def demo_assistant(request):
-    """Return demo assistants using the main serializer."""
+def get_demo_assistants(request):
+    """Return all demo assistants using the main serializer."""
     assistants = Assistant.objects.filter(is_demo=True).order_by("demo_slug")
     for a in assistants:
         if not a.memories.exists():
@@ -1052,6 +1052,10 @@ def demo_assistant(request):
             seed_chat_starter_memory(a)
     serializer = AssistantSerializer(assistants, many=True)
     return Response(serializer.data)
+
+
+# Backwards compatibility alias
+demo_assistant = get_demo_assistants
 
 
 @api_view(["POST"])
@@ -1825,3 +1829,11 @@ def assistant_summary(request, slug):
 
     serializer = AssistantOverviewSerializer(assistant)
     return Response(serializer.data)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def create_primary_assistant_view(request):
+    """Create the primary assistant for the requesting user."""
+    view = AssistantViewSet.as_view({"post": "create_primary"})
+    return view(request)

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { createPrimaryAssistant } from "../../../api/assistants";
 import ComingSoon from "../../../components/common/ComingSoon";
 import { SHOW_INACTIVE_ROUTES } from "../../../config/ui";
-import apiFetch from "../../../utils/apiClient";
+import { toast } from "react-toastify";
 
 
 export default function CreatePrimaryAssistantPage() {
@@ -13,11 +13,16 @@ export default function CreatePrimaryAssistantPage() {
   const handleCreate = async () => {
     setLoading(true);
     try {
-      await createPrimaryAssistant();
-      navigate("/assistants/primary/dashboard");
+      const res = await createPrimaryAssistant();
+      toast.success("Primary assistant created");
+      navigate(`/assistants/${res.slug}/dashboard`);
     } catch (err) {
       console.error("Failed to create primary assistant", err);
-      alert("Failed to create primary assistant");
+      if (err.message.includes("404")) {
+        toast.error("Primary creation endpoint not found (404)");
+      } else {
+        toast.error("Failed to create primary assistant");
+      }
     } finally {
       setLoading(false);
     }
