@@ -28,6 +28,7 @@ class AssistantFromDemoAPITest(BaseAPITestCase):
         )
         self.assertEqual(resp.status_code, 201)
         slug = resp.json()["slug"]
+        self.assertEqual(resp.json()["demo_slug"], "prompt_pal")
         self.assertTrue(Assistant.objects.filter(slug=slug, is_demo=False).exists())
         asst = Assistant.objects.get(slug=slug)
         self.assertEqual(asst.spawn_reason, "demo:prompt_pal")
@@ -68,6 +69,7 @@ class AssistantFromDemoAPITest(BaseAPITestCase):
         )
         self.assertEqual(resp.status_code, 201)
         slug = resp.json()["slug"]
+        self.assertIsNotNone(resp.json().get("boost_summary"))
         asst = Assistant.objects.get(slug=slug)
         self.assertTrue(asst.boosted_from_demo)
         self.assertTrue(asst.prompt_notes)

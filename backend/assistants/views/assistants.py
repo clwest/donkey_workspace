@@ -1241,10 +1241,11 @@ def assistant_from_demo(request):
             assistant.mentor_assistant = mentor
             assistant.save(update_fields=["mentor_assistant"])
 
+    boost_summary = None
     if demo_session_id:
         from assistants.helpers.demo_utils import boost_prompt_from_demo
 
-        boost_prompt_from_demo(assistant, transcript)
+        boost_summary = boost_prompt_from_demo(assistant, transcript)
         DemoUsageLog.objects.filter(session_id=demo_session_id).update(
             converted_to_real_assistant=True,
             user=request.user,
@@ -1254,7 +1255,14 @@ def assistant_from_demo(request):
 
         bump_demo_score(demo_session_id, 10)
 
-    return Response({"slug": assistant.slug}, status=201)
+    return Response(
+        {
+            "slug": assistant.slug,
+            "demo_slug": demo_slug,
+            "boost_summary": boost_summary,
+        },
+        status=201,
+    )
 
 
 @api_view(["POST"])
@@ -2155,5 +2163,6 @@ def start_nurture(request, slug):
     assistant.nurture_started_at = timezone.now()
     assistant.save(update_fields=["nurture_started_at"])
     from assistants.helpers.logging_helper import log_trail_marker
+
     log_trail_marker(assistant, "nurture_started")
     return Response({"status": "ok"})

@@ -1,11 +1,12 @@
 // frontend/pages/assistants/CreateNewAssistantPage.jsx
 
 import { useEffect, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import PromptIdeaGenerator from "../../../components/prompts/PromptIdeaGenerator";
 import apiFetch from "@/utils/apiClient";
 import { previewAssistantFromDemo } from "../../../api/assistants";
+import AssistantPreviewBox from "../../../components/assistant/AssistantPreviewBox";
 import useDemoSession from "../../../hooks/useDemoSession";
 
 const mythDefaults = {
@@ -46,10 +47,10 @@ export default function CreateNewAssistantPage() {
   const [specialty, setSpecialty] = useState("");
   const [avatar, setAvatar] = useState("");
   const [avatarStyle, setAvatarStyle] = useState(
-    location.state?.avatar_style || "robot"
+    location.state?.avatar_style || "robot",
   );
   const [toneProfile, setToneProfile] = useState(
-    location.state?.tone_profile || "friendly"
+    location.state?.tone_profile || "friendly",
   );
   const [systemPromptId, setSystemPromptId] = useState("");
   const [systemPromptText, setSystemPromptText] = useState("");
@@ -58,10 +59,11 @@ export default function CreateNewAssistantPage() {
   const [prompts, setPrompts] = useState([]);
   const [personality, setPersonality] = useState("");
   const [tone, setTone] = useState("");
+  const [loadingDemo, setLoadingDemo] = useState(false);
   const [preferredModel, setPreferredModel] = useState("gpt-4o");
   const [saving, setSaving] = useState(false);
   const [mythpath, setMythpath] = useState(
-    location.state?.mythpath || "custom"
+    location.state?.mythpath || "custom",
   );
   const lockedPath = Boolean(location.state?.mythpath);
 
@@ -79,6 +81,9 @@ export default function CreateNewAssistantPage() {
         if (demo.avatar_style) {
           setAvatarStyle(demo.avatar_style);
         }
+        if (demo.tone_profile) {
+          setToneProfile(demo.tone_profile);
+        }
       }
     });
   }, [cloneFrom]);
@@ -88,19 +93,26 @@ export default function CreateNewAssistantPage() {
     const stored = localStorage.getItem("demo_prefill");
     if (!stored) return;
     const data = JSON.parse(stored);
+    setLoadingDemo(true);
     setDemoSlug(data.assistant.demo_slug);
     setName(data.assistant.name || "");
     setDescription(data.assistant.description || "");
     setTone(data.assistant.tone || "");
     setAvatar(data.assistant.avatar || "");
     if (data.assistant.flair) setSpecialty(data.assistant.flair);
+    if (data.assistant.avatar_style)
+      setAvatarStyle(data.assistant.avatar_style);
+    if (data.assistant.tone_profile)
+      setToneProfile(data.assistant.tone_profile);
     setSystemPromptText(data.suggested_system_prompt || "");
     setPrefillTranscript(data.recent_messages || []);
-    previewAssistantFromDemo(data.assistant.demo_slug, data.recent_messages).then(
-      (resp) => {
-        setSystemPromptText(resp.suggested_system_prompt || "");
-      },
-    );
+    previewAssistantFromDemo(
+      data.assistant.demo_slug,
+      data.recent_messages,
+    ).then((resp) => {
+      setSystemPromptText(resp.suggested_system_prompt || "");
+      setLoadingDemo(false);
+    });
   }, [prefill]);
 
   useEffect(() => {
@@ -180,100 +192,160 @@ export default function CreateNewAssistantPage() {
 
   return (
     <div className="container my-5">
-      <h1 className="mb-4">🧠 Create New Assistant</h1>
-      <div className="mb-3">
-        <label className="form-label">Mythpath</label>
-        <select
-          className="form-select"
-          value={mythpath}
-          onChange={(e) => setMythpath(e.target.value)}
-          disabled={lockedPath}
-        >
-          <option value="memory">Memory Seeker</option>
-          <option value="codex">Codex Explorer</option>
-          <option value="ritual">Ritual Witness</option>
-          <option value="custom">Custom</option>
-        </select>
-        {mythpath !== "custom" && (
-          <div className="form-text">
-            {mythSummaries[mythpath].emoji} {mythSummaries[mythpath].desc}
-          </div>
-        )}
-      </div>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label className="form-label">Name</label>
-          <input className="form-control" value={name} onChange={(e) => setName(e.target.value)} required />
-        </div>
+      {prefill === "demo" && (
+        <Link to="/assistants-demos" className="d-block mb-2">
+          &larr; Back to Demos
+        </Link>
+      )}
+      <h1 className="mb-4">
+        {prefill === "demo"
+          ? "Personalize Your Assistant"
+          : "🧠 Create New Assistant"}
+      </h1>
+      <div className="row">
+        <div className="col-md-8">
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+              <label className="form-label">Mythpath</label>
+              <select
+                className="form-select"
+                value={mythpath}
+                onChange={(e) => setMythpath(e.target.value)}
+                disabled={lockedPath}
+              >
+                <option value="memory">Memory Seeker</option>
+                <option value="codex">Codex Explorer</option>
+                <option value="ritual">Ritual Witness</option>
+                <option value="custom">Custom</option>
+              </select>
+              {mythpath !== "custom" && (
+                <div className="form-text">
+                  {mythSummaries[mythpath].emoji} {mythSummaries[mythpath].desc}
+                </div>
+              )}
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Name</label>
+              <input
+                className="form-control"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
 
-        <div className="mb-3">
-          <label className="form-label">Description</label>
-          <textarea className="form-control" value={description} onChange={(e) => setDescription(e.target.value)} rows={3} />
-        </div>
+            <div className="mb-3">
+              <label className="form-label">Description</label>
+              <textarea
+                className="form-control"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+              />
+            </div>
 
-        <div className="mb-3">
-          <label className="form-label">Specialty</label>
-          <input className="form-control" value={specialty} onChange={(e) => setSpecialty(e.target.value)} />
-        </div>
+            <div className="mb-3">
+              <label className="form-label">Specialty</label>
+              <input
+                className="form-control"
+                value={specialty}
+                onChange={(e) => setSpecialty(e.target.value)}
+              />
+            </div>
 
-        <div className="mb-3">
-          <label className="form-label">Avatar URL</label>
-          <input className="form-control" value={avatar} onChange={(e) => setAvatar(e.target.value)} />
-        </div>
-        <PromptIdeaGenerator onGenerate={(prompt) => setPersonality(prompt)} />
-        <div className="mb-3">
-          <label className="form-label">System Prompt</label>
-          <select
-            className="form-select"
-            value={systemPromptId}
-            onChange={(e) => setSystemPromptId(e.target.value)}
-          >
-            <option value="">Select a prompt</option>
-            {prompts.map((p) => (
-              <option key={p.id} value={p.id}>{p.title}</option>
-            ))}
-          </select>
-        </div>
-        {prefill === "demo" && (
-          <div className="mb-3">
-            <label className="form-label">Prompt Preview</label>
-            <textarea
-              className="form-control"
-              rows={4}
-              value={systemPromptText}
-              onChange={(e) => setSystemPromptText(e.target.value)}
+            <div className="mb-3">
+              <label className="form-label">Avatar URL</label>
+              <input
+                className="form-control"
+                value={avatar}
+                onChange={(e) => setAvatar(e.target.value)}
+              />
+            </div>
+            <PromptIdeaGenerator
+              onGenerate={(prompt) => setPersonality(prompt)}
             />
-          </div>
-        )}
+            <div className="mb-3">
+              <label className="form-label">System Prompt</label>
+              <select
+                className="form-select"
+                value={systemPromptId}
+                onChange={(e) => setSystemPromptId(e.target.value)}
+              >
+                <option value="">Select a prompt</option>
+                {prompts.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {prefill === "demo" && (
+              <div className="mb-3">
+                <label className="form-label">Prompt Preview</label>
+                <textarea
+                  className="form-control"
+                  rows={4}
+                  value={systemPromptText}
+                  onChange={(e) => setSystemPromptText(e.target.value)}
+                />
+              </div>
+            )}
 
-        <div className="mb-3">
-          <label className="form-label">Personality</label>
-          <textarea
-            className="form-control"
-            rows={3}
-            value={personality}
-            onChange={(e) => setPersonality(e.target.value)}
-          />
+            <div className="mb-3">
+              <label className="form-label">Personality</label>
+              <textarea
+                className="form-control"
+                rows={3}
+                value={personality}
+                onChange={(e) => setPersonality(e.target.value)}
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label">Tone</label>
+              <input
+                className="form-control"
+                value={tone}
+                onChange={(e) => setTone(e.target.value)}
+              />
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label">Preferred Model</label>
+              <select
+                className="form-select"
+                value={preferredModel}
+                onChange={(e) => setPreferredModel(e.target.value)}
+              >
+                <option value="gpt-4o">GPT-4o</option>
+                <option value="claude-3-sonnet">Claude 3 Sonnet</option>
+                <option value="mistral-7b">Mistral 7B</option>
+              </select>
+            </div>
+
+            <button className="btn btn-success" type="submit" disabled={saving}>
+              {saving ? "Saving..." : "💾 Save Assistant"}
+            </button>
+          </form>
         </div>
-
-        <div className="mb-3">
-          <label className="form-label">Tone</label>
-          <input className="form-control" value={tone} onChange={(e) => setTone(e.target.value)} />
+        <div className="col-md-4">
+          {loadingDemo ? (
+            <div className="placeholder-glow">
+              <div
+                className="placeholder col-12 mb-2"
+                style={{ height: "8rem" }}
+              />
+            </div>
+          ) : (
+            <AssistantPreviewBox
+              name={name}
+              tone={toneProfile || tone}
+              personality={personality}
+              avatarStyle={avatarStyle}
+            />
+          )}
         </div>
-
-        <div className="mb-3">
-          <label className="form-label">Preferred Model</label>
-          <select className="form-select" value={preferredModel} onChange={(e) => setPreferredModel(e.target.value)}>
-            <option value="gpt-4o">GPT-4o</option>
-            <option value="claude-3-sonnet">Claude 3 Sonnet</option>
-            <option value="mistral-7b">Mistral 7B</option>
-          </select>
-        </div>
-
-        <button className="btn btn-success" type="submit" disabled={saving}>
-          {saving ? "Saving..." : "💾 Save Assistant"}
-        </button>
-      </form>
+      </div>
     </div>
   );
 }

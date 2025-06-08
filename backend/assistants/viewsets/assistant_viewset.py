@@ -38,12 +38,14 @@ class AssistantViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
     def create(self, request):
+        """Create an assistant and indicate if it's the user's first."""
+        is_first = not Assistant.objects.filter(created_by=request.user).exists()
         serializer = AssistantSerializer(data=request.data)
         if serializer.is_valid():
-            assistant = serializer.save()
-            return Response(
-                AssistantSerializer(assistant).data, status=status.HTTP_201_CREATED
-            )
+            assistant = serializer.save(created_by=request.user)
+            data = AssistantSerializer(assistant).data
+            data["is_first"] = is_first
+            return Response(data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk=None):
@@ -203,4 +205,3 @@ class AssistantViewSet(viewsets.ViewSet):
 
         serializer = AssistantPreviewSerializer(assistant)
         return Response(serializer.data)
-
