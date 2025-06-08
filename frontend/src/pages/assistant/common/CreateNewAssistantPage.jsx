@@ -126,13 +126,17 @@ export default function CreateNewAssistantPage() {
       setPersonality(d.personality || "");
       setTone(d.tone || "");
     } else if (fromOnboarding) {
-      apiFetch("/assistants/default_template/").then((t) => {
-        if (!t) return;
-        setName(t.name || "");
-        setDescription(t.description || "");
-        setPersonality(t.personality || "");
-        setTone(t.tone || "");
-      });
+      apiFetch("/assistants/default_template/")
+        .then((t) => {
+          if (!t) return;
+          setName(t.name || "");
+          setDescription(t.description || "");
+          setPersonality(t.personality || "");
+          setTone(t.tone || "");
+        })
+        .catch((err) => {
+          console.error("Failed to load default template", err);
+        });
     }
   }, []);
 

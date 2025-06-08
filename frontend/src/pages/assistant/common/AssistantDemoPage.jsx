@@ -13,6 +13,7 @@ import LoadingSpinner from "../../../components/LoadingSpinner";
 export default function AssistantDemoPage() {
   const [assistants, setAssistants] = useState([]);
   const [successes, setSuccesses] = useState(null);
+  const [loadingAssistants, setLoadingAssistants] = useState(true);
   const { hints, dismissHint } = useAssistantHints("demo");
   const [showBanner, setShowBanner] = useState(
     () => localStorage.getItem("demo_banner_seen") !== "1",
@@ -34,16 +35,16 @@ export default function AssistantDemoPage() {
   };
 
   useEffect(() => {
-    apiFetch("/assistants/demos/")
-      .then(async (data) => {
+    async function loadDemos() {
+      try {
+        const data = await apiFetch("/assistants/demos/");
         if (Array.isArray(data) && data.length > 0) {
           setAssistants(data);
         } else {
           const seeded = await apiFetch("/assistants/demos/?force_seed=1");
           setAssistants(Array.isArray(seeded) ? seeded : []);
         }
-      })
-      .catch(async (err) => {
+      } catch (err) {
         console.error("Failed to fetch demo assistants:", err);
         try {
           const seeded = await apiFetch("/assistants/demos/?force_seed=1");
@@ -51,13 +52,23 @@ export default function AssistantDemoPage() {
         } catch {
           setAssistants([]);
         }
-      });
-    apiFetch("/assistants/demo_success/")
-      .then((data) => setSuccesses(Array.isArray(data) ? data : []))
-      .catch((err) => {
+      } finally {
+        setLoadingAssistants(false);
+      }
+      try {
+        const data = await apiFetch("/assistants/demo_success/");
+        const clones = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.demo_clones)
+            ? data.demo_clones
+            : [];
+        setSuccesses(clones);
+      } catch (err) {
         console.error("Failed to load demo successes", err);
         setSuccesses([]);
-      });
+      }
+    }
+    loadDemos();
   }, []);
 
   const featured = assistants
@@ -74,13 +85,15 @@ export default function AssistantDemoPage() {
             await apiFetch("/assistants/demos/?force_seed=1");
             window.location.reload();
           }}
-          disabled={assistants.length === 0}
+          disabled={assistants.length >= 3}
         >
           Reset Demos
         </button>
       )}
       <DemoAssistantShowcase assistants={featured} />
-      <DemoSuccessCarousel assistants={successes.slice(0, 5)} />
+      {successes && (
+        <DemoSuccessCarousel assistants={(successes || []).slice(0, 5)} />
+      )}
       {assistants.length > 1 && (
         <div className="mb-3 text-end d-flex justify-content-end gap-2">
           <Link
@@ -205,10 +218,14 @@ export default function AssistantDemoPage() {
             </div>
           </div>
         ))}
-        {assistants.length === 0 && (
-          <p className="text-muted text-center">
-            Demos are being loaded, please refresh soon.
-          </p>
+        {loadingAssistants ? (
+          <LoadingSpinner className="my-4" />
+        ) : (
+          assistants.length === 0 && (
+            <p className="text-muted text-center">
+              Demos are being loaded, please refresh soon.
+            </p>
+          )
         )}
       </div>
       {successes === null ? (
