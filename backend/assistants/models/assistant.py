@@ -250,6 +250,9 @@ class Assistant(models.Model):
     )
     mentor_for_demo_clone = models.BooleanField(default=False)
     nurture_started_at = models.DateTimeField(null=True, blank=True)
+    growth_stage = models.IntegerField(default=0)
+    growth_points = models.IntegerField(default=0)
+    growth_unlocked_at = models.DateTimeField(null=True, blank=True)
 
     def capabilities_dict(self) -> dict:
         """Return capabilities as a dictionary even if stored as a string."""

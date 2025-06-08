@@ -65,6 +65,7 @@ venv/
 
 !assistants/migrations/0030_demo_prompt_boost.py
 !assistants/migrations/0033_demo_converted_from_demo.py
+!assistants/migrations/0036_growth_fields.py
 
 !memory/migrations/0003_reflection_score.py
 !memory/migrations/0004_replay_diff_fields.py

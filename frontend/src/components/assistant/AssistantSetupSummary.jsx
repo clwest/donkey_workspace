@@ -5,6 +5,7 @@ import AssistantBadgeIcon from "./AssistantBadgeIcon";
 import GlossaryAnchorCard from "../onboarding/GlossaryAnchorCard";
 import TonePreview from "../onboarding/TonePreview";
 import BoostSummaryPanel from "./BoostSummaryPanel";
+import GrowthTrackPanel from "./GrowthTrackPanel";
 
 const AVATAR_EMOJI = {
   owl: "🦚",
@@ -67,6 +68,11 @@ export default function AssistantSetupSummary({ assistantId, assistant }) {
           <p className="text-muted mb-0">No badges yet.</p>
         )}
       </div>
+      <GrowthTrackPanel
+        slug={data.slug}
+        stage={data.growth_stage}
+        points={data.growth_points}
+      />
       <BoostSummaryPanel
         summary={data.boost_summary}
         demoSlug={data.demo_origin_slug}

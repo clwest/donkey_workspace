@@ -30,6 +30,7 @@ from .demo import (
 from .setup import AssistantSetupSummaryView
 from .intro import AssistantIntroView
 from .trail import AssistantTrailRecapView
+from .growth import upgrade_growth
 from .knowledge import diff_knowledge
 from .dashboard import assistant_dashboard
 from .diagnostics import (
@@ -357,5 +358,6 @@ __all__ = [
     "assistant_summary",
     "AssistantTrailRecapView",
     "create_primary_assistant_view",
+    "upgrade_growth",
 ]
 from .skills import SkillPlanView
