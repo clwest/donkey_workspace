@@ -24,7 +24,7 @@ export default function useAuth() {
       return;
     }
     try {
-      const info = await apiFetch("/auth/user/");
+      const info = await apiFetch("/auth/user/", { allowUnauthenticated: true });
       setTokenState(tk);
       setUser(info);
     } catch {

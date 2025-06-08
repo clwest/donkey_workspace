@@ -1,6 +1,7 @@
 from django.urls import get_resolver, URLPattern, URLResolver
 from django.views.decorators.cache import never_cache
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 import inspect
 from capabilities.registry import get_capability_for_path
@@ -151,3 +152,16 @@ def export_templates(request):
     except json.JSONDecodeError:
         return Response({"error": result.stderr})
     return Response({"templates": data})
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def auth_debug(request):
+    return Response(
+        {
+            "authenticated": request.user.is_authenticated,
+            "user": request.user.username if request.user.is_authenticated else None,
+            "session_keys": list(request.session.keys()),
+            "cookies": {k: request.COOKIES.get(k) for k in ["access", "refresh"] if k in request.COOKIES},
+        }
+    )

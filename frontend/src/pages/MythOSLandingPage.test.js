@@ -1,14 +1,14 @@
-import React from "react";
-import { MemoryRouter } from "react-router-dom";
-import { renderToStaticMarkup } from "react-dom/server";
-import MythOSLandingPage from "./MythOSLandingPage";
+import React from 'react';
+import { MemoryRouter } from 'react-router-dom';
+import { renderToStaticMarkup } from 'react-dom/server';
+import MythOSLandingPage from './MythOSLandingPage.jsx';
 
 const html = renderToStaticMarkup(
   <MemoryRouter>
     <MythOSLandingPage />
   </MemoryRouter>
 );
-if (!html.includes("MythOS")) {
-  throw new Error("MythOSLandingPage render failed");
+if (!html.includes('Welcome to MythOS')) {
+  throw new Error('Landing page render failed');
 }
-console.log("MythOSLandingPage test passed");
+console.log('MythOSLandingPage test passed');

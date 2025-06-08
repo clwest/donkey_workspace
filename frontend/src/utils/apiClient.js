@@ -24,13 +24,13 @@ export function resetAuthState() {
   authLost = false;
   isRedirecting = false;
   sessionExpiredNotified = false;
+  refreshInProgress = null;
 }
 const authDebug =
   new URLSearchParams(window.location.search).get("debug") === "auth";
 
 export async function tryRefreshToken() {
   if (refreshInProgress) return refreshInProgress;
-
   const refresh = getRefreshToken();
   if (!refresh) return false;
 
@@ -46,33 +46,18 @@ export async function tryRefreshToken() {
       if (!res.ok) return false;
       const data = await res.json();
       saveAuthTokens({ access: data.access, refresh: data.refresh });
+      resetAuthState();
       if (authDebug) console.log("[auth] refresh succeeded");
       return true;
     } catch (err) {
       if (authDebug) console.warn("[auth] refresh failed", err);
       return false;
+    } finally {
+      refreshInProgress = null;
     }
   })();
 
-  try {
-
-    const res = await fetch(`${API_URL}/token/refresh/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refresh }),
-      credentials: "include",
-    });
-    if (!res.ok) return false;
-    const data = await res.json();
-    saveAuthTokens({ access: data.access, refresh: data.refresh });
-    resetAuthState();
-    if (authDebug) console.log("[auth] refresh succeeded");
-    return true;
-  } catch (err) {
-    if (authDebug) console.warn("[auth] refresh failed", err);
-    return false;
-
-  }
+  return refreshInProgress;
 }
 
 function isMissingHost(url) {
@@ -129,7 +114,7 @@ export default async function apiFetch(url, options = {}) {
   let res = await doFetch();
 
   if (res.status === 401) {
-    if (authDebug) console.warn(`[auth] 401 from ${url}`);
+    console.warn(`[auth] 401 from ${url}`);
     if (!url.startsWith("/auth/user")) {
       const refreshed = await tryRefreshToken();
       if (refreshed) {

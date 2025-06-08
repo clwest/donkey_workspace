@@ -14,7 +14,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
-  useAuthGuard({ allowUnauthenticated: true });
+  const { authChecked } = useAuthGuard({ allowUnauthenticated: true });
+  if (!authChecked) {
+    return <div className="container my-5">Loading...</div>;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,7 +29,7 @@ export default function LoginPage() {
         navigate(nextPath);
         return;
       }
-      const info = await apiFetch("/auth/user/");
+      const info = await apiFetch("/auth/user/", { allowUnauthenticated: true });
       if (info.onboarding_complete) {
         navigate("/home");
       } else {
