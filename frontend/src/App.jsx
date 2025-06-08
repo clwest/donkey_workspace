@@ -115,7 +115,9 @@ import GlossaryDriftPage from "./pages/assistants/GlossaryDriftPage";
 import GlossaryConvergencePage from "./pages/assistants/GlossaryConvergencePage";
 import AnchorHealthDashboard from "./pages/assistants/AnchorHealthDashboard";
 import DemoInsightsDashboard from "./pages/assistants/DemoInsightsDashboard";
-import DemoLeaderboardPage from "./pages/assistants/DemoLeaderboardPage";
+
+import DemoFeedbackExplorer from "./pages/assistants/DemoFeedbackExplorer";
+
 import ReflectionDriftHeatmapPage from "./pages/assistant/reflections/ReflectionDriftHeatmapPage";
 import AssistantRagSelfTestPage from "./pages/assistants/AssistantRagSelfTestPage";
 import SubAgentReflectionPage from "./pages/assistants/SubAgentReflectionPage";
@@ -496,7 +498,9 @@ export default function App() {
           <Route path="/assistants-demos" element={<AssistantDemoPage />} />
           <Route path="/assistants/demos/compare" element={<DemoComparisonPage />} />
           <Route path="/assistants/demos/insights" element={<DemoInsightsDashboard />} />
-          <Route path="/assistants/demos/leaderboard" element={<DemoLeaderboardPage />} />
+
+          <Route path="/assistants/demos/feedback" element={<DemoFeedbackExplorer />} />
+
           <Route path="/assistants/launch" element={<AssistantLauncherPage />} />
           <Route path="/assistants/:slug/intro" element={<AssistantIntroSplash />} />
           <Route path="/assistants/:slug/trail" element={<AssistantTrailRecap />} />

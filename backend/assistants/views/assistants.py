@@ -1,4 +1,9 @@
-from rest_framework.decorators import api_view, permission_classes, action, throttle_classes
+from rest_framework.decorators import (
+    api_view,
+    permission_classes,
+    action,
+    throttle_classes,
+)
 from rest_framework import viewsets
 import uuid
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
@@ -1125,7 +1130,9 @@ def get_demo_assistants(request):
         rate = conversions / total if total else 0
         obj["metrics"] = {
             "total_sessions": total,
-            "avg_messages": logs.aggregate(models.Avg("message_count"))["message_count__avg"]
+            "avg_messages": logs.aggregate(models.Avg("message_count"))[
+                "message_count__avg"
+            ]
             or 0,
             "conversion_rate": rate,
             "bounce_rate": bounce / total if total else 0,
@@ -1135,10 +1142,12 @@ def get_demo_assistants(request):
                 .order_by("-c")
                 .first()
             )
-            or {}
+            or {},
         }
         if obj["metrics"]["most_common_starter"]:
-            obj["metrics"]["most_common_starter"] = obj["metrics"]["most_common_starter"]["starter_query"]
+            obj["metrics"]["most_common_starter"] = obj["metrics"][
+                "most_common_starter"
+            ]["starter_query"]
         else:
             obj["metrics"]["most_common_starter"] = ""
         obj["is_featured"] = a.is_featured
@@ -1174,7 +1183,9 @@ def demo_usage_overview(request):
     return Response(
         {
             "total_sessions": total,
-            "avg_session_length": logs.aggregate(models.Avg("message_count"))["message_count__avg"]
+            "avg_session_length": logs.aggregate(models.Avg("message_count"))[
+                "message_count__avg"
+            ]
             or 0,
             "conversion_rate": conversions / total if total else 0,
             "bounce_rate": bounce / total if total else 0,
@@ -1217,18 +1228,15 @@ def assistant_from_demo(request):
     demo_session_id = request.data.get("demo_session_id")
     assistant = generate_assistant_from_demo(demo_slug, request.user, transcript)
 
-
     if demo_session_id:
         from assistants.helpers.demo_utils import boost_prompt_from_demo
 
         boost_prompt_from_demo(assistant, transcript)
         DemoUsageLog.objects.filter(session_id=demo_session_id).update(
             converted_to_real_assistant=True
-
         )
 
         bump_demo_score(demo_session_id, 10)
-
 
     return Response({"slug": assistant.slug}, status=201)
 
@@ -1995,33 +2003,86 @@ def reset_demo_assistant(request, slug):
     return Response({"status": "reset", "created": [str(m.id) for m in mems]})
 
 
-@api_view(["POST"])
-
+@api_view(["GET", "POST"])
 @permission_classes([AllowAny])
 @throttle_classes([AnonRateThrottle])
 def demo_feedback(request):
-    """Record feedback for a demo session."""
-    session_id = request.data.get("session_id")
-    feedback_text = request.data.get("feedback_text")
-    rating = request.data.get("rating")
-    if not session_id:
-        return Response({"error": "session_id required"}, status=400)
+    """Record demo feedback or list existing submissions."""
     from assistants.models.demo import DemoUsageLog
+    from assistants.models.demo_usage import DemoSessionLog
 
-    log, _ = DemoUsageLog.objects.get_or_create(
-        session_id=session_id,
-        defaults={"demo_slug": request.data.get("demo_slug", "")},
-    )
-    if feedback_text:
-        log.feedback_text = feedback_text
+    if request.method == "POST":
+        session_id = request.data.get("session_id")
+        feedback_text = request.data.get("feedback_text")
+        rating = request.data.get("rating")
+        if not session_id:
+            return Response({"error": "session_id required"}, status=400)
+
+        log, _ = DemoUsageLog.objects.get_or_create(
+            session_id=session_id,
+            defaults={"demo_slug": request.data.get("demo_slug", "")},
+        )
+        if feedback_text:
+            log.feedback_text = feedback_text
+        if rating:
+            try:
+                log.user_rating = int(rating)
+            except (TypeError, ValueError):
+                pass
+        log.save()
+        return Response({"status": "ok"})
+
+    qs = DemoUsageLog.objects.all().order_by("-created_at")
+
+    rating = request.GET.get("rating")
     if rating:
         try:
-            log.user_rating = int(rating)
+            qs = qs.filter(user_rating=int(rating))
         except (TypeError, ValueError):
             pass
-    log.save()
 
-    return Response({"status": "ok"})
+    demo_slug = request.GET.get("demo_slug")
+    if demo_slug:
+        qs = qs.filter(demo_slug=demo_slug)
+
+    converted = request.GET.get("converted")
+    if converted is not None:
+        val = str(converted).lower() in ["1", "true", "yes"]
+        ids = DemoSessionLog.objects.filter(
+            converted_to_real_assistant=val
+        ).values_list("session_id", flat=True)
+        qs = qs.filter(session_id__in=list(ids))
+
+    paginator = PageNumberPagination()
+    page = paginator.paginate_queryset(qs, request)
+
+    session_map = {
+        s.session_id: s
+        for s in DemoSessionLog.objects.filter(
+            session_id__in=[log.session_id for log in page]
+        )
+    }
+
+    data = []
+    for log in page:
+        sess = session_map.get(log.session_id)
+        data.append(
+            {
+                "id": log.id,
+                "demo_slug": log.demo_slug,
+                "session_id": log.session_id,
+                "rating": log.user_rating,
+                "feedback_text": log.feedback_text,
+                "interaction_score": getattr(sess, "demo_interaction_score", 0),
+                "converted": getattr(sess, "converted_to_real_assistant", False),
+                "message_count": getattr(sess, "message_count", 0),
+                "timestamp": log.created_at,
+                "starter_query": getattr(sess, "starter_query", ""),
+                "helpful_tips": getattr(sess, "tips_helpful", 0),
+            }
+        )
+
+    return paginator.get_paginated_response(data)
 
 
 @api_view(["GET", "POST"])

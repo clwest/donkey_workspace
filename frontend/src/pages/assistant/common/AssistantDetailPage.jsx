@@ -414,6 +414,14 @@ export default function AssistantDetailPage() {
         >
           Open Boot Diagnostics
         </button>
+        {assistant.is_demo && (
+          <Link
+            to="/assistants/demos/feedback"
+            className="btn btn-sm btn-outline-primary ms-3"
+          >
+            Feedback Explorer
+          </Link>
+        )}
         {!assistant.is_primary && (
           <button
             className="btn btn-sm btn-outline-warning ms-3"
