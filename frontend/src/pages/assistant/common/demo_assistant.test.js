@@ -12,5 +12,11 @@ const html = renderToStaticMarkup(
 if (!html.includes("prompt_pal")) {
   throw new Error("Example button missing starter query");
 }
+if (!html.includes("Reset Demos")) {
+  throw new Error("Reset Demos button missing");
+}
+if (!html.includes("Demos are being reloaded")) {
+  throw new Error("Empty state message missing");
+}
 
 console.log("demo_assistant test passed");

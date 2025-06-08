@@ -373,6 +373,16 @@ urlpatterns = [
         name="demo_usage_overview",
     ),
     path("demo_feedback/", assistants.demo_feedback, name="demo_feedback"),
+    path(
+        "demo_feedback/clear/",
+        assistants.clear_demo_feedback,
+        name="clear_demo_feedback",
+    ),
+    path(
+        "check_demo_seed/",
+        assistants.run_check_demo_seed,
+        name="run_check_demo_seed",
+    ),
     path("demo_success/", demo.demo_success_view, name="demo_success"),
     
     # Sessions

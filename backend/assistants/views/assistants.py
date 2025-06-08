@@ -2020,7 +2020,16 @@ def seed_chat_memory(request, slug):
 @api_view(["POST"])
 def reset_demo_assistant(request, slug):
     """Reset a demo assistant's memories."""
-    assistant = get_object_or_404(Assistant, slug=slug, is_demo=True)
+    force_seed = request.GET.get("force_seed") == "true"
+    assistant = Assistant.objects.filter(slug=slug, is_demo=True).first()
+    if not assistant and force_seed:
+        from django.core.management import call_command
+
+        call_command("seed_demo_assistants")
+        assistant = get_object_or_404(Assistant, slug=slug, is_demo=True)
+    elif not assistant:
+        return Response(status=404)
+
     from assistants.utils.starter_chat import reset_demo_memory
 
     mems = reset_demo_memory(assistant)
@@ -2108,6 +2117,36 @@ def demo_feedback(request):
         )
 
     return paginator.get_paginated_response(data)
+
+
+@api_view(["POST"])
+@permission_classes([IsAdminUser])
+def clear_demo_feedback(request):
+    """Delete all demo feedback logs (admin only)."""
+    from assistants.models.demo import DemoUsageLog
+    from assistants.models.demo_usage import DemoSessionLog
+
+    DemoUsageLog.objects.all().delete()
+    DemoSessionLog.objects.all().delete()
+    try:
+        from assistants.models.demo_feedback import DemoFeedbackLog
+
+        DemoFeedbackLog.objects.all().delete()
+    except Exception:
+        pass
+
+    return Response({"status": "cleared"})
+
+
+@api_view(["POST"])
+@permission_classes([IsAdminUser])
+def run_check_demo_seed(request):
+    """Run the check_demo_seed management command."""
+    from io import StringIO
+
+    out = StringIO()
+    call_command("check_demo_seed", stdout=out)
+    return Response({"output": out.getvalue()})
 
 
 @api_view(["GET", "POST"])

@@ -23,10 +23,21 @@ class DemoResetAPITest(BaseAPITestCase):
 
     def test_demo_memories_reset(self):
         old_ids = list(self.demo.memories.values_list("id", flat=True))
+        from assistants.models.reflection import AssistantReflectionLog
+        AssistantReflectionLog.objects.create(
+            assistant=self.demo, title="t", summary="s"
+        )
         url = f"/api/assistants/{self.demo.slug}/reset_demo/"
         resp = self.client.post(url)
         self.assertEqual(resp.status_code, 200)
         new_ids = list(self.demo.memories.values_list("id", flat=True))
         self.assertTrue(len(new_ids) > 0)
         self.assertTrue(set(old_ids).isdisjoint(set(new_ids)))
+        self.assertEqual(AssistantReflectionLog.objects.filter(assistant=self.demo).count(), 0)
+
+    def test_force_seed_param(self):
+        self.demo.delete()
+        url = f"/api/assistants/{'demo'}/reset_demo/?force_seed=true"
+        resp = self.client.post(url)
+        self.assertEqual(resp.status_code, 200)
 
