@@ -41,6 +41,7 @@ from .views import (
     check_in,
     subassistant,
     hints,
+    demo,
     interface as interface_views,
     identity,
     onboarding,
@@ -924,6 +925,11 @@ urlpatterns = [
         "<slug:slug>/hints/",
         hints.assistant_hint_list,
         name="assistant-hints",
+    ),
+    path(
+        "<slug:slug>/demo_tips/",
+        demo.demo_tips,
+        name="assistant-demo-tips",
     ),
     path(
         "<slug:slug>/hints/<str:hint_id>/dismiss/",
