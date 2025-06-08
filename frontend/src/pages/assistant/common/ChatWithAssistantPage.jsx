@@ -27,6 +27,7 @@ import AssistantBadgeIcon from "../../../components/assistant/AssistantBadgeIcon
 
 import useGlossaryOverlay from "../../../hooks/glossary";
 import GlossaryOverlayTooltip from "../../../components/GlossaryOverlayTooltip";
+import DemoTipsSidebar from "../../../components/demo/DemoTipsSidebar";
 
 export default function ChatWithAssistantPage() {
   const { slug } = useParams();
@@ -865,6 +866,7 @@ export default function ChatWithAssistantPage() {
       )}
 
       {error && <div className="alert alert-danger mt-3">{error}</div>}
+      {assistantInfo?.is_demo && <DemoTipsSidebar slug={slug} />}
     </div>
   );
 }
