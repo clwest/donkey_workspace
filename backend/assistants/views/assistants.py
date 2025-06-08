@@ -1242,6 +1242,7 @@ def assistant_from_demo(request):
             converted_to_real_assistant=True,
             user=request.user,
             converted_at=timezone.now(),
+            converted_from_demo=timezone.now(),
         )
 
         bump_demo_score(demo_session_id, 10)

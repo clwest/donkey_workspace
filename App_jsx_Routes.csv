@@ -224,3 +224,4 @@ Route Path,Component
 /assistants/:slug/rag_playback/:id,RAGPlaybackPanel
 /assistants/:slug/rag_playback/compare/:id,RAGPlaybackPanel
 /keeper/logs,KeeperLogViewer
+/assistants/demos/success,DemoSuccessShowcase
