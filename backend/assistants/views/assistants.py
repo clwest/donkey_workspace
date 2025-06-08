@@ -35,7 +35,7 @@ from assistants.helpers.logging_helper import (
     log_trail_marker,
 )
 from assistants.helpers.demo_utils import generate_assistant_from_demo
-from assistants.models.demo_usage import DemoUsageLog
+from assistants.models.demo_usage import DemoSessionLog
 from assistants.models.assistant import (
     Assistant,
     TokenUsage,
@@ -729,7 +729,7 @@ def chat_with_assistant_view(request, slug):
 
     if message == "__ping__":
         if assistant.is_demo and demo_session_id:
-            DemoUsageLog.objects.get_or_create(
+            DemoSessionLog.objects.get_or_create(
                 session_id=demo_session_id,
                 defaults={
                     "assistant": assistant,
@@ -767,7 +767,7 @@ def chat_with_assistant_view(request, slug):
     chat_session = get_or_create_chat_session(session_id, assistant=assistant)
 
     if assistant.is_demo and demo_session_id:
-        log, created = DemoUsageLog.objects.get_or_create(
+        log, created = DemoSessionLog.objects.get_or_create(
             session_id=demo_session_id,
             defaults={
                 "assistant": assistant,

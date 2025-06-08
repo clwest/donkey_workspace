@@ -1,6 +1,6 @@
 import csv
 from io import StringIO
-from assistants.models.demo_usage import DemoUsageLog
+from assistants.models.demo_usage import DemoSessionLog
 
 
 def export_demo_usage_csv(start_date=None, demo_slug=None, converted_only=False):
@@ -25,7 +25,9 @@ def export_demo_usage_csv(start_date=None, demo_slug=None, converted_only=False)
             "converted",
         ]
     )
-    for log in qs:
+
+    for log in DemoSessionLog.objects.all().order_by("-started_at"):
+
         writer.writerow(
             [
                 log.assistant.demo_slug or log.assistant.slug,
