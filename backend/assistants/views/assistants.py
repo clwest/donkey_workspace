@@ -1104,11 +1104,61 @@ def get_demo_assistants(request):
 
             seed_chat_starter_memory(a)
     serializer = AssistantSerializer(assistants, many=True)
-    return Response(serializer.data)
+
+    data = serializer.data
+    for obj, a in zip(data, assistants):
+        logs = DemoUsageLog.objects.filter(assistant=a)
+        total = logs.count()
+        conversions = logs.filter(converted_to_real_assistant=True).count()
+        bounce = logs.filter(message_count=0).count()
+        obj["metrics"] = {
+            "total_sessions": total,
+            "avg_messages": logs.aggregate(models.Avg("message_count"))["message_count__avg"]
+            or 0,
+            "conversion_rate": conversions / total if total else 0,
+            "bounce_rate": bounce / total if total else 0,
+            "most_common_starter": (
+                logs.values("starter_query")
+                .annotate(c=models.Count("id"))
+                .order_by("-c")
+                .first()
+            )
+            or {}
+        }
+        if obj["metrics"]["most_common_starter"]:
+            obj["metrics"]["most_common_starter"] = obj["metrics"]["most_common_starter"]["starter_query"]
+        else:
+            obj["metrics"]["most_common_starter"] = ""
+    return Response(data)
 
 
 # Backwards compatibility alias
 demo_assistant = get_demo_assistants
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def demo_usage_overview(request):
+    """Return aggregate usage metrics across all demo assistants."""
+    logs = DemoUsageLog.objects.all()
+    total = logs.count()
+    conversions = logs.filter(converted_to_real_assistant=True).count()
+    bounce = logs.filter(message_count=0).count()
+    top = (
+        logs.values("starter_query")
+        .annotate(count=models.Count("id"))
+        .order_by("-count")[:5]
+    )
+    return Response(
+        {
+            "total_sessions": total,
+            "avg_session_length": logs.aggregate(models.Avg("message_count"))["message_count__avg"]
+            or 0,
+            "conversion_rate": conversions / total if total else 0,
+            "bounce_rate": bounce / total if total else 0,
+            "top_starters": list(top),
+        }
+    )
 
 
 @api_view(["GET"])

@@ -30,12 +30,18 @@ export default function AssistantDemoPage() {
     <div className="container py-5 position-relative">
       <h1 className="mb-4">🧪 AI Assistant Demos</h1>
       {assistants.length > 1 && (
-        <div className="mb-3 text-end">
+        <div className="mb-3 text-end d-flex justify-content-end gap-2">
           <Link
             to="/assistants/demos/compare"
             className="btn btn-outline-secondary btn-sm"
           >
             Compare Demos
+          </Link>
+          <Link
+            to="/assistants/demos/insights"
+            className="btn btn-outline-secondary btn-sm"
+          >
+            View Insights
           </Link>
         </div>
       )}
