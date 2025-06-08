@@ -1858,6 +1858,16 @@ def seed_chat_memory(request, slug):
     return Response({"created": [str(m.id) for m in mems]})
 
 
+@api_view(["POST"])
+def reset_demo_assistant(request, slug):
+    """Reset a demo assistant's memories."""
+    assistant = get_object_or_404(Assistant, slug=slug, is_demo=True)
+    from assistants.utils.starter_chat import reset_demo_memory
+
+    mems = reset_demo_memory(assistant)
+    return Response({"status": "reset", "created": [str(m.id) for m in mems]})
+
+
 @api_view(["GET", "POST"])
 @permission_classes([IsAuthenticated])
 def drift_suggestions(request, slug):

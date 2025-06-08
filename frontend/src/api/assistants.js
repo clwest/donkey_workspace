@@ -495,3 +495,10 @@ export async function reviewFirstMessageDrift(slug) {
   return res;
 }
 
+export async function resetDemoAssistant(slug) {
+  return apiFetch(`/assistants/${slug}/reset_demo/`, {
+    method: "POST",
+    allowUnauthenticated: true,
+  });
+}
+

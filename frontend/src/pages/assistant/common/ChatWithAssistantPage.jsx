@@ -8,7 +8,9 @@ import {
   suggestAssistant,
   suggestSwitch,
   switchAssistant,
+
   prepareCreationFromDemo,
+
 } from "../../../api/assistants";
 import { toast } from "react-toastify";
 
@@ -39,6 +41,7 @@ export default function ChatWithAssistantPage() {
   const [error, setError] = useState(null);
   const [switchSuggestion, setSwitchSuggestion] = useState(null);
   const [demoCount, setDemoCount] = useState(0);
+  const [showReset, setShowReset] = useState(false);
   const [showCustomize, setShowCustomize] = useState(false);
   const [sessionId] = useState(() => {
     const key = `chat_session_${slug}`;
@@ -326,8 +329,33 @@ export default function ChatWithAssistantPage() {
     }
   };
 
+  const handleResetDemo = async () => {
+    try {
+      await resetDemoAssistant(slug);
+      const data = await apiFetch(`/assistants/${slug}/chat/`, {
+        method: "POST",
+        body: { message: "__ping__", session_id: sessionId },
+      });
+      setMessages(data.messages || []);
+      toast.success("Demo has been reset!");
+    } catch (err) {
+      toast.error("Failed to reset demo");
+    } finally {
+      setShowReset(false);
+    }
+  };
+
   return (
-    <div className="container my-5">
+    <div className="container my-5 position-relative">
+      {assistantInfo?.is_demo && (
+        <button
+          className="btn btn-sm btn-outline-secondary position-absolute end-0"
+          style={{ top: 0 }}
+          onClick={() => setShowReset(true)}
+        >
+          Reset Demo
+        </button>
+      )}
       <h1>
         <span
           role="img"
@@ -546,6 +574,9 @@ export default function ChatWithAssistantPage() {
           Focus Anchors Only
         </label>
       </div>
+      {assistantInfo?.is_demo && (
+        <div className="alert alert-info mt-3">🧪 You’re chatting with a demo assistant. This chat won’t be saved.</div>
+      )}
       {!assistantInfo?.is_demo && sourceInfo && (
         <div className="mt-2">
           {sourceInfo.rag_fallback &&
@@ -738,6 +769,29 @@ export default function ChatWithAssistantPage() {
           <Link className="btn btn-primary mt-2" to={`/assistants/${assistantInfo.slug}/edit`}>
             Customize Me
           </Link>
+        </div>
+      )}
+
+      {assistantInfo?.is_demo && showReset && (
+        <div className="modal d-block" tabIndex="-1">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Reset Demo</h5>
+              </div>
+              <div className="modal-body">
+                Resetting the demo will clear all messages. Ready to start fresh?
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={() => setShowReset(false)}>
+                  Cancel
+                </button>
+                <button className="btn btn-primary" onClick={handleResetDemo}>
+                  Reset
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
