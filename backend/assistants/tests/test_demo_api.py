@@ -79,3 +79,26 @@ class DemoAssistantAPITest(BaseAPITestCase):
         row = data[0]
         self.assertIn("demo_slug", row)
         self.assertIn("conversion_rate", row)
+
+    def test_demo_success_endpoint(self):
+        demo = Assistant.objects.filter(is_demo=True).first()
+        clone = Assistant.objects.create(
+            name="Clone1",
+            slug="clone1",
+            spawned_by=demo,
+            is_demo_clone=True,
+        )
+        from assistants.models import ChatSession, AssistantChatMessage
+
+        sess = ChatSession.objects.create(assistant=clone)
+        AssistantChatMessage.objects.create(
+            session=sess, role="user", content="hi"
+        )
+        AssistantChatMessage.objects.create(
+            session=sess, role="assistant", content="hello"
+        )
+
+        resp = self.client.get("/api/assistants/demo_success/")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertTrue(any(d["slug"] == "clone1" for d in data))

@@ -5,7 +5,12 @@ from rest_framework.response import Response
 from assistants.models.demo_usage import DemoSessionLog
 
 
-from assistants.models import Assistant, DemoUsageLog
+from assistants.models import (
+    Assistant,
+    DemoUsageLog,
+    ChatSession,
+    AssistantChatMessage,
+)
 
 from assistants.demo_config import DEMO_TIPS
 from assistants.helpers.demo_utils import (
@@ -170,3 +175,30 @@ def demo_leaderboard(request):
         key=lambda r: (r["conversion_rate"], r["total_sessions"]), reverse=True
     )
     return Response(results)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def demo_success(request):
+    """Return assistants created from demos with usage stats."""
+    clones = (
+        Assistant.objects.filter(is_demo_clone=True)
+        .select_related("spawned_by")
+        .order_by("-created_at")
+    )
+    data = []
+    for a in clones:
+        sessions = ChatSession.objects.filter(assistant=a)
+        data.append(
+            {
+                "slug": a.slug,
+                "name": a.name,
+                "avatar": a.avatar,
+                "primary_badge": a.primary_badge,
+                "demo_slug": a.spawned_by.demo_slug if a.spawned_by else None,
+                "sessions": sessions.count(),
+                "messages": AssistantChatMessage.objects.filter(session__assistant=a).count(),
+            }
+        )
+    data.sort(key=lambda x: x["sessions"], reverse=True)
+    return Response(data)

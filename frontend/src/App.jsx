@@ -115,6 +115,7 @@ import GlossaryDriftPage from "./pages/assistants/GlossaryDriftPage";
 import GlossaryConvergencePage from "./pages/assistants/GlossaryConvergencePage";
 import AnchorHealthDashboard from "./pages/assistants/AnchorHealthDashboard";
 import DemoInsightsDashboard from "./pages/assistants/DemoInsightsDashboard";
+import DemoSuccessShowcase from "./pages/assistants/DemoSuccessShowcase";
 
 import DemoFeedbackExplorer from "./pages/assistants/DemoFeedbackExplorer";
 
@@ -498,6 +499,7 @@ export default function App() {
           <Route path="/assistants-demos" element={<AssistantDemoPage />} />
           <Route path="/assistants/demos/compare" element={<DemoComparisonPage />} />
           <Route path="/assistants/demos/insights" element={<DemoInsightsDashboard />} />
+          <Route path="/assistants/demos/success" element={<DemoSuccessShowcase />} />
 
           <Route path="/assistants/demos/feedback" element={<DemoFeedbackExplorer />} />
 

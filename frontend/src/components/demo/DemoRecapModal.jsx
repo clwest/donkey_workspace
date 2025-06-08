@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Modal, Button } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import apiFetch from "@/utils/apiClient";
 import { createAssistantFromDemo } from "@/api/assistants";
 
@@ -75,6 +75,9 @@ export default function DemoRecapModal({ show, onClose, demoSlug, sessionId }) {
         <a className="btn btn-link" href="/assistants/create">
           Create Another
         </a>
+        <Link to="/assistants/demos/success" className="btn btn-link">
+          Explore Other Successes
+        </Link>
       </Modal.Footer>
     </Modal>
   );

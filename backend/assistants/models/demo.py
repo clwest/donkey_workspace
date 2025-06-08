@@ -17,6 +17,7 @@ class DemoUsageLog(models.Model):
     recap_shown = models.BooleanField(default=False)
     feedback_submitted = models.BooleanField(default=False)
     converted_at = models.DateTimeField(null=True, blank=True)
+    converted_from_demo = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

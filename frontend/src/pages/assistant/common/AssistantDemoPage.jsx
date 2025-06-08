@@ -5,11 +5,13 @@ import useAssistantHints from "../../../hooks/useAssistantHints";
 import apiFetch from "../../../utils/apiClient";
 import AssistantCard from "../../../components/assistant/AssistantCard";
 import DemoAssistantShowcase from "../../../components/demo/DemoAssistantShowcase";
+import DemoSuccessCarousel from "../../../components/demo/DemoSuccessCarousel";
 import DemoTipsModal from "../../../components/demo/DemoTipsModal";
 import useDemoSession from "../../../hooks/useDemoSession";
 
 export default function AssistantDemoPage() {
   const [assistants, setAssistants] = useState([]);
+  const [successes, setSuccesses] = useState([]);
   const { hints, dismissHint } = useAssistantHints("demo");
   const [showBanner, setShowBanner] = useState(
     () => localStorage.getItem("demo_banner_seen") !== "1",
@@ -37,6 +39,9 @@ export default function AssistantDemoPage() {
         console.error("Failed to fetch demo assistants:", err);
         setAssistants([]);
       });
+    apiFetch("/assistants/demo_success/")
+      .then((data) => setSuccesses(Array.isArray(data) ? data : []))
+      .catch(() => setSuccesses([]));
   }, []);
 
   const featured = assistants
@@ -58,6 +63,7 @@ export default function AssistantDemoPage() {
         </button>
       )}
       <DemoAssistantShowcase assistants={featured} />
+      <DemoSuccessCarousel assistants={successes.slice(0, 5)} />
       {assistants.length > 1 && (
         <div className="mb-3 text-end d-flex justify-content-end gap-2">
           <Link
@@ -77,6 +83,12 @@ export default function AssistantDemoPage() {
             className="btn btn-outline-secondary btn-sm"
           >
             Leaderboard
+          </Link>
+          <Link
+            to="/assistants/demos/success"
+            className="btn btn-outline-secondary btn-sm"
+          >
+            Success Stories
           </Link>
         </div>
       )}

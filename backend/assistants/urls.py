@@ -368,6 +368,7 @@ urlpatterns = [
     ),
     path("demo_feedback/", assistants.demo_feedback, name="demo_feedback"),
     path("demo_recap/<str:session_id>/", assistants.demo_recap, name="demo_recap"),
+    path("demo_success/", assistants.demo_success, name="demo_success"),
     # Sessions
     path("sessions/list/", sessions.list_chat_sessions, name="chat_session_list"),
     path(
