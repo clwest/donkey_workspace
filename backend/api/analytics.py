@@ -3,8 +3,16 @@ from io import StringIO
 from assistants.models.demo_usage import DemoUsageLog
 
 
-def export_demo_usage_csv():
+def export_demo_usage_csv(start_date=None, demo_slug=None, converted_only=False):
     """Return demo usage log as CSV string."""
+    qs = DemoUsageLog.objects.all().order_by("-started_at")
+    if start_date:
+        qs = qs.filter(started_at__gte=start_date)
+    if demo_slug:
+        qs = qs.filter(assistant__demo_slug=demo_slug)
+    if converted_only:
+        qs = qs.filter(converted_to_real_assistant=True)
+
     out = StringIO()
     writer = csv.writer(out)
     writer.writerow(
@@ -17,7 +25,7 @@ def export_demo_usage_csv():
             "converted",
         ]
     )
-    for log in DemoUsageLog.objects.all().order_by("-started_at"):
+    for log in qs:
         writer.writerow(
             [
                 log.assistant.demo_slug or log.assistant.slug,

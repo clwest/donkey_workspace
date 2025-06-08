@@ -140,6 +140,9 @@ export default function DevDashboard() {
         <Link to="/dev/auth-debug" className="btn btn-outline-secondary my-3 ms-2">
           🔑 Auth Debug
         </Link>
+        <Link to="/assistants/demos/insights" className="btn btn-outline-secondary my-3 ms-2">
+          📊 Demo Insights
+        </Link>
         <ul className="nav nav-tabs mt-2">
           <li className="nav-item">
             <button
