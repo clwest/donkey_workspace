@@ -355,7 +355,9 @@ urlpatterns = [
     path("signals/<uuid:pk>/", signals.update_signal_catch, name="update-signal-catch"),
     # Demo Agents
     path("demos/", assistants.get_demo_assistants, name="demo_assistant"),
-    path("demo_comparison/", assistants.demo_comparison, name="demo_comparison"),
+
+    path("demo_feedback/", assistants.record_demo_feedback, name="demo_feedback"),
+
     # Sessions
     path("sessions/list/", sessions.list_chat_sessions, name="chat_session_list"),
     path(

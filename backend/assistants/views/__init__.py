@@ -317,6 +317,7 @@ __all__ = [
     "patch_drifted_reflections",
     "seed_chat_memory",
     "reset_demo_assistant",
+    "record_demo_feedback",
     "drift_heatmap",
     "conscience_profiles",
     "reflexive_epistemology",
