@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import AssistantDemoPage from "../assistant/common/AssistantDemoPage";
 import HintBubble from "../../components/HintBubble";
 import useAssistantHints from "../../hooks/useAssistantHints";
+import useDemoSession from "../../hooks/useDemoSession";
+import DemoRecapModal from "../../components/demo/DemoRecapModal";
 import useOnboardingTracker from "../../hooks/useOnboardingTracker";
 import useUserInfo from "../../hooks/useUserInfo";
 import useAuthGuard from "../../hooks/useAuthGuard";
@@ -17,6 +19,9 @@ export default function AssistantLauncherPage() {
   const { progress } = useOnboardingTracker();
   const { hints, dismissHint } = useAssistantHints("launcher");
   const [primary, setPrimary] = useState(null);
+  const { demoSessionId } = useDemoSession();
+  const [recap, setRecap] = useState(null);
+  const [showRecap, setShowRecap] = useState(false);
 
   useEffect(() => {
     if (userInfo?.assistant_count > 0) {
@@ -25,6 +30,17 @@ export default function AssistantLauncherPage() {
         .catch(() => {});
     }
   }, [userInfo]);
+
+  useEffect(() => {
+    apiFetch(`/assistants/demo_recap/${demoSessionId}/`)
+      .then((d) => {
+        if (d && d.messages_sent > 0 && !d.converted) {
+          setRecap(d);
+          setShowRecap(true);
+        }
+      })
+      .catch(() => {});
+  }, [demoSessionId]);
 
   const glossaryDone =
     progress?.find((p) => p.step === "glossary")?.status === "completed";
@@ -74,6 +90,14 @@ export default function AssistantLauncherPage() {
         />
       )}
       <AssistantDemoPage />
+      {recap && (
+        <DemoRecapModal
+          show={showRecap}
+          onClose={() => setShowRecap(false)}
+          demoSlug={recap.demo_slug}
+          sessionId={demoSessionId}
+        />
+      )}
     </div>
   );
 }

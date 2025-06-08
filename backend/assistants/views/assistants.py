@@ -35,6 +35,7 @@ from assistants.helpers.logging_helper import (
 )
 from assistants.helpers.demo_utils import generate_assistant_from_demo
 from assistants.models.demo_usage import DemoUsageLog
+from assistants.views.demo import bump_demo_score
 from assistants.models.assistant import (
     Assistant,
     TokenUsage,
@@ -407,6 +408,7 @@ class AssistantViewSet(viewsets.ModelViewSet):
         """Return preview info for converting a demo assistant."""
         assistant = get_object_or_404(Assistant, slug=slug, is_demo=True)
         transcript = request.data.get("transcript") or []
+        demo_session_id = request.data.get("demo_session_id")
         from assistants.helpers.demo_utils import generate_demo_prompt_preview
 
         preview = {
@@ -421,6 +423,8 @@ class AssistantViewSet(viewsets.ModelViewSet):
             "recent_messages": transcript[:6],
             "suggested_system_prompt": generate_demo_prompt_preview(assistant),
         }
+        if demo_session_id:
+            bump_demo_score(demo_session_id, 10)
         return Response(preview)
 
     @action(detail=True, methods=["patch"], url_path="assign-primary")
@@ -781,6 +785,7 @@ def chat_with_assistant_view(request, slug):
         log.message_count = F("message_count") + 1
         log.ended_at = timezone.now()
         log.save()
+        bump_demo_score(demo_session_id, 1)
 
     if assistant.is_primary and assistant.live_relay_enabled:
         delegate = assistant.sub_assistants.filter(is_active=True).first()
@@ -1144,6 +1149,7 @@ def assistant_from_demo(request):
         DemoUsageLog.objects.filter(session_id=demo_session_id).update(
             converted_to_real_assistant=True
         )
+        bump_demo_score(demo_session_id, 10)
 
     return Response({"slug": assistant.slug}, status=201)
 
