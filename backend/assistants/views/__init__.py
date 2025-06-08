@@ -25,7 +25,7 @@ from .demo import (
     replay_demo_boost,
     demo_leaderboard,
     demo_recap,
-    demo_success,
+    demo_success_view,
 )
 from .setup import AssistantSetupSummaryView
 from .intro import AssistantIntroView
@@ -330,7 +330,7 @@ __all__ = [
     "reset_demo_assistant",
     "demo_leaderboard",
     "demo_recap",
-    "demo_success",
+    "demo_success_view",
     "replay_demo_boost",
     "drift_heatmap",
     "conscience_profiles",

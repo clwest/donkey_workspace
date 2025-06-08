@@ -89,6 +89,7 @@ class DemoAssistantAPITest(BaseAPITestCase):
             is_demo_clone=True,
         )
         from assistants.models import ChatSession, AssistantChatMessage
+        from memory.models import MemoryEntry
 
         sess = ChatSession.objects.create(assistant=clone)
         AssistantChatMessage.objects.create(
@@ -97,8 +98,26 @@ class DemoAssistantAPITest(BaseAPITestCase):
         AssistantChatMessage.objects.create(
             session=sess, role="assistant", content="hello"
         )
+        MemoryEntry.objects.create(assistant=clone, event="e")
 
         resp = self.client.get("/api/assistants/demo_success/")
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
-        self.assertTrue(any(d["slug"] == "clone1" for d in data))
+        row = next(d for d in data if d["slug"] == "clone1")
+        self.assertEqual(row["memory_count"], 1)
+        self.assertTrue(row["first_message_excerpt"].startswith("hi"))
+
+    def test_demo_success_only_clones(self):
+        demo = Assistant.objects.filter(is_demo=True).first()
+        clone = Assistant.objects.create(
+            name="Clone2",
+            slug="clone2",
+            spawned_by=demo,
+            is_demo_clone=True,
+        )
+        Assistant.objects.create(name="Regular2", slug="regular2")
+
+        resp = self.client.get("/api/assistants/demo_success/")
+        slugs = [d["slug"] for d in resp.json()]
+        self.assertIn(clone.slug, slugs)
+        self.assertNotIn("regular2", slugs)

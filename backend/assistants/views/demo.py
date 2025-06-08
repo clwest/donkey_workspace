@@ -11,6 +11,7 @@ from assistants.models import (
     ChatSession,
     AssistantChatMessage,
 )
+from memory.models import MemoryEntry
 
 from assistants.demo_config import DEMO_TIPS
 from assistants.helpers.demo_utils import (
@@ -178,27 +179,29 @@ def demo_leaderboard(request):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def demo_success(request):
-    """Return assistants created from demos with usage stats."""
+@permission_classes([AllowAny])
+def demo_success_view(request):
+    """Return recently created assistants cloned from demos."""
     clones = (
-        Assistant.objects.filter(is_demo_clone=True)
+        Assistant.objects.filter(is_demo_clone=True, is_active=True)
         .select_related("spawned_by")
         .order_by("-created_at")
     )
-    data = []
+    results = []
     for a in clones:
-        sessions = ChatSession.objects.filter(assistant=a)
-        data.append(
+        first_msg = (
+            AssistantChatMessage.objects.filter(session__assistant=a)
+            .order_by("created_at")
+            .first()
+        )
+        results.append(
             {
                 "slug": a.slug,
                 "name": a.name,
-                "avatar": a.avatar,
-                "primary_badge": a.primary_badge,
                 "demo_slug": a.spawned_by.demo_slug if a.spawned_by else None,
-                "sessions": sessions.count(),
-                "messages": AssistantChatMessage.objects.filter(session__assistant=a).count(),
+                "created_at": a.created_at.isoformat(),
+                "memory_count": MemoryEntry.objects.filter(assistant=a).count(),
+                "first_message_excerpt": first_msg.content[:100] if first_msg else "",
             }
         )
-    data.sort(key=lambda x: x["sessions"], reverse=True)
-    return Response(data)
+    return Response(results)

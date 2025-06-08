@@ -8,10 +8,11 @@ import DemoAssistantShowcase from "../../../components/demo/DemoAssistantShowcas
 import DemoSuccessCarousel from "../../../components/demo/DemoSuccessCarousel";
 import DemoTipsModal from "../../../components/demo/DemoTipsModal";
 import useDemoSession from "../../../hooks/useDemoSession";
+import LoadingSpinner from "../../../components/LoadingSpinner";
 
 export default function AssistantDemoPage() {
   const [assistants, setAssistants] = useState([]);
-  const [successes, setSuccesses] = useState([]);
+  const [successes, setSuccesses] = useState(null);
   const { hints, dismissHint } = useAssistantHints("demo");
   const [showBanner, setShowBanner] = useState(
     () => localStorage.getItem("demo_banner_seen") !== "1",
@@ -53,7 +54,10 @@ export default function AssistantDemoPage() {
       });
     apiFetch("/assistants/demo_success/")
       .then((data) => setSuccesses(Array.isArray(data) ? data : []))
-      .catch(() => setSuccesses([]));
+      .catch((err) => {
+        console.error("Failed to load demo successes", err);
+        setSuccesses([]);
+      });
   }, []);
 
   const featured = assistants
@@ -207,6 +211,22 @@ export default function AssistantDemoPage() {
           </p>
         )}
       </div>
+      {successes === null ? (
+        <LoadingSpinner className="my-4" />
+      ) : (
+        successes.length > 0 && (
+          <div className="mt-4">
+            <h2 className="h6 mb-3">✨ Recently Created From Demo</h2>
+            <div className="row">
+              {successes.map((s) => (
+                <div key={s.slug} className="col-md-4 mb-3">
+                  <AssistantCard assistant={s} chatLink={`/assistants/${s.slug}/chat`} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      )}
       {hints.find((h) => h.id === "demo_start_chat" && !h.dismissed) && (
         <HintBubble
           label={hints.find((h) => h.id === "demo_start_chat").label}
