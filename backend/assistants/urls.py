@@ -936,6 +936,11 @@ urlpatterns = [
         name="assistant-update-badges",
     ),
     path(
+        "<slug:slug>/growth_stage/upgrade/",
+        views.upgrade_growth,
+        name="assistant-growth-upgrade",
+    ),
+    path(
         "<slug:slug>/hints/",
         hints.assistant_hint_list,
         name="assistant-hints",

@@ -10,6 +10,7 @@ import AssistantOriginPanel from "../../../components/assistant/AssistantOriginP
 import NurturePanel from "../../../components/assistant/NurturePanel";
 import AssistantBadgeIcon from "../../../components/assistant/AssistantBadgeIcon";
 import AssistantSetupSummary from "../../../components/assistant/AssistantSetupSummary";
+import GrowthTrackPanel from "../../../components/assistant/GrowthTrackPanel";
 import AssistantPersonalizationPrompt from "../../../components/assistant/AssistantPersonalizationPrompt";
 import useAuthGuard from "../../../hooks/useAuthGuard";
 import {
@@ -575,6 +576,11 @@ export default function AssistantDetailPage() {
           )}
           <AssistantOriginPanel assistant={assistant} />
           <NurturePanel assistant={assistant} />
+          <GrowthTrackPanel
+            slug={slug}
+            stage={assistant.growth_stage}
+            points={assistant.growth_points}
+          />
           <Link
             to={`/assistants/${slug}/trail`}
             className="btn btn-sm btn-secondary ms-2"
