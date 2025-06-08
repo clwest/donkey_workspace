@@ -1,18 +1,18 @@
 import csv
 import json
 from django.core.management.base import BaseCommand
-from assistants.models.demo_usage import DemoUsageLog
+from assistants.models.demo_usage import DemoSessionLog
 
 
 class Command(BaseCommand):
-    help = "Export DemoUsageLog stats"
+    help = "Export DemoSessionLog stats"
 
     def add_arguments(self, parser):
         parser.add_argument("--as", dest="fmt", default="csv")
 
     def handle(self, *args, **options):
         fmt = options["fmt"]
-        qs = DemoUsageLog.objects.all().order_by("-started_at")
+        qs = DemoSessionLog.objects.all().order_by("-started_at")
         if fmt == "csv":
             writer = csv.writer(self.stdout)
             writer.writerow([
