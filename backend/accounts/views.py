@@ -35,8 +35,7 @@ def auth_user(request):
             "authenticated": True,
             "username": request.user.username,
             "email": request.user.email,
-            "onboarding_complete": get_next_onboarding_step(request.user)
-            is None,
+            "onboarding_complete": request.user.onboarding_complete,
             "has_assistants": assistants.exists(),
         }
     )
@@ -129,7 +128,7 @@ def user_info(request):
         "glossary_score": glossary_score,
         "onboarding_status": onboarding,
         "has_assistants": assistant_count > 0,
-        "onboarding_complete": next_step is None,
+        "onboarding_complete": request.user.onboarding_complete,
         "has_taught_anchor": taught_anchor_exists,
         "initial_badges": first_assistant.skill_badges if first_assistant else [],
         "primary_assistant_slug": primary.slug if primary else None,

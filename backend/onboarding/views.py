@@ -92,6 +92,9 @@ def onboarding_complete(request):
     progress = get_onboarding_status(request.user)
     next_step = get_next_onboarding_step(request.user)
     percent = get_progress_percent(request.user)
+    if next_step is None and not request.user.onboarding_complete:
+        request.user.onboarding_complete = True
+        request.user.save(update_fields=["onboarding_complete"])
     return Response(
         {
             "progress": progress,

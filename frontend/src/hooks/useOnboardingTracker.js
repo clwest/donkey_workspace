@@ -64,6 +64,13 @@ export default function useOnboardingTracker(theme = "fantasy") {
     }
   }, [refreshStatus]);
 
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development" && status) {
+      // eslint-disable-next-line no-console
+      console.log("[onboarding] status", status);
+    }
+  }, [status]);
+
   return {
     progress: status?.progress,
     nextStep: status?.next_step,

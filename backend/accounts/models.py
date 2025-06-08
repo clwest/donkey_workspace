@@ -51,6 +51,10 @@ class CustomUser(AbstractUser):
         default=False,
         help_text="User dismissed the onboarding guide panel",
     )
+    onboarding_complete = models.BooleanField(
+        default=False,
+        help_text="User finished all onboarding steps",
+    )
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
