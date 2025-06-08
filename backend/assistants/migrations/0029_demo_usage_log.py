@@ -1,9 +1,11 @@
 from django.db import migrations, models
+
 import django.db.models.deletion
 from django.conf import settings
 
 
 class Migration(migrations.Migration):
+
 
     dependencies = [
         ("assistants", "0028_trail_user_fields"),
@@ -13,6 +15,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="DemoUsageLog",
             fields=[
+
                 ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
                 ("session_id", models.CharField(max_length=64, unique=True)),
                 (
@@ -27,5 +30,6 @@ class Migration(migrations.Migration):
                 ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
             options={"ordering": ["-created_at"]},
+
         ),
     ]

@@ -19,10 +19,12 @@ import os
 import re
 from django.conf import settings
 from django.utils.text import slugify
+import random
 from django.core.management import call_command
 from pathlib import Path
 from assistants.services import AssistantService
 from memory.services import MemoryService
+from django.db.models import F
 from memory.models import MemoryEntry, RAGGroundingLog
 from utils.rag_debug import log_rag_debug
 from memory.serializers import RAGGroundingLogSerializer
@@ -33,6 +35,7 @@ from assistants.helpers.logging_helper import (
     log_trail_marker,
 )
 from assistants.helpers.demo_utils import generate_assistant_from_demo
+from assistants.models.demo_usage import DemoUsageLog
 from assistants.models.assistant import (
     Assistant,
     TokenUsage,
@@ -400,6 +403,27 @@ class AssistantViewSet(viewsets.ModelViewSet):
             status=201,
         )
 
+    @action(detail=True, methods=["post"], url_path="prepare_creation_from_demo")
+    def prepare_creation_from_demo(self, request, slug=None):
+        """Return preview info for converting a demo assistant."""
+        assistant = get_object_or_404(Assistant, slug=slug, is_demo=True)
+        transcript = request.data.get("transcript") or []
+        from assistants.helpers.demo_utils import generate_demo_prompt_preview
+
+        preview = {
+            "assistant": {
+                "name": assistant.name,
+                "description": assistant.description,
+                "tone": assistant.tone,
+                "avatar": assistant.avatar,
+                "flair": assistant.primary_badge,
+                "demo_slug": assistant.demo_slug,
+            },
+            "recent_messages": transcript[:6],
+            "suggested_system_prompt": generate_demo_prompt_preview(assistant),
+        }
+        return Response(preview)
+
     @action(detail=True, methods=["patch"], url_path="assign-primary")
     def assign_primary(self, request, slug=None):
         """Assign this assistant as the system primary."""
@@ -700,8 +724,20 @@ def chat_with_assistant_view(request, slug):
 
     message = request.data.get("message")
     session_id = request.data.get("session_id") or str(uuid.uuid4())
+    demo_session_id = request.data.get("demo_session_id")
+    starter_query = request.data.get("starter_query")
 
     if message == "__ping__":
+        if assistant.is_demo and demo_session_id:
+            DemoUsageLog.objects.get_or_create(
+                session_id=demo_session_id,
+                defaults={
+                    "assistant": assistant,
+                    "starter_query": starter_query or "",
+                    "created_from_ip": request.META.get("REMOTE_ADDR", ""),
+                    "user_agent": request.META.get("HTTP_USER_AGENT", "")[:255],
+                },
+            )
         return Response({"messages": load_session_messages(session_id)})
 
     if not message:
@@ -729,6 +765,23 @@ def chat_with_assistant_view(request, slug):
     thought_engine.think_from_user_message(message)
 
     chat_session = get_or_create_chat_session(session_id, assistant=assistant)
+
+    if assistant.is_demo and demo_session_id:
+        log, created = DemoUsageLog.objects.get_or_create(
+            session_id=demo_session_id,
+            defaults={
+                "assistant": assistant,
+                "starter_query": starter_query or "",
+                "first_message": message,
+                "created_from_ip": request.META.get("REMOTE_ADDR", ""),
+                "user_agent": request.META.get("HTTP_USER_AGENT", "")[:255],
+            },
+        )
+        if not created and log.message_count == 0:
+            log.first_message = message
+        log.message_count = F("message_count") + 1
+        log.ended_at = timezone.now()
+        log.save()
 
     if assistant.is_primary and assistant.live_relay_enabled:
         delegate = assistant.sub_assistants.filter(is_active=True).first()
@@ -1059,20 +1112,40 @@ def get_demo_assistants(request):
 demo_assistant = get_demo_assistants
 
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def demo_comparison(request):
+    """Return a small random set of demo assistants with preview chat."""
+    demos = list(Assistant.objects.filter(is_demo=True))
+    random.shuffle(demos)
+    demos = demos[:3]
+    for a in demos:
+        if not a.memories.exists():
+            from assistants.utils.starter_chat import seed_chat_starter_memory
+
+            seed_chat_starter_memory(a)
+    serializer = DemoComparisonSerializer(demos, many=True)
+    return Response(serializer.data)
+
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def assistant_from_demo(request):
     """Clone a demo assistant for the current user."""
     demo_slug = request.data.get("demo_slug")
     transcript = request.data.get("transcript") or []
+
     session_id = request.data.get("demo_session_id")
     variant = request.data.get("comparison_variant")
     feedback_text = request.data.get("feedback_text")
     rating = request.data.get("rating")
+
     if not demo_slug:
         return Response({"error": "demo_slug required"}, status=400)
 
+    demo_session_id = request.data.get("demo_session_id")
     assistant = generate_assistant_from_demo(demo_slug, request.user, transcript)
+
 
     if session_id:
         from assistants.models.demo import DemoUsageLog
@@ -1093,7 +1166,35 @@ def assistant_from_demo(request):
         log.converted_at = timezone.now()
         log.save()
 
+
     return Response({"slug": assistant.slug}, status=201)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def assistant_from_demo_preview(request):
+    """Return preview data for demo conversion."""
+    demo_slug = request.data.get("demo_slug")
+    transcript = request.data.get("transcript") or []
+    if not demo_slug:
+        return Response({"error": "demo_slug required"}, status=400)
+
+    demo = get_object_or_404(Assistant, demo_slug=demo_slug, is_demo=True)
+    from assistants.helpers.demo_utils import generate_demo_prompt_preview
+
+    preview = {
+        "assistant": {
+            "name": demo.name,
+            "description": demo.description,
+            "tone": demo.tone,
+            "avatar": demo.avatar,
+            "flair": demo.primary_badge,
+            "demo_slug": demo.demo_slug,
+        },
+        "recent_messages": transcript[:6],
+        "suggested_system_prompt": generate_demo_prompt_preview(demo),
+    }
+    return Response(preview)
 
 
 @api_view(["POST"])
@@ -1832,6 +1933,7 @@ def reset_demo_assistant(request, slug):
 
 
 @api_view(["POST"])
+
 @permission_classes([AllowAny])
 @throttle_classes([AnonRateThrottle])
 def demo_feedback(request):
@@ -1855,6 +1957,7 @@ def demo_feedback(request):
         except (TypeError, ValueError):
             pass
     log.save()
+
     return Response({"status": "ok"})
 
 

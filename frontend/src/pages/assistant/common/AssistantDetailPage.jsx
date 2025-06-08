@@ -43,6 +43,7 @@ import useUserInfo from "../../../hooks/useUserInfo";
 import useGlossaryOverlay from "../../../hooks/glossary";
 import GlossaryOverlayTooltip from "../../../components/GlossaryOverlayTooltip";
 import AssistantSummaryCards from "../../../components/assistant/AssistantSummaryCards";
+import DemoTipsSidebar from "../../../components/demo/DemoTipsSidebar";
 
 export default function AssistantDetailPage() {
   useAuthGuard();
@@ -1224,6 +1225,7 @@ export default function AssistantDetailPage() {
           onSaved={reloadAssistant}
         />
       )}
+      {assistant?.is_demo && <DemoTipsSidebar slug={slug} />}
     </div>
   );
 }

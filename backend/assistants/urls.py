@@ -41,6 +41,7 @@ from .views import (
     check_in,
     subassistant,
     hints,
+    demo,
     interface as interface_views,
     identity,
     onboarding,
@@ -67,7 +68,9 @@ urlpatterns = [
     path("promote/", training.promote_trained_agent, name="assistant-promote"),
     path("from-documents/", assistants.assistant_from_documents),
     path("from_demo/", assistants.assistant_from_demo),
+
     path("demo_feedback/", assistants.demo_feedback),
+
     path("thoughts/reflect-on-assistant/", assistants.reflect_on_assistant),
     path("conscience/", conscience.conscience_profiles),
     path("reflexive-epistemology/", conscience.reflexive_epistemology),
@@ -355,6 +358,9 @@ urlpatterns = [
     path("signals/<uuid:pk>/", signals.update_signal_catch, name="update-signal-catch"),
     # Demo Agents
     path("demos/", assistants.get_demo_assistants, name="demo_assistant"),
+
+    path("demo_feedback/", assistants.record_demo_feedback, name="demo_feedback"),
+
     # Sessions
     path("sessions/list/", sessions.list_chat_sessions, name="chat_session_list"),
     path(
@@ -923,6 +929,11 @@ urlpatterns = [
         "<slug:slug>/hints/",
         hints.assistant_hint_list,
         name="assistant-hints",
+    ),
+    path(
+        "<slug:slug>/demo_tips/",
+        demo.demo_tips,
+        name="assistant-demo-tips",
     ),
     path(
         "<slug:slug>/hints/<str:hint_id>/dismiss/",

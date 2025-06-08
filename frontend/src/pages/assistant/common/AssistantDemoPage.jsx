@@ -29,6 +29,16 @@ export default function AssistantDemoPage() {
   return (
     <div className="container py-5 position-relative">
       <h1 className="mb-4">🧪 AI Assistant Demos</h1>
+      {assistants.length > 1 && (
+        <div className="mb-3 text-end">
+          <Link
+            to="/assistants/demos/compare"
+            className="btn btn-outline-secondary btn-sm"
+          >
+            Compare Demos
+          </Link>
+        </div>
+      )}
       {showBanner && (
         <div className="alert alert-primary d-flex justify-content-between">
           <span>Meet the Prompt Pal! Start by opening a chat.</span>

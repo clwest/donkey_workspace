@@ -4,13 +4,16 @@ import apiFetch from "@/utils/apiClient";
 import TagBadge from "../../../components/TagBadge";
 import HintBubble from "../../../components/HintBubble";
 import useAssistantHints from "../../../hooks/useAssistantHints";
+import useDemoSession from "../../../hooks/useDemoSession";
 import {
   suggestAssistant,
   suggestSwitch,
   switchAssistant,
+
   createAssistantFromDemo,
   resetDemoAssistant,
   sendDemoFeedback,
+
 } from "../../../api/assistants";
 import { toast } from "react-toastify";
 
@@ -26,7 +29,9 @@ import AssistantBadgeIcon from "../../../components/assistant/AssistantBadgeIcon
 
 import useGlossaryOverlay from "../../../hooks/glossary";
 import GlossaryOverlayTooltip from "../../../components/GlossaryOverlayTooltip";
+
 import DemoFeedbackModal from "../../../components/demo/DemoFeedbackModal";
+
 
 export default function ChatWithAssistantPage() {
   const { slug } = useParams();
@@ -45,6 +50,7 @@ export default function ChatWithAssistantPage() {
   const [demoCount, setDemoCount] = useState(0);
   const [showReset, setShowReset] = useState(false);
   const [showCustomize, setShowCustomize] = useState(false);
+
   const [demoSessionId] = useState(() => {
     const stored = localStorage.getItem("demo_session_id");
     if (stored) return stored;
@@ -53,6 +59,7 @@ export default function ChatWithAssistantPage() {
     return id;
   });
   const [showFeedback, setShowFeedback] = useState(false);
+
   const [sessionId] = useState(() => {
     const key = `chat_session_${slug}`;
     const stored = localStorage.getItem(key);
@@ -72,6 +79,9 @@ export default function ChatWithAssistantPage() {
   const [glossaryWarning, setGlossaryWarning] = useState(null);
   const [anchorWarning, setAnchorWarning] = useState(null);
   const [showPreloaded, setShowPreloaded] = useState(false);
+  const [showFeedbackButton, setShowFeedbackButton] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [feedbackText, setFeedbackText] = useState("");
   const firstAssistantIndex = messages.findIndex((m) => m.role === "assistant");
   const [primerDone, setPrimerDone] = useState(
     !!localStorage.getItem(`primer_done_${slug}`),
@@ -85,8 +95,10 @@ export default function ChatWithAssistantPage() {
     if (assistantInfo?.is_demo) {
       const count = messages.filter((m) => m.role === "user").length;
       setDemoCount(count);
+
       if (count >= 2 && !showFeedback) {
         setShowFeedback(true);
+
       }
     }
     if (
@@ -140,14 +152,24 @@ export default function ChatWithAssistantPage() {
       const fetchSession = async () => {
         const data = await apiFetch(`/assistants/${slug}/chat/`, {
           method: "POST",
-          body: { message: "__ping__", session_id: sessionId },
+          body: {
+            message: "__ping__",
+            session_id: sessionId,
+            demo_session_id: demoSessionId,
+            starter_query: starter,
+          },
         });
 
         let msgs = data.messages || [];
         if (starter) {
           const demoData = await apiFetch(`/assistants/${slug}/chat/`, {
             method: "POST",
-            body: { message: starter, session_id: sessionId },
+            body: {
+              message: starter,
+              session_id: sessionId,
+              demo_session_id: demoSessionId,
+              starter_query: starter,
+            },
           });
           msgs = [
             ...msgs,
@@ -177,7 +199,12 @@ export default function ChatWithAssistantPage() {
     try {
       const data = await apiFetch(`/assistants/${slug}/chat/`, {
         method: "POST",
-        body: { message: input, session_id: sessionId, focus_only: focusOnly },
+        body: {
+          message: input,
+          session_id: sessionId,
+          focus_only: focusOnly,
+          demo_session_id: demoSessionId,
+        },
       });
       const msgs = data.messages || [];
       if (msgs.length && data.rag_meta) {
@@ -293,12 +320,12 @@ export default function ChatWithAssistantPage() {
 
   const handleCreateFromDemo = async () => {
     if (!assistantInfo?.demo_slug) return;
-    toast.info("Generating your assistant...");
     try {
       const transcript = messages.slice(0, 6).map((m) => ({
         role: m.role,
         content: m.content,
       }));
+
       const res = await createAssistantFromDemo(
         assistantInfo.demo_slug,
         transcript,
@@ -309,8 +336,9 @@ export default function ChatWithAssistantPage() {
       if (res.slug) {
         navigate(`/assistants/${res.slug}/intro`);
       }
+
     } catch (err) {
-      toast.error("Failed to create assistant");
+      toast.error("Failed to prepare assistant");
     }
   };
 
@@ -350,12 +378,31 @@ export default function ChatWithAssistantPage() {
     }
   };
 
+  const handleSubmitFeedback = async () => {
+    try {
+      await apiFetch("/assistants/demo_feedback/", {
+        method: "POST",
+        body: { demo_session_id: demoSessionId, feedback: feedbackText },
+        allowUnauthenticated: true,
+      });
+      toast.success("Thanks for the feedback!");
+      setShowFeedbackModal(false);
+      setFeedbackText("");
+    } catch (err) {
+      toast.error("Failed to send feedback");
+    }
+  };
+
   const handleResetDemo = async () => {
     try {
       await resetDemoAssistant(slug);
       const data = await apiFetch(`/assistants/${slug}/chat/`, {
         method: "POST",
-        body: { message: "__ping__", session_id: sessionId },
+        body: {
+          message: "__ping__",
+          session_id: sessionId,
+          demo_session_id: demoSessionId,
+        },
       });
       setMessages(data.messages || []);
       toast.success("Demo has been reset!");
@@ -765,9 +812,11 @@ export default function ChatWithAssistantPage() {
       )}
 
       {assistantInfo?.is_demo && (
-        <div className="alert alert-secondary mt-4">
-          Want to create your own assistant?{' '}
-          <Link to="/assistants/create">Get started</Link>.
+        <div className="alert alert-secondary mt-4 d-flex justify-content-between align-items-center">
+          <span>Like this assistant? Customize it to make your own.</span>
+          <button className="btn btn-sm btn-primary" onClick={handleCreateFromDemo}>
+            Create My Assistant
+          </button>
         </div>
       )}
 
@@ -778,6 +827,33 @@ export default function ChatWithAssistantPage() {
           <button className="btn btn-primary mt-2" onClick={handleCreateFromDemo}>
             Create My Assistant
           </button>
+        </div>
+      )}
+
+      {assistantInfo?.is_demo && showFeedbackButton && (
+        <div className="position-fixed bottom-0 start-0 m-4" style={{ zIndex: 1000 }}>
+          <button className="btn btn-outline-secondary" onClick={() => setShowFeedbackModal(true)}>
+            Feedback
+          </button>
+        </div>
+      )}
+
+      {showFeedbackModal && (
+        <div className="modal d-block" tabIndex="-1">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Demo Feedback</h5>
+              </div>
+              <div className="modal-body">
+                <textarea className="form-control" value={feedbackText} onChange={(e) => setFeedbackText(e.target.value)} />
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={() => setShowFeedbackModal(false)}>Close</button>
+                <button className="btn btn-primary" onClick={handleSubmitFeedback}>Submit</button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -821,6 +897,7 @@ export default function ChatWithAssistantPage() {
       />
 
       {error && <div className="alert alert-danger mt-3">{error}</div>}
+      {assistantInfo?.is_demo && <DemoTipsSidebar slug={slug} />}
     </div>
   );
 }
