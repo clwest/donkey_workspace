@@ -808,7 +808,8 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
     system_prompt_id = serializers.UUIDField(read_only=True)
     health_score = serializers.SerializerMethodField()
     glossary_health_index = serializers.SerializerMethodField()
-    glossary_health_index = serializers.SerializerMethodField()
+    mentor_assistant = serializers.SerializerMethodField()
+    nurture_recommendations = serializers.SerializerMethodField()
     initial_glossary_anchor = serializers.SerializerMethodField()
     initial_badges = serializers.SerializerMethodField()
 
@@ -983,16 +984,7 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
 
         return get_nurture_recommendations(obj)
 
-    def get_mentor_assistant(self, obj):
-        mentor = obj.mentor_assistant
-        if mentor:
-            return {"slug": mentor.slug, "name": mentor.name, "avatar": mentor.avatar}
-        return None
 
-    def get_nurture_recommendations(self, obj):
-        from assistants.helpers.nurture import get_nurture_recommendations
-
-        return get_nurture_recommendations(obj)
 
     def get_glossary_health_index(self, obj):
         from django.db.models import Avg, Count
@@ -1597,6 +1589,17 @@ class AssistantSerializer(serializers.ModelSerializer):
             "avatar": obj.avatar_style or getattr(source, "avatar_style", None),
         }
 
+
+    def get_mentor_assistant(self, obj):
+        mentor = obj.mentor_assistant
+        if mentor:
+            return {"slug": mentor.slug, "name": mentor.name, "avatar": mentor.avatar}
+        return None
+
+    def get_nurture_recommendations(self, obj):
+        from assistants.helpers.nurture import get_nurture_recommendations
+
+        return get_nurture_recommendations(obj)
 
 class AssistantProjectSummarySerializer(serializers.ModelSerializer):
     class Meta:
