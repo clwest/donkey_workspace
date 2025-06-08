@@ -1730,6 +1730,10 @@ class AssistantIntroSerializer(serializers.ModelSerializer):
             return obj.spawned_by.name
         return None
 
+    def get_trail_summary_ready(self, obj):
+        """Indicate if the assistant has a milestone trail summary."""
+        return obj.trail_summary_ready
+
 
 class AssistantPreviewSerializer(serializers.ModelSerializer):
     """Lightweight preview for dashboard cards."""
