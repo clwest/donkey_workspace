@@ -1,7 +1,9 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from assistants.models.reflection import AssistantReflectionLog
+from django.db.models import Count
+
+from mcp_core.models import Tag
 
 # mcp_core/views.py
 
@@ -12,15 +14,8 @@ def top_tags(request):
     """
     Return the most common tags across all reflections.
     """
-    tag_counter = {}
+    tags = Tag.objects.annotate(count=Count("assistantreflectionlog")).order_by(
+        "-count"
+    )[:10]
 
-    all_tags = AssistantReflectionLog.objects.values_list("tags", flat=True)
-
-    for tags_list in all_tags:
-        if tags_list:
-            for tag in tags_list:
-                tag_counter[tag] = tag_counter.get(tag, 0) + 1
-
-    sorted_tags = sorted(tag_counter.items(), key=lambda x: x[1], reverse=True)[:10]
-
-    return Response([{"tag": tag, "count": count} for tag, count in sorted_tags])
+    return Response([{"tag": t.name, "count": t.count} for t in tags])
