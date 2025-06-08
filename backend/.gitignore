@@ -61,7 +61,9 @@ venv/
 !assistants/migrations/0027_trail_recap_flag.py
 !assistants/migrations/0028_trail_user_fields.py
 !assistants/migrations/0029_demo_usage_log.py
-!assistants/migrations/0030_demo_session_log.py
+
+!assistants/migrations/0030_demo_interaction_score.py
+
 !memory/migrations/0003_reflection_score.py
 !memory/migrations/0004_replay_diff_fields.py
 !memory/migrations/0005_rag_playback.py

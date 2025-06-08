@@ -937,6 +937,11 @@ urlpatterns = [
         name="assistant-demo-tips",
     ),
     path(
+        "demo_recap/<str:session_id>/",
+        demo.demo_recap,
+        name="demo-recap",
+    ),
+    path(
         "<slug:slug>/hints/<str:hint_id>/dismiss/",
         hints.dismiss_hint,
         name="assistant-hint-dismiss",
