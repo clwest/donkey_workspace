@@ -31,8 +31,8 @@ def seed_chat_starter_memory(assistant, session_id="starter-demo"):
 
 def reset_demo_memory(assistant):
     """Reset demo assistant memories and reseed starter chat."""
-from memory.models import MemoryEntry
-from assistants.models.reflection import AssistantReflectionLog
+    from memory.models import MemoryEntry
+    from assistants.models.reflection import AssistantReflectionLog
 
     if not assistant.is_demo:
         raise ValueError("Not a demo assistant")
