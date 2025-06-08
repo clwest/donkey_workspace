@@ -372,6 +372,7 @@ urlpatterns = [
         name="demo_usage_overview",
     ),
     path("demo_feedback/", assistants.demo_feedback, name="demo_feedback"),
+    path("demo_success/", demo.demo_success_view, name="demo_success"),
     
     # Sessions
     path("sessions/list/", sessions.list_chat_sessions, name="chat_session_list"),
