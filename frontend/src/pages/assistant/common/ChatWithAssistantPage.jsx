@@ -10,13 +10,12 @@ import TagBadge from "../../../components/TagBadge";
 import HintBubble from "../../../components/HintBubble";
 import useAssistantHints from "../../../hooks/useAssistantHints";
 import useDemoSession from "../../../hooks/useDemoSession";
+import useDemoRecap from "../../../hooks/useDemoRecap";
 import {
   suggestAssistant,
   suggestSwitch,
   switchAssistant,
-
   prepareCreationFromDemo,
-
 } from "../../../api/assistants";
 import { toast } from "react-toastify";
 
@@ -36,7 +35,6 @@ import GlossaryOverlayTooltip from "../../../components/GlossaryOverlayTooltip";
 import DemoTipsSidebar from "../../../components/demo/DemoTipsSidebar";
 import DemoRecapModal from "../../../components/demo/DemoRecapModal";
 
-
 export default function ChatWithAssistantPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -55,9 +53,15 @@ export default function ChatWithAssistantPage() {
   const [showReset, setShowReset] = useState(false);
   const [showCustomize, setShowCustomize] = useState(false);
 
-  const [showRecap, setShowRecap] = useState(false);
-  const [helpfulCount, setHelpfulCount] = useState(0);
   const { demoSessionId } = useDemoSession();
+  const {
+    recap,
+    showRecap,
+    closeRecap,
+    showFeedback,
+    triggerFeedback,
+    closeFeedback,
+  } = useDemoRecap(demoSessionId);
 
   const [sessionId] = useState(() => {
     const key = `chat_session_${slug}`;
@@ -96,11 +100,7 @@ export default function ChatWithAssistantPage() {
       setDemoCount(count);
 
       if (count >= 2 && !showFeedback) {
-        setShowFeedback(true);
-
-      }
-      if (count >= 5) {
-        setShowRecap(true);
+        triggerFeedback();
       }
     }
     if (
@@ -111,12 +111,6 @@ export default function ChatWithAssistantPage() {
       setShowCustomize(true);
     }
   }, [assistantInfo, messages]);
-
-  useEffect(() => {
-    if (helpfulCount > 0) {
-      setShowRecap(true);
-    }
-  }, [helpfulCount]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -344,7 +338,6 @@ export default function ChatWithAssistantPage() {
       if (res.slug) {
         navigate(`/assistants/${res.slug}/intro`);
       }
-
     } catch (err) {
       toast.error("Failed to prepare assistant");
     }
@@ -643,7 +636,7 @@ export default function ChatWithAssistantPage() {
           <button
             className="btn btn-outline-secondary ms-2"
             type="button"
-            onClick={() => setShowRecap(true)}
+            onClick={openRecap}
           >
             End Session
           </button>
@@ -957,7 +950,7 @@ export default function ChatWithAssistantPage() {
 
       <DemoFeedbackModal
         show={showFeedback}
-        onClose={() => setShowFeedback(false)}
+        onClose={closeFeedback}
         onSubmit={(r, t) => sendDemoFeedback(demoSessionId, t, r)}
       />
 
@@ -972,7 +965,7 @@ export default function ChatWithAssistantPage() {
       {assistantInfo?.is_demo && (
         <DemoRecapModal
           show={showRecap}
-          onClose={() => setShowRecap(false)}
+          onClose={closeRecap}
           demoSlug={assistantInfo.demo_slug}
           sessionId={demoSessionId}
         />

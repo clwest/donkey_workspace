@@ -68,10 +68,8 @@ urlpatterns = [
     path("promote/", training.promote_trained_agent, name="assistant-promote"),
     path("from-documents/", assistants.assistant_from_documents),
     path("from_demo/", assistants.assistant_from_demo),
-
     path("from_demo/preview/", assistants.assistant_from_demo_preview),
     path("demo_boost/", demo.replay_demo_boost, name="assistant-demo-boost"),
-
     path("thoughts/reflect-on-assistant/", assistants.reflect_on_assistant),
     path("conscience/", conscience.conscience_profiles),
     path("reflexive-epistemology/", conscience.reflexive_epistemology),
@@ -79,7 +77,11 @@ urlpatterns = [
     path("codex/voice/", views.codex_voice_command, name="codex-voice"),
     path("rituals/haptic/", views.haptic_ritual, name="haptic-ritual"),
     path("<uuid:id>/identity/", identity.assistant_identity, name="assistant-identity"),
-    path("<slug:slug>/identity/", identity.assistant_identity_summary, name="assistant-identity-summary"),
+    path(
+        "<slug:slug>/identity/",
+        identity.assistant_identity_summary,
+        name="assistant-identity-summary",
+    ),
     path("<uuid:id>/mythpath/", identity.assistant_mythpath, name="assistant-mythpath"),
     path("<uuid:id>/onboard/", onboarding.assistant_onboard, name="assistant-onboard"),
     path(
@@ -359,13 +361,13 @@ urlpatterns = [
     path("signals/<uuid:pk>/", signals.update_signal_catch, name="update-signal-catch"),
     # Demo Agents
     path("demos/", assistants.get_demo_assistants, name="demo_assistant"),
-    path("demo_usage/overview/", assistants.demo_usage_overview, name="demo_usage_overview"),
-
+    path(
+        "demo_usage/overview/",
+        assistants.demo_usage_overview,
+        name="demo_usage_overview",
+    ),
     path("demo_feedback/", assistants.demo_feedback, name="demo_feedback"),
-
-
-    
-
+    path("demo_recap/<str:session_id>/", assistants.demo_recap, name="demo_recap"),
     # Sessions
     path("sessions/list/", sessions.list_chat_sessions, name="chat_session_list"),
     path(
@@ -651,7 +653,6 @@ urlpatterns = [
         memory.rag_playback_detail,
         name="assistant-rag-playback",
     ),
-
     path(
         "<slug:slug>/rag_drift_report/",
         assistants.rag_drift_report,
@@ -913,7 +914,6 @@ urlpatterns = [
         views.AssistantTrailRecapView.as_view(),
         name="assistant-trail-recap",
     ),
-
     path("badges/", BadgeListView.as_view(), name="badge-list"),
     path(
         "<slug:slug>/badges/",
@@ -940,7 +940,6 @@ urlpatterns = [
         demo.demo_tips,
         name="assistant-demo-tips",
     ),
-
     path(
         "<slug:slug>/hints/<str:hint_id>/dismiss/",
         hints.dismiss_hint,

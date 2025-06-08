@@ -14,6 +14,8 @@ class DemoUsageLog(models.Model):
     comparison_variant = models.CharField(max_length=50, blank=True)
     feedback_text = models.TextField(blank=True)
     user_rating = models.IntegerField(null=True, blank=True)
+    recap_shown = models.BooleanField(default=False)
+    feedback_submitted = models.BooleanField(default=False)
     converted_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

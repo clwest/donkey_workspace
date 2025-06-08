@@ -62,13 +62,19 @@ export default function DemoRecapModal({ show, onClose, demoSlug, sessionId }) {
         )}
         {!loading && !data && <p>Failed to load recap.</p>}
       </Modal.Body>
-      <Modal.Footer>
+      <Modal.Footer className="flex-wrap gap-2">
         <Button variant="secondary" onClick={handleExport} disabled={loading}>
           Export Markdown
         </Button>
         <Button variant="primary" onClick={handleConvert} disabled={saving}>
           {saving ? "Converting..." : "Convert This Assistant"}
         </Button>
+        <Button variant="outline-secondary" onClick={onClose}>
+          Continue with this Assistant
+        </Button>
+        <a className="btn btn-link" href="/assistants/create">
+          Create Another
+        </a>
       </Modal.Footer>
     </Modal>
   );

@@ -51,3 +51,13 @@ class DemoFeedbackAPITest(BaseAPITestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.json()["results"]), 1)
         self.assertEqual(resp.json()["results"][0]["session_id"], "s1")
+
+    def test_post_marks_feedback_submitted(self):
+        DemoSessionLog.objects.create(assistant=self.assistant, session_id="s2")
+        resp = self.client.post(
+            "/api/assistants/demo_feedback/",
+            {"session_id": "s2", "rating": 4, "demo_slug": "demo"},
+        )
+        self.assertEqual(resp.status_code, 200)
+        log = DemoUsageLog.objects.get(session_id="s2")
+        self.assertTrue(log.feedback_submitted)
