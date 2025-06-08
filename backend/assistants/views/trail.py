@@ -36,12 +36,25 @@ class AssistantTrailRecapView(APIView):
             assistant.assistant_reflections.order_by("-created_at")
             .values("summary", "created_at")[:5]
         )
+        stage_summaries = list(
+            MemoryEntry.objects.filter(assistant=assistant, type="growth_summary")
+            .order_by("created_at")
+            .values("summary", "created_at", "event")
+        )
         return Response(
             {
                 "trail_markers": markers,
                 "trail_summary": summary["summary"] if summary else None,
                 "summary_created_at": summary["created_at"].isoformat() if summary else None,
                 "reflections": reflections,
+                "stage_summaries": [
+                    {
+                        "stage": int(s["event"].split()[1]) if s["event"] else None,
+                        "summary": s["summary"],
+                        "created_at": s["created_at"].isoformat(),
+                    }
+                    for s in stage_summaries
+                ],
             }
         )
 

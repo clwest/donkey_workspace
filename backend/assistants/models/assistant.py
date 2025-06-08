@@ -253,6 +253,13 @@ class Assistant(models.Model):
     growth_stage = models.IntegerField(default=0)
     growth_points = models.IntegerField(default=0)
     growth_unlocked_at = models.DateTimeField(null=True, blank=True)
+    growth_summary_memory = models.ForeignKey(
+        "memory.MemoryEntry",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="growth_summaries",
+    )
 
     def capabilities_dict(self) -> dict:
         """Return capabilities as a dictionary even if stored as a string."""

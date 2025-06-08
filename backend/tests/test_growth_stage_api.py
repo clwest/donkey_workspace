@@ -31,3 +31,20 @@ class GrowthStageAPITest(BaseAPITestCase):
         self.assertEqual(resp.status_code, 200)
         assistant.refresh_from_db()
         self.assertEqual(assistant.growth_stage, 1)
+
+    def test_upgrade_logs_reflection(self):
+        assistant = Assistant.objects.create(
+            name="Grow3",
+            specialty="demo",
+            created_by=self.user,
+            growth_points=10,
+        )
+        url = f"/api/assistants/{assistant.slug}/growth_stage/upgrade/"
+        self.client.post(url)
+        from assistants.models.reflection import AssistantReflectionLog
+
+        self.assertTrue(
+            AssistantReflectionLog.objects.filter(
+                assistant=assistant, title__icontains="Stage"
+            ).exists()
+        )
