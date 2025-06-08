@@ -51,9 +51,14 @@ export default function DemoInsightsDashboard() {
     <div className="container my-5">
       <div className="d-flex justify-content-between mb-3">
         <h2>Demo Usage Insights</h2>
-        <Link to="/assistants-demos" className="btn btn-outline-secondary">
-          ← Back to Demos
-        </Link>
+        <div>
+          <Link to="/assistants/demos/feedback" className="btn btn-primary me-2">
+            Feedback Explorer
+          </Link>
+          <Link to="/assistants-demos" className="btn btn-outline-secondary">
+            ← Back to Demos
+          </Link>
+        </div>
       </div>
       <div className="row mb-4 g-3">
         <div className="col-md-3">
