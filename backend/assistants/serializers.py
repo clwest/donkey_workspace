@@ -963,7 +963,9 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
         source = obj.spawned_by if obj.spawned_by and obj.spawned_by.is_demo else None
         return {
             "badge": obj.primary_badge or getattr(source, "primary_badge", None),
-            "tone": obj.tone_profile or obj.tone or getattr(source, "tone_profile", None),
+            "tone": obj.tone_profile
+            or obj.tone
+            or getattr(source, "tone_profile", None),
             "avatar": obj.avatar_style or getattr(source, "avatar_style", None),
         }
 
@@ -1439,6 +1441,9 @@ class AssistantSerializer(serializers.ModelSerializer):
             "preview_traits",
             "spawned_traits",
             "trail_summary_ready",
+            "prompt_notes",
+            "boosted_from_demo",
+            "boost_prompt_in_system",
         ]
 
     def get_trust(self, obj):
@@ -1556,7 +1561,9 @@ class AssistantSerializer(serializers.ModelSerializer):
         source = obj.spawned_by if obj.spawned_by and obj.spawned_by.is_demo else None
         return {
             "badge": obj.primary_badge or getattr(source, "primary_badge", None),
-            "tone": obj.tone_profile or obj.tone or getattr(source, "tone_profile", None),
+            "tone": obj.tone_profile
+            or obj.tone
+            or getattr(source, "tone_profile", None),
             "avatar": obj.avatar_style or getattr(source, "avatar_style", None),
         }
 
@@ -1584,6 +1591,8 @@ class AssistantSetupSummarySerializer(serializers.ModelSerializer):
     initial_glossary_anchor = serializers.SerializerMethodField()
     initial_badges = serializers.SerializerMethodField()
     has_reflections_ready = serializers.SerializerMethodField()
+    boost_summary = serializers.SerializerMethodField()
+    demo_origin_slug = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -1597,6 +1606,8 @@ class AssistantSetupSummarySerializer(serializers.ModelSerializer):
             "initial_glossary_anchor",
             "initial_badges",
             "has_reflections_ready",
+            "boost_summary",
+            "demo_origin_slug",
         ]
 
     def get_initial_glossary_anchor(self, obj):
@@ -1607,6 +1618,16 @@ class AssistantSetupSummarySerializer(serializers.ModelSerializer):
 
     def get_has_reflections_ready(self, obj):
         return obj.assistant_reflections.exists()
+
+    def get_boost_summary(self, obj):
+        if obj.prompt_notes:
+            return obj.prompt_notes.split("\n")[-1][:200]
+        return None
+
+    def get_demo_origin_slug(self, obj):
+        if obj.spawned_by and obj.spawned_by.is_demo:
+            return obj.spawned_by.slug
+        return None
 
 
 class AssistantIntroSerializer(serializers.ModelSerializer):
@@ -1751,7 +1772,9 @@ class AssistantPreviewSerializer(serializers.ModelSerializer):
         source = obj.spawned_by if obj.spawned_by and obj.spawned_by.is_demo else None
         return {
             "badge": obj.primary_badge or getattr(source, "primary_badge", None),
-            "tone": obj.tone_profile or obj.tone or getattr(source, "tone_profile", None),
+            "tone": obj.tone_profile
+            or obj.tone
+            or getattr(source, "tone_profile", None),
             "avatar": obj.avatar_style or getattr(source, "avatar_style", None),
         }
 
@@ -1783,10 +1806,9 @@ class DemoComparisonSerializer(serializers.ModelSerializer):
     def get_preview_chat(self, obj):
         from memory.models import MemoryEntry
 
-        mems = (
-            MemoryEntry.objects.filter(assistant=obj, tags__slug="starter-chat")
-            .order_by("created_at")[:3]
-        )
+        mems = MemoryEntry.objects.filter(
+            assistant=obj, tags__slug="starter-chat"
+        ).order_by("created_at")[:3]
         return [m.full_transcript or m.event for m in mems]
 
 

@@ -755,6 +755,8 @@ def chat_with_assistant_view(request, slug):
         if assistant.system_prompt
         else "You are a helpful assistant."
     )
+    if assistant.boost_prompt_in_system and assistant.prompt_notes:
+        system_prompt = f"{system_prompt}\n\n{assistant.prompt_notes}".strip()
     identity = assistant.get_identity_prompt()
     if identity:
         system_prompt = f"{system_prompt}\n\n{identity}"
@@ -1204,11 +1206,13 @@ def assistant_from_demo(request):
     assistant = generate_assistant_from_demo(demo_slug, request.user, transcript)
 
 
-    if session_id:
-        from assistants.models.demo import DemoUsageLog
-        log, _ = DemoUsageLog.objects.get_or_create(
-            session_id=session_id,
-            defaults={"demo_slug": demo_slug, "user": request.user},
+    if demo_session_id:
+        from assistants.helpers.demo_utils import boost_prompt_from_demo
+
+        boost_prompt_from_demo(assistant, transcript)
+        DemoUsageLog.objects.filter(session_id=demo_session_id).update(
+            converted_to_real_assistant=True
+
         )
 
         bump_demo_score(demo_session_id, 10)

@@ -69,7 +69,8 @@ urlpatterns = [
     path("from-documents/", assistants.assistant_from_documents),
     path("from_demo/", assistants.assistant_from_demo),
 
-    path("demo_feedback/", assistants.demo_feedback),
+    path("from_demo/preview/", assistants.assistant_from_demo_preview),
+    path("demo_boost/", demo.replay_demo_boost, name="assistant-demo-boost"),
 
     path("thoughts/reflect-on-assistant/", assistants.reflect_on_assistant),
     path("conscience/", conscience.conscience_profiles),

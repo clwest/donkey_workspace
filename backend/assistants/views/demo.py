@@ -1,11 +1,16 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 
-from assistants.models import Assistant
-from assistants.models.demo_usage import DemoUsageLog
+
+from assistants.models import Assistant, DemoUsageLog
+
 from assistants.demo_config import DEMO_TIPS
+from assistants.helpers.demo_utils import (
+    generate_assistant_from_demo,
+    boost_prompt_from_demo,
+)
 
 
 def bump_demo_score(session_id, delta=0, helpful=False):
@@ -32,35 +37,23 @@ def demo_tips(request, slug):
     if not assistant.is_demo:
         return Response({"tips": []})
 
-    session_id = request.data.get("session_id") or request.query_params.get(
-        "session_id"
-    )
-
-    if request.method == "GET":
-        if session_id:
-            bump_demo_score(session_id, 2)
-        return Response({"tips": DEMO_TIPS})
-
-    if request.method == "PATCH":
-        tip_id = request.data.get("tip_id")
-        helpful = bool(request.data.get("helpful"))
-        if session_id and helpful and tip_id:
-            bump_demo_score(session_id, 5, helpful=True)
-        return Response({"status": "ok"})
+    return Response({"tips": DEMO_TIPS})
 
 
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def demo_recap(request, session_id):
+@api_view(["POST"])
+@permission_classes([IsAdminUser])
+def replay_demo_boost(request):
+    """Clone a demo session and run the boost routine."""
+    session_id = request.data.get("demo_session_id")
+    if not session_id:
+        return Response({"error": "demo_session_id required"}, status=400)
     log = get_object_or_404(DemoUsageLog, session_id=session_id)
-    data = {
-        "score": log.demo_interaction_score,
-        "tips_helpful": log.tips_helpful,
-        "messages_sent": log.message_count,
-        "starter_query": log.starter_query,
-        "demo_slug": log.assistant.demo_slug,
-        "suggested_name": log.assistant.name.replace("Demo", "").strip()
-        or log.assistant.name,
-        "converted": log.converted_to_real_assistant,
-    }
-    return Response(data)
+    from assistants.utils.session_utils import load_session_messages
+
+    transcript = load_session_messages(session_id)
+    assistant = generate_assistant_from_demo(
+        log.assistant.demo_slug, request.user, transcript
+    )
+    summary = boost_prompt_from_demo(assistant, transcript)
+    return Response({"slug": assistant.slug, "summary": summary})
+

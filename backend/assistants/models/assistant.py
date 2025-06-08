@@ -228,6 +228,10 @@ class Assistant(models.Model):
     is_alignment_flexible = models.BooleanField(default=True)
     auto_reflect_on_message = models.BooleanField(default=False)
 
+    prompt_notes = models.TextField(blank=True, null=True)
+    boosted_from_demo = models.BooleanField(default=False)
+    boost_prompt_in_system = models.BooleanField(default=True)
+
     def capabilities_dict(self) -> dict:
         """Return capabilities as a dictionary even if stored as a string."""
         data = self.capabilities
