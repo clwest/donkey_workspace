@@ -727,11 +727,36 @@ def assistant_from_documents(request):
     return Response({"assistant_id": str(assistant.id), "slug": assistant.slug})
 
 
+def _get_demo_starter_memory(assistant):
+    """Return pre-seeded chat messages for a demo assistant."""
+    mems = (
+        MemoryEntry.objects.filter(
+            assistant=assistant, is_demo=True, tags__slug="starter-chat"
+        )
+        .order_by("created_at")
+    )
+    messages = []
+    for mem in mems:
+        text = mem.full_transcript or mem.event or ""
+        for line in text.split("\n"):
+            if ": " in line:
+                role, content = line.split(": ", 1)
+                messages.append({"role": role.lower(), "content": content})
+    return messages
+
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def chat_with_assistant_view(request, slug):
     assistant = get_object_or_404(Assistant, slug=slug)
     user = request.user if request.user.is_authenticated else None
+
+    starter_messages = _get_demo_starter_memory(assistant) if assistant.is_demo else []
+    demo_intro_message = None
+    if starter_messages:
+        first = next((m for m in starter_messages if m["role"] == "assistant"), None)
+        if first:
+            demo_intro_message = f"{assistant.name} ({assistant.tone}): {first['content']}"
 
     message = request.data.get("message")
     session_id = request.data.get("session_id") or str(uuid.uuid4())
@@ -749,7 +774,16 @@ def chat_with_assistant_view(request, slug):
                     "user_agent": request.META.get("HTTP_USER_AGENT", "")[:255],
                 },
             )
-        return Response({"messages": load_session_messages(session_id)})
+        history = load_session_messages(session_id)
+        if assistant.is_demo and not history:
+            query = starter_query or request.query_params.get("starter_query") or "What can you help with?"
+            save_message_to_session(session_id, "user", query)
+            history = load_session_messages(session_id)
+        return Response({
+            "messages": history,
+            "starter_memory": starter_messages,
+            "demo_intro_message": demo_intro_message,
+        })
 
     if not message:
         return Response({"error": "Empty message."}, status=status.HTTP_400_BAD_REQUEST)
@@ -937,6 +971,8 @@ def chat_with_assistant_view(request, slug):
             {
                 "messages": load_session_messages(session_id),
                 "rag_meta": rag_meta,
+                "starter_memory": starter_messages,
+                "demo_intro_message": demo_intro_message,
             }
         )
 
@@ -1092,6 +1128,8 @@ def chat_with_assistant_view(request, slug):
         {
             "messages": load_session_messages(session_id),
             "rag_meta": rag_meta,
+            "starter_memory": starter_messages,
+            "demo_intro_message": demo_intro_message,
         }
     )
 
