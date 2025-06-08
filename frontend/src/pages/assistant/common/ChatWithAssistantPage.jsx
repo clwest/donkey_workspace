@@ -10,6 +10,7 @@ import {
   switchAssistant,
   createAssistantFromDemo,
   resetDemoAssistant,
+  sendDemoFeedback,
 } from "../../../api/assistants";
 import { toast } from "react-toastify";
 
@@ -25,6 +26,7 @@ import AssistantBadgeIcon from "../../../components/assistant/AssistantBadgeIcon
 
 import useGlossaryOverlay from "../../../hooks/glossary";
 import GlossaryOverlayTooltip from "../../../components/GlossaryOverlayTooltip";
+import DemoFeedbackModal from "../../../components/demo/DemoFeedbackModal";
 
 export default function ChatWithAssistantPage() {
   const { slug } = useParams();
@@ -32,6 +34,7 @@ export default function ChatWithAssistantPage() {
   const [searchParams] = useSearchParams();
   const starter =
     searchParams.get("starter") || searchParams.get("starter_query");
+  const variant = searchParams.get("variant");
   const [messages, setMessages] = useState([]);
   const [assistantInfo, setAssistantInfo] = useState(null);
   const [identity, setIdentity] = useState(null);
@@ -42,6 +45,14 @@ export default function ChatWithAssistantPage() {
   const [demoCount, setDemoCount] = useState(0);
   const [showReset, setShowReset] = useState(false);
   const [showCustomize, setShowCustomize] = useState(false);
+  const [demoSessionId] = useState(() => {
+    const stored = localStorage.getItem("demo_session_id");
+    if (stored) return stored;
+    const id = crypto.randomUUID();
+    localStorage.setItem("demo_session_id", id);
+    return id;
+  });
+  const [showFeedback, setShowFeedback] = useState(false);
   const [sessionId] = useState(() => {
     const key = `chat_session_${slug}`;
     const stored = localStorage.getItem(key);
@@ -74,6 +85,9 @@ export default function ChatWithAssistantPage() {
     if (assistantInfo?.is_demo) {
       const count = messages.filter((m) => m.role === "user").length;
       setDemoCount(count);
+      if (count >= 2 && !showFeedback) {
+        setShowFeedback(true);
+      }
     }
     if (
       assistantInfo?.is_demo_clone &&
@@ -285,7 +299,13 @@ export default function ChatWithAssistantPage() {
         role: m.role,
         content: m.content,
       }));
-      const res = await createAssistantFromDemo(assistantInfo.demo_slug, transcript);
+      const res = await createAssistantFromDemo(
+        assistantInfo.demo_slug,
+        transcript,
+        demoSessionId,
+        variant,
+      );
+      setShowFeedback(true);
       if (res.slug) {
         navigate(`/assistants/${res.slug}/intro`);
       }
@@ -793,6 +813,12 @@ export default function ChatWithAssistantPage() {
           </div>
         </div>
       )}
+
+      <DemoFeedbackModal
+        show={showFeedback}
+        onClose={() => setShowFeedback(false)}
+        onSubmit={(r, t) => sendDemoFeedback(demoSessionId, t, r)}
+      />
 
       {error && <div className="alert alert-danger mt-3">{error}</div>}
     </div>

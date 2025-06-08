@@ -391,10 +391,24 @@ export async function createAssistantFromDocuments(body, opts = {}) {
   });
 }
 
-export async function createAssistantFromDemo(demoSlug, transcript = []) {
+export async function createAssistantFromDemo(
+  demoSlug,
+  transcript = [],
+  sessionId,
+  variant,
+  feedbackText,
+  rating,
+) {
   return apiFetch(`/assistants/from_demo/`, {
     method: "POST",
-    body: { demo_slug: demoSlug, transcript },
+    body: {
+      demo_slug: demoSlug,
+      transcript,
+      demo_session_id: sessionId,
+      comparison_variant: variant,
+      feedback_text: feedbackText,
+      rating,
+    },
   });
 }
 
@@ -485,6 +499,14 @@ export async function resetDemoAssistant(slug) {
   return apiFetch(`/assistants/${slug}/reset_demo/`, {
     method: "POST",
     allowUnauthenticated: true,
+  });
+}
+
+export async function sendDemoFeedback(sessionId, feedbackText, rating) {
+  return apiFetch(`/assistants/demo_feedback/`, {
+    method: "POST",
+    allowUnauthenticated: true,
+    body: { session_id: sessionId, feedback_text: feedbackText, rating },
   });
 }
 
