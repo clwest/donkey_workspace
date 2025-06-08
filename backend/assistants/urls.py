@@ -360,6 +360,7 @@ urlpatterns = [
     # Demo Agents
     path("demos/", assistants.get_demo_assistants, name="demo_assistant"),
     path("demo_usage/overview/", assistants.demo_usage_overview, name="demo_usage_overview"),
+    path("demo_leaderboard/", assistants.demo_leaderboard, name="demo_leaderboard"),
 
     
 

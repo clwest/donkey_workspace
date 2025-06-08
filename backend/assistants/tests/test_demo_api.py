@@ -54,3 +54,28 @@ class DemoAssistantAPITest(BaseAPITestCase):
         data = resp.json()
         self.assertIn("total_sessions", data)
         self.assertIn("conversion_rate", data)
+
+    def test_demo_leaderboard_endpoint(self):
+        demo = Assistant.objects.filter(is_demo=True).first()
+        from assistants.models.demo_usage import DemoSessionLog
+        DemoSessionLog.objects.create(
+            assistant=demo,
+            session_id="s1",
+            message_count=2,
+            demo_interaction_score=5,
+            converted_to_real_assistant=True,
+        )
+        DemoSessionLog.objects.create(
+            assistant=demo,
+            session_id="s2",
+            message_count=1,
+            demo_interaction_score=3,
+        )
+        resp = self.client.get("/api/assistants/demo_leaderboard/")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertIsInstance(data, list)
+        self.assertGreaterEqual(len(data), 1)
+        row = data[0]
+        self.assertIn("demo_slug", row)
+        self.assertIn("conversion_rate", row)

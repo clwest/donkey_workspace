@@ -19,7 +19,7 @@ from .assistants import (
     assistant_summary,
     create_primary_assistant_view,
 )
-from .demo import demo_tips, replay_demo_boost
+from .demo import demo_tips, replay_demo_boost, demo_leaderboard
 from .setup import AssistantSetupSummaryView
 from .intro import AssistantIntroView
 from .trail import AssistantTrailRecapView
@@ -321,6 +321,7 @@ __all__ = [
     "patch_drifted_reflections",
     "seed_chat_memory",
     "reset_demo_assistant",
+    "demo_leaderboard",
     "replay_demo_boost",
     
     "drift_heatmap",
