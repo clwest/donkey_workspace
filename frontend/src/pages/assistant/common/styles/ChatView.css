@@ -46,3 +46,9 @@
   font-size: 0.95rem;
   line-height: 1.4;
 }
+
+.demo-preseeded .content {
+  background-color: #eef5ff;
+  opacity: 0.8;
+  font-style: italic;
+}

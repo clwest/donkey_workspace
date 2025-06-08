@@ -85,6 +85,9 @@ export default function ChatWithAssistantPage() {
   const [showFeedbackButton, setShowFeedbackButton] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackText, setFeedbackText] = useState("");
+  const [starterMemory, setStarterMemory] = useState([]);
+  const [demoIntro, setDemoIntro] = useState(null);
+  const [showBanner, setShowBanner] = useState(true);
   const firstAssistantIndex = messages.findIndex((m) => m.role === "assistant");
   const [primerDone, setPrimerDone] = useState(
     !!localStorage.getItem(`primer_done_${slug}`),
@@ -163,6 +166,12 @@ export default function ChatWithAssistantPage() {
         });
 
         let msgs = data.messages || [];
+        if (data.starter_memory) {
+          setStarterMemory(data.starter_memory.map((m) => ({ ...m, preseeded: true })));
+        }
+        if (data.demo_intro_message) {
+          setDemoIntro(data.demo_intro_message);
+        }
         if (starter) {
           const demoData = await apiFetch(`/assistants/${slug}/chat/`, {
             method: "POST",
@@ -437,11 +446,28 @@ export default function ChatWithAssistantPage() {
         </span>
         {identity?.name || slug}
         {assistantInfo?.is_demo && (
-          <span className="badge bg-info text-dark ms-2">
+          <span
+            className="badge bg-info text-dark ms-2"
+            style={{ opacity: demoCount > 0 ? 0 : 1, transition: "opacity 0.5s" }}
+          >
             🧪 Demo Assistant
           </span>
         )}
       </h1>
+      {assistantInfo?.is_demo && showBanner && (
+        <div className="alert alert-warning d-flex justify-content-between align-items-center">
+          <span>🧪 You’re chatting with a demo assistant. This is a preview conversation.</span>
+          <div>
+            <Link className="btn btn-sm btn-primary me-2" to="/assistants/create/">
+              Create Your Own
+            </Link>
+            <button className="btn btn-sm btn-outline-secondary" onClick={() => setShowBanner(false)}>
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+      {demoIntro && <p className="text-muted fst-italic">{demoIntro}</p>}
       {assistantInfo?.is_demo && identity?.motto && (
         <p className="text-muted">{identity.motto}</p>
       )}
@@ -495,10 +521,10 @@ export default function ChatWithAssistantPage() {
         className="chat-box border rounded p-3 mb-4 bg-light"
         style={{ maxHeight: "500px", overflowY: "auto" }}
       >
-        {messages.map((msg, idx) => (
+        {[...starterMemory, ...messages].map((msg, idx) => (
           <div
             key={idx}
-            className={`mb-4 ${msg.role === "user" ? "text-end" : "text-start"}`}
+            className={`mb-4 ${msg.role === "user" ? "text-end" : "text-start"} ${msg.preseeded ? "demo-preseeded" : ""}`}
           >
             {idx === firstAssistantIndex &&
               msg.role === "assistant" &&
@@ -945,6 +971,15 @@ export default function ChatWithAssistantPage() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {assistantInfo?.is_demo && demoCount === 0 && starterMemory.length > 0 && (
+        <div className="alert alert-info mt-3 text-center">
+          Want to try again?
+          <button className="btn btn-sm btn-primary ms-2" onClick={() => setShowReset(true)}>
+            Reset
+          </button>
         </div>
       )}
 
