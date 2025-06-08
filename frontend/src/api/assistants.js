@@ -398,6 +398,20 @@ export async function createAssistantFromDemo(demoSlug, transcript = []) {
   });
 }
 
+export function prepareCreationFromDemo(slug, transcript = []) {
+  return apiFetch(`/assistants/${slug}/prepare_creation_from_demo/`, {
+    method: "POST",
+    body: { transcript },
+  });
+}
+
+export function previewAssistantFromDemo(demoSlug, transcript = []) {
+  return apiFetch(`/assistants/from_demo/preview/`, {
+    method: "POST",
+    body: { demo_slug: demoSlug, transcript },
+  });
+}
+
 export function onboardAssistant(id, body) {
   return apiFetch(`/assistants/${id}/onboard/`, {
     method: "POST",

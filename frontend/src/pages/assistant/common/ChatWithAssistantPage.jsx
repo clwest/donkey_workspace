@@ -8,7 +8,7 @@ import {
   suggestAssistant,
   suggestSwitch,
   switchAssistant,
-  createAssistantFromDemo,
+  prepareCreationFromDemo,
 } from "../../../api/assistants";
 import { toast } from "react-toastify";
 
@@ -277,18 +277,16 @@ export default function ChatWithAssistantPage() {
 
   const handleCreateFromDemo = async () => {
     if (!assistantInfo?.demo_slug) return;
-    toast.info("Generating your assistant...");
     try {
       const transcript = messages.slice(0, 6).map((m) => ({
         role: m.role,
         content: m.content,
       }));
-      const res = await createAssistantFromDemo(assistantInfo.demo_slug, transcript);
-      if (res.slug) {
-        navigate(`/assistants/${res.slug}/intro`);
-      }
+      const data = await prepareCreationFromDemo(slug, transcript);
+      localStorage.setItem("demo_prefill", JSON.stringify(data));
+      navigate("/assistants/create?prefill=demo");
     } catch (err) {
-      toast.error("Failed to create assistant");
+      toast.error("Failed to prepare assistant");
     }
   };
 
@@ -715,9 +713,11 @@ export default function ChatWithAssistantPage() {
       )}
 
       {assistantInfo?.is_demo && (
-        <div className="alert alert-secondary mt-4">
-          Want to create your own assistant?{' '}
-          <Link to="/assistants/create">Get started</Link>.
+        <div className="alert alert-secondary mt-4 d-flex justify-content-between align-items-center">
+          <span>Like this assistant? Customize it to make your own.</span>
+          <button className="btn btn-sm btn-primary" onClick={handleCreateFromDemo}>
+            Create My Assistant
+          </button>
         </div>
       )}
 

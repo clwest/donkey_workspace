@@ -399,6 +399,27 @@ class AssistantViewSet(viewsets.ModelViewSet):
             status=201,
         )
 
+    @action(detail=True, methods=["post"], url_path="prepare_creation_from_demo")
+    def prepare_creation_from_demo(self, request, slug=None):
+        """Return preview info for converting a demo assistant."""
+        assistant = get_object_or_404(Assistant, slug=slug, is_demo=True)
+        transcript = request.data.get("transcript") or []
+        from assistants.helpers.demo_utils import generate_demo_prompt_preview
+
+        preview = {
+            "assistant": {
+                "name": assistant.name,
+                "description": assistant.description,
+                "tone": assistant.tone,
+                "avatar": assistant.avatar,
+                "flair": assistant.primary_badge,
+                "demo_slug": assistant.demo_slug,
+            },
+            "recent_messages": transcript[:6],
+            "suggested_system_prompt": generate_demo_prompt_preview(assistant),
+        }
+        return Response(preview)
+
     @action(detail=True, methods=["patch"], url_path="assign-primary")
     def assign_primary(self, request, slug=None):
         """Assign this assistant as the system primary."""
@@ -1064,11 +1085,52 @@ def assistant_from_demo(request):
     """Clone a demo assistant for the current user."""
     demo_slug = request.data.get("demo_slug")
     transcript = request.data.get("transcript") or []
+    system_prompt = request.data.get("system_prompt")
     if not demo_slug:
         return Response({"error": "demo_slug required"}, status=400)
 
     assistant = generate_assistant_from_demo(demo_slug, request.user, transcript)
+    if system_prompt:
+        from prompts.models import Prompt
+
+        prompt = Prompt.objects.create(
+            title=f"{assistant.name} System Prompt",
+            content=system_prompt,
+            type="system",
+            tone=assistant.tone,
+            source="demo_override",
+            assistant=assistant,
+        )
+        assistant.system_prompt = prompt
+        assistant.save(update_fields=["system_prompt"])
     return Response({"slug": assistant.slug}, status=201)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def assistant_from_demo_preview(request):
+    """Return preview data for demo conversion."""
+    demo_slug = request.data.get("demo_slug")
+    transcript = request.data.get("transcript") or []
+    if not demo_slug:
+        return Response({"error": "demo_slug required"}, status=400)
+
+    demo = get_object_or_404(Assistant, demo_slug=demo_slug, is_demo=True)
+    from assistants.helpers.demo_utils import generate_demo_prompt_preview
+
+    preview = {
+        "assistant": {
+            "name": demo.name,
+            "description": demo.description,
+            "tone": demo.tone,
+            "avatar": demo.avatar,
+            "flair": demo.primary_badge,
+            "demo_slug": demo.demo_slug,
+        },
+        "recent_messages": transcript[:6],
+        "suggested_system_prompt": generate_demo_prompt_preview(demo),
+    }
+    return Response(preview)
 
 
 @api_view(["POST"])
