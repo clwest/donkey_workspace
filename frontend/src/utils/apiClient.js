@@ -32,7 +32,8 @@ const authDebug =
 export async function tryRefreshToken() {
   if (refreshInProgress) return refreshInProgress;
   const refresh = getRefreshToken();
-  if (!refresh) return false;
+  const access = getAccessToken();
+  if (!refresh || !access) return false;
 
   refreshInProgress = (async () => {
     if (authDebug) console.log("[auth] attempting token refresh");
@@ -76,11 +77,20 @@ if (isMissingHost(API_URL)) {
 }
 
 export default async function apiFetch(url, options = {}) {
-  if (authLost && !options.allowUnauthenticated) {
+  const {
+    params,
+    allowUnauthenticated = false,
+    ...fetchOptions
+  } = options;
+
+  if (authLost && !allowUnauthenticated) {
     throw new Error("Unauthorized");
   }
 
-  const { params, ...fetchOptions } = options;
+  const token = getAccessToken();
+  if (!token && !allowUnauthenticated) {
+    return Promise.reject("Unauthenticated request blocked by apiFetch");
+  }
   const defaultHeaders = fetchOptions.body
     ? { "Content-Type": "application/json" }
     : {};
@@ -124,11 +134,11 @@ export default async function apiFetch(url, options = {}) {
   }
 
   if (res.status === 401) {
-    if (!sessionExpiredNotified && !options.allowUnauthenticated) {
+    if (!sessionExpiredNotified && !allowUnauthenticated && !['/login','/register'].includes(window.location.pathname)) {
       toast.warning("Session expired. Please log in again.");
       sessionExpiredNotified = true;
     }
-    if (!authLost && !options.allowUnauthenticated && !isRedirecting) {
+    if (!authLost && !allowUnauthenticated && !isRedirecting) {
       authLost = true;
       isRedirecting = true;
       clearTokens();

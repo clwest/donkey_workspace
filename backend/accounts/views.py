@@ -28,11 +28,11 @@ def auth_user(request):
     """Return basic user auth info for the authenticated user."""
 
     if not request.user.is_authenticated:
-        return Response({"is_authenticated": False})
+        return Response({"authenticated": False})
     assistants = Assistant.objects.filter(created_by=request.user)
     return Response(
         {
-            "is_authenticated": True,
+            "authenticated": True,
             "username": request.user.username,
             "email": request.user.email,
             "onboarding_complete": get_next_onboarding_step(request.user)
@@ -123,6 +123,7 @@ def user_info(request):
     any_tour_started = AssistantTourStartLog.objects.filter(user=request.user).exists()
     latest = assistants.order_by("-created_at").first()
     data = {
+        "authenticated": True,
         "username": request.user.username,
         "assistant_count": assistant_count,
         "glossary_score": glossary_score,

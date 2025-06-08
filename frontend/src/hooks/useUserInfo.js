@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import apiFetch from "@/utils/apiClient";
 import { cachedUser } from "./useAuthGuard";
+import { getAccessToken } from "@/utils/auth";
 
 export default function useUserInfo() {
   const [user, setUser] = useState(cachedUser);
@@ -10,6 +11,8 @@ export default function useUserInfo() {
       setUser(cachedUser);
       return;
     }
+    const token = getAccessToken();
+    if (!token) return;
     apiFetch("/user/", { allowUnauthenticated: true })
       .then((data) => {
         cachedUser = data;
