@@ -22,6 +22,7 @@ from django.core.management import call_command
 from pathlib import Path
 from assistants.services import AssistantService
 from memory.services import MemoryService
+from django.db.models import F
 from memory.models import MemoryEntry, RAGGroundingLog
 from utils.rag_debug import log_rag_debug
 from memory.serializers import RAGGroundingLogSerializer
@@ -32,6 +33,7 @@ from assistants.helpers.logging_helper import (
     log_trail_marker,
 )
 from assistants.helpers.demo_utils import generate_assistant_from_demo
+from assistants.models.demo_usage import DemoUsageLog
 from assistants.models.assistant import (
     Assistant,
     TokenUsage,
@@ -699,8 +701,20 @@ def chat_with_assistant_view(request, slug):
 
     message = request.data.get("message")
     session_id = request.data.get("session_id") or str(uuid.uuid4())
+    demo_session_id = request.data.get("demo_session_id")
+    starter_query = request.data.get("starter_query")
 
     if message == "__ping__":
+        if assistant.is_demo and demo_session_id:
+            DemoUsageLog.objects.get_or_create(
+                session_id=demo_session_id,
+                defaults={
+                    "assistant": assistant,
+                    "starter_query": starter_query or "",
+                    "created_from_ip": request.META.get("REMOTE_ADDR", ""),
+                    "user_agent": request.META.get("HTTP_USER_AGENT", "")[:255],
+                },
+            )
         return Response({"messages": load_session_messages(session_id)})
 
     if not message:
@@ -728,6 +742,23 @@ def chat_with_assistant_view(request, slug):
     thought_engine.think_from_user_message(message)
 
     chat_session = get_or_create_chat_session(session_id, assistant=assistant)
+
+    if assistant.is_demo and demo_session_id:
+        log, created = DemoUsageLog.objects.get_or_create(
+            session_id=demo_session_id,
+            defaults={
+                "assistant": assistant,
+                "starter_query": starter_query or "",
+                "first_message": message,
+                "created_from_ip": request.META.get("REMOTE_ADDR", ""),
+                "user_agent": request.META.get("HTTP_USER_AGENT", "")[:255],
+            },
+        )
+        if not created and log.message_count == 0:
+            log.first_message = message
+        log.message_count = F("message_count") + 1
+        log.ended_at = timezone.now()
+        log.save()
 
     if assistant.is_primary and assistant.live_relay_enabled:
         delegate = assistant.sub_assistants.filter(is_active=True).first()
@@ -1067,7 +1098,12 @@ def assistant_from_demo(request):
     if not demo_slug:
         return Response({"error": "demo_slug required"}, status=400)
 
+    demo_session_id = request.data.get("demo_session_id")
     assistant = generate_assistant_from_demo(demo_slug, request.user, transcript)
+    if demo_session_id:
+        DemoUsageLog.objects.filter(session_id=demo_session_id).update(
+            converted_to_real_assistant=True
+        )
     return Response({"slug": assistant.slug}, status=201)
 
 
@@ -1804,6 +1840,17 @@ def reset_demo_assistant(request, slug):
 
     mems = reset_demo_memory(assistant)
     return Response({"status": "reset", "created": [str(m.id) for m in mems]})
+
+
+@api_view(["POST"])
+def record_demo_feedback(request):
+    """Store optional feedback for a demo session."""
+    session_id = request.data.get("demo_session_id")
+    feedback = request.data.get("feedback", "")
+    if not session_id:
+        return Response({"error": "session required"}, status=400)
+    DemoUsageLog.objects.filter(session_id=session_id).update(feedback=feedback)
+    return Response({"status": "ok"})
 
 
 @api_view(["GET", "POST"])
