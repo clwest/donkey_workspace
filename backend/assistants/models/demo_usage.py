@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 
 
-class DemoUsageLog(models.Model):
+class DemoSessionLog(models.Model):
     """Track anonymous demo assistant usage sessions."""
 
     assistant = models.ForeignKey(
