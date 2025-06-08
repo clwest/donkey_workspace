@@ -195,8 +195,11 @@ def reflections_by_tag(request, tag_name):
     """
     GET reflections that contain a specific tag.
     """
+    if not tag_name or tag_name == "undefined":
+        return Response({"error": "Tag name required"}, status=400)
+
     reflections = AssistantReflectionLog.objects.filter(
-        tags__contains=[tag_name]
+        tags__slug__iexact=tag_name
     ).order_by("-created_at")
     serializer = ReflectionLogSerializer(reflections, many=True)
     return Response(serializer.data)
