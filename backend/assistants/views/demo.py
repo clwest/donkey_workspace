@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
 from assistants.models.demo_usage import DemoSessionLog
 
@@ -28,6 +28,33 @@ def bump_demo_score(session_id, delta=0, helpful=False):
     if helpful:
         fields.append("tips_helpful")
     log.save(update_fields=fields)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def demo_recap(request, session_id):
+    """Return recap data for a demo session unless already shown."""
+    session = DemoSessionLog.objects.filter(session_id=session_id).first()
+    if not session:
+        return Response({"error": "not found"}, status=404)
+    usage, _ = DemoUsageLog.objects.get_or_create(
+        session_id=session_id, defaults={"demo_slug": session.assistant.demo_slug}
+    )
+    if session.converted_to_real_assistant or usage.recap_shown:
+        return Response(status=404)
+
+    usage.recap_shown = True
+    usage.save(update_fields=["recap_shown"])
+    return Response(
+        {
+            "demo_slug": session.assistant.demo_slug,
+            "messages_sent": session.message_count,
+            "tips_helpful": session.tips_helpful,
+            "score": session.demo_interaction_score,
+            "starter_query": session.starter_query,
+            "converted": session.converted_to_real_assistant,
+        }
+    )
 
 
 @api_view(["GET", "PATCH"])
@@ -90,7 +117,10 @@ def demo_leaderboard(request):
         entry["_message_total"] += log.message_count
         if log.message_count <= 1:
             entry["_bounce_count"] += 1
-        if not entry["latest_session_date"] or log.started_at > entry["latest_session_date"]:
+        if (
+            not entry["latest_session_date"]
+            or log.started_at > entry["latest_session_date"]
+        ):
             entry["latest_session_date"] = log.started_at
 
     for log in usage_logs:
@@ -112,7 +142,10 @@ def demo_leaderboard(request):
             }
         dist = data[slug]["rating_distribution"]
         dist[str(log.user_rating)] = dist.get(str(log.user_rating), 0) + 1
-        if not data[slug]["latest_session_date"] or log.created_at > data[slug]["latest_session_date"]:
+        if (
+            not data[slug]["latest_session_date"]
+            or log.created_at > data[slug]["latest_session_date"]
+        ):
             data[slug]["latest_session_date"] = log.created_at
 
     results = []
@@ -133,6 +166,7 @@ def demo_leaderboard(request):
             entry.pop("_bounce_count")
         results.append(entry)
 
-    results.sort(key=lambda r: (r["conversion_rate"], r["total_sessions"]), reverse=True)
+    results.sort(
+        key=lambda r: (r["conversion_rate"], r["total_sessions"]), reverse=True
+    )
     return Response(results)
-

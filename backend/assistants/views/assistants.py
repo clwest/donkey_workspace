@@ -2037,6 +2037,7 @@ def demo_feedback(request):
                 log.user_rating = int(rating)
             except (TypeError, ValueError):
                 pass
+        log.feedback_submitted = True
         log.save()
         return Response({"status": "ok"})
 

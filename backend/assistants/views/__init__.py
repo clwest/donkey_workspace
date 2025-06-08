@@ -19,7 +19,7 @@ from .assistants import (
     assistant_summary,
     create_primary_assistant_view,
 )
-from .demo import demo_tips, replay_demo_boost, demo_leaderboard
+from .demo import demo_tips, replay_demo_boost, demo_leaderboard, demo_recap
 from .setup import AssistantSetupSummaryView
 from .intro import AssistantIntroView
 from .trail import AssistantTrailRecapView
@@ -138,7 +138,6 @@ from .assistants import (
     patch_drifted_reflections,
     seed_chat_memory,
     reset_demo_assistant,
-    
 )
 from .conscience import (
     conscience_profiles,
@@ -322,8 +321,8 @@ __all__ = [
     "seed_chat_memory",
     "reset_demo_assistant",
     "demo_leaderboard",
+    "demo_recap",
     "replay_demo_boost",
-    
     "drift_heatmap",
     "conscience_profiles",
     "reflexive_epistemology",
