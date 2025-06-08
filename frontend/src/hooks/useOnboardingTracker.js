@@ -1,7 +1,9 @@
 import { useEffect, useState, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import apiFetch from "@/utils/apiClient";
 
 export default function useOnboardingTracker(theme = "fantasy") {
+  const navigate = useNavigate();
   const [status, setStatus] = useState(null);
   const completedRef = useRef(
     JSON.parse(localStorage.getItem("onboardingCompleted") || "{}")
@@ -15,7 +17,7 @@ export default function useOnboardingTracker(theme = "fantasy") {
     try {
       const res = await apiFetch(`/onboarding/status/?theme=${theme}`);
       setStatus(res);
-      if (res.next_step === null) {
+      if (res.onboarding_complete || res.next_step === null) {
         setComplete(true);
         localStorage.setItem("onboarding_complete", "true");
       }
@@ -34,6 +36,10 @@ export default function useOnboardingTracker(theme = "fantasy") {
   const completeStep = useCallback(
     async (step) => {
       if (!localStorage.getItem("access")) return;
+      if (localStorage.getItem("onboarding_complete") === "true") {
+        setComplete(true);
+        return { onboarding_complete: true };
+      }
       if (completedRef.current[step]) return status;
       try {
         const res = await apiFetch("/onboarding/complete/", {
@@ -46,9 +52,16 @@ export default function useOnboardingTracker(theme = "fantasy") {
           "onboardingCompleted",
           JSON.stringify(completedRef.current)
         );
-        if (res.next_step === null) {
+        if (res.onboarding_complete || res.next_step === null) {
           setComplete(true);
           localStorage.setItem("onboarding_complete", "true");
+          try {
+            const info = await apiFetch("/user/");
+            navigate(
+              info.assistant_count > 0 ? "/home" : "/assistants/create",
+              { replace: true }
+            );
+          } catch {}
         }
         return res;
       } catch (err) {

@@ -77,6 +77,9 @@ def onboarding_status(request):
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def onboarding_complete(request):
+    if get_next_onboarding_step(request.user) is None:
+        return Response({"onboarding_complete": True})
+
     step = request.data.get("step")
     if step:
         record_step_completion(request.user, step)
@@ -100,6 +103,7 @@ def onboarding_complete(request):
             "progress": progress,
             "next_step": next_step,
             "percent": percent,
+            "onboarding_complete": next_step is None,
             "redirect": "/assistants/primary/dashboard",
         }
     )

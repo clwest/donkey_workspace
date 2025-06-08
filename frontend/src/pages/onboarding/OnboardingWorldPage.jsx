@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import OnboardingProgressPanel from "../../components/onboarding/OnboardingProgressPanel";
 import OnboardingProgressBar from "../../components/onboarding/OnboardingProgressBar";
 import OnboardingIntroModal from "../../components/onboarding/OnboardingIntroModal";
+import { useEffect } from "react";
 import useOnboardingGuard, { STEP_ROUTES } from "../../onboarding/useOnboardingGuard";
 import useOnboardingTracker from "@/hooks/useOnboardingTracker";
 import useUserInfo from "@/hooks/useUserInfo";
@@ -17,11 +18,24 @@ export default function OnboardingWorldPage() {
 
   useOnboardingGuard("world");
   const { theme, toggle } = useOnboardingTheme();
-  const { progress, nextStep, aliases } = useOnboardingTracker(theme);
+  const { progress, nextStep, aliases, onboardingComplete } =
+    useOnboardingTracker(theme);
 
   const userInfo = useUserInfo();
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!onboardingComplete) return;
+    const id = setTimeout(() => {
+      if (userInfo.assistant_count > 0) {
+        navigate("/home", { replace: true });
+      } else {
+        navigate("/assistants/create", { replace: true });
+      }
+    }, 5000);
+    return () => clearTimeout(id);
+  }, [onboardingComplete, userInfo, navigate]);
 
   if (!progress || !userInfo) return <div className="container my-5">Loading...</div>;
 
