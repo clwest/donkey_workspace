@@ -100,3 +100,16 @@ class AccountsAPITest(APITestCase):
         self.assertIn("initial_badges", data)
         self.assertEqual(data["primary_assistant_slug"], self.assistant.slug)
         self.assertEqual(data["latest_assistant"], self.assistant.slug)
+
+    def test_user_info_unauthenticated(self):
+        self.client.logout()
+        resp = self.client.get("/api/user/")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.json()
+        self.assertFalse(data["authenticated"])
+        self.assertIn("assistant_count", data)
+        self.assertEqual(data["assistant_count"], 0)
+        self.assertIn("onboarding_complete", data)
+        self.assertFalse(data["onboarding_complete"])
+        self.assertIn("has_assistants", data)
+        self.assertFalse(data["has_assistants"])
