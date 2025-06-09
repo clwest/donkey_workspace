@@ -60,12 +60,22 @@ class Command(BaseCommand):
                 if verbosity >= 2:
                     self.stdout.write(f"🔁 Recreating {demo['name']}")
 
+            prompt, _ = Prompt.objects.get_or_create(
+                title=f"{demo['name']} Seed Prompt",
+                defaults={
+                    "content": demo["prompt"],
+                    "type": "system",
+                    "source": "seed_demo_assistants",
+                },
+            )
+
             assistant = Assistant.objects.create(
                 name=demo["name"],
                 demo_slug=slug,
                 specialty=demo["specialty"],
                 avatar_url=demo["avatar"],
-                system_prompt=demo["prompt"],
+                system_prompt=prompt,
+                prompt_title=prompt.title,
                 intro=demo["intro"],
                 is_demo=True,
                 is_active=True,
