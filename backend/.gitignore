@@ -79,3 +79,4 @@ venv/
 !memory/migrations/0011_replay_priority.py
 !memory/migrations/0012_trail_summary_fields.py
 !memory/migrations/0013_rag_playback_session.py
+!assistants/migrations/0042_add_feedback_text_to_demousagelog.py
