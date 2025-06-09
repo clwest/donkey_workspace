@@ -390,6 +390,11 @@ urlpatterns = [
         name="demo_recap",
     ),
     path(
+        "<slug:slug>/demo_replay/<uuid:session_id>/",
+        demo.demo_replay_debug,
+        name="demo_replay_debug",
+    ),
+    path(
         "<slug:slug>/demo_overlay/",
         demo.demo_reflection_overlay,
         name="demo_reflection_overlay",

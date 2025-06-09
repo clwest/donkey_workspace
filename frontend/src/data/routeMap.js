@@ -115,6 +115,13 @@ export const routeMap = [
     notes: "Queue drifted reflections",
   },
   {
+    frontend: "/assistants/:slug/demo_replay/:uuid",
+    backend: "/api/assistants/<slug>/demo_replay/<uuid:session_id>/",
+    view: "demo_replay_debug",
+    serializer: "-",
+    notes: "Demo session RAG replay frames",
+  },
+  {
     frontend: "/assistants/:slug/rag-inspector",
     backend: "/api/assistants/<slug>/rag_debug/",
     view: "assistant-rag-debug",
