@@ -13,6 +13,9 @@ class BadgeListView(APIView):
         badges = Badge.objects.all()
         if slug:
             assistant = get_object_or_404(Assistant, slug=slug)
+            earned = assistant.skill_badges or []
+            if earned:
+                badges = badges.filter(slug__in=earned)
             serializer = BadgeSerializer(
                 badges, many=True, context={"assistant": assistant}
             )

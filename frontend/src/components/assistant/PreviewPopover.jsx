@@ -8,21 +8,28 @@ const AVATAR_EMOJI = { owl: "🦚", fox: "🦊", robot: "🤖", wizard: "🧙‍
 
 export default function PreviewPopover({ slug, children, placement = "right" }) {
   const [data, setData] = useState(null);
+  const [notFound, setNotFound] = useState(false);
 
   async function load() {
-    if (data || !slug) return;
+    if (data || notFound || !slug) return;
     try {
       const res = await apiFetch(`/assistants/${slug}/preview/`);
       setData(res);
     } catch (err) {
-      console.error("Failed to load preview", err);
+      if (String(err).includes("404")) {
+        setNotFound(true);
+      } else {
+        console.error("Failed to load preview", err);
+      }
     }
   }
 
   const pop = (
     <Popover className="assistant-preview-popover">
       <Popover.Body>
-        {data ? (
+        {notFound ? (
+          <div className="small">Preview unavailable.</div>
+        ) : data ? (
           <div style={{ maxWidth: "250px" }}>
             <div className="d-flex align-items-center mb-2">
               {data.avatar ? (

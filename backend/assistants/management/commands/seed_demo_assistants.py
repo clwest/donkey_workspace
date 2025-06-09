@@ -1,4 +1,6 @@
 from django.core.management.base import BaseCommand
+import logging
+from django.test import Client
 
 # from django.utils import timezone
 # from django.utils.text import slugify
@@ -9,6 +11,7 @@ from django.core.management.base import BaseCommand
 
 class Command(BaseCommand):
     help = "Seed demo assistants with simple prompts and badges"
+    logger = logging.getLogger(__name__)
 
     def handle(self, *args, **options):
         from django.utils.text import slugify
@@ -97,6 +100,33 @@ class Command(BaseCommand):
             if verbosity >= 1:
                 self.stdout.write(
                     self.style.SUCCESS(f"✅ Created demo: {demo['name']}")
+                )
+
+            # Verify preview and badge routes
+            client = Client()
+            try:
+                resp = client.get(f"/api/assistants/{assistant.slug}/preview/")
+                if resp.status_code != 200:
+                    self.logger.warning(
+                        "Preview route failed for %s: %s",
+                        assistant.slug,
+                        resp.status_code,
+                    )
+            except Exception as exc:
+                self.logger.warning(
+                    "Preview route error for %s: %s", assistant.slug, exc
+                )
+            try:
+                resp = client.get(f"/api/badges/?assistant={assistant.slug}")
+                if resp.status_code != 200:
+                    self.logger.warning(
+                        "Badge route failed for %s: %s",
+                        assistant.slug,
+                        resp.status_code,
+                    )
+            except Exception as exc:
+                self.logger.warning(
+                    "Badge route error for %s: %s", assistant.slug, exc
                 )
 
         if created_count == 0:
