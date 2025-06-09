@@ -361,5 +361,6 @@ __all__ = [
     "AssistantTrailRecapView",
     "create_primary_assistant_view",
     "upgrade_growth",
+    "demo_rag_overlay",
 ]
 from .skills import SkillPlanView
