@@ -40,6 +40,10 @@ export default function AssistantCard({ assistant, to, chatLink, demo }) {
             {assistant.name}
             <PrimaryStar isPrimary={assistant.is_primary} />
             <AssistantBadgeIcon badges={assistant.skill_badges} primaryBadge={assistant.primary_badge} />
+            {assistant.drift_fix_count >= 3 && (
+              <span className="badge bg-primary ms-2">Refined</span>
+            )}
+            {assistant.glossary_terms_fixed > 5 && <span className="ms-1">✨</span>}
           </h5>
         </div>
         {isDemo && (
