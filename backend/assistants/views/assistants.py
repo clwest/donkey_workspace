@@ -59,7 +59,11 @@ from assistants.models.reflection import AssistantReflectionLog
 from assistants.models.thoughts import AssistantThoughtLog
 from prompts.models import PromptMutationLog
 from assistants.utils.session_utils import get_cached_thoughts
-from assistants.serializers import AssistantSerializer, SuggestionLogSerializer
+from assistants.serializers import (
+    AssistantSerializer,
+    SuggestionLogSerializer,
+    DemoComparisonSerializer,
+)
 from assistants.utils.session_utils import (
     save_message_to_session,
     flush_session_to_db,
