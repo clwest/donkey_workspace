@@ -65,6 +65,7 @@ export default function DemoRecapModal({ show, onClose, demoSlug, sessionId }) {
   };
 
   return (
+    <>
     <Modal show={show} onHide={onClose} centered>
       <Modal.Header closeButton>
         <Modal.Title>Demo Recap</Modal.Title>
@@ -120,5 +121,6 @@ export default function DemoRecapModal({ show, onClose, demoSlug, sessionId }) {
         <DemoOverlayPanel slug={demoSlug} sessionId={sessionId} />
       </div>
     )}
+    </>
   );
 }
