@@ -4,6 +4,7 @@ import { useNavigate, Link } from "react-router-dom";
 import apiFetch from "@/utils/apiClient";
 import { createAssistantFromDemo } from "@/api/assistants";
 import DemoOverlayPanel from "./DemoOverlayPanel";
+import DriftDiagnosisPanel from "./DriftDiagnosisPanel";
 
 const suggestions = [
   "Reflect on birth",
@@ -119,6 +120,7 @@ export default function DemoRecapModal({ show, onClose, demoSlug, sessionId }) {
     {showOverlay && (
       <div className="mt-3">
         <DemoOverlayPanel slug={demoSlug} sessionId={sessionId} />
+        <DriftDiagnosisPanel slug={demoSlug} sessionId={sessionId} />
       </div>
     )}
     </>

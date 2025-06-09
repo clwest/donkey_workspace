@@ -434,3 +434,19 @@ def demo_rag_overlay(request, slug, session_id):
 
     return Response(data)
 
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def demo_drift_diagnosis(request, slug, session_id):
+    """Return aggregate drift diagnostics for a demo session."""
+    try:
+        session_uuid = str(uuid.UUID(str(session_id)))
+    except Exception:
+        return Response({"error": "invalid"}, status=400)
+
+    get_object_or_404(Assistant, slug=slug)
+    from assistants.utils.drift_diagnosis import analyze_drift_symptoms
+
+    data = analyze_drift_symptoms(session_uuid)
+    return Response(data)
+

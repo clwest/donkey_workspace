@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import CommonModal from "../CommonModal";
 import { composeDemoReflection } from "@/api/assistants";
+import DriftDiagnosisPanel from "./DriftDiagnosisPanel";
 
 export default function DemoReflectionComposer({ slug, sessionId, show, onClose }) {
   const [summary, setSummary] = useState("");
@@ -49,5 +50,6 @@ export default function DemoReflectionComposer({ slug, sessionId, show, onClose 
         />
       )}
     </CommonModal>
+    <DriftDiagnosisPanel slug={slug} sessionId={sessionId} />
   );
 }

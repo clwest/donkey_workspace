@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Modal } from "react-bootstrap";
 import apiFetch from "@/utils/apiClient";
+import DriftDiagnosisPanel from "./DriftDiagnosisPanel";
 
 export default function GlossaryDriftOverlayPanel({ slug, sessionId }) {
   const [logs, setLogs] = useState([]);
@@ -45,6 +46,7 @@ export default function GlossaryDriftOverlayPanel({ slug, sessionId }) {
             ))}
         </Modal.Body>
       </Modal>
+      <DriftDiagnosisPanel slug={slug} sessionId={sessionId} />
     </div>
   );
 }

@@ -129,6 +129,14 @@ export const routeMap = [
     notes: "Demo session drift overlay",
   },
   {
+    frontend: "/assistants/:slug/demo_session/:uuid/drift_diagnosis/",
+    backend:
+      "/api/assistants/<slug>/demo_session/<uuid:session_id>/drift_diagnosis/",
+    view: "demo_drift_diagnosis",
+    serializer: "-",
+    notes: "Demo session drift diagnosis",
+  },
+  {
     frontend: "/assistants/:slug/rag-inspector",
     backend: "/api/assistants/<slug>/rag_debug/",
     view: "assistant-rag-debug",
