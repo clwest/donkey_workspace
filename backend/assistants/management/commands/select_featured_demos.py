@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
-from assistants.models import Assistant, DemoUsageLog
+from assistants.models import Assistant
+from assistants.models.demo_usage import DemoSessionLog
 
 class Command(BaseCommand):
     help = "Select top converting demo assistants and mark them as featured"
@@ -8,7 +9,7 @@ class Command(BaseCommand):
         demos = Assistant.objects.filter(is_demo=True)
         metrics = []
         for demo in demos:
-            logs = DemoUsageLog.objects.filter(assistant=demo)
+            logs = DemoSessionLog.objects.filter(assistant=demo)
             total = logs.count()
             if not total:
                 continue
