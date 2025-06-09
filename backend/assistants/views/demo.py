@@ -57,7 +57,12 @@ def demo_recap(request, session_id):
     except Exception:
         return Response({"error": "invalid"}, status=400)
     session = DemoSessionLog.objects.filter(session_id=session_id).first()
-    usage = DemoUsageLog.objects.filter(session_id=session_id).first()
+    # Only pull the fields we need to avoid selecting missing columns
+    usage = (
+        DemoUsageLog.objects.filter(session_id=session_id)
+        .only("id", "recap_shown")
+        .first()
+    )
     if not session or not usage:
         logger.warning("[DemoRecap] Missing session or usage for %s", session_id)
         return Response({})
