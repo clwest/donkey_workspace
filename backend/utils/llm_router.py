@@ -566,14 +566,17 @@ def chat(
             reflection_log=gloss_reflection,
             reason="Glossary recall failure",
         )
-        fork_assistant_from_prompt(
-            assistant,
-            mutated.content
-            + "\nIf glossary definitions are included in memory, use them verbatim.",
-            reflection=gloss_reflection,
-            reason="Glossary recall failure",
-            spawn_trigger="glossary_miss",
-        )
+        if mutated:
+            fork_assistant_from_prompt(
+                assistant,
+                mutated.content
+                + "\nIf glossary definitions are included in memory, use them verbatim.",
+                reflection=gloss_reflection,
+                reason="Glossary recall failure",
+                spawn_trigger="glossary_miss",
+            )
+        else:
+            logger.warning("No system prompt for %s; skipping glossary miss fork", assistant.slug)
     elif (not rag_meta.get("rag_used") or rag_meta.get("rag_fallback")) and (
         "couldn't" in reply.lower() or "could not" in reply.lower()
     ):
@@ -593,14 +596,17 @@ def chat(
             reflection_log=reflection,
             reason="rag_fallback" if rag_meta.get("rag_fallback") else "rag_unused",
         )
-        fork_assistant_from_prompt(
-            assistant,
-            mutated_prompt.content,
-            reflection=reflection,
-            spawn_trigger=(
-                "rag_fallback" if rag_meta.get("rag_fallback") else "rag_unused"
-            ),
-        )
+        if mutated_prompt:
+            fork_assistant_from_prompt(
+                assistant,
+                mutated_prompt.content,
+                reflection=reflection,
+                spawn_trigger=(
+                    "rag_fallback" if rag_meta.get("rag_fallback") else "rag_unused"
+                ),
+            )
+        else:
+            logger.warning("No system prompt for %s; skipping prompt restriction fork", assistant.slug)
     elif rag_meta.get("anchor_misses"):
         from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 
@@ -623,14 +629,17 @@ def chat(
                 if miss_slug
                 else miss_slug
             )
-            fork_assistant_from_prompt(
-                assistant,
-                mutated.content
-                + f"\nAlways explain '{label}' when referenced or relevant.",
-                reflection=anchor_reflection,
-                reason=f"anchor_miss:{miss_slug}",
-                spawn_trigger=f"anchor_miss:{miss_slug}",
-            )
+            if mutated:
+                fork_assistant_from_prompt(
+                    assistant,
+                    mutated.content
+                    + f"\nAlways explain '{label}' when referenced or relevant.",
+                    reflection=anchor_reflection,
+                    reason=f"anchor_miss:{miss_slug}",
+                    spawn_trigger=f"anchor_miss:{miss_slug}",
+                )
+            else:
+                logger.warning("No system prompt for %s; skipping anchor miss fork", assistant.slug)
         except Exception:
             logger.exception("Failed to reflect on anchor miss")
 
