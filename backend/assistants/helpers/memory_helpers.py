@@ -66,6 +66,9 @@ def create_memory_from_chat(
         is_demo=is_demo,
     )
 
+    if assistant and assistant.is_demo and assistant.memory_context:
+        memory_kwargs["context"] = assistant.memory_context
+
     if anchor_slug:
         from memory.models import SymbolicMemoryAnchor
 
