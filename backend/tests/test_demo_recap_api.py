@@ -17,14 +17,15 @@ class DemoRecapAPITest(BaseAPITestCase):
         self.assistant = Assistant.objects.create(
             name="Demo", slug="demo", demo_slug="demo", is_demo=True
         )
+        self.session_id = "11111111-1111-1111-1111-111111111111"
         DemoSessionLog.objects.create(
-            assistant=self.assistant, session_id="s1", message_count=4
+            assistant=self.assistant, session_id=self.session_id, message_count=4
         )
 
     def test_hide_after_shown(self):
-        url = "/api/assistants/demo_recap/s1/"
+        url = f"/api/assistants/demo_recap/{self.session_id}/"
         resp1 = self.client.get(url)
         self.assertEqual(resp1.status_code, 200)
-        self.assertTrue(DemoUsageLog.objects.get(session_id="s1").recap_shown)
+        self.assertTrue(DemoUsageLog.objects.get(session_id=self.session_id).recap_shown)
         resp2 = self.client.get(url)
         self.assertEqual(resp2.status_code, 404)

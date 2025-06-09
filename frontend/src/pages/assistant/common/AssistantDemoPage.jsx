@@ -14,6 +14,7 @@ import LoadingSpinner from "../../../components/LoadingSpinner";
 export default function AssistantDemoPage() {
   const [assistants, setAssistants] = useState([]);
   const [successes, setSuccesses] = useState(null);
+  const topDemos = (successes || []).slice(0, 3);
   const [loadingAssistants, setLoadingAssistants] = useState(true);
   const [resetting, setResetting] = useState(false);
   const { hints, dismissHint } = useAssistantHints("demo");
@@ -112,7 +113,7 @@ export default function AssistantDemoPage() {
       )}
       <DemoAssistantShowcase assistants={featured} />
       {successes && (
-        <DemoSuccessCarousel assistants={(successes || []).slice(0, 5)} />
+        <DemoSuccessCarousel assistants={topDemos} />
       )}
       {assistants.length > 1 && (
         <div className="mb-3 text-end d-flex justify-content-end gap-2">

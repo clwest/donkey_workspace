@@ -127,13 +127,18 @@ export default function ChatWithAssistantPage() {
   useEffect(() => {
     apiFetch(`/assistants/${slug}/`)
       .then(setAssistantInfo)
-      .catch(() => {});
+      .catch((err) => {
+        console.error('Failed to load assistant info', err);
+      });
   }, [slug]);
 
   useEffect(() => {
     apiFetch(`/assistants/${slug}/identity/`)
       .then(setIdentity)
-      .catch(() => {});
+      .catch((err) => {
+        console.error('Failed to load identity', err);
+        setIdentity(null);
+      });
   }, [slug]);
 
   useEffect(() => {

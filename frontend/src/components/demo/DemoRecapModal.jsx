@@ -27,7 +27,10 @@ export default function DemoRecapModal({ show, onClose, demoSlug, sessionId }) {
         setData(d);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((err) => {
+        console.error('Failed to load recap', err);
+        setLoading(false);
+      });
   }, [show, sessionId]);
 
   const handleExport = () => {

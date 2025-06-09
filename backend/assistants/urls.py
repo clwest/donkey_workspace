@@ -385,6 +385,11 @@ urlpatterns = [
     ),
     path("demo_success/", demo.demo_success_view, name="demo_success"),
     path(
+        "demo_recap/<uuid:session_id>/",
+        demo.demo_recap,
+        name="demo_recap",
+    ),
+    path(
         "demo_comparison/",
         assistants.demo_comparison,
         name="demo_comparison",

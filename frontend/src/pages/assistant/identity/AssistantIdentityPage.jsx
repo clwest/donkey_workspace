@@ -8,7 +8,12 @@ export default function AssistantIdentityPage() {
   const [anchor, setAnchor] = useState(null);
 
   useEffect(() => {
-    apiFetch(`/assistants/${id}/identity/`).then(setAnchor);
+    apiFetch(`/assistants/${id}/identity/`)
+      .then(setAnchor)
+      .catch((err) => {
+        console.error('Failed to fetch identity', err);
+        setAnchor(null);
+      });
   }, [id]);
 
   if (!anchor) return <div>Loading...</div>;

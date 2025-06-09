@@ -18,7 +18,9 @@ export default function useDemoRecap(sessionId) {
           setShowRecap(true);
         }
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.error('Failed to fetch recap', err);
+      });
   }, [sessionId]);
 
   const closeRecap = (skip = false) => {
