@@ -81,6 +81,9 @@ export default function DriftDiagnosisPanel({ slug, sessionId }) {
           >
             Refine this Assistant
           </button>
+          <Link to={`/assistants/${slug}?tab=overview#driftfixes`} className="btn btn-sm btn-outline-secondary ms-2">
+            🛠 View Past Fixes
+          </Link>
         </div>
       )}
       <AssistantRefinementWizard

@@ -482,6 +482,11 @@ export async function reviewFirstMessageDrift(slug) {
   return res;
 }
 
+export async function fetchDriftFixes(slug, params) {
+  const res = await apiFetch(`/assistants/${slug}/drift_fixes/`, { params });
+  return res.results || res;
+}
+
 export async function resetDemoAssistant(slug) {
   return apiFetch(`/assistants/${slug}/reset_demo/`, {
     method: "POST",

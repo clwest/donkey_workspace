@@ -35,6 +35,7 @@ import RagDebugPanel from "../../../components/assistant/RagDebugPanel";
 import RagPlaybackPanel from "../../../components/assistant/RagPlaybackPanel";
 import BadgePreviewPanel from "../../../components/assistant/BadgePreviewPanel";
 import DriftSuggestionsPanel from "../../../components/assistant/DriftSuggestionsPanel";
+import DriftFixLogPanel from "../../../components/assistant/DriftFixLogPanel";
 import AssistantGlossaryConvergencePanel from "../../../components/assistant/memory/AssistantGlossaryConvergencePanel";
 import VocabularyProgressPanel from "../../../components/assistant/memory/VocabularyProgressPanel";
 import { fetchGlossaryMutations } from "../../../api/agents";
@@ -599,6 +600,7 @@ export default function AssistantDetailPage() {
             slug={slug}
             onRefresh={handleDiagnosticsRefresh}
           />
+          <DriftFixLogPanel slug={slug} />
           {assistant.recent_drift && (
             <div className="alert alert-warning">
               🧬 Drift Detected: {assistant.recent_drift.summary}

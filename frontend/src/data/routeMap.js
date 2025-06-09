@@ -158,6 +158,13 @@ export const routeMap = [
     notes: "Reflection drift heatmap",
   },
   {
+    frontend: null,
+    backend: "/api/assistants/<slug>/drift_fixes/",
+    view: "assistant-drift-fixes",
+    serializer: "DriftRefinementLogSerializer",
+    notes: "Drift refinement logs",
+  },
+  {
     frontend: "/assistants/:slug/anchor-health",
     backend: "/api/assistants/<slug>/anchor_health/",
     view: "AnchorHealthDashboard",
