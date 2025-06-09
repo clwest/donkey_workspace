@@ -20,7 +20,7 @@ class ChatIdentityRouteTest(BaseAPITestCase):
     def test_chat_generates_tags(self, mock_chat, mock_tags, mock_embed):
         mock_chat.return_value = ("ok", [], {})
         tag = Tag.objects.create(slug="greet", name="greet")
-        mock_tags.return_value = [tag]
+        mock_tags.return_value = ["greet"]
         mock_embed.return_value = type("E", (), {"data": [type("D", (), {"embedding": []})]})()
         resp = self.client.post(f"/api/assistants/{self.assistant.slug}/chat/", {"message": "hi", "session_id": "s1"}, format="json")
         self.assertEqual(resp.status_code, 200)
