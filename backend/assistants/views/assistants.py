@@ -42,6 +42,7 @@ from assistants.helpers.logging_helper import (
 from assistants.helpers.demo_utils import generate_assistant_from_demo
 
 from assistants.models.demo import DemoUsageLog
+from assistants.models.demo_usage import DemoSessionLog
 from assistants.views.demo import bump_demo_score
 
 from assistants.models.assistant import (
@@ -1173,7 +1174,7 @@ def get_demo_assistants(request):
     data = serializer.data
     rates = []
     for idx, (obj, a) in enumerate(zip(data, assistants)):
-        logs = DemoUsageLog.objects.filter(assistant=a)
+        logs = DemoSessionLog.objects.filter(assistant=a)
         total = logs.count()
         conversions = logs.filter(converted_to_real_assistant=True).count()
         bounce = logs.filter(message_count=0).count()
