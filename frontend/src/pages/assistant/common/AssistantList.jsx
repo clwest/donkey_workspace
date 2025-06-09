@@ -3,9 +3,12 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
 import PrimaryStar from "../../../components/assistant/PrimaryStar";
+import TrustBadge from "../../../components/assistant/TrustBadge";
 
 export default function AssistantList({ assistants: propAssistants }) {
   const [assistants, setAssistants] = useState(propAssistants || []);
+  const [levelFilter, setLevelFilter] = useState("all");
+  const [sortDesc, setSortDesc] = useState(true);
 
   const handleDelete = async (slug) => {
     if (!window.confirm("Delete this assistant?")) return;
@@ -63,59 +66,82 @@ export default function AssistantList({ assistants: propAssistants }) {
     (a, b) => (b.parent.is_primary ? 1 : 0) - (a.parent.is_primary ? 1 : 0)
   );
 
+  let rows = groups.map((g) => g.parent);
+  if (levelFilter !== "all") {
+    rows = rows.filter((a) => a.trust_level === levelFilter);
+  }
+  rows.sort((a, b) =>
+    sortDesc ? b.trust_score - a.trust_score : a.trust_score - b.trust_score
+  );
+
   return (
     <div className="container mt-5">
       <h2>🧠 Available Assistants</h2>
-      <ul className="list-group">
-        {groups.map(({ parent, children }) => (
-          <li key={parent.id} className="list-group-item shadow-sm p-3">
-            <Link to={`/assistants/${parent.slug}`} className="fw-bold text-decoration-none">
-              {parent.name} <PrimaryStar isPrimary={parent.is_primary} />
-            </Link>
-            <div className="mt-1">
-              <Link to={`/assistants/${parent.slug}/edit`} className="btn btn-sm btn-outline-secondary me-2">
-                ✏️ Edit
-              </Link>
-              <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(parent.slug)}>
-                🗑️ Delete
-              </button>
-            </div>
-            <p className="text-muted mb-1">
-              {parent.description || `${parent.name} (${parent.slug})`}
-            </p>
-
-            {parent.current_project && (
-              <div className="alert alert-warning p-2 d-flex justify-content-between align-items-center">
-                <span>
-                  🚧 In Use: {parent.current_project.title}
-                </span>
+      <div className="mb-2 d-flex">
+        <select
+          className="form-select w-auto me-2"
+          value={levelFilter}
+          onChange={(e) => setLevelFilter(e.target.value)}
+        >
+          <option value="all">All Levels</option>
+          <option value="ready">Ready</option>
+          <option value="training">In Training</option>
+          <option value="needs_attention">Needs Work</option>
+        </select>
+        <button
+          className="btn btn-sm btn-outline-secondary"
+          onClick={() => setSortDesc(!sortDesc)}
+        >
+          Sort {sortDesc ? "▼" : "▲"}
+        </button>
+      </div>
+      <table className="table table-sm">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Specialty</th>
+            <th>Trust</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((a) => (
+            <tr key={a.id}>
+              <td>
+                <Link to={`/assistants/${a.slug}`}>{a.name}</Link>
+                <PrimaryStar isPrimary={a.is_primary} />
+              </td>
+              <td>{a.specialty}</td>
+              <td>
+                {a.trust_score}/100{' '}
+                <TrustBadge
+                  label={
+                    a.trust_level === 'ready'
+                      ? 'trusted'
+                      : a.trust_level === 'needs_attention'
+                      ? 'unreliable'
+                      : 'neutral'
+                  }
+                />
+              </td>
+              <td>
+                <Link
+                  to={`/assistants/${a.slug}/edit`}
+                  className="btn btn-sm btn-outline-secondary me-2"
+                >
+                  ✏️ Edit
+                </Link>
                 <button
                   className="btn btn-sm btn-outline-danger"
-                  onClick={() => handleEndUse(parent.current_project.id, parent.slug)}
+                  onClick={() => handleDelete(a.slug)}
                 >
-                  End Use
+                  🗑️ Delete
                 </button>
-              </div>
-            )}
-
-            {children.length > 0 && (
-              <ul className="ps-3">
-                {children.map((child) => (
-                  <li key={child.id} className="my-1">
-                    <Link
-                      to={`/assistants/${child.slug}`}
-                      className="text-decoration-none"
-                    >
-                      {child.name}
-                    </Link>
-                    <span className="text-muted ms-1">({child.specialty})</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </li>
-        ))}
-      </ul>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

@@ -17,21 +17,26 @@ export default function AssistantDashboardCard({ assistant }) {
     }
   }
 
+  const badgeLabel = profile
+    ? profile.trust_level === "ready"
+      ? "trusted"
+      : profile.trust_level === "needs_attention"
+      ? "unreliable"
+      : "neutral"
+    : null;
+  const borderColor =
+    profile?.trust_level === "ready"
+      ? "border-success"
+      : profile?.trust_level === "needs_attention"
+      ? "border-danger"
+      : "border-warning";
   return (
-    <div onMouseEnter={load}>
+    <div onMouseEnter={load} className={`p-1 rounded shadow-sm ${profile ? borderColor : ""}`}> 
       <AssistantCard assistant={assistant} to={`/assistants/${assistant.slug}`} />
       {profile && (
         <div className="mt-1 small text-muted">
           <span>{profile.trust_score}/100</span>
-          <TrustBadge
-            label={
-              profile.trust_level === "ready"
-                ? "trusted"
-                : profile.trust_level === "needs_attention"
-                ? "unreliable"
-                : "neutral"
-            }
-          />
+          <TrustBadge label={badgeLabel} />
         </div>
       )}
     </div>

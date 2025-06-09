@@ -22,16 +22,20 @@ export default function AssistantTrustPanel({ slug }) {
   return (
     <div className="card my-3">
       <div className="card-header">Trust &amp; Signals</div>
-      <div className="card-body">
-        <h6 className="mb-2">
-          {lvl.icon} {lvl.label} – {data.trust_score}/100
+      <div className="card-body text-center">
+        <div className="display-6 fw-bold">
+          {data.trust_score}
+          <span className="fs-6 ms-1">/100</span>
+        </div>
+        <div className="mb-2">
           <TrustBadge label={data.trust_level === "ready" ? "trusted" : data.trust_level === "needs_attention" ? "unreliable" : "neutral"} />
-        </h6>
-        <div className="d-flex flex-wrap gap-3 small">
-          <div>📚 Glossary Hits: {Math.round(data.glossary_hit_ratio * 100)}%</div>
-          <div>🧠 Reflections 7d: {data.reflections_last_7d}</div>
-          <div>🛠️ Drift Fixes: {data.drift_fix_count}</div>
+          <span className="ms-2">{lvl.icon} {lvl.label}</span>
+        </div>
+        <div className="d-flex flex-wrap gap-3 justify-content-center small">
           <div>🏅 Badges: {data.earned_badge_count}</div>
+          <div>📚 Precision: {Math.round(data.glossary_hit_ratio * 100)}%</div>
+          <div>🛠️ Stability: {data.drift_fix_count}</div>
+          <div>🧠 Insight Rate: {data.reflections_last_7d}</div>
         </div>
       </div>
     </div>

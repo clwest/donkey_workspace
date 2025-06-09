@@ -34,6 +34,8 @@ class AssistantTrustProfileAPITest(BaseAPITestCase):
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
+        self.assertIn("trust_score", data)
+        self.assertIn("trust_level", data)
         self.assertEqual(data["earned_badge_count"], 2)
         self.assertEqual(data["reflections_last_7d"], 1)
         self.assertEqual(data["drift_fix_count"], 1)

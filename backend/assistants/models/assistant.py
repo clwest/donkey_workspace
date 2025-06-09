@@ -1,4 +1,6 @@
 from django.db import models
+
+from assistants.utils.trust_profile import TrustProfileMixin
 import uuid
 from memory.models import MemoryEntry
 from mcp_core.models import MemoryContext
@@ -34,7 +36,7 @@ from .core import (
 )
 
 
-class Assistant(models.Model):
+class Assistant(TrustProfileMixin, models.Model):
     """Core AI assistant configuration with optional parent link.
 
     Holds personality traits, preferred model, and related documents."""
