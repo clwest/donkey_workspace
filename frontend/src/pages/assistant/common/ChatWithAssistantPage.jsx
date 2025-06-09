@@ -171,13 +171,13 @@ export default function ChatWithAssistantPage() {
           },
         });
 
-        let msgs = data.messages || [];
         if (data.starter_memory) {
           setStarterMemory(data.starter_memory.map((m) => ({ ...m, preseeded: true })));
         }
         if (data.demo_intro_message) {
           setDemoIntro(data.demo_intro_message);
         }
+        let msgs = data.messages || [];
         if (starter) {
           const demoData = await apiFetch(`/assistants/${slug}/chat/`, {
             method: "POST",
@@ -188,11 +188,7 @@ export default function ChatWithAssistantPage() {
               starter_query: starter,
             },
           });
-          msgs = [
-            ...msgs,
-            { role: "user", content: starter },
-            ...(demoData.messages || []),
-          ];
+          msgs = demoData.messages || [];
         }
         setMessages(msgs);
       };

@@ -52,8 +52,13 @@ def assistant_mythpath(request, id):
 def assistant_identity_summary(request, slug):
     """Return concise identity metadata for the assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
-    if not assistant.is_demo and assistant.created_by != request.user:
+
+    permitted = True
+    if not assistant.is_demo:
+        permitted = assistant.created_by == request.user
+    if not permitted:
         return Response({"error": "forbidden"}, status=403)
+
     from assistants.serializers import AssistantSerializer
 
     serializer = AssistantSerializer(assistant, context={"request": request})

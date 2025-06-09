@@ -19,7 +19,9 @@ export default function useDemoRecap(sessionId) {
         }
       })
       .catch((err) => {
-        console.error('Failed to fetch recap', err);
+        if (!String(err).includes("404")) {
+          console.error('Failed to fetch recap', err);
+        }
       });
   }, [sessionId]);
 

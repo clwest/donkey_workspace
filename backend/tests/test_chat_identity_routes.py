@@ -31,3 +31,11 @@ class ChatIdentityRouteTest(BaseAPITestCase):
         resp = self.client.get(f"/api/assistants/{self.assistant.slug}/identity/")
         self.assertEqual(resp.status_code, 200)
 
+    def test_identity_route_demo_any_user(self):
+        owner = self.user
+        self.assistant.created_by = owner
+        self.assistant.save()
+        self.authenticate("viewer")
+        resp = self.client.get(f"/api/assistants/{self.assistant.slug}/identity/")
+        self.assertEqual(resp.status_code, 200)
+

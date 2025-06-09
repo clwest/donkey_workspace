@@ -29,3 +29,9 @@ class DemoRecapAPITest(BaseAPITestCase):
         self.assertTrue(DemoUsageLog.objects.get(session_id=self.session_id).recap_shown)
         resp2 = self.client.get(url)
         self.assertEqual(resp2.status_code, 404)
+
+    def test_missing_session_returns_empty(self):
+        bad = "22222222-2222-2222-2222-222222222222"
+        resp = self.client.get(f"/api/assistants/demo_recap/{bad}/")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json(), {})

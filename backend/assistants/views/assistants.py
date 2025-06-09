@@ -758,7 +758,10 @@ def chat_with_assistant_view(request, slug):
     assistant = get_object_or_404(Assistant, slug=slug)
     user = request.user if request.user.is_authenticated else None
 
-    starter_messages = _get_demo_starter_memory(assistant) if assistant.is_demo else []
+    starter_query = request.data.get("starter_query") or request.query_params.get("starter_query")
+    starter_messages = (
+        _get_demo_starter_memory(assistant) if assistant.is_demo and starter_query else []
+    )
     demo_intro_message = None
     if starter_messages:
         first = next((m for m in starter_messages if m["role"] == "assistant"), None)
@@ -768,7 +771,6 @@ def chat_with_assistant_view(request, slug):
     message = request.data.get("message")
     session_id = request.data.get("session_id") or str(uuid.uuid4())
     demo_session_id = request.data.get("demo_session_id")
-    starter_query = request.data.get("starter_query")
 
     if message == "__ping__":
         if assistant.is_demo and demo_session_id:
@@ -782,9 +784,8 @@ def chat_with_assistant_view(request, slug):
                 },
             )
         history = load_session_messages(session_id)
-        if assistant.is_demo and not history:
-            query = starter_query or request.query_params.get("starter_query") or "What can you help with?"
-            save_message_to_session(session_id, "user", query)
+        if assistant.is_demo and not history and starter_query:
+            save_message_to_session(session_id, "user", starter_query)
             history = load_session_messages(session_id)
         return Response({
             "messages": history,
