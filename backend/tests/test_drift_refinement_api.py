@@ -39,3 +39,40 @@ class DriftRefinementAPITest(BaseAPITestCase):
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         self.assertEqual(data["glossary_fixes"], [{"term": "foo", "cause": "fallback"}])
+
+    def test_summary_recent_refinements(self):
+        from assistants.models.assistant import AssistantDriftRefinementLog
+
+        AssistantDriftRefinementLog.objects.create(
+            assistant=self.assistant,
+            glossary_terms=["foo"],
+            prompt_sections=["intro"],
+            tone_tags=["friendly"],
+        )
+        resp = self.client.get(f"/api/assistants/{self.assistant.slug}/summary/")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertIn("recent_refinements", data)
+        self.assertEqual(data["recent_refinements"]["glossary"], ["foo"])
+
+    def test_drift_fixes_sorted(self):
+        from assistants.models.assistant import AssistantDriftRefinementLog
+        log1 = AssistantDriftRefinementLog.objects.create(
+            assistant=self.assistant,
+            glossary_terms=["a"],
+        )
+        log2 = AssistantDriftRefinementLog.objects.create(
+            assistant=self.assistant,
+            glossary_terms=["b"],
+        )
+        resp = self.client.get(f"/api/assistants/{self.assistant.slug}/drift_fixes/")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()["results"]
+        self.assertEqual(str(log2.id), data[0]["id"])
+
+    def test_drift_fixes_empty(self):
+        assistant = Assistant.objects.create(name="B", slug="b")
+        resp = self.client.get(f"/api/assistants/{assistant.slug}/drift_fixes/")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["detail"], "no refinement logs found")

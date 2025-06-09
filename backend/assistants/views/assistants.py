@@ -63,6 +63,7 @@ from assistants.serializers import (
     AssistantSerializer,
     SuggestionLogSerializer,
     DemoComparisonSerializer,
+    DriftRefinementLogSerializer,
 )
 from assistants.utils.session_utils import (
     save_message_to_session,
@@ -1987,6 +1988,35 @@ def drift_heatmap(request, slug):
 
     results = aggregate_drift_by_anchor(assistant, days)
     return Response({"results": results})
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def drift_fixes(request, slug):
+    """Return recent drift refinement logs for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    qs = assistant.drift_refinement_logs.all()
+    log_type = request.GET.get("type")
+    if log_type == "glossary":
+        qs = qs.exclude(glossary_terms=[])
+    elif log_type == "prompt":
+        qs = qs.exclude(prompt_sections=[])
+    elif log_type == "tone":
+        qs = qs.exclude(tone_tags=[])
+    since = request.GET.get("since")
+    if since:
+        try:
+            since_dt = timezone.datetime.fromisoformat(since)
+            qs = qs.filter(created_at__gte=since_dt)
+        except ValueError:
+            pass
+    if request.GET.get("demo_only") == "true":
+        qs = qs.filter(assistant__is_demo=True)
+    logs = qs.order_by("-created_at")[:50]
+    if not logs:
+        return Response({"results": [], "detail": "no refinement logs found"})
+    data = DriftRefinementLogSerializer(logs, many=True).data
+    return Response({"results": data})
 
 
 @api_view(["GET"])

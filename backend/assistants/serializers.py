@@ -6,6 +6,7 @@ from .models.assistant import (
     AssistantRelayMessage,
     ChatSession,
     SpecializationDriftLog,
+    AssistantDriftRefinementLog,
     DebateSession,
     DebateThoughtLog,
     DebateSummary,
@@ -558,6 +559,19 @@ class SpecializationDriftLogSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class DriftRefinementLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssistantDriftRefinementLog
+        fields = [
+            "id",
+            "session_id",
+            "glossary_terms",
+            "prompt_sections",
+            "tone_tags",
+            "created_at",
+        ]
+        read_only_fields = fields
+
 class EmotionalResonanceLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmotionalResonanceLog
@@ -812,6 +826,9 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
     glossary_health_index = serializers.SerializerMethodField()
     mentor_assistant = serializers.SerializerMethodField()
     nurture_recommendations = serializers.SerializerMethodField()
+    recent_refinements = serializers.SerializerMethodField()
+    drift_fix_count = serializers.SerializerMethodField()
+    glossary_terms_fixed = serializers.SerializerMethodField()
     initial_glossary_anchor = serializers.SerializerMethodField()
     initial_badges = serializers.SerializerMethodField()
 
@@ -988,6 +1005,30 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
         from assistants.helpers.nurture import get_nurture_recommendations
 
         return get_nurture_recommendations(obj)
+
+    def refinement_summary(self, obj):
+        logs = obj.drift_refinement_logs.order_by("-created_at")[:5]
+        summary = {"glossary": [], "prompt": [], "tone": []}
+        for log in logs:
+            summary["glossary"].extend(log.glossary_terms or [])
+            summary["prompt"].extend(log.prompt_sections or [])
+            summary["tone"].extend(log.tone_tags or [])
+        return summary
+
+    def get_recent_refinements(self, obj):
+        summary = self.refinement_summary(obj)
+        if any(summary.values()):
+            return summary
+        return None
+
+    def get_drift_fix_count(self, obj):
+        return obj.drift_refinement_logs.count()
+
+    def get_glossary_terms_fixed(self, obj):
+        terms = set()
+        for log in obj.drift_refinement_logs.all():
+            terms.update(log.glossary_terms or [])
+        return len(terms)
 
 
 
@@ -1471,6 +1512,9 @@ class AssistantSerializer(serializers.ModelSerializer):
             "mentor_assistant",
             "nurture_recommendations",
             "nurture_started_at",
+            "drift_fix_count",
+            "glossary_terms_fixed",
+            "recent_refinements",
         ]
 
     def get_trust(self, obj):
@@ -2208,6 +2252,7 @@ class AssistantOverviewSerializer(serializers.ModelSerializer):
     reinforced_anchors = serializers.SerializerMethodField()
     badge_count = serializers.SerializerMethodField()
     first_question_drift_count = serializers.SerializerMethodField()
+    recent_refinements = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -2222,6 +2267,7 @@ class AssistantOverviewSerializer(serializers.ModelSerializer):
             "reinforced_anchors",
             "badge_count",
             "first_question_drift_count",
+            "recent_refinements",
         ]
         read_only_fields = fields
 
@@ -2254,3 +2300,7 @@ class AssistantOverviewSerializer(serializers.ModelSerializer):
         from assistants.models.assistant import ChatIntentDriftLog
 
         return ChatIntentDriftLog.objects.filter(assistant=obj).count()
+
+    def get_recent_refinements(self, obj):
+        serializer = AssistantSerializer()
+        return serializer.refinement_summary(obj)
