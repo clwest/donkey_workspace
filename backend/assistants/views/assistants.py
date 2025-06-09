@@ -1222,7 +1222,7 @@ demo_assistant = get_demo_assistants
 @permission_classes([IsAuthenticated])
 def demo_usage_overview(request):
     """Return aggregate usage metrics across all demo assistants."""
-    logs = DemoUsageLog.objects.all()
+    logs = DemoSessionLog.objects.all()
     total = logs.count()
     conversions = logs.filter(converted_to_real_assistant=True).count()
     bounce = logs.filter(message_count=0).count()
