@@ -3,9 +3,12 @@ import logging
 from django.utils import timezone
 from django.conf import settings
 import redis
+from django.apps import apps
+from typing import TYPE_CHECKING
 
-from assistants.models.assistant import Assistant, AssistantDriftRefinementLog
-from assistants.models.reflection import AssistantReflectionLog
+if TYPE_CHECKING:  # pragma: no cover - for type hints only
+    from assistants.models.assistant import Assistant, AssistantDriftRefinementLog
+    from assistants.models.reflection import AssistantReflectionLog
 
 REDIS_URL = getattr(settings, "REDIS_URL", "redis://127.0.0.1:6379/1")
 r = redis.Redis.from_url(REDIS_URL)
@@ -31,11 +34,17 @@ def set_cached_trust(slug: str, data: dict, ttl: int = 3600):
         logger.warning("failed to cache trust", extra={"slug": slug})
 
 
-def compute_trust_score(assistant: Assistant) -> dict:
+def compute_trust_score(assistant: "Assistant") -> dict:
     """Return trust data dict with score and level."""
     badge_count = len(assistant.skill_badges or [])
     glossary = float(assistant.glossary_score or 0)
     week = timezone.now() - timezone.timedelta(days=7)
+
+    AssistantReflectionLog = apps.get_model("assistants", "AssistantReflectionLog")
+    AssistantDriftRefinementLog = apps.get_model(
+        "assistants", "AssistantDriftRefinementLog"
+    )
+
     reflections = AssistantReflectionLog.objects.filter(
         assistant=assistant, created_at__gte=week
     ).count()
@@ -67,7 +76,7 @@ def compute_trust_score(assistant: Assistant) -> dict:
     }
 
 
-def update_assistant_trust_cache(assistant: Assistant) -> dict:
+def update_assistant_trust_cache(assistant: "Assistant") -> dict:
     data = compute_trust_score(assistant)
     set_cached_trust(assistant.slug, data)
     return data
