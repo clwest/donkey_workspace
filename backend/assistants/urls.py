@@ -394,6 +394,11 @@ urlpatterns = [
         assistants.demo_comparison,
         name="demo_comparison",
     ),
+    path(
+        "demo_session/reset/",
+        demo.reset_demo_session,
+        name="demo_session_reset",
+    ),
     
     # Sessions
     path("sessions/list/", sessions.list_chat_sessions, name="chat_session_list"),
