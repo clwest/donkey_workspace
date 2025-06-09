@@ -154,13 +154,14 @@ class AssistantReflectionEngine:
         logger.info(
             f"[ReflectionEngine] Assistant: {assistant.slug}, Context ID: {self.context.id}"
         )
-        orphaned = MemoryEntry.objects.filter(
-            assistant=self.assistant, context__isnull=True
-        ).count()
-        if orphaned > 0:
-            logger.warning(
-                f"[ReflectionEngine] \u26a0\ufe0f Found {orphaned} orphaned memory entries for {self.assistant.slug}"
-            )
+        if self.context:
+            orphaned = MemoryEntry.objects.filter(
+                assistant=self.assistant, context__isnull=True
+            ).count()
+            if orphaned > 0:
+                logger.warning(
+                    f"[ReflectionEngine] \u26a0\ufe0f Found {orphaned} orphaned memory entries for {self.assistant.slug}"
+                )
 
     def get_memory_entries(self, limit: int = 30, *, verbose: bool = False):
         """Return prioritized memories eligible for reflection."""
