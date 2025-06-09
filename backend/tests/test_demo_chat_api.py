@@ -55,3 +55,14 @@ class DemoChatAPITest(BaseAPITestCase):
         self.assertEqual(AssistantChatMessage.objects.count(), 0)
         # starter memory only
         self.assertEqual(MemoryEntry.objects.filter(assistant=self.assistant).count(), 1)
+
+    def test_no_starter_memory_without_param(self):
+        url = f"/api/v1/assistants/{self.assistant.slug}/chat/"
+        resp = self.client.post(
+            url,
+            {"message": "__ping__", "session_id": "s3", "demo_session_id": "d3"},
+            format="json",
+        )
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data.get("starter_memory"), [])

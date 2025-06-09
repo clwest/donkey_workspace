@@ -3,7 +3,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
 import uuid
+import logging
 from assistants.models.demo_usage import DemoSessionLog
+
+logger = logging.getLogger(__name__)
 
 
 from assistants.models import (
@@ -46,11 +49,10 @@ def demo_recap(request, session_id):
     except Exception:
         return Response({"error": "invalid"}, status=400)
     session = DemoSessionLog.objects.filter(session_id=session_id).first()
-    if not session:
-        return Response({"error": "not found"}, status=404)
-    usage, _ = DemoUsageLog.objects.get_or_create(
-        session_id=session_id, defaults={"demo_slug": session.assistant.demo_slug}
-    )
+    usage = DemoUsageLog.objects.filter(session_id=session_id).first()
+    if not session or not usage:
+        logger.warning("[DemoRecap] Missing session or usage for %s", session_id)
+        return Response({})
     if session.converted_to_real_assistant or usage.recap_shown:
         return Response(status=404)
 
