@@ -73,10 +73,10 @@ class Command(BaseCommand):
                 name=demo["name"],
                 demo_slug=slug,
                 specialty=demo["specialty"],
-                avatar_url=demo["avatar"],
+                avatar=demo["avatar"],
                 system_prompt=prompt,
                 prompt_title=prompt.title,
-                intro=demo["intro"],
+                intro_text=demo["intro"],
                 is_demo=True,
                 is_active=True,
             )
