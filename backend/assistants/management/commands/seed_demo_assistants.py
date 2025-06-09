@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+
 # from django.utils import timezone
 # from django.utils.text import slugify
 
@@ -48,7 +49,9 @@ class Command(BaseCommand):
 
         for demo in demos:
             slug = slugify(demo["name"])
-            assistant = Assistant.objects.filter(name=demo["name"], is_demo=True).first()
+            assistant = Assistant.objects.filter(
+                name=demo["name"], is_demo=True
+            ).first()
 
             if assistant and not force:
                 if verbosity >= 2:
@@ -86,12 +89,19 @@ class Command(BaseCommand):
             for badge_slug in demo.get("badges", []):
                 badge = Badge.objects.filter(slug=badge_slug).first()
                 if badge:
-                    assistant.skill_badges.add(badge)
+                    current = set(assistant.skill_badges or [])
+                    current.add(badge.slug)
+                    assistant.skill_badges = sorted(current)
+                    assistant.save(update_fields=["skill_badges"])
 
             if verbosity >= 1:
-                self.stdout.write(self.style.SUCCESS(f"✅ Created demo: {demo['name']}"))
+                self.stdout.write(
+                    self.style.SUCCESS(f"✅ Created demo: {demo['name']}")
+                )
 
         if created_count == 0:
             self.stdout.write("⚠️ No demo assistants were created.")
         else:
-            self.stdout.write(self.style.SUCCESS(f"\n🌱 Seeded {created_count} demo assistants."))
+            self.stdout.write(
+                self.style.SUCCESS(f"\n🌱 Seeded {created_count} demo assistants.")
+            )
