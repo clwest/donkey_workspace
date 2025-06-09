@@ -35,6 +35,7 @@ import GlossaryOverlayTooltip from "../../../components/GlossaryOverlayTooltip";
 import DemoTipsSidebar from "../../../components/demo/DemoTipsSidebar";
 import DemoRecapModal from "../../../components/demo/DemoRecapModal";
 import DemoFeedbackModal from "../../../components/demo/DemoFeedbackModal";
+import DemoOverlayPanel from "../../../components/demo/DemoOverlayPanel";
 
 export default function ChatWithAssistantPage() {
   const { slug } = useParams();
@@ -63,6 +64,7 @@ export default function ChatWithAssistantPage() {
     triggerFeedback,
     closeFeedback,
   } = useDemoRecap(demoSessionId);
+  const [showOverlay, setShowOverlay] = useState(false);
 
   const [sessionId] = useState(() => {
     const key = `chat_session_${slug}`;
@@ -651,6 +653,15 @@ export default function ChatWithAssistantPage() {
             End Session
           </button>
         )}
+        {assistantInfo?.is_demo && (
+          <button
+            className="btn btn-outline-info ms-2"
+            type="button"
+            onClick={() => setShowOverlay((v) => !v)}
+          >
+            {showOverlay ? "Hide Recap" : "View Recap"}
+          </button>
+        )}
       </div>
       <div className="form-check form-switch mt-2">
         <input
@@ -988,6 +999,9 @@ export default function ChatWithAssistantPage() {
           demoSlug={assistantInfo.demo_slug}
           sessionId={demoSessionId}
         />
+      )}
+      {assistantInfo?.is_demo && showOverlay && (
+        <DemoOverlayPanel slug={slug} sessionId={demoSessionId} />
       )}
     </div>
   );

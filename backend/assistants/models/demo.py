@@ -16,6 +16,12 @@ class DemoUsageLog(models.Model):
     user_rating = models.IntegerField(null=True, blank=True)
     recap_shown = models.BooleanField(default=False)
     feedback_submitted = models.BooleanField(default=False)
+    reflection = models.ForeignKey(
+        "assistants.AssistantReflectionLog",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
     converted_at = models.DateTimeField(null=True, blank=True)
     converted_from_demo = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

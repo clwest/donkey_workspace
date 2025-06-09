@@ -3,6 +3,7 @@ import { Modal, Button } from "react-bootstrap";
 import { useNavigate, Link } from "react-router-dom";
 import apiFetch from "@/utils/apiClient";
 import { createAssistantFromDemo } from "@/api/assistants";
+import DemoOverlayPanel from "./DemoOverlayPanel";
 
 const suggestions = [
   "Reflect on birth",
@@ -17,6 +18,7 @@ export default function DemoRecapModal({ show, onClose, demoSlug, sessionId }) {
   const [showNurture, setShowNurture] = useState(
     localStorage.getItem("demoNurtureDismissed") !== "true"
   );
+  const [showOverlay, setShowOverlay] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -96,6 +98,9 @@ export default function DemoRecapModal({ show, onClose, demoSlug, sessionId }) {
         <Button variant="secondary" onClick={handleExport} disabled={loading}>
           Export Markdown
         </Button>
+        <Button variant="info" onClick={() => setShowOverlay((v) => !v)}>
+          {showOverlay ? "Hide Recap" : "View Recap"}
+        </Button>
         <Button variant="primary" onClick={handleConvert} disabled={saving}>
           {saving ? "Converting..." : "Convert This Assistant"}
         </Button>
@@ -110,5 +115,10 @@ export default function DemoRecapModal({ show, onClose, demoSlug, sessionId }) {
         </Link>
       </Modal.Footer>
     </Modal>
+    {showOverlay && (
+      <div className="mt-3">
+        <DemoOverlayPanel slug={demoSlug} sessionId={sessionId} />
+      </div>
+    )}
   );
 }
