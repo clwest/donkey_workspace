@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.response import Response
+import uuid
 from assistants.models.demo_usage import DemoSessionLog
 
 
@@ -40,6 +41,10 @@ def bump_demo_score(session_id, delta=0, helpful=False):
 @permission_classes([AllowAny])
 def demo_recap(request, session_id):
     """Return recap data for a demo session unless already shown."""
+    try:
+        session_id = str(uuid.UUID(str(session_id)))
+    except Exception:
+        return Response({"error": "invalid"}, status=400)
     session = DemoSessionLog.objects.filter(session_id=session_id).first()
     if not session:
         return Response({"error": "not found"}, status=404)

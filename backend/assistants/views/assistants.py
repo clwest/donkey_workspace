@@ -1103,7 +1103,7 @@ def chat_with_assistant_view(request, slug):
     else:
         full_transcript = memory.full_transcript or ""
 
-    memory.tags = generate_tags_for_memory(full_transcript)
+    memory.tags.set(generate_tags_for_memory(full_transcript))
     memory.save()
 
     if rag_meta.get("anchor_hits") or rag_meta.get("anchor_misses"):
