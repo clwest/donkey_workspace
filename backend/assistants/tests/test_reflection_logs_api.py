@@ -37,6 +37,16 @@ class AssistantReflectionLogAPITest(BaseAPITestCase):
         self.ref1 = AssistantReflectionLog.objects.get(id=r1.id)
         self.ref2 = AssistantReflectionLog.objects.get(id=r2.id)
 
+        # demo reflection
+        self.assistant.is_demo = True
+        self.assistant.save(update_fields=["is_demo"])
+        self.demo_ref = AssistantReflectionLog.objects.create(
+            assistant=self.assistant,
+            summary="demo",
+            title="Demo",
+            demo_reflection=True,
+        )
+
     def test_list_reflections_for_assistant(self):
         url = f"/api/v1/assistants/{self.assistant.slug}/reflections/"
         resp = self.client.get(url)
@@ -93,3 +103,13 @@ class AssistantReflectionLogAPITest(BaseAPITestCase):
         self.assertTrue(data["patched"])
         self.assertEqual(data["replayed_summary"], "better")
         self.assertEqual(data["reflection_score"], replay.reflection_score)
+
+    def test_demo_reflection_filter(self):
+        url = (
+            f"/api/v1/assistants/{self.assistant.slug}/reflections/?demo_reflection=true"
+        )
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        ids = [d["id"] for d in data]
+        self.assertEqual(ids, [str(self.demo_ref.id)])

@@ -220,7 +220,12 @@ def assistant_reflection_logs(request, slug):
     """List all reflection logs for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
     reflections = AssistantReflectionLog.objects.filter(assistant=assistant)
-    if assistant.current_project_id:
+    demo_flag = request.query_params.get("demo_reflection")
+    if demo_flag in {"true", "1"}:
+        reflections = reflections.filter(demo_reflection=True)
+    elif demo_flag in {"false", "0"}:
+        reflections = reflections.filter(demo_reflection=False)
+    if assistant.current_project_id and demo_flag not in {"true", "1"}:
         reflections = reflections.filter(project_id=assistant.current_project_id)
     reflections = reflections.order_by("-created_at")
     serializer = AssistantReflectionLogListSerializer(reflections, many=True)

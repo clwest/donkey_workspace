@@ -974,10 +974,14 @@ def chat_with_assistant_view(request, slug):
     save_message_to_session(session_id, "assistant", reply)
 
     if assistant.is_demo:
-        # Skip memory saving and logging for demo assistants
+        history = load_session_messages(session_id)
+        if sum(1 for m in history if m.get("role") == "assistant") == 1:
+            from assistants.tasks import log_demo_reflection_task
+
+            log_demo_reflection_task.delay(str(assistant.id), session_id)
         return Response(
             {
-                "messages": load_session_messages(session_id),
+                "messages": history,
                 "rag_meta": rag_meta,
                 "starter_memory": starter_messages,
                 "demo_intro_message": demo_intro_message,

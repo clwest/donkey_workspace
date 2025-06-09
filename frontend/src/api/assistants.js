@@ -333,6 +333,10 @@ export async function fetchReflections(slug) {
   return apiFetch(`/assistants/${slug}/reflections/`);
 }
 
+export async function fetchDemoReflections(slug) {
+  return apiFetch(`/assistants/${slug}/reflections/?demo_reflection=true`);
+}
+
 export const fetchDeploymentReadiness = (id) =>
   apiFetch(`/assistants/${id}/deploy/`);
 

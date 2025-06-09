@@ -181,3 +181,24 @@ def get_origin_traits(demo: Assistant) -> list[str]:
         traits.append(entry.anchor.label)
 
     return traits
+
+
+def log_demo_reflection(assistant: Assistant, session_id: str) -> None:
+    """Save a lightweight reflection for a demo chat."""
+    if not assistant.is_demo:
+        return
+    from assistants.utils.session_utils import load_session_messages
+    from assistants.models.reflection import AssistantReflectionLog
+
+    history = load_session_messages(session_id)[:5]
+    lines = [
+        f"{m['role'].capitalize()}: {m['content']}" for m in history if m.get('role') in {'user', 'assistant'}
+    ]
+    summary = "\n".join(lines)
+    AssistantReflectionLog.objects.create(
+        assistant=assistant,
+        title="Demo Chat Reflection",
+        summary=summary,
+        category="meta",
+        demo_reflection=True,
+    )

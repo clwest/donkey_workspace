@@ -459,3 +459,13 @@ def evaluate_team_alignment_task(project_id: str):
 
     log = evaluate_team_alignment(project_id)
     return str(log.id) if log else None
+
+
+@shared_task
+def log_demo_reflection_task(assistant_id: str, session_id: str):
+    from assistants.models import Assistant
+    from assistants.helpers.demo_utils import log_demo_reflection
+
+    assistant = Assistant.objects.filter(id=assistant_id, is_demo=True).first()
+    if assistant:
+        log_demo_reflection(assistant, session_id)

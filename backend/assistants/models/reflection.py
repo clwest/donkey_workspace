@@ -58,6 +58,7 @@ class AssistantReflectionLog(models.Model):
         on_delete=models.SET_NULL,
         related_name="reflection_logs",
     )
+    demo_reflection = models.BooleanField(default=False)
     prompt_log = models.ForeignKey(
         "mcp_core.PromptUsageLog",
         on_delete=models.SET_NULL,
