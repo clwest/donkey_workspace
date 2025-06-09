@@ -26,6 +26,7 @@ from .demo import (
     demo_leaderboard,
     demo_recap,
     demo_success_view,
+    compose_demo_reflection_view,
 )
 from .setup import AssistantSetupSummaryView
 from .intro import AssistantIntroView
@@ -332,6 +333,7 @@ __all__ = [
     "demo_recap",
     "demo_success_view",
     "replay_demo_boost",
+    "compose_demo_reflection_view",
     "drift_heatmap",
     "conscience_profiles",
     "reflexive_epistemology",

@@ -37,6 +37,7 @@ import DemoRecapModal from "../../../components/demo/DemoRecapModal";
 import DemoFeedbackModal from "../../../components/demo/DemoFeedbackModal";
 import DemoOverlayPanel from "../../../components/demo/DemoOverlayPanel";
 import DemoReplayDebugger from "../../../components/demo/DemoReplayDebugger";
+import DemoReflectionComposer from "../../../components/demo/DemoReflectionComposer";
 
 export default function ChatWithAssistantPage() {
   const { slug } = useParams();
@@ -67,6 +68,7 @@ export default function ChatWithAssistantPage() {
     closeFeedback,
   } = useDemoRecap(demoSessionId);
   const [showOverlay, setShowOverlay] = useState(false);
+  const [showComposer, setShowComposer] = useState(false);
 
   const [sessionId] = useState(() => {
     const key = `chat_session_${slug}`;
@@ -664,6 +666,15 @@ export default function ChatWithAssistantPage() {
             {showOverlay ? "Hide Recap" : "View Recap"}
           </button>
         )}
+        {assistantInfo?.is_demo && (
+          <button
+            className="btn btn-outline-primary ms-2"
+            type="button"
+            onClick={() => setShowComposer(true)}
+          >
+            📘 Compose Reflection
+          </button>
+        )}
       </div>
       <div className="form-check form-switch mt-2">
         <input
@@ -1007,6 +1018,14 @@ export default function ChatWithAssistantPage() {
       )}
       {assistantInfo?.is_demo && debugMode && (
         <DemoReplayDebugger slug={slug} sessionId={demoSessionId} />
+      )}
+      {assistantInfo?.is_demo && (
+        <DemoReflectionComposer
+          slug={slug}
+          sessionId={demoSessionId}
+          show={showComposer}
+          onClose={() => setShowComposer(false)}
+        />
       )}
     </div>
   );

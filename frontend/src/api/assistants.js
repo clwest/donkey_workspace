@@ -295,6 +295,13 @@ export async function fetchDemoReflections(slug) {
   return apiFetch(`/assistants/${slug}/reflections/?demo_reflection=true`);
 }
 
+export async function composeDemoReflection(slug, sessionId, save = false) {
+  return apiFetch(`/assistants/${slug}/demo_reflection/compose/`, {
+    method: "POST",
+    body: { session_id: sessionId, save_note: save },
+  });
+}
+
 export const fetchDeploymentReadiness = (id) =>
   apiFetch(`/assistants/${id}/deploy/`);
 

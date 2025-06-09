@@ -24,6 +24,7 @@ class DemoSessionLog(models.Model):
     created_from_ip = models.CharField(max_length=64, blank=True)
     user_agent = models.TextField(blank=True)
     feedback = models.TextField(blank=True)
+    demo_reflection_note = models.TextField(blank=True)
 
     class Meta:
         ordering = ["-started_at"]

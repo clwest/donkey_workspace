@@ -202,3 +202,34 @@ def log_demo_reflection(assistant: Assistant, session_id: str) -> None:
         category="meta",
         demo_reflection=True,
     )
+
+
+def compose_demo_reflection(assistant: Assistant, session_id: str) -> dict:
+    """Return a short reflection summary from replay frames."""
+    from assistants.utils.session_utils import load_session_messages
+    from assistants.utils.chunk_retriever import get_rag_chunk_debug
+
+    messages = load_session_messages(session_id)
+    user_msgs = [m.get("content", "") for m in messages if m.get("role") == "user"][:4]
+    anchors: set[str] = set()
+    fallback = 0
+    for text in user_msgs:
+        info = get_rag_chunk_debug(str(assistant.id), text)
+        anchors.update(
+            c.get("anchor_slug")
+            for c in info.get("matched_chunks", [])
+            if c.get("anchor_slug")
+        )
+        if info.get("fallback_triggered"):
+            fallback += 1
+
+    personality = assistant.tone or assistant.primary_badge or "default style"
+    grounded = len(user_msgs) - fallback
+    summary = (
+        f"During this demo, the assistant replied in {personality}. "
+        f"It grounded correctly on {grounded} out of {len(user_msgs)} queries."
+    )
+    if anchors:
+        summary += " Key terms included: " + ", ".join(sorted(anchors)) + "."
+
+    return {"summary": summary, "anchors_used": sorted(anchors), "fallback_count": fallback}
