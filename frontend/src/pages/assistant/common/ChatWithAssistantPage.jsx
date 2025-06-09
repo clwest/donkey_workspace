@@ -36,6 +36,7 @@ import DemoTipsSidebar from "../../../components/demo/DemoTipsSidebar";
 import DemoRecapModal from "../../../components/demo/DemoRecapModal";
 import DemoFeedbackModal from "../../../components/demo/DemoFeedbackModal";
 import DemoOverlayPanel from "../../../components/demo/DemoOverlayPanel";
+import DemoReplayDebugger from "../../../components/demo/DemoReplayDebugger";
 
 export default function ChatWithAssistantPage() {
   const { slug } = useParams();
@@ -44,6 +45,7 @@ export default function ChatWithAssistantPage() {
   const starter =
     searchParams.get("starter") || searchParams.get("starter_query");
   const variant = searchParams.get("variant");
+  const debugMode = searchParams.get("debug") === "1";
   const [messages, setMessages] = useState([]);
   const [assistantInfo, setAssistantInfo] = useState(null);
   const [identity, setIdentity] = useState(null);
@@ -1002,6 +1004,9 @@ export default function ChatWithAssistantPage() {
       )}
       {assistantInfo?.is_demo && showOverlay && (
         <DemoOverlayPanel slug={slug} sessionId={demoSessionId} />
+      )}
+      {assistantInfo?.is_demo && debugMode && (
+        <DemoReplayDebugger slug={slug} sessionId={demoSessionId} />
       )}
     </div>
   );

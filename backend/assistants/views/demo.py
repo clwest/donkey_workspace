@@ -335,3 +335,45 @@ def reset_demo_session(request):
         request.user.save(update_fields=["demo_session_id"])
 
     return Response({"status": "reset"})
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def demo_replay_debug(request, slug, session_id):
+    """Return RAG frames for a demo session."""
+    try:
+        session_uuid = str(uuid.UUID(str(session_id)))
+    except Exception:
+        return Response({"error": "invalid"}, status=400)
+    assistant = get_object_or_404(Assistant, slug=slug)
+    from assistants.utils.session_utils import load_session_messages
+    from assistants.utils.chunk_retriever import get_rag_chunk_debug
+
+    messages = load_session_messages(session_uuid)
+    user_msgs = [m.get("content", "") for m in messages if m.get("role") == "user"][:3]
+    frames = []
+    for text in user_msgs:
+        info = get_rag_chunk_debug(str(assistant.id), text)
+        hits = [c.get("anchor_slug") for c in info["matched_chunks"] if c.get("anchor_slug")]
+        frames.append(
+            {
+                "query": text,
+                "chunks": info["matched_chunks"] + info["fallback_chunks"],
+                "glossary_hits": hits,
+                "glossary_misses": info.get("glossary_misses", []),
+                "anchor_boosts": info.get("glossary_scores", {}),
+                "retrieval_score": info.get("retrieval_score", 0.0),
+                "fallback": info.get("fallback_triggered", False),
+                "reason": info.get("reason"),
+            }
+        )
+
+    reflection = (
+        AssistantReflectionLog.objects.filter(assistant=assistant, demo_reflection=True)
+        .order_by("created_at")
+        .first()
+    )
+    reflection_summary = reflection.summary if reflection else ""
+
+    return Response({"session_id": session_uuid, "frames": frames, "reflection_summary": reflection_summary})
+
