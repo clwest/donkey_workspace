@@ -1460,6 +1460,9 @@ class AssistantSerializer(serializers.ModelSerializer):
     mentor_assistant = serializers.SerializerMethodField()
     nurture_recommendations = serializers.SerializerMethodField()
 
+    recent_refinements = serializers.SerializerMethodField()
+    drift_fix_count = serializers.SerializerMethodField()
+    glossary_terms_fixed = serializers.SerializerMethodField()
     class Meta:
         model = Assistant
         fields = [
@@ -1674,10 +1677,34 @@ class AssistantSerializer(serializers.ModelSerializer):
 
         return get_nurture_recommendations(obj)
 
+    def refinement_summary(self, obj):
+        logs = obj.drift_refinement_logs.order_by("-created_at")[:5]
+        summary = {"glossary": [], "prompt": [], "tone": []}
+        for log in logs:
+            summary["glossary"].extend(log.glossary_terms or [])
+            summary["prompt"].extend(log.prompt_sections or [])
+            summary["tone"].extend(log.tone_tags or [])
+        return summary
+
+    def get_recent_refinements(self, obj):
+        summary = self.refinement_summary(obj)
+        if any(summary.values()):
+            return summary
+        return None
+
+    def get_drift_fix_count(self, obj):
+        return obj.drift_refinement_logs.count()
+
+    def get_glossary_terms_fixed(self, obj):
+        terms = set()
+        for log in obj.drift_refinement_logs.all():
+            terms.update(log.glossary_terms or [])
+        return len(terms)
 class AssistantProjectSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = AssistantProject
         fields = [
+
             "id",
             "title",
             "slug",
