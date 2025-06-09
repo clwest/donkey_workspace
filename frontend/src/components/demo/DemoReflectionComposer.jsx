@@ -27,40 +27,40 @@ export default function DemoReflectionComposer({ slug, sessionId, show, onClose 
   };
 
   return (
-
-    <CommonModal
-      show={show}
-      onClose={onClose}
-      title="📘 Demo Reflection"
-      footer={
-        <>
-          <button className="btn btn-secondary" onClick={onClose}>
-            Dismiss
-          </button>
-          <button className="btn btn-primary" onClick={handleSave}>
-            Accept
-          </button>
-        </>
-      }
-    >
-      {loading ? (
-        <p>Composing...</p>
-      ) : (
-        <textarea
-          className="form-control"
-          rows={6}
-          value={summary}
-          onChange={(e) => setSummary(e.target.value)}
-        />
-      )}
-    </CommonModal>
-    <DriftDiagnosisPanel slug={slug} sessionId={sessionId} />
-    <AssistantRefinementWizard
-      slug={slug}
-      sessionId={sessionId}
-      show={showWizard}
-      onClose={() => setShowWizard(false)}
-    />
-
+    <>
+      <CommonModal
+        show={show}
+        onClose={onClose}
+        title="📘 Demo Reflection"
+        footer={
+          <>
+            <button className="btn btn-secondary" onClick={onClose}>
+              Dismiss
+            </button>
+            <button className="btn btn-primary" onClick={handleSave}>
+              Accept
+            </button>
+          </>
+        }
+      >
+        {loading ? (
+          <p>Composing...</p>
+        ) : (
+          <textarea
+            className="form-control"
+            rows={6}
+            value={summary}
+            onChange={(e) => setSummary(e.target.value)}
+          />
+        )}
+      </CommonModal>
+      <DriftDiagnosisPanel slug={slug} sessionId={sessionId} />
+      <AssistantRefinementWizard
+        slug={slug}
+        sessionId={sessionId}
+        show={showWizard}
+        onClose={() => setShowWizard(false)}
+      />
+    </>
   );
 }
