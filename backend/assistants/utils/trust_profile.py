@@ -4,9 +4,8 @@ from django.utils import timezone
 from django.conf import settings
 import redis
 
-from assistants.models import Assistant
+from assistants.models.assistant import Assistant, AssistantDriftRefinementLog
 from assistants.models.reflection import AssistantReflectionLog
-from assistants.models.assistant import AssistantDriftRefinementLog
 
 REDIS_URL = getattr(settings, "REDIS_URL", "redis://127.0.0.1:6379/1")
 r = redis.Redis.from_url(REDIS_URL)
