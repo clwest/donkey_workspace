@@ -1573,6 +1573,71 @@ def drift_check(request, slug):
 
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def refine_from_drift(request, slug):
+    """Suggest glossary and prompt fixes based on drift logs."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    session_id = request.data.get("session_id")
+    overrides = request.data.get("overrides") or {}
+
+    glossary_map: dict[str, str] = {}
+    if session_id:
+        from memory.models import RAGPlaybackLog
+        logs = RAGPlaybackLog.objects.filter(
+            assistant=assistant, demo_session_id=str(session_id)
+        ).order_by("created_at")
+        for pb in logs:
+            if any(c.get("is_fallback") for c in pb.chunks):
+                term = (pb.query_term or pb.query).strip().lower()
+                if term and term not in glossary_map:
+                    glossary_map[term] = "fallback"
+
+    glossary_fixes = [
+        {"term": t, "cause": glossary_map[t]} for t in sorted(glossary_map.keys())
+    ]
+
+    prompt_before = assistant.system_prompt.content if assistant.system_prompt else ""
+    prompt_after = prompt_before
+    if overrides.get("revise_prompt"):
+        from assistants.utils.recovery import create_prompt_revision
+
+        new_prompt = create_prompt_revision(assistant)
+        if new_prompt:
+            prompt_after = new_prompt.content
+
+    tone_tags = []
+    if overrides.get("tone") and overrides.get("tone") != assistant.tone:
+        tone_tags.append("tone-mismatch")
+
+    from assistants.utils.drift_diagnosis import analyze_drift_symptoms
+
+    drift = analyze_drift_symptoms(str(session_id)) if session_id else None
+
+    if glossary_fixes or tone_tags:
+        from assistants.models.assistant import AssistantDriftRefinementLog
+
+        AssistantDriftRefinementLog.objects.create(
+            assistant=assistant,
+            session_id=str(session_id) if session_id else "",
+            glossary_terms=glossary_fixes,
+            prompt_sections=[],
+            tone_tags=tone_tags,
+        )
+
+    return Response(
+        {
+            "drift": drift,
+            "glossary_fixes": glossary_fixes,
+            "prompt_revision":
+                {"before": prompt_before, "after": prompt_after}
+                if prompt_before != prompt_after
+                else None,
+            "tone_tags": tone_tags,
+        }
+    )
+
+
+@api_view(["POST"])
 def recover_assistant_view(request, slug):
     """Run a lightweight recovery routine for the assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)

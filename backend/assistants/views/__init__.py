@@ -28,6 +28,7 @@ from .demo import (
     demo_success_view,
     compose_demo_reflection_view,
     demo_drift_diagnosis,
+    refine_from_drift,
 )
 from .setup import AssistantSetupSummaryView
 from .intro import AssistantIntroView
@@ -364,5 +365,6 @@ __all__ = [
     "upgrade_growth",
     "demo_rag_overlay",
     "demo_drift_diagnosis",
+    "refine_from_drift",
 ]
 from .skills import SkillPlanView

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import AssistantRefinementWizard from "../assistant/AssistantRefinementWizard";
 import apiFetch from "@/utils/apiClient";
 import { Line } from "react-chartjs-2";
 import {
@@ -16,6 +17,7 @@ ChartJS.register(LineElement, PointElement, LinearScale, Tooltip, Legend);
 export default function DriftDiagnosisPanel({ slug, sessionId }) {
   const [data, setData] = useState(null);
   const [open, setOpen] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
 
   useEffect(() => {
     if (!slug || !sessionId) return;
@@ -23,6 +25,13 @@ export default function DriftDiagnosisPanel({ slug, sessionId }) {
       .then(setData)
       .catch(() => {});
   }, [slug, sessionId]);
+
+  useEffect(() => {
+    if (data && data.diagnosis.length && !localStorage.getItem(`driftRefined-${slug}`)) {
+      setShowWizard(true);
+      localStorage.setItem(`driftRefined-${slug}`, "1");
+    }
+  }, [data, slug]);
 
   if (!data) return null;
 
@@ -66,14 +75,20 @@ export default function DriftDiagnosisPanel({ slug, sessionId }) {
           <div className="mb-2">
             <Line data={chartData} options={options} height={80} />
           </div>
-          <Link
-            to={`/assistants/${slug}/edit`}
+          <button
             className="btn btn-sm btn-primary"
+            onClick={() => setShowWizard(true)}
           >
             Refine this Assistant
-          </Link>
+          </button>
         </div>
       )}
+      <AssistantRefinementWizard
+        slug={slug}
+        sessionId={sessionId}
+        show={showWizard}
+        onClose={() => setShowWizard(false)}
+      />
     </div>
   );
 }
