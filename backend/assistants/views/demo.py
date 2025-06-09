@@ -27,6 +27,7 @@ from assistants.demo_config import DEMO_TIPS
 from assistants.helpers.demo_utils import (
     generate_assistant_from_demo,
     boost_prompt_from_demo,
+    compose_demo_reflection,
 )
 
 
@@ -292,6 +293,30 @@ def demo_reflection_overlay(request, slug):
             "reflection_snippet": snippet,
         }
     )
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def compose_demo_reflection_view(request, slug):
+    """Compose a demo reflection summary for a session."""
+    session_id = request.data.get("session_id")
+    if not session_id:
+        return Response({"error": "session_id required"}, status=400)
+    save_note = str(request.data.get("save_note", "")).lower() == "true"
+    try:
+        session_uuid = str(uuid.UUID(str(session_id)))
+    except Exception:
+        return Response({"error": "invalid"}, status=400)
+
+    assistant = get_object_or_404(Assistant, slug=slug)
+    data = compose_demo_reflection(assistant, session_uuid)
+
+    if save_note:
+        DemoSessionLog.objects.filter(
+            assistant=assistant, session_id=session_uuid
+        ).update(demo_reflection_note=data["summary"])
+
+    return Response(data)
 
 
 @api_view(["POST"])

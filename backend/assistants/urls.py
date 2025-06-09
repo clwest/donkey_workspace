@@ -400,6 +400,11 @@ urlpatterns = [
         name="demo_reflection_overlay",
     ),
     path(
+        "<slug:slug>/demo_reflection/compose/",
+        demo.compose_demo_reflection_view,
+        name="compose-demo-reflection",
+    ),
+    path(
         "demo_comparison/",
         assistants.demo_comparison,
         name="demo_comparison",
