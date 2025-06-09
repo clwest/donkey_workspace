@@ -1108,6 +1108,28 @@ class ChatIntentDriftLog(models.Model):
         return f"Intent drift {self.drift_score:.2f}"
 
 
+class AssistantDriftRefinementLog(models.Model):
+    """Record glossary and prompt refinements generated from drift analysis."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="drift_refinement_logs",
+    )
+    session_id = models.CharField(max_length=64, blank=True, default="")
+    glossary_terms = models.JSONField(default=list, blank=True)
+    prompt_sections = models.JSONField(default=list, blank=True)
+    tone_tags = models.JSONField(default=list, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return f"Refinement for {self.assistant.slug}"
+
+
 class DebateSession(models.Model):
     """Session tracking a multi-assistant debate."""
 

@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import CommonModal from "../CommonModal";
 import { composeDemoReflection } from "@/api/assistants";
 import DriftDiagnosisPanel from "./DriftDiagnosisPanel";
+import AssistantRefinementWizard from "../assistant/AssistantRefinementWizard";
 
 export default function DemoReflectionComposer({ slug, sessionId, show, onClose }) {
   const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
 
   useEffect(() => {
     if (!show) return;
@@ -21,6 +23,7 @@ export default function DemoReflectionComposer({ slug, sessionId, show, onClose 
   const handleSave = async () => {
     await composeDemoReflection(slug, sessionId, true);
     onClose();
+    setShowWizard(true);
   };
 
   return (
@@ -51,5 +54,11 @@ export default function DemoReflectionComposer({ slug, sessionId, show, onClose 
       )}
     </CommonModal>
     <DriftDiagnosisPanel slug={slug} sessionId={sessionId} />
+    <AssistantRefinementWizard
+      slug={slug}
+      sessionId={sessionId}
+      show={showWizard}
+      onClose={() => setShowWizard(false)}
+    />
   );
 }

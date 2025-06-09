@@ -847,6 +847,11 @@ urlpatterns = [
         name="assistant-drift-check",
     ),
     path(
+        "<slug:slug>/refine_from_drift/",
+        assistants.refine_from_drift,
+        name="assistant-refine-from-drift",
+    ),
+    path(
         "<slug:slug>/recover/",
         assistants.recover_assistant_view,
         name="assistant-recover",

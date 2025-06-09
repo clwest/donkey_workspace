@@ -6,6 +6,7 @@ import GlossaryAnchorCard from "../onboarding/GlossaryAnchorCard";
 import TonePreview from "../onboarding/TonePreview";
 import BoostSummaryPanel from "./BoostSummaryPanel";
 import GrowthTrackPanel from "./GrowthTrackPanel";
+import AssistantRefinementWizard from "./AssistantRefinementWizard";
 
 const AVATAR_EMOJI = {
   owl: "🦚",
@@ -17,6 +18,7 @@ const AVATAR_EMOJI = {
 export default function AssistantSetupSummary({ assistantId, assistant }) {
   const [data, setData] = useState(assistant || null);
   const [error, setError] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
 
   useEffect(() => {
     if (assistant || !assistantId) return;
@@ -78,6 +80,18 @@ export default function AssistantSetupSummary({ assistantId, assistant }) {
         demoSlug={data.demo_origin_slug}
         slug={data.slug}
         inject={data.boost_prompt_in_system}
+      />
+      <button
+        className="btn btn-sm btn-outline-primary mt-2"
+        onClick={() => setShowWizard(true)}
+      >
+        Refine from Drift
+      </button>
+      <AssistantRefinementWizard
+        slug={data.slug}
+        sessionId={data.demo_session_id}
+        show={showWizard}
+        onClose={() => setShowWizard(false)}
       />
     </div>
   );
