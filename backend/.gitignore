@@ -77,3 +77,4 @@ venv/
 !memory/migrations/0010_anchor_stability_priority.py
 !memory/migrations/0011_replay_priority.py
 !memory/migrations/0012_trail_summary_fields.py
+!memory/migrations/0013_rag_playback_session.py

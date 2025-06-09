@@ -436,7 +436,15 @@ class RAGGroundingLogSerializer(serializers.ModelSerializer):
 class RAGPlaybackLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = RAGPlaybackLog
-        fields = ["id", "assistant", "query", "memory_context", "chunks", "created_at"]
+        fields = [
+            "id",
+            "assistant",
+            "query",
+            "memory_context",
+            "chunks",
+            "demo_session_id",
+            "created_at",
+        ]
         read_only_fields = ["id", "created_at"]
 
 

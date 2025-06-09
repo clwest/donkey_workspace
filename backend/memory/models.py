@@ -738,6 +738,7 @@ class RAGPlaybackLog(models.Model):
     chunks = models.JSONField()
     score_cutoff = models.FloatField(null=True, blank=True)
     fallback_reason = models.CharField(max_length=100, null=True, blank=True)
+    demo_session_id = models.CharField(max_length=64, blank=True, default="")
 
     class PlaybackType(models.TextChoices):
         REFLECTION = "reflection", "Reflection"

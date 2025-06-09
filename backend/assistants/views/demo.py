@@ -20,6 +20,7 @@ from memory.models import (
     MemoryEntry,
     AnchorReinforcementLog,
     ReflectionReplayLog,
+    RAGPlaybackLog,
 )
 from django.utils import timezone
 
@@ -401,4 +402,35 @@ def demo_replay_debug(request, slug, session_id):
     reflection_summary = reflection.summary if reflection else ""
 
     return Response({"session_id": session_uuid, "frames": frames, "reflection_summary": reflection_summary})
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def demo_rag_overlay(request, slug, session_id):
+    """Return lightweight RAG overlay data for a demo session."""
+    try:
+        session_uuid = str(uuid.UUID(str(session_id)))
+    except Exception:
+        return Response({"error": "invalid"}, status=400)
+
+    assistant = get_object_or_404(Assistant, slug=slug)
+    playbacks = RAGPlaybackLog.objects.filter(
+        demo_session_id=session_uuid, assistant=assistant
+    ).order_by("created_at")
+
+    data = []
+    for pb in playbacks:
+        chunks = [
+            {
+                "id": c.get("id"),
+                "is_fallback": c.get("is_fallback"),
+                "anchor_match": c.get("anchor_match"),
+                "glossary_score": c.get("glossary_score"),
+                "text": c.get("text"),
+            }
+            for c in pb.chunks
+        ]
+        data.append({"id": str(pb.id), "query": pb.query, "chunks": chunks})
+
+    return Response(data)
 

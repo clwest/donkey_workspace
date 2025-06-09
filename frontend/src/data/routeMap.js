@@ -122,6 +122,13 @@ export const routeMap = [
     notes: "Demo session RAG replay frames",
   },
   {
+    frontend: "/assistants/:slug/demo_session/:uuid/rag_overlay/",
+    backend: "/api/assistants/<slug>/demo_session/<uuid:session_id>/rag_overlay/",
+    view: "demo_rag_overlay",
+    serializer: "-",
+    notes: "Demo session drift overlay",
+  },
+  {
     frontend: "/assistants/:slug/rag-inspector",
     backend: "/api/assistants/<slug>/rag_debug/",
     view: "assistant-rag-debug",
