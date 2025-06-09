@@ -11,6 +11,7 @@ import NurturePanel from "../../../components/assistant/NurturePanel";
 import AssistantBadgeIcon from "../../../components/assistant/AssistantBadgeIcon";
 import AssistantSetupSummary from "../../../components/assistant/AssistantSetupSummary";
 import GrowthTrackPanel from "../../../components/assistant/GrowthTrackPanel";
+import AssistantTrustPanel from "../../../components/assistant/AssistantTrustPanel";
 import AssistantPersonalizationPrompt from "../../../components/assistant/AssistantPersonalizationPrompt";
 import useAuthGuard from "../../../hooks/useAuthGuard";
 import {
@@ -582,6 +583,7 @@ export default function AssistantDetailPage() {
             stage={assistant.growth_stage}
             points={assistant.growth_points}
           />
+          <AssistantTrustPanel slug={slug} />
           <Link
             to={`/assistants/${slug}/trail`}
             className="btn btn-sm btn-secondary ms-2"

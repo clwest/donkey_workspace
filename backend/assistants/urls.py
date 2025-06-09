@@ -972,6 +972,11 @@ urlpatterns = [
         name="assistant-summary",
     ),
     path(
+        "<slug:slug>/trust_profile/",
+        assistants.assistant_trust_profile,
+        name="assistant-trust-profile",
+    ),
+    path(
         "<slug:slug>/intro/",
         views.AssistantIntroView.as_view(),
         name="assistant-intro",

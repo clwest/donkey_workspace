@@ -23,3 +23,4 @@ from .demo import *
 
 
 __all__ = []
+from .trust import *

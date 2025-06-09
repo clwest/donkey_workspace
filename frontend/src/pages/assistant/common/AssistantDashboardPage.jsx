@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import apiFetch from "../../../utils/apiClient";
-import AssistantCard from "../../../components/assistant/AssistantCard";
+import AssistantDashboardCard from "../../../components/assistant/AssistantDashboardCard";
 
 
 export default function AssistantDashboardPage() {
@@ -32,15 +32,7 @@ export default function AssistantDashboardPage() {
         <div className="row g-4">
           {assistants.map((assistant) => (
             <div className="col-md-6 col-lg-4" key={assistant.id}>
-              <AssistantCard
-                assistant={assistant}
-                demo={assistant.is_demo}
-                to={
-                  assistant.current_project
-                    ? `/assistants/projects/${assistant.current_project.id}`
-                    : `/assistants/${assistant.slug}`
-                }
-              />
+              <AssistantDashboardCard assistant={assistant} />
             </div>
           ))}
         </div>
