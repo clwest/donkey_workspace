@@ -2380,8 +2380,10 @@ def assistant_trust_profile(request, slug):
     from assistants.models.assistant import AssistantDriftRefinementLog
     from assistants.models.reflection import AssistantReflectionLog
     from memory.models import RAGGroundingLog
+    from assistants.utils.trust_profile import update_assistant_trust_cache
 
     overview = AssistantOverviewSerializer(assistant).data
+    trust = update_assistant_trust_cache(assistant)
 
     last_reflection = (
         AssistantReflectionLog.objects.filter(assistant=assistant)
@@ -2403,11 +2405,22 @@ def assistant_trust_profile(request, slug):
         misses += len(row.get("glossary_misses") or [])
     ratio = hits / (hits + misses) if (hits + misses) else 0.0
 
+    first_reflection = (
+        AssistantReflectionLog.objects.filter(assistant=assistant)
+        .order_by("created_at")
+        .values_list("created_at", flat=True)
+        .first()
+    )
     data = {
         **overview,
-        "last_reflection": last_reflection,
+        "trust_score": trust["score"],
+        "trust_level": trust["level"],
+        "score_components": trust["components"],
+        "last_reflection_at": last_reflection,
+        "first_reflection_at": first_reflection,
         "drift_fix_count": drift_fix_count,
         "glossary_hit_ratio": round(ratio, 2),
+        "badge_labels": assistant.skill_badges or [],
     }
     return Response(data)
 

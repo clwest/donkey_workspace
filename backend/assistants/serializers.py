@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from assistants.utils.trust_profile import compute_trust_score
 from .models.assistant import (
     Assistant,
     AssistantChatMessage,
@@ -831,6 +832,11 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
     glossary_terms_fixed = serializers.SerializerMethodField()
     initial_glossary_anchor = serializers.SerializerMethodField()
     initial_badges = serializers.SerializerMethodField()
+    trust_score = serializers.SerializerMethodField()
+    trust_level = serializers.SerializerMethodField()
+    badge_count = serializers.SerializerMethodField()
+    reflections_last_7d = serializers.SerializerMethodField()
+    drift_fixes_recent = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -875,8 +881,13 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             "skill_badges",
             "avatar_style",
             "tone_profile",
+            "trust_score",
+            "trust_level",
+            "badge_count",
             "health_score",
             "glossary_health_index",
+            "reflections_last_7d",
+            "drift_fixes_recent",
             "initial_glossary_anchor",
             "initial_badges",
             "child_assistants",
@@ -912,8 +923,6 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
         return calculate_composite_health(obj)
 
     def get_glossary_health_index(self, obj):
-        from django.db.models import Avg, Count
-        from memory.models import SymbolicMemoryAnchor
 
         total = SymbolicMemoryAnchor.objects.filter(reinforced_by=obj).count()
         if total == 0:
@@ -941,6 +950,21 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
 
     def get_initial_badges(self, obj):
         return _initial_badges(obj)
+
+    def get_trust_score(self, obj):
+        return compute_trust_score(obj)["score"]
+
+    def get_trust_level(self, obj):
+        return compute_trust_score(obj)["level"]
+
+    def get_badge_count(self, obj):
+        return compute_trust_score(obj)["components"]["badge_count"]
+
+    def get_reflections_last_7d(self, obj):
+        return compute_trust_score(obj)["components"]["reflections_last_7d"]
+
+    def get_drift_fixes_recent(self, obj):
+        return compute_trust_score(obj)["components"]["drift_fixes_recent"]
 
     def get_flair(self, obj):
         if obj.primary_badge:
@@ -2315,37 +2339,17 @@ class AssistantOverviewSerializer(serializers.ModelSerializer):
 
 
     def get_trust_score(self, obj):
-        memory_count = self.get_memory_count(obj)
-        reflection_count = self.get_reflection_count(obj)
-        reflection_ratio = reflection_count / memory_count if memory_count else 0
-        glossary = obj.glossary_score or 0.0
-        score = int(round((glossary * 50) + (reflection_ratio * 50)))
-        return min(100, max(0, score))
+        return compute_trust_score(obj)["score"]
 
     def get_trust_level(self, obj):
-        score = self.get_trust_score(obj)
-        if score >= 80:
-            return "ready"
-        if score >= 50:
-            return "training"
-        return "needs_attention"
+        return compute_trust_score(obj)["level"]
 
     def get_earned_badge_count(self, obj):
-        return len(obj.skill_badges or [])
+        return compute_trust_score(obj)["components"]["badge_count"]
 
     def get_reflections_last_7d(self, obj):
-        from django.utils import timezone
-        from assistants.models.reflection import AssistantReflectionLog
-
-        week = timezone.now() - timezone.timedelta(days=7)
-        return AssistantReflectionLog.objects.filter(assistant=obj, created_at__gte=week).count()
+        return compute_trust_score(obj)["components"]["reflections_last_7d"]
 
     def get_drift_fixes_recent(self, obj):
-        from django.utils import timezone
-        from assistants.models.assistant import AssistantDriftRefinementLog
-
-        month = timezone.now() - timezone.timedelta(days=30)
-        return AssistantDriftRefinementLog.objects.filter(
-            assistant=obj, created_at__gte=month
-        ).count()
+        return compute_trust_score(obj)["components"]["drift_fixes_recent"]
 
