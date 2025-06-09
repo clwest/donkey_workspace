@@ -1115,8 +1115,6 @@ def chat_with_assistant_view(request, slug):
     memory.save()
 
     if rag_meta.get("anchor_hits") or rag_meta.get("anchor_misses"):
-        from mcp_core.models import Tag
-
         tag, _ = Tag.objects.get_or_create(
             slug="glossary_insight", defaults={"name": "glossary_insight"}
         )
