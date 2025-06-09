@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { toast } from "react-toastify";
 import apiFetch from "../../../utils/apiClient";
 
 export default function AssistantReflectionLogsPage() {
   const { slug } = useParams();
+  const [searchParams] = useSearchParams();
   const [logs, setLogs] = useState([]);
   const [latestReplay, setLatestReplay] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -14,7 +15,11 @@ export default function AssistantReflectionLogsPage() {
   useEffect(() => {
     async function fetchLogs() {
       try {
-        const data = await apiFetch(`/assistants/${slug}/reflections/`);
+        const demo = searchParams.get("demo") === "true";
+        const url = demo
+          ? `/assistants/${slug}/reflections/?demo_reflection=true`
+          : `/assistants/${slug}/reflections/`;
+        const data = await apiFetch(url);
         setLogs(data);
       } catch (err) {
         console.error("Failed to load reflections", err);
@@ -39,7 +44,7 @@ export default function AssistantReflectionLogsPage() {
       }
     }
     checkAdmin();
-  }, [slug]);
+  }, [slug, searchParams]);
 
   const createObjective = async (id) => {
     try {
@@ -84,6 +89,21 @@ export default function AssistantReflectionLogsPage() {
   return (
     <div className="container my-5">
       <h2 className="mb-4">🪞 Reflections for {slug}</h2>
+      {searchParams.get("demo") === "true" ? (
+        <Link
+          to={`/assistants/${slug}/reflections`}
+          className="btn btn-sm btn-outline-secondary mb-3 me-2"
+        >
+          All Reflections
+        </Link>
+      ) : (
+        <Link
+          to={`/assistants/${slug}/reflections?demo=true`}
+          className="btn btn-sm btn-outline-secondary mb-3 me-2"
+        >
+          Demo Reflections
+        </Link>
+      )}
       <Link
         to={`/assistants/${slug}/replays`}
         className="btn btn-sm btn-outline-primary mb-3"
@@ -148,6 +168,9 @@ export default function AssistantReflectionLogsPage() {
                   >
                     <span className="badge bg-info ms-2">✨</span>
                   </OverlayTrigger>
+                )}
+                {r.demo_reflection && (
+                  <span className="badge bg-secondary ms-2">Demo</span>
                 )}
                 {r.is_primer && (
                   <span className="badge bg-warning text-dark ms-2">🧪 primer</span>
