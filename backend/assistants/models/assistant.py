@@ -73,6 +73,7 @@ class Assistant(models.Model):
         related_name="ephemeral_assistants",
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     avatar = models.URLField(blank=True, null=True)
     system_prompt = models.ForeignKey(
         "prompts.Prompt",
