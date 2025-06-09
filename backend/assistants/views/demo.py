@@ -61,6 +61,7 @@ def demo_recap(request, session_id):
     usage = (
         DemoUsageLog.objects.filter(session_id=session_id)
         .only("id", "recap_shown")
+        .order_by("id")  # avoid default ordering on missing created_at
         .first()
     )
     if not session or not usage:
