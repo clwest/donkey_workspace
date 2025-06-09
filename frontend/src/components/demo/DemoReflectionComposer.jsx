@@ -27,6 +27,7 @@ export default function DemoReflectionComposer({ slug, sessionId, show, onClose 
   };
 
   return (
+
     <CommonModal
       show={show}
       onClose={onClose}
@@ -60,5 +61,6 @@ export default function DemoReflectionComposer({ slug, sessionId, show, onClose 
       show={showWizard}
       onClose={() => setShowWizard(false)}
     />
+
   );
 }
