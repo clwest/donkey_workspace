@@ -2341,6 +2341,47 @@ def assistant_summary(request, slug):
     return Response(serializer.data)
 
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def assistant_trust_profile(request, slug):
+    """Return trust and signal metrics for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    from assistants.serializers import AssistantOverviewSerializer
+    from assistants.models.assistant import AssistantDriftRefinementLog
+    from assistants.models.reflection import AssistantReflectionLog
+    from memory.models import RAGGroundingLog
+
+    overview = AssistantOverviewSerializer(assistant).data
+
+    last_reflection = (
+        AssistantReflectionLog.objects.filter(assistant=assistant)
+        .order_by("-created_at")
+        .values_list("created_at", flat=True)
+        .first()
+    )
+
+    drift_fix_count = AssistantDriftRefinementLog.objects.filter(assistant=assistant).count()
+
+    logs = RAGGroundingLog.objects.filter(assistant=assistant).values(
+        "glossary_hits",
+        "glossary_misses",
+    )
+    hits = 0
+    misses = 0
+    for row in logs:
+        hits += len(row.get("glossary_hits") or [])
+        misses += len(row.get("glossary_misses") or [])
+    ratio = hits / (hits + misses) if (hits + misses) else 0.0
+
+    data = {
+        **overview,
+        "last_reflection": last_reflection,
+        "drift_fix_count": drift_fix_count,
+        "glossary_hit_ratio": round(ratio, 2),
+    }
+    return Response(data)
+
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def create_primary_assistant_view(request):
