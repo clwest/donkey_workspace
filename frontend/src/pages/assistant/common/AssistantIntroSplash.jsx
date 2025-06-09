@@ -5,6 +5,7 @@ import { assignPrimaryAssistant } from "../../../api/assistants";
 import AssistantBadgeIcon from "../../../components/assistant/AssistantBadgeIcon";
 import AssistantOriginPanel from "../../../components/assistant/AssistantOriginPanel";
 import AssistantPersonalizationPrompt from "../../../components/assistant/AssistantPersonalizationPrompt";
+import DemoOverlayPanel from "../../../components/demo/DemoOverlayPanel";
 import "../../../components/assistant/styles/AssistantIntroSplash.css";
 
 export default function AssistantIntroSplash() {
@@ -16,6 +17,7 @@ export default function AssistantIntroSplash() {
   const [detail, setDetail] = useState(null);
   const [showPersonalize, setShowPersonalize] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false);
   const starter = location.state?.starter;
 
   useEffect(() => {
@@ -127,6 +129,14 @@ export default function AssistantIntroSplash() {
         <button className="btn btn-outline-primary" onClick={handleContinue}>
           View Trail
         </button>
+        {data.demo_origin && (
+          <button
+            className="btn btn-outline-info ms-2"
+            onClick={() => setShowOverlay((v) => !v)}
+          >
+            {showOverlay ? "Hide Recap" : "View Demo Recap"}
+          </button>
+        )}
       </div>
       {detail && (
         <AssistantPersonalizationPrompt
@@ -135,6 +145,11 @@ export default function AssistantIntroSplash() {
           onClose={() => setShowPersonalize(false)}
           onSaved={handleSaved}
         />
+      )}
+      {showOverlay && (
+        <div className="mt-4">
+          <DemoOverlayPanel slug={slug} sessionId={location.state?.demo_session_id} />
+        </div>
       )}
     </div>
   );

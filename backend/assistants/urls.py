@@ -390,6 +390,11 @@ urlpatterns = [
         name="demo_recap",
     ),
     path(
+        "<slug:slug>/demo_overlay/",
+        demo.demo_reflection_overlay,
+        name="demo_reflection_overlay",
+    ),
+    path(
         "demo_comparison/",
         assistants.demo_comparison,
         name="demo_comparison",

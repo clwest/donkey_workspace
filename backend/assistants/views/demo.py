@@ -14,8 +14,14 @@ from assistants.models import (
     DemoUsageLog,
     ChatSession,
     AssistantChatMessage,
+    AssistantReflectionLog,
 )
-from memory.models import MemoryEntry
+from memory.models import (
+    MemoryEntry,
+    AnchorReinforcementLog,
+    ReflectionReplayLog,
+)
+from django.utils import timezone
 
 from assistants.demo_config import DEMO_TIPS
 from assistants.helpers.demo_utils import (
@@ -212,6 +218,80 @@ def demo_success_view(request):
             }
         )
     return Response(results)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def demo_reflection_overlay(request, slug):
+    """Return reflection overlay details for a demo session."""
+    session_id = request.query_params.get("session_id")
+    if not session_id:
+        return Response({"error": "session_id required"}, status=400)
+
+    try:
+        session_uuid = str(uuid.UUID(str(session_id)))
+    except Exception:
+        return Response({"error": "invalid"}, status=400)
+
+    assistant = get_object_or_404(Assistant, slug=slug)
+    session = DemoSessionLog.objects.filter(session_id=session_uuid, assistant=assistant).first()
+    start = session.started_at if session else None
+    end = session.ended_at or timezone.now() if session else timezone.now()
+
+    usage, _ = DemoUsageLog.objects.get_or_create(
+        session_id=session_uuid, defaults={"demo_slug": assistant.demo_slug}
+    )
+
+    reflection = usage.reflection
+    if not reflection:
+        qs = AssistantReflectionLog.objects.filter(
+            assistant=assistant, demo_reflection=True
+        )
+        if start:
+            qs = qs.filter(created_at__gte=start)
+        reflection = qs.order_by("created_at").first()
+        if reflection:
+            usage.reflection = reflection
+            usage.save(update_fields=["reflection"])
+
+    anchors = AnchorReinforcementLog.objects.filter(
+        assistant=assistant,
+    )
+    if start:
+        anchors = anchors.filter(created_at__gte=start)
+    if end:
+        anchors = anchors.filter(created_at__lte=end)
+    anchor_data = [
+        {"label": a.anchor.label, "slug": a.anchor.slug}
+        for a in anchors.select_related("anchor")
+    ]
+
+    mems = (
+        MemoryEntry.objects.filter(assistant=assistant, session_id=session_uuid)
+        .prefetch_related("tags")
+    )
+    tag_slugs = {t.slug for m in mems for t in m.tags.all()}
+    tags = [{"slug": s} for s in sorted(tag_slugs)]
+
+    drifts = ReflectionReplayLog.objects.filter(
+        assistant=assistant,
+        created_at__gte=start if start else None,
+        created_at__lte=end,
+    )
+    drift_logs = [
+        {"id": str(d.id), "reason": d.drift_reason or ""} for d in drifts
+    ]
+
+    snippet = reflection.summary[:200] if reflection else ""
+
+    return Response(
+        {
+            "anchors": anchor_data,
+            "tags": tags,
+            "drift_logs": drift_logs,
+            "reflection_snippet": snippet,
+        }
+    )
 
 
 @api_view(["POST"])
