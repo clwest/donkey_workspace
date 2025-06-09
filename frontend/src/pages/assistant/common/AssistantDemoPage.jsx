@@ -4,6 +4,7 @@ import HintBubble from "../../../components/HintBubble";
 import useAssistantHints from "../../../hooks/useAssistantHints";
 import apiFetch from "../../../utils/apiClient";
 import AssistantCard from "../../../components/assistant/AssistantCard";
+import { resetDemoSession } from "../../../api/assistants";
 import { toast } from "react-toastify";
 import DemoAssistantShowcase from "../../../components/demo/DemoAssistantShowcase";
 import DemoSuccessCarousel from "../../../components/demo/DemoSuccessCarousel";
@@ -17,6 +18,8 @@ export default function AssistantDemoPage() {
   const topDemos = (successes || []).slice(0, 3);
   const [loadingAssistants, setLoadingAssistants] = useState(true);
   const [resetting, setResetting] = useState(false);
+  const [sessionResetting, setSessionResetting] = useState(false);
+  const [fullReset, setFullReset] = useState(false);
   const { hints, dismissHint } = useAssistantHints("demo");
   const [showBanner, setShowBanner] = useState(
     () => localStorage.getItem("demo_banner_seen") !== "1",
@@ -35,6 +38,20 @@ export default function AssistantDemoPage() {
   const dismissWelcome = () => {
     localStorage.setItem("demo_welcome_dismiss", "1");
     setShowWelcome(false);
+  };
+
+  const handleSessionReset = async () => {
+    setSessionResetting(true);
+    try {
+      await resetDemoSession(demoSessionId, fullReset);
+      localStorage.removeItem("demo_session_id");
+      toast.info("Demo session reset. You can now try a fresh assistant.");
+      window.location.reload();
+    } catch (err) {
+      toast.error("Failed to reset demo session");
+    } finally {
+      setSessionResetting(false);
+    }
   };
 
   useEffect(() => {
@@ -83,6 +100,36 @@ export default function AssistantDemoPage() {
   return (
     <div className="container py-5 position-relative">
       <h1 className="mb-4">🧪 AI Assistant Demos</h1>
+      <div className="mb-3 d-flex align-items-center gap-2">
+        <button
+          className="btn btn-outline-secondary btn-sm"
+          onClick={handleSessionReset}
+          disabled={sessionResetting}
+        >
+          {sessionResetting ? (
+            <span className="spinner-border spinner-border-sm" />
+          ) : (
+            "Reset My Demo"
+          )}
+        </button>
+        {import.meta.env.DEV && (
+          <div className="form-check form-switch">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id="full-reset-toggle"
+              checked={fullReset}
+              onChange={(e) => setFullReset(e.target.checked)}
+            />
+            <label
+              className="form-check-label small"
+              htmlFor="full-reset-toggle"
+            >
+              Full Reset
+            </label>
+          </div>
+        )}
+      </div>
       {import.meta.env.DEV && (
         <button
           className="btn btn-warning btn-sm mb-3"
@@ -112,9 +159,7 @@ export default function AssistantDemoPage() {
         </button>
       )}
       <DemoAssistantShowcase assistants={featured} />
-      {successes && (
-        <DemoSuccessCarousel assistants={topDemos} />
-      )}
+      {successes && <DemoSuccessCarousel assistants={topDemos} />}
       {assistants.length > 1 && (
         <div className="mb-3 text-end d-flex justify-content-end gap-2">
           <Link
@@ -166,11 +211,12 @@ export default function AssistantDemoPage() {
                   🏆 Featured
                 </span>
               )}
-              {!assistant.is_featured && assistant.metrics?.conversion_rate > 0.25 && (
-                <span className="badge bg-danger position-absolute top-0 start-0">
-                  🔥 Trending
-                </span>
-              )}
+              {!assistant.is_featured &&
+                assistant.metrics?.conversion_rate > 0.25 && (
+                  <span className="badge bg-danger position-absolute top-0 start-0">
+                    🔥 Trending
+                  </span>
+                )}
               <div className="card-body">
                 <div className="d-flex align-items-center mb-3">
                   {assistant.avatar ? (
@@ -199,7 +245,8 @@ export default function AssistantDemoPage() {
                 </p>
                 {assistant.metrics && (
                   <div className="small text-muted mb-1">
-                    💬 {assistant.metrics.avg_messages?.toFixed(1)} chats/session
+                    💬 {assistant.metrics.avg_messages?.toFixed(1)}{" "}
+                    chats/session
                   </div>
                 )}
                 {assistant.specialty && (
@@ -258,7 +305,10 @@ export default function AssistantDemoPage() {
             <div className="row">
               {successes.map((s) => (
                 <div key={s.slug} className="col-md-4 mb-3">
-                  <AssistantCard assistant={s} chatLink={`/assistants/${s.slug}/chat`} />
+                  <AssistantCard
+                    assistant={s}
+                    chatLink={`/assistants/${s.slug}/chat`}
+                  />
                 </div>
               ))}
             </div>

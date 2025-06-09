@@ -3,13 +3,10 @@ import { ASSISTANTS_API } from "../config/api";
 import apiFetch from "../utils/apiClient";
 
 export async function generateAssistantThought(slug) {
-  const res = await apiFetch(
-    `${ASSISTANTS_API}/${slug}/log_thought/`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-    },
-  );
+  const res = await apiFetch(`${ASSISTANTS_API}/${slug}/log_thought/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  });
 
   if (!res.ok) {
     throw new Error("Failed to generate thought.");
@@ -19,14 +16,11 @@ export async function generateAssistantThought(slug) {
 }
 
 export async function mutateThought(id, style = "clarify") {
-  const res = await apiFetch(
-    `${ASSISTANTS_API}/thoughts/${id}/mutate/`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ style }),
-    },
-  );
+  const res = await apiFetch(`${ASSISTANTS_API}/thoughts/${id}/mutate/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ style }),
+  });
 
   if (!res.ok) {
     throw new Error("Failed to mutate thought");
@@ -35,15 +29,12 @@ export async function mutateThought(id, style = "clarify") {
   return res.json();
 }
 export async function planProjectFromMemory(slug, body) {
-  const res = await apiFetch(
-    `${ASSISTANTS_API}/${slug}/memory-to-project/`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      credentials: "include",
-    },
-  );
+  const res = await apiFetch(`${ASSISTANTS_API}/${slug}/memory-to-project/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    credentials: "include",
+  });
   if (!res.ok) {
     throw new Error("Failed to plan project");
   }
@@ -51,15 +42,12 @@ export async function planProjectFromMemory(slug, body) {
 }
 
 export async function suggestDelegation(slug, body) {
-  const res = await apiFetch(
-    `${ASSISTANTS_API}/${slug}/suggest-delegation/`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      credentials: "include",
-    },
-  );
+  const res = await apiFetch(`${ASSISTANTS_API}/${slug}/suggest-delegation/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    credentials: "include",
+  });
   if (!res.ok) {
     throw new Error("Failed to get recommendation");
   }
@@ -80,15 +68,12 @@ export async function suggestAssistant(body) {
 }
 
 export async function clarifyPrompt(slug, text) {
-  const res = await apiFetch(
-    `${ASSISTANTS_API}/${slug}/clarify_prompt/`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text }),
-      credentials: "include",
-    },
-  );
+  const res = await apiFetch(`${ASSISTANTS_API}/${slug}/clarify_prompt/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+    credentials: "include",
+  });
   if (!res.ok) {
     throw new Error("Failed to clarify prompt");
   }
@@ -96,9 +81,7 @@ export async function clarifyPrompt(slug, text) {
 }
 
 export async function fetchFailureLog(slug) {
-  const res = await apiFetch(
-    `${ASSISTANTS_API}/${slug}/failure_log/`,
-  );
+  const res = await apiFetch(`${ASSISTANTS_API}/${slug}/failure_log/`);
   if (!res.ok) {
     throw new Error("Failed to load failure log");
   }
@@ -106,30 +89,23 @@ export async function fetchFailureLog(slug) {
 }
 
 export async function runDriftCheck(slug) {
-  const res = await apiFetch(
-    `${ASSISTANTS_API}/${slug}/drift-check/`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-    },
-  );
+  const res = await apiFetch(`${ASSISTANTS_API}/${slug}/drift-check/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+  });
   if (!res.ok) {
     throw new Error("Failed to run drift check");
   }
   return res.json();
 }
 
-
 export async function runSelfAssessment(slug) {
-  const res = await apiFetch(
-    `${ASSISTANTS_API}/${slug}/self-assess/`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-    },
-  );
+  const res = await apiFetch(`${ASSISTANTS_API}/${slug}/self-assess/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+  });
   if (!res.ok) {
     throw new Error("Failed to run self assessment");
   }
@@ -137,14 +113,11 @@ export async function runSelfAssessment(slug) {
 }
 
 export async function recoverAssistant(slug) {
-  const res = await apiFetch(
-    `${ASSISTANTS_API}/${slug}/recover/`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-    },
-  );
+  const res = await apiFetch(`${ASSISTANTS_API}/${slug}/recover/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+  });
   if (!res.ok) {
     throw new Error("Failed to run recovery");
   }
@@ -152,15 +125,12 @@ export async function recoverAssistant(slug) {
 }
 
 export async function regeneratePlan(slug, body = {}) {
-  const res = await apiFetch(
-    `${ASSISTANTS_API}/${slug}/regenerate_plan/`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      credentials: "include",
-    },
-  );
+  const res = await apiFetch(`${ASSISTANTS_API}/${slug}/regenerate_plan/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    credentials: "include",
+  });
   if (!res.ok) {
     throw new Error("Failed to regenerate plan");
   }
@@ -183,15 +153,12 @@ export async function summarizeDelegations(slug) {
 }
 
 export async function suggestSwitch(sessionId) {
-  const res = await apiFetch(
-    `${ASSISTANTS_API}/suggest_switch/`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ session_id: sessionId }),
-      credentials: "include",
-    },
-  );
+  const res = await apiFetch(`${ASSISTANTS_API}/suggest_switch/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ session_id: sessionId }),
+    credentials: "include",
+  });
   if (!res.ok) {
     throw new Error("Failed to get switch suggestion");
   }
@@ -236,15 +203,12 @@ export async function evaluateCollaboration(slug, body) {
 }
 
 export async function evaluateContinuity(slug, body = {}) {
-  const res = await apiFetch(
-    `${ASSISTANTS_API}/${slug}/evaluate-continuity/`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      credentials: "include",
-    },
-  );
+  const res = await apiFetch(`${ASSISTANTS_API}/${slug}/evaluate-continuity/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    credentials: "include",
+  });
   if (!res.ok) {
     throw new Error("Failed to evaluate continuity");
   }
@@ -272,15 +236,12 @@ export async function fetchCollaborationProfile(slug) {
 }
 
 export async function planFromThread(slug, body) {
-  const res = await apiFetch(
-    `${ASSISTANTS_API}/${slug}/plan-from-thread/`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      credentials: "include",
-    },
-  );
+  const res = await apiFetch(`${ASSISTANTS_API}/${slug}/plan-from-thread/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    credentials: "include",
+  });
   if (!res.ok) {
     throw new Error("Failed to generate plan");
   }
@@ -288,15 +249,12 @@ export async function planFromThread(slug, body) {
 }
 
 export async function assignTrainingDocuments(slug, agentId, documentIds) {
-  const res = await apiFetch(
-    `${ASSISTANTS_API}/${slug}/assign-training/`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ agent_id: agentId, document_ids: documentIds }),
-      credentials: "include",
-    },
-  );
+  const res = await apiFetch(`${ASSISTANTS_API}/${slug}/assign-training/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ agent_id: agentId, document_ids: documentIds }),
+    credentials: "include",
+  });
   if (!res.ok) {
     throw new Error("Failed to assign training");
   }
@@ -382,7 +340,7 @@ export async function createAssistantFromDocuments(body, opts = {}) {
   const { userInitiated = false } = opts;
   if (!userInitiated) {
     console.warn(
-      "createAssistantFromDocuments ignored – call missing userInitiated flag"
+      "createAssistantFromDocuments ignored – call missing userInitiated flag",
     );
     return null;
   }
@@ -504,7 +462,9 @@ export async function fetchRagDiagnostics(slug) {
 }
 
 export async function fetchDriftSuggestions(slug, params) {
-  const res = await apiFetch(`/assistants/${slug}/drift_suggestions/`, { params });
+  const res = await apiFetch(`/assistants/${slug}/drift_suggestions/`, {
+    params,
+  });
   return res.results || res;
 }
 
@@ -530,3 +490,11 @@ export async function sendDemoFeedback(sessionId, feedbackText, rating) {
   });
 }
 
+export async function resetDemoSession(sessionId, fullReset = false) {
+  return apiFetch(`/assistants/demo_session/reset/`, {
+    method: "POST",
+    allowUnauthenticated: true,
+    params: fullReset ? { full_reset: true } : undefined,
+    body: { session_id: sessionId },
+  });
+}

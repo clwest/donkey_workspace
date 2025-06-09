@@ -212,3 +212,46 @@ def demo_success_view(request):
             }
         )
     return Response(results)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def reset_demo_session(request):
+    """Clear a demo chat session and related logs."""
+    session_id = request.data.get("session_id")
+    if not session_id:
+        return Response({"error": "session_id required"}, status=400)
+
+    full_reset = request.GET.get("full_reset") == "true"
+    session = DemoSessionLog.objects.filter(session_id=session_id).first()
+    assistant = session.assistant if session else None
+    DemoSessionLog.objects.filter(session_id=session_id).delete()
+
+    if full_reset:
+        DemoUsageLog.objects.filter(session_id=session_id).delete()
+        try:
+            from assistants.models.demo_feedback import DemoFeedbackLog
+
+            DemoFeedbackLog.objects.filter(session_id=session_id).delete()
+        except Exception:
+            pass
+        try:
+            from assistants.models.reflection import AssistantReflectionLog
+
+            if assistant:
+                AssistantReflectionLog.objects.filter(
+                    assistant=assistant, demo_reflection=True
+                ).delete()
+        except Exception:
+            pass
+
+    if assistant:
+        from assistants.helpers.logging_helper import log_trail_marker
+
+        log_trail_marker(assistant, "demo_session_reset")
+
+    if getattr(request.user, "demo_session_id", None):
+        request.user.demo_session_id = None
+        request.user.save(update_fields=["demo_session_id"])
+
+    return Response({"status": "reset"})
