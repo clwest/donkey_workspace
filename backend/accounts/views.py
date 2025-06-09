@@ -103,7 +103,14 @@ def me_summary(request):
 def user_info(request):
     """Return onboarding and assistant details for the authenticated user."""
     if not request.user.is_authenticated:
-        return Response({"authenticated": False})
+        return Response(
+            {
+                "authenticated": False,
+                "assistant_count": 0,
+                "has_assistants": False,
+                "onboarding_complete": False,
+            }
+        )
     assistants = Assistant.objects.filter(created_by=request.user)
     assistant_count = assistants.count()
     glossary_score = assistants.aggregate(avg=Avg("glossary_score"))[

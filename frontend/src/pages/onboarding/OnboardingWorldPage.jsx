@@ -22,13 +22,19 @@ export default function OnboardingWorldPage() {
     useOnboardingTracker(theme);
 
   const userInfo = useUserInfo();
+  if (!userInfo) {
+    console.warn(
+      "User info not loaded — skipping assistant count fallback."
+    );
+  }
+  const count = userInfo?.assistant_count ?? 0;
 
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!onboardingComplete) return;
     const id = setTimeout(() => {
-      if (userInfo.assistant_count > 0) {
+      if (count > 0) {
         navigate("/home", { replace: true });
       } else {
         navigate("/assistants/create", { replace: true });
