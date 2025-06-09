@@ -34,6 +34,7 @@ import GlossaryOverlayTooltip from "../../../components/GlossaryOverlayTooltip";
 
 import DemoTipsSidebar from "../../../components/demo/DemoTipsSidebar";
 import DemoRecapModal from "../../../components/demo/DemoRecapModal";
+import DemoFeedbackModal from "../../../components/demo/DemoFeedbackModal";
 
 export default function ChatWithAssistantPage() {
   const { slug } = useParams();

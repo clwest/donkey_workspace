@@ -384,6 +384,11 @@ urlpatterns = [
         name="run_check_demo_seed",
     ),
     path("demo_success/", demo.demo_success_view, name="demo_success"),
+    path(
+        "demo_comparison/",
+        assistants.demo_comparison,
+        name="demo_comparison",
+    ),
     
     # Sessions
     path("sessions/list/", sessions.list_chat_sessions, name="chat_session_list"),
