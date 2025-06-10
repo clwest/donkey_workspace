@@ -5,6 +5,7 @@ import HintBubble from "../../components/HintBubble";
 import useAssistantHints from "../../hooks/useAssistantHints";
 import TourProgressBar from "../../components/onboarding/TourProgressBar";
 import useAuthGuard from "../../hooks/useAuthGuard";
+import BackToAssistantButton from "../../components/assistant/BackToAssistantButton";
 
 export default function GlossaryConvergencePage() {
   useAuthGuard();
@@ -23,12 +24,16 @@ export default function GlossaryConvergencePage() {
       if (query) params.set("q", query);
       if (orderBy) params.set("order_by", orderBy);
       const data = await apiFetch(
-        `/assistants/${slug}/glossary/convergence/?${params.toString()}`
+        `/assistants/${slug}/glossary/convergence/?${params.toString()}`,
       );
       const anchors = data.anchor_stats || [];
       setRows(anchors);
-      const reviewed = anchors.filter((a) => a.mutation_status !== "pending").length;
-      const applied = anchors.filter((a) => a.mutation_status === "applied").length;
+      const reviewed = anchors.filter(
+        (a) => a.mutation_status !== "pending",
+      ).length;
+      const applied = anchors.filter(
+        (a) => a.mutation_status === "applied",
+      ).length;
       setSummary({ applied, reviewed });
     } catch (err) {
       console.error("Failed to load convergence", err);
@@ -44,6 +49,7 @@ export default function GlossaryConvergencePage() {
 
   return (
     <div className="container my-5">
+      <BackToAssistantButton slug={slug} />
       <h2 className="mb-3">Glossary Convergence</h2>
       <TourProgressBar assistantSlug={slug} />
       <div className="mb-2 d-flex gap-2">
@@ -78,7 +84,11 @@ export default function GlossaryConvergencePage() {
           🧪 Review Mutation Suggestions
         </Link>
       </div>
-      <button className="btn btn-outline-primary mb-3" onClick={load} disabled={loading}>
+      <button
+        className="btn btn-outline-primary mb-3"
+        onClick={load}
+        disabled={loading}
+      >
         {loading ? "Refreshing..." : "Refresh"}
       </button>
       <div className="mb-2">
@@ -102,7 +112,10 @@ export default function GlossaryConvergencePage() {
               <td
                 dangerouslySetInnerHTML={{
                   __html: query
-                    ? r.label.replace(new RegExp(`(${query})`, 'i'), '<b>$1</b>')
+                    ? r.label.replace(
+                        new RegExp(`(${query})`, "i"),
+                        "<b>$1</b>",
+                      )
                     : r.label,
                 }}
               />

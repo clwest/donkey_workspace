@@ -1,4 +1,5 @@
 # 🧠 Donkey Workspace
+[![CI](https://github.com/mythos-ai/donkey_workspace/actions/workflows/ci.yml/badge.svg)](https://github.com/mythos-ai/donkey_workspace/actions/workflows/ci.yml)
 
 This is the unified monorepo powering the Donkey AI ecosystem — a collection of intelligent assistants, modular tools, and memory-aware agents designed to help users think, plan, and build.
 
@@ -157,8 +158,23 @@ cd frontend
 npm install
 npm run dev
 ```
+
+### Creating an Assistant
+
 Navigate to `/assistants/onboarding` to create your first assistant using the
-guided specialty selector.
+guided specialty selector. For API examples—including how to personalize a demo—
+see [docs/api_overview.md#creating-an-assistant](docs/api_overview.md#creating-an-assistant).
+
+### Docker & Local Dev
+
+Run the full stack with Docker:
+
+```bash
+docker-compose up --build
+```
+
+Backend logs stream to the console at port 8000 while the frontend is served on
+port 5173.
 
 ### Demo Assistant Flows
 
@@ -200,6 +216,16 @@ Run the simple benchmark script to measure API latency. Results are saved to
 ```bash
 ./scripts/benchmark_endpoints.sh
 ```
+### Monitoring & Alerts
+
+Errors are sent to Sentry when `SENTRY_DSN` is provided. Prometheus metrics are
+available at `/metrics/`. Import `docs/grafana_dashboard.json` into Grafana for
+basic request and error charts.
+
+### CI/CD
+
+GitHub Actions workflows in `.github/workflows` run tests and deploy the Docker
+images to the staging environment. See [docs/ci-cd.md](docs/ci-cd.md) for details.
 ### API Environment
 
 Prompts are served at `/api/prompts/`. Set `VITE_API_URL` to your backend's `/api` base (e.g., `http://localhost:8000/api`) without a `/v1` suffix unless the backend routes change.
