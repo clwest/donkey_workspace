@@ -45,10 +45,20 @@ export default function ChatWithAssistantPage() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const starter =
-    searchParams.get("starter") || searchParams.get("starter_query");
+  const starterQuery = searchParams.get("starter_query");
+  const injectStarter = searchParams.get("inject_starter");
+  const starter = searchParams.get("starter") || starterQuery;
   const variant = searchParams.get("variant");
   const debugMode = searchParams.get("debug") === "1";
+
+  useEffect(() => {
+    if (injectStarter !== null) {
+      console.log("URL param inject_starter:", injectStarter);
+    }
+    if (starterQuery !== null) {
+      console.log("URL param starter_query:", starterQuery);
+    }
+  }, [injectStarter, starterQuery]);
   const [messages, setMessages] = useState([]);
   const [assistantInfo, setAssistantInfo] = useState(null);
   const [input, setInput] = useState("");
@@ -148,6 +158,12 @@ export default function ChatWithAssistantPage() {
   });
 
   useEffect(() => {
+    if (identityLoaded) {
+      console.log("Identity loaded:", identity);
+    }
+  }, [identityLoaded, identity]);
+
+  useEffect(() => {
     if (assistantInfo && !identity && assistantInfo.is_demo) {
       toast.error("Demo identity unavailable");
     }
@@ -184,6 +200,7 @@ export default function ChatWithAssistantPage() {
         });
 
         if (data.starter_memory) {
+          console.log("Received starter memory:", data.starter_memory);
           setStarterMemory(data.starter_memory.map((m) => ({ ...m, preseeded: true })));
         }
         if (data.demo_intro_message) {
@@ -191,6 +208,7 @@ export default function ChatWithAssistantPage() {
         }
         let msgs = data.messages || [];
         if (starter && msgs.length === 0 && !starterSentRef.current) {
+          console.log("Injecting starter message:", starter);
           const demoData = await apiFetch(`/assistants/${slug}/chat/`, {
             method: "POST",
             body: {
@@ -441,7 +459,10 @@ export default function ChatWithAssistantPage() {
             AVATAR_EMOJI[assistantInfo?.avatar_style] ||
             "🤖"}
         </span>
-        {identity?.name || slug}
+        {identity?.display_name ||
+          identity?.persona_name ||
+          identity?.name ||
+          slug}
         {assistantInfo?.is_demo && (
           <span
             className="badge bg-info text-dark ms-2"

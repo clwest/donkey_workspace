@@ -1057,6 +1057,9 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             terms.update(log.glossary_terms or [])
         return len(terms)
 
+    def get_display_name(self, obj):
+        return getattr(obj, "display_name", None) or obj.name
+
 
 
     def get_glossary_health_index(self, obj):
@@ -1428,6 +1431,9 @@ class AssistantRelayMessageSerializer(serializers.ModelSerializer):
 
 
 class AssistantSerializer(serializers.ModelSerializer):
+    display_name = serializers.SerializerMethodField()
+    persona_name = serializers.CharField(read_only=True, required=False)
+    avatar = serializers.CharField(read_only=True)
     current_project = ProjectOverviewSerializer(read_only=True)
     trust = serializers.SerializerMethodField()
     delegation_events_count = serializers.SerializerMethodField()
@@ -1471,6 +1477,9 @@ class AssistantSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
+            "display_name",
+            "persona_name",
+            "avatar",
             "slug",
             "demo_slug",
             "archetype_path",
@@ -1858,6 +1867,34 @@ class AssistantIntroSerializer(serializers.ModelSerializer):
 
     def get_is_cloned_from_demo(self, obj):
         return bool(obj.spawned_by and obj.spawned_by.is_demo)
+
+
+class AssistantIdentitySummarySerializer(serializers.ModelSerializer):
+    """Lightweight identity summary for quick lookups."""
+
+    display_name = serializers.SerializerMethodField()
+    persona_name = serializers.CharField(read_only=True, required=False)
+    avatar = serializers.CharField(read_only=True)
+    persona = serializers.CharField(source="persona_summary", read_only=True)
+    badges = serializers.ListField(
+        source="skill_badges", child=serializers.CharField(), read_only=True
+    )
+
+    class Meta:
+        model = Assistant
+        fields = [
+            "display_name",
+            "persona_name",
+            "avatar",
+            "tone",
+            "persona",
+            "motto",
+            "badges",
+            "glossary_score",
+        ]
+
+    def get_display_name(self, obj):
+        return getattr(obj, "display_name", None) or obj.name
 
 
 class AssistantPreviewSerializer(serializers.ModelSerializer):
