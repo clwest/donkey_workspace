@@ -22,7 +22,7 @@ class AssistantReflectionLog(models.Model):
     )
 
     title = models.CharField(max_length=255)
-    summary = models.TextField()
+    summary = models.TextField(default="", blank=True, null=False)
     raw_prompt = models.TextField(null=True, blank=True)
     llm_summary = models.TextField(null=True, blank=True)
     insights = models.TextField(null=True, blank=True)
