@@ -29,6 +29,7 @@ from .demo import (
     compose_demo_reflection_view,
     demo_drift_diagnosis,
 )
+from .demo_recap import assistant_demo_recap
 from .assistants import refine_from_drift
 from .setup import AssistantSetupSummaryView
 from .intro import AssistantIntroView
@@ -336,6 +337,7 @@ __all__ = [
     "reset_demo_assistant",
     "demo_leaderboard",
     "demo_recap",
+    "assistant_demo_recap",
     "demo_success_view",
     "replay_demo_boost",
     "compose_demo_reflection_view",
