@@ -10,6 +10,14 @@ from sentry_sdk.integrations.django import DjangoIntegration
 
 # === ⚙️ Load Environment ===
 load_dotenv()
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+sentry_sdk.init(
+    dsn=os.getenv("SENTRY_DSN", ""),
+    integrations=[DjangoIntegration()],
+    traces_sample_rate=float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", "0.0")),
+    send_default_pii=True,
+)
 BASE_DIR = Path(__file__).resolve().parent.parent
 PROMPTS_ROOT = BASE_DIR / "prompt_sets"
 
@@ -99,6 +107,7 @@ MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
     "mcp_core.middleware.APIVersionDeprecationMiddleware",
     "assistants.middleware.ReflectionCascadeMiddleware",
+    "metrics.prometheus.MetricsMiddleware",
 ]
 
 # === 🧠 Templates ===

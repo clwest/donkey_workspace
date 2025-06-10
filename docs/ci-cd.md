@@ -1,9 +1,12 @@
-# CI/CD Pipeline
+
+# CI/CD
 
 Two GitHub Actions workflows automate testing and deployment.
 
-- `ci.yml` runs linting, migrations, and tests for backend and frontend.
-- `deploy.yml` builds Docker images, pushes them to the registry, and deploys the
-  staging stack.
+- **ci.yml** — runs linting, migrations and tests for both backend and frontend
+  on every PR.
+- **deploy.yml** — builds Docker images, pushes them to GHCR and triggers a
+  staging deployment via SSH.
 
-Workflows live under `.github/workflows/`.
+Badges can be found in the project README.
+

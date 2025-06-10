@@ -13,6 +13,7 @@ from .views import (
     SwarmTaskEvolutionView,
 )
 from .views.system import SystemSummaryView
+from . import prometheus
 
 urlpatterns = [
     path(
@@ -64,5 +65,10 @@ urlpatterns = [
         "system/summary/",
         SystemSummaryView.as_view(),
         name="system-summary",
+    ),
+    path(
+        "prometheus/",
+        prometheus.metrics_view,
+        name="prometheus-metrics",
     ),
 ]

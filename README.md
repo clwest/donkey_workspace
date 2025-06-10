@@ -1,5 +1,7 @@
 # 🧠 Donkey Workspace
-[![CI](https://github.com/mythos-ai/donkey_workspace/actions/workflows/ci.yml/badge.svg)](https://github.com/mythos-ai/donkey_workspace/actions/workflows/ci.yml)
+
+[![CI](https://github.com/example/donkey_workspace/actions/workflows/ci.yml/badge.svg)](https://github.com/example/donkey_workspace/actions/workflows/ci.yml)
+
 
 This is the unified monorepo powering the Donkey AI ecosystem — a collection of intelligent assistants, modular tools, and memory-aware agents designed to help users think, plan, and build.
 
@@ -176,6 +178,17 @@ docker-compose up --build
 Backend logs stream to the console at port 8000 while the frontend is served on
 port 5173.
 
+### Docker & Local Dev
+
+Spin up the full stack with Docker:
+
+```bash
+docker-compose up --build
+```
+
+The API runs at `http://localhost:8000` and the Vite dev server at
+`http://localhost:5173`.
+
 ### Demo Assistant Flows
 
 Seed demo data and explore recap, overlay, and replay routes:
@@ -289,6 +302,11 @@ and `SwarmCodificationPattern`.
 - [Demo Slide Deck](docs/slides.md)
 - [Release Notes](docs/RELEASE_NOTES.md)
 - [Demo Script](docs/DEMO_SCRIPT.md)
+
+### Monitoring & Alerts
+Sentry errors are reported using the DSN in `.env`. Prometheus metrics are
+exposed at `/metrics/` for Grafana dashboards.
+CI and deployment pipelines are documented in [docs/ci-cd.md](docs/ci-cd.md).
 
 
 - Other domain docs are under `backend/docs/` and `frontend/docs/`.

@@ -1,13 +1,18 @@
 # Infrastructure as Code
 
-This folder contains a Terraform stub for the staging environment.
 
-## Usage
+This folder contains a minimal Terraform configuration for the staging stack.
 
 ```bash
-cd infra/terraform
+cd infra
 terraform init
-terraform plan -var-file=staging.tfvars
+terraform plan -var-file=terraform.tfvars
 ```
 
-Define variables like database credentials and Sentry DSN in `staging.tfvars`.
+Resources created:
+- VPC and ECS cluster
+- Postgres RDS instance
+- Redis ElastiCache cluster
+
+Fill in values in `terraform.tfvars` before applying.
+

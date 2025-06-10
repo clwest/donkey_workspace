@@ -3,13 +3,12 @@ name: Deploy
 on:
   push:
     branches: [main]
-    paths:
-      - 'backend/**'
-      - 'frontend/**'
-      - '.github/workflows/deploy.yml'
+
+  workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  build:
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,15 +18,31 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v5
+
+      - name: Build and push backend
+        uses: docker/build-push-action@v5
         with:
+          context: ./backend
           push: true
-          tags: |
-            ghcr.io/${{ github.repository }}/backend:latest
-            ghcr.io/${{ github.repository }}/frontend:latest
-          context: .
+          tags: ghcr.io/${{ github.repository }}/backend:latest
+      - name: Build and push frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: ghcr.io/${{ github.repository }}/frontend:latest
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
       - name: Deploy to staging
-        run: |
-          ssh ${{ secrets.STAGING_HOST }} 'cd /opt/mythos && docker-compose pull && docker-compose up -d'
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.STAGING_SSH_KEY }}
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script: |
+            docker pull ghcr.io/${{ github.repository }}/backend:latest
+            docker pull ghcr.io/${{ github.repository }}/frontend:latest
+            docker-compose -f /opt/mythos/docker-compose.yml up -d
+
