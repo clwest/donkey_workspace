@@ -19,7 +19,9 @@ export default function useDemoRecap(sessionId) {
         }
       })
       .catch((err) => {
-        if (!String(err).includes("404")) {
+        if (err.status === 404 || err.status === 403) {
+          console.warn("Demo identity or recap not available");
+        } else if (!String(err).includes("404")) {
           console.error('Failed to fetch recap', err);
         }
       });

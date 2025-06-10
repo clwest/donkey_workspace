@@ -86,6 +86,16 @@ class Command(BaseCommand):
                 is_demo=True,
                 is_active=True,
             )
+            if not assistant.memory_context:
+                from mcp_core.models import MemoryContext
+
+                context = MemoryContext.objects.create(
+                    content=f"{assistant.slug}-context"
+                )
+                assistant.memory_context = context
+            if not assistant.system_prompt:
+                assistant.system_prompt = prompt
+            assistant.save()
             created_count += 1
 
             # Add badges if they exist
@@ -125,9 +135,7 @@ class Command(BaseCommand):
                         resp.status_code,
                     )
             except Exception as exc:
-                self.logger.warning(
-                    "Badge route error for %s: %s", assistant.slug, exc
-                )
+                self.logger.warning("Badge route error for %s: %s", assistant.slug, exc)
 
         if created_count == 0:
             self.stdout.write("⚠️ No demo assistants were created.")

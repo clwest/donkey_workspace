@@ -11,6 +11,7 @@ import HintBubble from "../../../components/HintBubble";
 import useAssistantHints from "../../../hooks/useAssistantHints";
 import useDemoSession from "../../../hooks/useDemoSession";
 import useDemoRecap from "../../../hooks/useDemoRecap";
+import useAssistantIdentity from "../../../hooks/useAssistantIdentity";
 import {
   suggestAssistant,
   suggestSwitch,
@@ -50,7 +51,6 @@ export default function ChatWithAssistantPage() {
   const debugMode = searchParams.get("debug") === "1";
   const [messages, setMessages] = useState([]);
   const [assistantInfo, setAssistantInfo] = useState(null);
-  const [identity, setIdentity] = useState(null);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -140,14 +140,7 @@ export default function ChatWithAssistantPage() {
       });
   }, [slug]);
 
-  useEffect(() => {
-    apiFetch(`/assistants/${slug}/identity/`)
-      .then(setIdentity)
-      .catch((err) => {
-        console.error('Failed to load identity', err);
-        setIdentity(null);
-      });
-  }, [slug]);
+  const identity = useAssistantIdentity(slug);
 
   useEffect(() => {
     if (messages.length) {
@@ -186,7 +179,7 @@ export default function ChatWithAssistantPage() {
           setDemoIntro(data.demo_intro_message);
         }
         let msgs = data.messages || [];
-        if (starter) {
+        if (starter && msgs.length === 0) {
           const demoData = await apiFetch(`/assistants/${slug}/chat/`, {
             method: "POST",
             body: {

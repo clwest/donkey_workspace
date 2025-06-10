@@ -1,6 +1,8 @@
 import os
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 import django
+
 django.setup()
 
 from assistants.tests import BaseAPITestCase
@@ -8,6 +10,7 @@ from assistants.models import Assistant
 from assistants.models.assistant import AssistantChatMessage
 from mcp_core.models import Tag
 from memory.models import MemoryEntry
+
 
 class DemoChatAPITest(BaseAPITestCase):
     def setUp(self):
@@ -27,7 +30,7 @@ class DemoChatAPITest(BaseAPITestCase):
         mem.tags.add(tag)
 
     def test_intro_and_starter_memory(self):
-        url = f"/api/v1/assistants/{self.assistant.slug}/chat/?starter_query=Hello"
+        url = f"/api/v1/assistants/{self.assistant.slug}/chat/?starter_query=Hello&inject_starter=1"
         resp = self.client.post(
             url,
             {"message": "__ping__", "session_id": "s1", "demo_session_id": "d1"},
@@ -54,7 +57,9 @@ class DemoChatAPITest(BaseAPITestCase):
         )
         self.assertEqual(AssistantChatMessage.objects.count(), 0)
         # starter memory only
-        self.assertEqual(MemoryEntry.objects.filter(assistant=self.assistant).count(), 1)
+        self.assertEqual(
+            MemoryEntry.objects.filter(assistant=self.assistant).count(), 1
+        )
 
     def test_no_starter_memory_without_param(self):
         url = f"/api/v1/assistants/{self.assistant.slug}/chat/"
@@ -66,3 +71,23 @@ class DemoChatAPITest(BaseAPITestCase):
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         self.assertEqual(data.get("starter_memory"), [])
+
+    def test_starter_injection_requires_flag(self):
+        base = f"/api/v1/assistants/{self.assistant.slug}/chat/?starter_query=Hi"
+        resp = self.client.post(
+            base,
+            {"message": "__ping__", "session_id": "s4", "demo_session_id": "d4"},
+            format="json",
+        )
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["messages"], [])
+
+        resp = self.client.post(
+            base + "&inject_starter=1",
+            {"message": "__ping__", "session_id": "s5", "demo_session_id": "d5"},
+            format="json",
+        )
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data["messages"][0]["content"], "Hi")

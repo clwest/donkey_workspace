@@ -1,6 +1,7 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework import generics, permissions
 from django.shortcuts import get_object_or_404
 
 from assistants.models.assistant import Assistant
@@ -47,19 +48,24 @@ def assistant_mythpath(request, id):
     )
 
 
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def assistant_identity_summary(request, slug):
-    """Return concise identity metadata for the assistant."""
-    assistant = get_object_or_404(Assistant, slug=slug)
+class AssistantIdentitySummaryView(generics.GenericAPIView):
+    """Return concise identity metadata for an assistant."""
 
-    permitted = True
-    if not assistant.is_demo:
-        permitted = assistant.created_by == request.user
-    if not permitted:
-        return Response({"error": "forbidden"}, status=403)
+    def get_object(self):
+        return get_object_or_404(Assistant, slug=self.kwargs["slug"])
 
-    from assistants.serializers import AssistantSerializer
+    def get_permissions(self):
+        assistant = self.get_object()
+        if assistant.is_demo:
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
 
-    serializer = AssistantSerializer(assistant, context={"request": request})
-    return Response(serializer.data.get("identity_summary"))
+    def get(self, request, slug):
+        assistant = self.get_object()
+        if not assistant.is_demo and assistant.created_by != request.user:
+            return Response({"error": "forbidden"}, status=403)
+
+        from assistants.serializers import AssistantSerializer
+
+        serializer = AssistantSerializer(assistant, context={"request": request})
+        return Response(serializer.data.get("identity_summary"))
