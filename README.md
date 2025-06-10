@@ -65,10 +65,10 @@ created and up to date.
 Once your backend is running, you can populate every model and DevDoc dataset in one command:
 
 ```bash
-bash backend/seed_all.sh
+./scripts/seed_all.sh
 ```
 
-This script runs all individual seeders and dev documentation scripts sequentially.
+This script runs all individual seeders and dev documentation scripts sequentially. It also seeds demo sessions, reflection logs, and tour completions so the demo flows work end-to-end.
 
 If you encounter a `ProgrammingError` complaining that `assistants_assistant`
 does not exist, ensure you ran `python manage.py makemigrations` before
@@ -91,10 +91,14 @@ Use the helper script to automatically run migrations before executing tests:
 
 ```bash
 ./tests/run_tests.sh
+pytest --cov
 ```
 
 Pass any additional pytest flags after the script. This ensures the database is
 fully migrated with the latest models before the test suite runs.
+
+Coverage reports are written to `htmlcov/index.html`. The combined backend and
+frontend coverage must remain above **80%**.
 
 
 ### Debugging & Logs
@@ -179,7 +183,16 @@ Example API request:
 ```bash
 curl -X POST -H "Content-Type: application/json" \
   -d '{"name": "My First Assistant", "specialty": "Friendly"}' \
-  http://localhost:8000/api/assistants/
+ http://localhost:8000/api/assistants/
+```
+
+### Performance Benchmarks
+
+Run the simple benchmark script to measure API latency. Results are saved to
+`benchmark_results.json`:
+
+```bash
+./scripts/benchmark_endpoints.sh
 ```
 ### API Environment
 

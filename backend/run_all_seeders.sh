@@ -32,6 +32,8 @@ echo '🚀 Running: seed_child_to_assistant'
 python manage.py seed_child_to_assistant
 echo '🚀 Running: seed_chat_sessions'
 python manage.py seed_chat_sessions
+echo '🚀 Running: seed_demo_sessions'
+python manage.py seed_demo_sessions
 echo '🚀 Running: seed_chain_of_thoughts'
 python manage.py seed_chain_of_thoughts
 echo '🚀 Running: seed_assistant_projects'
@@ -54,5 +56,9 @@ echo '🚀 Running: check_embedding_status'
 python manage.py check_embedding_status
 echo '🚀 Running: flush_chat_sessions'
 python manage.py flush_chat_sessions
+echo '🚀 Running: seed_reflections'
+python manage.py seed_reflections
+echo '🚀 Running: seed_tour_completions'
+python manage.py seed_tour_completions
 echo '🚀 Running: garbage_collect'
 python manage.py garbage_collect
