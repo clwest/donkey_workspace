@@ -783,6 +783,16 @@ def chat_with_assistant_view(request, slug):
     message = request.data.get("message")
     session_id = request.data.get("session_id") or str(uuid.uuid4())
     demo_session_id = request.data.get("demo_session_id")
+    logger.debug(
+        "Chat start slug=%s session=%s starter_query=%s starter_memory=%s inject_starter=%s",
+        assistant.slug,
+        session_id,
+        starter_query,
+        bool(starter_messages),
+        inject_starter,
+    )
+
+    injected = False
 
     if message == "__ping__":
         if assistant.is_demo and demo_session_id:
@@ -798,7 +808,18 @@ def chat_with_assistant_view(request, slug):
         history = load_session_messages(session_id)
         if assistant.is_demo and not history and starter_query and inject_starter:
             save_message_to_session(session_id, "user", starter_query)
+            injected = True
             history = load_session_messages(session_id)
+            logger.debug(
+                "Injected starter query into session %s", session_id
+            )
+        logger.debug(
+            "Ping response slug=%s session=%s injected=%s demo_intro=%s",
+            assistant.slug,
+            session_id,
+            injected,
+            bool(demo_intro_message),
+        )
         return Response(
             {
                 "messages": history,
@@ -993,6 +1014,13 @@ def chat_with_assistant_view(request, slug):
             from assistants.tasks import log_demo_reflection_task
 
             log_demo_reflection_task.delay(str(assistant.id), session_id)
+        logger.debug(
+            "Chat response slug=%s session=%s injected=%s demo_intro=%s",
+            assistant.slug,
+            session_id,
+            injected,
+            bool(demo_intro_message),
+        )
         return Response(
             {
                 "messages": history,
@@ -1156,6 +1184,13 @@ def chat_with_assistant_view(request, slug):
             retrieval_score=rag_meta.get("retrieval_score", 0.0),
         )
 
+    logger.debug(
+        "Chat response slug=%s session=%s injected=%s demo_intro=%s",
+        assistant.slug,
+        session_id,
+        injected,
+        bool(demo_intro_message),
+    )
     return Response(
         {
             "messages": load_session_messages(session_id),
