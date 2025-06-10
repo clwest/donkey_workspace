@@ -8,7 +8,10 @@ export default function useDemoRecap(sessionId) {
   const [showFeedback, setShowFeedback] = useState(false);
 
   useEffect(() => {
-    if (!sessionId) return;
+    if (!sessionId) {
+      setRecap(null);
+      return;
+    }
     const recapKey = `recap_shown_${sessionId}`;
     if (localStorage.getItem(recapKey)) return;
     apiFetch(`/assistants/demo_recap/${sessionId}/`)

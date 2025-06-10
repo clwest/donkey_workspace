@@ -9,4 +9,7 @@ if (!src.includes('Create Your Own')) {
 if (!src.includes("demo assistant")) {
   throw new Error('Demo helper text missing');
 }
+if (!src.includes('identityLoaded')) {
+  throw new Error('Identity loading guard missing');
+}
 console.log('ChatWithAssistantPage test passed');

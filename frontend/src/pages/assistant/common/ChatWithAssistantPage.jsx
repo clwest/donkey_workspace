@@ -143,7 +143,9 @@ export default function ChatWithAssistantPage() {
       });
   }, [slug]);
 
-  const identity = useAssistantIdentity(slug, { allowUnauthenticated: true });
+  const { identity, loaded: identityLoaded } = useAssistantIdentity(slug, {
+    allowUnauthenticated: true,
+  });
 
   useEffect(() => {
     if (assistantInfo && !identity && assistantInfo.is_demo) {
@@ -587,18 +589,19 @@ export default function ChatWithAssistantPage() {
 
             {msg.role === "assistant" && (
               <div className="mt-1">
-                {msg.rag_fallback &&
-                (msg.used_chunks?.[0]?.score || 0) < 0.6 ? (
-                  <span className="badge bg-warning text-dark">
-                    ⚠️ Weak Context
-                  </span>
-                ) : msg.rag_used ? (
-                  (msg.used_chunks?.[0]?.score || 0) >= 0.75 ? (
-                    <span className="badge bg-success">🔗 Good Source</span>
-                  ) : null
-                ) : (
-                  <span className="badge bg-danger">🚫 No Source Used</span>
-                )}
+                {identityLoaded &&
+                  (msg.rag_fallback &&
+                  (msg.used_chunks?.[0]?.score || 0) < 0.6 ? (
+                    <span className="badge bg-warning text-dark">
+                      ⚠️ Weak Context
+                    </span>
+                  ) : msg.rag_used ? (
+                    (msg.used_chunks?.[0]?.score || 0) >= 0.75 ? (
+                      <span className="badge bg-success">🔗 Good Source</span>
+                    ) : null
+                  ) : (
+                    <span className="badge bg-danger">🚫 No Source Used</span>
+                  ))}
               </div>
             )}
 
@@ -715,16 +718,17 @@ export default function ChatWithAssistantPage() {
       )}
       {!assistantInfo?.is_demo && sourceInfo && (
         <div className="mt-2">
-          {sourceInfo.rag_fallback &&
-          (sourceInfo.used_chunks?.[0]?.score || 0) < 0.6 ? (
-            <span className="badge bg-warning text-dark">⚠️ Weak Context</span>
-          ) : sourceInfo.rag_used ? (
-            (sourceInfo.used_chunks?.[0]?.score || 0) >= 0.75 ? (
-              <span className="badge bg-success">🔗 Good Source</span>
-            ) : null
-          ) : (
-            <span className="badge bg-danger">🚫 No Source Used</span>
-          )}{" "}
+          {identityLoaded &&
+            (sourceInfo.rag_fallback &&
+            (sourceInfo.used_chunks?.[0]?.score || 0) < 0.6 ? (
+              <span className="badge bg-warning text-dark">⚠️ Weak Context</span>
+            ) : sourceInfo.rag_used ? (
+              (sourceInfo.used_chunks?.[0]?.score || 0) >= 0.75 ? (
+                <span className="badge bg-success">🔗 Good Source</span>
+              ) : null
+            ) : (
+              <span className="badge bg-danger">🚫 No Source Used</span>
+            ))}{" "}
           {sourceInfo.glossary_present && !sourceInfo.rag_used ? (
             <span className="badge bg-warning text-dark">
               ⚠️ Ignored Glossary

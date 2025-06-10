@@ -143,22 +143,22 @@ class AssistantReflectionEngine:
 
     def __init__(self, assistant):
         self.assistant = assistant
-        if not assistant.memory_context:
-            ctx, _ = MemoryContext.objects.get_or_create(
-                content=f"{assistant.slug} context"
-            )
-            assistant.memory_context = ctx
-            assistant.save(update_fields=["memory_context"])
         self.context = assistant.memory_context
         self.project = self.get_or_create_project(assistant)
         logger.info(
-            f"[ReflectionEngine] Assistant: {assistant.slug}, Context ID: {self.context.id}"
+            f"[ReflectionEngine] Assistant: {assistant.slug}, Context ID: {getattr(self.context, 'id', 'none')}"
         )
         if self.context:
             orphaned = MemoryEntry.objects.filter(
                 assistant=self.assistant, context__isnull=True
             ).count()
-            if orphaned > 0:
+            if orphaned > 0 and not (
+                self.assistant.is_demo
+                and (
+                    self.assistant.memory_context is None
+                    or not self.assistant.assistant_reflections.exists()
+                )
+            ):
                 logger.warning(
                     f"[ReflectionEngine] \u26a0\ufe0f Found {orphaned} orphaned memory entries for {self.assistant.slug}"
                 )
@@ -210,6 +210,12 @@ class AssistantReflectionEngine:
 
     def reflect_on_recent_activity(self) -> AssistantReflectionLog | None:
         """Run a reflection using the assistant's default memory context."""
+        if not self.assistant.memory_context:
+            logger.debug(
+                "[ReflectionEngine] Skipping reflection for %s; no memory context",
+                self.assistant.slug,
+            )
+            return None
         return self.reflect_now()
 
     def build_reflection_prompt(self, memories: list[str]) -> str:
@@ -304,6 +310,12 @@ class AssistantReflectionEngine:
         verbose: bool = False,
     ) -> AssistantReflectionLog | None:
         """Run a quick reflection over recent memories for the assistant's context."""
+        if not self.assistant.memory_context:
+            logger.debug(
+                "[ReflectionEngine] Skipping reflection for %s; no memory context",
+                self.assistant.slug,
+            )
+            return None
 
         context = self.context
         entries = self.get_memory_entries(limit=30, verbose=verbose)
