@@ -9,6 +9,8 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
     TokenVerifyView,
 )
+from .health import health
+import metrics
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
@@ -99,6 +101,7 @@ def routes_list(request):
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("health/", health, name="health"),
     path("api/v1/", include(api_router.urls)),
     path("api/routes/", routes_list),
     path("api/dev/routes/fullmap/", full_route_map),
@@ -267,6 +270,7 @@ urlpatterns = [
     path("api/workflows/", include("workflows.urls")),
     path("api/execution-logs/", include("workflows.logs_urls")),
     path("api/metrics/", include("metrics.urls")),
+    path("metrics/", metrics.prometheus.metrics_view),
     path("api/learning-loops/", include("learning_loops.urls")),
     path("api/adaptive-loops/", include("learning_loops.config_urls")),
     path("api/simulation/", include("simulation.urls")),

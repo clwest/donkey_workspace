@@ -116,3 +116,5 @@ websockets==15.0.1
 yamllint==1.37.0
 zipp==3.21.0
 django-template-check==latest
+sentry-sdk==2.2.1
+prometheus-client==0.20.0
