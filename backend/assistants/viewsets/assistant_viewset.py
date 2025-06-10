@@ -10,6 +10,7 @@ from assistants.models.thoughts import AssistantThoughtLog
 from assistants.serializers import (
     AssistantSerializer,
     AssistantRelayMessageSerializer,
+    AssistantCreateSerializer,
 )
 from assistants.utils.session_utils import (
     get_cached_thoughts,
@@ -40,7 +41,8 @@ class AssistantViewSet(viewsets.ViewSet):
     def create(self, request):
         """Create an assistant and indicate if it's the user's first."""
         is_first = not Assistant.objects.filter(created_by=request.user).exists()
-        serializer = AssistantSerializer(data=request.data)
+        from assistants.serializers import AssistantCreateSerializer, AssistantSerializer
+        serializer = AssistantCreateSerializer(data=request.data)
         if serializer.is_valid():
             assistant = serializer.save(created_by=request.user)
             data = AssistantSerializer(assistant).data

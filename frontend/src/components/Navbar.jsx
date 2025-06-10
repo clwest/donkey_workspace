@@ -96,6 +96,11 @@ export default function Navbar({ onToggleSidebar }) {
                   </Link>
                 </li>
                 <li>
+                  <Link className="dropdown-item" to="/assistants/onboarding">
+                    ✨ Onboarding
+                  </Link>
+                </li>
+                <li>
                   <Link className="dropdown-item" to="/assistants/create">
                     ➕ Create Assistant
                   </Link>
