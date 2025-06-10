@@ -776,10 +776,20 @@ def chat_with_assistant_view(request, slug):
     should_seed = False
     if starter_query:
         should_seed = True
-    elif assistant.auto_start_chat and not history:
+    if assistant.auto_start_chat and not history:
         should_seed = True
-    if assistant.is_demo and not inject_starter:
-        should_seed = False
+    if inject_starter:
+        should_seed = True
+
+    logger.debug(
+        "Starter check slug=%s seed=%s query=%s auto_start=%s history=%s inject=%s",
+        assistant.slug,
+        should_seed,
+        bool(starter_query),
+        assistant.auto_start_chat,
+        bool(history),
+        inject_starter,
+    )
 
     starter_messages = (
         _get_demo_starter_memory(assistant)

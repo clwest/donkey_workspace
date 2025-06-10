@@ -228,6 +228,12 @@ export default function ChatWithAssistantPage() {
   }, [slug, sessionId, starter, demoSessionId]);
 
   useEffect(() => {
+    if (starterMemory.length > 0) {
+      console.log("Appending starter memory", starterMemory);
+    }
+  }, [starterMemory]);
+
+  useEffect(() => {
     return () => {
       localStorage.removeItem(`chat_${slug}_${sessionId}`);
       localStorage.removeItem(`chat_session_${slug}`);
