@@ -189,19 +189,24 @@ def get_origin_traits(demo: Assistant) -> list[str]:
 
 
 def get_or_create_usage_for_session(session_id: str):
-    """Return or create DemoUsageLog for the given session."""
-    usage = DemoUsageLog.objects.filter(session_id=session_id).first()
-    if usage:
-        return usage, False
+    """Return or create ``DemoUsageLog`` for the given session.
+
+    Using ``get_or_create`` prevents race conditions when multiple
+    requests try to create the same log simultaneously.
+    """
+
     session = DemoSessionLog.objects.filter(session_id=session_id).first()
     if not session:
         logger.debug("No session found for missing usage %s", session_id)
         return None, False
-    usage = DemoUsageLog.objects.create(
-        session_id=session_id, demo_slug=session.assistant.demo_slug
+
+    usage, created = DemoUsageLog.objects.get_or_create(
+        session_id=session_id,
+        defaults={"demo_slug": session.assistant.demo_slug},
     )
-    logger.debug("Created DemoUsageLog for session %s", session_id)
-    return usage, True
+    if created:
+        logger.debug("Created DemoUsageLog for session %s", session_id)
+    return usage, created
 
 
 def log_demo_reflection(assistant: Assistant, session_id: str) -> None:
