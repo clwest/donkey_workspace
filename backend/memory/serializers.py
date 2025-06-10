@@ -32,6 +32,20 @@ class SimulatedMemoryForkSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class MemoryEntryFeedbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MemoryEntry
+        fields = [
+            "id",
+            "assistant",
+            "source_user",
+            "event",
+            "rating",
+            "created_at",
+        ]
+        read_only_fields = ["id", "assistant", "source_user", "created_at"]
+
+
 class MemoryEntrySerializer(serializers.ModelSerializer):
     linked_thought = serializers.SerializerMethodField()
     narrative_thread = NarrativeThreadSerializer(read_only=True)
@@ -67,6 +81,7 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
             "triggered_by",
             "is_conversation",
             "session_id",
+            "rating",
             "full_transcript",
             "narrative_thread",
             "source_name",

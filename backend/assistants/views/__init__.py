@@ -47,6 +47,7 @@ from .diagnostics import (
     reflect_on_self,
     subagent_reflect,
 )
+from .user_reflection import AssistantReflectView
 from .debug import demo_checkup
 from .thoughts import (
     submit_assistant_thought,
@@ -217,6 +218,7 @@ __all__ = [
     "assistant_update_project_thought",
     "get_recent_thoughts",
     "assistant_reflect_now",
+    "AssistantReflectView",
     "assistant_dream",
     "update_reflection_feedback",
     "recent_feedback",

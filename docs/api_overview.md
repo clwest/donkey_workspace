@@ -60,6 +60,17 @@ curl -X POST -H "Authorization: Bearer <token>" \
   http://localhost:8000/api/assistants/
 ```
 
+### Reflect on a Session
+
+Submit user feedback for an assistant:
+
+```bash
+curl -X POST -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"content": "Great help", "rating": 5}' \
+  http://localhost:8000/api/assistants/<slug>/reflect/
+```
+
 ### Ingesting a Document
 
 ```python

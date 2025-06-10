@@ -47,6 +47,7 @@ from .views import (
     identity,
     onboarding,
     symbolic,
+    user_reflection,
 )
 from tasks.views.delegate import TaskDelegateView
 from assistants.views.badges import (
@@ -677,8 +678,8 @@ urlpatterns = [
     ),
     path(
         "<slug:slug>/reflect/",
-        thoughts.reflect_on_assistant_thoughts,
-        name="assistant_reflect_on_thoughts",
+        user_reflection.AssistantReflectView.as_view(),
+        name="assistant-reflect",
     ),
     path(
         "<slug:slug>/self_reflect/",

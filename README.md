@@ -150,6 +150,13 @@ npm run dev
 Navigate to `/assistants/onboarding` to create your first assistant using the
 guided specialty selector.
 
+### Submitting Reflections
+
+After chatting with an assistant you can provide feedback via
+`POST /api/assistants/<slug>/reflect/`.
+Include `content` and an optional `rating` (1‑5). Recent reflections appear on
+the assistant's memory page.
+
 Example API request:
 
 ```bash
