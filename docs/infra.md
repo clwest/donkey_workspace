@@ -1,5 +1,6 @@
 # Infrastructure as Code
 
+
 This folder contains a minimal Terraform configuration for the staging stack.
 
 ```bash
@@ -14,3 +15,4 @@ Resources created:
 - Redis ElastiCache cluster
 
 Fill in values in `terraform.tfvars` before applying.
+

@@ -1,3 +1,4 @@
+
 # CI/CD
 
 Two GitHub Actions workflows automate testing and deployment.
@@ -8,3 +9,4 @@ Two GitHub Actions workflows automate testing and deployment.
   staging deployment via SSH.
 
 Badges can be found in the project README.
+

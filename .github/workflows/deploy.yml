@@ -3,10 +3,12 @@ name: Deploy
 on:
   push:
     branches: [main]
+
   workflow_dispatch:
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,6 +18,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and push backend
         uses: docker/build-push-action@v5
         with:
@@ -42,3 +45,4 @@ jobs:
             docker pull ghcr.io/${{ github.repository }}/backend:latest
             docker pull ghcr.io/${{ github.repository }}/frontend:latest
             docker-compose -f /opt/mythos/docker-compose.yml up -d
+
