@@ -15,6 +15,12 @@ const AVATAR_EMOJI = {
 export default function AssistantCard({ assistant, to, chatLink, demo }) {
   if (!assistant) return null;
 
+  const displayName =
+    assistant.identity?.display_name ||
+    assistant.identity?.persona_name ||
+    assistant.identity?.name ||
+    assistant.name;
+
   const isDemo = demo || assistant.is_demo;
 
   const card = (
@@ -24,7 +30,7 @@ export default function AssistantCard({ assistant, to, chatLink, demo }) {
           {assistant.avatar ? (
             <img
               src={assistant.avatar}
-              alt={assistant.name}
+              alt={displayName}
               className="rounded-circle me-2"
               style={{ width: "48px", height: "48px", objectFit: "cover" }}
             />
@@ -37,7 +43,7 @@ export default function AssistantCard({ assistant, to, chatLink, demo }) {
                 {assistant.flair}
               </span>
             )}
-            {assistant.name}
+            {displayName}
             <PrimaryStar isPrimary={assistant.is_primary} />
             <AssistantBadgeIcon badges={assistant.skill_badges} primaryBadge={assistant.primary_badge} />
             {assistant.drift_fix_count >= 3 && (

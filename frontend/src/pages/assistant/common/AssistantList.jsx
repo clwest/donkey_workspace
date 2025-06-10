@@ -108,7 +108,12 @@ export default function AssistantList({ assistants: propAssistants }) {
           {rows.map((a) => (
             <tr key={a.id}>
               <td>
-                <Link to={`/assistants/${a.slug}`}>{a.name}</Link>
+                <Link to={`/assistants/${a.slug}`}>
+                  {a.identity?.display_name ||
+                    a.identity?.persona_name ||
+                    a.identity?.name ||
+                    a.name}
+                </Link>
                 <PrimaryStar isPrimary={a.is_primary} />
               </td>
               <td>{a.specialty}</td>

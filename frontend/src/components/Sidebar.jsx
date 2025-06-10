@@ -29,14 +29,24 @@ export default function Sidebar({ collapsed }) {
             <li key={primary.id}>
               <NavLink to={`/assistants/${primary.slug}`} className="d-block">
                 <span role="img" aria-label="Primary">⭐</span>
-                <span className="link-text ms-1">{primary.name}</span>
+                <span className="link-text ms-1">
+                  {primary.identity?.display_name ||
+                    primary.identity?.persona_name ||
+                    primary.identity?.name ||
+                    primary.name}
+                </span>
               </NavLink>
             </li>
           )}
           {others.map((a) => (
             <li key={a.id}>
               <NavLink to={`/assistants/${a.slug}`} className="d-block">
-                <span className="link-text">{a.name}</span>
+                <span className="link-text">
+                  {a.identity?.display_name ||
+                    a.identity?.persona_name ||
+                    a.identity?.name ||
+                    a.name}
+                </span>
               </NavLink>
             </li>
           ))}
