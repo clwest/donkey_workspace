@@ -254,6 +254,9 @@ and `SwarmCodificationPattern`.
 - [Phase Ω.5.7 Features](docs/phase_omega_5_7.md)
 - [Phase Ω.5.8 Features](docs/phase_omega_5_8.md)
 - [Phase Ω.6.9 Features](docs/phase_omega_6_9.md)
+- [Demo Slide Deck](docs/slides.md)
+- [Release Notes](docs/RELEASE_NOTES.md)
+- [Demo Script](docs/DEMO_SCRIPT.md)
 
 
 - Other domain docs are under `backend/docs/` and `frontend/docs/`.
