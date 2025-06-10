@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import apiFetch from "@/utils/apiClient";
 
-export default function useAssistantIdentity(slug) {
+export default function useAssistantIdentity(slug, { allowUnauthenticated = false } = {}) {
   const [identity, setIdentity] = useState(null);
 
   useEffect(() => {
     if (!slug) return;
     let active = true;
-    apiFetch(`/assistants/${slug}/identity/`)
+    apiFetch(`/assistants/${slug}/identity/`, { allowUnauthenticated })
       .then((d) => {
         if (active) setIdentity(d);
       })

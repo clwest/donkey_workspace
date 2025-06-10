@@ -811,11 +811,11 @@ def chat_with_assistant_view(request, slug):
         return Response({"error": "Empty message."}, status=status.HTTP_400_BAD_REQUEST)
 
     # Build messages list
-    system_prompt = (
-        assistant.system_prompt.content
-        if assistant.system_prompt
-        else "You are a helpful assistant."
-    )
+    if assistant.system_prompt:
+        system_prompt = assistant.system_prompt.content
+    else:
+        logger.warning("Assistant %s has no system prompt", assistant.slug)
+        system_prompt = "You are a helpful assistant."
     if assistant.boost_prompt_in_system and assistant.prompt_notes:
         system_prompt = f"{system_prompt}\n\n{assistant.prompt_notes}".strip()
     identity = assistant.get_identity_prompt()
