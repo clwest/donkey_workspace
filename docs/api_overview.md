@@ -21,6 +21,8 @@ This document lists the key REST endpoints and core models used throughout the p
 | `/api/assistants/demo_recap/<session_id>/` | Demo session recap data **(v0.1)** |
 | `/api/assistants/<slug>/demo_overlay/` | Reflection overlay details for a demo session (pass `session_id`) **(v0.1)** |
 | `/api/assistants/<slug>/demo_replay/<session_id>/` | RAG playback frames for debugging **(v0.1)** |
+| `/api/assistants/from_demo/preview/` | Preview a personalized copy of a demo |
+| `/api/assistants/from_demo/` | Create an assistant from a demo template |
 | `/api/purpose-index/` | Track assistant purpose vectors across timelines |
 | `/api/belief-signals/` | View belief transmission and inheritance maps |
 | `/api/alignment-market/` | Mythic reputation and symbolic economy |
@@ -62,6 +64,26 @@ curl -X POST -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{"name": "My First Assistant", "specialty": "Friendly"}' \
   http://localhost:8000/api/assistants/
+```
+
+### Personalizing a Demo
+
+Preview a new assistant derived from one of the demo templates:
+
+```bash
+curl -X POST -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"demo_slug": "prompt_pal", "name": "Demo Preview"}' \
+  http://localhost:8000/api/assistants/from_demo/preview/
+```
+
+To actually create the assistant, send the same payload to `/api/assistants/from_demo/`:
+
+```bash
+curl -X POST -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"demo_slug": "prompt_pal", "name": "Acme Helper"}' \
+  http://localhost:8000/api/assistants/from_demo/
 ```
 
 ### Reflect on a Session

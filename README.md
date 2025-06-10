@@ -157,8 +157,12 @@ cd frontend
 npm install
 npm run dev
 ```
+
+### Creating an Assistant
+
 Navigate to `/assistants/onboarding` to create your first assistant using the
-guided specialty selector.
+guided specialty selector. For API examples—including how to personalize a demo—
+see [docs/api_overview.md#creating-an-assistant](docs/api_overview.md#creating-an-assistant).
 
 ### Demo Assistant Flows
 
