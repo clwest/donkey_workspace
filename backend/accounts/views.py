@@ -1,6 +1,7 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+from rest_framework import status
 from django.contrib.auth import get_user_model
 from django.db.models import Avg, Count
 from django.utils import timezone
@@ -180,6 +181,17 @@ def demo_user(request):
     )
     token = RefreshToken.for_user(user)
     return Response({"access": str(token.access_token), "refresh": str(token)})
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def complete_tour(request, id):
+    if request.user.id != int(id):
+        return Response({"error": "forbidden"}, status=status.HTTP_403_FORBIDDEN)
+    from .models import UserTourCompletion
+
+    UserTourCompletion.objects.get_or_create(user=request.user)
+    return Response({"status": "logged"}, status=status.HTTP_201_CREATED)
 
 
 

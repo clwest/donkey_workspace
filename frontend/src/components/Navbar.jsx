@@ -101,6 +101,11 @@ export default function Navbar({ onToggleSidebar }) {
                   </Link>
                 </li>
                 <li>
+                  <Link className="dropdown-item" to="/tour">
+                    🗺 Start Tour
+                  </Link>
+                </li>
+                <li>
                   <Link className="dropdown-item" to="/assistants/create">
                     ➕ Create Assistant
                   </Link>

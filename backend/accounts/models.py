@@ -173,3 +173,17 @@ class UserOnboardingProgress(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.step}: {self.status}"
+
+
+class UserTourCompletion(models.Model):
+    """Record when a user finishes the first-use tour."""
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="tour_completions")
+    completed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        app_label = "accounts"
+        ordering = ["-completed_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"{self.user_id}@{self.completed_at:%Y-%m-%d}"

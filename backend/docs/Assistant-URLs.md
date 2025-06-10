@@ -56,3 +56,4 @@ All API requests now require JWT authentication via an `Authorization: Bearer <t
 ---
 
 Let me know if you want this version pushed to `/docs/api-assistants.md` or paired with linkable routes inside the frontend too!
+\n### Tour Completion Endpoint\n| Endpoint | Method | Description |\n| -------- | ------ | ----------- |\n| `/api/users/:id/tours/complete/` | POST | Mark that the user finished the first-use tour |

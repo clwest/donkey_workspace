@@ -23,7 +23,7 @@ export default function AssistantDashboardPage() {
   }, []);
 
   return (
-    <div className="container my-5">
+    <div className="container my-5" id="dashboard-page">
       <h1 className="display-5 mb-4">🧑‍💼 Assistant Dashboard</h1>
 
       {assistants.length === 0 ? (

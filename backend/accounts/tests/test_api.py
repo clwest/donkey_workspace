@@ -113,3 +113,11 @@ class AccountsAPITest(APITestCase):
         self.assertFalse(data["onboarding_complete"])
         self.assertIn("has_assistants", data)
         self.assertFalse(data["has_assistants"])
+
+    def test_tour_complete_endpoint(self):
+        url = f"/api/users/{self.user.id}/tours/complete/"
+        resp = self.client.post(url)
+        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
+        from accounts.models import UserTourCompletion
+
+        self.assertEqual(UserTourCompletion.objects.filter(user=self.user).count(), 1)

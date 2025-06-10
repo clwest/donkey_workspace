@@ -220,3 +220,4 @@ and `SwarmCodificationPattern`.
 
 
 - Other domain docs are under `backend/docs/` and `frontend/docs/`.
+### Guided Tour\nVisit `/tour` or click **Start Tour** in the Assistant dropdown to see an overlay explaining key panels.

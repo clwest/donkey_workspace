@@ -31,7 +31,7 @@ export default function AssistantTrailRecap() {
   if (!data) return <div className="container my-5">Failed to load recap.</div>;
 
   return (
-    <div className="container my-5">
+    <div className="container my-5" id="trail-page">
       <h1 className="mb-3">Journey Recap 📜</h1>
       {data.trail_summary && (
         <p className="lead">{data.trail_summary}</p>
