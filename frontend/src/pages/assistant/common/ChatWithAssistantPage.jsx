@@ -459,7 +459,10 @@ export default function ChatWithAssistantPage() {
             AVATAR_EMOJI[assistantInfo?.avatar_style] ||
             "🤖"}
         </span>
-        {identity?.name || slug}
+        {identity?.display_name ||
+          identity?.persona_name ||
+          identity?.name ||
+          slug}
         {assistantInfo?.is_demo && (
           <span
             className="badge bg-info text-dark ms-2"
