@@ -82,3 +82,4 @@ venv/
 !assistants/migrations/0042_add_feedback_text_to_demousagelog.py
 !assistants/migrations/0045_add_user_rating_if_missing.py
 !assistants/migrations/0046_add_converted_at_if_missing.py
+!assistants/migrations/0047_add_created_at_if_missing.py
