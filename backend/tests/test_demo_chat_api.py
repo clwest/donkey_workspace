@@ -62,6 +62,8 @@ class DemoChatAPITest(BaseAPITestCase):
         )
 
     def test_no_starter_memory_without_param(self):
+        self.assistant.auto_start_chat = False
+        self.assistant.save()
         url = f"/api/v1/assistants/{self.assistant.slug}/chat/"
         resp = self.client.post(
             url,
@@ -71,6 +73,17 @@ class DemoChatAPITest(BaseAPITestCase):
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         self.assertEqual(data.get("starter_memory"), [])
+
+    def test_auto_start_chat_without_query(self):
+        url = f"/api/v1/assistants/{self.assistant.slug}/chat/?inject_starter=1"
+        resp = self.client.post(
+            url,
+            {"message": "__ping__", "session_id": "s6", "demo_session_id": "d6"},
+            format="json",
+        )
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertTrue(len(data.get("starter_memory", [])) > 0)
 
     def test_starter_injection_requires_flag(self):
         base = f"/api/v1/assistants/{self.assistant.slug}/chat/?starter_query=Hi"
