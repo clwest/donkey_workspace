@@ -1553,8 +1553,11 @@ class AssistantSerializer(serializers.ModelSerializer):
             "nurture_started_at",
             "drift_fix_count",
             "glossary_terms_fixed",
-            "recent_refinements",
+        "recent_refinements",
         ]
+
+    def get_display_name(self, obj):
+        return getattr(obj, "display_name", None) or obj.name
 
     def get_trust(self, obj):
         from assistants.utils.delegation_helpers import get_trust_score
