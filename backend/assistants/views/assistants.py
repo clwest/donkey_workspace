@@ -39,7 +39,10 @@ from assistants.helpers.logging_helper import (
     reflect_on_birth,
     log_trail_marker,
 )
-from assistants.helpers.demo_utils import generate_assistant_from_demo
+from assistants.helpers.demo_utils import (
+    generate_assistant_from_demo,
+    get_or_create_usage_for_session,
+)
 
 from assistants.models.demo import DemoUsageLog
 from assistants.models.demo_usage import DemoSessionLog
@@ -822,7 +825,7 @@ def chat_with_assistant_view(request, slug):
 
     if message == "__ping__":
         if assistant.is_demo and demo_session_id:
-            DemoSessionLog.objects.get_or_create(
+            log_obj, created = DemoSessionLog.objects.get_or_create(
                 session_id=demo_session_id,
                 defaults={
                     "assistant": assistant,
@@ -831,6 +834,9 @@ def chat_with_assistant_view(request, slug):
                     "user_agent": request.META.get("HTTP_USER_AGENT", "")[:255],
                 },
             )
+            if created:
+                logger.debug("[DemoSession] start %s", demo_session_id)
+            get_or_create_usage_for_session(demo_session_id)
         if should_seed and starter_query and not history:
             save_message_to_session(session_id, "user", starter_query)
             injected = True
@@ -892,6 +898,9 @@ def chat_with_assistant_view(request, slug):
                 "user_agent": request.META.get("HTTP_USER_AGENT", "")[:255],
             },
         )
+        if created:
+            logger.debug("[DemoSession] start %s", demo_session_id)
+        get_or_create_usage_for_session(demo_session_id)
         if not created and log.message_count == 0:
             log.first_message = message
         log.message_count = F("message_count") + 1
