@@ -44,12 +44,10 @@ export const routeMap = [
   },
   {
     frontend: "/assistants/:slug/reflect",
-    // Updated to new immediate reflection endpoint
-    backend: "/api/assistants/<slug>/reflect-now/",
-    view: "reflect_on_assistant",
-
-    serializer: "n/a (triggers task)",
-    notes: "Trigger assistant reflection using /reflect-now/",
+    backend: "/api/assistants/<slug>/reflect/",
+    view: "assistant-reflect",
+    serializer: "MemoryEntryFeedbackSerializer",
+    notes: "Submit user reflection feedback",
   },
   {
     frontend: "/assistants/:slug/delegation-trace",

@@ -1,24 +1,18 @@
-import apiFetch from "../../utils/apiClient";
-import { toast } from "react-toastify";
+import { useState } from "react";
+import ReflectionModal from "./ReflectionModal";
 
-export default function ReflectNowButton({ slug, memoryId, projectId, docId }) {
-  const trigger = async () => {
-    if (!window.confirm("Run reflection now?")) return;
-    try {
-      await apiFetch(`/assistants/${slug}/reflect_now/`, {
-        method: "POST",
-        body: { memory_id: memoryId, project_id: projectId, doc_id: docId },
-      });
-      toast.success("Reflection triggered!");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to trigger reflection");
-    }
-  };
+export default function ReflectNowButton({ slug }) {
+  const [show, setShow] = useState(false);
+
+  const open = () => setShow(true);
+  const close = () => setShow(false);
 
   return (
-    <button className="btn btn-sm btn-outline-secondary" onClick={trigger}>
-      Reflect Now
-    </button>
+    <>
+      <button className="btn btn-sm btn-outline-secondary" onClick={open}>
+        Reflect Now
+      </button>
+      <ReflectionModal slug={slug} show={show} onClose={close} />
+    </>
   );
 }

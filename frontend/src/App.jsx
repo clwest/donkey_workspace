@@ -154,6 +154,7 @@ import CouncilDashboardPage from "./pages/assistant/council/CouncilDashboardPage
 import ReflectionsPage from "./pages/assistant/reflections/ReflectionsPage";
 import MemoryReflectionPage from "./pages/memories/reflections/MemoryReflectionPage";
 import AssistantReflectPage from "./pages/assistant/reflections/AssistantReflectPage";
+import UserReflectPage from "./pages/assistant/UserReflectPage";
 import AssistantReflectionLogsPage from "./pages/assistant/reflections/AssistantReflectionLogsPage";
 import AssistantReplayLogsPage from "@/pages/assistant/replays/AssistantReplayLogsPage";
 import AssistantReplayDiffPage from "@/pages/assistant/replays/AssistantReplayDiffPage";
@@ -579,7 +580,7 @@ export default function App() {
           />
           <Route
             path="/assistants/:slug/reflect"
-            element={<AssistantReflectPage />}
+            element={<UserReflectPage />}
           />
           <Route
             path="/assistants/:slug/dashboard"

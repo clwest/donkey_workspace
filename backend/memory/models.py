@@ -27,6 +27,7 @@ class MemoryEntry(models.Model):
     # 🏷️ Metadata
     tags = models.ManyToManyField("mcp_core.Tag", blank=True)
     session_id = models.CharField(max_length=100, blank=True, null=True)
+    rating = models.IntegerField(null=True, blank=True)
     voice_clip = models.FileField(upload_to="memory_voices/", blank=True, null=True)
 
     summary = models.TextField(blank=True, null=True)
