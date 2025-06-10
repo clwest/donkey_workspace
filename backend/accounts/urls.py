@@ -12,4 +12,5 @@ urlpatterns = [
     path('me/summary/', views.me_summary),
     path('demo_login/', views.demo_login),
     path('demo/', views.demo_user),
+    path('users/<int:id>/tours/complete/', views.complete_tour),
 ]

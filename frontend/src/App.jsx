@@ -10,6 +10,7 @@ import OnboardingWorldPage from "./pages/onboarding/OnboardingWorldPage";
 import ArchetypeSelectionChamberPage from "./pages/onboarding/ArchetypeSelectionChamberPage";
 import SummoningRitualConsolePage from "./pages/onboarding/SummoningRitualConsolePage";
 import PersonalityOnboardingPage from "./pages/onboarding/PersonalityOnboardingPage";
+import FirstUseTourPage from "./pages/onboarding/FirstUseTourPage";
 import UserMythpathInitializerPage from "./pages/onboarding/UserMythpathInitializerPage";
 import GlossaryBootPage from "./pages/onboarding/GlossaryBootPage";
 import OnboardingPage from "./pages/assistants/OnboardingPage";
@@ -82,6 +83,8 @@ import DemoComparisonPage from "./pages/assistant/common/DemoComparisonPage";
 import AssistantLauncherPage from "./pages/assistants/AssistantLauncherPage";
 import AssistantIntroSplash from "./pages/assistant/common/AssistantIntroSplash";
 import AssistantTrailRecap from "./pages/assistant/common/AssistantTrailRecap";
+import TrustProfilePage from "./pages/assistants/trust/TrustProfilePage";
+import GrowthPanelPage from "./pages/assistants/growth/GrowthPanelPage";
 import ChatWithAssistantPage from "./pages/assistant/common/ChatWithAssistantPage";
 import ChatWithKnowledge from "./pages/assistants/[slug]/chat/ChatWithKnowledge";
 import CreateNewAssistantPage from "./pages/assistant/common/CreateNewAssistantPage";
@@ -400,6 +403,7 @@ export default function App() {
             path="/assistant-dashboard"
             element={<AssistantDashboardPage />}
           />
+          <Route path="/tour" element={<FirstUseTourPage />} />
           <Route
             path="/assistants/create"
             element={<CreateNewAssistantPage />}
@@ -519,6 +523,8 @@ export default function App() {
           <Route path="/assistants/launch" element={<AssistantLauncherPage />} />
           <Route path="/assistants/:slug/intro" element={<AssistantIntroSplash />} />
           <Route path="/assistants/:slug/trail" element={<AssistantTrailRecap />} />
+          <Route path="/assistants/:slug/trust_profile/" element={<TrustProfilePage />} />
+          <Route path="/assistants/:slug/growth/" element={<GrowthPanelPage />} />
 
           {/* Assistant Detail Subroutes */}
           <Route
