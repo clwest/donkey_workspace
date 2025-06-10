@@ -60,5 +60,7 @@ echo '🚀 Running: seed_reflections'
 python manage.py seed_reflections
 echo '🚀 Running: seed_tour_completions'
 python manage.py seed_tour_completions
+echo '🚀 Running: seed_feedback'
+python manage.py seed_feedback
 echo '🚀 Running: garbage_collect'
 python manage.py garbage_collect

@@ -44,3 +44,10 @@
 - Polished UI animations
 - Expanded trail analytics
 - Deeper trust signal metrics
+
+---
+
+# Feedback & Next Steps
+- In-app widget captures bugs and ideas
+- CLI `export_feedback_goals` updates roadmap
+- Address top feedback items before next phase

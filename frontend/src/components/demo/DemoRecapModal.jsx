@@ -76,7 +76,11 @@ export default function DemoRecapModal({ show, onClose, demoSlug, sessionId }) {
         <Modal.Title>Demo Recap</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {loading && <p>Loading recap...</p>}
+        {loading && (
+          <div className="my-3 text-center">
+            <div className="spinner-border" role="status" />
+          </div>
+        )}
         {!loading && data && (
           <div>
             <p>Messages Sent: {data.messages_sent}</p>

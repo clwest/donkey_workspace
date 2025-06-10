@@ -2,6 +2,7 @@
 
 import { Link, NavLink } from "react-router-dom";
 import "./styles/Navbar.css";
+import FeedbackWidget from "./feedback/FeedbackWidget";
 
 export default function Navbar({ onToggleSidebar }) {
   return (
@@ -101,7 +102,7 @@ export default function Navbar({ onToggleSidebar }) {
                   </Link>
                 </li>
                 <li>
-                  <Link className="dropdown-item" to="/tour">
+                  <Link className="dropdown-item start-tour-link" to="/tour">
                     🗺 Start Tour
                   </Link>
                 </li>
@@ -341,6 +342,7 @@ export default function Navbar({ onToggleSidebar }) {
             <Link className="btn btn-outline-secondary btn-sm me-2" to="/profile">
               Profile
             </Link>
+            <FeedbackWidget />
             <Link className="btn btn-outline-secondary btn-sm" to="/logout">
               Logout
             </Link>
