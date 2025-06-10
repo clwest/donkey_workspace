@@ -31,6 +31,7 @@ from assistants.helpers.demo_utils import (
     compose_demo_reflection,
     get_or_create_usage_for_session,
 )
+from .assistants import assistant_from_demo_preview
 
 
 def bump_demo_score(session_id, delta=0, helpful=False):
@@ -108,6 +109,16 @@ def demo_tips(request, slug):
         return Response({"tips": []})
 
     return Response({"tips": DEMO_TIPS})
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def demo_preview_from_slug(request, demo_slug):
+    """Proxy preview conversion using URL slug."""
+    data = request.data.copy()
+    data["demo_slug"] = demo_slug
+    request._full_data = data  # type: ignore[attr-defined]
+    return assistant_from_demo_preview(request)
 
 
 @api_view(["POST"])

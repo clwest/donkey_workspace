@@ -26,6 +26,7 @@ from .demo import (
     demo_leaderboard,
     demo_recap,
     demo_success_view,
+    demo_preview_from_slug,
     compose_demo_reflection_view,
     demo_drift_diagnosis,
 )
@@ -339,6 +340,7 @@ __all__ = [
     "demo_recap",
     "assistant_demo_recap",
     "demo_success_view",
+    "demo_preview_from_slug",
     "replay_demo_boost",
     "compose_demo_reflection_view",
     "drift_heatmap",

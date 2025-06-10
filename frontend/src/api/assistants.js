@@ -397,6 +397,13 @@ export function previewAssistantFromDemo(demoSlug, transcript = []) {
   });
 }
 
+export function getDemoPreview(demoSlug, transcript = []) {
+  return apiFetch(`/assistants/${demoSlug}/demo_preview/`, {
+    method: "POST",
+    body: { transcript },
+  });
+}
+
 export function onboardAssistant(id, body) {
   return apiFetch(`/assistants/${id}/onboard/`, {
     method: "POST",
