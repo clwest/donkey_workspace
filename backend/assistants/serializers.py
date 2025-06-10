@@ -1875,25 +1875,18 @@ class AssistantIntroSerializer(serializers.ModelSerializer):
 class AssistantIdentitySummarySerializer(serializers.ModelSerializer):
     """Lightweight identity summary for quick lookups."""
 
+    name = serializers.CharField(read_only=True)
     display_name = serializers.SerializerMethodField()
     persona_name = serializers.CharField(read_only=True, required=False)
     avatar = serializers.CharField(read_only=True)
-    persona = serializers.CharField(source="persona_summary", read_only=True)
-    badges = serializers.ListField(
-        source="skill_badges", child=serializers.CharField(), read_only=True
-    )
 
     class Meta:
         model = Assistant
         fields = [
+            "name",
             "display_name",
             "persona_name",
             "avatar",
-            "tone",
-            "persona",
-            "motto",
-            "badges",
-            "glossary_score",
         ]
 
     def get_display_name(self, obj):
