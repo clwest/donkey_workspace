@@ -161,6 +161,7 @@ import RouteCheckPage from "./pages/dev/RouteCheckPage";
 import RouteExplorerPage from "./pages/dev/RouteExplorerPage";
 import RouteViewer from "./pages/dev/routes/RouteViewer";
 import CapabilityStatus from "./pages/dev/routes/CapabilityStatus";
+import DemoCheckupPage from "./pages/dev/DemoCheckupPage";
 import PageNotFound from "./pages/PageNotFound";
 import GroupedReflectionPage from "./pages/dev/GroupedReflectionPage";
 import GroupedReflectionDetailPage from "./pages/dev/GroupedReflectionDetailPage";
@@ -717,6 +718,7 @@ export default function App() {
           <Route path="/dev/route-check" element={<RouteCheckPage />} />
           <Route path="/dev/debug/intel" element={<IntelDebugTools />} />
           <Route path="/dev/auth-debug" element={<AuthDebugPage />} />
+          <Route path="/dev/demo-checkup" element={<DemoCheckupPage />} />
           <Route path="/debug/prompts" element={<PromptDebuggerPage />} />
           <Route path="/debug/rag-recall" element={<RagRecallDebugPage />} />
           <Route path="/debug/rag-failures" element={<RagFailureTable />} />

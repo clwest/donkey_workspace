@@ -47,6 +47,7 @@ from .diagnostics import (
     reflect_on_self,
     subagent_reflect,
 )
+from .debug import demo_checkup
 from .thoughts import (
     submit_assistant_thought,
     submit_chat_feedback,
@@ -365,6 +366,7 @@ __all__ = [
     "upgrade_growth",
     "demo_rag_overlay",
     "demo_drift_diagnosis",
+    "demo_checkup",
     "refine_from_drift",
 ]
 from .skills import SkillPlanView

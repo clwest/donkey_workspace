@@ -42,6 +42,7 @@ from .views import (
     subassistant,
     hints,
     demo,
+    debug,
     interface as interface_views,
     identity,
     onboarding,
@@ -382,6 +383,11 @@ urlpatterns = [
         "check_demo_seed/",
         assistants.run_check_demo_seed,
         name="run_check_demo_seed",
+    ),
+    path(
+        "demo_checkup/",
+        debug.demo_checkup,
+        name="demo_checkup",
     ),
     path("demo_success/", demo.demo_success_view, name="demo_success"),
     path(
