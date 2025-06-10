@@ -322,7 +322,7 @@ export default function CreateNewAssistantPage() {
               />
             </div>
             <PromptIdeaGenerator
-              onGenerate={(prompt) => setPersonality(prompt)}
+              onGenerate={(prompt) => setPersonality(prompt.content)}
             />
             <div className="mb-3">
               <label className="form-label">System Prompt</label>
