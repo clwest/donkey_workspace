@@ -62,7 +62,11 @@ class AssistantIdentitySummaryView(generics.GenericAPIView):
 
     def get(self, request, slug):
         assistant = self.get_object()
-        if not assistant.is_demo and assistant.created_by != request.user:
+        if assistant.is_demo:
+            allowed = True
+        else:
+            allowed = assistant.created_by == request.user
+        if not allowed:
             return Response({"error": "forbidden"}, status=403)
 
         from assistants.serializers import AssistantSerializer

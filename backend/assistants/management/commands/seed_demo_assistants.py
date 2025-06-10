@@ -63,7 +63,8 @@ class Command(BaseCommand):
                     prompt, _ = Prompt.objects.get_or_create(
                         title=f"{demo['name']} Seed Prompt",
                         defaults={
-                            "content": demo["prompt"],
+                            "content": demo.get("prompt")
+                            or "You are a helpful assistant specializing in reflection.",
                             "type": "system",
                             "source": "seed_demo_assistants",
                         },
@@ -94,7 +95,8 @@ class Command(BaseCommand):
             prompt, _ = Prompt.objects.get_or_create(
                 title=f"{demo['name']} Seed Prompt",
                 defaults={
-                    "content": demo["prompt"],
+                    "content": demo.get("prompt")
+                    or "You are a helpful assistant specializing in reflection.",
                     "type": "system",
                     "source": "seed_demo_assistants",
                 },
