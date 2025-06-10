@@ -21,6 +21,7 @@ This document lists the key REST endpoints and core models used throughout the p
 | `/api/assistants/demo_recap/<session_id>/` | Demo session recap data **(v0.1)** |
 | `/api/assistants/<slug>/demo_overlay/` | Reflection overlay details for a demo session (pass `session_id`) **(v0.1)** |
 | `/api/assistants/<slug>/demo_replay/<session_id>/` | RAG playback frames for debugging **(v0.1)** |
+| `/api/assistants/<demo_slug>/demo_preview/` | Preview data before converting a demo assistant **(v0.1)** |
 | `/api/purpose-index/` | Track assistant purpose vectors across timelines |
 | `/api/belief-signals/` | View belief transmission and inheritance maps |
 | `/api/alignment-market/` | Mythic reputation and symbolic economy |

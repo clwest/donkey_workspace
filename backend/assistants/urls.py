@@ -71,6 +71,11 @@ urlpatterns = [
     path("from-documents/", assistants.assistant_from_documents),
     path("from_demo/", assistants.assistant_from_demo),
     path("from_demo/preview/", assistants.assistant_from_demo_preview),
+    path(
+        "<slug:demo_slug>/demo_preview/",
+        demo.demo_preview_from_slug,
+        name="assistant-demo-preview",
+    ),
     path("demo_boost/", demo.replay_demo_boost, name="assistant-demo-boost"),
     path("default_template/", assistants.default_template),
     path("thoughts/reflect-on-assistant/", assistants.reflect_on_assistant),
