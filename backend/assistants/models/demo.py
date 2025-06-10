@@ -4,7 +4,7 @@ from django.conf import settings
 
 
 class DemoUsageLog(models.Model):
-    """Tracks how users interact with demo assistants."""
+    """Tracks how users interact with demo assistants, including chat count."""
 
     session_id = models.CharField(max_length=64, unique=True)
     user = models.ForeignKey(
@@ -14,6 +14,7 @@ class DemoUsageLog(models.Model):
     comparison_variant = models.CharField(max_length=50, blank=True)
     feedback_text = models.TextField(blank=True)
     user_rating = models.IntegerField(null=True, blank=True)
+    message_count = models.IntegerField(default=0)
     started_at = models.DateTimeField(default=timezone.now)
     recap_shown = models.BooleanField(default=False)
     feedback_submitted = models.BooleanField(default=False)
