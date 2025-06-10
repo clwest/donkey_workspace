@@ -767,9 +767,23 @@ def chat_with_assistant_view(request, slug):
         "inject_starter"
     )
     inject_starter = str(inject_flag).lower() in ["1", "true", "yes"]
+
+    message = request.data.get("message")
+    session_id = request.data.get("session_id") or str(uuid.uuid4())
+    demo_session_id = request.data.get("demo_session_id")
+    history = load_session_messages(session_id)
+
+    should_seed = False
+    if starter_query:
+        should_seed = True
+    elif assistant.auto_start_chat and not history:
+        should_seed = True
+    if assistant.is_demo and not inject_starter:
+        should_seed = False
+
     starter_messages = (
         _get_demo_starter_memory(assistant)
-        if assistant.is_demo and starter_query
+        if assistant.is_demo and should_seed
         else []
     )
     demo_intro_message = None
@@ -779,10 +793,6 @@ def chat_with_assistant_view(request, slug):
             demo_intro_message = (
                 f"{assistant.name} ({assistant.tone}): {first['content']}"
             )
-
-    message = request.data.get("message")
-    session_id = request.data.get("session_id") or str(uuid.uuid4())
-    demo_session_id = request.data.get("demo_session_id")
 
     if message == "__ping__":
         if assistant.is_demo and demo_session_id:
@@ -795,8 +805,7 @@ def chat_with_assistant_view(request, slug):
                     "user_agent": request.META.get("HTTP_USER_AGENT", "")[:255],
                 },
             )
-        history = load_session_messages(session_id)
-        if assistant.is_demo and not history and starter_query and inject_starter:
+        if should_seed and starter_query and not history:
             save_message_to_session(session_id, "user", starter_query)
             history = load_session_messages(session_id)
         return Response(
