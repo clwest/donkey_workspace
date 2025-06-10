@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
+import BackToAssistantButton from "../../../components/assistant/BackToAssistantButton";
 
 const badgeInfo = {
   glossary_apprentice: "Earned for acquiring 10 glossary anchors",
@@ -21,7 +22,7 @@ export default function AssistantBadgesPage() {
     apiFetch(`/assistants/${slug}/`)
       .then(setAssistant)
       .catch(() => setError(true));
-    apiFetch(`/badges/?assistant=${slug}`)
+    apiFetch(`/assistants/badges/?assistant=${slug}`)
       .then(setBadgeData)
       .catch(() => setBadgeData({ badges: [] }));
   }, [slug]);
@@ -41,17 +42,30 @@ export default function AssistantBadgesPage() {
       setSaving(false);
     }
   };
-  if (error) return <div className="container my-4 text-warning">Failed to load badges.</div>;
-  if (!assistant || !badgeData) return <div className="container my-4">Loading...</div>;
+  if (error)
+    return (
+      <div className="container my-4 text-warning">Failed to load badges.</div>
+    );
+  if (!assistant || !badgeData)
+    return <div className="container my-4">Loading...</div>;
   const badges = badgeData.badges || [];
 
   return (
     <div className="container my-4">
+      <BackToAssistantButton slug={slug} />
       <h3>{assistant.name} Badges</h3>
       <div className="mb-3">
         {badges.map((b) => (
-          <OverlayTrigger key={b.slug} placement="top" overlay={<Tooltip>{b.description}</Tooltip>}>
-            <span className={`badge me-2 mb-2 ${b.earned ? "bg-success" : "bg-secondary"}`}>{b.slug}</span>
+          <OverlayTrigger
+            key={b.slug}
+            placement="top"
+            overlay={<Tooltip>{b.description}</Tooltip>}
+          >
+            <span
+              className={`badge me-2 mb-2 ${b.earned ? "bg-success" : "bg-secondary"}`}
+            >
+              {b.slug}
+            </span>
           </OverlayTrigger>
         ))}
       </div>
