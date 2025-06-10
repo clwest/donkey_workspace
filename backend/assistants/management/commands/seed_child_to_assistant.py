@@ -14,12 +14,18 @@ class Command(BaseCommand):
 
         # Match child assistants by name pattern (customize as needed)
         children = Assistant.objects.filter(name__icontains="LangChain", parent_assistant__isnull=True)
+        self.stdout.write(f"Matched {children.count()} potential child assistants")
 
         if not children.exists():
             self.stdout.write(self.style.WARNING("⚠️ No eligible child assistants found."))
             return
 
         for child in children:
+            projects = child.projects.all()
+            agent_links = sum(p.agents.count() for p in projects)
+            self.stdout.write(
+                f"-- {child.slug}: {projects.count()} projects, {agent_links} linked agents"
+            )
             child.parent_assistant = parent
             child.save()
             self.stdout.write(self.style.SUCCESS(f"✅ Assigned {child.name} to Zeno"))

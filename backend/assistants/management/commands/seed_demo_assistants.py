@@ -13,6 +13,13 @@ class Command(BaseCommand):
     help = "Seed demo assistants with simple prompts and badges"
     logger = logging.getLogger(__name__)
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--force",
+            action="store_true",
+            help="Recreate demo assistants even if they already exist",
+        )
+
     def handle(self, *args, **options):
         from django.utils.text import slugify
         from assistants.models import Assistant, Badge
@@ -49,12 +56,20 @@ class Command(BaseCommand):
         ]
 
         created_count = 0
+        existing_slugs = list(
+            Assistant.objects.filter(is_demo=True).values_list("slug", flat=True)
+        )
+        if verbosity >= 2:
+            self.stdout.write(f"Existing demo slugs: {existing_slugs}")
 
         for demo in demos:
             slug = slugify(demo["name"])
-            assistant = Assistant.objects.filter(
-                name=demo["name"], is_demo=True
-            ).first()
+            if verbosity >= 2:
+                self.stdout.write(f"-- Processing {demo['name']} ({slug})")
+
+            assistant = Assistant.objects.filter(name=demo["name"], is_demo=True).first()
+            if not assistant:
+                assistant = Assistant.objects.filter(slug=slug, is_demo=True).first()
 
             if assistant and not force:
                 # Ensure existing demo assistants have required fields
@@ -81,9 +96,20 @@ class Command(BaseCommand):
                     patched = True
                 if patched:
                     assistant.save()
+                    if verbosity >= 2:
+                        self.stdout.write(
+                            f"🔧 Patched existing demo {assistant.slug}"
+                        )
                 if verbosity >= 2:
                     self.stdout.write(
-                        f"❌ Skipping {demo['name']} (already exists, updated fields)"
+                        f"❌ Skipping {demo['name']} (already exists)"
+                    )
+                continue
+
+            if not assistant and Assistant.objects.filter(slug=slug, is_demo=True).exists() and not force:
+                if verbosity >= 2:
+                    self.stdout.write(
+                        f"❌ Skipping {demo['name']} (slug {slug} already exists)"
                     )
                 continue
 
