@@ -1430,6 +1430,18 @@ class AssistantRelayMessageSerializer(serializers.ModelSerializer):
         ]
 
 
+class AssistantCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Assistant
+        fields = [
+            "name",
+            "description",
+            "specialty",
+            "avatar_style",
+            "tone_profile",
+        ]
+
+
 class AssistantSerializer(serializers.ModelSerializer):
     display_name = serializers.SerializerMethodField()
     persona_name = serializers.CharField(read_only=True, required=False)

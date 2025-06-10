@@ -51,6 +51,15 @@ assistant = Assistant.objects.create(
 print(assistant.slug)
 ```
 
+You can also POST to `/api/assistants/`:
+
+```bash
+curl -X POST -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Starter Bot","specialty":"demo"}' \
+  http://localhost:8000/api/assistants/
+```
+
 ### Ingesting a Document
 
 ```python

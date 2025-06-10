@@ -12,6 +12,7 @@ import SummoningRitualConsolePage from "./pages/onboarding/SummoningRitualConsol
 import PersonalityOnboardingPage from "./pages/onboarding/PersonalityOnboardingPage";
 import UserMythpathInitializerPage from "./pages/onboarding/UserMythpathInitializerPage";
 import GlossaryBootPage from "./pages/onboarding/GlossaryBootPage";
+import OnboardingPage from "./pages/assistants/OnboardingPage";
 import WorldTimelinePage from "./pages/WorldTimelinePage";
 import AssistantMythRebirthPage from "./pages/assistant/myth/AssistantMythRebirthPage";
 import CodexBriefingPage from "./pages/codex/CodexBriefingPage";
@@ -402,6 +403,10 @@ export default function App() {
           <Route
             path="/assistants/create"
             element={<CreateNewAssistantPage />}
+          />
+          <Route
+            path="/assistants/onboarding"
+            element={<OnboardingPage />}
           />
           <Route
             path="/assistants/primary"
