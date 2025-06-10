@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import apiFetch from '@/utils/apiClient';
 import ThemeSelector from '../../components/onboarding/ThemeSelector';
 
 export default function OnboardingPage() {
@@ -12,11 +13,10 @@ export default function OnboardingPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await fetch('/api/assistants/', {
+      const res = await apiFetch('/assistants/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, specialty }),
-      }).then((r) => r.json());
+        body: { name, specialty },
+      });
       if (res && res.slug) {
         navigate(`/assistants/${res.slug}`);
       }
