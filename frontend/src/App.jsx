@@ -120,6 +120,9 @@ import GlossaryConvergencePage from "./pages/assistants/GlossaryConvergencePage"
 import AnchorHealthDashboard from "./pages/assistants/AnchorHealthDashboard";
 import DemoInsightsDashboard from "./pages/assistants/DemoInsightsDashboard";
 import DemoSuccessShowcase from "./pages/assistants/DemoSuccessShowcase";
+import DemoRecapPage from "./pages/assistants/DemoRecapPage";
+import DemoOverlayPage from "./pages/assistants/DemoOverlayPage";
+import DemoReplayPage from "./pages/assistants/DemoReplayPage";
 
 import DemoFeedbackExplorer from "./pages/assistants/DemoFeedbackExplorer";
 
@@ -524,6 +527,9 @@ export default function App() {
           <Route path="/assistants/launch" element={<AssistantLauncherPage />} />
           <Route path="/assistants/:slug/intro" element={<AssistantIntroSplash />} />
           <Route path="/assistants/:slug/trail" element={<AssistantTrailRecap />} />
+          <Route path="/assistants/:slug/demo_recap/:sessionId" element={<DemoRecapPage />} />
+          <Route path="/assistants/:slug/demo_overlay/" element={<DemoOverlayPage />} />
+          <Route path="/assistants/:slug/demo_replay/:sessionId" element={<DemoReplayPage />} />
           <Route path="/assistants/:slug/trust_profile/" element={<TrustProfilePage />} />
           <Route path="/assistants/:slug/growth/" element={<GrowthPanelPage />} />
 

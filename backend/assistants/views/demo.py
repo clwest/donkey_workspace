@@ -57,7 +57,11 @@ def demo_recap(request, session_id):
         session_id = str(uuid.UUID(str(session_id)))
     except Exception:
         return Response({"error": "invalid"}, status=400)
-    session = DemoSessionLog.objects.filter(session_id=session_id).first()
+    session = (
+        DemoSessionLog.objects.select_related("assistant")
+        .filter(session_id=session_id)
+        .first()
+    )
     force_usage = str(request.query_params.get("force_usage", "0")).lower() in {
         "1",
         "true",
@@ -253,7 +257,11 @@ def demo_reflection_overlay(request, slug):
         return Response({"error": "invalid"}, status=400)
 
     assistant = get_object_or_404(Assistant, slug=slug)
-    session = DemoSessionLog.objects.filter(session_id=session_uuid, assistant=assistant).first()
+    session = (
+        DemoSessionLog.objects.select_related("assistant")
+        .filter(session_id=session_uuid, assistant=assistant)
+        .first()
+    )
     start = session.started_at if session else None
     end = session.ended_at or timezone.now() if session else timezone.now()
 
@@ -346,7 +354,11 @@ def reset_demo_session(request):
         return Response({"error": "session_id required"}, status=400)
 
     full_reset = request.GET.get("full_reset") == "true"
-    session = DemoSessionLog.objects.filter(session_id=session_id).first()
+    session = (
+        DemoSessionLog.objects.select_related("assistant")
+        .filter(session_id=session_id)
+        .first()
+    )
     assistant = session.assistant if session else None
     DemoSessionLog.objects.filter(session_id=session_id).delete()
 
