@@ -31,7 +31,11 @@ export default function DemoRecapModal({ show, onClose, demoSlug, sessionId }) {
         setLoading(false);
       })
       .catch((err) => {
-        console.error('Failed to load recap', err);
+        if (err.status === 404 || err.status === 403) {
+          console.warn('Demo recap not available');
+        } else {
+          console.error('Failed to load recap', err);
+        }
         setLoading(false);
       });
   }, [show, sessionId]);
