@@ -16,7 +16,7 @@ export default function AssistantSummaryCards({ summary, slug }) {
       key: "glossary_score",
       icon: "📘",
       label: "Glossary Terms",
-      to: `/assistants/${slug}/vocab`,
+      to: `/assistants/${slug}/glossary`,
       tooltip: `Score ${summary.glossary_score}`,
     },
     {
@@ -45,11 +45,16 @@ export default function AssistantSummaryCards({ summary, slug }) {
     <div className="row g-3 mb-3">
       {items.map((i) => (
         <div className="col" key={i.key}>
-          <OverlayTrigger placement="top" overlay={<Tooltip>{i.tooltip}</Tooltip>}>
+          <OverlayTrigger
+            placement="top"
+            overlay={<Tooltip>{i.tooltip}</Tooltip>}
+          >
             <Link to={i.to} className="text-decoration-none">
               <div className="card text-center h-100">
                 <div className="card-body">
-                  <div className="fs-3" role="img" aria-label={i.label}>{i.icon}</div>
+                  <div className="fs-3" role="img" aria-label={i.label}>
+                    {i.icon}
+                  </div>
                   <div className="h5 mb-0">{summary[i.key]}</div>
                   <small className="text-muted">{i.label}</small>
                 </div>
