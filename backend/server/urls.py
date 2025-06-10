@@ -52,6 +52,7 @@ from images.urls import router as images_router
 from characters.urls import router as characters_router
 from storyboard.urls import router as storyboard_router
 from simulation.urls import router as simulation_router
+from feedback.urls import router as feedback_router
 
 api_router = DefaultRouter()
 
@@ -69,6 +70,7 @@ extend_router("images", images_router)
 extend_router("characters", characters_router)
 extend_router("storyboard", storyboard_router)
 extend_router("simulation", simulation_router)
+extend_router("feedback", feedback_router)
 
 
 def _collect_routes(patterns, prefix=""):

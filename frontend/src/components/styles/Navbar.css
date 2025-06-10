@@ -38,6 +38,17 @@
   padding: 0.5rem;
 }
 
+.start-tour-link {
+  display: block;
+  width: 100%;
+}
+
+@media (min-width: 992px) {
+  .start-tour-link {
+    width: auto;
+  }
+}
+
 .dropdown-item {
   padding: 0.45rem 1rem;
   border-radius: 4px;

@@ -16,7 +16,7 @@ export default function DemoOverlayPanel({ slug, sessionId }) {
   return (
     <div className="demo-overlay border rounded p-3 mt-3">
       <h5 className="mb-2">What your assistant noticed</h5>
-      {data.anchors.length > 0 && (
+      {data.anchors && data.anchors.length > 0 && (
         <div className="mb-2">
           {data.anchors.map((a) => (
             <span key={a.slug} className="badge bg-info text-dark me-1">
@@ -25,7 +25,7 @@ export default function DemoOverlayPanel({ slug, sessionId }) {
           ))}
         </div>
       )}
-      {data.tags.length > 0 && (
+      {data.tags && data.tags.length > 0 && (
         <div className="mb-2">
           {data.tags.map((t) => (
             <span key={t.slug} className="badge bg-secondary me-1">

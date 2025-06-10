@@ -58,4 +58,9 @@ This is the day’s tactical focus, following up on RAG mutation, glossary refle
 - [ ] Create Codex panel to view all glossary feedback by term
 - [ ] Let assistants propose mutation campaigns based on reflection replays
 
+## 📝 User Feedback
+- [ ] (bug) Overlay error when anchors undefined (demo)
+- [ ] (idea) Add loading spinner on recap views (demo)
+- [ ] (bug) Tour button misaligned on mobile (demo)
+
 Save this as `GOALS.md` at the project root. These goals will guide Codex and UI routing work today.

@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     "learning_loops",
     "simulation",
     "resources",
+    "feedback",
 ]
 
 # === 🧵 Middleware ===

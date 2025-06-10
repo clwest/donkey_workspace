@@ -24,6 +24,7 @@ This document lists the key REST endpoints and core models used throughout the p
 | `/api/purpose-index/` | Track assistant purpose vectors across timelines |
 | `/api/belief-signals/` | View belief transmission and inheritance maps |
 | `/api/alignment-market/` | Mythic reputation and symbolic economy |
+| `/api/feedback/` | Submit bug reports or ideas via the in-app widget |
 
 For a full list of routes run `python manage.py show_urls` in the `backend` directory.
 

@@ -70,6 +70,12 @@ Once your backend is running, you can populate every model and DevDoc dataset in
 
 This script runs all individual seeders and dev documentation scripts sequentially. It also seeds demo sessions, reflection logs, and tour completions so the demo flows work end-to-end.
 
+### Feedback Widget
+
+Use the **Feedback** button in the navbar to report bugs or ideas. Submissions
+hit the `/api/feedback/` endpoint and are exported to `GOALS.md` via
+`python manage.py export_feedback_goals`.
+
 If you encounter a `ProgrammingError` complaining that `assistants_assistant`
 does not exist, ensure you ran `python manage.py makemigrations` before
 `python manage.py migrate`. This generates all initial migration files so Django

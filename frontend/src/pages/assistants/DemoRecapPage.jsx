@@ -22,7 +22,11 @@ export default function DemoRecapPage() {
   return (
     <div className="container my-5" id="demo-recap-page">
       <h1 className="mb-3">Demo Recap</h1>
-      {loading && <p>Loading recap...</p>}
+      {loading && (
+        <div className="my-3 text-center">
+          <div className="spinner-border" role="status" />
+        </div>
+      )}
       {!loading && data && (
         <div className="mb-3">
           <p>Messages Sent: {data.messages_sent}</p>
