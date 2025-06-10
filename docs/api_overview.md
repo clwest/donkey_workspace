@@ -18,6 +18,9 @@ This document lists the key REST endpoints and core models used throughout the p
 | `/api/images/` | Image generation and gallery endpoints |
 | `/api/characters/` | Character profiles and similarity search |
 | `/api/videos/` | Video ingestion and retrieval |
+| `/api/assistants/demo_recap/<session_id>/` | Demo session recap data |
+| `/api/assistants/<slug>/demo_overlay/` | Reflection overlay details for a demo session (pass `session_id`) |
+| `/api/assistants/<slug>/demo_replay/<session_id>/` | RAG playback frames for debugging |
 | `/api/purpose-index/` | Track assistant purpose vectors across timelines |
 | `/api/belief-signals/` | View belief transmission and inheritance maps |
 | `/api/alignment-market/` | Mythic reputation and symbolic economy |

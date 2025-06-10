@@ -498,6 +498,28 @@ export default function ChatWithAssistantPage() {
         </div>
       )}
       {demoIntro && <p className="text-muted fst-italic">{demoIntro}</p>}
+      {assistantInfo?.is_demo && (
+        <div className="mb-2">
+          <Link
+            to={`/assistants/${slug}/demo_recap/${demoSessionId}`}
+            className="btn btn-sm btn-outline-info me-2"
+          >
+            Demo Recap
+          </Link>
+          <Link
+            to={`/assistants/${slug}/demo_overlay/`}
+            className="btn btn-sm btn-outline-info me-2"
+          >
+            Overlay
+          </Link>
+          <Link
+            to={`/assistants/${slug}/demo_replay/${demoSessionId}`}
+            className="btn btn-sm btn-outline-info"
+          >
+            Replay
+          </Link>
+        </div>
+      )}
       {assistantInfo?.is_demo && identity?.motto && (
         <p className="text-muted">{identity.motto}</p>
       )}

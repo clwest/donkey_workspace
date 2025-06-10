@@ -150,6 +150,23 @@ npm run dev
 Navigate to `/assistants/onboarding` to create your first assistant using the
 guided specialty selector.
 
+### Demo Assistant Flows
+
+Seed demo data and explore recap, overlay, and replay routes:
+
+```bash
+cd backend
+python manage.py seed_demos
+```
+
+Then visit the following URLs (replace `prompt_pal` and session ID as needed):
+
+- `/assistants/prompt_pal/demo_recap/<session_id>/`
+- `/assistants/prompt_pal/demo_overlay/`
+- `/assistants/prompt_pal/demo_replay/<session_id>/`
+
+These pages link to the assistant's Trust Profile, Trail recap, and Growth panels for a full demo walkthrough.
+
 ### Submitting Reflections
 
 After chatting with an assistant you can provide feedback via
