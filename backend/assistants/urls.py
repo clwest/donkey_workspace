@@ -397,6 +397,11 @@ urlpatterns = [
         name="demo_recap",
     ),
     path(
+        "demo_recap/<uuid:pk>/",
+        views.assistant_demo_recap,
+        name="assistant_demo_recap",
+    ),
+    path(
         "<slug:slug>/demo_replay/<uuid:session_id>/",
         demo.demo_replay_debug,
         name="demo_replay_debug",

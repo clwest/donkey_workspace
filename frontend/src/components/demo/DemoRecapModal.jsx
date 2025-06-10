@@ -94,7 +94,7 @@ export default function DemoRecapModal({ show, onClose, demoSlug, sessionId }) {
             )}
           </div>
         )}
-        {!loading && !data && <p>Failed to load recap.</p>}
+        {!loading && !data && <p>No recap available.</p>}
       </Modal.Body>
       <Modal.Footer className="flex-wrap gap-2">
         <Button variant="secondary" onClick={handleExport} disabled={loading}>
