@@ -83,3 +83,17 @@ from intel_core.ingestion import ingest_document
 entry = ingest_document(source="docs/myfile.pdf", created_by=user)
 print(entry.document.title)
 ```
+
+## Demo & QA
+
+Seed all demo data and run benchmarks:
+
+```bash
+./scripts/seed_all.sh
+./scripts/benchmark_endpoints.sh
+cat backend/benchmark_results.json
+```
+
+Use `/api/assistants/<slug>/demo_replay/<session_id>/`,
+`/api/assistants/<slug>/reflections/`, and `/api/assistants/<slug>/rag_debug/`
+to verify demo flows and RAG debugging.
