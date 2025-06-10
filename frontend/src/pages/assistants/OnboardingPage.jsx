@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import apiFetch from '@/utils/apiClient';
 import ThemeSelector from '../../components/onboarding/ThemeSelector';
 
 export default function OnboardingPage() {
   const [name, setName] = useState('');
-  const [theme, setTheme] = useState('fantasy');
+  const [specialty, setSpecialty] = useState('fantasy');
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
 
@@ -13,10 +12,11 @@ export default function OnboardingPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      const res = await apiFetch('/assistants/', {
+      const res = await fetch('/api/assistants/', {
         method: 'POST',
-        body: { name },
-      });
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, specialty }),
+      }).then((r) => r.json());
       if (res && res.slug) {
         navigate(`/assistants/${res.slug}`);
       }
@@ -28,7 +28,7 @@ export default function OnboardingPage() {
   return (
     <div className="container my-4">
       <h1 className="mb-3">Create Your First Assistant</h1>
-      <ThemeSelector theme={theme} onChange={setTheme} />
+      <ThemeSelector specialty={specialty} onChange={setSpecialty} />
       <form onSubmit={handleCreate} style={{ maxWidth: 400 }}>
         <div className="mb-3">
           <label className="form-label">Name</label>

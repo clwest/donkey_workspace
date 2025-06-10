@@ -9,13 +9,13 @@ class AssistantCreateAPITest(BaseAPITestCase):
 
     def test_first_flag(self):
         resp = self.client.post(
-            self.url, {"name": "A", "specialty": "x"}, format="json"
+            self.url, {"name": "A", "specialty": "Friendly"}, format="json"
         )
         assert resp.status_code == 201
         data = resp.json()
         assert data["is_first"] is True
         resp2 = self.client.post(
-            self.url, {"name": "B", "specialty": "y"}, format="json"
+            self.url, {"name": "B", "specialty": "Support"}, format="json"
         )
         assert resp2.status_code == 201
         assert resp2.json()["is_first"] is False
