@@ -556,7 +556,7 @@ export default function ChatWithAssistantPage() {
                 <div className="mb-1 small bg-white border rounded p-2">
                   <div>{identity.motto || "Here's how I think:"}</div>
                   <div>
-                    {identity.badges.map((b) => (
+                    {identity.badges?.map((b) => (
                       <AssistantBadgeIcon key={b} badges={[b]} />
                     ))}
                   </div>
