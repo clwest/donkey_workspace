@@ -4,6 +4,11 @@ from assistants.models import Assistant
 from assistants.helpers.memory_helpers import create_memory_from_chat
 from memory.models import MemoryEntry
 from assistants.helpers.logging_helper import log_trail_marker
+from assistants.models.demo import DemoUsageLog
+from assistants.models.demo_usage import DemoSessionLog
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def generate_assistant_from_demo(demo_slug: str, user, transcript=None):
@@ -181,6 +186,22 @@ def get_origin_traits(demo: Assistant) -> list[str]:
         traits.append(entry.anchor.label)
 
     return traits
+
+
+def get_or_create_usage_for_session(session_id: str):
+    """Return or create DemoUsageLog for the given session."""
+    usage = DemoUsageLog.objects.filter(session_id=session_id).first()
+    if usage:
+        return usage, False
+    session = DemoSessionLog.objects.filter(session_id=session_id).first()
+    if not session:
+        logger.debug("No session found for missing usage %s", session_id)
+        return None, False
+    usage = DemoUsageLog.objects.create(
+        session_id=session_id, demo_slug=session.assistant.demo_slug
+    )
+    logger.debug("Created DemoUsageLog for session %s", session_id)
+    return usage, True
 
 
 def log_demo_reflection(assistant: Assistant, session_id: str) -> None:

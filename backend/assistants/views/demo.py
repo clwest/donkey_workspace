@@ -29,6 +29,7 @@ from assistants.helpers.demo_utils import (
     generate_assistant_from_demo,
     boost_prompt_from_demo,
     compose_demo_reflection,
+    get_or_create_usage_for_session,
 )
 
 
@@ -57,6 +58,10 @@ def demo_recap(request, session_id):
     except Exception:
         return Response({"error": "invalid"}, status=400)
     session = DemoSessionLog.objects.filter(session_id=session_id).first()
+    force_usage = str(request.query_params.get("force_usage", "0")).lower() in {
+        "1",
+        "true",
+    }
     # Only pull the fields we need to avoid selecting missing columns
     usage = (
         DemoUsageLog.objects.filter(session_id=session_id)
@@ -64,6 +69,12 @@ def demo_recap(request, session_id):
         .order_by("id")  # avoid default ordering on missing created_at
         .first()
     )
+
+    if session and (force_usage or not usage):
+        usage, created = get_or_create_usage_for_session(session_id)
+        if created:
+            logger.debug("[DemoRecap] Created missing usage for %s", session_id)
+
     if not session or not usage:
         logger.warning("[DemoRecap] Missing session or usage for %s", session_id)
         return Response({})
