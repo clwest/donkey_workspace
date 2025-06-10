@@ -46,7 +46,6 @@ from assistants.helpers.demo_utils import (
 
 from assistants.models.demo import DemoUsageLog
 from assistants.models.demo_usage import DemoSessionLog
-from assistants.views.demo import bump_demo_score
 
 from assistants.models.assistant import (
     Assistant,
@@ -447,6 +446,7 @@ class AssistantViewSet(viewsets.ModelViewSet):
             "origin_traits": get_origin_traits(assistant),
         }
         if demo_session_id:
+            from .demo import bump_demo_score
             bump_demo_score(demo_session_id, 10)
         return Response(preview)
 
@@ -906,6 +906,7 @@ def chat_with_assistant_view(request, slug):
         log.message_count = F("message_count") + 1
         log.ended_at = timezone.now()
         log.save()
+        from .demo import bump_demo_score
         bump_demo_score(demo_session_id, 1)
 
     if assistant.is_primary and assistant.live_relay_enabled:
@@ -1418,6 +1419,7 @@ def assistant_from_demo(request):
             converted_from_demo=timezone.now(),
         )
 
+        from .demo import bump_demo_score
         bump_demo_score(demo_session_id, 10)
 
     return Response(
@@ -1430,37 +1432,6 @@ def assistant_from_demo(request):
     )
 
 
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def assistant_from_demo_preview(request):
-    """Return preview data for demo conversion."""
-    demo_slug = request.data.get("demo_slug")
-    transcript = request.data.get("transcript") or []
-    if not demo_slug:
-        return Response({"error": "demo_slug required"}, status=400)
-
-    demo = get_object_or_404(Assistant, demo_slug=demo_slug, is_demo=True)
-    from assistants.helpers.demo_utils import (
-        generate_demo_prompt_preview,
-        preview_boost_summary,
-        get_origin_traits,
-    )
-
-    preview = {
-        "assistant": {
-            "name": demo.name,
-            "description": demo.description,
-            "tone": demo.tone,
-            "avatar": demo.avatar,
-            "flair": demo.primary_badge,
-            "demo_slug": demo.demo_slug,
-        },
-        "recent_messages": transcript[:6],
-        "suggested_system_prompt": generate_demo_prompt_preview(demo),
-        "boost_summary": preview_boost_summary(demo, transcript),
-        "origin_traits": get_origin_traits(demo),
-    }
-    return Response(preview)
 
 
 @api_view(["POST"])

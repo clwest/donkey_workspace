@@ -31,7 +31,6 @@ from assistants.helpers.demo_utils import (
     compose_demo_reflection,
     get_or_create_usage_for_session,
 )
-from .assistants import assistant_from_demo_preview
 
 
 def bump_demo_score(session_id, delta=0, helpful=False):
@@ -109,6 +108,39 @@ def demo_tips(request, slug):
         return Response({"tips": []})
 
     return Response({"tips": DEMO_TIPS})
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def assistant_from_demo_preview(request):
+    """Return preview data for demo conversion."""
+    demo_slug = request.data.get("demo_slug")
+    transcript = request.data.get("transcript") or []
+    if not demo_slug:
+        return Response({"error": "demo_slug required"}, status=400)
+
+    demo = get_object_or_404(Assistant, demo_slug=demo_slug, is_demo=True)
+    from assistants.helpers.demo_utils import (
+        generate_demo_prompt_preview,
+        preview_boost_summary,
+        get_origin_traits,
+    )
+
+    preview = {
+        "assistant": {
+            "name": demo.name,
+            "description": demo.description,
+            "tone": demo.tone,
+            "avatar": demo.avatar,
+            "flair": demo.primary_badge,
+            "demo_slug": demo.demo_slug,
+        },
+        "recent_messages": transcript[:6],
+        "suggested_system_prompt": generate_demo_prompt_preview(demo),
+        "boost_summary": preview_boost_summary(demo, transcript),
+        "origin_traits": get_origin_traits(demo),
+    }
+    return Response(preview)
 
 
 @api_view(["POST"])

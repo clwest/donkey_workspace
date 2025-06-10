@@ -70,7 +70,7 @@ urlpatterns = [
     path("promote/", training.promote_trained_agent, name="assistant-promote"),
     path("from-documents/", assistants.assistant_from_documents),
     path("from_demo/", assistants.assistant_from_demo),
-    path("from_demo/preview/", assistants.assistant_from_demo_preview),
+    path("from_demo/preview/", demo.assistant_from_demo_preview),
     path(
         "<slug:demo_slug>/demo_preview/",
         demo.demo_preview_from_slug,
