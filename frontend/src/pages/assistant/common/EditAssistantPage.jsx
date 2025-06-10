@@ -179,7 +179,7 @@ export default function EditAssistantPage() {
           <label className="form-label">Avatar URL</label>
           <input className="form-control" value={avatar} onChange={(e) => setAvatar(e.target.value)} />
         </div>
-        <PromptIdeaGenerator onGenerate={(prompt) => setPersonality(prompt)} />
+        <PromptIdeaGenerator onGenerate={(prompt) => setPersonality(prompt.content)} />
         <div className="mb-3">
           <label className="form-label">System Prompt</label>
           <select
