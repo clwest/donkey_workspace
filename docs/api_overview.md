@@ -56,7 +56,7 @@ You can also POST to `/api/assistants/`:
 ```bash
 curl -X POST -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
-  -d '{"name":"Starter Bot","specialty":"demo"}' \
+  -d '{"name": "My First Assistant", "specialty": "Friendly"}' \
   http://localhost:8000/api/assistants/
 ```
 

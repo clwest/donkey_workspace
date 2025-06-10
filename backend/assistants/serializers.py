@@ -367,6 +367,8 @@ class AssistantSkillSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
+            "specialty",
+            "created_at",
             "description",
             "confidence",
             "related_tools",
@@ -1489,6 +1491,8 @@ class AssistantSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
+            "specialty",
+            "created_at",
             "display_name",
             "persona_name",
             "avatar",

@@ -148,7 +148,15 @@ npm install
 npm run dev
 ```
 Navigate to `/assistants/onboarding` to create your first assistant using the
-guided theme selector.
+guided specialty selector.
+
+Example API request:
+
+```bash
+curl -X POST -H "Content-Type: application/json" \
+  -d '{"name": "My First Assistant", "specialty": "Friendly"}' \
+  http://localhost:8000/api/assistants/
+```
 ### API Environment
 
 Prompts are served at `/api/prompts/`. Set `VITE_API_URL` to your backend's `/api` base (e.g., `http://localhost:8000/api`) without a `/v1` suffix unless the backend routes change.
