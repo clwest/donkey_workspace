@@ -80,7 +80,7 @@ urlpatterns = [
     path("<uuid:id>/identity/", identity.assistant_identity, name="assistant-identity"),
     path(
         "<slug:slug>/identity/",
-        identity.assistant_identity_summary,
+        identity.AssistantIdentitySummaryView.as_view(),
         name="assistant-identity-summary",
     ),
     path("<uuid:id>/mythpath/", identity.assistant_mythpath, name="assistant-mythpath"),
@@ -424,7 +424,6 @@ urlpatterns = [
         demo.reset_demo_session,
         name="demo_session_reset",
     ),
-    
     # Sessions
     path("sessions/list/", sessions.list_chat_sessions, name="chat_session_list"),
     path(

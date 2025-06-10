@@ -142,6 +142,7 @@ class Assistant(TrustProfileMixin, models.Model):
     archetype_summary = models.TextField(null=True, blank=True)
     show_intro_splash = models.BooleanField(default=True)
     show_trail_recap = models.BooleanField(default=False)
+    auto_start_chat = models.BooleanField(default=True)
     embedding = VectorField(
         dimensions=1536, null=True, blank=True
     )  # adjust dim if needed

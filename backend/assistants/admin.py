@@ -79,6 +79,7 @@ class AssistantAdmin(admin.ModelAdmin):
                     "is_featured",
                     "featured_rank",
                     "show_intro_splash",
+                    "auto_start_chat",
                     "created_by",
                     "created_at",
                 )

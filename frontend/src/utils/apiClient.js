@@ -84,7 +84,9 @@ export default async function apiFetch(url, options = {}) {
   } = options;
 
   if (authLost && !allowUnauthenticated) {
-    throw new Error("Unauthorized");
+    const err = new Error("Unauthorized");
+    err.status = 401;
+    throw err;
   }
 
   const token = getAccessToken();
@@ -159,7 +161,9 @@ export default async function apiFetch(url, options = {}) {
         window.location.assign(`/login?next=${next}`);
       }
     }
-    throw new Error("Unauthorized");
+    const err = new Error("Unauthorized");
+    err.status = 401;
+    throw err;
   }
 
   if (!res.ok) {
@@ -172,7 +176,9 @@ export default async function apiFetch(url, options = {}) {
       errorMsg += `: ${res.statusText}`;
     }
     console.error(errorMsg);
-    throw new Error(errorMsg);
+    const apiErr = new Error(errorMsg);
+    apiErr.status = res.status;
+    throw apiErr;
   }
 
   if (res.status === 204 || res.status === 205) {

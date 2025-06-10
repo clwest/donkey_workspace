@@ -741,12 +741,9 @@ def assistant_from_documents(request):
 
 def _get_demo_starter_memory(assistant):
     """Return pre-seeded chat messages for a demo assistant."""
-    mems = (
-        MemoryEntry.objects.filter(
-            assistant=assistant, is_demo=True, tags__slug="starter-chat"
-        )
-        .order_by("created_at")
-    )
+    mems = MemoryEntry.objects.filter(
+        assistant=assistant, is_demo=True, tags__slug="starter-chat"
+    ).order_by("created_at")
     messages = []
     for mem in mems:
         text = mem.full_transcript or mem.event or ""
@@ -763,15 +760,25 @@ def chat_with_assistant_view(request, slug):
     assistant = get_object_or_404(Assistant, slug=slug)
     user = request.user if request.user.is_authenticated else None
 
-    starter_query = request.data.get("starter_query") or request.query_params.get("starter_query")
+    starter_query = request.data.get("starter_query") or request.query_params.get(
+        "starter_query"
+    )
+    inject_flag = request.data.get("inject_starter") or request.query_params.get(
+        "inject_starter"
+    )
+    inject_starter = str(inject_flag).lower() in ["1", "true", "yes"]
     starter_messages = (
-        _get_demo_starter_memory(assistant) if assistant.is_demo and starter_query else []
+        _get_demo_starter_memory(assistant)
+        if assistant.is_demo and starter_query
+        else []
     )
     demo_intro_message = None
     if starter_messages:
         first = next((m for m in starter_messages if m["role"] == "assistant"), None)
         if first:
-            demo_intro_message = f"{assistant.name} ({assistant.tone}): {first['content']}"
+            demo_intro_message = (
+                f"{assistant.name} ({assistant.tone}): {first['content']}"
+            )
 
     message = request.data.get("message")
     session_id = request.data.get("session_id") or str(uuid.uuid4())
@@ -789,14 +796,16 @@ def chat_with_assistant_view(request, slug):
                 },
             )
         history = load_session_messages(session_id)
-        if assistant.is_demo and not history and starter_query:
+        if assistant.is_demo and not history and starter_query and inject_starter:
             save_message_to_session(session_id, "user", starter_query)
             history = load_session_messages(session_id)
-        return Response({
-            "messages": history,
-            "starter_memory": starter_messages,
-            "demo_intro_message": demo_intro_message,
-        })
+        return Response(
+            {
+                "messages": history,
+                "starter_memory": starter_messages,
+                "demo_intro_message": demo_intro_message,
+            }
+        )
 
     if not message:
         return Response({"error": "Empty message."}, status=status.HTTP_400_BAD_REQUEST)
@@ -1584,6 +1593,7 @@ def refine_from_drift(request, slug):
     glossary_map: dict[str, str] = {}
     if session_id:
         from memory.models import RAGPlaybackLog
+
         logs = RAGPlaybackLog.objects.filter(
             assistant=assistant, demo_session_id=str(session_id)
         ).order_by("created_at")
@@ -1629,10 +1639,11 @@ def refine_from_drift(request, slug):
         {
             "drift": drift,
             "glossary_fixes": glossary_fixes,
-            "prompt_revision":
+            "prompt_revision": (
                 {"before": prompt_before, "after": prompt_after}
                 if prompt_before != prompt_after
-                else None,
+                else None
+            ),
             "tone_tags": tone_tags,
         }
     )
@@ -2392,7 +2403,9 @@ def assistant_trust_profile(request, slug):
         .first()
     )
 
-    drift_fix_count = AssistantDriftRefinementLog.objects.filter(assistant=assistant).count()
+    drift_fix_count = AssistantDriftRefinementLog.objects.filter(
+        assistant=assistant
+    ).count()
 
     logs = RAGGroundingLog.objects.filter(assistant=assistant).values(
         "glossary_hits",
