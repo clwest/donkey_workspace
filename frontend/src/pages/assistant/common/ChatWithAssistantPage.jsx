@@ -81,6 +81,7 @@ export default function ChatWithAssistantPage() {
     return id;
   });
   const cachedRef = useRef(null);
+  const starterSentRef = useRef(false);
   const [showRestore, setShowRestore] = useState(false);
   const messagesEndRef = useRef(null);
   const [sourceInfo, setSourceInfo] = useState(null);
@@ -96,7 +97,9 @@ export default function ChatWithAssistantPage() {
   const [feedbackText, setFeedbackText] = useState("");
   const [starterMemory, setStarterMemory] = useState([]);
   const [demoIntro, setDemoIntro] = useState(null);
-  const [showBanner, setShowBanner] = useState(true);
+  const [showBanner, setShowBanner] = useState(
+    () => !localStorage.getItem(`demo_banner_${slug}`)
+  );
   const firstAssistantIndex = messages.findIndex((m) => m.role === "assistant");
   const [primerDone, setPrimerDone] = useState(
     !!localStorage.getItem(`primer_done_${slug}`),
@@ -140,7 +143,13 @@ export default function ChatWithAssistantPage() {
       });
   }, [slug]);
 
-  const identity = useAssistantIdentity(slug);
+  const identity = useAssistantIdentity(slug, { allowUnauthenticated: true });
+
+  useEffect(() => {
+    if (assistantInfo && !identity && assistantInfo.is_demo) {
+      toast.error("Demo identity unavailable");
+    }
+  }, [assistantInfo, identity]);
 
   useEffect(() => {
     if (messages.length) {
@@ -179,7 +188,7 @@ export default function ChatWithAssistantPage() {
           setDemoIntro(data.demo_intro_message);
         }
         let msgs = data.messages || [];
-        if (starter && msgs.length === 0) {
+        if (starter && msgs.length === 0 && !starterSentRef.current) {
           const demoData = await apiFetch(`/assistants/${slug}/chat/`, {
             method: "POST",
             body: {
@@ -189,13 +198,14 @@ export default function ChatWithAssistantPage() {
               starter_query: starter,
             },
           });
+          starterSentRef.current = true;
           msgs = demoData.messages || [];
         }
         setMessages(msgs);
       };
       fetchSession();
     }
-  }, [slug, sessionId, starter]);
+  }, [slug, sessionId, starter, demoSessionId]);
 
   useEffect(() => {
     return () => {
@@ -446,7 +456,13 @@ export default function ChatWithAssistantPage() {
             <Link className="btn btn-sm btn-primary me-2" to="/assistants/create/">
               Create Your Own
             </Link>
-            <button className="btn btn-sm btn-outline-secondary" onClick={() => setShowBanner(false)}>
+            <button
+              className="btn btn-sm btn-outline-secondary"
+              onClick={() => {
+                localStorage.setItem(`demo_banner_${slug}`, "1");
+                setShowBanner(false);
+              }}
+            >
               ×
             </button>
           </div>

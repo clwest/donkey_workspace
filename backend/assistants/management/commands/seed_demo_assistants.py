@@ -57,8 +57,33 @@ class Command(BaseCommand):
             ).first()
 
             if assistant and not force:
+                # Ensure existing demo assistants have required fields
+                patched = False
+                if not assistant.system_prompt:
+                    prompt, _ = Prompt.objects.get_or_create(
+                        title=f"{demo['name']} Seed Prompt",
+                        defaults={
+                            "content": demo["prompt"],
+                            "type": "system",
+                            "source": "seed_demo_assistants",
+                        },
+                    )
+                    assistant.system_prompt = prompt
+                    patched = True
+                if not assistant.memory_context:
+                    from mcp_core.models import MemoryContext
+
+                    context = MemoryContext.objects.create(
+                        content=f"{assistant.slug}-context"
+                    )
+                    assistant.memory_context = context
+                    patched = True
+                if patched:
+                    assistant.save()
                 if verbosity >= 2:
-                    self.stdout.write(f"❌ Skipping {demo['name']} (already exists)")
+                    self.stdout.write(
+                        f"❌ Skipping {demo['name']} (already exists, updated fields)"
+                    )
                 continue
 
             if assistant and force:

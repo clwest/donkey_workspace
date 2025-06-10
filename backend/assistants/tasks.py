@@ -167,10 +167,10 @@ def run_assistant_reflection(self, memory_id: int):
                 f"❌ No assistant attached to memory {memory_id}. Skipping reflection."
             )
 
+        engine = AssistantReflectionEngine(memory.assistant)
         if not memory.context:
             memory.context = memory.assistant.memory_context
             memory.save(update_fields=["context"])
-        engine = AssistantReflectionEngine(memory.assistant)
         ref_log = engine.reflect_now()
         if not ref_log:
             return "🧠 No relevant entries to reflect on."

@@ -1870,6 +1870,9 @@ class AssistantPreviewSerializer(serializers.ModelSerializer):
     is_demo_clone = serializers.BooleanField(read_only=True)
     demo_origin = serializers.SerializerMethodField()
     preview_traits = serializers.SerializerMethodField()
+    memory_context_id = serializers.UUIDField(
+        source="memory_context.id", read_only=True
+    )
 
     class Meta:
         model = Assistant
@@ -1889,6 +1892,7 @@ class AssistantPreviewSerializer(serializers.ModelSerializer):
             "is_demo_clone",
             "demo_origin",
             "preview_traits",
+            "memory_context_id",
         ]
 
     def get_flair(self, obj):
