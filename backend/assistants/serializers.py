@@ -2387,3 +2387,15 @@ class AssistantOverviewSerializer(serializers.ModelSerializer):
     def get_drift_fixes_recent(self, obj):
         return compute_trust_score(obj)["components"]["drift_fixes_recent"]
 
+
+
+class DemoHealthSerializer(serializers.Serializer):
+    slug = serializers.CharField()
+    name = serializers.CharField()
+    has_system_prompt = serializers.BooleanField()
+    has_memory_context = serializers.BooleanField()
+    memory_count = serializers.IntegerField()
+    reflection_count = serializers.IntegerField()
+    starter_chat_count = serializers.IntegerField()
+    prompt_preview = serializers.CharField()
+

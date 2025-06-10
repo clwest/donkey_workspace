@@ -118,6 +118,7 @@ Route Path,Component
 /dev/route-check,RouteCheckPage
 /dev/route-health,RouteViewer
 /dev/routes,RouteViewer
+/dev/demo-checkup,DemoCheckupPage
 /dev/routes/capabilities,CapabilityStatus
 /dream,DreamframePage
 /dream/rebirth,DreamRebirthPage
