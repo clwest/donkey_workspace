@@ -4,6 +4,7 @@ from rest_framework.routers import DefaultRouter
 from django.conf import settings
 from django.conf.urls.static import static
 from django.http import JsonResponse
+from . import views as server_views
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -99,6 +100,8 @@ def routes_list(request):
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("health/", server_views.health, name="health"),
+    path("metrics/", server_views.metrics, name="metrics"),
     path("api/v1/", include(api_router.urls)),
     path("api/routes/", routes_list),
     path("api/dev/routes/fullmap/", full_route_map),

@@ -5,11 +5,22 @@ import logging
 import warnings
 from dotenv import load_dotenv
 from corsheaders.defaults import default_headers
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 # === ⚙️ Load Environment ===
 load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 PROMPTS_ROOT = BASE_DIR / "prompt_sets"
+
+SENTRY_DSN = os.getenv("SENTRY_DSN")
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        traces_sample_rate=1.0,
+        environment=os.getenv("ENVIRONMENT", "development"),
+    )
 
 # === ⚠️ Deprecation Warnings ===
 warnings.filterwarnings("ignore", category=UserWarning, module="dj_rest_auth")
