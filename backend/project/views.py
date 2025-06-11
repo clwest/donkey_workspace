@@ -8,7 +8,7 @@ from .serializers import (
     ProjectTaskSerializer,
     ProjectMilestoneSerializer,
 )
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -80,7 +80,7 @@ class ProjectTaskViewSet(viewsets.ModelViewSet):
     """Manage tasks for a specific project (``project_pk`` URL kwarg)."""
 
     serializer_class = ProjectTaskSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return ProjectTask.objects.filter(
@@ -96,7 +96,7 @@ class ProjectMilestoneViewSet(viewsets.ModelViewSet):
     """Manage milestones for a specific project (``project_pk`` URL kwarg)."""
 
     serializer_class = ProjectMilestoneSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return ProjectMilestone.objects.filter(
