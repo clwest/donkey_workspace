@@ -35,6 +35,14 @@ export default function DocumentIngestionForm({ onSuccess }) {
       .split(",")
       .map((t) => t.trim().toLowerCase())
       .filter((t) => t.length > 0);
+    const urlList = urlInput
+      .split(",")
+      .map((u) => u.trim())
+      .filter((u) => u.length > 0);
+    const videoList = videoInput
+      .split(",")
+      .map((u) => u.trim())
+      .filter((u) => u.length > 0);
 
     try {
       let sourceType = "";
@@ -59,9 +67,13 @@ export default function DocumentIngestionForm({ onSuccess }) {
       if (selectedAssistant?.id) formData.append("assistant_id", selectedAssistant.id);
       formData.append("reflect_after", reflectAfter ? "true" : "false");
       formData.append("source_type", sourceType);
-      parsedTags.forEach((t) => formData.append("tags", t));
-      if (urlInput.trim()) formData.append("urls", urlInput);
-      if (videoInput.trim()) formData.append("videos", videoInput);
+      if (parsedTags.length > 0) {
+        formData.append("tags", JSON.stringify(parsedTags));
+      }
+      const combinedUrls = sourceType === "youtube" ? videoList : urlList;
+      if (combinedUrls.length > 0) {
+        formData.append("urls", JSON.stringify(combinedUrls));
+      }
       pdfFiles.forEach((file) => formData.append("files", file));
       const data = await apiFetch(`/intel/ingest/`, {
         method: "POST",
