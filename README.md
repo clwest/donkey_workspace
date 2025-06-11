@@ -265,6 +265,7 @@ Run the simple benchmark script to measure API latency. Results are saved to
 Errors are sent to Sentry when `SENTRY_DSN` is provided. Prometheus metrics are
 available at `/metrics/`. Import `docs/grafana_dashboard.json` into Grafana for
 basic request and error charts.
+See [MAINTENANCE.md](MAINTENANCE.md) for daily health checks and dependency updates.
 
 ### CI/CD
 
@@ -338,6 +339,7 @@ and `SwarmCodificationPattern`.
 Sentry errors are reported using the DSN in `.env`. Prometheus metrics are
 exposed at `/metrics/` for Grafana dashboards.
 CI and deployment pipelines are documented in [docs/ci-cd.md](docs/ci-cd.md).
+See [MAINTENANCE.md](MAINTENANCE.md) for workflow schedules and alert response steps.
 
 
 - Other domain docs are under `backend/docs/` and `frontend/docs/`.

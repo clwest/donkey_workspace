@@ -1,0 +1,44 @@
+name: Daily Health Check
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Perform health checks
+        id: health
+        run: |
+          BASE_URL=${{ secrets.HEALTHCHECK_BASE_URL }}
+          endpoints=("/health/" "/metrics/" "/api/assistants/" "/api/token/")
+          FAIL=0
+          RESULTS=""
+          for path in "${endpoints[@]}"; do
+            url="$BASE_URL$path"
+            output=$(curl -w '%{http_code} %{time_total}' -o /tmp/resp -s "$url")
+            code=$(echo $output | awk '{print $1}')
+            time=$(echo $output | awk '{print $2}')
+            RESULTS+="${path} ${code} ${time}\n"
+            if [ "$code" != "200" ]; then
+              FAIL=1
+            fi
+          done
+          echo -e "$RESULTS"
+          echo "results<<END" >> $GITHUB_OUTPUT
+          echo -e "$RESULTS" >> $GITHUB_OUTPUT
+          echo "END" >> $GITHUB_OUTPUT
+          exit $FAIL
+
+      - name: Notify Slack on failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          payload: |
+            {
+              "text": "MythOS health check failed:\n${{ steps.health.outputs.results }}"
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
