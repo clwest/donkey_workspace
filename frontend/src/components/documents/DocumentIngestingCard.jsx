@@ -1,21 +1,84 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import DocumentStatusCard from "./DocumentStatusCard";
+import apiFetch from "../../utils/apiClient";
+export default function DocumentIngestingCard({ doc, highlightConflicts }) {
+  const [localDoc, setLocalDoc] = useState(doc);
 
-export default function DocumentIngestingCard({ doc }) {
-  if (!doc) return null;
-  const title = doc.title || "Untitled";
-  const sourceType = doc.source_type || "";
-  const embedded = doc.embedded_chunks ?? doc.num_embedded ?? 0;
-  const chunkIndex = doc.chunk_index ?? doc.chunk_count ?? 0;
-  const tokenCount = doc.token_count || 0;
-  const progressPct = chunkIndex ? Math.round((embedded / chunkIndex) * 100) : 0;
+  useEffect(() => {
+    setLocalDoc(doc);
+  }, [doc]);
+
+  useEffect(() => {
+    const pid = doc?.metadata?.progress_id;
+    if (!pid) return;
+    let stop = false;
+
+    const fetchProgress = async () => {
+      try {
+        const data = await apiFetch(`/intel/documents/${pid}/progress/`);
+        setLocalDoc((prev) => ({
+          ...prev,
+          progress_status: data.status,
+          progress_error: data.error_message,
+          failed_chunks: data.failed_chunks,
+          chunk_index: data.processed ?? prev.chunk_index,
+          embedded_chunks: data.embedded_chunks ?? prev.embedded_chunks,
+          num_embedded: data.embedded_chunks ?? prev.num_embedded,
+          chunk_count: data.total_chunks ?? prev.chunk_count,
+          num_chunks: data.total_chunks ?? prev.num_chunks,
+        }));
+
+        if (data.status === "completed" || data.status === "failed") {
+          const full = await apiFetch(`/intel/documents/${doc.id}/`);
+          if (!stop) setLocalDoc((prev) => ({ ...prev, ...full }));
+          clearInterval(interval);
+        }
+      } catch (err) {
+        console.error("Progress poll failed", err);
+      }
+    };
+
+    fetchProgress();
+    const interval = setInterval(fetchProgress, 3000);
+    return () => {
+      stop = true;
+      clearInterval(interval);
+    };
+  }, [doc.id, doc?.metadata?.progress_id]);
+
+  if (!localDoc) return null;
+
+  const title = localDoc.title || "Untitled";
+  const sourceType = localDoc.source_type || "";
+  const embedded = localDoc.embedded_chunks ?? localDoc.num_embedded ?? 0;
+  const created = localDoc.chunk_index ?? localDoc.chunk_count ?? 0;
+  const total = localDoc.chunk_count ?? localDoc.num_chunks ?? created;
+  const failedCount = localDoc.failed_chunks?.length || 0;
+  const tokenCount = localDoc.token_count || 0;
+  const progressPct = total ? Math.round((embedded / total) * 100) : 0;
 
   return (
-    <div className="card mb-3 shadow-sm p-3">
+    <div
+      className={`card mb-3 shadow-sm p-3 ${
+        highlightConflicts && failedCount > 0 ? "border-danger" : ""
+      }`}
+    >
       <h5 className="mb-1">{title}</h5>
       <div className="small text-muted mb-2">Source: {sourceType}</div>
       <div className="small mb-1">
-        <strong>Chunks:</strong> {embedded} / {chunkIndex}
+        <strong>Chunks:</strong>{" "}
+        <span title={`${embedded}/${created} embedded/created`}>
+          {embedded} / {created}
+        </span>
+        {created !== total && (
+          <span className="ms-1" title={`Created ${created} of ${total}`}>
+            ({created}/{total})
+          </span>
+        )}
+        {failedCount > 0 && (
+          <span className="ms-1 text-danger" title={`Failed chunks: ${localDoc.failed_chunks.join(", ")}`}>❌ {failedCount}</span>
+        )}
       </div>
       <div className="small mb-1">
         <strong>Tokens:</strong> {tokenCount.toLocaleString()}
@@ -28,13 +91,15 @@ export default function DocumentIngestingCard({ doc }) {
         />
       </div>
       <div className="d-flex align-items-center gap-2">
-        <DocumentStatusCard doc={doc} />
-        {doc.reflection_prompt_id && doc.progress_status === "completed" && (
+
+        <DocumentStatusCard doc={localDoc} />
+        {localDoc.prompt_id && localDoc.progress_status === "completed" && (
           <Link
-            to={`/prompts/${doc.reflection_prompt_id}`}
+            to={`/prompts/${localDoc.prompt_id}`}
             className="small text-decoration-underline"
           >
-            📄 {doc.reflection_prompt_title || "View Reflection Prompt"}
+            📄 View Reflection Prompt
+
           </Link>
         )}
       </div>
