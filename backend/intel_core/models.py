@@ -40,6 +40,7 @@ class Document(models.Model):
     # Allow very long URLs (e.g. signed S3 links) without truncation errors
     source_url = models.URLField(blank=True, null=True, max_length=500)
     summary = models.TextField(null=True, blank=True)  # ✅ Add this
+    progress_error = models.TextField(blank=True, null=True)
     SOURCE_TYPE_CHOICES = [
         ("url", "URL"),
         ("pdf", "PDF"),

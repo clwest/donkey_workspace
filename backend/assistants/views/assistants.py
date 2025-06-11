@@ -1479,8 +1479,8 @@ def review_ingest(request, slug, doc_id):
         return Response({"error": "Document not found"}, status=404)
 
     if not document.chunks.filter(embedding__isnull=False).exists():
-        logger.warning("[Review] Skipping reflection. No embedded memory found.")
-        return Response(status=400, data={"error": "No memory found for reflection"})
+        logger.warning("Skipping reflection — no embedded memory found.")
+        return Response({"error": "No memory chunks found for reflection."}, status=400)
 
     if (
         document.last_reflected_at

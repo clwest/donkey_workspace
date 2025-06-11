@@ -65,14 +65,8 @@ export default function DocumentIngestingCard({ doc, highlightConflicts }) {
       }`}
     >
       {localDoc.progress_status === "error" && (
-        <div className="alert alert-danger p-1 mb-2 d-flex justify-content-between align-items-center">
-          <span>❌ {localDoc.progress_error || "Ingestion failed"}</span>
-          <button
-            className="btn btn-sm btn-outline-danger"
-            onClick={() => window.location.reload()}
-          >
-            Retry
-          </button>
+        <div className="text-red-500 text-sm mt-2">
+          ⚠️ Ingestion failed: {localDoc.progress_error || "Unknown error"}
         </div>
       )}
       <h5 className="mb-1">{title}</h5>
