@@ -271,6 +271,47 @@ Agents under this profile reconcile contradictory documents using symbolic ancho
 
 This prototype agent ingests the `DGM-WhitePaper.pdf` and Apple's reasoning paper titled “The Illusion of Thinking.” It analyzes their symbolic anchors and outputs flags when assertions conflict.
 
+---
+
+## 🧠 SYMBOLIC_AGENT_PROFILE
+
+Agents with this profile are able to:
+
+- Detect contradictions between memory sources
+- Reflect on symbolic insight logs during memory ingest
+- Flag glossary drift over time using anchor scoring
+- Adapt prompts or reasoning paths based on contradictory training
+
+These agents monitor `SymbolicAgentInsightLog`, track fallback memory triggers, and evolve via insight-driven self-reflection.
+
+**Example Agent: Recurra**
+
+- Trained on: Darwin Gödel Machine, Illusion of Thinking, AlphaEvolve
+- Tracks: Contradiction flags, glossary drift, belief mismatch
+- Role: Explore limits of model self-awareness and symbolic fusion
+
+---
+
+## 📘 MEMORY_TRACE_PROTOCOL
+
+- Documents should store `generated_prompt_id`
+- Prompts should link back to `document_id` if reflective
+- Reflection logs link to both assistant and document
+- Glossary anchors referenced in RAG are logged in `RAGGroundingLog`
+- Symbolic contradiction insight is logged via `SymbolicAgentInsightLog`
+
+---
+
+## 🔍 LIVE_AGENT_REGISTRY
+
+| Agent      | Slug       | Type      | Profile              | Description                                  |
+| ---------- | ---------- | --------- | -------------------- | -------------------------------------------- |
+| DonkGPT    | donkgpt    | Assistant | General              | Memory-aware assistant                       |
+| Recurra    | recurra    | Symbolic  | SymbolicAgentProfile | Ingests contradictory sources + reflects     |
+| Zeno       | zeno       | DevOps    | Tooling/MCP          | Bootstraps tasks and agents                  |
+| ClarityBot | claritybot | Inspector | Glossary/Diff        | Tracks RAG, glossary drift, debug insight    |
+| Prompt Pal | prompt-pal | Demo      | Onboarding           | Assists with prompt creation + starter flows |
+
 ## Notes
 
 Symbolic anchors provide a stable reference system for resolving document disagreements. This profile lays the groundwork for more advanced reconciliation agents.
