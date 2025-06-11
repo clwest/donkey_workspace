@@ -22,8 +22,10 @@ export default function DocumentStatusCard({ doc }) {
     label = progressStatus === "error" ? "Error" : "Failed";
     const reasons = [];
     if (doc.progress_error) reasons.push(doc.progress_error);
-    if (doc.failed_chunks && doc.failed_chunks.length > 0) {
+    if (Array.isArray(doc.failed_chunks) && doc.failed_chunks.length > 0) {
       reasons.push(`Failed chunks: ${doc.failed_chunks.join(", ")}`);
+    } else {
+      reasons.push("No failed chunks");
     }
     tip = reasons.join("; ") || "Upload failed";
   } else if (completed) {
@@ -39,10 +41,12 @@ export default function DocumentStatusCard({ doc }) {
     } else {
       label = "Uploading...";
     }
-    if (doc.failed_chunks && doc.failed_chunks.length > 0) {
+    if (Array.isArray(doc.failed_chunks) && doc.failed_chunks.length > 0) {
       tip = `Failed chunks: ${doc.failed_chunks.join(", ")}`;
     } else if (doc.updated_at) {
       tip = `Last updated: ${new Date(doc.updated_at).toLocaleString()}`;
+    } else {
+      tip = "No failed chunks";
     }
   }
 
