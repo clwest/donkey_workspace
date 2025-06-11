@@ -10,7 +10,7 @@ export default function DocumentIngestionForm({ onSuccess }) {
   const [tags, setTags] = useState("");
   const [title, setTitle] = useState("");
   const [assistants, setAssistants] = useState([]);
-  const [selectedAssistant, setSelectedAssistant] = useState("");
+  const [selectedSlug, setSelectedSlug] = useState("");
   const [loading, setLoading] = useState(false);
   const [reflectAfter, setReflectAfter] = useState(false);
   const navigate = useNavigate();
@@ -51,9 +51,12 @@ export default function DocumentIngestionForm({ onSuccess }) {
         setLoading(false);
         return;
       }
+      const selectedAssistant = assistants.find((a) => a.slug === selectedSlug);
+      console.log("Ingesting for assistant:", selectedAssistant?.id);
+
       const formData = new FormData();
       formData.append("title", title);
-      if (selectedAssistant) formData.append("assistant_id", selectedAssistant);
+      if (selectedAssistant?.id) formData.append("assistant_id", selectedAssistant.id);
       formData.append("reflect_after", reflectAfter ? "true" : "false");
       formData.append("source_type", sourceType);
       parsedTags.forEach((t) => formData.append("tags", t));
@@ -70,18 +73,15 @@ export default function DocumentIngestionForm({ onSuccess }) {
         return;
       }
       if (onSuccess) await onSuccess();
-      if (reflectAfter && selectedAssistant && data && data.documents?.length > 0) {
+      if (reflectAfter && selectedAssistant?.id && data && data.documents?.length > 0) {
         const docId = data.documents[0].id;
         if (!docId || docId === "undefined") {
           console.warn(
             `[ReviewIngest] Skipping review — invalid document ID: ${docId}`,
           );
         } else {
-          const asst = assistants.find((a) => a.id === selectedAssistant);
-          if (asst) {
-            navigate(`/assistants/${asst.slug}/review-ingest/${docId}/`);
-            return;
-          }
+          navigate(`/assistants/${selectedAssistant.slug}/review-ingest/${docId}/`);
+          return;
         }
       }
       if (
@@ -98,7 +98,7 @@ export default function DocumentIngestionForm({ onSuccess }) {
       setTags("");
       setTitle("");
       setPdfFiles([]);
-      setSelectedAssistant("");
+      setSelectedSlug("");
       setReflectAfter(false);
     } catch (err) {
       console.error("Failed to load documents:", err);
@@ -157,12 +157,12 @@ export default function DocumentIngestionForm({ onSuccess }) {
         <label className="form-label">Assign to Assistant</label>
         <select
           className="form-select"
-          value={selectedAssistant}
-          onChange={(e) => setSelectedAssistant(e.target.value)}
+          value={selectedSlug}
+          onChange={(e) => setSelectedSlug(e.target.value)}
         >
           <option value="">-- Select an assistant --</option>
           {assistants.map((a) => (
-            <option key={a.id} value={a.id}>
+            <option key={a.id} value={a.slug}>
               {a.name}
             </option>
           ))}
