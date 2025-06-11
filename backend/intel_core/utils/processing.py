@@ -652,9 +652,13 @@ def process_pdfs(pdf, pdf_title, project_name, session_id):
         embedded_chunk_count = document.chunks.filter(embedding__isnull=False).count()
         if embedded_chunk_count == 0:
             logger.error("[Ingest] Fatal: Document has no usable embedded chunks.")
-            document.progress_status = "error"
-            document.progress_error = "No usable chunks for embedding"
-            document.save(update_fields=["progress_status", "progress_error"])
+            from intel_core.models import DocumentProgress
+
+            progress = DocumentProgress.objects.filter(document=document).first()
+            if progress:
+                progress.status = "failed"
+                progress.error_message = "No usable chunks for embedding"
+                progress.save(update_fields=["status", "error_message"])
             return None
 
         return document
