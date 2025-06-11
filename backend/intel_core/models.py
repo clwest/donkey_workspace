@@ -68,17 +68,6 @@ class Document(models.Model):
     )
     last_reflected_at = models.DateTimeField(null=True, blank=True)
 
-    PROGRESS_STATUS_CHOICES = [
-        ("in_progress", "In Progress"),
-        ("completed", "Completed"),
-        ("error", "Error"),
-    ]
-    progress_status = models.CharField(
-        max_length=20,
-        choices=PROGRESS_STATUS_CHOICES,
-        default="in_progress",
-    )
-    progress_error = models.CharField(max_length=255, null=True, blank=True)
     status = models.CharField(
         max_length=20,
         default="pending",
