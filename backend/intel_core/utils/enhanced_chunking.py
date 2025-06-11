@@ -419,8 +419,8 @@ def _web_content_chunking(text):
 
     # Filter out any chunks that are too small
     chunks = [
-        chunk for chunk in chunks if len(chunk) > 50
-    ]  # Reduced minimum size for testing
+        chunk for chunk in chunks if len(chunk.split()) > 15
+    ]  # Reduced minimum size
 
     # Ensure at least 2 chunks for testing
     if len(chunks) == 1 and len(chunks[0]) > 200:

@@ -125,6 +125,7 @@ def _create_document_chunks(document: Document):
 
     """Create DocumentChunk objects for ``document`` if none exist."""
     if DocumentChunk.objects.filter(document=document).exists():
+        logger.info("[Chunk Filter] %s already has chunks — skipping creation", document.id)
         return
 
     chunks = generate_chunks(document.content)
@@ -132,9 +133,11 @@ def _create_document_chunks(document: Document):
     anchors = list(SymbolicMemoryAnchor.objects.all().prefetch_related("tags"))
     queued_chunks = []
     short_candidates: list[tuple[int, dict]] = []
+    skipped = 0
     for i, chunk in enumerate(chunks):
         info = clean_and_score_chunk(chunk, chunk_index=i)
         if not info["keep"]:
+            skipped += 1
             logger.debug(
                 "⏭️ Skipping chunk %d (%d chars, %s) reason=%s score=%.2f",
                 i,
@@ -147,7 +150,7 @@ def _create_document_chunks(document: Document):
                 "[Chunk Filter] %s chunk %d skipped: %s (%.2f)",
                 document.id,
                 i,
-                info.get("reason"),
+                info.get("reason", "unknown").upper(),
                 info.get("score", 0.0),
             )
             if info.get("reason") in ("too_short", "short_low_quality"):
@@ -226,6 +229,37 @@ def _create_document_chunks(document: Document):
             except IntegrityError:
                 continue
 
+    skip_ratio = skipped / max(len(chunks), 1)
+    if not queued_chunks and skip_ratio >= 0.9:
+        logger.warning(
+            "🚨 90%% of chunks skipped for %s; retrying with filters disabled",
+            document.id,
+        )
+        for i, chunk in enumerate(chunks):
+            text = chunk.strip()
+            if not text:
+                continue
+            try:
+                fingerprint = generate_chunk_fingerprint(text)
+                glossary_score, matched = compute_glossary_score(text, anchors)
+                new_chunk = DocumentChunk.objects.create(
+                    document=document,
+                    order=i,
+                    text=text,
+                    tokens=count_tokens(text),
+                    chunk_type="body",
+                    fingerprint=fingerprint,
+                    glossary_score=glossary_score,
+                    matched_anchors=matched,
+                    force_embed=True,
+                )
+                new_chunk.embedding_status = "pending"
+                new_chunk.save(update_fields=["embedding_status"])
+                embed_and_store.delay(str(new_chunk.id))
+                queued_chunks.append(new_chunk.id)
+            except IntegrityError:
+                continue
+
     if not queued_chunks:
         logger.warning(
             "⚠️ No chunks queued — all appear to be already embedded or skipped"
@@ -234,6 +268,27 @@ def _create_document_chunks(document: Document):
         meta["chunk_retry_needed"] = True
         document.metadata = meta
         document.save(update_fields=["metadata"])
+        # Save a fallback meta-chunk with top paragraphs
+        paragraphs = [p.strip() for p in document.content.split("\n\n") if p.strip()][:5]
+        if paragraphs:
+            text = "\n\n".join(paragraphs)
+            try:
+                fingerprint = generate_chunk_fingerprint(text)
+                new_chunk = DocumentChunk.objects.create(
+                    document=document,
+                    order=0,
+                    text=text,
+                    tokens=count_tokens(text),
+                    chunk_type="meta",
+                    fingerprint=fingerprint,
+                    force_embed=True,
+                )
+                new_chunk.embedding_status = "pending"
+                new_chunk.save(update_fields=["embedding_status"])
+                embed_and_store.delay(str(new_chunk.id))
+                queued_chunks.append(new_chunk.id)
+            except Exception:
+                logger.exception("Failed to create fallback meta-chunk")
 
     # Update document metadata with chunk and token stats
     try:
