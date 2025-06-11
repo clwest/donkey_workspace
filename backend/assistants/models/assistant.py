@@ -283,6 +283,16 @@ class Assistant(TrustProfileMixin, models.Model):
             self.memory_context = MemoryContext.objects.create(
                 content=f"{self.name} Context"
             )
+        if not self.system_prompt:
+            self.system_prompt, _ = Prompt.objects.get_or_create(
+                slug="generic",
+                defaults={
+                    "title": "Generic",
+                    "content": "You are a helpful assistant.",
+                    "type": "system",
+                    "source": "fallback",
+                },
+            )
         if not self.slug:
             base_slug = slugify(self.name)
             slug = base_slug

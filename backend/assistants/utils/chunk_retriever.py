@@ -96,10 +96,7 @@ def get_glossary_terms_from_reflections(memory_context_id: Optional[str]) -> Lis
     """Return list of glossary terms mentioned in recent reflections."""
     from memory.models import MemoryEntry, SymbolicMemoryAnchor
 
-    reflections = (
-        MemoryEntry.objects.filter(type="reflection")
-        .order_by("-created_at")
-    )
+    reflections = MemoryEntry.objects.filter(type="reflection").order_by("-created_at")
     if memory_context_id:
         reflections = reflections.filter(context_id=memory_context_id)
     reflections = reflections[:25]
@@ -121,7 +118,7 @@ def get_relevant_chunks(
     memory_context_id: Optional[str] = None,
     project_id: Optional[str] = None,
     document_id: Optional[str] = None,
-    score_threshold: float = 0.75,
+    score_threshold: float = 0.65,
     keywords: Optional[List[str]] = None,
     fallback_min: float = 0.5,
     fallback_limit: int = 2,
@@ -312,9 +309,7 @@ def get_relevant_chunks(
     anchor_qs = anchor_qs.prefetch_related("tags")
     all_anchors = list(anchor_qs)
     anchor_matches = [a.slug for a in all_anchors if _anchor_in_query(a, query_text)]
-    reflection_terms = set(
-        get_glossary_terms_from_reflections(memory_context_id)
-    )
+    reflection_terms = set(get_glossary_terms_from_reflections(memory_context_id))
     if not (auto_expand or settings.DEBUG) and focus_qs.exists():
         all_slugs = list(SymbolicMemoryAnchor.objects.values_list("slug", flat=True))
         filtered_anchor_terms = [
@@ -584,7 +579,7 @@ def get_relevant_chunks(
         fallback_type = fallback_type or "chunk"
     else:
         logger.warning(
-            "[RAG] Fallback for assistant=%s, context=%s, query=\"%s\" - reason: no matches",
+            '[RAG] Fallback for assistant=%s, context=%s, query="%s" - reason: no matches',
             getattr(assistant, "slug", assistant_id),
             memory_context_id,
             query_text,
@@ -747,16 +742,20 @@ def get_relevant_chunks(
         "top_raw_score": top_raw_score,
         "top_glossary_boost": top_boost,
         "top_reflection_boost": max((p[6] for p in scored), default=0.0),
-        "reflection_hits": [d["id"] for d in debug_candidates if d.get("reflection_hit")],
+        "reflection_hits": [
+            d["id"] for d in debug_candidates if d.get("reflection_hit")
+        ],
         "warnings": warnings,
     }
 
     if fallback or fallback_type == "summary":
         reason_text = reason or (
-            f"score < {top_score:.2f}" if fallback_type != "summary" else f"score < {min_rag_score}"
+            f"score < {top_score:.2f}"
+            if fallback_type != "summary"
+            else f"score < {min_rag_score}"
         )
         logger.warning(
-            "[RAG] Fallback for assistant=%s, context=%s, query=\"%s\" - reason: %s",
+            '[RAG] Fallback for assistant=%s, context=%s, query="%s" - reason: %s',
             getattr(assistant, "slug", assistant_id),
             memory_context_id,
             query_text,

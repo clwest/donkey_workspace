@@ -56,6 +56,8 @@ class AssistantIdentitySummaryView(generics.GenericAPIView):
 
     def get_permissions(self):
         assistant = self.get_object()
+        if self.request.method == "GET":
+            return [permissions.AllowAny()]
         if assistant.is_demo:
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
