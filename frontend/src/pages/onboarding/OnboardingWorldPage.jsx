@@ -32,6 +32,7 @@ export default function OnboardingWorldPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.warn("[onboarding] userInfo", userInfo);
     if (!onboardingComplete) return;
     const id = setTimeout(() => {
       if (count > 0) {
