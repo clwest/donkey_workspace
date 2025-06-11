@@ -18,6 +18,8 @@ This document lists the key REST endpoints and core models used throughout the p
 | `/api/images/` | Image generation and gallery endpoints |
 | `/api/characters/` | Character profiles and similarity search |
 | `/api/videos/` | Video ingestion and retrieval |
+| `/api/token/` | Obtain JWT access & refresh tokens |
+| `/api/token/refresh/` | Refresh an expired access token |
 | `/api/assistants/demo_recap/<session_id>/` | Demo session recap data **(v0.1)** |
 | `/api/assistants/<slug>/demo_overlay/` | Reflection overlay details for a demo session (pass `session_id`) **(v0.1)** |
 | `/api/assistants/<slug>/demo_replay/<session_id>/` | RAG playback frames for debugging **(v0.1)** |
@@ -107,6 +109,15 @@ from intel_core.ingestion import ingest_document
 entry = ingest_document(source="docs/myfile.pdf", created_by=user)
 print(entry.document.title)
 ```
+
+### Authentication
+
+```bash
+curl -X POST -d 'username=me&password=secret' http://localhost:8000/api/token/
+```
+
+Include `Authorization: Bearer <access>` on requests. Expect `401` without a
+token, `403` for unauthorized users, and `429` if rate limits are exceeded.
 
 ## Demo & QA
 

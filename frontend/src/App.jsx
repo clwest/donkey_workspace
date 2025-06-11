@@ -23,6 +23,7 @@ import WelcomePage from "./pages/WelcomePage";
 import WelcomeBackPage from "./pages/home/WelcomeBackPage";
 import useUserInfo from "./hooks/useUserInfo";
 import useAuthGuard from "./hooks/useAuthGuard";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 import PromptsPage from "./pages/prompts/PromptsPage";
 import PromptDetailView from "./pages/prompts/PromptDetailView";
@@ -414,7 +415,11 @@ export default function App() {
           />
           <Route
             path="/assistants/onboarding"
-            element={<OnboardingPage />}
+            element={
+              <ProtectedRoute>
+                <OnboardingPage />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/assistants/primary"

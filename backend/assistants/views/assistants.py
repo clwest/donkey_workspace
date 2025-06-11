@@ -1913,8 +1913,12 @@ def failure_log(request, slug):
     return Response(data)
 
 
+from api.throttles import HeavyRateThrottle
+
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
+@throttle_classes([HeavyRateThrottle])
 def rag_grounding_logs(request, slug):
     """Return recent RAG grounding logs for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)

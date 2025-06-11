@@ -116,6 +116,37 @@ When running the frontend with `npm run dev`, open your browser's developer
 console to view network requests and any toast messages. Backend debug logs
 appear in the terminal where you started `manage.py runserver`.
 
+## Authentication & Permissions
+
+Use `/api/token/` with your username and password to obtain a JWT:
+
+```bash
+curl -X POST -d 'username=me&password=secret' http://localhost:8000/api/token/
+```
+
+Store the returned `access` and `refresh` tokens in `localStorage` and attach
+`Authorization: Bearer <access>` on API requests. Refresh tokens via
+`/api/token/refresh/` when the access token expires.
+
+Write endpoints require authentication and will return `401` when no token is
+provided. Assistant-specific endpoints require ownership; unauthorized users
+receive `403`.
+
+## Rate Limiting
+
+Anonymous requests are limited to **20 per minute** and authenticated users to
+**200 per minute**. Heavy debugging endpoints such as demo replay and RAG logs
+use a stricter **10 per minute** throttle. Exceeding these limits returns `429`.
+
+## Security Headers
+
+The backend sets the following headers by default:
+
+- `Content-Security-Policy: default-src 'self'`
+- `X-Frame-Options: DENY`
+- `X-Content-Type-Options: nosniff`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+
 ### Reflection Caching
 
 Reflection summaries are cached in Redis for faster retrieval. When a cached
