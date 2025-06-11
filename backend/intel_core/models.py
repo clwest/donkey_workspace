@@ -8,6 +8,13 @@ from prompts.utils.token_helpers import EMBEDDING_MODEL
 EMBEDDING_LENGTH = 1536
 
 
+class ActiveManager(models.Manager):
+    """Default manager that hides records marked as deleted."""
+
+    def get_queryset(self):
+        return super().get_queryset().filter(is_deleted=False)
+
+
 class Document(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     session_id = models.UUIDField(default=uuid.uuid4)
@@ -64,6 +71,10 @@ class Document(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+
+    objects = ActiveManager()
+    all_objects = models.Manager()
 
     def __str__(self):
         return self.title
@@ -146,6 +157,10 @@ class DocumentChunk(models.Model):
         default=True,
         help_text="False when the stored vector appears invalid",
     )
+    is_deleted = models.BooleanField(default=False)
+
+    objects = ActiveManager()
+    all_objects = models.Manager()
 
     @property
     def has_glossary_score(self) -> bool:
@@ -192,6 +207,10 @@ class EmbeddingMetadata(models.Model):
     source = models.CharField(max_length=128, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+
+    objects = ActiveManager()
+    all_objects = models.Manager()
 
     def __str__(self):
         return f"{self.model_used} | {self.embedding_id}"
