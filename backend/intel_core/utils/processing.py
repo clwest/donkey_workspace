@@ -650,15 +650,39 @@ def process_pdfs(pdf, pdf_title, project_name, session_id):
         )
 
         embedded_chunk_count = document.chunks.filter(embedding__isnull=False).count()
+        if embedded_chunk_count == 0 and document.summary:
+            try:
+                fallback = DocumentChunk.objects.create(
+                    document=document,
+                    order=0,
+                    text=document.summary,
+                    tokens=count_tokens(document.summary),
+                    chunk_type="fallback_summary",
+                    score=0.6,
+                    fingerprint=generate_chunk_fingerprint(document.summary),
+                    force_embed=True,
+                )
+                fallback.embedding_status = "pending"
+                fallback.save(update_fields=["embedding_status"])
+                embed_and_store.delay(str(fallback.id))
+                logger.warning(f"[Fallback] Injected synthetic chunk: {fallback.id}")
+            except Exception:
+                logger.exception("Failed to inject fallback summary chunk")
+
+        embedded_chunk_count = document.chunks.filter(embedding__isnull=False).count()
         if embedded_chunk_count == 0:
-            logger.error("[Ingest] Fatal: Document has no usable embedded chunks.")
+            logger.error("[Ingest] Fatal: No usable chunks embedded.")
             from intel_core.models import DocumentProgress
 
             progress = DocumentProgress.objects.filter(document=document).first()
             if progress:
                 progress.status = "failed"
-                progress.error_message = "No usable chunks for embedding"
+                progress.error_message = "No usable chunks embedded or queued."
                 progress.save(update_fields=["status", "error_message"])
+
+            document.progress_status = "error"
+            document.progress_error = "No usable chunks embedded or queued."
+            document.save(update_fields=["progress_error"])
             return None
 
         return document
