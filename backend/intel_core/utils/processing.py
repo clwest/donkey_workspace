@@ -12,7 +12,10 @@ from embeddings.helpers.helpers_io import (
     get_embedding_for_text,
     save_embedding,
 )
-from intel_core.tasks.embedding_tasks import embed_and_store
+# ``embed_and_store`` lives in ``embeddings.tasks``. The previous
+# path ``intel_core.tasks.embedding_tasks`` referenced a non-existent
+# module which caused import errors when Celery workers started.
+from embeddings.tasks import embed_and_store
 from intel_core.utils.chunk_fingerprint import fingerprint_text
 from intel_core.core import clean_text, detect_topic, lemmatize_text
 from intel_core.models import Document, EmbeddingMetadata
