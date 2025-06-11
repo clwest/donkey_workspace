@@ -29,6 +29,7 @@ try:
 except Exception:  # pragma: no cover - optional dependency may be absent
     OpenAI = None
 from django.db.models import Q
+
 try:
     from embeddings.vector_utils import compute_similarity
 except Exception:  # pragma: no cover - optional dependency
@@ -85,7 +86,12 @@ def set_cache(key: str, value: Any, timeout: int = 3600) -> None:
 from embeddings.models import Embedding
 
 
-def save_embedding(obj: Any, embedding: List[float]) -> Optional[Embedding]:
+from uuid import UUID
+
+
+def save_embedding(
+    obj: Any, embedding: List[float], session_id: Optional[UUID] = None
+) -> Optional[Embedding]:
     """
     Save a vector embedding for a model instance using a GenericForeignKey.
     """
@@ -128,6 +134,7 @@ def save_embedding(obj: Any, embedding: List[float]) -> Optional[Embedding]:
             content_id=str(object_id),
             content=content,
             embedding=embedding,
+            session_id=session_id,
         )
         return emb
 
@@ -184,8 +191,6 @@ def retrieve_embeddings(content_type: str, content_ids: List[str]) -> List[Embed
         return []
 
 
-
-
 def search_similar_embeddings_for_model(
     query_vector: List[float],
     model_class,
@@ -218,7 +223,11 @@ def search_similar_embeddings_for_model(
             try:
                 vector = getattr(obj, vector_field_name)
                 content = getattr(obj, content_field_name, str(obj))
-                score = compute_similarity(query_vector, vector) if compute_similarity else 0.0
+                score = (
+                    compute_similarity(query_vector, vector)
+                    if compute_similarity
+                    else 0.0
+                )
                 results.append(
                     {
                         "id": str(obj.id),
