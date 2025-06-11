@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import apiFetch, { API_URL } from "../../utils/apiClient";
 import DocumentCard from "../../components/intel/DocumentCard";
 import DocumentIngestionForm from "../../components/intel/DocumentIngestionForm";
+import DocumentIngestingCard from "../../components/documents/DocumentIngestingCard";
 import { Badge } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
@@ -9,6 +10,8 @@ export default function DocumentBrowserPage() {
   const [groupedDocs, setGroupedDocs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [progressMap, setProgressMap] = useState({});
+  const [ingestingDocs, setIngestingDocs] = useState([]);
+  const prevIngestCount = useRef(0);
 
   const loadDocuments = async () => {
     try {
@@ -43,6 +46,22 @@ export default function DocumentBrowserPage() {
     }
   };
 
+  const loadIngestingDocs = async () => {
+    try {
+      const data = await apiFetch("/intel/documents/", { params: { limit: 50 } });
+      const inProgress = (data || []).filter(
+        (d) => d.progress_status === "in_progress"
+      );
+      if (prevIngestCount.current > 0 && inProgress.length === 0) {
+        loadDocuments();
+      }
+      prevIngestCount.current = inProgress.length;
+      setIngestingDocs(inProgress);
+    } catch (err) {
+      console.error("Failed to load ingesting docs", err);
+    }
+  };
+
   const handleDeleteDocument = async (docId) => {
     if (!window.confirm("Delete this document?")) return;
     try {
@@ -56,6 +75,7 @@ export default function DocumentBrowserPage() {
 
   useEffect(() => {
     loadDocuments();
+    loadIngestingDocs();
   }, []);
 
   useEffect(() => {
@@ -63,11 +83,26 @@ export default function DocumentBrowserPage() {
     return () => clearInterval(interval);
   }, [groupedDocs]);
 
+  useEffect(() => {
+    const interval = setInterval(loadIngestingDocs, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="container py-4">
       <h2>🧾 Document Browser</h2>
 
-      <DocumentIngestionForm onSuccess={loadDocuments} />
+      <DocumentIngestionForm onSuccess={() => { loadDocuments(); loadIngestingDocs(); }} />
+
+      {ingestingDocs.length > 0 && (
+        <div className="row mt-4">
+          {ingestingDocs.map((doc) => (
+            <div key={doc.id} className="col-md-6 col-lg-4 mb-4">
+              <DocumentIngestingCard doc={doc} />
+            </div>
+          ))}
+        </div>
+      )}
 
       {loading ? (
         <p className="text-muted mt-3">Loading documents...</p>

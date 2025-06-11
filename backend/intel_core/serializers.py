@@ -23,6 +23,8 @@ class DocumentSerializer(serializers.ModelSerializer):
     progress_status = serializers.SerializerMethodField()
     progress_error = serializers.SerializerMethodField()
     failed_chunks = serializers.SerializerMethodField()
+    chunk_index = serializers.SerializerMethodField()
+    system_prompt_id = serializers.SerializerMethodField()
     user = serializers.StringRelatedField(read_only=True)
     memory_context = serializers.UUIDField(source="memory_context_id", read_only=True)
 
@@ -51,6 +53,8 @@ class DocumentSerializer(serializers.ModelSerializer):
             "progress_status",
             "progress_error",
             "failed_chunks",
+            "chunk_index",
+            "system_prompt_id",
             "is_favorited",
             "tags",
         ]
@@ -122,6 +126,17 @@ class DocumentSerializer(serializers.ModelSerializer):
     def get_failed_chunks(self, obj):
         prog = self._get_progress(obj)
         return prog.failed_chunks if prog else []
+
+    def get_chunk_index(self, obj):
+        prog = self._get_progress(obj)
+        return prog.processed if prog else None
+
+    def get_system_prompt_id(self, obj):
+        prompt = getattr(obj, "generated_prompt", None)
+        if prompt:
+            return str(prompt.id)
+        system_prompt = obj.prompts.filter(type="system").first()
+        return str(system_prompt.id) if system_prompt else None
 
 
 class DocumentSetSerializer(serializers.ModelSerializer):

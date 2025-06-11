@@ -3,6 +3,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { countTokens } from "../../utils/tokenCount";
 import { Badge } from "react-bootstrap";
 import DocumentStatusCard from "../documents/DocumentStatusCard";
+import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Star, StarFill } from "react-bootstrap-icons";
 
@@ -188,6 +189,15 @@ export default function DocumentCard({ group, progress, onToggleFavorite, onDele
         <span className="me-2">
           <DocumentStatusCard doc={mergedDoc} />
         </span>
+        {mergedDoc.system_prompt_id && (
+          <Link
+            to={`/prompts/${mergedDoc.system_prompt_id}`}
+            className="ms-2 text-decoration-underline"
+            onClick={(e) => e.stopPropagation()}
+          >
+            📄 View System Prompt
+          </Link>
+        )}
         {stuck && (
           <span className="text-warning" title="All chunks embedded but progress pending">
             ⚠️
