@@ -234,7 +234,13 @@ class SecurityHeadersMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
-        response.headers.setdefault("Content-Security-Policy", "default-src 'self'")
+        response.headers.setdefault(
+            "Content-Security-Policy",
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-eval' https://cdn.jsdelivr.net; "
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; "
+            "font-src 'self' https://fonts.gstatic.com"
+        )
         response.headers.setdefault("X-Content-Type-Options", "nosniff")
         return response
 
