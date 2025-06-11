@@ -48,11 +48,27 @@ export default function ReviewIngestPage() {
       try {
         const res = await reviewIngestDocument(slug, doc_id);
         if (!res) throw new Error("review failed");
-        setSummary(res.summary);
-        const formatted = (res.insights || []).map((i) =>
-          typeof i === "string" ? { text: i, tag: "" } : { text: i.text || "", tag: i.tag || "" }
-        );
-        setInsights(formatted);
+        if (res.status === "skipped") {
+          console.warn(`[ReviewIngest] Reflection skipped: ${res.reason}`);
+          if (res.reason && res.reason.toLowerCase().includes("chunk")) {
+            try {
+              const retry = await apiFetch(`/assistants/${slug}/reflect_again/?doc_id=${doc_id}`, {
+                method: "POST",
+              });
+              if (retry?.results?.length > 0) {
+                setSummary(retry.results[0].summary);
+              }
+            } catch (e) {
+              console.error("Retry reflection failed", e);
+            }
+          }
+        } else {
+          setSummary(res.summary);
+          const formatted = (res.insights || []).map((i) =>
+            typeof i === "string" ? { text: i, tag: "" } : { text: i.text || "", tag: i.tag || "" }
+          );
+          setInsights(formatted);
+        }
       } catch (err) {
         console.error("Reflection failed", err);
       } finally {

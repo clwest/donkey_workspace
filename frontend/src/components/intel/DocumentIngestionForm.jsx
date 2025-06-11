@@ -86,7 +86,8 @@ export default function DocumentIngestionForm({ onSuccess }) {
       }
       if (onSuccess) await onSuccess();
       if (reflectAfter && selectedAssistant?.id && data && data.documents?.length > 0) {
-        const docId = data.documents[0].id;
+        const firstDoc = data.documents[0];
+        const docId = firstDoc.document_id || firstDoc.id;
         if (!docId || docId === "undefined") {
           console.warn(
             `[ReviewIngest] Skipping review — invalid document ID: ${docId}`,
