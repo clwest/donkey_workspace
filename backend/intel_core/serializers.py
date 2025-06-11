@@ -25,6 +25,8 @@ class DocumentSerializer(serializers.ModelSerializer):
     failed_chunks = serializers.SerializerMethodField()
     chunk_index = serializers.SerializerMethodField()
     system_prompt_id = serializers.SerializerMethodField()
+    reflection_prompt_id = serializers.SerializerMethodField()
+    reflection_prompt_title = serializers.SerializerMethodField()
     user = serializers.StringRelatedField(read_only=True)
     memory_context = serializers.UUIDField(source="memory_context_id", read_only=True)
 
@@ -55,6 +57,8 @@ class DocumentSerializer(serializers.ModelSerializer):
             "failed_chunks",
             "chunk_index",
             "system_prompt_id",
+            "reflection_prompt_id",
+            "reflection_prompt_title",
             "is_favorited",
             "tags",
         ]
@@ -137,6 +141,14 @@ class DocumentSerializer(serializers.ModelSerializer):
             return str(prompt.id)
         system_prompt = obj.prompts.filter(type="system").first()
         return str(system_prompt.id) if system_prompt else None
+
+    def get_reflection_prompt_id(self, obj):
+        prompt = getattr(obj, "generated_prompt", None)
+        return str(prompt.id) if prompt else None
+
+    def get_reflection_prompt_title(self, obj):
+        prompt = getattr(obj, "generated_prompt", None)
+        return prompt.title if prompt else None
 
 
 class DocumentSetSerializer(serializers.ModelSerializer):

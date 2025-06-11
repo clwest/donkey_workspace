@@ -29,12 +29,12 @@ export default function DocumentIngestingCard({ doc }) {
       </div>
       <div className="d-flex align-items-center gap-2">
         <DocumentStatusCard doc={doc} />
-        {doc.system_prompt_id && doc.progress_status === "completed" && (
+        {doc.reflection_prompt_id && doc.progress_status === "completed" && (
           <Link
-            to={`/prompts/${doc.system_prompt_id}`}
+            to={`/prompts/${doc.reflection_prompt_id}`}
             className="small text-decoration-underline"
           >
-            📄 View System Prompt
+            📄 {doc.reflection_prompt_title || "View Reflection Prompt"}
           </Link>
         )}
       </div>
