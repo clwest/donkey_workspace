@@ -239,7 +239,8 @@ class SecurityHeadersMiddleware:
             "default-src 'self'; "
             "script-src 'self' 'unsafe-eval' https://cdn.jsdelivr.net; "
             "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; "
-            "font-src 'self' https://fonts.gstatic.com"
+            "font-src 'self' https://fonts.gstatic.com; "
+            "img-src 'self' data: https:"
         )
         response.headers.setdefault("X-Content-Type-Options", "nosniff")
         return response
