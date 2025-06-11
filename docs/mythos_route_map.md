@@ -2,6 +2,30 @@
 
 Compiled for Codex routing, view integration, and component planning
 
+## 🔍 Route Health Summary
+
+The table below tracks whether each major route has a corresponding backend
+endpoint and a discoverable frontend link. Data was cross-checked with
+`docs/route-health-report (1).json`.
+
+| Route | Backend Endpoint | Frontend Link |
+| ----- | ---------------- | ------------- |
+| `/assistants/demo/` | ✅ | ✅ |
+| `/assistants/:slug/identity/` | ✅ | ✅ |
+| `/assistants/:slug/trust_profile/` | ✅ | ✅ |
+| `/assistants/:slug/trail/` | ✅ | ✅ |
+| `/assistants/:slug/growth/` | ✅ | ✅ |
+| `/assistants/:slug/demo_recap/:session_id/` | ✅ | ✅ |
+| `/assistants/:slug/demo_overlay/` | ✅ | ✅ |
+| `/assistants/:slug/demo_replay/:session_id/` | ✅ | ✅ |
+| `/anchor/symbolic` | ✅ | ✅ |
+| `/anchor/mutations` | ✅ | ✅ |
+| `/assistants/:slug/reflections` | ✅ | ✅ |
+| `/assistants/:slug/replays` | ✅ | ✅ |
+| `/assistants/:slug/rag_debug` | ✅ | ✅ |
+| `/codex/evolve` | ✅ | ✅ |
+| `/dev/route-health` | ✅ | ✅ |
+
 \-\-\-
 
 ## 🔮 Assistant Routes
