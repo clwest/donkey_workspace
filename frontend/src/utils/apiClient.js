@@ -93,7 +93,9 @@ export default async function apiFetch(url, options = {}) {
   if (!token && !allowUnauthenticated) {
     return Promise.reject("Unauthenticated request blocked by apiFetch");
   }
-  const defaultHeaders = fetchOptions.body
+  const isFormData =
+    typeof FormData !== "undefined" && fetchOptions.body instanceof FormData;
+  const defaultHeaders = fetchOptions.body && !isFormData
     ? { "Content-Type": "application/json" }
     : {};
 
@@ -116,7 +118,9 @@ export default async function apiFetch(url, options = {}) {
         ...(fetchOptions.headers || {}),
       },
       body:
-        fetchOptions.body && typeof fetchOptions.body !== "string"
+        fetchOptions.body &&
+        typeof fetchOptions.body !== "string" &&
+        !isFormData
           ? JSON.stringify(fetchOptions.body)
           : fetchOptions.body,
       credentials: "include",
