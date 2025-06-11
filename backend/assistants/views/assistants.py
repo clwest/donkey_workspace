@@ -447,6 +447,7 @@ class AssistantViewSet(viewsets.ModelViewSet):
         }
         if demo_session_id:
             from .demo import bump_demo_score
+
             bump_demo_score(demo_session_id, 10)
         return Response(preview)
 
@@ -795,9 +796,7 @@ def chat_with_assistant_view(request, slug):
     )
 
     starter_messages = (
-        _get_demo_starter_memory(assistant)
-        if assistant.is_demo and should_seed
-        else []
+        _get_demo_starter_memory(assistant) if assistant.is_demo and should_seed else []
     )
     demo_intro_message = None
     if starter_messages:
@@ -806,7 +805,6 @@ def chat_with_assistant_view(request, slug):
             demo_intro_message = (
                 f"{assistant.name} ({assistant.tone}): {first['content']}"
             )
-
 
     message = request.data.get("message")
     session_id = request.data.get("session_id") or str(uuid.uuid4())
@@ -822,7 +820,6 @@ def chat_with_assistant_view(request, slug):
 
     injected = False
 
-
     if message == "__ping__":
         if assistant.is_demo and demo_session_id:
             log_obj, created = DemoSessionLog.objects.get_or_create(
@@ -836,14 +833,14 @@ def chat_with_assistant_view(request, slug):
             )
             if created:
                 logger.debug("[DemoSession] start %s", demo_session_id)
-            get_or_create_usage_for_session(demo_session_id)
+            usage, u_created = get_or_create_usage_for_session(demo_session_id)
+            if u_created:
+                logger.debug("[DemoUsage] start %s", demo_session_id)
         if should_seed and starter_query and not history:
             save_message_to_session(session_id, "user", starter_query)
             injected = True
             history = load_session_messages(session_id)
-            logger.debug(
-                "Injected starter query into session %s", session_id
-            )
+            logger.debug("Injected starter query into session %s", session_id)
         logger.debug(
             "Ping response slug=%s session=%s injected=%s demo_intro=%s",
             assistant.slug,
@@ -900,13 +897,16 @@ def chat_with_assistant_view(request, slug):
         )
         if created:
             logger.debug("[DemoSession] start %s", demo_session_id)
-        get_or_create_usage_for_session(demo_session_id)
+        usage, u_created = get_or_create_usage_for_session(demo_session_id)
+        if u_created:
+            logger.debug("[DemoUsage] start %s", demo_session_id)
         if not created and log.message_count == 0:
             log.first_message = message
         log.message_count = F("message_count") + 1
         log.ended_at = timezone.now()
         log.save()
         from .demo import bump_demo_score
+
         bump_demo_score(demo_session_id, 1)
 
     if assistant.is_primary and assistant.live_relay_enabled:
@@ -1420,6 +1420,7 @@ def assistant_from_demo(request):
         )
 
         from .demo import bump_demo_score
+
         bump_demo_score(demo_session_id, 10)
 
     return Response(
@@ -1430,8 +1431,6 @@ def assistant_from_demo(request):
         },
         status=201,
     )
-
-
 
 
 @api_view(["POST"])

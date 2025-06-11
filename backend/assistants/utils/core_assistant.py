@@ -34,7 +34,18 @@ class CoreAssistant:
                 self.assistant.slug,
             )
             return prompt.content
-        return "You are a helpful assistant."
+        from prompts.models import Prompt
+
+        generic, _ = Prompt.objects.get_or_create(
+            slug="generic",
+            defaults={
+                "title": "Generic",
+                "content": "You are a helpful assistant.",
+                "type": "system",
+                "source": "fallback",
+            },
+        )
+        return generic.content
 
     def think(self, user_input: str, *, stream: bool = False):
         """Generate a thought. If ``stream`` is True return an async token generator."""
@@ -148,8 +159,10 @@ class CoreAssistant:
         chunks, *_ = get_relevant_chunks(
             str(self.assistant.id),
             query,
-            memory_context_id=str(self.assistant.memory_context_id)
-            if self.assistant.memory_context_id
-            else None,
+            memory_context_id=(
+                str(self.assistant.memory_context_id)
+                if self.assistant.memory_context_id
+                else None
+            ),
         )
         return [c.get("text", "") for c in chunks[:limit]]
