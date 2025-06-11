@@ -97,6 +97,7 @@ INSTALLED_APPS = [
 # === 🧵 Middleware ===
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "server.settings.SecurityHeadersMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -202,7 +203,11 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 20,
-    "DEFAULT_THROTTLE_RATES": {"user": "5/min", "anon": "5/min"},
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {"anon": "20/minute", "user": "200/minute", "heavy": "10/minute"},
 }
 
 # Optional: Turn off browsable API in production
@@ -217,6 +222,21 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
 CORS_ALLOW_CREDENTIALS = True
+
+# === 🔒 Security Headers ===
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+X_FRAME_OPTIONS = "DENY"
+
+class SecurityHeadersMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        response.headers.setdefault("Content-Security-Policy", "default-src 'self'")
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        return response
 
 # === 🪄 Celery ===
 CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"

@@ -123,7 +123,11 @@ def template_diff(request, slug):
     return Response({"path": str(path), "diff": diff_text, "tracked": tracked})
 
 
+from api.permissions import AdminOnly
+
+
 @api_view(["GET"])
+@permission_classes([AdminOnly])
 def export_assistants(request):
     """Return a JSON dump of all assistants."""
     from assistants.models.assistant import Assistant
@@ -133,6 +137,7 @@ def export_assistants(request):
 
 
 @api_view(["GET"])
+@permission_classes([AdminOnly])
 def export_routes(request):
     """Return a JSON dump of all URL routes with view info."""
     routes = get_full_route_map()
@@ -140,6 +145,7 @@ def export_routes(request):
 
 
 @api_view(["GET"])
+@permission_classes([AdminOnly])
 def export_templates(request):
     """Return template health info as raw JSON."""
     result = subprocess.run(

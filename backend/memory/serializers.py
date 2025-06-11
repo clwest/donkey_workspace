@@ -121,6 +121,19 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
             ),
         }
 
+    def validate_event(self, value):
+        import bleach
+
+        cleaned = bleach.clean(value, strip=True)
+        if len(cleaned) > 10000:
+            raise serializers.ValidationError("event too long")
+        return cleaned
+
+    def validate_summary(self, value):
+        import bleach
+
+        return bleach.clean(value, strip=True)
+
     def get_delegation_event_id(self, obj):
         if hasattr(obj, "delegation_event_id"):
             return str(obj.delegation_event_id) if obj.delegation_event_id else None

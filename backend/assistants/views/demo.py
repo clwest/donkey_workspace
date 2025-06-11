@@ -435,8 +435,12 @@ def reset_demo_session(request):
     return Response({"status": "reset"})
 
 
+from api.throttles import HeavyRateThrottle
+
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
+@throttle_classes([HeavyRateThrottle])
 def demo_replay_debug(request, slug, session_id):
     """Return RAG frames for a demo session."""
     try:
