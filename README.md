@@ -12,9 +12,14 @@ This is the unified monorepo powering the Donkey AI ecosystem — a collection o
 donkey_workspace/
 ├── backend/ # Django backend with assistants, memory, projects, etc.
 ├── frontend/ # React + Vite frontend with Bootstrap styling
+├── docs/ # developer documentation
+├── fun/ # optional content just for fun
 ├── AGENTS.md # Codex agent guide and dev protocols
 ├── README.md # You’re here!
 └── .gitignore
+
+The `/fun` folder contains playful experiments and road trip lore.
+These files are **not** required for the main project workflows.
 
 ---
 
@@ -345,6 +350,7 @@ and `SwarmCodificationPattern`.
 - [Phase Ω.6.9 Features](docs/phase_omega_6_9.md)
 - [Demo Slide Deck](docs/slides.md)
 - [Release Notes](docs/RELEASE_NOTES.md)
+- [Phase Summary](PHASE_SUMMARY.md)
 - [Demo Script](docs/DEMO_SCRIPT.md)
 
 ### Monitoring & Alerts

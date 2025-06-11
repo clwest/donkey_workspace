@@ -7,10 +7,10 @@
 
 ## ✅ Prompt Management
 
-- [x] Load `prompt_sets/` into database
-- [x] Display prompts in frontend (Prompt Explorer)
-- [x] AI-powered prompt generation from idea input
-- [x] Prompt mutation tools (clarify, expand, casual, etc.)
+- [x] Load `prompt_sets/` into database — Completed 2025-05-18
+- [x] Display prompts in frontend (Prompt Explorer) — Completed 2025-05-18
+- [x] AI-powered prompt generation from idea input — Completed 2025-05-18
+- [x] Prompt mutation tools (clarify, expand, casual, etc.) — Completed 2025-05-18
 
 - [ ] Assign prompt to assistant (via dropdown or prompt link)
 - [ ] Live preview of assigned system prompt
@@ -21,11 +21,11 @@
 
 ## ✅ Assistant System
 
-- [x] View list of assistants (demo + user-created)
-- [x] Create new assistant (name, tone, specialty, model)
-- [x] View thought log (basic working)
-- [x] View memory logs (raw display)
-- [x] View session history (structured)
+- [x] View list of assistants (demo + user-created) — Completed 2025-05-18
+- [x] Create new assistant (name, tone, specialty, model) — Completed 2025-05-18
+- [x] View thought log (basic working) — Completed 2025-05-18
+- [x] View memory logs (raw display) — Completed 2025-05-18
+- [x] View session history (structured) — Completed 2025-05-18
 
 - [ ] Assign prompt to assistant (see above)
 - [ ] Show live preview of system prompt
@@ -39,10 +39,10 @@
 
 ## ✅ Memory System
 
-- [x] Memory saves from chat sessions
-- [x] Transcripts + tags + embeddings are stored
-- [x] Tags inferred via OpenAI + saved to DB
-- [x] Memory list view in frontend
+- [x] Memory saves from chat sessions — Completed 2025-05-18
+- [x] Transcripts + tags + embeddings are stored — Completed 2025-05-18
+- [x] Tags inferred via OpenAI + saved to DB — Completed 2025-05-18
+- [x] Memory list view in frontend — Completed 2025-05-18
 
 - [ ] Link `MemoryEntry.assistant` on save
 - [ ] Enable filtering by assistant on memory view
@@ -53,8 +53,8 @@
 
 ## ✅ Projects
 
-- [x] Create new projects
-- [x] View project detail page
+- [x] Create new projects — Completed 2025-05-18
+- [x] View project detail page — Completed 2025-05-18
 
 - [ ] Edit project name / desc / goals
 - [ ] Assign assistant to project
