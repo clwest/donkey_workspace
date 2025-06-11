@@ -3,6 +3,8 @@
 import { Link, NavLink } from "react-router-dom";
 import "./styles/Navbar.css";
 import FeedbackWidget from "./feedback/FeedbackWidget";
+import LanguageSelector from "./LanguageSelector";
+import HighContrastToggle from "./HighContrastToggle";
 
 export default function Navbar({ onToggleSidebar }) {
   return (
@@ -342,6 +344,8 @@ export default function Navbar({ onToggleSidebar }) {
             <Link className="btn btn-outline-secondary btn-sm me-2" to="/profile">
               Profile
             </Link>
+            <LanguageSelector />
+            <HighContrastToggle />
             <FeedbackWidget />
             <Link className="btn btn-outline-secondary btn-sm" to="/logout">
               Logout

@@ -98,6 +98,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -404,6 +405,7 @@ LOGGING = {
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "America/Denver"
 USE_I18N = True
+LOCALE_PATHS = [BASE_DIR / 'locale']
 USE_TZ = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

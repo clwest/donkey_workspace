@@ -3,6 +3,7 @@ from tools.models import Tool
 from .core import THOUGHT_TYPES, THOUGHT_MODES, ROLE_CHOICES
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.utils.translation import gettext_lazy as _
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
 from pgvector.django import VectorField
@@ -157,7 +158,7 @@ class AssistantThoughtLog(models.Model):
     def clean(self):
         if not self.assistant and not self.project:
             raise ValidationError(
-                "Thought must be linked to either an assistant or a project."
+                _("Thought must be linked to either an assistant or a project.")
             )
 
     def save(self, *args, **kwargs):

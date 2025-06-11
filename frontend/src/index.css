@@ -3,8 +3,12 @@
   line-height: 1.5;
   font-weight: 400;
   color-scheme: light;
-  color: #212529;
-  background-color: #f8f9fa;
+  --text-color: #212529;
+  --bg-color: #f8f9fa;
+  --link-color: #0d6efd;
+  --link-hover-color: #0a58ca;
+  color: var(--text-color);
+  background-color: var(--bg-color);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -14,11 +18,11 @@
 
 a {
   font-weight: 500;
-  color: #0d6efd;
+  color: var(--link-color);
   text-decoration: none;
 }
 a:hover {
-  color: #0a58ca;
+  color: var(--link-hover-color);
   text-decoration: underline;
 }
 
@@ -117,3 +121,10 @@ button:hover {
 
 @keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
 
+
+.high-contrast {
+  --text-color: #000;
+  --bg-color: #fff;
+  --link-color: #0000ff;
+  --link-hover-color: #000099;
+}
