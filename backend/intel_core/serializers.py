@@ -121,11 +121,15 @@ class DocumentSerializer(serializers.ModelSerializer):
 
     def get_progress_status(self, obj):
         prog = self._get_progress(obj)
-        return prog.status if prog else None
+        if prog:
+            return prog.status
+        return getattr(obj, "progress_status", None)
 
     def get_progress_error(self, obj):
         prog = self._get_progress(obj)
-        return prog.error_message if prog else ""
+        if prog:
+            return prog.error_message
+        return getattr(obj, "progress_error", "")
 
     def get_failed_chunks(self, obj):
         prog = self._get_progress(obj)

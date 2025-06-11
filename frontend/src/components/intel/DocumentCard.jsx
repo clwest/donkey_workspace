@@ -111,6 +111,17 @@ export default function DocumentCard({ group, progress, onToggleFavorite, onDele
 
   return (
     <div className="card mb-3 shadow-sm p-3 position-relative h-100">
+      {mergedDoc.progress_status === "error" && (
+        <div className="alert alert-danger p-1 mb-2 d-flex justify-content-between align-items-center">
+          <span>❌ {mergedDoc.progress_error || "Ingestion failed"}</span>
+          <button
+            className="btn btn-sm btn-outline-danger"
+            onClick={() => window.location.reload()}
+          >
+            Retry
+          </button>
+        </div>
+      )}
       <div className="d-flex justify-content-between align-items-start">
         <div>
           <h5 className="mb-1">{title || "Untitled Document"}</h5>

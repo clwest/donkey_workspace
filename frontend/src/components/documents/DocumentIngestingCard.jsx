@@ -64,6 +64,17 @@ export default function DocumentIngestingCard({ doc, highlightConflicts }) {
         highlightConflicts && failedCount > 0 ? "border-danger" : ""
       }`}
     >
+      {localDoc.progress_status === "error" && (
+        <div className="alert alert-danger p-1 mb-2 d-flex justify-content-between align-items-center">
+          <span>❌ {localDoc.progress_error || "Ingestion failed"}</span>
+          <button
+            className="btn btn-sm btn-outline-danger"
+            onClick={() => window.location.reload()}
+          >
+            Retry
+          </button>
+        </div>
+      )}
       <h5 className="mb-1">{title}</h5>
       <div className="small text-muted mb-2">Source: {sourceType}</div>
       <div className="small mb-1">

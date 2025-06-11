@@ -7,7 +7,7 @@ export default function DocumentStatusCard({ doc }) {
   const embedded = doc.num_embedded ?? doc.embedded_chunks ?? 0;
   const progressStatus = doc.progress_status || doc.embedding_status?.status;
 
-  const failed = progressStatus === "failed";
+  const failed = progressStatus === "failed" || progressStatus === "error";
   const completed = progressStatus === "completed";
   const inProgress = !completed && !failed;
 
@@ -19,7 +19,7 @@ export default function DocumentStatusCard({ doc }) {
   if (failed) {
     color = "danger";
     icon = "⚠️";
-    label = "Failed";
+    label = progressStatus === "error" ? "Error" : "Failed";
     const reasons = [];
     if (doc.progress_error) reasons.push(doc.progress_error);
     if (doc.failed_chunks && doc.failed_chunks.length > 0) {
