@@ -160,6 +160,11 @@ export default function DocumentDetailPage() {
           ingestion logs.
         </div>
       )}
+      {doc.content && (doc.num_embedded ?? doc.embedded_chunks ?? 0) === 0 && (
+        <div className="alert alert-warning">
+          ⚠️ Document has content but no embedded memory. Retry embedding?
+        </div>
+      )}
       {doc.glossary_ids && doc.glossary_ids.length > 0 && (
         <p className="mb-1 small text-muted">
           Glossary IDs: {JSON.stringify(doc.glossary_ids)}
@@ -235,13 +240,18 @@ export default function DocumentDetailPage() {
         {chunks.map((chunk, i) => {
           const isGlossary =
             chunk.order === 0 && chunk.text.toLowerCase().includes("refers to");
+          const isFallback =
+            chunk.order === 0 && chunk.chunk_type === "meta";
           return (
             <div key={i} className="card mb-3">
               <div className="card-header">
                 {isGlossary ? (
                   <>🔠 Glossary (auto-injected)</>
                 ) : (
-                  <>Chunk {chunk.order !== undefined ? chunk.order : i + 1}</>
+                  <>
+                    Chunk {chunk.order !== undefined ? chunk.order : i + 1}
+                    {isFallback && " - fallback"}
+                  </>
                 )}
                 {" — "}
                 {chunk.tokens} tokens | score {chunk.score?.toFixed(2)}

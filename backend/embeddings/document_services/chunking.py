@@ -57,6 +57,15 @@ def lexical_density(text: str) -> float:
 from intel_core.utils.document_cleanup import is_chunk_clean
 
 
+def _preprocess_text(text: str) -> str:
+    """Light preprocessing to improve downstream splitting."""
+    if not text:
+        return ""
+    # Insert soft breaks after colons or between title lines
+    text = re.sub(r"([.:])\n", r"\1. \n", text)
+    return text
+
+
 def clean_and_score_chunk(text: str, chunk_index: int | None = None) -> dict:
     """Clean and score a text chunk for relevance."""
     cleaned = text.strip()
@@ -157,7 +166,9 @@ def generate_chunks(text: str, chunk_size: int = 1000) -> List[str]:
     overlap = int(chunk_size * CHUNK_OVERLAP)
     if not text or chunk_size <= overlap:
         return []
-    chunks = []
+
+    text = _preprocess_text(text)
+    chunks: List[str] = []
     text_length = len(text)
     step = chunk_size - overlap
     for start in range(0, text_length, step):
@@ -165,6 +176,19 @@ def generate_chunks(text: str, chunk_size: int = 1000) -> List[str]:
         chunk = text[start:end]
         chunk = re.sub(r"\s+", " ", chunk).strip()
         tokens = len(chunk.split())
+        if tokens > 150:
+            # further split long spans by paragraph boundaries
+            para_chunks = []
+            for p in chunk.split("\n\n"):
+                p = p.strip()
+                if not p:
+                    continue
+                para_chunks.extend(split_text(p, max_tokens=150))
+            for pc in para_chunks:
+                c = pc.strip()
+                if c and c not in chunks:
+                    chunks.append(c)
+            continue
         if tokens < 5:
             logger.debug(
                 "[Chunking] Skip very short chunk at %d: '%s'", start, chunk[:40]
@@ -183,6 +207,13 @@ def generate_chunks(text: str, chunk_size: int = 1000) -> List[str]:
         chunks.append(chunk)
         if len(chunks) >= MAX_CHUNKS_PER_DOCUMENT:
             break
+
+    # If we ended up with a single chunk for a long document, attempt additional splitting
+    token_total = len(text.split())
+    if token_total > 800 and len(chunks) <= 1:
+        extra = split_text(text, max_tokens=max(token_total // 3, 150))
+        chunks = [c.strip() for c in extra if c.strip()]
+
     return chunks
 
 

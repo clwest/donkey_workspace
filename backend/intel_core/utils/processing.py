@@ -283,10 +283,18 @@ def _create_document_chunks(document: Document):
                     fingerprint=fingerprint,
                     force_embed=True,
                 )
-                new_chunk.embedding_status = "pending"
-                new_chunk.save(update_fields=["embedding_status"])
-                embed_and_store.delay(str(new_chunk.id))
-                queued_chunks.append(new_chunk.id)
+                token_len = new_chunk.tokens
+                if token_len > 50:
+                    new_chunk.embedding_status = "pending"
+                    new_chunk.save(update_fields=["embedding_status"])
+                    embed_and_store.delay(str(new_chunk.id))
+                    queued_chunks.append(new_chunk.id)
+                    logger.warning(
+                        "🧠 No valid chunks. Fallback meta-chunk created and embedded."
+                    )
+                else:
+                    new_chunk.embedding_status = "skipped"
+                    new_chunk.save(update_fields=["embedding_status"])
             except Exception:
                 logger.exception("Failed to create fallback meta-chunk")
 
