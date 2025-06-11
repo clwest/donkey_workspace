@@ -252,3 +252,25 @@ Pages like `MythOSLandingPage.jsx`, `AssistantDashboardPage.jsx`, and `Assistant
 Use badge flair, progress bars, or empty states to bring life to otherwise static tables. Assume assistants are characters. Help the user _feel_ their evolution.
 
 Codex should treat this file as a system contract. If `AGENTS.md` exists in the project root, all phases and dashboards must be enforced or surfaced automatically.
+
+---
+
+# Codex AGENT Profile — SymbolicAgentProfile
+
+## Purpose
+
+Agents under this profile reconcile contradictory documents using symbolic anchors. They cross-reference anchor metadata to detect and explain conflicts across corpora.
+
+## Responsibilities
+
+- Ingest documents that include symbolic anchor metadata
+- Compare anchor alignments to surface contradictions
+- Generate reconciliation notes and contradiction flags
+
+### Reconciliator Agent (stub)
+
+This prototype agent ingests the `DGM-WhitePaper.pdf` and Apple's reasoning paper titled “The Illusion of Thinking.” It analyzes their symbolic anchors and outputs flags when assertions conflict.
+
+## Notes
+
+Symbolic anchors provide a stable reference system for resolving document disagreements. This profile lays the groundwork for more advanced reconciliation agents.

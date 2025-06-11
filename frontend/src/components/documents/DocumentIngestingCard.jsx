@@ -91,6 +91,7 @@ export default function DocumentIngestingCard({ doc, highlightConflicts }) {
         />
       </div>
       <div className="d-flex align-items-center gap-2">
+
         <DocumentStatusCard doc={localDoc} />
         {localDoc.prompt_id && localDoc.progress_status === "completed" && (
           <Link
@@ -98,6 +99,7 @@ export default function DocumentIngestingCard({ doc, highlightConflicts }) {
             className="small text-decoration-underline"
           >
             📄 View Reflection Prompt
+
           </Link>
         )}
       </div>

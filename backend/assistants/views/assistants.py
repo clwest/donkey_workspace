@@ -1490,6 +1490,10 @@ def review_ingest(request, slug, doc_id):
     engine = AssistantReflectionEngine(assistant)
     summary, insights, prompt_obj = engine.reflect_on_document(document)
 
+    if prompt_obj:
+        document.generated_prompt = prompt_obj
+        document.save(update_fields=["generated_prompt"])
+
     memory = MemoryEntry.objects.create(
         assistant=assistant,
         document=document,

@@ -125,8 +125,19 @@ def _create_document_chunks(document: Document):
 
     """Create DocumentChunk objects for ``document`` if none exist."""
     if DocumentChunk.objects.filter(document=document).exists():
-        logger.info("[Chunk Filter] %s already has chunks — skipping creation", document.id)
+        logger.info(
+            "[Chunk Filter] %s already has chunks — skipping creation", document.id
+        )
         return
+
+    meta = document.metadata or {}
+    progress_id = meta.get("progress_id")
+    progress = None
+    if progress_id:
+        from intel_core.models import DocumentProgress
+
+        progress = DocumentProgress.objects.filter(progress_id=progress_id).first()
+    retry_attempts = meta.get("chunk_retry_attempts", 0)
 
     chunks = generate_chunks(document.content)
     chunks = AcronymGlossaryService.insert_glossary_chunk(chunks)
@@ -207,6 +218,13 @@ def _create_document_chunks(document: Document):
             "🟠 No long chunks queued; retrying with %d short candidates",
             len(short_candidates),
         )
+        retry_attempts += 1
+        if progress:
+            progress.error_message = f"retry_attempts:{retry_attempts}"
+            progress.save(update_fields=["error_message"])
+        meta["chunk_retry_attempts"] = retry_attempts
+        document.metadata = meta
+        document.save(update_fields=["metadata"])
         for i, info in short_candidates:
             try:
                 fingerprint = generate_chunk_fingerprint(info["text"])
@@ -235,6 +253,13 @@ def _create_document_chunks(document: Document):
             "🚨 90%% of chunks skipped for %s; retrying with filters disabled",
             document.id,
         )
+        retry_attempts += 1
+        if progress:
+            progress.error_message = f"retry_attempts:{retry_attempts}"
+            progress.save(update_fields=["error_message"])
+        meta["chunk_retry_attempts"] = retry_attempts
+        document.metadata = meta
+        document.save(update_fields=["metadata"])
         for i, chunk in enumerate(chunks):
             text = chunk.strip()
             if not text:
@@ -265,9 +290,14 @@ def _create_document_chunks(document: Document):
             "⚠️ No chunks queued — all appear to be already embedded or skipped"
         )
         meta = document.metadata or {}
+        retry_attempts += 1
         meta["chunk_retry_needed"] = True
+        meta["chunk_retry_attempts"] = retry_attempts
         document.metadata = meta
         document.save(update_fields=["metadata"])
+        if progress:
+            progress.error_message = f"retry_attempts:{retry_attempts}"
+            progress.save(update_fields=["error_message"])
         # Save a fallback meta-chunk with top paragraphs
         paragraphs = [p.strip() for p in document.content.split("\n\n") if p.strip()][:5]
         if paragraphs:
@@ -310,10 +340,18 @@ def _create_document_chunks(document: Document):
     meta["embedded_chunks"] = DocumentChunk.objects.filter(
         document=document, embedding__isnull=False
     ).count()
+    if queued_chunks and meta.get("chunk_retry_needed"):
+        meta["chunk_retry_needed"] = False
     meta["token_count"] = token_total
     document.token_count_int = token_total
     document.metadata = meta
     document.save(update_fields=["metadata", "token_count_int"])
+    if progress:
+        if queued_chunks:
+            progress.error_message = f"retry_attempts:{retry_attempts}" if retry_attempts else ""
+        else:
+            progress.error_message = f"retry_attempts:{retry_attempts}"
+        progress.save(update_fields=["error_message"])
 
 
 def _embed_document_chunks(document: Document):
@@ -508,6 +546,9 @@ def save_document_to_db(content, metadata, session_id=None):
             if progress.status == "pending":
                 progress.status = "in_progress"
         progress.save()
+        if meta.get("chunk_retry_attempts"):
+            progress.error_message = f"retry_attempts:{meta['chunk_retry_attempts']}"
+            progress.save(update_fields=["error_message"])
         meta["progress_id"] = str(progress.progress_id)
 
         document.metadata = meta

@@ -173,6 +173,18 @@ python manage.py fix_embeddings_status
 
 to update those chunks to `embedding_status="embedded"` in bulk.
 
+### Deleting Documents
+
+Use the `delete_document` command to remove a document and its chunks. Add
+`--soft` to mark records with `is_deleted=True` or `--purge` to permanently
+remove previously soft‑deleted data.
+
+```bash
+python manage.py delete_document --slug=<slug> --soft
+# or
+python manage.py delete_document --doc-id=<uuid> --purge
+```
+
 ### Exporting Reflection State
 
 Generate a JSON snapshot of current reflection logs and anchor boosts:
