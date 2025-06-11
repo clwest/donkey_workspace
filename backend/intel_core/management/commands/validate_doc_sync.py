@@ -33,7 +33,7 @@ class Command(BaseCommand):
         if repair and missing_link.exists():
             fixed = 0
             for ch in missing_link:
-                meta = EmbeddingMetadata.objects.filter(chunk_id=ch.id).first()
+                meta = EmbeddingMetadata.objects.filter(chunk__id=ch.id).first()
                 if meta:
                     ch.embedding = meta
                     ch.embedding_status = "embedded"
