@@ -17,42 +17,42 @@ This phase ensures all RAG debug data, glossary misses, fallback reasoning, and 
 
 ## 🧠 Backend Tasks
 
-- [x] Add `fallback_reason` field to `RAGGroundingLog` model (enum: ignored_glossary, no_chunks, no_match)
-- [x] Store fallback_reason on every `chat()` call when debug=true
-- [x] Link fallback_reason to glossary_hits and glossary_misses
-- [x] Tag new memories with `glossary_insight` when recovered from fallback
-- [x] Log missed glossary terms during chat and store in RAGGroundingLog
-- [x] Add `/assistants/<slug>/suggest_glossary_anchor/` [POST] for anchor suggestions
-- [x] Expose glossary_suggestion API with logging
+- [x] Add `fallback_reason` field to `RAGGroundingLog` model (enum: ignored_glossary, no_chunks, no_match) — Completed 2025-06-04
+- [x] Store fallback_reason on every `chat()` call when debug=true — Completed 2025-06-04
+- [x] Link fallback_reason to glossary_hits and glossary_misses — Completed 2025-06-04
+- [x] Tag new memories with `glossary_insight` when recovered from fallback — Completed 2025-06-04
+- [x] Log missed glossary terms during chat and store in RAGGroundingLog — Completed 2025-06-04
+- [x] Add `/assistants/<slug>/suggest_glossary_anchor/` [POST] for anchor suggestions — Completed 2025-06-04
+- [x] Expose glossary_suggestion API with logging — Completed 2025-06-04
 
 ---
 
 ## 🧪 CLI Tools
 
-- [x] `inspect_glossary_fallbacks` — audit fallback reasons from RAGGroundingLog
-- [x] `list_anchor_suggestions` — show all glossary suggestions
-- [x] `sync_fallback_tags` — re-tag memories with fallback_reason from grounding logs
+- [x] `inspect_glossary_fallbacks` — audit fallback reasons from RAGGroundingLog — Completed 2025-06-04
+- [x] `list_anchor_suggestions` — show all glossary suggestions — Completed 2025-06-04
+- [x] `sync_fallback_tags` — re-tag memories with fallback_reason from grounding logs — Completed 2025-06-04
 
 ---
 
 ## 🖥️ Frontend Tasks
 
-- [x] Add fallback_reason display to Chat Debug view
-- [x] Update RAG Debug Tab in AssistantDetailPage to show `fallback_reason`
-- [x] Allow clicking glossary_misses to open anchor suggestion modal
-- [x] Display glossary anchors marked as “boosted due to fallback” with a 🔁 icon
-- [x] Show suggested glossary anchors under the ChatDebug or RAGInspector component
-- [x] On `Repair Documents` or `Recovery`, append glossary_insight and show in memory timeline
+- [x] Add fallback_reason display to Chat Debug view — Completed 2025-06-04
+- [x] Update RAG Debug Tab in AssistantDetailPage to show `fallback_reason` — Completed 2025-06-04
+- [x] Allow clicking glossary_misses to open anchor suggestion modal — Completed 2025-06-04
+- [x] Display glossary anchors marked as “boosted due to fallback” with a 🔁 icon — Completed 2025-06-04
+- [x] Show suggested glossary anchors under the ChatDebug or RAGInspector component — Completed 2025-06-04
+- [x] On `Repair Documents` or `Recovery`, append glossary_insight and show in memory timeline — Completed 2025-06-04
 
 ---
 
 ## 🧪 Tests + Verification
 
-- [x] Test chat fallback logs appear in `/rag_debug/`
-- [x] Test glossary suggestions are saved
-- [x] Confirm chat with missing anchor triggers correct fallback_reason
-- [x] Confirm suggested anchors are marked in debug panel
-- [x] Validate document-linked reflections now add glossary tags if fallback_reason exists
+- [x] Test chat fallback logs appear in `/rag_debug/` — Completed 2025-06-04
+- [x] Test glossary suggestions are saved — Completed 2025-06-04
+- [x] Confirm chat with missing anchor triggers correct fallback_reason — Completed 2025-06-04
+- [x] Confirm suggested anchors are marked in debug panel — Completed 2025-06-04
+- [x] Validate document-linked reflections now add glossary tags if fallback_reason exists — Completed 2025-06-04
 
 ---
 

@@ -16,7 +16,7 @@ This phase focuses on making every assistant-generated action traceable, properl
 
 ### 1. Ownership Attribution
 
-- [x] `Assistant.created_by` field — associate assistants with their creator (user or assistant).
+- [x] `Assistant.created_by` field — associate assistants with their creator (user or assistant). — Completed 2025-05-18
 - [ ] Add `created_by` to:
   - [ ] `AssistantProject`
   - [ ] `AssistantThoughtLog`

@@ -6,10 +6,10 @@ _After successful backend reflections + tag integration on 2025-05-11_
 
 ## 🔧 Backend
 
-- [x] Add `reflected_at` to `DevDoc` model
-- [x] Set `reflected_at` timestamp after memory save
-- [x] Fix tag deduplication / slug conflict edge cases
-- [x] Create `retry_failed_reflections.py` for robustness
+- [x] Add `reflected_at` to `DevDoc` model — Completed 2025-05-18
+- [x] Set `reflected_at` timestamp after memory save — Completed 2025-05-18
+- [x] Fix tag deduplication / slug conflict edge cases — Completed 2025-05-18
+- [x] Create `retry_failed_reflections.py` for robustness — Completed 2025-05-18
 
 ---
 
