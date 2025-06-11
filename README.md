@@ -57,6 +57,14 @@ pip install -r requirements.txt
 python manage.py makemigrations
 python manage.py migrate
 python manage.py runserver
+# Start the Celery worker for embedding features
+make celery
+# Alternatively, run:
+# celery -A server worker --loglevel=INFO --concurrency=4
+# Without Celery running, document embeddings will not process. For
+# environments without Celery, set `FORCE_EMBED_SYNC=True` in
+# `backend/server/settings.py` or as an environment variable so embeddings
+# run synchronously.
 ```
 
 Whenever new models are added—such as the `MythchainOutputGenerator`,
