@@ -345,6 +345,7 @@ and `SwarmCodificationPattern`.
 - [Phase Ω.6.9 Features](docs/phase_omega_6_9.md)
 - [Demo Slide Deck](docs/slides.md)
 - [Release Notes](docs/RELEASE_NOTES.md)
+- [Phase Summary](PHASE_SUMMARY.md)
 - [Demo Script](docs/DEMO_SCRIPT.md)
 
 ### Monitoring & Alerts
