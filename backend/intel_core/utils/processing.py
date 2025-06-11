@@ -143,6 +143,27 @@ def _create_document_chunks(document: Document):
     chunks = AcronymGlossaryService.insert_glossary_chunk(chunks)
     anchors = list(SymbolicMemoryAnchor.objects.all().prefetch_related("tags"))
     queued_chunks = []
+    if not chunks and document.summary:
+        try:
+            fallback_text = document.summary
+            fingerprint = generate_chunk_fingerprint(fallback_text)
+            new_chunk = DocumentChunk.objects.create(
+                document=document,
+                order=0,
+                text=fallback_text,
+                tokens=count_tokens(fallback_text),
+                chunk_type="summary",
+                fingerprint=fingerprint,
+                force_embed=True,
+            )
+            new_chunk.embedding_status = "pending"
+            new_chunk.save(update_fields=["embedding_status"])
+            embed_and_store.delay(str(new_chunk.id))
+            chunks = [fallback_text]
+            queued_chunks.append(new_chunk.id)
+            logger.warning("[Fallback] Injected synthetic summary chunk.")
+        except Exception:
+            logger.exception("Failed to inject synthetic summary chunk")
     short_candidates: list[tuple[int, dict]] = []
     skipped = 0
     for i, chunk in enumerate(chunks):
@@ -627,6 +648,14 @@ def process_pdfs(pdf, pdf_title, project_name, session_id):
         logger.info(
             f"✅ PDF processed and saved: {pdf_title} [chunk {chunk_idx}/{total_chunks}]"
         )
+
+        embedded_chunk_count = document.chunks.filter(embedding__isnull=False).count()
+        if embedded_chunk_count == 0:
+            logger.error("[Ingest] Fatal: Document has no usable embedded chunks.")
+            document.progress_status = "error"
+            document.progress_error = "No usable chunks for embedding"
+            document.save(update_fields=["progress_status", "progress_error"])
+            return None
 
         return document
     except Exception as e:

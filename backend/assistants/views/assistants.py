@@ -1478,6 +1478,10 @@ def review_ingest(request, slug, doc_id):
     except Document.DoesNotExist:
         return Response({"error": "Document not found"}, status=404)
 
+    if not document.chunks.filter(embedding__isnull=False).exists():
+        logger.warning("[Review] Skipping reflection. No embedded memory found.")
+        return Response(status=400, data={"error": "No memory found for reflection"})
+
     if (
         document.last_reflected_at
         and timezone.now() - document.last_reflected_at < timedelta(hours=1)
