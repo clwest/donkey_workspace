@@ -12,6 +12,7 @@ export default function DocumentBrowserPage() {
   const [progressMap, setProgressMap] = useState({});
   const [ingestingDocs, setIngestingDocs] = useState([]);
   const prevIngestCount = useRef(0);
+  const [highlightConflicts, setHighlightConflicts] = useState(false);
 
   const loadDocuments = async () => {
     try {
@@ -92,13 +93,26 @@ export default function DocumentBrowserPage() {
     <div className="container py-4">
       <h2>🧾 Document Browser</h2>
 
+      <div className="form-check form-switch mb-3">
+        <input
+          className="form-check-input"
+          type="checkbox"
+          id="highlightConflictsToggle"
+          checked={highlightConflicts}
+          onChange={() => setHighlightConflicts(!highlightConflicts)}
+        />
+        <label className="form-check-label" htmlFor="highlightConflictsToggle">
+          Highlight Symbolic Conflicts
+        </label>
+      </div>
+
       <DocumentIngestionForm onSuccess={() => { loadDocuments(); loadIngestingDocs(); }} />
 
       {ingestingDocs.length > 0 && (
         <div className="row mt-4">
           {ingestingDocs.map((doc) => (
             <div key={doc.id} className="col-md-6 col-lg-4 mb-4">
-              <DocumentIngestingCard doc={doc} />
+              <DocumentIngestingCard doc={doc} highlightConflicts={highlightConflicts} />
             </div>
           ))}
         </div>
