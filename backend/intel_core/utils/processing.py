@@ -165,7 +165,7 @@ def _create_document_chunks(document: Document):
                 )
                 new_chunk.embedding_status = "pending"
                 new_chunk.save(update_fields=["embedding_status"])
-                embed_and_store.delay(str(new_chunk.id))
+                embed_and_store.delay(str(new_chunk.id), session_id=str(document.session_id))
                 chunks = [fallback_text]
                 queued_chunks.append(new_chunk.id)
                 logger.warning("[Fallback] Injected synthetic summary chunk.")
@@ -234,7 +234,7 @@ def _create_document_chunks(document: Document):
             new_chunk.save(update_fields=["embedding_status"])
             logger.info(f"📦 Queuing chunk for embedding: {new_chunk.id}")
             try:
-                embed_and_store.delay(str(new_chunk.id))
+                embed_and_store.delay(str(new_chunk.id), session_id=str(document.session_id))
                 queued_chunks.append(new_chunk.id)
             except Exception as e:
                 logger.warning(
@@ -274,7 +274,7 @@ def _create_document_chunks(document: Document):
                 )
                 new_chunk.embedding_status = "pending"
                 new_chunk.save(update_fields=["embedding_status"])
-                embed_and_store.delay(str(new_chunk.id))
+                embed_and_store.delay(str(new_chunk.id), session_id=str(document.session_id))
                 queued_chunks.append(new_chunk.id)
             except IntegrityError:
                 continue
@@ -312,7 +312,7 @@ def _create_document_chunks(document: Document):
                 )
                 new_chunk.embedding_status = "pending"
                 new_chunk.save(update_fields=["embedding_status"])
-                embed_and_store.delay(str(new_chunk.id))
+                embed_and_store.delay(str(new_chunk.id), session_id=str(document.session_id))
                 queued_chunks.append(new_chunk.id)
             except IntegrityError:
                 continue
@@ -349,7 +349,7 @@ def _create_document_chunks(document: Document):
                 if token_len > 50:
                     new_chunk.embedding_status = "pending"
                     new_chunk.save(update_fields=["embedding_status"])
-                    embed_and_store.delay(str(new_chunk.id))
+                    embed_and_store.delay(str(new_chunk.id), session_id=str(document.session_id))
                     queued_chunks.append(new_chunk.id)
                     logger.warning(
                         "🧠 No valid chunks. Fallback meta-chunk created and embedded."
@@ -598,11 +598,13 @@ def save_document_to_db(content, metadata, session_id=None):
                     embed_and_store(
                         text_or_id=str(chunk.id),
                         model="text-embedding-3-small",
+                        session_id=str(document.session_id),
                     )
                 else:
                     embed_and_store.delay(
                         text_or_id=str(chunk.id),
                         model="text-embedding-3-small",
+                        session_id=str(document.session_id),
                     )
                 logger.info(f"📦 Queued chunk {chunk.id} for embedding")
                 num_chunks_queued += 1
@@ -678,7 +680,7 @@ def process_pdfs(pdf, pdf_title, project_name, session_id):
                     )
                     fallback.embedding_status = "pending"
                     fallback.save(update_fields=["embedding_status"])
-                    embed_and_store.delay(str(fallback.id))
+                    embed_and_store.delay(str(fallback.id), session_id=str(document.session_id))
                     logger.warning(f"[Fallback] Injected synthetic chunk: {fallback.id}")
                 else:
                     logger.warning(

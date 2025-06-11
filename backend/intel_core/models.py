@@ -30,7 +30,7 @@ class Document(models.Model):
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        related_name="documents"
+        related_name="documents",
     )
     title = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, null=True, blank=True, max_length=120)
@@ -95,6 +95,44 @@ class Document(models.Model):
             ]  # Ensure it's under VARCHAR(50) if limited
         super().save(*args, **kwargs)
 
+    def get_progress(self):
+
+        progress_id = None
+        if isinstance(self.metadata, dict):
+            progress_id = self.metadata.get("progress_id")
+        if progress_id:
+            return DocumentProgress.objects.filter(progress_id=progress_id).first()
+        return DocumentProgress.objects.filter(document=self).first()
+
+    def sync_progress(self):
+        from .models import DocumentChunk
+
+        progress = self.get_progress()
+        if not progress:
+            return None
+        total = DocumentChunk.objects.filter(document=self).count()
+        embedded = DocumentChunk.objects.filter(
+            document=self, embedding__isnull=False
+        ).count()
+        progress.total_chunks = total
+        progress.embedded_chunks = embedded
+        progress.processed = max(progress.processed, embedded)
+        progress.failed_chunks = list(
+            DocumentChunk.objects.filter(
+                document=self, embedding_status="failed"
+            ).values_list("order", flat=True)
+        )
+        if embedded >= total and progress.status != "failed":
+            progress.status = "completed"
+        progress.save()
+        meta = self.metadata or {}
+        meta["chunk_count"] = total
+        meta["embedded_chunks"] = embedded
+        self.metadata = meta
+        self.progress_error = None
+        self.save(update_fields=["metadata", "progress_error"])
+        return progress
+
 
 class DocumentInteraction(models.Model):
     document = models.ForeignKey(
@@ -151,6 +189,7 @@ class DocumentChunk(models.Model):
         on_delete=models.SET_NULL,
         related_name="chunk",
     )
+
     class EmbeddingStatus(models.TextChoices):
         PENDING = "pending", "Pending"
         EMBEDDED = "embedded", "Embedded"
@@ -246,7 +285,7 @@ class DocumentProgress(models.Model):
     """Tracks chunking progress for large documents like PDFs."""
 
     progress_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    document = models.OneToOneField('Document', on_delete=models.CASCADE)
+    document = models.OneToOneField("Document", on_delete=models.CASCADE)
     title = models.CharField(max_length=255, blank=True)
     total_chunks = models.IntegerField(default=0)
     processed = models.IntegerField(default=0)

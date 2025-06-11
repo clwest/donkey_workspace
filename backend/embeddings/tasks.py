@@ -27,7 +27,10 @@ logger = get_logger("embeddings")
 def verify_chunk_embedding(chunk_id: str) -> bool:
     """Ensure the chunk's embedding exists and status reflects reality."""
     from intel_core.models import DocumentChunk
-    chunk = DocumentChunk.objects.filter(id=chunk_id).select_related("embedding").first()
+
+    chunk = (
+        DocumentChunk.objects.filter(id=chunk_id).select_related("embedding").first()
+    )
     if not chunk:
         return False
     has_vector = getattr(chunk.embedding, "vector", None)
@@ -46,6 +49,7 @@ def verify_chunk_embedding(chunk_id: str) -> bool:
 def validate_embedded_chunks(limit: int = 100) -> int:
     """Recheck a batch of chunks flagged as embedded."""
     from intel_core.models import DocumentChunk
+
     checked = 0
     for chunk in DocumentChunk.objects.filter(embedding_status="embedded")[:limit]:
         verify_chunk_embedding(chunk.id)
@@ -60,6 +64,7 @@ def embed_and_store(
     content_type: str | None = None,
     content_id: str | None = None,
     model: str = EMBEDDING_MODEL,
+    session_id: str | None = None,
 ) -> str | None:
     """
     Generate an embedding for the given text and store it in the database.
@@ -98,6 +103,7 @@ def embed_and_store(
                 logger.info(
                     f"⚡️ Force-embedding chunk {chunk.id} despite score={chunk.score}"
                 )
+            session_id = session_id or str(getattr(chunk.document, "session_id", ""))
             text = chunk.text
             content_type = "document_chunk"
             content_id = str(chunk.id)
@@ -108,6 +114,9 @@ def embed_and_store(
 
                 chunk = DocumentChunk.objects.filter(id=content_id).first()
                 if chunk:
+                    session_id = session_id or str(
+                        getattr(chunk.document, "session_id", "")
+                    )
                     should = should_embed_chunk(chunk)
                     if not should:
                         logger.info(
@@ -148,7 +157,7 @@ def embed_and_store(
 
         # Prepare a minimal object for saving
         obj = SimpleNamespace(content_type=content_type, id=content_id)
-        emb_record = save_embedding(obj, embedding)
+        emb_record = save_embedding(obj, embedding, session_id=session_id)
         if not emb_record:
             logger.error(f"Failed to save embedding for {content_type}:{content_id}")
             if content_type == "document_chunk":
@@ -215,6 +224,7 @@ def embed_and_store(
                             prog.save(update_fields=["status"])
                         try:
                             repair_progress(document=doc)
+                            doc.sync_progress()
                         except Exception as e:  # pragma: no cover - best effort
                             logger.warning(f"repair-progress failed: {e}")
         # Trigger post-processing for character embeddings
@@ -243,6 +253,7 @@ def embed_and_store(
                 chunk.save(update_fields=["embedding_status"])
                 try:
                     repair_progress(document_id=str(chunk.document_id))
+                    chunk.document.sync_progress()
                 except Exception as e:  # pragma: no cover - best effort
                     logger.warning(f"repair-progress failed: {e}")
         return None
