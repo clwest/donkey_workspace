@@ -165,10 +165,20 @@ export default function DocumentDetailPage() {
           ⚠️ Document has content but no embedded memory. Retry embedding?
         </div>
       )}
-      {doc.glossary_ids && doc.glossary_ids.length > 0 && (
+      {Array.isArray(doc.glossary_ids) && doc.glossary_ids.length > 0 ? (
         <p className="mb-1 small text-muted">
           Glossary IDs: {JSON.stringify(doc.glossary_ids)}
         </p>
+      ) : (
+        <p className="mb-1 small text-muted">No glossary terms detected</p>
+      )}
+
+      {Array.isArray(doc.failed_chunks) && doc.failed_chunks.length > 0 ? (
+        <p className="mb-1 small text-danger">
+          Failed chunks: {doc.failed_chunks.join(', ')}
+        </p>
+      ) : (
+        <p className="mb-1 small text-muted">No failed chunks</p>
       )}
 
       {doc.summary && (
