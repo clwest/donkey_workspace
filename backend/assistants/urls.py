@@ -55,6 +55,8 @@ from assistants.views.badges import (
     AssistantBadgesView,
     AssistantBadgeProgressView,
 )
+from assistants.views.preview import assistant_preview
+from assistants.views.badge_stub import badge_list
 from insights.views.plan import InsightPlanView
 
 from scheduler.views import standup
@@ -986,6 +988,11 @@ urlpatterns = [
         "<slug:slug>/summary/",
         assistants.assistant_summary,
         name="assistant-summary",
+    ),
+    path(
+        "assistants/<slug:slug>/preview/",
+        assistant_preview,
+        name="assistant-preview",
     ),
     path(
         "<slug:slug>/trust_profile/",

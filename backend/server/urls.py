@@ -39,6 +39,7 @@ from capabilities import urls as capability_urls
 
 from onboarding import views as onboarding_views
 from assistants.views import onboarding as assistant_onboarding_views
+from assistants.views.badge_stub import badge_list
 
 from assistants.views import assistants as assistant_views
 
@@ -203,6 +204,7 @@ urlpatterns = [
     path("api/memory/", include("memory.urls")),
     path("api/shared-memory-pools/", include("memory.shared_urls")),
     path("api/assistants/", include("assistants.urls")),
+    path("api/badges/", badge_list),
     path("api/agents/", include("agents.urls")),
     path("api/swarm/", include("agents.rewire_urls")),
     path("api/lore-tokens/", agent_views.lore_tokens),

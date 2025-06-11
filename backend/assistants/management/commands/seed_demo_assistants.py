@@ -19,6 +19,16 @@ class Command(BaseCommand):
             action="store_true",
             help="Recreate demo assistants even if they already exist",
         )
+        parser.add_argument(
+            "--skip-preview",
+            action="store_true",
+            help="Skip preview endpoint check",
+        )
+        parser.add_argument(
+            "--skip-badges",
+            action="store_true",
+            help="Skip badge endpoint check",
+        )
 
     def handle(self, *args, **options):
         from django.utils.text import slugify
@@ -27,6 +37,8 @@ class Command(BaseCommand):
 
         force = options.get("force", False)
         verbosity = options.get("verbosity", 1)
+        skip_preview = options.get("skip_preview", False)
+        skip_badges = options.get("skip_badges", False)
 
         demos = [
             {
@@ -167,28 +179,32 @@ class Command(BaseCommand):
 
             # Verify preview and badge routes
             client = Client()
-            try:
-                resp = client.get(f"/api/assistants/{assistant.slug}/preview/")
-                if resp.status_code != 200:
+            if not skip_preview:
+                try:
+                    resp = client.get(f"/api/assistants/{assistant.slug}/preview/")
+                    if resp.status_code != 200:
+                        self.logger.warning(
+                            "Preview route failed for %s: %s",
+                            assistant.slug,
+                            resp.status_code,
+                        )
+                except Exception as exc:
                     self.logger.warning(
-                        "Preview route failed for %s: %s",
-                        assistant.slug,
-                        resp.status_code,
+                        "Preview route error for %s: %s", assistant.slug, exc
                     )
-            except Exception as exc:
-                self.logger.warning(
-                    "Preview route error for %s: %s", assistant.slug, exc
-                )
-            try:
-                resp = client.get(f"/api/badges/?assistant={assistant.slug}")
-                if resp.status_code != 200:
+            if not skip_badges:
+                try:
+                    resp = client.get(f"/api/badges/?assistant={assistant.slug}")
+                    if resp.status_code != 200:
+                        self.logger.warning(
+                            "Badge route failed for %s: %s",
+                            assistant.slug,
+                            resp.status_code,
+                        )
+                except Exception as exc:
                     self.logger.warning(
-                        "Badge route failed for %s: %s",
-                        assistant.slug,
-                        resp.status_code,
+                        "Badge route error for %s: %s", assistant.slug, exc
                     )
-            except Exception as exc:
-                self.logger.warning("Badge route error for %s: %s", assistant.slug, exc)
 
         if created_count == 0:
             self.stdout.write("⚠️ No demo assistants were created.")
