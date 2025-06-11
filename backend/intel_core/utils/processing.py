@@ -12,6 +12,8 @@ from embeddings.helpers.helpers_io import (
     get_embedding_for_text,
     save_embedding,
 )
+from intel_core.tasks.embedding_tasks import embed_and_store
+from intel_core.utils.chunk_fingerprint import fingerprint_text
 from intel_core.core import clean_text, detect_topic, lemmatize_text
 from intel_core.models import Document, EmbeddingMetadata
 from mcp_core.models import Tag
@@ -146,22 +148,28 @@ def _create_document_chunks(document: Document):
     if not chunks and document.summary:
         try:
             fallback_text = document.summary
-            fingerprint = generate_chunk_fingerprint(fallback_text)
-            new_chunk = DocumentChunk.objects.create(
-                document=document,
-                order=0,
-                text=fallback_text,
-                tokens=count_tokens(fallback_text),
-                chunk_type="summary",
-                fingerprint=fingerprint,
-                force_embed=True,
-            )
-            new_chunk.embedding_status = "pending"
-            new_chunk.save(update_fields=["embedding_status"])
-            embed_and_store.delay(str(new_chunk.id))
-            chunks = [fallback_text]
-            queued_chunks.append(new_chunk.id)
-            logger.warning("[Fallback] Injected synthetic summary chunk.")
+            fingerprint = fingerprint_text(fallback_text)
+            existing = DocumentChunk.objects.filter(fingerprint=fingerprint).first()
+            if not existing:
+                new_chunk = DocumentChunk.objects.create(
+                    document=document,
+                    order=0,
+                    text=fallback_text,
+                    tokens=count_tokens(fallback_text),
+                    chunk_type="summary",
+                    fingerprint=fingerprint,
+                    force_embed=True,
+                )
+                new_chunk.embedding_status = "pending"
+                new_chunk.save(update_fields=["embedding_status"])
+                embed_and_store.delay(str(new_chunk.id))
+                chunks = [fallback_text]
+                queued_chunks.append(new_chunk.id)
+                logger.warning("[Fallback] Injected synthetic summary chunk.")
+            else:
+                logger.warning(
+                    "[Fallback] Chunk with identical fingerprint already exists. Skipping fallback."
+                )
         except Exception:
             logger.exception("Failed to inject synthetic summary chunk")
     short_candidates: list[tuple[int, dict]] = []
@@ -652,22 +660,32 @@ def process_pdfs(pdf, pdf_title, project_name, session_id):
         embedded_chunk_count = document.chunks.filter(embedding__isnull=False).count()
         if embedded_chunk_count == 0 and document.summary:
             try:
-                fallback = DocumentChunk.objects.create(
-                    document=document,
-                    order=0,
-                    text=document.summary,
-                    tokens=count_tokens(document.summary),
-                    chunk_type="fallback_summary",
-                    score=0.6,
-                    fingerprint=generate_chunk_fingerprint(document.summary),
-                    force_embed=True,
-                )
-                fallback.embedding_status = "pending"
-                fallback.save(update_fields=["embedding_status"])
-                embed_and_store.delay(str(fallback.id))
-                logger.warning(f"[Fallback] Injected synthetic chunk: {fallback.id}")
-            except Exception:
+                fingerprint = fingerprint_text(document.summary)
+                existing = DocumentChunk.objects.filter(fingerprint=fingerprint).first()
+                if not existing:
+                    fallback = DocumentChunk.objects.create(
+                        document=document,
+                        order=0,
+                        text=document.summary,
+                        tokens=count_tokens(document.summary),
+                        chunk_type="fallback_summary",
+                        score=0.6,
+                        fingerprint=fingerprint,
+                        force_embed=True,
+                    )
+                    fallback.embedding_status = "pending"
+                    fallback.save(update_fields=["embedding_status"])
+                    embed_and_store.delay(str(fallback.id))
+                    logger.warning(f"[Fallback] Injected synthetic chunk: {fallback.id}")
+                else:
+                    logger.warning(
+                        "[Fallback] Chunk with identical fingerprint already exists. Skipping fallback."
+                    )
+            except Exception as e:
                 logger.exception("Failed to inject fallback summary chunk")
+                document.progress_status = "error"
+                document.progress_error = str(e)
+                document.save(update_fields=["progress_error"])
 
         embedded_chunk_count = document.chunks.filter(embedding__isnull=False).count()
         if embedded_chunk_count == 0:
