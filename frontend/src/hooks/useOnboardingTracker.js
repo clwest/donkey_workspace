@@ -4,7 +4,10 @@ import apiFetch from "@/utils/apiClient";
 
 export default function useOnboardingTracker(theme = "fantasy") {
   const navigate = useNavigate();
-  const [status, setStatus] = useState(null);
+  const [status, setStatus] = useState(() => {
+    const stored = localStorage.getItem("onboarding_status");
+    return stored ? JSON.parse(stored) : null;
+  });
   const completedRef = useRef(
     JSON.parse(localStorage.getItem("onboardingCompleted") || "{}")
   );
@@ -17,6 +20,7 @@ export default function useOnboardingTracker(theme = "fantasy") {
     try {
       const res = await apiFetch(`/onboarding/status/?theme=${theme}`);
       setStatus(res);
+      localStorage.setItem("onboarding_status", JSON.stringify(res));
       if (res.onboarding_complete || res.next_step === null) {
         setComplete(true);
         localStorage.setItem("onboarding_complete", "true");
@@ -47,6 +51,7 @@ export default function useOnboardingTracker(theme = "fantasy") {
           body: { step },
         });
         setStatus(res);
+        localStorage.setItem("onboarding_status", JSON.stringify(res));
         completedRef.current[step] = true;
         localStorage.setItem(
           "onboardingCompleted",

@@ -44,6 +44,7 @@ class AssistantViewSet(viewsets.ViewSet):
         from assistants.serializers import AssistantCreateSerializer, AssistantSerializer
         serializer = AssistantCreateSerializer(data=request.data)
         if serializer.is_valid():
+            logger.info("Assistant created by: %s", request.user.id)
             assistant = serializer.save(created_by=request.user)
             data = AssistantSerializer(assistant).data
             data["is_first"] = is_first

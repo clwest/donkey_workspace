@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import apiFetch from "@/utils/apiClient";
 import { cachedUser } from "./useAuthGuard";
-import { getAccessToken } from "@/utils/auth";
+import { getAccessToken, getUserIdFromToken } from "@/utils/auth";
 
 export default function useUserInfo() {
-  const [user, setUser] = useState(cachedUser);
+  const [user, setUser] = useState(() => {
+    if (cachedUser) return cachedUser;
+    const id = getUserIdFromToken();
+    return id ? { id } : null;
+  });
 
   useEffect(() => {
     if (cachedUser) {
