@@ -36,6 +36,7 @@ from mcp_core.views import ontology as ontology_views
 from agents.views import agents as agent_views
 from agents.views import stabilization as stabilization_views
 from capabilities import urls as capability_urls
+from insights import views as insights_views
 
 from onboarding import views as onboarding_views
 from assistants.views import onboarding as assistant_onboarding_views
@@ -253,6 +254,7 @@ urlpatterns = [
         memory_views.reject_glossary_mutation,
     ),
     path("api/keeper/logs/", memory_views.keeper_log_list),
+    path("api/insights/conflict_logs/", insights_views.conflict_log_list),
     path(
         "api/anchor/<slug:slug>/training/",
         memory_views.anchor_training,
