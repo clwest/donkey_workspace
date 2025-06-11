@@ -189,6 +189,11 @@ export default function DocumentCard({ group, progress, onToggleFavorite, onDele
         <span className="me-2">
           <DocumentStatusCard doc={mergedDoc} />
         </span>
+        {tokenCount > 0 && embeddedChunks === 0 && (
+          <div className="text-warning">
+            ⚠️ Document has content but no embedded memory. Retry embedding?
+          </div>
+        )}
         {mergedDoc.system_prompt_id && (
           <Link
             to={`/prompts/${mergedDoc.system_prompt_id}`}
