@@ -54,25 +54,9 @@ This file resets and re-aligns our Codex and assistant system context after deep
 
 ---
 
-## 🎯 GOALS.md (Contextual)
+## 🎯 Goals
 
-### Short-Term Goals
-
-- [ ] Finalize demo-to-real conversion polish
-- [ ] Complete onboarding flow (assistant creation via theme)
-- [ ] Enable glossary badge assignment + trust panel filtering
-
-### Mid-Term Goals
-
-- [ ] Improve glossary fallback and prompt drift scoring
-- [ ] Add skill/tone-based badge unlocks for assistants
-- [ ] Add assistant analytics (conversion %, growth %, top anchors)
-
-### Long-Term Goals
-
-- [ ] Open-source model integration via Ollama (Mistral/Phi)
-- [ ] Local training loop for prompt boosts, glossary recall, and fallback suppression
-- [ ] Auto-eval framework to promote glossary health and reduce drift
+See [ROADMAP.md](ROADMAP.md) for the unified roadmap.
 
 ---
 
