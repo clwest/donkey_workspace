@@ -131,6 +131,7 @@ def _create_document_chunks(document: Document):
     chunks = AcronymGlossaryService.insert_glossary_chunk(chunks)
     anchors = list(SymbolicMemoryAnchor.objects.all().prefetch_related("tags"))
     queued_chunks = []
+    short_candidates: list[tuple[int, dict]] = []
     for i, chunk in enumerate(chunks):
         info = clean_and_score_chunk(chunk, chunk_index=i)
         if not info["keep"]:
@@ -149,6 +150,8 @@ def _create_document_chunks(document: Document):
                 info.get("reason"),
                 info.get("score", 0.0),
             )
+            if info.get("reason") in ("too_short", "short_low_quality"):
+                short_candidates.append((i, info))
             if not getattr(settings, "DISABLE_CHUNK_SKIP_FILTERS", False):
                 continue
             logger.debug("⚠️ Filter bypass enabled — keeping chunk %d", i)
@@ -196,10 +199,41 @@ def _create_document_chunks(document: Document):
                 f"🔁 Duplicate fingerprint {fingerprint} for chunk {i} on document {document.id}, skipping"
             )
 
+    if not queued_chunks and short_candidates:
+        logger.warning(
+            "🟠 No long chunks queued; retrying with %d short candidates",
+            len(short_candidates),
+        )
+        for i, info in short_candidates:
+            try:
+                fingerprint = generate_chunk_fingerprint(info["text"])
+                glossary_score, matched = compute_glossary_score(info["text"], anchors)
+                new_chunk = DocumentChunk.objects.create(
+                    document=document,
+                    order=i,
+                    text=info["text"],
+                    tokens=count_tokens(info["text"]),
+                    chunk_type="body",
+                    fingerprint=fingerprint,
+                    glossary_score=glossary_score,
+                    matched_anchors=matched,
+                    force_embed=True,
+                )
+                new_chunk.embedding_status = "pending"
+                new_chunk.save(update_fields=["embedding_status"])
+                embed_and_store.delay(str(new_chunk.id))
+                queued_chunks.append(new_chunk.id)
+            except IntegrityError:
+                continue
+
     if not queued_chunks:
         logger.warning(
             "⚠️ No chunks queued — all appear to be already embedded or skipped"
         )
+        meta = document.metadata or {}
+        meta["chunk_retry_needed"] = True
+        document.metadata = meta
+        document.save(update_fields=["metadata"])
 
     # Update document metadata with chunk and token stats
     try:

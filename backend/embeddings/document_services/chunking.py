@@ -76,7 +76,7 @@ def clean_and_score_chunk(text: str, chunk_index: int | None = None) -> dict:
             "reason": "too_short",
         }
 
-    if len(words) < 15:
+    if len(words) < 10:
         return {
             "text": cleaned,
             "score": 0.0,
@@ -162,9 +162,19 @@ def generate_chunks(text: str, chunk_size: int = 1000) -> List[str]:
         end = min(start + chunk_size, text_length)
         chunk = text[start:end]
         chunk = re.sub(r"\s+", " ", chunk).strip()
-        if len(chunk) < 50 and lexical_density(chunk) < 0.4:
+        tokens = len(chunk.split())
+        if tokens < 5:
+            logger.debug("[Chunking] Skip very short chunk at %d: '%s'", start, chunk[:40])
+            continue
+        if tokens < 10 and lexical_density(chunk) < 0.4:
+            logger.debug(
+                "[Chunking] Skip low-density short chunk at %d: '%s'",
+                start,
+                chunk[:40],
+            )
             continue
         if not is_chunk_clean(chunk):
+            logger.debug("[Chunking] Chunk failed cleanliness check at %d", start)
             continue
         chunks.append(chunk)
         if len(chunks) >= MAX_CHUNKS_PER_DOCUMENT:
