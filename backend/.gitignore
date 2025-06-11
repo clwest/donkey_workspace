@@ -86,3 +86,4 @@ venv/
 !assistants/migrations/0048_add_started_at_to_demousagelog.py
 !assistants/migrations/0049_add_message_count.py
 !feedback/migrations/0001_initial.py
+!insights/migrations/0001_initial.py

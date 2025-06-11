@@ -222,6 +222,12 @@ class DocumentService:
                 results.append(doc)
 
         cls._link_assistant(assistant, docs)
+        if assistant:
+            from insights.services import detect_document_conflicts
+
+            for doc in docs:
+                if isinstance(doc, Document):
+                    detect_document_conflicts(assistant, doc)
 
         return results
 

@@ -92,6 +92,7 @@ INSTALLED_APPS = [
     "simulation",
     "resources",
     "feedback",
+    "insights",
 ]
 
 # === 🧵 Middleware ===
