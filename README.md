@@ -174,17 +174,17 @@ Each PDF upload creates a `DocumentProgress` record tracking chunking. If an
 exception interrupts ingestion the record now ends with `status="failed"` and the
 error message for diagnostics. Retrieve progress via
 `/api/v1/intel/documents/<progress_id>/progress/` to spot stuck uploads.
+See [Embedding Troubleshooting](#embedding-troubleshooting) if chunks remain unembedded.
 
-### Fixing Embedding Status
+### Embedding Troubleshooting
 
-Occasionally embeddings are generated but the associated `DocumentChunk`
-records remain marked as `pending` or `failed`. Run:
+Use these commands when document chunks show missing or stale embeddings:
 
-```bash
-python manage.py fix_embeddings_status
-```
+1. `fix_embeddings_status` – mark chunks as `embedded` when an embedding already exists.
+2. `backfill_missing_embeddings` – queue embedding tasks for all chunks without embeddings.
+3. `reembed_document --doc-id=<uuid>` – clear and regenerate embeddings for a specific document.
 
-to update those chunks to `embedding_status="embedded"` in bulk.
+Run them from the `backend` directory whenever ingestion stalls or embeddings need regeneration.
 
 ### Deleting Documents
 
