@@ -4,6 +4,7 @@ chunking.py
 Text chunking logic for document embeddings.
 """
 
+import logging
 import re
 import hashlib
 from typing import List, Tuple
@@ -23,6 +24,8 @@ MAX_SUMMARY_CHARS = 1000
 
 CHUNK_OVERLAP = 0.1  # 10% overlap
 MAX_CHUNKS_PER_DOCUMENT = 500
+
+logger = logging.getLogger(__name__)
 
 __all__ = [
     "generate_chunks",
@@ -49,7 +52,6 @@ def lexical_density(text: str) -> float:
         return 0.0
     content = [w for w in words if w not in ALL_STOP_WORDS]
     return len(content) / len(words)
-
 
 
 from intel_core.utils.document_cleanup import is_chunk_clean
@@ -136,7 +138,7 @@ def clean_and_score_chunk(text: str, chunk_index: int | None = None) -> dict:
     if any(w[0].isupper() for w in words):
         score += 0.05
 
-    if cleaned.endswith(('.', '?', '!')):
+    if cleaned.endswith((".", "?", "!")):
         score += 0.3
 
     keep = score > 0.3
@@ -164,7 +166,9 @@ def generate_chunks(text: str, chunk_size: int = 1000) -> List[str]:
         chunk = re.sub(r"\s+", " ", chunk).strip()
         tokens = len(chunk.split())
         if tokens < 5:
-            logger.debug("[Chunking] Skip very short chunk at %d: '%s'", start, chunk[:40])
+            logger.debug(
+                "[Chunking] Skip very short chunk at %d: '%s'", start, chunk[:40]
+            )
             continue
         if tokens < 10 and lexical_density(chunk) < 0.4:
             logger.debug(
