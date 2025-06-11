@@ -52,6 +52,13 @@ class Document(models.Model):
     )
     ingested_by = models.CharField(max_length=128, blank=True, null=True)
     token_count_int = models.IntegerField(default=0)
+    generated_prompt = models.ForeignKey(
+        "prompts.Prompt",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="reflection_documents",
+    )
     last_reflected_at = models.DateTimeField(null=True, blank=True)
     status = models.CharField(
         max_length=20,
