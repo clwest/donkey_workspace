@@ -30,7 +30,8 @@ class Document(models.Model):
     description = models.TextField(null=True, blank=True)
     source = models.CharField(max_length=50, null=True, blank=True)
     # Allow source_url to be optional for locally uploaded documents
-    source_url = models.URLField(blank=True, null=True)
+    # Allow very long URLs (e.g. signed S3 links) without truncation errors
+    source_url = models.URLField(blank=True, null=True, max_length=500)
     summary = models.TextField(null=True, blank=True)  # ✅ Add this
     SOURCE_TYPE_CHOICES = [
         ("url", "URL"),
