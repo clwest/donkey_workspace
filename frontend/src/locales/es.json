@@ -1,0 +1,13 @@
+{
+  "onboarding.title": "Crea tu primer asistente",
+  "onboarding.name": "Nombre",
+  "onboarding.create": "Crear",
+  "onboarding.creating": "Creando...",
+  "demorecap.title": "Resumen de la demostración",
+  "demorecap.messages": "Mensajes enviados",
+  "demorecap.tips": "Consejos útiles",
+  "demorecap.score": "Puntuación",
+  "demorecap.starter": "Inicio",
+  "demorecap.view_overlay": "Ver superposición",
+  "demorecap.view_replay": "Ver repetición"
+}

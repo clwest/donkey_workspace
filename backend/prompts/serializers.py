@@ -1,5 +1,6 @@
 
 from rest_framework import serializers
+from django.utils.translation import gettext_lazy as _
 from prompts.models import (
     Prompt,
     PromptPreferences,
@@ -86,7 +87,7 @@ class PromptAssignAssistantSerializer(serializers.Serializer):
         try:
             assistant = Assistant.objects.get(id=value)
         except Assistant.DoesNotExist:
-            raise serializers.ValidationError("Assistant not found.")
+            raise serializers.ValidationError(_("Assistant not found."))
         return assistant
 
     def save(self, **kwargs):

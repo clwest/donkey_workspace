@@ -311,3 +311,9 @@ CI and deployment pipelines are documented in [docs/ci-cd.md](docs/ci-cd.md).
 
 - Other domain docs are under `backend/docs/` and `frontend/docs/`.
 ### Guided Tour\nVisit `/tour` or click **Start Tour** in the Assistant dropdown to see an overlay explaining key panels.
+
+## Internationalization
+Translations live under `frontend/src/locales/` and `backend/locale/`. See [docs/i18n.md](docs/i18n.md) for adding new languages.
+
+## Accessibility
+The UI targets WCAG 2.1 AA. Automated checks run with `npm test`. Tips and patterns are in [docs/a11y.md](docs/a11y.md).

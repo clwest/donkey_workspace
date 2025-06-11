@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Modal, Button } from "react-bootstrap";
 import { useNavigate, Link } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 import apiFetch from "@/utils/apiClient";
 import { createAssistantFromDemo } from "@/api/assistants";
 import DemoOverlayPanel from "./DemoOverlayPanel";
@@ -21,6 +22,7 @@ export default function DemoRecapModal({ show, onClose, demoSlug, sessionId }) {
   );
   const [showOverlay, setShowOverlay] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!show) return;
@@ -71,9 +73,9 @@ export default function DemoRecapModal({ show, onClose, demoSlug, sessionId }) {
 
   return (
     <>
-    <Modal show={show} onHide={onClose} centered>
+    <Modal show={show} onHide={onClose} centered aria-labelledby="demoRecapTitle">
       <Modal.Header closeButton>
-        <Modal.Title>Demo Recap</Modal.Title>
+        <Modal.Title id="demoRecapTitle">{t('demorecap.title')}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {loading && (
@@ -83,10 +85,10 @@ export default function DemoRecapModal({ show, onClose, demoSlug, sessionId }) {
         )}
         {!loading && data && (
           <div>
-            <p>Messages Sent: {data.messages_sent}</p>
-            <p>Helpful Tips: {data.tips_helpful}</p>
-            <p>Score: {data.score}</p>
-            {data.starter_query && <p>Starter: {data.starter_query}</p>}
+            <p>{t('demorecap.messages')}: {data.messages_sent}</p>
+            <p>{t('demorecap.tips')}: {data.tips_helpful}</p>
+            <p>{t('demorecap.score')}: {data.score}</p>
+            {data.starter_query && <p>{t('demorecap.starter')}: {data.starter_query}</p>}
             {showNurture && (
               <div className="mt-3 border-top pt-2">
                 <p className="mb-1">Next steps to nurture your clone:</p>
@@ -109,7 +111,7 @@ export default function DemoRecapModal({ show, onClose, demoSlug, sessionId }) {
           Export Markdown
         </Button>
         <Button variant="info" onClick={() => setShowOverlay((v) => !v)}>
-          {showOverlay ? "Hide Recap" : "View Recap"}
+          {showOverlay ? t('demorecap.view_overlay') : t('demorecap.view_overlay')}
         </Button>
         <Button variant="primary" onClick={handleConvert} disabled={saving}>
           {saving ? "Converting..." : "Convert This Assistant"}
