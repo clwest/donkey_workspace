@@ -11,7 +11,7 @@ import logging
 from dotenv import load_dotenv
 
 load_dotenv()
-from celery import Celery
+from celery import Celery, signals
 from celery.schedules import crontab
 from django.conf import settings
 
@@ -33,6 +33,13 @@ app.conf.timezone = "UTC"
 
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
+
+# Register a hook to log when the worker is ready.
+@signals.worker_ready.connect
+def log_worker_ready(**_):
+    logging.getLogger("celery").info(
+        "\ud83c\udf1f Celery worker ready and waiting for tasks"
+    )
 
 # Configure beat schedule
 app.conf.beat_schedule = {
