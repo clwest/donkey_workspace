@@ -279,9 +279,11 @@ def reembed_skipped_chunks(request):
     doc_id = request.query_params.get("document_id")
     force = request.query_params.get("force") == "true"
     repair = request.query_params.get("repair") == "true"
-    qs = DocumentChunk.objects.filter(embedding_status="skipped")
+    qs = DocumentChunk.objects.all()
     if doc_id:
         qs = qs.filter(document_id=doc_id)
+    if not force:
+        qs = qs.filter(embedding_status="skipped")
     count = 0
     for chunk in qs:
         if repair:
@@ -295,12 +297,11 @@ def reembed_skipped_chunks(request):
             else:
                 chunk.force_embed = True
         if force:
+            chunk.embedding = None
             chunk.force_embed = True
         chunk.embedding_status = "pending"
         chunk.save(
-            update_fields=(
-                ["embedding_status", "force_embed"] if force else ["embedding_status"]
-            )
+            update_fields=["embedding", "embedding_status", "force_embed"]
         )
         embed_and_store.delay(str(chunk.id))
         count += 1

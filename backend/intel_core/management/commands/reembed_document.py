@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from intel_core.models import Document, DocumentChunk
+from intel_core.models import Document, DocumentChunk, DocumentProgress
 from embeddings.tasks import embed_and_store
 
 
@@ -20,12 +20,39 @@ class Command(BaseCommand):
             return
 
         chunks = DocumentChunk.objects.filter(document=document)
+        total = chunks.count()
         self.stdout.write(
-            f"Re-embedding {chunks.count()} chunks for '{document.title}'"
+            f"Re-embedding {total} chunks for '{document.title}'"
         )
+
         for chunk in chunks:
             chunk.embedding = None
             chunk.embedding_status = "pending"
             chunk.save(update_fields=["embedding", "embedding_status"])
             embed_and_store.delay(str(chunk.id))
+
+        progress, _ = DocumentProgress.objects.get_or_create(
+            document=document,
+            defaults={
+                "title": document.title,
+                "total_chunks": total,
+                "processed": 0,
+                "embedded_chunks": 0,
+                "failed_chunks": [],
+                "status": "in_progress",
+            },
+        )
+        progress.processed = 0
+        progress.embedded_chunks = 0
+        progress.failed_chunks = []
+        progress.status = "in_progress"
+        progress.save(
+            update_fields=["processed", "embedded_chunks", "failed_chunks", "status"]
+        )
+
+        meta = document.metadata or {}
+        meta["embedded_chunks"] = 0
+        document.metadata = meta
+        document.save(update_fields=["metadata"])
+
         self.stdout.write(self.style.SUCCESS("Embedding tasks queued."))
