@@ -137,6 +137,16 @@ def embed_and_store(
             logger.error(
                 f"Embedding generation returned no result for {content_type}:{content_id}"
             )
+            if content_type == "document_chunk" and content_id:
+                from intel_core.models import DocumentChunk
+
+                DocumentChunk.objects.filter(id=content_id).update(
+                    embedding_status="failed"
+                )
+                logger.info(
+                    "[Chunk Failed] Chunk %s - reason: empty_embedding",
+                    content_id,
+                )
             return None
         if not isinstance(embedding, list) or len(embedding) != 1536:
             logger.warning(
