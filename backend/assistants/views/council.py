@@ -4,7 +4,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 
 from assistants.models.assistant import CouncilSession, CouncilThought, Assistant
-from assistants.serializers_pass import (
+from assistants.serializers import (
     CouncilSessionSerializer,
     CouncilThoughtSerializer,
 )

@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from assistants.models.assistant import Assistant, AssistantReputation
-from assistants.serializers_pass import AssistantReputationSerializer
+from assistants.serializers import AssistantReputationSerializer
 
 
 @api_view(["GET"])

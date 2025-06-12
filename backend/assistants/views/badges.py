@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from assistants.models import Assistant, Badge
-from assistants.serializers_pass import BadgeSerializer
+from assistants.serializers import BadgeSerializer
 from assistants.utils.badge_logic import update_assistant_badges
 
 

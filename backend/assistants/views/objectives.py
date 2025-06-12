@@ -23,7 +23,7 @@ from assistants.utils.objective_from_reflection import (
     generate_objective_from_reflection,
 )
 
-from assistants.serializers_pass import (
+from assistants.serializers import (
     AssistantObjectiveSerializer,
     AssistantObjectiveWithTasksSerializer,
 )

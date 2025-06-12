@@ -5,7 +5,7 @@ from assistants.models import Assistant
 from memory.models import MemoryEntry
 from mcp_core.models import Tag
 from assistants.models.reflection import AssistantReflectionLog
-from assistants.serializers_pass import AssistantPreviewSerializer
+from assistants.serializers import AssistantPreviewSerializer
 
 @pytest.mark.django_db
 def test_assistant_preview_fields():

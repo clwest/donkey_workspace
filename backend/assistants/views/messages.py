@@ -9,7 +9,7 @@ from assistants.models.assistant import (
     ChatSession,
 )
 from memory.services import MemoryService
-from assistants.serializers_pass import (
+from assistants.serializers import (
     AssistantMessageSerializer,
     AssistantRelayMessageSerializer,
 )

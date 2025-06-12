@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from assistants.models.thoughts import AssistantThoughtLog
-from assistants.serializers_pass import (
+from assistants.serializers import (
     DelegationEventSerializer,
     RecentDelegationEventSerializer,
     DelegationTraceSerializer,

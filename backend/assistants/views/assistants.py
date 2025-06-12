@@ -63,7 +63,7 @@ from assistants.models.reflection import AssistantReflectionLog
 from assistants.models.thoughts import AssistantThoughtLog
 from prompts.models import PromptMutationLog
 from assistants.utils.session_utils import get_cached_thoughts
-from assistants.serializers_pass import (
+from assistants.serializers import (
     AssistantSerializer,
     SuggestionLogSerializer,
     DemoComparisonSerializer,
@@ -312,7 +312,7 @@ class AssistantViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, slug=None, *args, **kwargs):
         assistant = get_object_or_404(Assistant, slug=slug)
-        from assistants.serializers_pass import (
+        from assistants.serializers import (
             AssistantDetailSerializer,
             ProjectOverviewSerializer,
         )
@@ -1641,7 +1641,7 @@ def self_assess(request, slug):
 def drift_check(request, slug):
     assistant = get_object_or_404(Assistant, slug=slug)
     from assistants.utils.drift_detection import analyze_drift_for_assistant
-    from assistants.serializers_pass import SpecializationDriftLogSerializer
+    from assistants.serializers import SpecializationDriftLogSerializer
 
     log = analyze_drift_for_assistant(assistant)
     data = {
@@ -2449,7 +2449,7 @@ def drift_suggestions(request, slug):
 def assistant_summary(request, slug):
     """Return high-level metrics for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
-    from assistants.serializers_pass import AssistantOverviewSerializer
+    from assistants.serializers import AssistantOverviewSerializer
 
     serializer = AssistantOverviewSerializer(assistant)
     return Response(serializer.data)
@@ -2460,7 +2460,7 @@ def assistant_summary(request, slug):
 def assistant_trust_profile(request, slug):
     """Return trust and signal metrics for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
-    from assistants.serializers_pass import AssistantOverviewSerializer
+    from assistants.serializers import AssistantOverviewSerializer
     from assistants.models.assistant import AssistantDriftRefinementLog
     from assistants.models.reflection import AssistantReflectionLog
     from memory.models import RAGGroundingLog

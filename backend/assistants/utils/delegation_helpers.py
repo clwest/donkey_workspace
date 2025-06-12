@@ -3,7 +3,7 @@ from typing import Optional
 
 from assistants.models.assistant import Assistant, DelegationEvent, ChatSession
 from assistants.helpers.reflection_helpers import reflect_on_delegation
-from assistants.serializers_pass import AssistantFromPromptSerializer
+from assistants.serializers import AssistantFromPromptSerializer
 from prompts.models import Prompt
 from memory.models import MemoryEntry
 from mcp_core.models import NarrativeThread

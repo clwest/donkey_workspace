@@ -5,7 +5,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 
 from assistants.models.assistant import Assistant, ConscienceModule, DecisionFramework
-from assistants.serializers_pass import (
+from assistants.serializers import (
     ConscienceModuleSerializer,
     DecisionFrameworkSerializer,
 )

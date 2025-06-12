@@ -4,7 +4,7 @@ pytest.importorskip("django")
 from assistants.models import Assistant
 from prompts.models import Prompt
 from intel_core.models import Document, DocumentChunk, EmbeddingMetadata
-from assistants.serializers_pass import AssistantSerializer
+from assistants.serializers import AssistantSerializer
 
 @pytest.mark.django_db
 def test_composite_health_score():

@@ -9,7 +9,7 @@ from assistants.models.project import (
     AssistantObjective,
     AssistantTask
 )
-from assistants.serializers_pass import (
+from assistants.serializers import (
     AssistantProjectSerializer,
     AssistantFromPromptSerializer,
     AssistantSerializer,

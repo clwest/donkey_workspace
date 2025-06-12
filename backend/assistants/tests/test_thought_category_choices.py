@@ -1,7 +1,7 @@
 
 from django.test import TestCase
 from assistants.models import AssistantThoughtLog
-from assistants.serializers_pass import AssistantThoughtLogSerializer
+from assistants.serializers import AssistantThoughtLogSerializer
 from assistants.constants import THOUGHT_CATEGORY_CHOICES
 
 

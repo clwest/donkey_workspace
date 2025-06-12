@@ -3,11 +3,13 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
-
+from assistants.models import AssistantReflectionLog
+from intel_core.models import DocumentChunk
+from memory.models import SymbolicMemoryAnchor
 import logging
 from assistants.models.assistant import Assistant, AssistantRelayMessage
 from assistants.models.thoughts import AssistantThoughtLog
-from assistants.serializers_pass import (
+from assistants.serializers import (
     AssistantSerializer,
     AssistantRelayMessageSerializer,
     AssistantCreateSerializer,
@@ -23,7 +25,7 @@ from assistants.utils.delegation import spawn_delegated_assistant
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from assistants.helpers.memory_helpers import ensure_welcome_memory
 from assistants.models.user_preferences import AssistantUserPreferences
-from assistants.serializers_pass import AssistantUserPreferencesSerializer
+from assistants.serializers import AssistantUserPreferencesSerializer
 from assistants.utils.rag_diagnostics import run_assistant_rag_test
 
 logger = logging.getLogger(__name__)
@@ -45,7 +47,7 @@ class AssistantViewSet(viewsets.ViewSet):
     def create(self, request):
         """Create an assistant and indicate if it's the user's first."""
         is_first = not Assistant.objects.filter(created_by=request.user).exists()
-        from assistants.serializers_pass import (
+        from assistants.serializers import (
             AssistantCreateSerializer,
             AssistantSerializer,
         )
@@ -76,12 +78,12 @@ class AssistantViewSet(viewsets.ViewSet):
             user=request.user, assistant=assistant
         )
         ensure_welcome_memory(assistant)
-        from assistants.serializers_pass import AssistantDetailSerializer
+        from assistants.serializers import AssistantDetailSerializer
 
         serializer = AssistantDetailSerializer(assistant)
         data = serializer.data
         if assistant.current_project:
-            from assistants.serializers_pass import ProjectOverviewSerializer
+            from assistants.serializers import ProjectOverviewSerializer
 
             data["current_project"] = ProjectOverviewSerializer(
                 assistant.current_project
@@ -219,7 +221,7 @@ class AssistantViewSet(viewsets.ViewSet):
     @action(detail=True, methods=["get"], url_path="setup_summary")
     def setup_summary(self, request, pk=None):
         assistant = get_object_or_404(Assistant, slug=pk)
-        from assistants.serializers_pass import AssistantSetupSummarySerializer
+        from assistants.serializers import AssistantSetupSummarySerializer
 
         serializer = AssistantSetupSummarySerializer(assistant)
         return Response(serializer.data)
@@ -227,7 +229,7 @@ class AssistantViewSet(viewsets.ViewSet):
     @action(detail=True, methods=["get"], url_path="preview")
     def preview(self, request, pk=None):
         assistant = get_object_or_404(Assistant, slug=pk)
-        from assistants.serializers_pass import AssistantPreviewSerializer
+        from assistants.serializers import AssistantPreviewSerializer
 
         serializer = AssistantPreviewSerializer(assistant)
         return Response(serializer.data)

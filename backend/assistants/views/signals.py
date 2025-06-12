@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from assistants.models.assistant import SignalSource, SignalCatch
-from assistants.serializers_pass import SignalSourceSerializer, SignalCatchSerializer
+from assistants.serializers import SignalSourceSerializer, SignalCatchSerializer
 
 
 @api_view(["GET", "POST"])

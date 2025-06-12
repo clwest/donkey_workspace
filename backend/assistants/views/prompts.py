@@ -4,7 +4,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 
 from assistants.models.project import AssistantPromptLink
-from assistants.serializers_pass import AssistantPromptLinkSerializer
+from assistants.serializers import AssistantPromptLinkSerializer
 from prompts.serializers import PromptSerializer
 from mcp_core.models import PromptUsageLog
 from rest_framework.permissions import IsAuthenticated

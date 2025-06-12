@@ -9,7 +9,7 @@ from assistants.models.extensions import (
     HapticFeedbackChannel,
     AssistantSensoryExtensionProfile,
 )
-from assistants.serializers_pass import (
+from assistants.serializers import (
     HapticFeedbackChannelSerializer,
     AssistantSensoryExtensionProfileSerializer,
 )

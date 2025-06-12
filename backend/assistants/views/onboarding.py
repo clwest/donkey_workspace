@@ -9,7 +9,7 @@ from memory.models import SymbolicMemoryAnchor
 from memory.services.acquisition import update_anchor_acquisition
 from agents.models.identity import SymbolicIdentityCard
 from assistants.models.thoughts import AssistantThoughtLog
-from assistants.serializers_pass import AssistantSerializer
+from assistants.serializers import AssistantSerializer
 from agents.serializers import SymbolicIdentityCardSerializer
 
 PATH_DEFAULTS = {
