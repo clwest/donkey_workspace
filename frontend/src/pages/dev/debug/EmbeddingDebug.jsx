@@ -5,11 +5,13 @@ import ErrorCard from "../../../components/ErrorCard";
 export default function EmbeddingDebug() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
+  const [showRag, setShowRag] = useState(false);
 
   useEffect(() => {
     async function load() {
       try {
-        const res = await apiFetch("/dev/embedding-debug/");
+        const url = showRag ? "/dev/embedding-debug/?include_rag=1" : "/dev/embedding-debug/";
+        const res = await apiFetch(url);
         setData(res);
       } catch (err) {
         console.error("Failed to load embedding stats", err);
@@ -17,7 +19,7 @@ export default function EmbeddingDebug() {
       }
     }
     load();
-  }, []);
+  }, [showRag]);
 
   if (error?.status === 403) {
     return <ErrorCard message="You don't have permission to view embedding diagnostics." />;
@@ -69,6 +71,41 @@ export default function EmbeddingDebug() {
           ))}
         </tbody>
       </table>
+      <div className="form-check form-switch mt-4">
+        <input
+          className="form-check-input"
+          type="checkbox"
+          id="ragToggle"
+          checked={showRag}
+          onChange={(e) => setShowRag(e.target.checked)}
+        />
+        <label className="form-check-label" htmlFor="ragToggle">
+          Show Retrieval Stats
+        </label>
+      </div>
+      {showRag && data.context_stats && (
+        <div className="mt-3">
+          <h5>Context Retrieval Counts</h5>
+          <table className="table table-sm">
+            <thead>
+              <tr>
+                <th>Assistant</th>
+                <th>Context ID</th>
+                <th>Chunks</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.context_stats.map((row, idx) => (
+                <tr key={idx}>
+                  <td>{row.assistant}</td>
+                  <td>{row.context_id}</td>
+                  <td>{row.chunk_count}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

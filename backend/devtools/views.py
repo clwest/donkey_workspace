@@ -271,10 +271,33 @@ def embedding_debug(request):
         .order_by("-count")
     )
 
+    context_stats = []
+    if request.GET.get("include_rag") == "1":
+        from assistants.utils.chunk_retriever import get_relevant_chunks
+        from assistants.models import Assistant
+
+        for a in Assistant.objects.all():
+            count = 0
+            if a.memory_context_id:
+                chunks, *_ = get_relevant_chunks(
+                    str(a.id),
+                    "purpose",
+                    memory_context_id=str(a.memory_context_id),
+                )
+                count = len(chunks)
+            context_stats.append(
+                {
+                    "assistant": a.slug,
+                    "context_id": str(a.memory_context_id) if a.memory_context_id else None,
+                    "chunk_count": count,
+                }
+            )
+
     return Response(
         {
             "model_counts": model_counts,
             "invalid_links": invalid,
             "assistant_breakdown": breakdown,
+            "context_stats": context_stats,
         }
     )
