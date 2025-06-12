@@ -93,6 +93,7 @@ INSTALLED_APPS = [
     "resources",
     "feedback",
     "insights",
+    "devtools",
     
 ]
 

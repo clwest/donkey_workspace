@@ -1,3 +1,4 @@
+default_app_config = "devtools.apps.DevtoolsConfig"
 from .views import (
     full_route_map,
     export_assistants,
