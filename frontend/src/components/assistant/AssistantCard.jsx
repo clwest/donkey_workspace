@@ -71,9 +71,9 @@ export default function AssistantCard({ assistant, to, chatLink, demo }) {
           <span className="badge bg-warning text-dark ms-2">Misaligned</span>
         )}
       </div>
-      {(to || chatLink) && (
+      {(chatLink || (!isWrapped && to)) && (
         <div className="card-footer bg-transparent border-0 text-end">
-          {to && (
+          {!isWrapped && to && (
             <Link to={to} className="btn btn-outline-primary btn-sm me-2">
               View Details
             </Link>
@@ -88,7 +88,8 @@ export default function AssistantCard({ assistant, to, chatLink, demo }) {
     </div>
   );
 
-  const wrapped = to && !chatLink ? (
+  const isWrapped = to && !chatLink;
+  const wrapped = isWrapped ? (
     <Link to={to} className="text-decoration-none">{card}</Link>
   ) : (
     card
