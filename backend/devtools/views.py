@@ -176,19 +176,14 @@ def auth_debug(request):
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def assistant_routing_debug(request):
-    """Return assistant routing info for debugging onboarding redirects."""
-    from assistants.models import Assistant
+    """Return onboarding status and primary assistant slug."""
 
-    assistants = []
-    if request.user.is_authenticated:
-        assistants = list(
-            Assistant.objects.filter(created_by=request.user).values("id", "slug")
-        )
+    if not request.user.is_authenticated:
+        return Response({"onboarding_complete": False, "primary_slug": None})
+
     return Response(
         {
-            "user": request.user.email if request.user.is_authenticated else None,
-            "assistants": assistants,
-            "onboarding_complete": getattr(request.user, "onboarding_complete", False),
-            "primary_assistant_slug": getattr(request.user, "primary_assistant_slug", None),
+            "onboarding_complete": bool(getattr(request.user, "onboarding_complete", False)),
+            "primary_slug": getattr(request.user, "primary_assistant_slug", None),
         }
     )

@@ -46,9 +46,10 @@ class AssistantViewSet(viewsets.ViewSet):
         if serializer.is_valid():
             logger.info("Assistant created by: %s", request.user.id)
             assistant = serializer.save(created_by=request.user)
-            if is_first:
-                request.user.onboarding_complete = True
+            if is_first or not request.user.primary_assistant_slug:
                 request.user.primary_assistant_slug = assistant.slug
+                if not request.user.onboarding_complete:
+                    request.user.onboarding_complete = True
                 request.user.save(
                     update_fields=["onboarding_complete", "primary_assistant_slug"]
                 )

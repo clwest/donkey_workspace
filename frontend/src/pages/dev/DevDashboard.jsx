@@ -26,6 +26,18 @@ export default function DevDashboard() {
     }
   };
 
+  const testRouting = async () => {
+    try {
+      const res = await apiFetch('/debug/assistant_routing/', { allowUnauthenticated: true });
+      // eslint-disable-next-line no-console
+      console.log('routing debug', res);
+      toast.info('Check console for routing data');
+    } catch (err) {
+      console.error('routing debug failed', err);
+      toast.error('Routing debug failed');
+    }
+  };
+
   useEffect(() => {
     const loadDocs = async () => {
       try {
@@ -149,6 +161,9 @@ export default function DevDashboard() {
         <Link to="/dev/demo-checkup" className="btn btn-outline-secondary my-3 ms-2">
           🩺 Demo Checkup
         </Link>
+        <button className="btn btn-outline-secondary my-3 ms-2" onClick={testRouting}>
+          🧭 Test Routing
+        </button>
         <ul className="nav nav-tabs mt-2">
           <li className="nav-item">
             <button

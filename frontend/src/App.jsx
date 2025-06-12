@@ -275,6 +275,7 @@ import { ToastContainer } from "react-toastify";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import { useState, useEffect } from "react";
+import useOnboardingStatus from "./hooks/useOnboardingStatus";
 import ActivityPage from "./pages/ActivityPage";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -315,37 +316,22 @@ export default function App() {
   const { user, authChecked, authError } = useAuthGuard({ allowUnauthenticated: allowUnauth });
   const userInfo = useUserInfo();
   const navigate = useNavigate();
-  const [onboardingStatus, setOnboardingStatus] = useState(null);
-  const [onboardingStatusFetched, setOnboardingStatusFetched] = useState(false);
   const [onboardingRedirectHandled, setOnboardingRedirectHandled] = useState(false);
+  const { loading: onboardingLoading, primarySlug, onboardingComplete } = useOnboardingStatus();
 
   useEffect(() => {
-    if (!user) return;
-    apiFetch('/profile/onboarding_status/')
-      .then((res) => {
-        setOnboardingStatus(res);
-        setOnboardingStatusFetched(true);
-      })
-      .catch(() => setOnboardingStatusFetched(true));
-  }, [user]);
-
-  useEffect(() => {
-    if (!user || !onboardingStatusFetched || onboardingRedirectHandled) return;
+    if (!user || onboardingLoading || onboardingRedirectHandled) return;
     const path = location.pathname;
-    if (onboardingStatus?.complete) {
-      if (path === '/assistants/create') {
-        // eslint-disable-next-line no-console
-        console.log('Redirecting to dashboard:', onboardingStatus.primary_assistant_slug);
-        navigate(`/assistants/${onboardingStatus.primary_assistant_slug}/dashboard`, { replace: true });
+    if (onboardingComplete) {
+      if (path === '/assistants/create' || path.startsWith('/onboarding')) {
+        navigate(`/assistants/${primarySlug}`, { replace: true });
         setOnboardingRedirectHandled(true);
       }
     } else if (!path.startsWith('/assistants/create')) {
-      // eslint-disable-next-line no-console
-      console.log('Redirecting to create assistant');
       navigate('/assistants/create', { replace: true });
       setOnboardingRedirectHandled(true);
     }
-  }, [user, onboardingStatusFetched, onboardingStatus, location.pathname, navigate, onboardingRedirectHandled]);
+  }, [user, onboardingLoading, onboardingComplete, primarySlug, location.pathname, navigate, onboardingRedirectHandled]);
 
   useEffect(() => {
     if (!userInfo) return;
