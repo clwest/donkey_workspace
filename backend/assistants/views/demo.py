@@ -81,7 +81,25 @@ def demo_recap(request, session_id):
 
     if not session or not usage:
         logger.warning("[DemoRecap] Missing session or usage for %s", session_id)
-        return Response({})
+        fallback = (
+            DemoSessionLog.objects.select_related("assistant")
+            .order_by("-started_at")
+            .first()
+        )
+        if fallback:
+            session = fallback
+            session_id = fallback.session_id
+            usage, _ = get_or_create_usage_for_session(session_id)
+            logger.info(
+                "[DemoRecap] \u2705 Using recent chat for demo recap %s", session_id
+            )
+        else:
+            usage = DemoUsageLog.objects.create(
+                session_id=session_id, demo_slug="unknown"
+            )
+            logger.info(
+                "[DemoRecap] \u2705 Generated dummy usage for %s", session_id
+            )
     if session.converted_to_real_assistant or usage.recap_shown:
         return Response(status=404)
 
