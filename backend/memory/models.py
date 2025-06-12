@@ -281,6 +281,16 @@ class MemoryFeedback(models.Model):
         null=True,
         blank=True,
     )
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ("pending", "Pending"),
+            ("accepted", "Accepted"),
+            ("rejected", "Rejected"),
+        ],
+        default="pending",
+    )
+    rating = models.IntegerField(null=True, blank=True)
     submitted_by = models.ForeignKey(
         User, null=True, blank=True, on_delete=models.SET_NULL
     )
