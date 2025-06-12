@@ -12,7 +12,7 @@ from .models import (
 from mcp_core.serializers_tags import TagSerializer
 from assistants.models.assistant import Assistant
 from assistants.models.reflection import AssistantReflectionLog
-from assistants.serializers import AssistantSerializer
+
 from prompts.models import PromptUsageTemplate
 
 
