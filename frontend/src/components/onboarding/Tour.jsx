@@ -11,13 +11,11 @@ export default function Tour({ steps, onFinish }) {
 
   const waitForTarget = (selector, attempts = 0) => {
     if (!selector) return setRun(true);
-    if (document.querySelector(selector)) {
+    const targetElement = document.querySelector(selector);
+    if (targetElement) {
       setRun(true);
     } else if (attempts < 20) {
       setTimeout(() => waitForTarget(selector, attempts + 1), 200);
-    } else {
-      // fallback after ~4s
-      setRun(true);
     }
   };
 

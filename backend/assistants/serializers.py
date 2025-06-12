@@ -1808,6 +1808,9 @@ class AssistantIntroSerializer(serializers.ModelSerializer):
     is_cloned_from_demo = serializers.SerializerMethodField()
     birth_reflection = serializers.CharField(source="init_reflection", read_only=True)
     is_primary = serializers.BooleanField(read_only=True)
+    is_demo = serializers.BooleanField(read_only=True)
+    is_personal = serializers.SerializerMethodField()
+    session_required = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -1834,6 +1837,9 @@ class AssistantIntroSerializer(serializers.ModelSerializer):
             "is_cloned_from_demo",
             "birth_reflection",
             "is_primary",
+            "is_demo",
+            "is_personal",
+            "session_required",
         ]
 
     def get_flair(self, obj):
@@ -1853,6 +1859,15 @@ class AssistantIntroSerializer(serializers.ModelSerializer):
         from assistants.helpers.intro import TONE_COLORS
 
         return TONE_COLORS.get(obj.tone_profile or "", {})
+
+    def get_is_personal(self, obj):
+        request = self.context.get("request")
+        if request and request.user and request.user.is_authenticated:
+            return obj.created_by_id == request.user.id
+        return False
+
+    def get_session_required(self, obj):
+        return bool(obj.is_demo)
 
     def get_suggest_personalization(self, obj):
         if obj.spawned_by and obj.spawned_by.is_demo:

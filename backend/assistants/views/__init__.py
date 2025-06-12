@@ -31,6 +31,7 @@ from .demo import (
     demo_drift_diagnosis,
 )
 from .demo_recap import assistant_demo_recap
+from .preferences import assistant_preferences
 from .assistants import refine_from_drift
 from .setup import AssistantSetupSummaryView
 from .intro import AssistantIntroView
@@ -384,5 +385,6 @@ __all__ = [
     "insight_logs",
     "accept_insight",
     "reject_insight",
+    "assistant_preferences",
 ]
 from .skills import SkillPlanView

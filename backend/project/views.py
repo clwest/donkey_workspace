@@ -2,6 +2,7 @@
 
 from rest_framework import viewsets
 from django.db.models import Q
+import logging
 from .models import Project, ProjectTask, ProjectMilestone
 from .serializers import (
     ProjectSerializer,
@@ -18,6 +19,8 @@ from django.shortcuts import get_object_or_404
 from memory.serializers import MemoryEntrySerializer
 from assistants.serializers import AssistantReflectionLogSerializer
 from .services import projects as project_services
+
+logger = logging.getLogger(__name__)
 
 class ProjectViewSet(viewsets.ModelViewSet):
     """CRUD operations for :class:`Project` instances returned as JSON."""
@@ -64,7 +67,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
     )
     def team_memory(self, request, pk=None):
         project = get_object_or_404(Project, id=pk)
-        if not project_services.user_can_access_project(request.user, project):
+        if not HasProjectAccess().has_object_permission(request, self, project):
+            logger.warning(
+                "[TeamMemory] denied for user %s project %s", request.user.id, pk
+            )
             return Response(status=status.HTTP_403_FORBIDDEN)
         assistant_id = request.GET.get("assistant_id")
         mems = project_services.fetch_team_memories(project, assistant_id)

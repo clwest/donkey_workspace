@@ -1,5 +1,8 @@
 from rest_framework import permissions
+import logging
 from .models import Project
+
+logger = logging.getLogger(__name__)
 
 
 class HasProjectAccess(permissions.BasePermission):
@@ -22,4 +25,18 @@ class HasProjectAccess(permissions.BasePermission):
             return True
         if project.assistant and project.assistant.created_by == request.user:
             return True
+        return False
+
+    def has_object_permission(self, request, view, obj):
+        if obj.user == request.user or request.user.is_superuser:
+            return True
+        if obj.participants.filter(id=request.user.id).exists():
+            return True
+        if obj.team.filter(created_by=request.user).exists():
+            return True
+        if obj.assistant and obj.assistant.created_by == request.user:
+            return True
+        logger.warning(
+            "[ProjectAccess] Denied user %s for project %s", request.user.id, obj.id
+        )
         return False

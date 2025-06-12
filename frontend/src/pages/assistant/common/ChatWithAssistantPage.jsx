@@ -74,6 +74,7 @@ export default function ChatWithAssistantPage() {
   const {
     recap,
     showRecap,
+    openRecap,
     closeRecap,
     showFeedback,
     triggerFeedback,

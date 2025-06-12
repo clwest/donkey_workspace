@@ -1016,6 +1016,11 @@ urlpatterns = [
         name="assistant-trust-profile",
     ),
     path(
+        "<slug:slug>/preferences/",
+        views.assistant_preferences,
+        name="assistant-preferences",
+    ),
+    path(
         "<slug:slug>/intro/",
         views.AssistantIntroView.as_view(),
         name="assistant-intro",
