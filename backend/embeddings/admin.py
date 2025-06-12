@@ -10,11 +10,24 @@ class EmbeddingAdmin(admin.ModelAdmin):
     list_display = (
         "content_type",
         "content_id",
+        "content_preview",
         "short_embedding",
         "created_at",
     )
     list_filter = ("content_type",)
     search_fields = ("content_id",)
+
+    @admin.display(description="Content")
+    def content_preview(self, obj) -> str:
+        """Return first 50 characters of chunk text or stored content."""
+        text = obj.content
+        if not text and obj.content_type and obj.content_type.model == "documentchunk":
+            chunk = Chunk.objects.filter(id=obj.object_id).first()
+            if chunk:
+                text = chunk.text
+        if not text:
+            return "—"
+        return text[:50] + ("..." if len(text) > 50 else "")
 
     @admin.display(description="Embedding Preview")
     def short_embedding(self, obj) -> str:
