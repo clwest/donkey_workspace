@@ -9,12 +9,24 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--query", required=True)
-        parser.add_argument("--assistant", default="zeno")
+        parser.add_argument(
+            "--assistant",
+            default="zeno-the-build-wizard",
+            help="Assistant slug (defaults to 'zeno-the-build-wizard')",
+        )
 
     def handle(self, *args, **options):
         query = options["query"]
         slug = options["assistant"]
-        assistant = Assistant.objects.get(slug=slug)
+        try:
+            assistant = Assistant.objects.get(slug=slug)
+        except Assistant.DoesNotExist:
+            self.stderr.write(
+                self.style.ERROR(
+                    f"❌ Assistant '{slug}' not found. Try running 'python manage.py seed_dev_assistant' or pass a valid slug."
+                )
+            )
+            return
         (chunks, reason, fallback, glossary_present, top_score, _cid, gf, ff, ft, debug) = get_relevant_chunks(
             str(assistant.id),
             query,
