@@ -172,6 +172,7 @@ import RouteExplorerPage from "./pages/dev/RouteExplorerPage";
 import RouteViewer from "./pages/dev/routes/RouteViewer";
 import CapabilityStatus from "./pages/dev/routes/CapabilityStatus";
 import DemoCheckupPage from "./pages/dev/DemoCheckupPage";
+import OnboardingDebugPage from "./pages/dev/OnboardingDebugPage";
 import PageNotFound from "./pages/PageNotFound";
 import GroupedReflectionPage from "./pages/dev/GroupedReflectionPage";
 import GroupedReflectionDetailPage from "./pages/dev/GroupedReflectionDetailPage";
@@ -329,12 +330,15 @@ export default function App() {
         setOnboardingRedirectHandled(true);
       }
     } else if (userInfo?.assistant_count === 0) {
-      if (path !== '/assistants/launch') {
-        navigate('/assistants/launch', { replace: true });
+      if (path !== '/assistants/create') {
+        navigate('/assistants/create', { replace: true });
         setOnboardingRedirectHandled(true);
       }
-    } else if (!path.startsWith('/assistants/create')) {
-      navigate('/assistants/create', { replace: true });
+    } else if (!path.startsWith('/assistants')) {
+      const slug = userInfo?.primary_assistant_slug || primarySlug;
+      navigate(slug ? `/assistants/${slug}` : '/assistants/create', {
+        replace: true,
+      });
       setOnboardingRedirectHandled(true);
     }
   }, [
@@ -765,6 +769,7 @@ export default function App() {
           <Route path="/dev/route-check" element={<RouteCheckPage />} />
           <Route path="/dev/debug/intel" element={<IntelDebugTools />} />
           <Route path="/dev/auth-debug" element={<AuthDebugPage />} />
+          <Route path="/dev/onboarding-debug" element={<OnboardingDebugPage />} />
           <Route path="/dev/demo-checkup" element={<DemoCheckupPage />} />
           <Route path="/debug/prompts" element={<PromptDebuggerPage />} />
           <Route path="/debug/rag-recall" element={<RagRecallDebugPage />} />

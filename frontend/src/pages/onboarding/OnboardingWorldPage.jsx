@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import useOnboardingGuard, { STEP_ROUTES } from "../../onboarding/useOnboardingGuard";
 import useOnboardingTracker from "@/hooks/useOnboardingTracker";
 import useUserInfo from "@/hooks/useUserInfo";
+import OnboardingWrapper from "../../components/onboarding/OnboardingWrapper";
 import GuideChatPanel from "../../components/onboarding/GuideChatPanel";
 import { ONBOARDING_WORLD } from "../../onboarding/metadata";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
@@ -52,6 +53,7 @@ export default function OnboardingWorldPage() {
 
 
   return (
+    <OnboardingWrapper>
     <div className="container my-4">
       <div className="d-flex justify-content-end mb-2">
         <button
@@ -138,5 +140,6 @@ export default function OnboardingWorldPage() {
       </div>
       <OnboardingHelpButton />
     </div>
+    </OnboardingWrapper>
   );
 }

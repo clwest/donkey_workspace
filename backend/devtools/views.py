@@ -2,6 +2,8 @@ from django.urls import get_resolver, URLPattern, URLResolver
 from django.views.decorators.cache import never_cache
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
+from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 import inspect
 from capabilities.registry import get_capability_for_path
@@ -187,3 +189,16 @@ def assistant_routing_debug(request):
             "primary_slug": getattr(request.user, "primary_assistant_slug", None),
         }
     )
+
+
+@api_view(["POST"])
+@permission_classes([AdminOnly])
+def reset_onboarding(request):
+    """Reset onboarding flags for the given user or current user."""
+    user_id = request.data.get("user_id") or request.user.id
+    User = get_user_model()
+    user = get_object_or_404(User, id=user_id)
+    user.onboarding_complete = False
+    user.primary_assistant_slug = None
+    user.save(update_fields=["onboarding_complete", "primary_assistant_slug"])
+    return Response({"status": "reset"})

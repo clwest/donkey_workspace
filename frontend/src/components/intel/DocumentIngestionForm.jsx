@@ -3,6 +3,7 @@ import apiFetch from "../../utils/apiClient";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import DocumentIngestingCard from "../documents/DocumentIngestingCard";
+import useUserInfo from "@/hooks/useUserInfo";
 
 export default function DocumentIngestionForm({ onSuccess }) {
   const [urlInput, setUrlInput] = useState("");
@@ -16,6 +17,7 @@ export default function DocumentIngestionForm({ onSuccess }) {
   const [reflectAfter, setReflectAfter] = useState(false);
   const [pendingDocs, setPendingDocs] = useState([]);
   const navigate = useNavigate();
+  const userInfo = useUserInfo();
 
   useEffect(() => {
     async function fetchAssistants() {
@@ -28,6 +30,12 @@ export default function DocumentIngestionForm({ onSuccess }) {
     }
     fetchAssistants();
   }, []);
+
+  useEffect(() => {
+    if (userInfo?.primary_assistant_slug) {
+      setSelectedSlug(userInfo.primary_assistant_slug);
+    }
+  }, [userInfo]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -194,21 +202,23 @@ export default function DocumentIngestionForm({ onSuccess }) {
           />
         </div>
 
-        <div className="mb-3">
-          <label className="form-label">Assign to Assistant</label>
-          <select
-            className="form-select"
-            value={selectedSlug}
-            onChange={(e) => setSelectedSlug(e.target.value)}
-          >
-            <option value="">-- Select an assistant --</option>
-            {assistants.map((a) => (
-              <option key={a.id} value={a.slug}>
-                {a.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        {!userInfo?.primary_assistant_slug && (
+          <div className="mb-3">
+            <label className="form-label">Assign to Assistant</label>
+            <select
+              className="form-select"
+              value={selectedSlug}
+              onChange={(e) => setSelectedSlug(e.target.value)}
+            >
+              <option value="">-- Select an assistant --</option>
+              {assistants.map((a) => (
+                <option key={a.id} value={a.slug}>
+                  {a.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <div className="form-check mb-3">
           <input
