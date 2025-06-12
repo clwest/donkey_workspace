@@ -202,3 +202,56 @@ def reset_onboarding(request):
     user.primary_assistant_slug = None
     user.save(update_fields=["onboarding_complete", "primary_assistant_slug"])
     return Response({"status": "reset"})
+
+
+@api_view(["GET"])
+@permission_classes([AdminOnly])
+def embedding_debug(request):
+    """Return summary stats about embeddings."""
+    from intel_core.models import EmbeddingMetadata
+    from embeddings.models import Embedding
+    from django.db.models import Count
+    from django.contrib.contenttypes.models import ContentType
+    from memory.models import MemoryEntry
+    from intel_core.models import DocumentChunk
+    from prompts.models import Prompt
+
+    model_counts = list(
+        EmbeddingMetadata.objects.values("model_used")
+        .annotate(count=Count("embedding_id"))
+        .order_by("-count")
+    )
+
+    ct_memory = ContentType.objects.get_for_model(MemoryEntry)
+    ct_chunk = ContentType.objects.get_for_model(DocumentChunk)
+    ct_prompt = ContentType.objects.get_for_model(Prompt)
+    allowed = {ct_memory.id, ct_chunk.id, ct_prompt.id}
+
+    invalid = 0
+    for emb in Embedding.objects.select_related("content_type"):
+        ct = emb.content_type
+        obj = emb.content_object
+        expected = None
+        if ct and emb.object_id:
+            expected = f"{ct.model}:{emb.object_id}"
+        if not ct or ct.id not in allowed or obj is None or emb.content_id != expected:
+            invalid += 1
+
+    breakdown = list(
+        Embedding.objects.filter(content_type=ct_memory)
+        .values(
+            "content_object__assistant__id",
+            "content_object__assistant__slug",
+            "content_object__context_id",
+        )
+        .annotate(count=Count("id"))
+        .order_by("-count")
+    )
+
+    return Response(
+        {
+            "model_counts": model_counts,
+            "invalid_links": invalid,
+            "assistant_breakdown": breakdown,
+        }
+    )
