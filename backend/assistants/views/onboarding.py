@@ -35,6 +35,13 @@ def create_assistant_from_mythpath(
         created_by=user,
     )
 
+    from assistants.models.user_profile import AssistantUserProfile
+    from assistants.helpers.memory_helpers import ensure_welcome_memory
+
+    if user:
+        AssistantUserProfile.objects.get_or_create(user=user, assistant=assistant)
+    ensure_welcome_memory(assistant)
+
     card = SymbolicIdentityCard.objects.create(
         assistant=assistant,
         archetype=archetype,
