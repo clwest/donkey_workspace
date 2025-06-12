@@ -165,6 +165,14 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
             return obj.is_delegated
         return bool(obj.assistant and obj.assistant.parent_assistant)
 
+    def get_positive_feedback_count(self, obj):
+        """Return count of positive feedback items for this memory."""
+        return obj.feedback.filter(rating="positive").count()
+
+    def get_negative_feedback_count(self, obj):
+        """Return count of negative feedback items for this memory."""
+        return obj.feedback.filter(rating="negative").count()
+
 
 class MemoryFeedbackSerializer(serializers.ModelSerializer):
     class Meta:
