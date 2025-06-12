@@ -163,6 +163,22 @@ def export_templates(request):
 
 
 @api_view(["GET"])
+@permission_classes([AdminOnly])
+def rag_debug_logs(request):
+    """Return recent RAG diagnostic logs."""
+    from memory.models import RAGDiagnosticLog
+    from memory.serializers import RAGDiagnosticLogSerializer
+
+    qs = RAGDiagnosticLog.objects.all().order_by("-timestamp")
+    assistant_slug = request.GET.get("assistant")
+    if assistant_slug:
+        qs = qs.filter(assistant__slug=assistant_slug)
+    logs = qs[:100]
+    data = RAGDiagnosticLogSerializer(logs, many=True).data
+    return Response({"results": data})
+
+
+@api_view(["GET"])
 @permission_classes([AllowAny])
 def auth_debug(request):
     return Response(

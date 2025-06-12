@@ -884,3 +884,21 @@ class GlossaryKeeperLog(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return f"{self.anchor.slug} | {self.action_taken}"
+
+class RAGDiagnosticLog(models.Model):
+    """Full diagnostic record for RAG retrieval."""
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE, related_name="rag_diagnostics")
+    query_text = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    retrieved_chunks = models.JSONField(default=list)
+    fallback_triggered = models.BooleanField(default=False)
+    glossary_matches = ArrayField(models.CharField(max_length=100), default=list, blank=True)
+    used_memory_context = models.ForeignKey("mcp_core.MemoryContext", null=True, blank=True, on_delete=models.SET_NULL)
+    reflection_boosts_applied = ArrayField(models.CharField(max_length=100), default=list, blank=True)
+    confidence_score_avg = models.FloatField(default=0.0)
+    token_usage = models.JSONField(null=True, blank=True)
+    explanation_text = models.TextField(blank=True, default="")
+
+    class Meta:
+        ordering = ["-timestamp"]
+

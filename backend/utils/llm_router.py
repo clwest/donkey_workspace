@@ -153,6 +153,7 @@ def chat(
         ),
         auto_expand=auto_expand,
         force_chunks=force_chunks,
+        log_diagnostic=True,
     )
     invalid_chunks = [c for c in chunks if c.get("embedding_status") != "embedded"]
     if invalid_chunks:
@@ -722,4 +723,17 @@ def chat(
         "anchors": rag_meta.get("anchor_hits", []),
         "reflections": rag_meta.get("reflection_hits", []),
     }
+    try:
+        from utils.rag_diagnostic import log_rag_diagnostic
+
+        log_rag_diagnostic(
+            assistant,
+            query_text,
+            rag_meta,
+            memory_context_id=str(assistant.memory_context_id)
+            if assistant.memory_context_id
+            else None,
+        )
+    except Exception:
+        pass
     return reply, summoned, rag_meta, trace

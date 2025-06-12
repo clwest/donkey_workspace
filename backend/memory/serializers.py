@@ -572,3 +572,23 @@ class GlossaryKeeperLogSerializer(serializers.ModelSerializer):
         total = anchor.chunks.count()
         drifted = anchor.chunks.filter(is_drifting=True).count()
         return round(drifted / total, 2) if total else 0.0
+
+class RAGDiagnosticLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RAGDiagnosticLog
+        fields = [
+            "id",
+            "assistant",
+            "query_text",
+            "timestamp",
+            "retrieved_chunks",
+            "fallback_triggered",
+            "glossary_matches",
+            "used_memory_context",
+            "reflection_boosts_applied",
+            "confidence_score_avg",
+            "token_usage",
+            "explanation_text",
+        ]
+        read_only_fields = ["id", "timestamp"]
+

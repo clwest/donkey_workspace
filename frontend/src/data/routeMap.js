@@ -142,6 +142,13 @@ export const routeMap = [
     notes: "RAG grounding inspector",
   },
   {
+    frontend: "/assistants/:slug/diagnostics/rag/",
+    backend: "/api/devtools/rag_debug/",
+    view: "assistant-rag-diagnostics-console",
+    serializer: "RAGDiagnosticLogSerializer",
+    notes: "RAG diagnostic console",
+  },
+  {
     frontend: "/assistants/:slug/rag-drift",
     backend: "/api/assistants/<slug>/rag_drift_report/",
     view: "assistant-rag-drift-report",

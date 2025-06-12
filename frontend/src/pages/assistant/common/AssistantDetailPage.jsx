@@ -823,6 +823,12 @@ export default function AssistantDetailPage() {
                 ⚡️ RAG Diagnostics Runner
               </Link>
               <Link
+                to={`/assistants/${slug}/diagnostics/rag/`}
+                className="btn btn-sm btn-outline-primary"
+              >
+                📊 RAG Diagnostics Console
+              </Link>
+              <Link
                 to={`/assistants/${slug}/replays/`}
                 className="btn btn-sm btn-outline-info"
               >
