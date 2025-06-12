@@ -249,7 +249,7 @@ class EmbeddingMetadata(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False,
-        db_column="embedding_metadata",
+        db_column="embedding_id",
     )
     model_used = models.CharField(max_length=100)
     num_tokens = models.IntegerField()
@@ -265,6 +265,7 @@ class EmbeddingMetadata(models.Model):
         null=True,
         blank=True,
         related_name="metadata",
+        db_column="linked_embedding_id", 
     )
 
     class Meta:
