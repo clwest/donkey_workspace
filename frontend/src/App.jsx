@@ -315,22 +315,37 @@ export default function App() {
   const { user, authChecked, authError } = useAuthGuard({ allowUnauthenticated: allowUnauth });
   const userInfo = useUserInfo();
   const navigate = useNavigate();
+  const [onboardingStatus, setOnboardingStatus] = useState(null);
+  const [onboardingStatusFetched, setOnboardingStatusFetched] = useState(false);
+  const [onboardingRedirectHandled, setOnboardingRedirectHandled] = useState(false);
+
   useEffect(() => {
     if (!user) return;
     apiFetch('/profile/onboarding_status/')
       .then((res) => {
-        if (!res.complete) {
-          if (!window.location.pathname.startsWith('/assistants/create')) {
-            navigate('/assistants/create', { replace: true });
-          }
-        } else if (res.primary_assistant_slug) {
-          if (['/', '/home'].includes(window.location.pathname)) {
-            navigate(`/assistants/${res.primary_assistant_slug}/dashboard`, { replace: true });
-          }
-        }
+        setOnboardingStatus(res);
+        setOnboardingStatusFetched(true);
       })
-      .catch(() => {});
-  }, [user, navigate]);
+      .catch(() => setOnboardingStatusFetched(true));
+  }, [user]);
+
+  useEffect(() => {
+    if (!user || !onboardingStatusFetched || onboardingRedirectHandled) return;
+    const path = location.pathname;
+    if (onboardingStatus?.complete) {
+      if (path === '/assistants/create') {
+        // eslint-disable-next-line no-console
+        console.log('Redirecting to dashboard:', onboardingStatus.primary_assistant_slug);
+        navigate(`/assistants/${onboardingStatus.primary_assistant_slug}/dashboard`, { replace: true });
+        setOnboardingRedirectHandled(true);
+      }
+    } else if (!path.startsWith('/assistants/create')) {
+      // eslint-disable-next-line no-console
+      console.log('Redirecting to create assistant');
+      navigate('/assistants/create', { replace: true });
+      setOnboardingRedirectHandled(true);
+    }
+  }, [user, onboardingStatusFetched, onboardingStatus, location.pathname, navigate, onboardingRedirectHandled]);
 
   useEffect(() => {
     if (!userInfo) return;

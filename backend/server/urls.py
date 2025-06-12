@@ -28,6 +28,7 @@ from devtools.views import (
     export_routes,
     export_templates,
     auth_debug,
+    assistant_routing_debug,
 )
 from story.views import storyboard_list
 import accounts.views as accounts
@@ -119,6 +120,7 @@ urlpatterns = [
     path("api/dev/export/routes/", export_routes),
     path("api/dev/export/templates/", export_templates),
     path("api/dev/auth-debug/", auth_debug),
+    path("api/debug/assistant_routing/", assistant_routing_debug),
     path("api/capabilities/", include(capability_urls)),
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),

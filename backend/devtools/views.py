@@ -171,3 +171,24 @@ def auth_debug(request):
             "cookies": {k: request.COOKIES.get(k) for k in ["access", "refresh"] if k in request.COOKIES},
         }
     )
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def assistant_routing_debug(request):
+    """Return assistant routing info for debugging onboarding redirects."""
+    from assistants.models import Assistant
+
+    assistants = []
+    if request.user.is_authenticated:
+        assistants = list(
+            Assistant.objects.filter(created_by=request.user).values("id", "slug")
+        )
+    return Response(
+        {
+            "user": request.user.email if request.user.is_authenticated else None,
+            "assistants": assistants,
+            "onboarding_complete": getattr(request.user, "onboarding_complete", False),
+            "primary_assistant_slug": getattr(request.user, "primary_assistant_slug", None),
+        }
+    )
