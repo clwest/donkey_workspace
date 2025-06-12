@@ -22,7 +22,7 @@ from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 from assistants.utils.delegation import spawn_delegated_assistant
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from assistants.helpers.memory_helpers import ensure_welcome_memory
-from assistants.models.user_profile import AssistantUserProfile
+from assistants.models.user_preferences import AssistantUserPreferences
 
 logger = logging.getLogger(__name__)
 from memory.models import MemoryEntry
@@ -48,7 +48,7 @@ class AssistantViewSet(viewsets.ViewSet):
         if serializer.is_valid():
             logger.info("Assistant created by: %s", request.user.id)
             assistant = serializer.save(created_by=request.user)
-            AssistantUserProfile.objects.get_or_create(
+            AssistantUserPreferences.objects.get_or_create(
                 user=request.user, assistant=assistant
             )
             ensure_welcome_memory(assistant)
@@ -66,7 +66,7 @@ class AssistantViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, pk=None):
         assistant = get_object_or_404(Assistant, slug=pk)
-        AssistantUserProfile.objects.get_or_create(
+        AssistantUserPreferences.objects.get_or_create(
             user=request.user, assistant=assistant
         )
         ensure_welcome_memory(assistant)
@@ -230,7 +230,7 @@ class AssistantViewSet(viewsets.ViewSet):
     def preferences(self, request, pk=None):
         """Get or update user preferences for an assistant."""
         assistant = get_object_or_404(Assistant, slug=pk)
-        profile, _ = AssistantUserProfile.objects.get_or_create(
+        profile, _ = AssistantUserPreferences.objects.get_or_create(
             user=request.user, assistant=assistant
         )
         if request.method == "POST":
