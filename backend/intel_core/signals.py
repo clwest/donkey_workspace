@@ -44,11 +44,9 @@ def create_memory_from_chunk(sender, instance, created, **kwargs):
         return
 
     for assistant in assistants:
-        context = MemoryContext.objects.create(
-            target_content_type=ContentType.objects.get_for_model(Assistant),
-            target_object_id=assistant.id,
-            content=instance.text[:200],
-        )
+        if not assistant.memory_context:
+            assistant.save()
+        context = assistant.memory_context
         MemoryEntry.objects.create(
             event=instance.text[:200],
             summary=instance.text[:200],
