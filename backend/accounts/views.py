@@ -164,7 +164,7 @@ def onboarding_status(request):
     return Response(
         {
             "complete": request.user.onboarding_complete,
-            "primary_assistant_slug": request.user.primary_assistant_slug
+            "primary_slug": request.user.primary_assistant_slug
             or (primary.slug if primary else None),
         }
     )

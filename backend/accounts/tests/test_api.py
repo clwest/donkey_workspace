@@ -121,7 +121,7 @@ class AccountsAPITest(APITestCase):
         data = resp.json()
         self.assertIn("complete", data)
         self.assertTrue(data["complete"])
-        self.assertEqual(data["primary_assistant_slug"], self.assistant.slug)
+        self.assertEqual(data["primary_slug"], self.assistant.slug)
 
     def test_tour_complete_endpoint(self):
         url = f"/api/users/{self.user.id}/tours/complete/"
