@@ -90,6 +90,20 @@ class AssistantViewSet(viewsets.ViewSet):
             ).data
         return Response(data)
 
+    def partial_update(self, request, pk=None):
+        """Update mutable fields of an assistant."""
+        assistant = get_object_or_404(Assistant, slug=pk)
+        name = request.data.get("name")
+        if name is not None:
+            assistant.name = name
+            assistant.save(update_fields=["name"])
+        serializer = AssistantSerializer(assistant)
+        return Response(serializer.data)
+
+    def update(self, request, pk=None):
+        """PUT update uses the partial_update logic."""
+        return self.partial_update(request, pk)
+
     @action(detail=False, methods=["get"], url_path="primary")
     def primary(self, request):
         assistant = Assistant.objects.filter(is_primary=True).first()
