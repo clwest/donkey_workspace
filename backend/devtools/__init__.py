@@ -4,6 +4,7 @@ from .views import (
     export_routes,
     export_templates,
     auth_debug,
+    assistant_routing_debug,
 )
 
 __all__ = [
@@ -12,4 +13,5 @@ __all__ = [
     "export_routes",
     "export_templates",
     "auth_debug",
+    "assistant_routing_debug",
 ]
