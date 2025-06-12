@@ -739,7 +739,7 @@ export default function ChatWithAssistantPage() {
           <button
             className="btn btn-outline-secondary ms-2"
             type="button"
-            onClick={openRecap}
+            onClick={() => openRecap && openRecap()}
           >
             End Session
           </button>
