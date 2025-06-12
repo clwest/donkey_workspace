@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 
 from assistants.models.assistant import DelegationEvent, Assistant
 from assistants.models.thoughts import AssistantThoughtLog
-from assistants.serializers import DelegationEventSerializer
+from assistants.serializers_pass import DelegationEventSerializer
 from assistants.utils.delegation import spawn_delegated_assistant
 from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 from assistants.utils.delegation_summary_engine import DelegationSummaryEngine

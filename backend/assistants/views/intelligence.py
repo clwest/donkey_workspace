@@ -16,7 +16,7 @@ from assistants.models.assistant import Assistant
 from assistants.models.project import AssistantProject
 from intel_core.models import Document
 from mcp_core.models import NarrativeThread
-from assistants.serializers import AssistantNextActionSerializer
+from assistants.serializers_pass import AssistantNextActionSerializer
 from assistants.utils.assistant_reflection_engine import plan_from_thread_context
 from assistants.utils.core_assistant import CoreAssistant
 

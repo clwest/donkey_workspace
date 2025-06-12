@@ -320,7 +320,7 @@ from agents.serializers import (
     CodexAnchorSerializer,
 )
 
-from assistants.serializers import (
+from assistants.serializers_pass import (
     AssistantSerializer,
     AssistantCivilizationSerializer,
     AssistantReputationSerializer,

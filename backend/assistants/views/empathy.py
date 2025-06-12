@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 
 from assistants.models.assistant import Assistant
 from assistants.models.thoughts import EmotionalResonanceLog
-from assistants.serializers import EmotionalResonanceLogSerializer
+from assistants.serializers_pass import EmotionalResonanceLogSerializer
 from assistants.tasks import reflect_on_emotional_resonance
 
 

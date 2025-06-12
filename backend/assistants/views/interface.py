@@ -9,7 +9,7 @@ from assistants.models import (
     RoleDrivenUITemplate,
     SymbolicToolkitRegistry,
 )
-from assistants.serializers import (
+from assistants.serializers_pass import (
     AssistantSerializer,
     SymbolicUXPlaybookSerializer,
     RoleDrivenUITemplateSerializer,

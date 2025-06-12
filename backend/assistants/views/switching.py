@@ -10,7 +10,7 @@ from assistants.models.assistant import (
     AssistantSwitchEvent,
 )
 from assistants.models.thoughts import AssistantThoughtLog
-from assistants.serializers import AssistantSwitchEventSerializer
+from assistants.serializers_pass import AssistantSwitchEventSerializer
 from assistants.utils.assistant_switching import suggest_assistant_switch
 
 

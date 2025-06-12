@@ -11,7 +11,7 @@ from assistants.models.reflection import (
 from assistants.models.assistant import Assistant
 from assistants.models.project import AssistantMemoryChain
 from assistants.models.thoughts import AssistantThoughtLog
-from assistants.serializers import (
+from assistants.serializers_pass import (
     AssistantMemoryChainSerializer,
     AssistantReflectionInsightSerializer,
     AssistantReflectionLogSerializer,

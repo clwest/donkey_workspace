@@ -8,7 +8,7 @@ from assistants.models.assistant import (
     DebateThoughtLog,
     DebateSummary,
 )
-from assistants.serializers import (
+from assistants.serializers_pass import (
     DebateSessionSerializer,
     DebateThoughtLogSerializer,
     DebateSummarySerializer,

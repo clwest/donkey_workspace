@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 
 from assistants.models import Assistant
-from assistants.serializers import AssistantIntroSerializer
+from assistants.serializers_pass import AssistantIntroSerializer
 from assistants.helpers.intro import get_intro_splash_payload
 
 

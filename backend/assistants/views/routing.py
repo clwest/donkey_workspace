@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from assistants.models.assistant import RoutingSuggestionLog
-from assistants.serializers import RoutingSuggestionLogSerializer
+from assistants.serializers_pass import RoutingSuggestionLogSerializer
 
 
 @api_view(["GET"])

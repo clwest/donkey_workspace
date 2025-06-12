@@ -8,7 +8,7 @@ from assistants.models.assistant import Assistant, DelegationEvent
 from assistants.models.thoughts import AssistantThoughtLog
 from assistants.models.project import AssistantNextAction
 from intel_core.models import Document
-from assistants.serializers import (
+from assistants.serializers_pass import (
     AssistantSerializer,
     AssistantThoughtLogSerializer,
     DelegationEventSerializer,

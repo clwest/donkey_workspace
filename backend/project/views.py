@@ -15,7 +15,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from memory.serializers import MemoryEntrySerializer
-from assistants.serializers import AssistantReflectionLogSerializer
+from assistants.serializers_pass import AssistantReflectionLogSerializer
 from .services import projects as project_services
 
 class ProjectViewSet(viewsets.ModelViewSet):

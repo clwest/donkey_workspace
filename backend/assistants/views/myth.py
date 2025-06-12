@@ -7,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from assistants.models.assistant import Assistant
 from assistants.models.core import AssistantMythLayer
 from agents.models.lore import SwarmJournalEntry
-from assistants.serializers import AssistantMythLayerSerializer
+from assistants.serializers_pass import AssistantMythLayerSerializer
 from agents.serializers import SwarmJournalEntrySerializer
 from mcp_core.models import Tag
 

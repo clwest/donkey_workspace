@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from assistants.models.assistant import Assistant
 from agents.models.core import Agent, TrainedAgentLog
 from intel_core.models import Document
-from assistants.serializers import AssistantSerializer
+from assistants.serializers_pass import AssistantSerializer
 from assistants.utils.assistant_reflection_engine import (
     assign_training_documents,
     evaluate_agent_training,

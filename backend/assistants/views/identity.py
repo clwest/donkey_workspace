@@ -71,7 +71,7 @@ class AssistantIdentitySummaryView(generics.GenericAPIView):
         if not allowed:
             return Response({"error": "forbidden"}, status=403)
 
-        from assistants.serializers import AssistantIdentitySummarySerializer
+        from assistants.serializers_pass import AssistantIdentitySummarySerializer
 
         serializer = AssistantIdentitySummarySerializer(
             assistant, context={"request": request}

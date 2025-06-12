@@ -3,7 +3,7 @@ pytest.importorskip("django")
 
 from assistants.models import Assistant
 from memory.models import SymbolicMemoryAnchor, RAGGroundingLog
-from assistants.serializers import AssistantSerializer
+from assistants.serializers_pass import AssistantSerializer
 
 @pytest.mark.django_db
 def test_glossary_health_index():

@@ -8,7 +8,7 @@ import warnings
 from rest_framework.throttling import UserRateThrottle
 from assistants.models.reflection import AssistantReflectionLog
 from assistants.models.assistant import Assistant
-from assistants.serializers import AssistantReflectionLogSerializer
+from assistants.serializers_pass import AssistantReflectionLogSerializer
 from project.models import Project
 from mcp_core.serializers import ReflectionLogSerializer
 from agents.utils.agent_reflection_engine import AgentReflectionEngine

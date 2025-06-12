@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.db.models import Avg, Count
 from django.utils import timezone
 
-from assistants.serializers import AssistantSerializer
+from assistants.serializers_pass import AssistantSerializer
 from agents.serializers import AgentSerializer
 from intel_core.serializers import DocumentSerializer
 from images.serializers import SourceImageSerializer

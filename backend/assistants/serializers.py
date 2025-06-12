@@ -2449,5 +2449,5 @@ class DemoHealthSerializer(serializers.Serializer):
     prompt_preview = serializers.CharField()
 
 # Re-export preferences serializer to avoid import path issues
-from .serializers.preferences import AssistantUserPreferencesSerializer
+from .serializers_pass.preferences import AssistantUserPreferencesSerializer
 

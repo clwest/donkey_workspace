@@ -5,8 +5,8 @@ import json
 
 from assistants.models.reflection import AssistantReflectionLog
 from memory.models import ReflectionReplayLog, SymbolicMemoryAnchor
-from assistants.serializers import AssistantReflectionLogSerializer
-from assistants.serializers import ReflectionReplayLogSerializer
+from assistants.serializers_pass import AssistantReflectionLogSerializer
+from assistants.serializers_pass import ReflectionReplayLogSerializer
 
 EXPORT_DIR = "exports"
 

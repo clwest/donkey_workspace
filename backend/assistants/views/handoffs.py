@@ -12,7 +12,7 @@ from assistants.models.assistant import (
     AssistantHandoffLog,
 )
 from assistants.models.project import AssistantProject
-from assistants.serializers import (
+from assistants.serializers_pass import (
     SessionHandoffSerializer,
     AssistantHandoffLogSerializer,
 )

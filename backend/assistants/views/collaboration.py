@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 
 from assistants.models.assistant import Assistant
 from assistants.models.thoughts import CollaborationLog, CollaborationThread
-from assistants.serializers import (
+from assistants.serializers_pass import (
     CollaborationLogSerializer,
     AssistantCollaborationProfileSerializer,
 )

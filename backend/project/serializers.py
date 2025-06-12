@@ -35,7 +35,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def get_assistant(self, obj):
-        from assistants.serializers import AssistantSerializer  # 🧙 lazy import here
+        from assistants.serializers_pass import AssistantSerializer  # 🧙 lazy import here
 
         if obj.assistant:
             return AssistantSerializer(obj.assistant).data
@@ -58,7 +58,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         return obj.completion_percent()
 
     def get_team(self, obj):
-        from assistants.serializers import AssistantSerializer
+        from assistants.serializers_pass import AssistantSerializer
         return AssistantSerializer(obj.team.all(), many=True).data
 
 

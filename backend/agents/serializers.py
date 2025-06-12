@@ -287,7 +287,7 @@ class AgentClusterSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "purpose", "project", "agents", "skill_count"]
 
     def get_project(self, obj):
-        from assistants.serializers import AssistantProjectSummarySerializer
+        from assistants.serializers_pass import AssistantProjectSummarySerializer
 
         if obj.project:
             return AssistantProjectSummarySerializer(obj.project).data

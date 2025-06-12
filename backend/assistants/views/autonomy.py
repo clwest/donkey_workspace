@@ -3,7 +3,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from assistants.models.assistant import PurposeRouteMap, AutonomyNarrativeModel
-from assistants.serializers import (
+from assistants.serializers_pass import (
     PurposeRouteMapSerializer,
     AutonomyNarrativeModelSerializer,
 )

@@ -6,7 +6,7 @@ from assistants.utils.assistant_thought_engine import AssistantThoughtEngine
 from project.models import ProjectTask
 from assistants.services import AssistantService
 from project.serializers import ProjectTaskSerializer
-from assistants.serializers import (
+from assistants.serializers_pass import (
     AssistantTaskSerializer,
     AssistantNextActionSerializer,
 )
