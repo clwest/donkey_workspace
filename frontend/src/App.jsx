@@ -56,6 +56,7 @@ import ThreadsOverviewPage from "./pages/mcp_core/threads/ThreadsOverviewPage";
 import ThreadEditorPage from "./pages/mcp_core/threads/ThreadEditorPage";
 import AssistantSessionsPage from "./pages/assistant/sessions/AssistantSessionsPage";
 import AssistantSessionDetailPage from "./pages/assistant/sessions/AssistantSessionDetailPage";
+import apiFetch from "./utils/apiClient";
 
 {
   /*User Memories */
@@ -314,6 +315,22 @@ export default function App() {
   const { user, authChecked, authError } = useAuthGuard({ allowUnauthenticated: allowUnauth });
   const userInfo = useUserInfo();
   const navigate = useNavigate();
+  useEffect(() => {
+    if (!user) return;
+    apiFetch('/profile/onboarding_status/')
+      .then((res) => {
+        if (!res.complete) {
+          if (!window.location.pathname.startsWith('/assistants/create')) {
+            navigate('/assistants/create', { replace: true });
+          }
+        } else if (res.primary_assistant_slug) {
+          if (['/', '/home'].includes(window.location.pathname)) {
+            navigate(`/assistants/${res.primary_assistant_slug}/dashboard`, { replace: true });
+          }
+        }
+      })
+      .catch(() => {});
+  }, [user, navigate]);
 
   useEffect(() => {
     if (!userInfo) return;

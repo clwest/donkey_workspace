@@ -115,6 +115,14 @@ class AccountsAPITest(APITestCase):
         self.assertIn("has_assistants", data)
         self.assertFalse(data["has_assistants"])
 
+    def test_onboarding_status_endpoint(self):
+        resp = self.client.get("/api/profile/onboarding_status/")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.json()
+        self.assertIn("complete", data)
+        self.assertTrue(data["complete"])
+        self.assertEqual(data["primary_assistant_slug"], self.assistant.slug)
+
     def test_tour_complete_endpoint(self):
         url = f"/api/users/{self.user.id}/tours/complete/"
         resp = self.client.post(url)
