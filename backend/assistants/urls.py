@@ -941,11 +941,6 @@ urlpatterns = [
         name="assistant-dashboard",
     ),
     path(
-        "<slug:slug>/diagnostics/",
-        diagnostics.assistant_diagnostics,
-        name="assistant-diagnostics",
-    ),
-    path(
         "<slug:slug>/fix_context/",
         diagnostics.fix_context,
         name="assistant-fix-context",

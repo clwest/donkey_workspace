@@ -23,6 +23,8 @@ from assistants.utils.delegation import spawn_delegated_assistant
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from assistants.helpers.memory_helpers import ensure_welcome_memory
 from assistants.models.user_preferences import AssistantUserPreferences
+from assistants.serializers.preferences import AssistantUserPreferencesSerializer
+from assistants.utils.rag_diagnostics import run_assistant_rag_test
 
 logger = logging.getLogger(__name__)
 from memory.models import MemoryEntry
@@ -230,32 +232,80 @@ class AssistantViewSet(viewsets.ViewSet):
         serializer = AssistantPreviewSerializer(assistant)
         return Response(serializer.data)
 
-    @action(detail=True, methods=["get", "post"], url_path="preferences")
+    @action(detail=True, methods=["get", "patch"], url_path="preferences")
     def preferences(self, request, pk=None):
         """Get or update user preferences for an assistant."""
         assistant = get_object_or_404(Assistant, slug=pk)
         profile, _ = AssistantUserPreferences.objects.get_or_create(
             user=request.user, assistant=assistant
         )
-        if request.method == "POST":
-            profile.tone = request.data.get("tone", profile.tone)
-            profile.planning_mode = request.data.get(
-                "planning_mode", profile.planning_mode
+        if request.method == "PATCH":
+            serializer = AssistantUserPreferencesSerializer(
+                profile, data=request.data, partial=True
             )
-            tags = request.data.get("custom_tags")
-            if isinstance(tags, list):
-                profile.custom_tags = tags
-            if "self_narration_enabled" in request.data:
-                profile.self_narration_enabled = bool(
-                    request.data.get("self_narration_enabled")
-                )
-            profile.save()
-        return Response(
-            {
-                "tone": profile.tone,
-                "planning_mode": profile.planning_mode,
-                "custom_tags": profile.custom_tags,
-                "self_narration_enabled": profile.self_narration_enabled,
-                "username": profile.user.username,
-            }
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+        else:
+            serializer = AssistantUserPreferencesSerializer(profile)
+
+        return Response(serializer.data)
+
+    @action(detail=True, methods=["get", "post"], url_path="diagnostics")
+    def diagnostics(self, request, pk=None):
+        """Return or run RAG diagnostics for an assistant."""
+        assistant = get_object_or_404(Assistant, slug=pk)
+
+        if request.method == "POST":
+            limit = request.data.get("limit")
+            try:
+                limit = int(limit) if limit is not None else None
+            except (TypeError, ValueError):
+                limit = None
+            result = run_assistant_rag_test(assistant, limit=limit)
+            return Response(result)
+
+        # GET request - provide diagnostic snapshot
+        context_id = assistant.memory_context_id
+        orphaned_memory_count = MemoryEntry.objects.filter(
+            assistant=assistant, context__isnull=True
+        ).count()
+        reflections_total = AssistantReflectionLog.objects.filter(
+            assistant=assistant
+        ).count()
+
+        anchors_total = SymbolicMemoryAnchor.objects.count()
+        anchors_with_matches = (
+            SymbolicMemoryAnchor.objects.filter(chunks__isnull=False)
+            .distinct()
+            .count()
         )
+        anchors_without_matches = anchors_total - anchors_with_matches
+
+        chunks = DocumentChunk.objects.filter(document__linked_assistants=assistant)
+        high = chunks.filter(score__gte=0.8).count()
+        medium = chunks.filter(score__gte=0.4, score__lt=0.8).count()
+        low = chunks.filter(score__lt=0.4).count()
+
+        from memory.models import RAGGroundingLog
+
+        logs = RAGGroundingLog.objects.filter(assistant=assistant)
+        glossary_hit_count = logs.filter(glossary_hits__len__gt=0).count()
+        fallback_count = logs.filter(fallback_triggered=True).count()
+
+        data = {
+            "assistant_id": str(assistant.id),
+            "context_id": context_id,
+            "orphaned_memory_count": orphaned_memory_count,
+            "reflections_total": reflections_total,
+            "anchors_total": anchors_total,
+            "anchors_with_matches": anchors_with_matches,
+            "anchors_without_matches": anchors_without_matches,
+            "glossary_hit_count": glossary_hit_count,
+            "fallback_count": fallback_count,
+            "chunk_score_distribution": {
+                "high": high,
+                "medium": medium,
+                "low": low,
+            },
+        }
+        return Response(data)
