@@ -128,6 +128,7 @@ def get_relevant_chunks(
     min_rag_score: float = 0.3,
     min_score: float = 0.6,
     debug: bool = False,
+    log_diagnostic: bool = False,
 ) -> Tuple[
     List[Dict[str, object]],
     Optional[str],
@@ -784,6 +785,33 @@ def get_relevant_chunks(
         )
 
     logger.debug("[RAG Final] Returning chunks: %s", [r["chunk_id"] for r in result])
+
+    if log_diagnostic and assistant_id:
+        try:
+            from assistants.models import Assistant
+            from utils.rag_diagnostic import log_rag_diagnostic
+
+            assistant = (
+                Assistant.objects.filter(id=assistant_id).first()
+                or Assistant.objects.filter(slug=assistant_id).first()
+            )
+            if assistant:
+                rag_meta = {
+                    "used_chunks": result,
+                    "rag_fallback": fallback,
+                    "anchor_hits": [c.get("anchor_slug") for c in result if c.get("anchor_slug")],
+                    "retrieval_score": top_score,
+                    "fallback_reason": reason,
+                    **debug_info,
+                }
+                log_rag_diagnostic(
+                    assistant,
+                    query_text,
+                    rag_meta,
+                    memory_context_id=memory_context_id,
+                )
+        except Exception:
+            pass
 
     return (
         result,

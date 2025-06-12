@@ -543,3 +543,7 @@ export async function acceptInsight(slug, id) {
 export async function rejectInsight(slug, id) {
   return apiFetch(`/assistants/${slug}/insights/${id}/reject/`, { method: "POST" });
 }
+
+export async function fetchRagDiagnosticLogs(params) {
+  return apiFetch(`/devtools/rag_debug/`, { params });
+}
