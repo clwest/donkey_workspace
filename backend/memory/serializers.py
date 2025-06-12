@@ -17,6 +17,7 @@ from .models import (
     AnchorReinforcementLog,
     RAGGroundingLog,
     RAGPlaybackLog,
+    RAGDiagnosticLog,
     GlossaryKeeperLog,
 )
 
