@@ -3,6 +3,7 @@ from playwright.async_api import async_playwright
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup as Soup
 import logging
+import requests
 from intel_core.models import Document
 from typing import List, Dict, Any, Optional, Union
 from django.db.models import Q
@@ -30,33 +31,44 @@ async def async_fetch_url(url):
         return content
 
 
-def fetch_url(url):
-    """
-    Fetch content from a URL using Playwright.
+def fetch_url(url: str) -> str:
+    """Fetch content from a URL.
+
+    The helper first tries Playwright for JavaScript-rendered pages and
+    falls back to ``requests`` if Playwright fails (missing dependency or
+    runtime error).
 
     Args:
-        url (str): The URL to fetch.
+        url: The URL to fetch.
 
     Returns:
-        str: The page content or an empty string if an error occurs.
+        The page HTML as a string or an empty string on failure.
     """
+    user_agent = (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+        " AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    )
     try:
         with sync_playwright() as p:
-            browser = p.chromium.launch(
-                headless=True
-            )  # Headless mode for background processing
-            user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            browser = p.chromium.launch(headless=True)
             context = browser.new_context(user_agent=user_agent)
             page = context.new_page()
-
-            page.goto(url, timeout=60000)  # Timeout to allow slow-loading pages
-            content = page.content()  # Fetch the full page HTML
-
+            page.goto(url, timeout=60000)
+            content = page.content()
             context.close()
             browser.close()
             return content
-    except Exception as e:
-        print(f"Error in fetch_url: {e}")
+    except Exception as e:  # noqa: PERF203
+        logger.warning("Playwright failed for %s: %s", url, e)
+        try:
+            import requests
+
+            resp = requests.get(url, headers={"User-Agent": user_agent}, timeout=30)
+            if resp.ok:
+                return resp.text
+            logger.warning("requests fallback failed for %s: %s", url, resp.status_code)
+        except Exception as req_exc:  # noqa: PERF203
+            logger.error("requests fallback error for %s: %s", url, req_exc)
         return ""
 
 

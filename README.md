@@ -112,7 +112,7 @@ without crashing.
 Use the helper script to automatically run migrations before executing tests:
 
 ```bash
-./tests/run_tests.sh
+backend/tests/run_tests.sh
 pytest --cov
 ```
 
