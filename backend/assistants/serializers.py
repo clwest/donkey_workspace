@@ -2448,3 +2448,6 @@ class DemoHealthSerializer(serializers.Serializer):
     starter_chat_count = serializers.IntegerField()
     prompt_preview = serializers.CharField()
 
+# Re-export preferences serializer to avoid import path issues
+from .serializers.preferences import AssistantUserPreferencesSerializer
+
