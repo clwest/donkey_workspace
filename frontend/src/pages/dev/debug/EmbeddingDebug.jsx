@@ -7,7 +7,7 @@ export default function EmbeddingDebug() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await apiFetch("/api/dev/embedding-debug/");
+        const res = await apiFetch("/dev/embedding-debug/");
         setData(res);
       } catch (err) {
         console.error("Failed to load embedding stats", err);
