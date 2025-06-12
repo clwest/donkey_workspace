@@ -29,7 +29,7 @@ export default function AssistantPreferencesPage() {
     try {
       const body = { tone, planning_mode: planning, custom_tags: tags, self_narration_enabled: selfNarration };
       const res = await apiFetch(`/assistants/${slug}/preferences/`, {
-        method: "POST",
+        method: "PATCH",
         body,
       });
       setPrefs(res);
