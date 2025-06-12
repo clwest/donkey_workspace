@@ -267,7 +267,7 @@ def embedding_debug(request):
     breakdown = list(
         MemoryEntry.objects.filter(embeddings__isnull=False)
         .values("assistant__id", "assistant__slug", "context_id")
-        .annotate(count=Count("embeddings"))
+        .annotate(count=Count("embeddings__id"))
         .order_by("-count")
     )
 

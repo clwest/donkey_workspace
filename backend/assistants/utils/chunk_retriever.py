@@ -788,7 +788,6 @@ def get_relevant_chunks(
 
     if log_diagnostic and assistant_id:
         try:
-            from assistants.models import Assistant
             from utils.rag_diagnostic import log_rag_diagnostic
 
             assistant = (
