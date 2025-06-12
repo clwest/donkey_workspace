@@ -9,6 +9,7 @@ from .serializers import (
     ProjectMilestoneSerializer,
 )
 from rest_framework.permissions import IsAuthenticated
+from .permissions import HasProjectAccess
 
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -55,7 +56,12 @@ class ProjectViewSet(viewsets.ModelViewSet):
         return Response({"status": "assigned"})
 
 
-    @action(detail=True, methods=["get"], url_path="team_memory")
+    @action(
+        detail=True,
+        methods=["get"],
+        url_path="team_memory",
+        permission_classes=[IsAuthenticated, HasProjectAccess],
+    )
     def team_memory(self, request, pk=None):
         project = get_object_or_404(Project, id=pk)
         if not project_services.user_can_access_project(request.user, project):
