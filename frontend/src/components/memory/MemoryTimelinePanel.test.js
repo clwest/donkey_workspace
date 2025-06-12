@@ -12,7 +12,11 @@ const html = renderToStaticMarkup(
     initialEntries={entries}
   />
 );
-if (!html.includes("Memory Timeline") || !html.includes("Insight stored")) {
+if (
+  !html.includes("Memory Timeline") ||
+  !html.includes("Insight stored") ||
+  !html.includes("📝")
+) {
   throw new Error("MemoryTimelinePanel render failed");
 }
 console.log("MemoryTimelinePanel test passed");
