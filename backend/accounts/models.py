@@ -55,6 +55,12 @@ class CustomUser(AbstractUser):
         default=False,
         help_text="User finished all onboarding steps",
     )
+    primary_assistant_slug = models.SlugField(
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text="Slug of the user's first assistant",
+    )
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -21,7 +21,15 @@ def create_personal_assistant(sender, instance, created, **kwargs):
         is_guide=True,
     )
     instance.personal_assistant = assistant
-    instance.save(update_fields=["personal_assistant"])
+    instance.primary_assistant_slug = assistant.slug
+    instance.onboarding_complete = True
+    instance.save(
+        update_fields=[
+            "personal_assistant",
+            "primary_assistant_slug",
+            "onboarding_complete",
+        ]
+    )
 
     assistant_project = AssistantProject.objects.create(
         assistant=assistant,

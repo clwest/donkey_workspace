@@ -14,6 +14,9 @@ class AssistantCreateAPITest(BaseAPITestCase):
         assert resp.status_code == 201
         data = resp.json()
         assert data["is_first"] is True
+        self.user.refresh_from_db()
+        assert self.user.onboarding_complete is True
+        assert self.user.primary_assistant_slug == data["slug"]
         resp2 = self.client.post(
             self.url, {"name": "B", "specialty": "Support"}, format="json"
         )
