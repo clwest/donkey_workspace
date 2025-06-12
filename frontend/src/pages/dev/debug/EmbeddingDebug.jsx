@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import apiFetch from "../../../utils/apiClient";
+import ErrorCard from "../../../components/ErrorCard";
 
 export default function EmbeddingDebug() {
   const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     async function load() {
@@ -11,12 +13,17 @@ export default function EmbeddingDebug() {
         setData(res);
       } catch (err) {
         console.error("Failed to load embedding stats", err);
+        setError(err);
       }
     }
     load();
   }, []);
 
-  if (!data) {
+  if (error?.status === 403) {
+    return <ErrorCard message="You don't have permission to view embedding diagnostics." />;
+  }
+
+  if (!data && !error) {
     return <div className="container py-4">Loading...</div>;
   }
 
