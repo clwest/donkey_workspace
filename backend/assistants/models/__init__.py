@@ -16,6 +16,7 @@ from .badge import *
 from .hint import *
 from .tour import *
 from .trail import *
+from .profile import *
 
 from .demo import *
 from .user_profile import *

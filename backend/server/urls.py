@@ -136,6 +136,7 @@ urlpatterns = [
     path("api/onboarding/glossary_boot/", onboarding_views.glossary_boot),
     path("api/onboarding/teach_anchor/", onboarding_views.teach_anchor),
     path("api/onboarding/guide_chat/", onboarding_views.guide_chat),
+    path("api/onboarding/debug/", onboarding_views.onboarding_debug),
     path(
         "assistants/from-documents/",
         assistant_views.assistant_from_documents,

@@ -28,11 +28,18 @@ export default function AssistantActionDashboardPage() {
     return <div className="container my-5">Loading...</div>;
   if (!data) return <div className="container my-5">No data.</div>;
 
-  const { assistant, project, tasks, next_actions, thoughts, reflections, documents } = data;
+  const { assistant, project, tasks, next_actions, thoughts, reflections, documents, recent_memories } = data;
+  const intro = recent_memories?.find((m) => m.type === "assistant_intro");
 
   return (
     <div className="container my-5">
-      <h1 className="mb-4">{assistant.name} Dashboard</h1>
+      <h1 className="mb-2">{assistant.name} Dashboard</h1>
+      <div className="text-muted mb-3">
+        World: {assistant.specialty} | Archetype: {assistant.archetype}
+      </div>
+      {intro && (
+        <div className="alert alert-success">{intro.content_preview}</div>
+      )}
       {(assistant.system_prompt_slug || assistant.system_prompt_id) && (
         <Link
           to={`/prompts/${assistant.system_prompt_slug || assistant.system_prompt_id}`}
