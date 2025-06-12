@@ -155,6 +155,21 @@ def user_info(request):
     return Response(data)
 
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def onboarding_status(request):
+    """Return onboarding flag and primary assistant slug."""
+    assistants = Assistant.objects.filter(created_by=request.user)
+    primary = assistants.filter(is_primary=True).first()
+    return Response(
+        {
+            "complete": request.user.onboarding_complete,
+            "primary_assistant_slug": request.user.primary_assistant_slug
+            or (primary.slug if primary else None),
+        }
+    )
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def demo_login(request):
