@@ -265,7 +265,7 @@ class EmbeddingMetadata(models.Model):
     )
 
     class Meta:
-        indexes = [models.Index(fields=["embedding"])]
+        pass
 
     objects = ActiveManager()
     all_objects = models.Manager()
