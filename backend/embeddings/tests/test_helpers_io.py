@@ -1,6 +1,6 @@
 import json
 from django.test import SimpleTestCase, override_settings
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, ANY
 
 from embeddings.helpers.helpers_io import (
     get_cache,
@@ -45,7 +45,10 @@ class HelpersIOTest(SimpleTestCase):
             result = save_embedding(obj, vec)
             # Ensure the manager create was called with correct args
             mock_create.assert_called_once_with(
-                content_type="test_type", content_id="42", embedding=vec
+                content_type="test_type",
+                content_id="42",
+                content=ANY,
+                embedding=vec,
             )
             # The function should return the created embedding
             self.assertIs(result, dummy_emb)

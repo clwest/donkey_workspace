@@ -89,6 +89,13 @@ def embed_and_store(
             if not chunk:
                 logger.error(f"No DocumentChunk found with id {text_or_id}")
                 return None
+            if not chunk.text:
+                logger.warning(
+                    f"Skipping embed_and_store for chunk {chunk.id} -- empty text"
+                )
+                chunk.embedding_status = "skipped"
+                chunk.save(update_fields=["embedding_status"])
+                return None
             should = should_embed_chunk(chunk)
             if not should:
                 logger.info(
@@ -114,6 +121,13 @@ def embed_and_store(
 
                 chunk = DocumentChunk.objects.filter(id=content_id).first()
                 if chunk:
+                    if not chunk.text:
+                        logger.warning(
+                            f"Skipping embed_and_store for chunk {chunk.id} -- empty text"
+                        )
+                        chunk.embedding_status = "skipped"
+                        chunk.save(update_fields=["embedding_status"])
+                        return None
                     session_id = session_id or str(
                         getattr(chunk.document, "session_id", "")
                     )
@@ -166,7 +180,11 @@ def embed_and_store(
             return None
 
         # Prepare a minimal object for saving
-        obj = SimpleNamespace(content_type=content_type, id=content_id)
+        obj = SimpleNamespace(
+            content_type=content_type,
+            id=content_id,
+            content=text,
+        )
         emb_record = save_embedding(obj, embedding, session_id=session_id)
         if not emb_record:
             logger.error(f"Failed to save embedding for {content_type}:{content_id}")

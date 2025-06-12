@@ -104,7 +104,11 @@ def save_embedding(
             # Standard Django model instance
             content_type = ContentType.objects.get_for_model(obj.__class__)
             object_id = obj.id
-            content = getattr(obj, "event", None) or str(obj)
+            content = (
+                getattr(obj, "event", None)
+                or getattr(obj, "text", None)
+                or str(obj)
+            )
         else:
             # Support lightweight objects (e.g., SimpleNamespace) with
             # `content_type` and `id` attributes.
@@ -126,7 +130,7 @@ def save_embedding(
                 logger.error(f"Unknown content_type '{ct_name}' for {obj}")
                 return None
 
-            content = str(obj)
+            content = getattr(obj, "content", None) or str(obj)
 
         emb = Embedding.objects.create(
             content_type=content_type,
