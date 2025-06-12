@@ -240,7 +240,7 @@ def embedding_debug(request):
 
     model_counts = list(
         EmbeddingMetadata.objects.values("model_used")
-        .annotate(count=Count("embedding_id"))
+        .annotate(count=Count("id"))
         .order_by("-count")
     )
 

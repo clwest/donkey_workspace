@@ -39,7 +39,7 @@ class Command(BaseCommand):
             if options.get("repair"):
                 for ch in chunks:
                     meta = ch.embedding
-                    has_emb = getattr(meta, "embedding_id", None)
+                    has_emb = getattr(meta, "id", None)
                     meta_status = getattr(meta, "status", None)
 
                     if (

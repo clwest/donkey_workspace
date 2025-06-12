@@ -211,7 +211,7 @@ def embed_and_store(
             )
             from prompts.utils.token_helpers import count_tokens
 
-            meta = EmbeddingMetadata.objects.filter(embedding_id=emb_id).first()
+            meta = EmbeddingMetadata.objects.filter(id=emb_id).first()
             chunk = (
                 DocumentChunk.objects.filter(id=content_id)
                 .select_related("document")

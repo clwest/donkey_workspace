@@ -334,7 +334,7 @@ def get_relevant_chunks(
             logger.warning(
                 "Chunk %s has embedding_id %s but status %s; fixing",
                 chunk.id,
-                getattr(chunk.embedding, "embedding_id", None),
+                getattr(chunk.embedding, "id", None),
                 chunk.embedding_status,
             )
             chunk.embedding_status = "embedded"

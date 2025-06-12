@@ -201,7 +201,7 @@ class DocumentChunkSerializer(serializers.ModelSerializer):
         ]
 
     def get_embedding_id(self, obj):
-        return getattr(obj.embedding, "embedding_id", None)
+        return getattr(obj.embedding, "id", None)
 
     def get_skipped(self, obj):
         return obj.embedding_status == "skipped"
@@ -242,7 +242,7 @@ class DocumentChunkInfoSerializer(serializers.ModelSerializer):
         ]
 
     def get_embedding_id(self, obj):
-        return getattr(obj.embedding, "embedding_id", None)
+        return getattr(obj.embedding, "id", None)
 
     def get_skipped(self, obj):
         return obj.embedding_status == "skipped"

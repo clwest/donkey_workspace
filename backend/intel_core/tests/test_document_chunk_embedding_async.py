@@ -51,4 +51,4 @@ class DocumentChunkEmbeddingTests(TestCase):
         )
         chunk.refresh_from_db()
         self.assertIsNotNone(chunk.embedding)
-        self.assertTrue(EmbeddingMetadata.objects.filter(embedding_id=chunk.embedding.embedding_id).exists())
+        self.assertTrue(EmbeddingMetadata.objects.filter(id=chunk.embedding.id).exists())
