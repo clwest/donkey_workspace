@@ -86,24 +86,21 @@ export default function MemoryTimelinePanel({
               highlightId === m.id ? " list-group-item-success" : ""
             } ${isWeak(m) ? "text-muted" : ""}`}
           >
-            <div className="d-flex justify-content-between align-items-start">
-              <div className="fw-bold">
-                {new Date(m.created_at).toLocaleString()}
-                {isWeak(m) && <span className="ms-1">🗑</span>}
-              </div>
-              <div>
-                {feedbackCounts[m.id] > 0 && (
-                  <span className="badge bg-danger me-2">
-                    {feedbackCounts[m.id]}
-                  </span>
-                )}
-                <button
-                  className="btn btn-sm btn-outline-primary"
-                  onClick={() => setActiveFeedbackId(m.id)}
-                >
-                  📝
-                </button>
-              </div>
+
+            <div className="fw-bold">
+              {new Date(m.created_at).toLocaleString()}
+              {isWeak(m) && <span className="ms-1">🗑</span>}
+              {m.positive_feedback_count > 0 && (
+                <span className="badge bg-success ms-1">
+                  {m.positive_feedback_count}
+                </span>
+              )}
+              {m.negative_feedback_count > 0 && (
+                <span className="badge bg-danger ms-1" title="Negative feedback">
+                  ❌ {m.negative_feedback_count}
+                </span>
+              )}
+
             </div>
             <div>{m.title || m.summary || m.event}</div>
           </li>

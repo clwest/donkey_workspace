@@ -174,6 +174,7 @@ import RouteExplorerPage from "./pages/dev/RouteExplorerPage";
 import RouteViewer from "./pages/dev/routes/RouteViewer";
 import CapabilityStatus from "./pages/dev/routes/CapabilityStatus";
 import DemoCheckupPage from "./pages/dev/DemoCheckupPage";
+import FeedbackReviewPage from "./pages/dev/FeedbackReviewPage";
 import OnboardingDebugPage from "./pages/dev/OnboardingDebugPage";
 import PageNotFound from "./pages/PageNotFound";
 import GroupedReflectionPage from "./pages/dev/GroupedReflectionPage";
@@ -778,6 +779,7 @@ export default function App() {
           <Route path="/dev/auth-debug" element={<AuthDebugPage />} />
           <Route path="/dev/onboarding-debug" element={<OnboardingDebugPage />} />
           <Route path="/dev/demo-checkup" element={<DemoCheckupPage />} />
+          <Route path="/dev/feedback-review" element={<FeedbackReviewPage />} />
           <Route path="/debug/prompts" element={<PromptDebuggerPage />} />
           <Route path="/debug/rag-recall" element={<RagRecallDebugPage />} />
           <Route path="/debug/rag-failures" element={<RagFailureTable />} />

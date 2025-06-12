@@ -545,26 +545,10 @@ def submit_memory_feedback(request):
             submitted_by=request.user if request.user.is_authenticated else None
         )
 
+        from .feedback_engine import check_auto_suppress
 
-        triggered = False
-        rating = getattr(feedback, "rating", None)
-        threshold = getattr(settings, "MEMORY_FEEDBACK_REFLECTION_THRESHOLD", 3)
-        if rating is not None and rating < threshold:
-            ReflectionFlag.objects.create(
-                memory=feedback.memory,
-                reason="Low feedback rating",
-                severity="low",
-            )
-            try:
-                replay_reflection(feedback.memory)
-                triggered = True
-            except Exception as exc:  # pragma: no cover - fail-safe
-                logging.exception("Reflection replay failed: %s", exc)
-
-        data = MemoryFeedbackSerializer(feedback).data
-        if triggered:
-            data["reflection_triggered"] = True
-        return Response(data, status=201)
+        check_auto_suppress(feedback.memory)
+        return Response(serializer.data, status=201)
 
     return Response(serializer.errors, status=400)
 

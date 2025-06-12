@@ -748,6 +748,19 @@ def get_relevant_chunks(
         "warnings": warnings,
     }
 
+    used_chunk_ids = [str(p[1].id) for p in pairs]
+    if memory_context_id and used_chunk_ids:
+        from django.contrib.contenttypes.models import ContentType
+        from memory.models import MemoryEntry
+        from intel_core.models import DocumentChunk
+
+        ct = ContentType.objects.get_for_model(DocumentChunk)
+        MemoryEntry.objects.filter(
+            context_id=memory_context_id,
+            linked_content_type=ct,
+            linked_object_id__in=used_chunk_ids,
+        ).update(was_used_in_chat=True)
+
     if fallback or fallback_type == "summary":
         reason_text = reason or (
             f"score < {top_score:.2f}"
