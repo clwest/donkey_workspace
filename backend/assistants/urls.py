@@ -63,7 +63,7 @@ from insights.views.plan import InsightPlanView
 from scheduler.views import standup
 
 router = DefaultRouter()
-router.register(r"", views.AssistantViewSet, basename="assistant")
+router.register(r"", AssistantViewSet, basename="assistant")
 
 
 urlpatterns = [
