@@ -440,6 +440,16 @@ export async function fetchBootProfile(slug) {
   return res;
 }
 
+export async function fetchBootStatus(slug) {
+  const res = await apiFetch(`/assistants/${slug}/boot-status/`);
+  return res;
+}
+
+export async function repairAssistant(slug) {
+  const res = await apiFetch(`/assistants/${slug}/repair/`, { method: "POST" });
+  return res;
+}
+
 export async function runSelfTest(slug) {
   const res = await apiFetch(`/assistants/${slug}/selftest/`, {
     method: "POST",

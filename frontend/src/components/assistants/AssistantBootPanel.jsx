@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { fetchBootProfile, runSelfTest, runRagSelfTest } from "../../api/assistants";
+import {
+  fetchBootProfile,
+  runSelfTest,
+  runRagSelfTest,
+} from "../../api/assistants";
+import AssistantBootStatusPanel from "./AssistantBootStatusPanel";
 import { toast } from "react-toastify";
 
 export default function AssistantBootPanel({ assistant, onTestComplete }) {
@@ -61,6 +66,7 @@ export default function AssistantBootPanel({ assistant, onTestComplete }) {
 
   return (
     <div>
+      <AssistantBootStatusPanel slug={slug} />
       <h6 className="mt-2">🧬 Boot Profile Overview</h6>
       <ul className="list-unstyled small mb-3">
         <li>
