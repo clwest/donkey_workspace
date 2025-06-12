@@ -13,6 +13,8 @@ from rest_framework import status, viewsets
 from rest_framework.pagination import PageNumberPagination
 import uuid
 import warnings
+import logging
+from django.conf import settings
 from assistants.models import Assistant
 
 from .models import (
@@ -29,6 +31,7 @@ from .models import (
     GlossaryKeeperLog,
     AnchorConvergenceLog,
     AnchorReinforcementLog,
+    ReflectionFlag,
 )
 from .serializers import (
     MemoryEntrySerializer,
@@ -61,6 +64,7 @@ from memory.utils.thread_helpers import get_linked_chains, recall_from_thread
 from memory.utils.anamnesis_engine import run_anamnesis_retrieval
 from memory.services.reinforcement import reinforce_glossary_anchor
 from memory.services.acquisition import update_anchor_acquisition
+from memory.utils.reflection_replay import replay_reflection
 
 load_dotenv()
 
@@ -533,10 +537,29 @@ def upload_voice_clip(request):
 def submit_memory_feedback(request):
     serializer = MemoryFeedbackSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save(
+        feedback = serializer.save(
             submitted_by=request.user if request.user.is_authenticated else None
         )
-        return Response(serializer.data, status=201)
+
+        triggered = False
+        rating = getattr(feedback, "rating", None)
+        threshold = getattr(settings, "MEMORY_FEEDBACK_REFLECTION_THRESHOLD", 3)
+        if rating is not None and rating < threshold:
+            ReflectionFlag.objects.create(
+                memory=feedback.memory,
+                reason="Low feedback rating",
+                severity="low",
+            )
+            try:
+                replay_reflection(feedback.memory)
+                triggered = True
+            except Exception as exc:  # pragma: no cover - fail-safe
+                logging.exception("Reflection replay failed: %s", exc)
+
+        data = MemoryFeedbackSerializer(feedback).data
+        if triggered:
+            data["reflection_triggered"] = True
+        return Response(data, status=201)
     return Response(serializer.errors, status=400)
 
 
