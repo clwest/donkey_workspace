@@ -4,6 +4,7 @@ from assistants.utils.chunk_retriever import get_relevant_chunks
 from utils.rag_diagnostic import log_rag_diagnostic
 import json
 
+
 class Command(BaseCommand):
     help = "Replay a query through RAG retrieval and log diagnostics"
 
@@ -13,6 +14,11 @@ class Command(BaseCommand):
             "--assistant",
             default="zeno-the-build-wizard",
             help="Assistant slug (defaults to 'zeno-the-build-wizard')",
+        )
+        parser.add_argument(
+            "--log-debug",
+            action="store_true",
+            help="Output debug information to stdout",
         )
 
     def handle(self, *args, **options):
@@ -27,17 +33,42 @@ class Command(BaseCommand):
                 )
             )
             return
-        (chunks, reason, fallback, glossary_present, top_score, _cid, gf, ff, ft, debug) = get_relevant_chunks(
+        (
+            chunks,
+            reason,
+            fallback,
+            glossary_present,
+            top_score,
+            _cid,
+            gf,
+            ff,
+            ft,
+            debug,
+        ) = get_relevant_chunks(
             str(assistant.id),
             query,
-            memory_context_id=str(assistant.memory_context_id) if assistant.memory_context_id else None,
+            memory_context_id=(
+                str(assistant.memory_context_id)
+                if assistant.memory_context_id
+                else None
+            ),
             debug=True,
             log_diagnostic=True,
         )
+        if not chunks:
+            if not assistant.memory_context_id:
+                msg = "assistant missing memory_context"
+            elif assistant.documents.count() == 0:
+                msg = "no documents linked"
+            else:
+                msg = reason or "no matches"
+            self.stdout.write(self.style.WARNING(f"No chunks retrieved: {msg}"))
         rag_meta = {
             "used_chunks": chunks,
             "rag_fallback": fallback,
-            "anchor_hits": [c.get("anchor_slug") for c in chunks if c.get("anchor_slug")],
+            "anchor_hits": [
+                c.get("anchor_slug") for c in chunks if c.get("anchor_slug")
+            ],
             "retrieval_score": top_score,
             "fallback_reason": reason,
             **debug,
@@ -46,6 +77,12 @@ class Command(BaseCommand):
             assistant,
             query,
             rag_meta,
-            memory_context_id=str(assistant.memory_context_id) if assistant.memory_context_id else None,
+            memory_context_id=(
+                str(assistant.memory_context_id)
+                if assistant.memory_context_id
+                else None
+            ),
         )
         self.stdout.write(json.dumps({"log": log.id, "chunks": chunks}, indent=2))
+        if options.get("log_debug"):
+            self.stdout.write(json.dumps(debug, indent=2))

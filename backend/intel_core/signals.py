@@ -31,12 +31,19 @@ def create_memory_from_chunk(sender, instance, created, **kwargs):
     if not created:
         return
 
-    assistants = list(instance.document.linked_assistants.all())
+    doc = instance.document
+    if not doc.memory_context:
+        a = doc.linked_assistants.first() or doc.assigned_assistants.first()
+        if a and a.memory_context:
+            doc.memory_context = a.memory_context
+            doc.save(update_fields=["memory_context"])
+
+    assistants = list(doc.linked_assistants.all())
     if not assistants:
         MemoryEntry.objects.create(
             event=instance.text[:200],
             summary=instance.text[:200],
-            document=instance.document,
+            document=doc,
             linked_content_type=ContentType.objects.get_for_model(DocumentChunk),
             linked_object_id=instance.id,
             type="document_chunk",
@@ -50,7 +57,7 @@ def create_memory_from_chunk(sender, instance, created, **kwargs):
         MemoryEntry.objects.create(
             event=instance.text[:200],
             summary=instance.text[:200],
-            document=instance.document,
+            document=doc,
             linked_content_type=ContentType.objects.get_for_model(DocumentChunk),
             linked_object_id=instance.id,
             type="document_chunk",

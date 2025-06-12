@@ -272,6 +272,8 @@ def embedding_debug(request):
     )
 
     context_stats = []
+    assistants_no_docs = []
+    retrieval_checks = []
     if request.GET.get("include_rag") == "1":
         from assistants.utils.chunk_retriever import get_relevant_chunks
         from assistants.models import Assistant
@@ -285,10 +287,21 @@ def embedding_debug(request):
                     memory_context_id=str(a.memory_context_id),
                 )
                 count = len(chunks)
+            if a.documents.count() == 0:
+                assistants_no_docs.append(a.slug)
+            retrieval_checks.append(
+                {
+                    "assistant": a.slug,
+                    "documents": a.documents.count(),
+                    "retrieved": count,
+                }
+            )
             context_stats.append(
                 {
                     "assistant": a.slug,
-                    "context_id": str(a.memory_context_id) if a.memory_context_id else None,
+                    "context_id": (
+                        str(a.memory_context_id) if a.memory_context_id else None
+                    ),
                     "chunk_count": count,
                 }
             )
@@ -299,5 +312,7 @@ def embedding_debug(request):
             "invalid_links": invalid,
             "assistant_breakdown": breakdown,
             "context_stats": context_stats,
+            "assistants_no_docs": assistants_no_docs,
+            "retrieval_checks": retrieval_checks,
         }
     )
