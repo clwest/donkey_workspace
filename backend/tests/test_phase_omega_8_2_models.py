@@ -27,3 +27,5 @@ def test_document_assignment_on_ingest(db, monkeypatch):
     )
     assert result[0]["document_id"] == str(dummy_doc.id)
     assert assistant.assigned_documents.filter(id=dummy_doc.id).exists()
+    dummy_doc.refresh_from_db()
+    assert dummy_doc.memory_context_id == assistant.memory_context_id
