@@ -25,6 +25,11 @@ export default function useAssistantIdentity(
           setLoaded(true);
         }
       } catch (err) {
+        if (err.status === 403) {
+          console.warn("Identity access forbidden, using fallback");
+        } else {
+          console.error("Identity request failed", err);
+        }
         try {
           const a = await apiFetch(`/assistants/${slug}/`, {
             allowUnauthenticated: true,

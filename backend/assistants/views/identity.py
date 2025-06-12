@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from rest_framework import generics, permissions
 from django.shortcuts import get_object_or_404
 
+from assistants.permissions import IsAssistantOwnerOrDemo
+
 from assistants.models.assistant import Assistant
 from assistants.models.identity import IdentityAnchor
 from assistants.models.mythpath import TemporalMythpathRecord, MythpathEvent
@@ -48,28 +50,16 @@ def assistant_mythpath(request, id):
     )
 
 
-class AssistantIdentitySummaryView(generics.GenericAPIView):
+class AssistantIdentitySummaryView(generics.RetrieveAPIView):
     """Return concise identity metadata for an assistant."""
 
-    def get_object(self):
-        return get_object_or_404(Assistant, slug=self.kwargs["slug"])
+    lookup_field = "slug"
+    queryset = Assistant.objects.all()
+    permission_classes = [IsAssistantOwnerOrDemo]
 
-    def get_permissions(self):
+    def get(self, request, *args, **kwargs):
         assistant = self.get_object()
-        if self.request.method == "GET":
-            return [permissions.AllowAny()]
-        if assistant.is_demo:
-            return [permissions.AllowAny()]
-        return [permissions.IsAuthenticated()]
-
-    def get(self, request, slug):
-        assistant = self.get_object()
-        if assistant.is_demo:
-            allowed = True
-        else:
-            allowed = assistant.created_by == request.user
-        if not allowed:
-            return Response({"error": "forbidden"}, status=403)
+        self.check_object_permissions(request, assistant)
 
         from assistants.serializers import AssistantIdentitySummarySerializer
 
