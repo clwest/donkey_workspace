@@ -5,6 +5,10 @@ from .convergence import (
     calculate_convergence_stats,
     recalculate_anchor_convergence,
 )
+from .feedback_engine import (
+    apply_feedback_suggestion,
+    extract_anchor_slugs,
+)
 
 
 class MemoryService:
