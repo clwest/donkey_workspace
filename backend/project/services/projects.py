@@ -19,7 +19,10 @@ def user_can_access_project(user: Optional[AbstractBaseUser], project: Project) 
     if (
         user == project.user
         or user.is_staff
+        or user.is_superuser
         or project.participants.filter(id=user.id).exists()
+        or project.team.filter(created_by=user).exists()
+        or (project.assistant and project.assistant.created_by == user)
     ):
         return True
     return False
