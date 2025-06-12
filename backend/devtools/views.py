@@ -186,7 +186,11 @@ def auth_debug(request):
             "authenticated": request.user.is_authenticated,
             "user": request.user.username if request.user.is_authenticated else None,
             "session_keys": list(request.session.keys()),
-            "cookies": {k: request.COOKIES.get(k) for k in ["access", "refresh"] if k in request.COOKIES},
+            "cookies": {
+                k: request.COOKIES.get(k)
+                for k in ["access", "refresh"]
+                if k in request.COOKIES
+            },
         }
     )
 
@@ -201,7 +205,9 @@ def assistant_routing_debug(request):
 
     return Response(
         {
-            "onboarding_complete": bool(getattr(request.user, "onboarding_complete", False)),
+            "onboarding_complete": bool(
+                getattr(request.user, "onboarding_complete", False)
+            ),
             "primary_slug": getattr(request.user, "primary_assistant_slug", None),
         }
     )
@@ -253,14 +259,15 @@ def embedding_debug(request):
         if not ct or ct.id not in allowed or obj is None or emb.content_id != expected:
             invalid += 1
 
+    # Count embeddings grouped by their related memory entry's assistant and
+    # context. GenericForeignKey relations can't be traversed directly in a
+    # values() query, so we start from MemoryEntry where the GenericRelation
+    # resides. This avoids FieldError when attempting to use
+    # ``content_object__...`` lookups on Embedding.
     breakdown = list(
-        Embedding.objects.filter(content_type=ct_memory)
-        .values(
-            "content_object__assistant__id",
-            "content_object__assistant__slug",
-            "content_object__context_id",
-        )
-        .annotate(count=Count("id"))
+        MemoryEntry.objects.filter(embeddings__isnull=False)
+        .values("assistant__id", "assistant__slug", "context_id")
+        .annotate(count=Count("embeddings"))
         .order_by("-count")
     )
 
