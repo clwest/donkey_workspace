@@ -61,6 +61,8 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
     simulated_forks = SimulatedMemoryForkSerializer(many=True, read_only=True)
     linked_agents = AgentSerializer(many=True, read_only=True)
     anchor_slug = serializers.SlugField(source="anchor.slug", read_only=True)
+    positive_feedback_count = serializers.SerializerMethodField()
+    negative_feedback_count = serializers.SerializerMethodField()
 
     class Meta:
         model = MemoryEntry
@@ -74,6 +76,8 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
             "importance",
             "tags",
             "voice_clip",
+            "is_active",
+            "was_used_in_chat",
             "created_at",
             "is_demo",
             "linked_thought",
@@ -101,6 +105,8 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
             "is_delegated",
             "linked_agents",
             "simulated_forks",
+            "positive_feedback_count",
+            "negative_feedback_count",
         ]
 
     def get_source_name(self, obj):
@@ -180,6 +186,8 @@ class MemoryEntrySlimSerializer(serializers.ModelSerializer):
     token_count = serializers.SerializerMethodField()
     content_preview = serializers.CharField(read_only=True)
     triggered_by = serializers.CharField(read_only=True)
+    positive_feedback_count = serializers.SerializerMethodField()
+    negative_feedback_count = serializers.SerializerMethodField()
 
     class Meta:
         model = MemoryEntry
@@ -198,6 +206,10 @@ class MemoryEntrySlimSerializer(serializers.ModelSerializer):
             "bookmark_label",
             "symbolic_change",
             "related_campaign",
+            "is_active",
+            "was_used_in_chat",
+            "positive_feedback_count",
+            "negative_feedback_count",
         ]
 
     def get_token_count(self, obj):
@@ -208,6 +220,12 @@ class MemoryEntrySlimSerializer(serializers.ModelSerializer):
             return count_tokens(text)
         except Exception:
             return len(text.split())
+
+    def get_positive_feedback_count(self, obj):
+        return obj.feedback.filter(rating="positive").count()
+
+    def get_negative_feedback_count(self, obj):
+        return obj.feedback.filter(rating="negative").count()
 
 
 class PrioritizedMemorySerializer(MemoryEntrySlimSerializer):

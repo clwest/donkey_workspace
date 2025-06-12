@@ -164,6 +164,9 @@ export default function DevDashboard() {
         <Link to="/dev/demo-checkup" className="btn btn-outline-secondary my-3 ms-2">
           🩺 Demo Checkup
         </Link>
+        <Link to="/dev/feedback-review" className="btn btn-outline-secondary my-3 ms-2">
+          📝 Feedback Review
+        </Link>
         <button className="btn btn-outline-secondary my-3 ms-2" onClick={testRouting}>
           🧭 Test Routing
         </button>

@@ -30,6 +30,9 @@ class MemoryEntry(models.Model):
     rating = models.IntegerField(null=True, blank=True)
     voice_clip = models.FileField(upload_to="memory_voices/", blank=True, null=True)
 
+    is_active = models.BooleanField(default=True)
+    was_used_in_chat = models.BooleanField(default=False)
+
     summary = models.TextField(blank=True, null=True)
     title = models.CharField(max_length=200, blank=True, default="")
     document = models.ForeignKey(
@@ -281,6 +284,21 @@ class MemoryFeedback(models.Model):
         null=True,
         blank=True,
     )
+    rating = models.CharField(
+        max_length=20,
+        choices=[("positive", "positive"), ("negative", "negative")],
+        blank=True,
+        null=True,
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ("pending", "pending"),
+            ("accepted", "accepted"),
+            ("rejected", "rejected"),
+        ],
+        default="pending",
+    )
     submitted_by = models.ForeignKey(
         User, null=True, blank=True, on_delete=models.SET_NULL
     )
@@ -288,6 +306,19 @@ class MemoryFeedback(models.Model):
 
     def __str__(self):
         return f"Feedback on Memory {self.memory_id} by {self.submitted_by or 'anon'}"
+
+
+class MemoryMutationLog(models.Model):
+    feedback = models.ForeignKey(MemoryFeedback, on_delete=models.CASCADE)
+    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE)
+    memory = models.ForeignKey(MemoryEntry, on_delete=models.CASCADE)
+    old_content = models.TextField()
+    new_content = models.TextField()
+    applied_by = models.CharField(max_length=32, default="reflection")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
 
 
 # memory/models.py

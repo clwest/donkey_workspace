@@ -64,6 +64,16 @@ export default function MemoryTimelinePanel({
             <div className="fw-bold">
               {new Date(m.created_at).toLocaleString()}
               {isWeak(m) && <span className="ms-1">🗑</span>}
+              {m.positive_feedback_count > 0 && (
+                <span className="badge bg-success ms-1">
+                  {m.positive_feedback_count}
+                </span>
+              )}
+              {m.negative_feedback_count > 0 && (
+                <span className="badge bg-danger ms-1" title="Negative feedback">
+                  ❌ {m.negative_feedback_count}
+                </span>
+              )}
             </div>
             <div>{m.title || m.summary || m.event}</div>
           </li>

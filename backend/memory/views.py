@@ -533,9 +533,12 @@ def upload_voice_clip(request):
 def submit_memory_feedback(request):
     serializer = MemoryFeedbackSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save(
+        feedback = serializer.save(
             submitted_by=request.user if request.user.is_authenticated else None
         )
+        from .feedback_engine import check_auto_suppress
+
+        check_auto_suppress(feedback.memory)
         return Response(serializer.data, status=201)
     return Response(serializer.errors, status=400)
 
