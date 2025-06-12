@@ -131,6 +131,7 @@ def user_info(request):
     latest = assistants.order_by("-created_at").first()
     data = {
         "authenticated": True,
+        "id": request.user.id,
         "username": request.user.username,
         "assistant_count": assistant_count,
         "glossary_score": glossary_score,

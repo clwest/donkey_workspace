@@ -990,7 +990,7 @@ urlpatterns = [
         name="assistant-summary",
     ),
     path(
-        "assistants/<slug:slug>/preview/",
+        "<slug:slug>/preview/",
         assistant_preview,
         name="assistant-preview",
     ),
