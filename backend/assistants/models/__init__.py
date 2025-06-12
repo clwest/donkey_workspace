@@ -18,6 +18,7 @@ from .tour import *
 from .trail import *
 
 from .demo import *
+from .user_profile import *
 
 
 

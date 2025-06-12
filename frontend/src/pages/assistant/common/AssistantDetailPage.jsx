@@ -68,6 +68,7 @@ export default function AssistantDetailPage() {
   const [primerReflection, setPrimerReflection] = useState(null);
   const [assessment, setAssessment] = useState(null);
   const [showAssess, setShowAssess] = useState(false);
+  const [prefs, setPrefs] = useState(null);
   const [reflecting, setReflecting] = useState(false);
   const [assessing, setAssessing] = useState(false);
   const [editingName, setEditingName] = useState(false);
@@ -109,6 +110,11 @@ export default function AssistantDetailPage() {
     setAssessing(false);
     setEditingName(false);
     setNameInput("");
+  }, [slug]);
+
+  useEffect(() => {
+    if (!slug) return;
+    apiFetch(`/assistants/${slug}/preferences/`).then(setPrefs).catch(() => {});
   }, [slug]);
 
   const reloadAssistant = async () => {
@@ -178,6 +184,19 @@ export default function AssistantDetailPage() {
       loadMemoryStats();
     }
   }, [slug, refreshKey]);
+
+  useEffect(() => {
+    if (!assistant) return;
+    if (localStorage.getItem(`shown_intro_memory_${slug}`)) return;
+    apiFetch(`/assistants/${slug}/memories/`).then((res) => {
+      const items = res.results || res;
+      const intro = items.find((m) => m.type === "assistant_intro");
+      if (intro) {
+        toast.info(intro.event || intro.summary);
+        localStorage.setItem(`shown_intro_memory_${slug}`, "1");
+      }
+    });
+  }, [assistant, slug]);
 
   useEffect(() => {
     async function loadFirstQuestions() {
@@ -445,6 +464,11 @@ export default function AssistantDetailPage() {
         )}
       </h1>
       <p className="text-muted">Assistant Details Page</p>
+      {prefs && (
+        <p className="text-muted">
+          Linked User: {prefs.username} — Tone: {prefs.tone} | Planning: {prefs.planning_mode}
+        </p>
+      )}
       <div className="mb-2">
         {glossaryOverlays.map((o) => (
           <GlossaryOverlayTooltip key={o.slug} {...o} />
@@ -526,6 +550,11 @@ export default function AssistantDetailPage() {
           <li className="nav-item">
             <Link className="nav-link" to={`/assistants/${slug}/anchor-health`}>
               Anchor Health
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link className="nav-link" to={`/assistants/${slug}/preferences/`}>
+              Preferences
             </Link>
           </li>
           <li className="nav-item">

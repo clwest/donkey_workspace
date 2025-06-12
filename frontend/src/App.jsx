@@ -87,6 +87,7 @@ import AssistantIntroSplash from "./pages/assistant/common/AssistantIntroSplash"
 import AssistantTrailRecap from "./pages/assistant/common/AssistantTrailRecap";
 import TrustProfilePage from "./pages/assistants/trust/TrustProfilePage";
 import GrowthPanelPage from "./pages/assistants/growth/GrowthPanelPage";
+import AssistantPreferencesPage from "./pages/assistants/preferences/AssistantPreferencesPage";
 import ChatWithAssistantPage from "./pages/assistant/common/ChatWithAssistantPage";
 import ChatWithKnowledge from "./pages/assistants/[slug]/chat/ChatWithKnowledge";
 import CreateNewAssistantPage from "./pages/assistant/common/CreateNewAssistantPage";
@@ -561,6 +562,7 @@ export default function App() {
           <Route path="/assistants/:slug/demo_replay/:sessionId" element={<DemoReplayPage />} />
           <Route path="/assistants/:slug/trust_profile/" element={<TrustProfilePage />} />
           <Route path="/assistants/:slug/growth/" element={<GrowthPanelPage />} />
+          <Route path="/assistants/:slug/preferences/" element={<AssistantPreferencesPage />} />
 
           {/* Assistant Detail Subroutes */}
           <Route

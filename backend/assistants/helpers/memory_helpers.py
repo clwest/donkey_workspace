@@ -132,3 +132,25 @@ def get_relevant_memories_for_task(
         "-created_at",
     )
     return list(qs[:limit])
+
+
+def ensure_welcome_memory(assistant):
+    """Create a welcome memory for the assistant if missing."""
+    from memory.models import MemoryEntry
+    from mcp_core.models import Tag
+
+    if MemoryEntry.objects.filter(assistant=assistant, type="assistant_intro").exists():
+        return
+
+    text = "Hello! I’m here to support your goals and learn with you. Let’s get started."
+    mem = MemoryEntry.objects.create(
+        assistant=assistant,
+        event=text,
+        summary=text,
+        type="assistant_intro",
+        source_role="assistant",
+        context=assistant.memory_context,
+    )
+    for slug in ["onboarding", "user_binding"]:
+        tag, _ = Tag.objects.get_or_create(slug=slug, defaults={"name": slug})
+        mem.tags.add(tag)
