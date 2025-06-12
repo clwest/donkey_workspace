@@ -15,8 +15,6 @@ export default function AssistantMemoriesPage() {
     async function fetchMemories() {
       try {
         const data = await apiFetch(`/assistants/${slug}/memories/`);
-        console.log(data)
-        // const data = await res.json();
         setMemories(data);
       } catch (err) {
         console.error("Error fetching assistant memories:", err);
@@ -31,7 +29,7 @@ export default function AssistantMemoriesPage() {
   if (loading) return <div className="container my-5">Loading assistant memories...</div>;
 
   return (
-    <div className="container my-5">
+    <div className="container my-5" id="memories-panel">
       <h2 className="mb-4">🧠 Memories for Assistant: <span className="text-primary">{slug}</span></h2>
 
       {memories.length === 0 ? (
