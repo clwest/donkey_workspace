@@ -109,7 +109,7 @@ def verify_embeddings(request):
     chunks = DocumentChunk.objects.filter(document=document).order_by("order")
     mismatches = []
     for ch in chunks:
-        emb_id = getattr(ch.embedding, "embedding_id", None)
+        emb_id = getattr(ch.embedding, "id", None)
         if ch.embedding_status == "embedded":
             if not emb_id:
                 mismatches.append({"id": str(ch.id), "issue": "missing embedding"})

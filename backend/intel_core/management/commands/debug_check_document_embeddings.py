@@ -46,7 +46,7 @@ class Command(BaseCommand):
 
         mismatches = []
         for ch in chunks:
-            emb_id = getattr(ch.embedding, "embedding_id", None)
+            emb_id = getattr(ch.embedding, "id", None)
             if ch.embedding_status == "embedded":
                 if not emb_id or ch.score is None:
                     mismatches.append(ch)
@@ -58,7 +58,7 @@ class Command(BaseCommand):
                 self.style.WARNING(f"Found {len(mismatches)} mismatched chunks:")
             )
             for ch in mismatches:
-                emb_id = getattr(ch.embedding, "embedding_id", None)
+                emb_id = getattr(ch.embedding, "id", None)
                 self.stdout.write(
                     f" - Chunk {ch.order} status={ch.embedding_status} embedding_id={emb_id} score={ch.score}"
                 )

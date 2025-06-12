@@ -36,7 +36,7 @@ class Command(BaseCommand):
                     )
                 )
                 continue
-            if not getattr(chunk.embedding, "embedding_id", None):
+            if not getattr(chunk.embedding, "id", None):
                 self.stdout.write(self.style.WARNING(prefix + "missing embedding_id"))
             else:
                 self.stdout.write(self.style.SUCCESS(prefix + "ok"))

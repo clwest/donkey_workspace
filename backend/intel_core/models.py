@@ -245,8 +245,11 @@ class ChunkTag(models.Model):
 
 
 class EmbeddingMetadata(models.Model):
-    embedding_id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, editable=False
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+        db_column="embedding_id",
     )
     model_used = models.CharField(max_length=100)
     num_tokens = models.IntegerField()
@@ -271,7 +274,7 @@ class EmbeddingMetadata(models.Model):
     all_objects = models.Manager()
 
     def __str__(self):
-        return f"{self.model_used} | {self.embedding_id}"
+        return f"{self.model_used} | {self.id}"
 
 
 class JobStatus(models.Model):

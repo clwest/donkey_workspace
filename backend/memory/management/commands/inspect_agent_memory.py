@@ -128,7 +128,7 @@ class Command(BaseCommand):
                 for ch in used:
                     preview = ch.text[:80].replace("\n", " ")
                     self.stdout.write(
-                        f"    {ch.id} | {ch.score:.2f} | {preview} | anchor={getattr(ch.anchor,'slug',None)} | glossary={ch.is_glossary} | emb={getattr(ch.embedding,'embedding_id',None)}"
+                        f"    {ch.id} | {ch.score:.2f} | {preview} | anchor={getattr(ch.anchor,'slug',None)} | glossary={ch.is_glossary} | emb={getattr(ch.embedding,'id',None)}"
                     )
 
             if filtered.exists():
@@ -136,7 +136,7 @@ class Command(BaseCommand):
                 for ch in filtered:
                     preview = ch.text[:80].replace("\n", " ")
                     self.stdout.write(
-                        f"    {ch.id} | {ch.score:.2f} | {preview} | anchor={getattr(ch.anchor,'slug',None)} | glossary={ch.is_glossary} | emb={getattr(ch.embedding,'embedding_id',None)}"
+                        f"    {ch.id} | {ch.score:.2f} | {preview} | anchor={getattr(ch.anchor,'slug',None)} | glossary={ch.is_glossary} | emb={getattr(ch.embedding,'id',None)}"
                     )
 
         for a in assistants:
