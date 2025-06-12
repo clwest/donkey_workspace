@@ -542,9 +542,11 @@ def submit_memory_feedback(request):
 
 @api_view(["GET"])
 def list_memory_feedback(request, memory_id):
-    feedback = MemoryFeedback.objects.filter(memory_id=memory_id).order_by(
-        "-created_at"
-    )
+    feedback_qs = MemoryFeedback.objects.filter(memory_id=memory_id)
+    status_param = request.query_params.get("status")
+    if status_param:
+        feedback_qs = feedback_qs.filter(status=status_param)
+    feedback = feedback_qs.order_by("-created_at")
     serializer = MemoryFeedbackSerializer(feedback, many=True)
     return Response(serializer.data)
 
