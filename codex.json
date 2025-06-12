@@ -40,8 +40,12 @@
   "related_documents": [
     "AGENTS.md",
     "GOALS.md",
+    "ROADMAP.md",
+    "PHASE_SUMMARY.md",
     "README.md",
-    "PREP.md",
+    "ASSISTANT_LIFECYCLE.md",
+    "PHASE_SUMMARY",
+    "post_rag_roadmap.md",
     "MythOS.md",
     "MythOS-Route.md",
     "SystemOverview.md"
