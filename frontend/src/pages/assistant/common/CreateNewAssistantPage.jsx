@@ -8,6 +8,7 @@ import apiFetch from "@/utils/apiClient";
 import { previewAssistantFromDemo } from "../../../api/assistants";
 import AssistantPreviewBox from "../../../components/assistant/AssistantPreviewBox";
 import useDemoSession from "../../../hooks/useDemoSession";
+import { clearCachedUser } from "../../../hooks/useAuthGuard";
 
 const mythDefaults = {
   memory: {
@@ -229,6 +230,7 @@ export default function CreateNewAssistantPage() {
         } else {
           toast.success("✅ Assistant created!");
         }
+        clearCachedUser();
         localStorage.removeItem("assistant_draft");
         const firstPrompt = prefillTranscript[0]?.content || "";
         navigate(`/assistants/${data.slug}/intro`, {
