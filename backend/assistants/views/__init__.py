@@ -49,6 +49,12 @@ from .diagnostics import (
     reflect_on_self,
     subagent_reflect,
 )
+from .insights import (
+    reflect_on_chat,
+    insight_logs,
+    accept_insight,
+    reject_insight,
+)
 from .user_reflection import AssistantReflectView
 from .debug import demo_checkup
 from .thoughts import (
@@ -374,5 +380,9 @@ __all__ = [
     "demo_drift_diagnosis",
     "demo_checkup",
     "refine_from_drift",
+    "reflect_on_chat",
+    "insight_logs",
+    "accept_insight",
+    "reject_insight",
 ]
 from .skills import SkillPlanView

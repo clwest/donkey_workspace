@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { fetchAssistantDashboard } from "../../../api/assistants";
+import { fetchAssistantDashboard, reflectOnChat } from "../../../api/assistants";
 import useTourActivation from "../../../hooks/useTourActivation";
 
 export default function AssistantActionDashboardPage() {
   const { slug } = useParams();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [insight, setInsight] = useState(null);
+  const [reflecting, setReflecting] = useState(false);
   const tour = useTourActivation(slug);
 
   useEffect(() => {
@@ -23,6 +25,19 @@ export default function AssistantActionDashboardPage() {
     }
     if (slug) load();
   }, [slug]);
+
+  const triggerReflection = async () => {
+    setReflecting(true);
+    try {
+      const res = await reflectOnChat(slug);
+      setInsight(res);
+      toast.success("Reflection generated");
+    } catch (err) {
+      toast.error("Reflection failed");
+    } finally {
+      setReflecting(false);
+    }
+  };
 
   if (loading || tour.loading)
     return <div className="container my-5">Loading...</div>;
@@ -47,6 +62,16 @@ export default function AssistantActionDashboardPage() {
         >
           Edit System Prompt
         </Link>
+      )}
+      <button
+        className="btn btn-sm btn-primary mb-3 ms-2"
+        onClick={triggerReflection}
+        disabled={reflecting}
+      >
+        {reflecting ? "Reflecting..." : "Reflect on recent chats"}
+      </button>
+      {insight && (
+        <div className="alert alert-info mt-3">{insight.summary}</div>
       )}
       {project && <h4>Current Project: {project.title}</h4>}
 

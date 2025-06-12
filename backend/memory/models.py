@@ -284,6 +284,7 @@ class MemoryFeedback(models.Model):
         null=True,
         blank=True,
     )
+
     rating = models.CharField(
         max_length=20,
         choices=[("positive", "positive"), ("negative", "negative")],
@@ -299,6 +300,7 @@ class MemoryFeedback(models.Model):
         ],
         default="pending",
     )
+
     submitted_by = models.ForeignKey(
         User, null=True, blank=True, on_delete=models.SET_NULL
     )

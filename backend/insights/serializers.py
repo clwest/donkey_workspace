@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import SymbolicAgentInsightLog
+from .models import SymbolicAgentInsightLog, AssistantInsightLog
 
 
 class SymbolicAgentInsightLogSerializer(serializers.ModelSerializer):
@@ -18,6 +18,27 @@ class SymbolicAgentInsightLogSerializer(serializers.ModelSerializer):
             "conflict_score",
             "resolution_method",
             "notes",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
+class AssistantInsightLogSerializer(serializers.ModelSerializer):
+    assistant_slug = serializers.CharField(source="assistant.slug", read_only=True)
+    user_name = serializers.CharField(source="user.username", read_only=True)
+
+    class Meta:
+        model = AssistantInsightLog
+        fields = [
+            "id",
+            "assistant",
+            "assistant_slug",
+            "user",
+            "user_name",
+            "summary",
+            "tags",
+            "proposed_prompt",
+            "accepted",
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]

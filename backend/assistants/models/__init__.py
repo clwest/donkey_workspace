@@ -19,7 +19,7 @@ from .trail import *
 from .profile import *
 
 from .demo import *
-from .user_profile import *
+from .user_preferences import *
 
 
 

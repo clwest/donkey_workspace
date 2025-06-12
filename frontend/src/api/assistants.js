@@ -517,3 +517,19 @@ export async function resetDemoSession(sessionId, fullReset = false) {
     body: { session_id: sessionId },
   });
 }
+
+export async function fetchAssistantInsights(slug) {
+  return apiFetch(`/assistants/${slug}/insights/`);
+}
+
+export async function reflectOnChat(slug) {
+  return apiFetch(`/assistants/${slug}/reflect_on_chat/`, { method: "POST" });
+}
+
+export async function acceptInsight(slug, id) {
+  return apiFetch(`/assistants/${slug}/insights/${id}/accept/`, { method: "POST" });
+}
+
+export async function rejectInsight(slug, id) {
+  return apiFetch(`/assistants/${slug}/insights/${id}/reject/`, { method: "POST" });
+}

@@ -13,6 +13,10 @@ from rest_framework import status, viewsets
 from rest_framework.pagination import PageNumberPagination
 import uuid
 import warnings
+import logging
+
+from django.conf import settings
+
 from assistants.models import Assistant
 
 from .models import (
@@ -29,6 +33,7 @@ from .models import (
     GlossaryKeeperLog,
     AnchorConvergenceLog,
     AnchorReinforcementLog,
+    ReflectionFlag,
 )
 from .serializers import (
     MemoryEntrySerializer,
@@ -56,15 +61,18 @@ from embeddings.helpers.helpers_io import save_embedding
 from prompts.utils.mutation import mutate_prompt as run_mutation
 from embeddings.helpers.helpers_io import get_embedding_for_text
 from memory.memory_service import get_memory_service
+from memory.utils.feedback_engine import apply_memory_feedback
 from mcp_core.models import NarrativeThread
 from memory.utils.thread_helpers import get_linked_chains, recall_from_thread
 from memory.utils.anamnesis_engine import run_anamnesis_retrieval
 from memory.services.reinforcement import reinforce_glossary_anchor
 from memory.services.acquisition import update_anchor_acquisition
+from memory.utils.reflection_replay import replay_reflection
 
 load_dotenv()
 
 client = OpenAI()
+logger = logging.getLogger(__name__)
 
 
 class MemoryEntryViewSet(viewsets.ModelViewSet):
@@ -536,18 +544,22 @@ def submit_memory_feedback(request):
         feedback = serializer.save(
             submitted_by=request.user if request.user.is_authenticated else None
         )
+
         from .feedback_engine import check_auto_suppress
 
         check_auto_suppress(feedback.memory)
         return Response(serializer.data, status=201)
+
     return Response(serializer.errors, status=400)
 
 
 @api_view(["GET"])
 def list_memory_feedback(request, memory_id):
-    feedback = MemoryFeedback.objects.filter(memory_id=memory_id).order_by(
-        "-created_at"
-    )
+    feedback_qs = MemoryFeedback.objects.filter(memory_id=memory_id)
+    status_param = request.query_params.get("status")
+    if status_param:
+        feedback_qs = feedback_qs.filter(status=status_param)
+    feedback = feedback_qs.order_by("-created_at")
     serializer = MemoryFeedbackSerializer(feedback, many=True)
     return Response(serializer.data)
 

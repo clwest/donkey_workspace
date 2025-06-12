@@ -169,7 +169,20 @@ class MemoryEntrySerializer(serializers.ModelSerializer):
 class MemoryFeedbackSerializer(serializers.ModelSerializer):
     class Meta:
         model = MemoryFeedback
-        fields = "__all__"
+        fields = [
+            "id",
+            "memory",
+            "project",
+            "thought_log",
+            "context_hint",
+            "suggestion",
+            "explanation",
+            "mutation_style",
+            "status",
+            "rating",
+            "submitted_by",
+            "created_at",
+        ]
 
 
 class MemoryChainSerializer(serializers.ModelSerializer):

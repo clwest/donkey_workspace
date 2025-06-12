@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import apiFetch from "../../utils/apiClient";
+import MemoryFeedbackModal from "./MemoryFeedbackModal";
 
 export default function MemoryTimelinePanel({
   assistantId,
@@ -9,6 +10,8 @@ export default function MemoryTimelinePanel({
 }) {
   const [entries, setEntries] = useState(initialEntries || []);
   const [hideWeak, setHideWeak] = useState(false);
+  const [feedbackCounts, setFeedbackCounts] = useState({});
+  const [activeFeedbackId, setActiveFeedbackId] = useState(null);
 
   const isWeak = (m) => {
     const imp = m.importance;
@@ -36,6 +39,28 @@ export default function MemoryTimelinePanel({
     load();
   }, [assistantId, documentId, initialEntries, highlightId]);
 
+  useEffect(() => {
+    async function loadCounts() {
+      const counts = {};
+      await Promise.all(
+        (entries || []).map(async (e) => {
+          try {
+            const res = await apiFetch(`/memory/${e.id}/feedback/`);
+            counts[e.id] = Array.isArray(res)
+              ? res.filter((f) => !f.resolved && !f.resolved_at).length
+              : 0;
+          } catch {
+            counts[e.id] = 0;
+          }
+        })
+      );
+      setFeedbackCounts(counts);
+    }
+    if (entries.length > 0) {
+      loadCounts();
+    }
+  }, [entries]);
+
   const shown = hideWeak ? entries.filter((e) => !isWeak(e)) : entries;
 
   return (
@@ -61,6 +86,7 @@ export default function MemoryTimelinePanel({
               highlightId === m.id ? " list-group-item-success" : ""
             } ${isWeak(m) ? "text-muted" : ""}`}
           >
+
             <div className="fw-bold">
               {new Date(m.created_at).toLocaleString()}
               {isWeak(m) && <span className="ms-1">🗑</span>}
@@ -74,6 +100,7 @@ export default function MemoryTimelinePanel({
                   ❌ {m.negative_feedback_count}
                 </span>
               )}
+
             </div>
             <div>{m.title || m.summary || m.event}</div>
           </li>
@@ -82,6 +109,14 @@ export default function MemoryTimelinePanel({
           <li className="list-group-item text-muted">No memories found.</li>
         )}
       </ul>
+      {activeFeedbackId && (
+        <MemoryFeedbackModal
+          memoryId={activeFeedbackId}
+          show={!!activeFeedbackId}
+          onHide={() => setActiveFeedbackId(null)}
+          onSubmitted={() => setActiveFeedbackId(null)}
+        />
+      )}
     </div>
   );
 }
