@@ -23,7 +23,7 @@ from assistants.utils.delegation import spawn_delegated_assistant
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from assistants.helpers.memory_helpers import ensure_welcome_memory
 from assistants.models.user_preferences import AssistantUserPreferences
-from assistants.serializers.preferences import AssistantUserPreferencesSerializer
+from assistants.serializers import AssistantUserPreferencesSerializer
 from assistants.utils.rag_diagnostics import run_assistant_rag_test
 
 logger = logging.getLogger(__name__)
