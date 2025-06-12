@@ -22,6 +22,7 @@ export default function AssistantCard({ assistant, to, chatLink, demo }) {
     assistant.name;
 
   const isDemo = demo || assistant.is_demo;
+  const isWrapped = to && !chatLink;
 
   const card = (
     <div className="assistant-card card h-100 shadow-sm border-0">
@@ -87,8 +88,6 @@ export default function AssistantCard({ assistant, to, chatLink, demo }) {
       )}
     </div>
   );
-
-  const isWrapped = to && !chatLink;
   const wrapped = isWrapped ? (
     <Link to={to} className="text-decoration-none">{card}</Link>
   ) : (
