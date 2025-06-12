@@ -55,13 +55,16 @@ class Command(BaseCommand):
             debug=True,
             log_diagnostic=True,
         )
+        diagnostic = {}
         if not chunks:
             if not assistant.memory_context_id:
                 msg = "assistant missing memory_context"
             elif assistant.documents.count() == 0:
                 msg = "no documents linked"
+                diagnostic["no_documents"] = True
             else:
                 msg = reason or "no matches"
+            diagnostic["no_chunks"] = True
             self.stdout.write(self.style.WARNING(f"No chunks retrieved: {msg}"))
         rag_meta = {
             "used_chunks": chunks,
@@ -83,6 +86,9 @@ class Command(BaseCommand):
                 else None
             ),
         )
-        self.stdout.write(json.dumps({"log": log.id, "chunks": chunks}, indent=2))
+        output = {"log": log.id, "chunks": chunks}
+        if diagnostic:
+            output.update(diagnostic)
+        self.stdout.write(json.dumps(output, indent=2))
         if options.get("log_debug"):
             self.stdout.write(json.dumps(debug, indent=2))

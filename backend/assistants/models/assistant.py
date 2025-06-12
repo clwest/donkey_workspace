@@ -527,10 +527,18 @@ class ChatSession(models.Model):
         blank=True,
     )
     assistant = models.ForeignKey(
-        "assistants.Assistant", on_delete=models.SET_NULL, null=True, blank=True
+        "assistants.Assistant",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="chat_sessions",
     )
     project = models.ForeignKey(
-        "project.Project", on_delete=models.SET_NULL, null=True, blank=True
+        "project.Project",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="chat_sessions",
     )
     memory_chain = models.ForeignKey(
         "assistants.AssistantMemoryChain",
@@ -641,6 +649,7 @@ class AssistantChatMessage(models.Model):
         on_delete=models.CASCADE,
         to_field="session_id",
         related_name="messages",
+        db_index=True,
     )
 
     role = models.CharField(

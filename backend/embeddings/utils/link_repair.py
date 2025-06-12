@@ -5,7 +5,7 @@ from memory.models import MemoryEntry
 from prompts.models import Prompt
 
 
-def fix_embedding_links(limit=None):
+def fix_embedding_links(limit=None, *, dry_run: bool = False):
     """Scan embeddings and repair content links in place.
 
     Returns a dictionary with scanned, fixed and skipped counts.
@@ -39,6 +39,7 @@ def fix_embedding_links(limit=None):
                     emb.object_id = str(obj.id)
         if not obj:
             skipped += 1
+            print(f"Orphan embedding {emb.id}")
             continue
 
         expected_ct = ContentType.objects.get_for_model(obj.__class__)
@@ -54,6 +55,7 @@ def fix_embedding_links(limit=None):
             emb.content_id = expected_cid
             changed = True
         if changed:
-            emb.save(update_fields=["content_type", "object_id", "content_id"])
+            if not dry_run:
+                emb.save(update_fields=["content_type", "object_id", "content_id"])
             fixed += 1
     return {"scanned": scanned, "fixed": fixed, "skipped": skipped}

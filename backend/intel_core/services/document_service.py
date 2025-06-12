@@ -217,6 +217,9 @@ class DocumentService:
 
         results: list[dict] = []
         for doc in docs:
+            if isinstance(doc, Document) and assistant and not doc.memory_context:
+                doc.memory_context = assistant.memory_context
+                doc.save(update_fields=["memory_context"])
             if isinstance(doc, Document):
                 results.append(
                     {
