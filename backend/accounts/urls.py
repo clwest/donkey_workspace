@@ -12,6 +12,8 @@ urlpatterns = [
     path('me/summary/', views.me_summary),
     path('demo_login/', views.demo_login),
     path('demo/', views.demo_user),
-    path('users/<int:id>/tours/complete/', views.complete_tour),
-    path('profile/onboarding_status/', views.onboarding_status),
+
+    # Tour completion route mounted under /api/users/
+    path('<int:id>/tours/complete/', views.complete_tour),
+
 ]
