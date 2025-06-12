@@ -250,6 +250,7 @@ class EmbeddingMetadata(models.Model):
         default=uuid.uuid4,
         editable=False,
         db_column="embedding_id",
+        
     )
     model_used = models.CharField(max_length=100)
     num_tokens = models.IntegerField()
