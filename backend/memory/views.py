@@ -13,6 +13,7 @@ from rest_framework import status, viewsets
 from rest_framework.pagination import PageNumberPagination
 import uuid
 import warnings
+import logging
 from assistants.models import Assistant
 
 from .models import (
@@ -56,6 +57,7 @@ from embeddings.helpers.helpers_io import save_embedding
 from prompts.utils.mutation import mutate_prompt as run_mutation
 from embeddings.helpers.helpers_io import get_embedding_for_text
 from memory.memory_service import get_memory_service
+from memory.utils.feedback_engine import apply_memory_feedback
 from mcp_core.models import NarrativeThread
 from memory.utils.thread_helpers import get_linked_chains, recall_from_thread
 from memory.utils.anamnesis_engine import run_anamnesis_retrieval
@@ -65,6 +67,7 @@ from memory.services.acquisition import update_anchor_acquisition
 load_dotenv()
 
 client = OpenAI()
+logger = logging.getLogger(__name__)
 
 
 class MemoryEntryViewSet(viewsets.ModelViewSet):
@@ -533,9 +536,13 @@ def upload_voice_clip(request):
 def submit_memory_feedback(request):
     serializer = MemoryFeedbackSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save(
+        feedback = serializer.save(
             submitted_by=request.user if request.user.is_authenticated else None
         )
+        try:
+            apply_memory_feedback(feedback)
+        except Exception as exc:  # pragma: no cover - safeguard
+            logger.exception("Failed to apply memory feedback: %s", exc)
         return Response(serializer.data, status=201)
     return Response(serializer.errors, status=400)
 
