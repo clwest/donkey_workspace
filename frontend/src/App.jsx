@@ -181,6 +181,7 @@ import GroupedReflectionPage from "./pages/dev/GroupedReflectionPage";
 import GroupedReflectionDetailPage from "./pages/dev/GroupedReflectionDetailPage";
 import DevDocReflectionDetailPage from "./pages/dev/DevDocReflectionDetailPage";
 import IntelDebugTools from "./pages/dev/debug/IntelDebugTools";
+import EmbeddingDebug from "./pages/dev/debug/EmbeddingDebug";
 import AuthDebugPage from "./pages/dev/AuthDebugPage";
 import DocumentBrowserPage from "./pages/intel_core/DocumentBrowserPage";
 import DocumentDetailPage from "./pages/intel_core/DocumentDetailPage";
@@ -777,6 +778,7 @@ export default function App() {
           <Route path="/dev/routes/capabilities" element={<CapabilityStatus />} />
           <Route path="/dev/route-check" element={<RouteCheckPage />} />
           <Route path="/dev/debug/intel" element={<IntelDebugTools />} />
+          <Route path="/devtools/embedding-debug" element={<EmbeddingDebug />} />
           <Route path="/dev/auth-debug" element={<AuthDebugPage />} />
           <Route path="/dev/onboarding-debug" element={<OnboardingDebugPage />} />
           <Route path="/dev/demo-checkup" element={<DemoCheckupPage />} />

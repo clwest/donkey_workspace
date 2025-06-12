@@ -250,6 +250,11 @@ export default function Navbar({ onToggleSidebar }) {
               </Link>
             </li>
             <li className="nav-item">
+              <Link className="nav-link" to="/devtools/embedding-debug">
+                🧩 Embedding Debug
+              </Link>
+            </li>
+            <li className="nav-item">
               <Link className="nav-link" to="/dev/onboarding-debug">
                 🧭 Onboarding Debug
               </Link>

@@ -54,6 +54,8 @@ echo '🚀 Running: reflect_on_all_devdocs'
 python manage.py reflect_on_all_devdocs
 echo '🚀 Running: check_embedding_status'
 python manage.py check_embedding_status
+echo '🚀 Running: audit_embedding_links'
+python manage.py audit_embedding_links
 echo '🚀 Running: flush_chat_sessions'
 python manage.py flush_chat_sessions
 echo '🚀 Running: seed_reflections'
