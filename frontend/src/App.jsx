@@ -317,7 +317,8 @@ export default function App() {
   const userInfo = useUserInfo();
   const navigate = useNavigate();
   const [onboardingRedirectHandled, setOnboardingRedirectHandled] = useState(false);
-  const { loading: onboardingLoading, primarySlug, onboardingComplete } = useOnboardingStatus();
+  const { loading: onboardingLoading, primarySlug, onboardingComplete } =
+    useOnboardingStatus();
 
   useEffect(() => {
     if (!user || onboardingLoading || onboardingRedirectHandled) return;
@@ -327,20 +328,25 @@ export default function App() {
         navigate(`/assistants/${primarySlug}`, { replace: true });
         setOnboardingRedirectHandled(true);
       }
+    } else if (userInfo?.assistant_count === 0) {
+      if (path !== '/assistants/launch') {
+        navigate('/assistants/launch', { replace: true });
+        setOnboardingRedirectHandled(true);
+      }
     } else if (!path.startsWith('/assistants/create')) {
       navigate('/assistants/create', { replace: true });
       setOnboardingRedirectHandled(true);
     }
-  }, [user, onboardingLoading, onboardingComplete, primarySlug, location.pathname, navigate, onboardingRedirectHandled]);
-
-  useEffect(() => {
-    if (!userInfo) return;
-    if (userInfo.assistant_count === 0) {
-      if (!window.location.pathname.startsWith("/onboarding")) {
-        navigate("/assistants/launch", { replace: true });
-      }
-    }
-  }, [userInfo, navigate]);
+  }, [
+    user,
+    onboardingLoading,
+    onboardingComplete,
+    primarySlug,
+    userInfo,
+    location.pathname,
+    navigate,
+    onboardingRedirectHandled,
+  ]);
 
   if (!authChecked) {
     return <div className="text-center mt-5">Loading...</div>;
