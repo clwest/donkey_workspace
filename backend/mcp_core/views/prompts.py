@@ -65,8 +65,27 @@ def delete_prompt_template(request, pk):
 @permission_classes([AllowAny])
 @throttle_classes([UserRateThrottle])
 def log_prompt_usage_view(request):
-    print("Incoming Prompt Usage Payload:", request.data)
-    serializer = PromptUsageLogSerializer(data=request.data)
+    payload = request.data.copy()
+    if not payload.get("rendered_prompt"):
+        payload["rendered_prompt"] = payload.get("text", "")
+    if not payload.get("prompt_title"):
+        payload["prompt_title"] = "Untitled"
+
+    extra = payload.get("extra_data") or {}
+    if isinstance(extra, str):
+        try:
+            import json
+
+            extra = json.loads(extra)
+        except Exception:
+            extra = {}
+    assistant_slug = payload.get("assistant_slug")
+    if assistant_slug:
+        extra["assistant_slug"] = assistant_slug
+    payload["used_by"] = payload.get("used_by", "unspecified")
+    payload["extra_data"] = extra
+
+    serializer = PromptUsageLogSerializer(data=payload)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
