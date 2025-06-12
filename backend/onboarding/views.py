@@ -95,9 +95,42 @@ def onboarding_complete(request):
     progress = get_onboarding_status(request.user)
     next_step = get_next_onboarding_step(request.user)
     percent = get_progress_percent(request.user)
+
     if next_step is None and not request.user.onboarding_complete:
         request.user.onboarding_complete = True
         request.user.save(update_fields=["onboarding_complete"])
+
+        assistant = (
+            Assistant.objects.filter(created_by=request.user, is_primary=True).first()
+            or Assistant.objects.filter(created_by=request.user).first()
+        )
+        if assistant:
+            from assistants.models.profile import AssistantUserProfile
+
+            profile, _ = AssistantUserProfile.objects.get_or_create(
+                assistant=assistant, user=request.user
+            )
+            profile.world = assistant.specialty
+            profile.archetype = assistant.archetype or ""
+            tags = list(
+                SymbolicMemoryAnchor.objects.filter(assistant=assistant)
+                .values_list("slug", flat=True)[:5]
+            )
+            profile.glossary_tags = tags
+            if not profile.intro_memory_created:
+                MemoryEntry.objects.create(
+                    assistant=assistant,
+                    event=(
+                        "Welcome. I am your assistant. You’ve shaped me through your world, "
+                        "glossary, and archetype. Let’s get started."
+                    ),
+                    type="assistant_intro",
+                    source_role="assistant",
+                    source_user=request.user,
+                )
+                profile.intro_memory_created = True
+            profile.save()
+
     return Response(
         {
             "progress": progress,
@@ -204,3 +237,28 @@ def ritual_complete(request):
         event_details="onboarding_step=capstone_complete",
     )
     return Response({"slug": assistant.slug})
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def onboarding_debug(request):
+    """Return onboarding state for debugging."""
+    primary = (
+        Assistant.objects.filter(created_by=request.user, is_primary=True).first()
+        or Assistant.objects.filter(created_by=request.user).first()
+    )
+    profile = None
+    if primary:
+        from assistants.models.profile import AssistantUserProfile
+
+        profile, _ = AssistantUserProfile.objects.get_or_create(
+            assistant=primary, user=request.user
+        )
+    data = {
+        "onboarding_complete": request.user.onboarding_complete,
+        "primary_assistant_slug": primary.slug if primary else None,
+        "world": profile.world if profile else None,
+        "archetype": profile.archetype if profile else None,
+        "intro_memory_created": profile.intro_memory_created if profile else False,
+    }
+    return Response(data)
