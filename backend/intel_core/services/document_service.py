@@ -63,7 +63,16 @@ class DocumentService:
                         target = Document.objects.filter(id=doc_id).first()
                 if target:
                     target.linked_assistants.add(assistant)
+                    updated = False
+                    if (
+                        not target.memory_context
+                        and assistant.memory_context
+                    ):
+                        target.memory_context = assistant.memory_context
+                        updated = True
                     assistant.assigned_documents.add(target)
+                    if updated:
+                        target.save(update_fields=["memory_context"])
 
     @classmethod
     def ingest_youtube(
