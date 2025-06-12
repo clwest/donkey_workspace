@@ -639,6 +639,13 @@ export const routeMap = [
     notes: "Assistant boot diagnostics",
   },
   {
+    frontend: "/assistants/:slug/boot_status",
+    backend: "/api/assistants/<slug>/boot-status/",
+    view: "AssistantBootStatusPanel",
+    serializer: "-",
+    notes: "Assistant boot status flags",
+  },
+  {
     frontend: "/assistants/:slug/selftest",
     backend: "/api/assistants/<slug>/selftest/",
     view: "AssistantBootPanel",

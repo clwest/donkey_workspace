@@ -911,6 +911,11 @@ urlpatterns = [
         name="assistant-reflect-again",
     ),
     path(
+        "<slug:slug>/repair/",
+        diagnostics.repair_assistant_slug,
+        name="assistant-repair",
+    ),
+    path(
         "<slug:slug>/repair_documents/",
         repair.repair_documents,
         name="assistant-repair-documents",
@@ -954,6 +959,11 @@ urlpatterns = [
         "<slug:slug>/boot_profile/",
         diagnostics.assistant_boot_profile,
         name="assistant-boot-profile",
+    ),
+    path(
+        "<slug:slug>/boot-status/",
+        diagnostics.assistant_boot_status,
+        name="assistant-boot-status",
     ),
     path(
         "<slug:slug>/selftest/",

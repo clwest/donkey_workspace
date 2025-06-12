@@ -16,7 +16,11 @@ from assistants.utils.boot_diagnostics import (
     generate_boot_profile,
     run_assistant_self_test,
 )
-from assistants.utils.assistant_boot import run_batch_self_tests
+from assistants.utils.assistant_boot import (
+    run_batch_self_tests,
+    boot_check,
+    repair_assistant_boot,
+)
 
 
 @api_view(["GET"])
@@ -108,6 +112,32 @@ def assistant_boot_profile(request, slug):
     return Response(data)
 
 
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def assistant_boot_status(request, slug):
+    """Return simple boot status flags for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    status = boot_check(assistant)
+    chunks = DocumentChunk.objects.filter(document__linked_assistants=assistant)
+    total_chunks = chunks.count()
+    embedded_chunks = chunks.filter(embedding_status="embedded").count()
+    fallback_ratio = (
+        chunks.filter(chunk_type="fallback").count() / total_chunks
+        if total_chunks
+        else 0.0
+    )
+    status.update(
+        {
+            "context_id": assistant.memory_context_id,
+            "linked_documents": assistant.documents.count(),
+            "total_chunks": total_chunks,
+            "embedded_chunks": embedded_chunks,
+            "fallback_ratio": round(fallback_ratio, 2),
+        }
+    )
+    return Response(status)
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def assistant_self_test(request, slug):
@@ -145,6 +175,15 @@ def run_all_self_tests(request):
     """Run boot self-tests for all assistants."""
     results = run_batch_self_tests()
     return Response({"status": "ok", "results": results})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def repair_assistant_slug(request, slug):
+    """Repair boot data for a single assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    changed = repair_assistant_boot(assistant)
+    return Response({"updated": changed})
 
 
 @api_view(["POST"])
