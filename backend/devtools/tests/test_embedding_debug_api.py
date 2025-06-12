@@ -1,6 +1,8 @@
 import os
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 import django
+
 django.setup()
 
 from django.contrib.auth import get_user_model
@@ -33,3 +35,5 @@ class EmbeddingDebugAPITest(APITestCase):
         data = resp.json()
         self.assertIn("model_counts", data)
         self.assertIn("assistant_breakdown", data)
+        self.assertIn("assistants_no_docs", data)
+        self.assertIn("retrieval_checks", data)

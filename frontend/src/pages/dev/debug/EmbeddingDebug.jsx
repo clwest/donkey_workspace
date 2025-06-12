@@ -52,6 +52,11 @@ export default function EmbeddingDebug() {
       <div className="mt-4">
         <strong>Embeddings with invalid links: {data.invalid_links}</strong>
       </div>
+      {data.assistants_no_docs && data.assistants_no_docs.length > 0 && (
+        <div className="mt-2 text-danger">
+          Assistants without documents: {data.assistants_no_docs.join(", ")}
+        </div>
+      )}
       <h5 className="mt-4">By Assistant &amp; Context</h5>
       <table className="table table-sm">
         <thead>
@@ -104,6 +109,26 @@ export default function EmbeddingDebug() {
               ))}
             </tbody>
           </table>
+          {data.retrieval_checks && (
+            <table className="table table-sm mt-3">
+              <thead>
+                <tr>
+                  <th>Assistant</th>
+                  <th>Documents</th>
+                  <th>Retrieved</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.retrieval_checks.map((row, idx) => (
+                  <tr key={idx}>
+                    <td>{row.assistant}</td>
+                    <td>{row.documents}</td>
+                    <td className={row.documents > 0 && row.retrieved === 0 ? "text-danger" : ""}>{row.retrieved}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       )}
     </div>
