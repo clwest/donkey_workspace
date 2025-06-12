@@ -48,7 +48,7 @@ class AnchorConvergenceLogTests(TestCase):
         )
         mock_llm.return_value = "zk rollup explanation"
 
-        reply, _, meta = llm_router.chat(
+        reply, _, meta, _ = llm_router.chat(
             [{"role": "user", "content": "what is zk rollup"}],
             assistant,
             enable_retry_logging=True,

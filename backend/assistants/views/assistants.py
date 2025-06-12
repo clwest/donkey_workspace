@@ -31,6 +31,8 @@ from assistants.services import AssistantService
 from memory.services import MemoryService
 from django.db.models import F
 from memory.models import MemoryEntry, RAGGroundingLog
+from insights.models import AssistantInsightLog
+from assistants.models.user_preferences import AssistantUserPreferences
 from utils.rag_debug import log_rag_debug
 from memory.serializers import RAGGroundingLogSerializer
 from assistants.helpers.logging_helper import (
@@ -976,7 +978,7 @@ def chat_with_assistant_view(request, slug):
         return Response({"delegate_slug": delegate.slug})
 
     # Run LLM chat with optional memory summon
-    reply, summoned_ids, rag_meta = llm_router.chat(
+    reply, summoned_ids, rag_meta, reasoning_trace = llm_router.chat(
         messages,
         assistant,
         temperature=0.7,
@@ -1219,6 +1221,24 @@ def chat_with_assistant_view(request, slug):
             retrieval_score=rag_meta.get("retrieval_score", 0.0),
         )
 
+    prefs = (
+        AssistantUserPreferences.objects.filter(user=user, assistant=assistant).first()
+        if user
+        else None
+    )
+    reasoning_enabled = prefs.self_narration_enabled if prefs else False
+    explanation = None
+    if reasoning_enabled:
+        from assistants.utils.self_narration import explain_reasoning
+
+        explanation = explain_reasoning(reasoning_trace)
+        AssistantInsightLog.objects.create(
+            assistant=assistant,
+            user=user,
+            summary=explanation,
+            tags=["self_narration"],
+            log_type="self_narration",
+        )
     logger.debug(
         "Chat response slug=%s session=%s injected=%s demo_intro=%s",
         assistant.slug,
@@ -1226,14 +1246,16 @@ def chat_with_assistant_view(request, slug):
         injected,
         bool(demo_intro_message),
     )
-    return Response(
-        {
-            "messages": load_session_messages(session_id),
-            "rag_meta": rag_meta,
-            "starter_memory": starter_messages,
-            "demo_intro_message": demo_intro_message,
-        }
-    )
+    resp_data = {
+        "messages": load_session_messages(session_id),
+        "rag_meta": rag_meta,
+        "starter_memory": starter_messages,
+        "demo_intro_message": demo_intro_message,
+    }
+    if reasoning_enabled:
+        resp_data["reasoning_trace"] = reasoning_trace
+        resp_data["reasoning_explanation"] = explanation
+    return Response(resp_data)
 
 
 @api_view(["POST"])

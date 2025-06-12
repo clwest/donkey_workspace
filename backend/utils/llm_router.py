@@ -97,7 +97,7 @@ def chat(
     enable_retry_logging: bool = False,
     force_chunks: bool = False,
     **kwargs,
-) -> tuple[str, list[str], dict]:
+) -> tuple[str, list[str], dict, dict]:
     """High-level chat call that can summon memories and RAG context."""
     from assistants.utils.memory_summoner import summon_relevant_memories
     from assistants.utils.chunk_retriever import get_relevant_chunks, format_chunks
@@ -717,4 +717,9 @@ def chat(
             if not anchor_obj.reinforced_by.filter(id=assistant.id).exists():
                 anchor_obj.reinforced_by.add(assistant)
 
-    return reply, summoned, rag_meta
+    trace = {
+        "used_memories": summoned,
+        "anchors": rag_meta.get("anchor_hits", []),
+        "reflections": rag_meta.get("reflection_hits", []),
+    }
+    return reply, summoned, rag_meta, trace
