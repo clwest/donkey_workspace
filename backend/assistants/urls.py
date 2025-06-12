@@ -38,6 +38,7 @@ from .views import (
     reputation,
     conscience,
     autonomy,
+    insights,
     check_in,
     subassistant,
     hints,
@@ -614,6 +615,21 @@ urlpatterns = [
         name="assistant-reflection-logs",
     ),
     path(
+        "<slug:slug>/insights/",
+        insights.insight_logs,
+        name="assistant-insight-logs",
+    ),
+    path(
+        "<slug:slug>/insights/<int:pk>/accept/",
+        insights.accept_insight,
+        name="assistant-insight-accept",
+    ),
+    path(
+        "<slug:slug>/insights/<int:pk>/reject/",
+        insights.reject_insight,
+        name="assistant-insight-reject",
+    ),
+    path(
         "<slug:slug>/replays/",
         memory.assistant_reflection_replays,
         name="assistant-reflection-replays",
@@ -702,6 +718,11 @@ urlpatterns = [
         "<slug:slug>/reflect_on_self/",
         reflection.reflect_on_self,
         name="assistant-reflect-on-self",
+    ),
+    path(
+        "<slug:slug>/reflect_on_chat/",
+        insights.reflect_on_chat,
+        name="assistant-reflect-on-chat",
     ),
     path(
         "<slug:slug>/self-assess/",

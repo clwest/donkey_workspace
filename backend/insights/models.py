@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 
 class SymbolicAgentInsightLog(models.Model):
@@ -21,3 +22,25 @@ class SymbolicAgentInsightLog(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return f"{self.agent.slug} {self.symbol} conflict"
+
+
+class AssistantInsightLog(models.Model):
+    """Store high level insights from chat reflections."""
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="insight_logs"
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="assistant_insights"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    tags = models.JSONField(default=list, blank=True)
+    summary = models.TextField()
+    proposed_prompt = models.TextField(null=True, blank=True)
+    accepted = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"{self.assistant.slug} insight {self.created_at:%Y-%m-%d}"
