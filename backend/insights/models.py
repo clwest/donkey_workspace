@@ -31,9 +31,12 @@ class AssistantInsightLog(models.Model):
         "assistants.Assistant", on_delete=models.CASCADE, related_name="insight_logs"
     )
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="assistant_insights"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="assistant_insights",
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    log_type = models.CharField(max_length=50, default="reflection")
     tags = models.JSONField(default=list, blank=True)
     summary = models.TextField()
     proposed_prompt = models.TextField(null=True, blank=True)

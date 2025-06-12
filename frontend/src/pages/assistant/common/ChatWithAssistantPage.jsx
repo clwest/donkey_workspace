@@ -68,6 +68,7 @@ export default function ChatWithAssistantPage() {
   const [demoCount, setDemoCount] = useState(0);
   const [showReset, setShowReset] = useState(false);
   const [showCustomize, setShowCustomize] = useState(false);
+  const [showReasons, setShowReasons] = useState({});
 
   const { demoSessionId } = useDemoSession();
   const {
@@ -269,6 +270,10 @@ export default function ChatWithAssistantPage() {
           last.glossary_retry_id = data.rag_meta.glossary_retry_id;
           last.glossary_retry_score_diff = data.rag_meta.score_diff;
           last.context_score = data.rag_meta.used_chunks?.[0]?.score || null;
+          if (data.reasoning_explanation) {
+            last.reasoning_explanation = data.reasoning_explanation;
+            last.reasoning_trace = data.reasoning_trace;
+          }
         }
         const topScore = data.rag_meta.used_chunks?.[0]?.score || null;
         setContextScore(topScore);
@@ -680,6 +685,24 @@ export default function ChatWithAssistantPage() {
                 >
                   🧠 View Memory
                 </Link>
+              </div>
+            )}
+            {msg.reasoning_explanation && (
+              <div className="mt-2">
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() =>
+                    setShowReasons((r) => ({ ...r, [idx]: !r[idx] }))
+                  }
+                >
+                  🧠 Why did I say that?
+                </button>
+                {showReasons[idx] && (
+                  <div className="small text-muted mt-1">
+                    {msg.reasoning_explanation}
+                  </div>
+                )}
               </div>
             )}
           </div>

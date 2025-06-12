@@ -553,8 +553,8 @@ export default function AssistantDetailPage() {
             </Link>
           </li>
           <li className="nav-item">
-            <Link className="nav-link" to={`/assistants/${slug}/preferences/`}>
-              Preferences
+            <Link className="nav-link" to={`/assistants/${slug}/settings/`}>
+              Settings
             </Link>
           </li>
           <li className="nav-item">

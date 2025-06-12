@@ -36,7 +36,7 @@ def test_fallback_logged_and_retry(mock_get, mock_call, db):
     }
     mock_get.return_value = ([chunk_info], None, False, True, 0.8, str(chunk.id), False, False, [])
 
-    reply, _, _ = llm_router.chat(
+    reply, _, _, _ = llm_router.chat(
         [{"role": "user", "content": "Explain"}],
         assistant,
         retry_on_miss=True,

@@ -35,6 +35,7 @@ class AssistantInsightLogSerializer(serializers.ModelSerializer):
             "assistant_slug",
             "user",
             "user_name",
+            "log_type",
             "summary",
             "tags",
             "proposed_prompt",

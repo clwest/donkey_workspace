@@ -569,6 +569,7 @@ export default function App() {
           <Route path="/assistants/:slug/trust_profile/" element={<TrustProfilePage />} />
           <Route path="/assistants/:slug/growth/" element={<GrowthPanelPage />} />
           <Route path="/assistants/:slug/preferences/" element={<AssistantPreferencesPage />} />
+          <Route path="/assistants/:slug/settings/" element={<AssistantPreferencesPage />} />
 
           {/* Assistant Detail Subroutes */}
           <Route

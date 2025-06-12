@@ -12,6 +12,7 @@ export default function AssistantPreferencesPage() {
   const [planning, setPlanning] = useState("short_term");
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState([]);
+  const [selfNarration, setSelfNarration] = useState(false);
 
   useEffect(() => {
     apiFetch(`/assistants/${slug}/preferences/`).then((res) => {
@@ -19,18 +20,20 @@ export default function AssistantPreferencesPage() {
       setTone(res.tone);
       setPlanning(res.planning_mode);
       setTags(res.custom_tags || []);
+      setSelfNarration(res.self_narration_enabled || false);
     });
   }, [slug]);
 
   const save = async () => {
     setSaving(true);
     try {
-      const body = { tone, planning_mode: planning, custom_tags: tags };
+      const body = { tone, planning_mode: planning, custom_tags: tags, self_narration_enabled: selfNarration };
       const res = await apiFetch(`/assistants/${slug}/preferences/`, {
         method: "POST",
         body,
       });
       setPrefs(res);
+      setSelfNarration(res.self_narration_enabled || false);
     } finally {
       setSaving(false);
     }
@@ -92,6 +95,18 @@ export default function AssistantPreferencesPage() {
             ))}
           </div>
         )}
+      </div>
+      <div className="form-check mb-3">
+        <input
+          className="form-check-input"
+          type="checkbox"
+          id="selfNarrationToggle"
+          checked={selfNarration}
+          onChange={(e) => setSelfNarration(e.target.checked)}
+        />
+        <label className="form-check-label" htmlFor="selfNarrationToggle">
+          Enable Self-Narration
+        </label>
       </div>
       <button className="btn btn-primary" disabled={saving} onClick={save}>
         {saving ? "Saving..." : "Save Preferences"}

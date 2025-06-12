@@ -43,7 +43,11 @@ class AssistantViewSet(viewsets.ViewSet):
     def create(self, request):
         """Create an assistant and indicate if it's the user's first."""
         is_first = not Assistant.objects.filter(created_by=request.user).exists()
-        from assistants.serializers import AssistantCreateSerializer, AssistantSerializer
+        from assistants.serializers import (
+            AssistantCreateSerializer,
+            AssistantSerializer,
+        )
+
         serializer = AssistantCreateSerializer(data=request.data)
         if serializer.is_valid():
             logger.info("Assistant created by: %s", request.user.id)
@@ -241,12 +245,17 @@ class AssistantViewSet(viewsets.ViewSet):
             tags = request.data.get("custom_tags")
             if isinstance(tags, list):
                 profile.custom_tags = tags
+            if "self_narration_enabled" in request.data:
+                profile.self_narration_enabled = bool(
+                    request.data.get("self_narration_enabled")
+                )
             profile.save()
         return Response(
             {
                 "tone": profile.tone,
                 "planning_mode": profile.planning_mode,
                 "custom_tags": profile.custom_tags,
+                "self_narration_enabled": profile.self_narration_enabled,
                 "username": profile.user.username,
             }
         )
