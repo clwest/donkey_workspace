@@ -408,6 +408,14 @@ export default function AssistantDetailPage() {
         ) : (
           <>
             {assistant.name}
+            {assistant.system_prompt && (
+              <span
+                className="badge bg-info text-dark ms-2"
+                title="This assistant uses a custom prompt"
+              >
+                Prompt
+              </span>
+            )}
             <button
               className="btn btn-link btn-sm ms-2"
               onClick={() => setEditingName(true)}

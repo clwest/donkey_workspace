@@ -13,6 +13,13 @@ export default function ChatDebugPanel({ ragMeta, slug }) {
   const showSuggest =
     glossaryMissing || score === 0 || (ragMeta.glossary_chunk_ids || []).length === 0;
 
+  if (ragMeta.chunks_searched === 0) {
+    console.warn(
+      "RAG scope issue: zero chunks searched for",
+      ragMeta.memory_context_id
+    );
+  }
+
   async function suggestAnchor() {
     const term = ragMeta.query || ragMeta.query_text || "";
     if (!term) return;
@@ -33,6 +40,12 @@ export default function ChatDebugPanel({ ragMeta, slug }) {
   return (
     <div className="border rounded p-2 mt-3">
       <h6>Chat Debug</h6>
+      <div className="small mb-1">
+        Context: {ragMeta.memory_context_id || "global"}
+        {ragMeta.chunks_searched !== undefined && (
+          <> — Chunks searched: {ragMeta.chunks_searched}</>
+        )}
+      </div>
       {showTip && (
         <div className="alert alert-warning small">
           🧠 Tip: The document may be noisy, too short, or semantically distant. Consider re-embedding or increasing similarity tolerance.
@@ -62,6 +75,11 @@ export default function ChatDebugPanel({ ragMeta, slug }) {
         >
           Suggest Glossary Anchor
         </button>
+      )}
+      {ragMeta.glossary_expected && ragMeta.glossary_present === false && (
+        <div className="alert alert-warning small mb-1">
+          Glossary expected but no glossary chunks found.
+        </div>
       )}
       {list.length > 0 ? (
         <ul className="small mb-0">

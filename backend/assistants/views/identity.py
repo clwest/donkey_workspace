@@ -55,15 +55,23 @@ class AssistantIdentitySummaryView(generics.RetrieveAPIView):
 
     lookup_field = "slug"
     queryset = Assistant.objects.all()
-    permission_classes = [IsAssistantOwnerOrDemo]
+    permission_classes = [permissions.AllowAny]
 
     def get(self, request, *args, **kwargs):
         assistant = self.get_object()
-        self.check_object_permissions(request, assistant)
 
-        from assistants.serializers import AssistantIdentitySummarySerializer
+        # If the assistant is marked private, ensure the requester has access
+        if getattr(assistant, "is_private", False):
+            user = request.user
+            if not user.is_authenticated or (
+                user.id != assistant.created_by_id and not user.is_staff
+            ):
+                return Response(status=403)
 
-        serializer = AssistantIdentitySummarySerializer(
-            assistant, context={"request": request}
-        )
-        return Response(serializer.data)
+        data = {
+            "name": assistant.name,
+            "slug": assistant.slug,
+            "avatar": assistant.avatar,
+            "system_prompt": getattr(assistant.system_prompt, "content", None),
+        }
+        return Response(data)

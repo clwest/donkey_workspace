@@ -187,6 +187,14 @@ def get_relevant_chunks(
             assistant = Assistant.objects.filter(slug=assistant_id).first()
         if not assistant:
             logger.warning("Assistant %s not found", assistant_id)
+
+    if memory_context_id is None and assistant and assistant.memory_context_id:
+        memory_context_id = str(assistant.memory_context_id)
+    elif memory_context_id is None and assistant and not assistant.memory_context_id:
+        logger.warning(
+            "[RAG] Assistant %s missing memory_context_id; using global scope",
+            assistant.slug,
+        )
     chunk_ids: List[str] = []
     doc_ids: List[str] = []
 
