@@ -3,12 +3,12 @@ from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 
 
-class AssistantUserProfile(models.Model):
+class AssistantUserPreferences(models.Model):
     """Store user-specific preferences for an assistant."""
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     assistant = models.ForeignKey(
-        'assistants.Assistant', on_delete=models.CASCADE, related_name='user_profiles'
+        'assistants.Assistant', on_delete=models.CASCADE, related_name='user_preferences'
     )
     tone = models.CharField(max_length=50, default='friendly')
     planning_mode = models.CharField(max_length=50, default='short_term')
