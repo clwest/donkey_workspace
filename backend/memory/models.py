@@ -80,9 +80,14 @@ class MemoryEntry(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="memories",
+        db_index=True,
     )
     chat_session = models.ForeignKey(
-        "assistants.ChatSession", on_delete=models.SET_NULL, null=True, blank=True
+        "assistants.ChatSession",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="chat_entries",
     )
 
     linked_agents = models.ManyToManyField(
@@ -98,6 +103,7 @@ class MemoryEntry(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="memory_entries",
+        db_index=True,
     )
 
     # Original narrative context thread for this memory

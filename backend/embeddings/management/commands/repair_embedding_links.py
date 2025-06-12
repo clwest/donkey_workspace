@@ -9,10 +9,11 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--limit", type=int, default=None)
+        parser.add_argument("--dry-run", action="store_true")
 
     def handle(self, *args, **options):
         limit = options.get("limit")
-        result = fix_embedding_links(limit=limit)
+        result = fix_embedding_links(limit=limit, dry_run=options.get("dry_run"))
         self.stdout.write(f"Embeddings scanned: {result['scanned']}")
         self.stdout.write(f"Fixed: {result['fixed']}")
         self.stdout.write(f"Skipped: {result['skipped']}")

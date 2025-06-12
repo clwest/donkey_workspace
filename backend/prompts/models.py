@@ -118,7 +118,11 @@ class PromptUsageTemplate(models.Model):
 
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True)
-    prompt = models.ForeignKey("prompts.Prompt", on_delete=models.CASCADE)
+    prompt = models.ForeignKey(
+        "prompts.Prompt",
+        on_delete=models.CASCADE,
+        related_name="usage_templates",
+    )
     agent = models.ForeignKey(
         "assistants.Assistant",
         on_delete=models.CASCADE,

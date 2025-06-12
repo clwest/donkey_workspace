@@ -20,8 +20,8 @@ Assistant → intel_core.DocumentSet FK (assistants)
 Assistant → mcp_core.MemoryContext FK (assistants)
 Assistant → assistants.AssistantProject (current_project) FK (active_assistants)
 Assistant → tools.Tool (related_tools) M2M (related_tools)
-ChatSession → assistants.Assistant FK (no RN, reverse via chatsession_set)
-ChatSession → project.Project FK (no RN)
+ChatSession → assistants.Assistant FK (chat_sessions)
+ChatSession → project.Project FK (chat_sessions)
 ChatSession → assistants.AssistantMemoryChain FK (sessions)
 StructuredMemory → ChatSession FK (structured_memories)
 TokenUsage → ChatSession FK (token_usages)
@@ -46,7 +46,7 @@ MemoryEntry → agents.StabilizationCampaign FK (memory_entries)
 MemoryEntry → memory.SymbolicMemoryAnchor FK (memories)
 MemoryEntry → project.Project FK (memory_entries)
 MemoryEntry → assistants.Assistant FK (memories)
-MemoryEntry → assistants.ChatSession FK (no RN)
+MemoryEntry → assistants.ChatSession FK (chat_entries)
 MemoryEntry → agents.Agent M2M (memory_entries)
 MemoryEntry → embeddings.Embedding GenericRelation (embeddings)
 MemoryEntry → mcp_core.MemoryContext FK (memory_entries)
@@ -157,11 +157,7 @@ Ongoing Loop
 As more documents are ingested and chat sessions evolve, the assistant continues to reflect, mutate prompts, and adjust memory context, enabling a growth loop described in ASSISTANT_LIFECYCLE.md.
 
 Issues / Gaps
-Missing related_name on several ForeignKeys
-
-ChatSession.assistant, ChatSession.project, and MemoryEntry.chat_session lack explicit related_name, making reverse lookup less clear.
-
-PromptUsageTemplate.prompt also lacks a reverse name.
+Resolved related_name omissions (ChatSession.assistant/project, MemoryEntry.chat_session, PromptUsageTemplate.prompt)
 
 Embedding Reference Breakage
 

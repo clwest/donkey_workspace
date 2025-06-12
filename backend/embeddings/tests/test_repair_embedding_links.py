@@ -34,3 +34,22 @@ def test_repair_embedding_links_command():
     ct = ContentType.objects.get_for_model(DocumentChunk)
     assert emb.content_type == ct
     assert emb.content_id == f"documentchunk:{chunk.id}"
+
+
+@pytest.mark.django_db
+def test_repair_embedding_links_dry_run():
+    doc = Document.objects.create(title="Doc2", content="x")
+    chunk = DocumentChunk.objects.create(
+        document=doc, order=1, text="chunk", tokens=1, fingerprint=str(uuid.uuid4())
+    )
+    emb = Embedding.objects.create(
+        content_type=None,
+        object_id=str(chunk.id),
+        content_id="wrong:{}".format(chunk.id),
+        embedding=[0.1] * 5,
+    )
+
+    call_command("repair_embedding_links", "--dry-run")
+
+    emb.refresh_from_db()
+    assert emb.content_type is None

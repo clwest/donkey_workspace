@@ -81,11 +81,13 @@ def link_embedding_metadata(sender, instance, created, **kwargs):
             return
         vector = list(instance.embedding) if instance.embedding is not None else []
         meta = EmbeddingMetadata.objects.create(
+            embedding_id=instance.id,
             model_used=EMBEDDING_MODEL,
             num_tokens=getattr(chunk, "tokens", 0),
             vector=vector,
             status="completed",
             source=getattr(chunk.document, "source_type", ""),
+            embedding=instance,
         )
         chunk.embedding = meta
         chunk.embedding_status = "embedded"

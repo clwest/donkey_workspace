@@ -29,3 +29,25 @@ def test_document_assignment_on_ingest(db, monkeypatch):
     assert assistant.assigned_documents.filter(id=dummy_doc.id).exists()
     dummy_doc.refresh_from_db()
     assert dummy_doc.memory_context_id == assistant.memory_context_id
+
+
+@pytest.mark.django_db
+def test_ingest_assigns_memory_context_when_missing(monkeypatch):
+    dummy_doc = Document(title="d2", content="c")
+
+    def fake_loader(urls, user_provided_title=None, project_name="General", session_id=None):
+        return [dummy_doc]
+
+    monkeypatch.setattr("intel_core.processors.url_loader.load_urls", fake_loader)
+
+    assistant = Assistant.objects.create(name="B")
+    DocumentService.ingest(
+        source_type="url",
+        urls=["http://example.com"],
+        assistant_id=str(assistant.id),
+        project_name="general",
+        title="d2",
+    )
+
+    dummy_doc.refresh_from_db()
+    assert dummy_doc.memory_context_id == assistant.memory_context_id

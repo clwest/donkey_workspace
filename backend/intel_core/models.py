@@ -256,6 +256,16 @@ class EmbeddingMetadata(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_deleted = models.BooleanField(default=False)
+    embedding = models.OneToOneField(
+        "embeddings.Embedding",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="metadata",
+    )
+
+    class Meta:
+        indexes = [models.Index(fields=["embedding"])]
 
     objects = ActiveManager()
     all_objects = models.Manager()
