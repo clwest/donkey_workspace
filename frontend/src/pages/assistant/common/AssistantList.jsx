@@ -9,6 +9,7 @@ export default function AssistantList({ assistants: propAssistants }) {
   const [assistants, setAssistants] = useState(propAssistants || []);
   const [levelFilter, setLevelFilter] = useState("all");
   const [sortDesc, setSortDesc] = useState(true);
+  const [certifiedOnly, setCertifiedOnly] = useState(false);
 
   const handleDelete = async (slug) => {
     if (!window.confirm("Delete this assistant?")) return;
@@ -40,13 +41,14 @@ export default function AssistantList({ assistants: propAssistants }) {
 
   useEffect(() => {
     if (!propAssistants) {
-      apiFetch("/assistants/")
+      const url = certifiedOnly ? "/assistants/?certified=true" : "/assistants/";
+      apiFetch(url)
         .then(setAssistants)
         .catch((err) => console.error("Failed to fetch assistants:", err));
     } else {
       setAssistants(propAssistants);
     }
-  }, [propAssistants]);
+  }, [propAssistants, certifiedOnly]);
 
   // Group by parent
   const parentMap = {};
@@ -94,6 +96,18 @@ export default function AssistantList({ assistants: propAssistants }) {
         >
           Sort {sortDesc ? "▼" : "▲"}
         </button>
+        <div className="form-check ms-2">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            id="cert-toggle"
+            checked={certifiedOnly}
+            onChange={(e) => setCertifiedOnly(e.target.checked)}
+          />
+          <label className="form-check-label" htmlFor="cert-toggle">
+            Certified Only
+          </label>
+        </div>
       </div>
       <table className="table table-sm">
         <thead>

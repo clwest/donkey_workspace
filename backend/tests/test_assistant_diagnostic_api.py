@@ -18,7 +18,7 @@ class AssistantDiagnosticAPITest(BaseAPITestCase):
         self.authenticate()
 
     def test_endpoint_returns_latest_report(self):
-        assistant = Assistant.objects.create(name="Diag", slug="diag", is_public=True)
+        assistant = Assistant.objects.create(name="Diag", slug="diag", is_demo=True)
         RAGGroundingLog.objects.create(
             assistant=assistant, query="q1", fallback_triggered=True
         )
@@ -37,3 +37,4 @@ class AssistantDiagnosticAPITest(BaseAPITestCase):
         data = resp.json()
         self.assertIn("fallback_rate", data)
         self.assertAlmostEqual(data["fallback_rate"], 0.5, places=2)
+        self.assertIn("certified_rag_ready", data)

@@ -144,6 +144,8 @@ class AssistantViewSet(viewsets.ModelViewSet):
                 assistants = assistants.filter(mood_stability_index__gte=float(min_msi))
             except ValueError:
                 pass
+        if request.GET.get("certified") == "true":
+            assistants = assistants.filter(certified_rag_ready=True)
         serializer = self.get_serializer(assistants, many=True)
         return Response(serializer.data)
 
