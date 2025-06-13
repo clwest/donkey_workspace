@@ -156,7 +156,7 @@ export default function EmbeddingDebug() {
               <thead>
                 <tr>
                   <th>Assistant</th>
-                  <th>Documents</th>
+                  <th>Documents (all)</th>
                   <th>Retrieved</th>
                 </tr>
               </thead>
