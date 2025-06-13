@@ -3,7 +3,7 @@ import warnings
 warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
 from django.urls import path
 
-from .views import ingestion, documents, intelligence, debug, chunks
+from .views import ingestion, documents, intelligence, debug, chunks, upload_queue
 
 urlpatterns = [
     path("ingestions/", ingestion.unified_ingestion_view, name="intel-load-url"),
@@ -38,6 +38,8 @@ urlpatterns = [
         name="document_progress",
     ),
     path("upload/status/", documents.upload_status, name="upload_status"),
+    path("upload/queue/", upload_queue.enqueue_upload, name="enqueue_upload"),
+    path("upload/queue/status/", upload_queue.upload_queue_status, name="upload_queue_status"),
     path(
         "documents/<uuid:pk>/reflections/",
         documents.document_reflections,
