@@ -382,7 +382,7 @@ def embedding_audit(request):
     context_audit = list(
         MemoryEntry.objects.filter(embeddings__debug_tags__isnull=False)
         .values(
-            assistant=F("assistant__slug"),
+            assistant_slug=F("assistant__slug"),
             assistant_name=F("assistant__name"),
             context_id=F("context_id"),
             status=F("embeddings__debug_tags__status"),
