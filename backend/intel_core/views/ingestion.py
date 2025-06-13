@@ -86,10 +86,15 @@ def unified_ingestion_view(request):
         document = docs[0] if docs else None
 
         assistant = None
-        if assistant_uuid:
-            assistant = Assistant.objects.filter(id=assistant_uuid).first()
-        if not assistant and assistant_id:
-            assistant = Assistant.objects.filter(slug=assistant_id).first()
+        if assistant_uuid or assistant_id:
+            from utils.resolvers import resolve_or_error
+            from django.core.exceptions import ObjectDoesNotExist
+
+            ident = str(assistant_uuid) if assistant_uuid else assistant_id
+            try:
+                assistant = resolve_or_error(ident, Assistant)
+            except ObjectDoesNotExist:
+                assistant = None
 
         if create_prompt and docs:
             for doc in docs:
@@ -146,7 +151,10 @@ def unified_ingestion_view(request):
 
                 engine = AssistantReflectionEngine(assistant)
                 for doc in docs:
-                    if doc.last_reflected_at and timezone.now() - doc.last_reflected_at < timedelta(hours=1):
+                    if (
+                        doc.last_reflected_at
+                        and timezone.now() - doc.last_reflected_at < timedelta(hours=1)
+                    ):
                         logger.info(
                             f"⏭️ Skipping reflection for {doc.title} (recently processed)"
                         )

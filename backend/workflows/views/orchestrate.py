@@ -13,9 +13,16 @@ class WorkflowOrchestrateView(APIView):
         definition_id = request.data["workflow_definition_id"]
         definition = WorkflowDefinition.objects.get(pk=definition_id)
         triggered_by_id = request.data.get("triggered_by_id")
-        triggered_by = (
-            Assistant.objects.get(pk=triggered_by_id) if triggered_by_id else None
-        )
+        if triggered_by_id:
+            from utils.resolvers import resolve_or_error
+            from django.core.exceptions import ObjectDoesNotExist
+
+            try:
+                triggered_by = resolve_or_error(triggered_by_id, Assistant)
+            except ObjectDoesNotExist:
+                triggered_by = None
+        else:
+            triggered_by = None
         execution = WorkflowExecutionLog.objects.create(
             workflow=definition,
             triggered_by=triggered_by,

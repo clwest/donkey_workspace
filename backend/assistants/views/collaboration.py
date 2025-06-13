@@ -46,11 +46,22 @@ def collaboration_profile(request, slug):
 
 class AssistantCollaborationView(APIView):
     def post(self, request, assistant_id):
-        assistant = get_object_or_404(Assistant, pk=assistant_id)
+        from utils.resolvers import resolve_or_error
+        from django.core.exceptions import ObjectDoesNotExist
+
+        try:
+            assistant = resolve_or_error(assistant_id, Assistant)
+        except ObjectDoesNotExist:
+            return Response({"error": "Assistant not found"}, status=404)
         collaborator_ids = request.data.get("assistant_ids", [])
         initial_messages = request.data.get("messages", [])
         thread = CollaborationThread.objects.create(lead=assistant)
-        participants = list(Assistant.objects.filter(id__in=collaborator_ids))
+        participants = []
+        for ident in collaborator_ids:
+            try:
+                participants.append(resolve_or_error(ident, Assistant))
+            except ObjectDoesNotExist:
+                continue
         thread.participants.add(*participants, assistant)
         if initial_messages:
             thread.messages = initial_messages

@@ -246,7 +246,9 @@ def suggest_delegation(request, slug):
             {"recommended_assistant": None, "message": "No suitable assistant found"}
         )
 
-    rec = Assistant.objects.get(id=suggestion["assistant_id"])
+    from utils.resolvers import resolve_or_error
+
+    rec = resolve_or_error(suggestion["assistant_id"], Assistant)
     resp = {
         "name": rec.name,
         "slug": rec.slug,

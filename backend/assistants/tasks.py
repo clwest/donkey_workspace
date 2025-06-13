@@ -66,7 +66,13 @@ def archive_expired_assistant_sessions():
             )
 
             assistant_id = meta.get(b"assistant_id", b"").decode()
-            assistant = Assistant.objects.filter(id=assistant_id).first()
+            from utils.resolvers import resolve_or_error
+            from django.core.exceptions import ObjectDoesNotExist
+
+            try:
+                assistant = resolve_or_error(assistant_id, Assistant)
+            except ObjectDoesNotExist:
+                assistant = None
 
             # Save to DB memory
             memory = MemoryContext.objects.create(
@@ -209,9 +215,12 @@ def reflect_on_spawned_assistant(
     thread_id: str | None = None,
 ):
     """Run reflection on a newly spawned assistant and log under the parent."""
+    from utils.resolvers import resolve_or_error
+    from django.core.exceptions import ObjectDoesNotExist
+
     try:
-        parent = Assistant.objects.get(id=parent_id)
-        new_assistant = Assistant.objects.get(id=assistant_id)
+        parent = resolve_or_error(parent_id, Assistant)
+        new_assistant = resolve_or_error(assistant_id, Assistant)
         project = AssistantProject.objects.get(id=project_id)
         thread = None
         if thread_id:
@@ -343,7 +352,14 @@ def run_specialization_drift_checks():
 @shared_task
 def run_drift_check_for_assistant(assistant_id: str):
     """Run drift check for a single assistant."""
-    assistant = Assistant.objects.filter(id=assistant_id).first()
+    from utils.resolvers import resolve_or_error
+    from django.core.exceptions import ObjectDoesNotExist
+
+    try:
+        assistant = resolve_or_error(assistant_id, Assistant)
+    except ObjectDoesNotExist:
+        assistant = None
+
     if assistant:
         log = analyze_drift_for_assistant(assistant)
         return str(log.id) if log else None
@@ -389,8 +405,12 @@ def detect_emotional_resonance(memory_id: str):
 def reflect_on_emotional_resonance(assistant_id: str):
     from assistants.models import EmotionalResonanceLog, AssistantThoughtLog, Assistant
 
-    assistant = Assistant.objects.filter(id=assistant_id).first()
-    if not assistant:
+    from utils.resolvers import resolve_or_error
+    from django.core.exceptions import ObjectDoesNotExist
+
+    try:
+        assistant = resolve_or_error(assistant_id, Assistant)
+    except ObjectDoesNotExist:
         return "assistant not found"
 
     logs = EmotionalResonanceLog.objects.filter(assistant=assistant).order_by(
@@ -491,23 +511,29 @@ def run_rag_ci_checks(slug: str) -> str:
         return "error"
     return "ok"
 
+
 @shared_task(rate_limit="4/m")
 def reflect_on_document_task(doc_id, assistant_slug=None):
     from django.core.management import call_command
+
     args = ["--doc", str(doc_id)]
     if assistant_slug:
         args += ["--assistant", assistant_slug]
     call_command("reflect_on_document", *args)
 
+
 @shared_task(rate_limit="2/m")
 def generate_diagnostic_report_task(markdown_only=False):
     from django.core.management import call_command
+
     if markdown_only:
         call_command("generate_diagnostic_reports", "--markdown-only")
     else:
         call_command("generate_diagnostic_reports")
 
+
 @shared_task(rate_limit="1/h")
 def bootstrap_evo_assistants_task():
     from django.core.management import call_command
+
     call_command("bootstrap_evo_assistants")

@@ -142,6 +142,7 @@ def delete_prompt(request, slug):
 
     in_use = Assistant.objects.filter(system_prompt=prompt).exists()
     from prompts.models import PromptMutationLog
+
     history = PromptMutationLog.objects.filter(
         models.Q(original_prompt=prompt)
         | models.Q(mutated_prompt=prompt)
@@ -344,13 +345,17 @@ def assign_prompt_to_assistant(request, slug):
     prompt = get_object_or_404(Prompt, slug=slug)
     assistant_id = request.data.get("assistant_id")
 
+    from utils.resolvers import resolve_or_error
+    from django.core.exceptions import ObjectDoesNotExist
+
     try:
-        assistant = Assistant.objects.get(id=assistant_id)
-        assistant.system_prompt = prompt
-        assistant.save()
-        return Response({"status": "assigned"}, status=200)
-    except Assistant.DoesNotExist:
+        assistant = resolve_or_error(assistant_id, Assistant)
+    except ObjectDoesNotExist:
         return Response({"error": "Assistant not found"}, status=404)
+
+    assistant.system_prompt = prompt
+    assistant.save()
+    return Response({"status": "assigned"}, status=200)
 
 
 @api_view(["GET"])
@@ -412,8 +417,9 @@ def validate_prompt_links(request):
     )
 
     unused_prompts = list(
-        Prompt.objects.filter(type="system", assistants_using_prompt__isnull=True)
-        .values("id", "slug", "title")
+        Prompt.objects.filter(
+            type="system", assistants_using_prompt__isnull=True
+        ).values("id", "slug", "title")
     )
 
     return Response(

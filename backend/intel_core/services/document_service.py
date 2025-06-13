@@ -64,10 +64,7 @@ class DocumentService:
                 if target:
                     target.linked_assistants.add(assistant)
                     updated = False
-                    if (
-                        not target.memory_context
-                        and assistant.memory_context
-                    ):
+                    if not target.memory_context and assistant.memory_context:
                         target.memory_context = assistant.memory_context
                         updated = True
                     assistant.assigned_documents.add(target)
@@ -180,12 +177,13 @@ class DocumentService:
     ) -> List[Document]:
         assistant = None
         if assistant_id:
-            if is_valid_uuid(assistant_id):
-                assistant = Assistant.objects.filter(id=assistant_id).first()
-                if not assistant:
-                    assistant = Assistant.objects.filter(slug=assistant_id).first()
-            else:
-                assistant = Assistant.objects.filter(slug=assistant_id).first()
+            from utils.resolvers import resolve_or_error
+            from django.core.exceptions import ObjectDoesNotExist
+
+            try:
+                assistant = resolve_or_error(assistant_id, Assistant)
+            except ObjectDoesNotExist:
+                assistant = None
         project = None
         if project_id:
             if is_valid_uuid(project_id):
@@ -225,7 +223,9 @@ class DocumentService:
                     {
                         "message": "Ingestion complete",
                         "document_id": str(doc.id),
-                        "embedded_chunks": doc.chunks.filter(embedding__isnull=False).count(),
+                        "embedded_chunks": doc.chunks.filter(
+                            embedding__isnull=False
+                        ).count(),
                         "total_chunks": doc.chunks.count(),
                         "summary": doc.summary,
                     }
