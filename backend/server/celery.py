@@ -34,12 +34,14 @@ app.conf.timezone = "UTC"
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
 
+
 # Register a hook to log when the worker is ready.
 @signals.worker_ready.connect
 def log_worker_ready(**_):
     logging.getLogger("celery").info(
         "\ud83c\udf1f Celery worker ready and waiting for tasks"
     )
+
 
 # Configure beat schedule
 app.conf.beat_schedule = {
@@ -54,6 +56,10 @@ app.conf.beat_schedule = {
             minute=0, hour=1, day_of_week="monday"
         ),  # Run at 1 AM every Monday
         "args": (),
+    },
+    "daily-embedding-repair": {
+        "task": "embeddings.embedding_tasks.run_daily_embedding_repair",
+        "schedule": crontab(minute=0, hour=3),
     },
 }
 

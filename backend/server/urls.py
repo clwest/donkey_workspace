@@ -32,6 +32,7 @@ from devtools.views import (
     assistant_routing_debug,
     embedding_debug,
     embedding_audit,
+    embedding_audit_fix,
     reset_onboarding,
 )
 from story.views import storyboard_list
@@ -109,9 +110,7 @@ def routes_list(request):
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-
     path("health/", health, name="health"),
-
     path("api/v1/", include(api_router.urls)),
     path("api/routes/", routes_list),
     path("api/dev/routes/fullmap/", full_route_map),
@@ -127,6 +126,7 @@ urlpatterns = [
     path("api/dev/auth-debug/", auth_debug),
     path("api/dev/embedding-debug/", embedding_debug),
     path("api/dev/embedding-audit/", embedding_audit),
+    path("api/dev/embedding-audit/<uuid:tag_id>/fix/", embedding_audit_fix),
     path("api/debug/assistant_routing/", assistant_routing_debug),
     path("api/debug/reset_onboarding/", reset_onboarding),
     path("api/capabilities/", include(capability_urls)),

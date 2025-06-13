@@ -4,18 +4,43 @@ import apiFetch from "../../../utils/apiClient";
 export default function EmbeddingAuditPanel() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
+  const [pending, setPending] = useState([]);
 
   useEffect(() => {
     async function load() {
       try {
         const res = await apiFetch("/dev/embedding-audit/");
         setData(res);
+        setPending(res.pending || []);
       } catch (err) {
         setError(err);
       }
     }
     load();
   }, []);
+
+  const doFix = async (id) => {
+    try {
+      const res = await apiFetch(`/dev/embedding-audit/${id}/fix/`, {
+        method: "PATCH",
+      });
+      setPending((p) => p.filter((t) => t.id !== id));
+    } catch (err) {
+      console.error("fix", err);
+    }
+  };
+
+  const doIgnore = async (id) => {
+    try {
+      await apiFetch(`/dev/embedding-audit/${id}/fix/`, {
+        method: "PATCH",
+        body: { action: "ignore" },
+      });
+      setPending((p) => p.filter((t) => t.id !== id));
+    } catch (err) {
+      console.error("ignore", err);
+    }
+  };
 
   if (error) {
     return <div className="container py-3">Failed to load audit data.</div>;
@@ -56,7 +81,48 @@ export default function EmbeddingAuditPanel() {
           </pre>
         </details>
       )}
+      {pending.length > 0 && (
+        <div className="mt-4">
+          <h5>Pending Fixes</h5>
+          <table className="table table-sm">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Content ID</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th>Repaired</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {pending.map((row) => (
+                <tr key={row.id}>
+                  <td>{row.id}</td>
+                  <td>{row["embedding__content_id"]}</td>
+                  <td>{row.reason}</td>
+                  <td>{row.status}</td>
+                  <td>{row.repaired_at ? row.repaired_at.slice(0, 19) : ""}</td>
+                  <td>
+                    <button
+                      className="btn btn-sm btn-primary me-2"
+                      onClick={() => doFix(row.id)}
+                    >
+                      Fix
+                    </button>
+                    <button
+                      className="btn btn-sm btn-outline-secondary"
+                      onClick={() => doIgnore(row.id)}
+                    >
+                      Ignore
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
-
