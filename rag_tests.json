@@ -5,7 +5,7 @@
             "question": "What is the fallback strategy used in MythOS?",
             "expected_chunk_id": 122,
             "min_score": 0.35,
-            "expected_anchor": "fallback",
+            "expected_anchor": "fallback"
         }
-    ],
+    ]
 }

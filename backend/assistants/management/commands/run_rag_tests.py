@@ -42,7 +42,15 @@ class Command(BaseCommand):
             msg = self.style.ERROR(f"File '{file_path}' not found")
             self.stdout.write(msg)
             return
-        tests = data.get("tests", [])
+        except json.JSONDecodeError as exc:
+            msg = self.style.ERROR(f"Invalid JSON in '{file_path}': {exc}")
+            self.stdout.write(msg)
+            return
+
+        if isinstance(data, list):
+            tests = data
+        else:
+            tests = data.get("tests", [])
         passed = 0
         for t in tests:
             q = t.get("question")
