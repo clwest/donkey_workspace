@@ -321,12 +321,18 @@ def embedding_debug(request):
                     memory_context_id=str(a.memory_context_id),
                 )
                 count = len(chunks)
-            if a.documents.count() == 0:
+
+            doc_ids = set(a.documents.values_list("id", flat=True))
+            doc_ids.update(a.assigned_documents.values_list("id", flat=True))
+            doc_count = len(doc_ids) + a.dev_docs.count()
+
+            if doc_count == 0:
                 assistants_no_docs.append(a.slug)
+
             retrieval_checks.append(
                 {
                     "assistant": a.slug,
-                    "documents": a.documents.count(),
+                    "documents": doc_count,
                     "retrieved": count,
                 }
             )
