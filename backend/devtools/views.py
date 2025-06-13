@@ -118,6 +118,7 @@ def list_cli_commands():
                     "flags": flags,
                     "args": args,
                     "category": _categorize_command(name),
+                    "app": app_label,
                 }
             )
         except Exception:
@@ -328,8 +329,8 @@ def command_log_list(request):
 
 @api_view(["GET"])
 @permission_classes([AdminOnly])
-def cli_command_list(request):
-    """Return available management commands from target apps."""
+def cli_command_summary(request):
+    """Return basic list of commands grouped by app."""
     return Response({"results": _get_available_commands()})
 
 
@@ -415,6 +416,8 @@ def embedding_debug(request):
         .annotate(count=Count("id"))
         .order_by("-count")
     )
+
+    zero_score_chunks = DocumentChunk.objects.filter(score__lte=0.0).count()
 
     ct_memory = ContentType.objects.get_for_model(MemoryEntry)
     ct_chunk = ContentType.objects.get_for_model(DocumentChunk)
@@ -569,6 +572,7 @@ def embedding_debug(request):
             "model_counts": model_counts,
             "invalid_links": invalid,
             "missing_metadata_count": missing_meta_count,
+            "zero_score_chunks": zero_score_chunks,
             "assistant_breakdown": breakdown,
             "context_stats": context_stats,
             "assistants_no_docs": assistants_no_docs,
@@ -785,6 +789,29 @@ def ignore_context_embeddings(request, context_id):
         repair_status="pending",
     ).update(repair_status="ignored", notes="Manually ignored from UI")
     return Response({"status": "ignored", "count": updated})
+
+
+@api_view(["POST"])
+@permission_classes([AdminOnly])
+def repair_low_score_embeddings(request):
+    """Reembed chunks with very low quality scores."""
+    from intel_core.models import DocumentChunk
+    from embeddings.tasks import embed_and_store
+
+    threshold = float(request.data.get("threshold", 0.1))
+    chunks = DocumentChunk.objects.filter(score__lte=threshold)
+    count = 0
+    for ch in chunks.select_related("embedding"):
+        if ch.embedding:
+            ch.embedding.is_deleted = True
+            ch.embedding.save(update_fields=["is_deleted"])
+            ch.embedding = None
+        ch.embedding_status = "pending"
+        ch.force_embed = True
+        ch.save(update_fields=["embedding", "embedding_status", "force_embed"])
+        embed_and_store.delay(str(ch.id))
+        count += 1
+    return Response({"reembedded": count})
 
 
 @api_view(["GET"])

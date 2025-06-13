@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
+import { toast } from "react-toastify";
 import useAuditEmbeddingLinks from "../../../hooks/useAuditEmbeddingLinks";
 import ErrorCard from "../../../components/ErrorCard";
 
@@ -9,6 +10,8 @@ export default function EmbeddingDebug() {
   const [error, setError] = useState(null);
   const [showRag, setShowRag] = useState(false);
   const [assistant, setAssistant] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [repairing, setRepairing] = useState(false);
   const { rows: auditRows, reload } = useAuditEmbeddingLinks();
 
   const doRepair = async (id) => {
@@ -19,6 +22,18 @@ export default function EmbeddingDebug() {
   const doIgnore = async (id) => {
     await apiFetch(`/dev/embedding-audit/${id}/ignore/`, { method: "PATCH" });
     reload();
+  };
+
+  const repairLowScore = async () => {
+    setRepairing(true);
+    try {
+      await apiFetch("/dev/embedding-audit/repair-low-score/", { method: "POST" });
+      toast.success("Repair started");
+    } catch (e) {
+      toast.error("Repair failed");
+    } finally {
+      setRepairing(false);
+    }
   };
 
   useEffect(() => {
@@ -37,6 +52,15 @@ export default function EmbeddingDebug() {
       }
     }
     load();
+    async function checkAdmin() {
+      try {
+        const user = await apiFetch("/auth/user/", { allowUnauthenticated: true });
+        setIsAdmin(user.is_staff || user.is_superuser);
+      } catch {
+        setIsAdmin(false);
+      }
+    }
+    checkAdmin();
   }, [showRag, assistant]);
 
   if (error?.status === 403) {
@@ -78,6 +102,18 @@ export default function EmbeddingDebug() {
       </table>
       <div className="mt-4">
         <strong>Embeddings with invalid links: {data.invalid_links}</strong>
+      </div>
+      <div className="mt-2">
+        <strong>Zero-score chunks: {data.zero_score_chunks}</strong>
+        {isAdmin && data.zero_score_chunks > 0 && (
+          <button
+            className="btn btn-sm btn-warning ms-2"
+            onClick={repairLowScore}
+            disabled={repairing}
+          >
+            {repairing ? "Repairing..." : "Repair Low-score"}
+          </button>
+        )}
       </div>
       {data.orphan_embeddings && data.orphan_embeddings.length > 0 && (
         <div className="mt-2 text-warning">

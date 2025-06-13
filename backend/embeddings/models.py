@@ -208,3 +208,22 @@ class EmbeddingDriftLog(models.Model):
 
     def __str__(self):  # pragma: no cover - simple display
         return f"{self.model_name} {self.mismatched_count}/{self.orphaned_count}"
+
+
+class EmbeddingRepairLog(models.Model):
+    """Record metadata or quality repair actions for an embedding."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    embedding = models.ForeignKey(
+        Embedding, on_delete=models.CASCADE, related_name="repair_logs"
+    )
+    action = models.CharField(max_length=50)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        app_label = "embeddings"
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - simple helper
+        return f"{self.embedding_id} {self.action}"
