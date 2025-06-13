@@ -4,6 +4,7 @@ from django.conf import settings
 from pathlib import Path
 
 from assistants.models import Assistant
+from assistants.utils.resolve import resolve_assistant
 from intel_core.services.document_service import DocumentService
 
 
@@ -44,15 +45,18 @@ class Command(BaseCommand):
                 self.stderr.write(f"Missing file: {pdf_path}")
                 continue
 
-            assistant, new = Assistant.objects.get_or_create(
-                slug=entry["slug"],
-                defaults={
-                    "name": entry["name"],
-                    "specialty": entry["archetype"],
-                    "archetype": entry["archetype"],
-                    "tone_profile": "neutral",
-                },
-            )
+            assistant = resolve_assistant(entry["slug"])
+            new = False
+            if not assistant:
+                assistant, new = Assistant.objects.get_or_create(
+                    slug=entry["slug"],
+                    defaults={
+                        "name": entry["name"],
+                        "specialty": entry["archetype"],
+                        "archetype": entry["archetype"],
+                        "tone_profile": "neutral",
+                    },
+                )
             if new:
                 created += 1
                 msg = self.style.SUCCESS(f"Created assistant {assistant.slug}")

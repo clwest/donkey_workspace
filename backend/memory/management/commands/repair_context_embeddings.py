@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from assistants.utils.assistant_lookup import resolve_assistant
+from assistants.utils.resolve import resolve_assistant
 from embeddings.utils.link_repair import repair_context_embeddings
 from embeddings.models import EmbeddingDriftLog
 from django.utils import timezone

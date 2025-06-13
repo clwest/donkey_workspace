@@ -18,3 +18,12 @@ def coerce_uuid(value, field_name: str = "unknown") -> Optional[uuid.UUID]:
     except (ValueError, TypeError):
         logger.warning(f"[UUID Sanity] Invalid UUID format for {field_name}: {value}")
         return None
+
+
+def is_valid_uuid(value: str) -> bool:
+    """Return ``True`` if ``value`` is a valid UUID string."""
+    try:
+        uuid.UUID(str(value))
+        return True
+    except (ValueError, TypeError):
+        return False

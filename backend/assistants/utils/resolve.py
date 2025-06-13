@@ -1,15 +1,6 @@
 from django.db.models import Q
 from assistants.models import Assistant
-import uuid
-
-
-def is_valid_uuid(value: str) -> bool:
-    """Return True if ``value`` is a valid UUID string."""
-    try:
-        uuid.UUID(str(value))
-        return True
-    except (ValueError, TypeError):
-        return False
+from utils import is_valid_uuid
 
 
 def resolve_assistant(value: str):
