@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from assistants.models import Assistant
+from assistants.utils.resolve import resolve_assistant
 from assistants.utils.trail_marker_summary import summarize_trail_markers
 
 
@@ -10,13 +10,12 @@ class Command(BaseCommand):
         parser.add_argument("--assistant", help="Assistant slug")
 
     def handle(self, *args, **options):
-        slug = options.get("assistant")
-        if not slug:
-            self.stderr.write("Provide --assistant=slug")
+        identifier = options.get("assistant")
+        if not identifier:
+            self.stderr.write("Provide --assistant=slug or id")
             return
-        try:
-            assistant = Assistant.objects.get(slug=slug)
-        except Assistant.DoesNotExist:
+        assistant = resolve_assistant(identifier)
+        if not assistant:
             self.stderr.write("Assistant not found")
             return
         entry = summarize_trail_markers(assistant)

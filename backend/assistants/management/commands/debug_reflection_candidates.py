@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from assistants.models import Assistant
+from assistants.utils.resolve import resolve_assistant
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 
 class Command(BaseCommand):
@@ -10,8 +10,11 @@ class Command(BaseCommand):
         parser.add_argument("--limit", type=int, default=30)
 
     def handle(self, *args, **options):
-        slug = options["assistant"]
+        identifier = options["assistant"]
         limit = options["limit"]
-        assistant = Assistant.objects.get(slug=slug)
+        assistant = resolve_assistant(identifier)
+        if not assistant:
+            self.stderr.write(self.style.ERROR(f"Assistant '{identifier}' not found"))
+            return
         engine = AssistantReflectionEngine(assistant)
         engine.get_memory_entries(limit=limit, verbose=True)

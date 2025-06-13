@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from intel_core.models import DocumentChunk
-from assistants.models import Assistant
+from assistants.utils.resolve import resolve_assistant
 
 class Command(BaseCommand):
     """Audit embedding status for document chunks."""
@@ -13,9 +13,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         slug = options.get("assistant")
         if slug:
-            try:
-                assistant = Assistant.objects.get(slug=slug)
-            except Assistant.DoesNotExist:
+            assistant = resolve_assistant(slug)
+            if not assistant:
                 self.stderr.write(self.style.ERROR(f"Assistant '{slug}' not found"))
                 return
             doc_ids = assistant.documents.values_list("id", flat=True)

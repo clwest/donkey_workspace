@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from assistants.models import Assistant
+from assistants.utils.resolve import resolve_assistant
 from memory.models import MemoryEntry
 from django.db.models import F, CharField
 from django.db.models.functions import Cast
@@ -15,7 +16,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         slug = options.get("assistant")
-        qs = Assistant.objects.filter(slug=slug) if slug else Assistant.objects.all()
+        if slug:
+            assistant = resolve_assistant(slug)
+            if not assistant:
+                self.stderr.write(self.style.ERROR(f"Assistant '{slug}' not found"))
+                return
+            qs = [assistant]
+        else:
+            qs = Assistant.objects.all()
         for a in qs:
             mems = MemoryEntry.objects.filter(assistant=a)
             total = mems.count()

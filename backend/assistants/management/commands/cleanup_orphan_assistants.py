@@ -1,3 +1,4 @@
+
 from django.core.management.base import BaseCommand, CommandError
 from assistants.models import Assistant
 from assistants.models.thoughts import AssistantThoughtLog
@@ -50,3 +51,4 @@ class Command(BaseCommand):
                 if options["delete"]:
                     a.delete()
                     self.stdout.write(self.style.SUCCESS(f"Deleted {a.slug}"))
+

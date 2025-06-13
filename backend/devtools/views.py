@@ -234,6 +234,7 @@ def embedding_debug(request):
     from intel_core.models import EmbeddingMetadata
     from embeddings.models import Embedding
     from django.db.models import Count, F
+    from assistants.models import Assistant
     from django.contrib.contenttypes.models import ContentType
     from memory.models import MemoryEntry
     from intel_core.models import DocumentChunk
@@ -273,6 +274,9 @@ def embedding_debug(request):
     )
 
     context_stats = []
+    duplicate_slugs = list(
+        Assistant.objects.values("slug").annotate(c=Count("id")).filter(c__gt=1).values_list("slug", flat=True)
+    )
     assistants_no_docs = []
     retrieval_checks = []
     repairable_contexts = list(
@@ -326,6 +330,7 @@ def embedding_debug(request):
             "assistants_no_docs": assistants_no_docs,
             "retrieval_checks": retrieval_checks,
             "repairable_contexts": repairable_contexts,
+            "duplicate_slugs": duplicate_slugs,
         }
     )
 

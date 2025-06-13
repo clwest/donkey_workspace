@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from assistants.models import Assistant
+from assistants.utils.resolve import resolve_assistant
 from assistants.utils.delegation_summary_engine import DelegationSummaryEngine
 
 
@@ -17,9 +17,14 @@ class Command(BaseCommand):
             self.stderr.write("Provide --assistant=slug or --all")
             return
 
+        from assistants.models import Assistant
         qs = Assistant.objects.all()
         if slug:
-            qs = qs.filter(slug=slug)
+            assistant = resolve_assistant(slug)
+            if not assistant:
+                self.stderr.write(self.style.ERROR(f"Assistant '{slug}' not found"))
+                return
+            qs = qs.filter(id=assistant.id)
 
         for assistant in qs:
             engine = DelegationSummaryEngine(assistant)

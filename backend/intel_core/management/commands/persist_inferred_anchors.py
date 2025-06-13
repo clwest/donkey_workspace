@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 
 from assistants.models import Assistant
+from assistants.utils.resolve import resolve_assistant
 from intel_core.utils.infer_anchors_from_memory import infer_symbolic_anchors_from_memory
 
 class Command(BaseCommand):
@@ -21,10 +22,11 @@ class Command(BaseCommand):
 
         assistants = Assistant.objects.all()
         if not process_all:
-            assistants = assistants.filter(slug=slug)
-            if not assistants.exists():
+            assistant = resolve_assistant(slug)
+            if not assistant:
                 self.stdout.write(self.style.ERROR(f"Assistant '{slug}' not found."))
                 return
+            assistants = assistants.filter(id=assistant.id)
 
         for assistant in assistants:
             self.stdout.write(f"🔍 Persisting anchors for {assistant.slug}...")

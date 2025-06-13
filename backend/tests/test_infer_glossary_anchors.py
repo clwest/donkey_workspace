@@ -22,3 +22,8 @@ def test_infer_glossary_anchors_from_memory():
     assert anchor.mutation_status == "pending"
     assert anchor.mutation_source == "assistant_memory_inferred"
     assert anchor.assistant == a
+
+@pytest.mark.django_db
+def test_infer_glossary_unknown_assistant():
+    call_command("infer_glossary_anchors", "--assistant", "does-not-exist")
+    assert not Assistant.objects.filter(slug="does-not-exist").exists()

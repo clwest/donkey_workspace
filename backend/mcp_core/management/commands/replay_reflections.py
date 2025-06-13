@@ -15,7 +15,13 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         qs = AssistantReflectionLog.objects.all()
         if options["assistant"]:
-            qs = qs.filter(assistant__slug=options["assistant"])
+            from assistants.utils.resolve import resolve_assistant
+
+            assistant = resolve_assistant(options["assistant"])
+            if not assistant:
+                self.stderr.write(self.style.ERROR(f"Assistant '{options['assistant']}' not found"))
+                return
+            qs = qs.filter(assistant=assistant)
         since = options.get("since", "7d")
         if since.endswith("d"):
             try:

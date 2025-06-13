@@ -43,6 +43,7 @@ class Command(BaseCommand):
 
         assistant_id = options.get("assistant")
         if assistant_id:
+
             assistant = resolve_assistant(assistant_id)
             if not assistant:
                 raise CommandError(f"Assistant '{assistant_id}' not found")

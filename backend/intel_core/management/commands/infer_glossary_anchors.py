@@ -3,7 +3,9 @@ from collections import Counter
 from django.core.management.base import BaseCommand
 from django.utils.text import slugify
 
+
 from assistants.utils.assistant_lookup import resolve_assistant
+
 from assistants.models.reflection import AssistantReflectionLog
 from assistants.models.thoughts import AssistantThoughtLog
 from memory.models import MemoryEntry, SymbolicMemoryAnchor
@@ -33,7 +35,9 @@ class Command(BaseCommand):
         identifier = options["assistant"]
         source = options["source"]
 
+
         assistant = resolve_assistant(identifier)
+
         if not assistant:
             self.stderr.write(self.style.ERROR(f"Assistant '{identifier}' not found"))
             return

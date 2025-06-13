@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from assistants.models import Assistant
+from assistants.utils.resolve import resolve_assistant
 
 from memory.glossary_keeper import run_keeper_tasks
 
@@ -23,10 +23,8 @@ class Command(BaseCommand):
         slug = options.get("assistant")
         assistant = None
         if slug:
-            try:
-                assistant = Assistant.objects.get(slug=slug)
-            except Assistant.DoesNotExist:
-
+            assistant = resolve_assistant(slug)
+            if not assistant:
                 self.stdout.write(self.style.ERROR(f"Assistant '{slug}' not found"))
                 return
         count = run_keeper_tasks(
