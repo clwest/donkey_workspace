@@ -467,3 +467,6 @@ GLOSSARY_WEAK_THRESHOLD = float(os.getenv("GLOSSARY_WEAK_THRESHOLD", "0.2"))
 ENABLE_LOCAL_CHAT_REFLECTIONS = (
     os.getenv("ENABLE_LOCAL_CHAT_REFLECTIONS", "True") == "True"
 )
+
+# Global toggle for assistant birth reflections
+ENABLE_BIRTH_REFLECTIONS = os.getenv("ENABLE_BIRTH_REFLECTIONS", "True") == "True"

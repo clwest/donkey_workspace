@@ -268,6 +268,8 @@ class Assistant(TrustProfileMixin, models.Model):
     last_reflection_attempted_at = models.DateTimeField(null=True, blank=True)
     last_reflection_successful = models.BooleanField(default=False)
     reflection_error = models.TextField(null=True, blank=True)
+    birth_reflection_retry_count = models.PositiveIntegerField(default=0)
+    can_retry_birth_reflection = models.BooleanField(default=True)
 
     def capabilities_dict(self) -> dict:
         """Return capabilities as a dictionary even if stored as a string."""
