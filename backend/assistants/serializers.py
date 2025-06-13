@@ -2517,13 +2517,16 @@ class DemoHealthSerializer(serializers.Serializer):
 
 class AssistantCommandLogSerializer(serializers.ModelSerializer):
     assistant_slug = serializers.SlugField(source="assistant.slug", read_only=True)
+    created_by = serializers.CharField(source="created_by.username", read_only=True)
 
     class Meta:
         model = AssistantCommandLog
         fields = [
             "id",
             "assistant_slug",
+            "created_by",
             "command",
+            "flags",
             "output",
             "status",
             "created_at",

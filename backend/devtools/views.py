@@ -13,7 +13,9 @@ import json
 from pathlib import Path
 from django.forms.models import model_to_dict
 from assistants.models.command_log import AssistantCommandLog
+from assistants.models import Assistant
 from assistants.serializers import AssistantCommandLogSerializer
+from django.core.management import get_commands, load_command_class
 
 
 def _walk_patterns(patterns, prefix=""):
@@ -42,6 +44,64 @@ def _walk_patterns(patterns, prefix=""):
 def get_full_route_map():
     resolver = get_resolver()
     return _walk_patterns(resolver.url_patterns)
+
+
+def _categorize_command(name):
+    lower = name.lower()
+    if any(k in lower for k in ["embed", "embedding"]):
+        return "embedding"
+    if any(k in lower for k in ["repair", "fix"]):
+        return "repair"
+    if "reflect" in lower:
+        return "reflection"
+    if "rag" in lower:
+        return "rag"
+    if "sync" in lower:
+        return "sync"
+    if "tool" in lower:
+        return "tools"
+    return "misc"
+
+
+def list_cli_commands():
+    allowed_apps = {
+        "assistants",
+        "embeddings",
+        "intel_core",
+        "mcp_core",
+        "memory",
+        "project",
+        "prompts",
+        "tools",
+    }
+    results = []
+    for name, app in get_commands().items():
+        app_label = app.split(".")[-2] if ".management" in app else app
+        if app_label not in allowed_apps:
+            continue
+        try:
+            cmd_class = load_command_class(app, name)
+            cmd = cmd_class()
+            parser = cmd.create_parser("manage.py", name)
+            flags = []
+            args = []
+            for action in parser._actions:
+                if action.option_strings:
+                    flags.extend(action.option_strings)
+                elif action.dest != "args":
+                    args.append(action.dest)
+            results.append(
+                {
+                    "name": name,
+                    "help": getattr(cmd, "help", ""),
+                    "flags": flags,
+                    "args": args,
+                    "category": _categorize_command(name),
+                }
+            )
+        except Exception:
+            continue
+    return results
 
 
 class RouteInspector:
@@ -181,6 +241,14 @@ def rag_debug_logs(request):
     return Response({"results": data})
 
 
+@api_view(["GET"])
+@permission_classes([AdminOnly])
+def cli_command_list(request):
+    """Return available management commands"""
+    commands = list_cli_commands()
+    return Response({"results": commands})
+
+
 @api_view(["POST"])
 @permission_classes([AdminOnly])
 def run_cli_command(request):
@@ -190,7 +258,14 @@ def run_cli_command(request):
     assistant = request.data.get("assistant")
     flag_list = [f for f in flags.split() if f]
 
-    log = AssistantCommandLog.objects.create(command=command)
+    log = AssistantCommandLog.objects.create(
+        command=command,
+        flags=flags,
+        created_by=request.user if request.user.is_authenticated else None,
+        assistant=Assistant.objects.filter(slug=assistant).first()
+        if assistant
+        else None,
+    )
     from .tasks import run_cli_command_task
 
     run_cli_command_task.delay(log.id, command, flag_list, assistant)

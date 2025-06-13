@@ -1,11 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import apiFetch from "../../utils/apiClient";
 
 export default function CLIRunner() {
+  const [commands, setCommands] = useState([]);
   const [command, setCommand] = useState("run_rag_tests");
   const [flags, setFlags] = useState("");
   const [output, setOutput] = useState("");
   const [running, setRunning] = useState(false);
+
+  useEffect(() => {
+    apiFetch("/dev/cli/list/").then((res) => {
+      setCommands(res.results || []);
+      if (res.results?.length) setCommand(res.results[0].name);
+    });
+  }, []);
 
   const run = async () => {
     setRunning(true);
@@ -39,10 +47,11 @@ export default function CLIRunner() {
           value={command}
           onChange={(e) => setCommand(e.target.value)}
         >
-          <option value="run_rag_tests">run_rag_tests</option>
-          <option value="repair_context_embeddings">repair_context_embeddings</option>
-          <option value="generate_diagnostic_reports">generate_diagnostic_reports</option>
-          <option value="reflect_on_document">reflect_on_document</option>
+          {commands.map((c) => (
+            <option key={c.name} value={c.name}>
+              {c.name}
+            </option>
+          ))}
         </select>
         <input
           type="text"
