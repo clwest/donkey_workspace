@@ -8,6 +8,7 @@ from rest_framework import viewsets
 import uuid
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.throttling import AnonRateThrottle
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from rest_framework import status
