@@ -33,7 +33,10 @@ class Command(BaseCommand):
                 "created_at": reflection.created_at.isoformat(),
                 "tags": reflection.tags,
                 "mood": reflection.mood,
-                "raw_summary": reflection.raw_summary,
+                # `AssistantReflectionLog` stores the raw text in `raw_prompt`.
+                # Older code referenced `raw_summary`, so export both keys for
+                # compatibility if present.
+                "raw_prompt": getattr(reflection, "raw_prompt", ""),
                 "summary": reflection.summary,
                 "llm_summary": reflection.llm_summary,
             }
@@ -54,8 +57,9 @@ class Command(BaseCommand):
                         f.write(f"**Tags:** {', '.join(reflection.tags)}\n\n")
                     if reflection.mood:
                         f.write(f"**Mood:** {reflection.mood}\n\n")
-                    f.write("## Raw Summary\n")
-                    f.write(f"```\n{reflection.raw_summary or 'No raw summary.'}\n```\n\n")
+                    f.write("## Raw Prompt\n")
+                    raw_text = getattr(reflection, "raw_prompt", "")
+                    f.write(f"```\n{raw_text or 'No raw prompt.'}\n```\n\n")
                     f.write("## LLM Reflection\n")
                     f.write(f"{reflection.llm_summary or 'No LLM reflection.'}\n")
 
