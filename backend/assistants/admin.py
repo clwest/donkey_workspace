@@ -31,6 +31,7 @@ from .models.glossary import SuggestionLog
 from .models.core import AssistantMythLayer
 from .models.thoughts import CollaborationLog, CollaborationThread
 from .models.project import AssistantMemoryChain
+from .models.diagnostics import AssistantDiagnosticReport
 from memory.models import MemoryEntry
 from mcp_core.models import Tag
 
@@ -258,6 +259,18 @@ class CollaborationThreadAdmin(admin.ModelAdmin):
 @admin.register(AssistantMythLayer)
 class AssistantMythLayerAdmin(admin.ModelAdmin):
     list_display = ("assistant", "last_updated")
+
+
+@admin.register(AssistantDiagnosticReport)
+class AssistantDiagnosticReportAdmin(admin.ModelAdmin):
+    list_display = (
+        "assistant",
+        "generated_at",
+        "fallback_rate",
+        "glossary_success_rate",
+        "avg_chunk_score",
+        "rag_logs_count",
+    )
 
 
 # @admin.register(AssistantMemoryChain)

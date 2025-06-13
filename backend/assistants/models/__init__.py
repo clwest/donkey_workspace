@@ -22,6 +22,7 @@ from .timeline import *
 from .demo import *
 from .user_preferences import *
 from .devlog import *
+from .diagnostics import *
 
 
 

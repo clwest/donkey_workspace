@@ -299,6 +299,12 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
         >
           Grounding Inspector
         </Link>
+        <a
+          href={`/static/diagnostics/${slug}.md`}
+          className="btn btn-sm btn-outline-secondary ms-1"
+        >
+          📄 Latest Report
+        </a>
       <button
         className="btn btn-sm btn-outline-primary ms-1"
         onClick={handleGlobalBoot}

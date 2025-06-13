@@ -583,6 +583,13 @@ export const routeMap = [
     notes: "Prompt diff + codex trace map",
   },
   {
+    frontend: "/debug/rag",
+    backend: "/api/assistants/<slug>/diagnostic_report/",
+    view: "RAGDiagnosticsDashboard",
+    serializer: "-",
+    notes: "Assistant RAG diagnostic reports",
+  },
+  {
     frontend: "/plan/graph",
     backend: "/api/plan/graph/",
     view: "PlanningGraphPage",
