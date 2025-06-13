@@ -16,6 +16,7 @@ class Command(BaseCommand):
             "Prompt Pal",
             "Reflection Sage",
             "Narrative Architect",
+            "DevOS Architect",
         ]
 
         specialties = [
@@ -26,20 +27,24 @@ class Command(BaseCommand):
             "Creative Writing",
             "Data Reflection",
             "Persona Simulation",
+            "System Architecture",
         ]
 
         assistants = []
         for i in range(len(names)):
             name = names[i]
+            defaults = {
+                "slug": slugify(name),
+                "specialty": specialties[i],
+                "description": f"Assistant focused on {specialties[i].lower()} and creative reasoning.",
+                "is_active": True,
+                "capabilities": {"glossary": True, "reflection": True, "dashboard": True},
+            }
+            if name == "DevOS Architect":
+                defaults["archetype"] = "planner"
             assistant, created = Assistant.objects.get_or_create(
                 name=name,
-                defaults={
-                    "slug": slugify(name),
-                    "specialty": specialties[i],
-                    "description": f"Assistant focused on {specialties[i].lower()} and creative reasoning.",
-                    "is_active": True,
-                    "capabilities": {"glossary": True, "reflection": True, "dashboard": True},
-                },
+                defaults=defaults,
             )
             if created:
                 assistants.append(name)
