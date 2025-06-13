@@ -1,6 +1,6 @@
 from assistants.models.thoughts import AssistantThoughtLog
 from assistants.models.project import AssistantProject
-from assistants.models.reflection import AssistantReflectionLog
+from assistants.models.reflection import AssistantReflectionLog, BirthReflectionAttempt
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from django.conf import settings
 from django.utils import timezone
@@ -148,6 +148,9 @@ def reflect_on_birth(assistant):
         assistant.last_reflection_successful = True
         assistant.reflection_error = ""
         assistant.can_retry_birth_reflection = False
+        BirthReflectionAttempt.objects.create(
+            assistant=assistant, status="success"
+        )
     except requests.exceptions.ConnectionError as e:
         logging.getLogger(__name__).warning(
             "[WARN] Assistant boot reflection skipped: LLM at localhost:11434 unreachable"
@@ -155,6 +158,9 @@ def reflect_on_birth(assistant):
         assistant.last_reflection_successful = False
         assistant.reflection_error = str(e)
         assistant.can_retry_birth_reflection = True
+        BirthReflectionAttempt.objects.create(
+            assistant=assistant, status="failed", error_message=str(e)
+        )
         assistant.save(
             update_fields=[
                 "last_reflection_attempted_at",
@@ -169,6 +175,9 @@ def reflect_on_birth(assistant):
         assistant.last_reflection_successful = False
         assistant.reflection_error = str(e)
         assistant.can_retry_birth_reflection = True
+        BirthReflectionAttempt.objects.create(
+            assistant=assistant, status="failed", error_message=str(e)
+        )
         assistant.save(
             update_fields=[
                 "last_reflection_attempted_at",
