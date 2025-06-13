@@ -264,6 +264,7 @@ class Assistant(TrustProfileMixin, models.Model):
         on_delete=models.SET_NULL,
         related_name="growth_summaries",
     )
+    last_rag_certified_at = models.DateTimeField(null=True, blank=True)
 
     last_reflection_attempted_at = models.DateTimeField(null=True, blank=True)
     last_reflection_successful = models.BooleanField(default=False)

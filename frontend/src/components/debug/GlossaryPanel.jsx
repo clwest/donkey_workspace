@@ -75,6 +75,9 @@ export default function GlossaryPanel() {
                   +{a.retagged_count}
                 </span>
               )}
+              {a.fallback_count > 0 && (
+                <span className="ms-1 text-danger" title="Fallback triggered">❌</span>
+              )}
               {a.total_matches === 0 && (
                 <span
                   className="badge bg-warning text-dark ms-1"

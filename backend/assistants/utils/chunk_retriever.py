@@ -783,6 +783,27 @@ def get_relevant_chunks(
             query_text,
             reason_text,
         )
+        try:
+            from assistants.models import AssistantTimelineLog
+
+            anchor_missed = ""
+            if anchor_matches:
+                for slug in anchor_matches:
+                    if not any(c.get("anchor_slug") == slug for c in result):
+                        anchor_missed = slug
+                        break
+
+            AssistantTimelineLog.objects.create(
+                assistant=assistant,
+                log_type="rag_fallback",
+                anchor=anchor_missed,
+                fallback_reason=reason or "",
+                query_text=query_text,
+                chunks_retrieved=len(result),
+                fallback_triggered=True,
+            )
+        except Exception:
+            pass
 
     logger.debug("[RAG Final] Returning chunks: %s", [r["chunk_id"] for r in result])
 

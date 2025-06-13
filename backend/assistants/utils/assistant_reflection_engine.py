@@ -574,6 +574,9 @@ class AssistantReflectionEngine:
         target_document.last_reflected_at = timezone.now()
         target_document.save(update_fields=["last_reflected_at"])
 
+        from assistants.tasks import run_rag_ci_checks
+        run_rag_ci_checks.delay(self.assistant.slug)
+
         return summary, insights, prompt_obj
 
     def reflect_on_memory(self, memory: MemoryEntry) -> AssistantReflectionLog | None:

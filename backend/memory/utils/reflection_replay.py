@@ -42,6 +42,7 @@ def replay_reflection(obj: AssistantReflectionLog | MemoryEntry) -> ReflectionRe
             chunk_info,
             query_term=obj.summary or obj.event or "",
             playback_type=RAGPlaybackLog.PlaybackType.REPLAY,
+            anchor_missed="",
         )
         summary = engine.generate_reflection(prompt)
         old_score = 0.0
@@ -67,6 +68,7 @@ def replay_reflection(obj: AssistantReflectionLog | MemoryEntry) -> ReflectionRe
             chunk_info,
             query_term=obj.summary or "",
             playback_type=RAGPlaybackLog.PlaybackType.REPLAY,
+            anchor_missed="",
         )
         summary = engine.generate_reflection(prompt)
         old_score = 0.0

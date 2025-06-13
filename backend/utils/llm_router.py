@@ -243,6 +243,25 @@ def chat(
     )
     gloss_reflection = None
     if chunks:
+        try:
+            from utils.rag_playback import record_rag_playback
+
+            anchor_missed = ""
+            if rag_meta.get("anchor_misses"):
+                anchor_missed = rag_meta["anchor_misses"][0]
+            playback = record_rag_playback(
+                query_text,
+                assistant,
+                assistant.memory_context,
+                chunks,
+                query_term=query_text,
+                score_cutoff=top_score,
+                fallback_reason=reason,
+                anchor_missed=anchor_missed,
+            )
+            rag_meta["playback_id"] = str(playback.id)
+        except Exception:
+            pass
         if fallback or focus_anchors_only:
             gloss_first = [c for c in chunks if c.get("is_glossary")]
             non_gloss = [c for c in chunks if not c.get("is_glossary")]
