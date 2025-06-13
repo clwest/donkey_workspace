@@ -569,13 +569,13 @@ def get_relevant_chunks(
     elif scored:
         fallback = True
         reason = "low score"
-        logger.warning("\u26a0\ufe0f RAG fallback: using low-score chunks")
+        logger.info("RAG fallback: using low-score chunks")
         # take top ``fallback_limit`` above ``fallback_min`` if any
         candidates = [
             p for p in scored if p[0] >= fallback_min and (force_fallback or p[0] > 0.0)
         ]
         if not candidates:
-            logger.warning("⚠️ All candidate chunks rejected; forcing fallback")
+            logger.info("All candidate chunks rejected; forcing fallback")
             candidates = scored
         pairs = candidates[: max(1, fallback_limit)]
         for i, (s, c, _conf, _rs, _boost, _ghit, _rboost) in enumerate(pairs, 1):
@@ -587,7 +587,7 @@ def get_relevant_chunks(
             )
         fallback_type = fallback_type or "chunk"
     else:
-        logger.warning(
+        logger.info(
             '[RAG] Fallback for assistant=%s, context=%s, query="%s" - reason: no matches',
             getattr(assistant, "slug", assistant_id),
             memory_context_id,
@@ -776,7 +776,7 @@ def get_relevant_chunks(
             if fallback_type != "summary"
             else f"score < {min_rag_score}"
         )
-        logger.warning(
+        logger.info(
             '[RAG] Fallback for assistant=%s, context=%s, query="%s" - reason: %s',
             getattr(assistant, "slug", assistant_id),
             memory_context_id,
