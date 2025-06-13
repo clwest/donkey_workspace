@@ -9,13 +9,17 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         badges = [
-            ("reflection_ready", "Reflection Ready"),
-            ("prompt_helper", "Prompt Helper"),
-            ("memory_archivist", "Memory Archivist"),
+            ("reflection_ready", "Reflection Ready", None),
+            ("prompt_helper", "Prompt Helper", None),
+            ("memory_archivist", "Memory Archivist", None),
+            ("cli_runner", "CLI Runner", "cli_runs>=5"),
+            ("self_repairing", "Self Repairing", "cli_repairs>=1"),
         ]
 
-        for slug, label in badges:
-            _, created = Badge.objects.get_or_create(slug=slug, defaults={"label": label})
+        for slug, label, criteria in badges:
+            _, created = Badge.objects.get_or_create(
+                slug=slug, defaults={"label": label, "criteria": criteria or ""}
+            )
             if created:
                 self.stdout.write(f"✅ Created badge: {slug}")
             else:

@@ -29,4 +29,29 @@ def run_cli_command_task(log_id: int, command: str, flags=None, assistant_slug=N
     log.output = output
     log.status = "success" if proc.returncode == 0 else "error"
     log.save(update_fields=["output", "status"])
+    if log.status == "success" and log.assistant_id:
+        reflect_on_cli_log.delay(log.id)
     return log.id
+
+
+@shared_task
+def reflect_on_cli_log(log_id: int) -> int:
+    """Trigger reflection summarizing a CLI command log."""
+    log = (
+        AssistantCommandLog.objects.filter(id=log_id)
+        .select_related("assistant")
+        .first()
+    )
+    if not log or not log.assistant_id:
+        return log_id
+    from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
+
+    engine = AssistantReflectionEngine(log.assistant)
+    title = f"CLI command: {log.command}"
+    summary = log.output[:400] if log.output else ""
+    AssistantReflectionEngine.get_or_create_project(log.assistant)
+    try:
+        engine.reflect_now(scene=title, location_context=summary)
+    except Exception:
+        pass
+    return log_id

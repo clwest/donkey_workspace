@@ -6,6 +6,7 @@ from assistants.models.badge import Badge
 from memory.models import SymbolicMemoryAnchor
 from assistants.models.reflection import AssistantReflectionLog
 from memory.models import ReflectionReplayLog
+from assistants.models.command_log import AssistantCommandLog
 
 
 def _collect_stats(assistant: Assistant) -> Dict[str, int]:
@@ -16,6 +17,10 @@ def _collect_stats(assistant: Assistant) -> Dict[str, int]:
     improved_replays = ReflectionReplayLog.objects.filter(
         assistant=assistant, new_score__gt=models.F("old_score")
     ).count()
+    cli_runs = AssistantCommandLog.objects.filter(assistant=assistant).count()
+    cli_repairs = AssistantCommandLog.objects.filter(
+        assistant=assistant, command__icontains="repair"
+    ).count()
     return {
         "acquired": acquired,
         "reinforced": reinforced,
@@ -23,6 +28,8 @@ def _collect_stats(assistant: Assistant) -> Dict[str, int]:
         "improved_replays": improved_replays,
         "glossary_score": assistant.glossary_score,
         "badge_count": len(assistant.skill_badges or []),
+        "cli_runs": cli_runs,
+        "cli_repairs": cli_repairs,
     }
 
 

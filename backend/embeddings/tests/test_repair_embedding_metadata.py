@@ -58,3 +58,25 @@ def test_repair_embedding_metadata_from_document():
     emb.refresh_from_db()
     assert str(emb.session_id) == str(doc.session_id)
     assert emb.source_type == doc.source_type
+
+
+@pytest.mark.django_db
+def test_repair_embedding_metadata_force_summary(capsys):
+    doc = Document.objects.create(title="Doc3", content="z", source_type="text")
+    ct = ContentType.objects.get_for_model(Document)
+    emb = Embedding.objects.create(
+        content_type=ct,
+        object_id=str(doc.id),
+        content_id=f"document:{doc.id}",
+        embedding=[0.1] * 5,
+        session_id="11111111-1111-1111-1111-111111111111",
+        source_type="other",
+    )
+
+    call_command("repair_embedding_metadata", "--force", "--summary")
+
+    captured = capsys.readouterr()
+    assert "repaired" in captured.out
+    emb.refresh_from_db()
+    assert str(emb.session_id) == str(doc.session_id)
+    assert emb.source_type == doc.source_type
