@@ -83,7 +83,7 @@ export default function AssistantDetailPage() {
   const [showPrimer, setShowPrimer] = useState(false);
   const { hints, dismissHint } = useAssistantHints(slug);
   const userInfo = useUserInfo();
-  const glossaryOverlays = useGlossaryOverlay('assistant_detail');
+  const glossaryOverlays = useGlossaryOverlay("assistant_detail");
   const threadId = query.get("thread");
   const projectId = query.get("project");
   const memoryId = query.get("memory");
@@ -114,7 +114,9 @@ export default function AssistantDetailPage() {
 
   useEffect(() => {
     if (!slug) return;
-    apiFetch(`/assistants/${slug}/preferences/`).then(setPrefs).catch(() => {});
+    apiFetch(`/assistants/${slug}/preferences/`)
+      .then(setPrefs)
+      .catch(() => {});
   }, [slug]);
 
   const reloadAssistant = async () => {
@@ -201,7 +203,9 @@ export default function AssistantDetailPage() {
   useEffect(() => {
     async function loadFirstQuestions() {
       try {
-        const data = await apiFetch(`/assistants/${slug}/first_question_stats/`);
+        const data = await apiFetch(
+          `/assistants/${slug}/first_question_stats/`,
+        );
         setFirstQuestionSummary(data);
       } catch (err) {
         console.error("Failed to load question stats", err);
@@ -474,7 +478,8 @@ export default function AssistantDetailPage() {
       <p className="text-muted">Assistant Details Page</p>
       {prefs && (
         <p className="text-muted">
-          Linked User: {prefs.username} — Tone: {prefs.tone} | Planning: {prefs.planning_mode}
+          Linked User: {prefs.username} — Tone: {prefs.tone} | Planning:{" "}
+          {prefs.planning_mode}
         </p>
       )}
       <div className="mb-2">
@@ -601,7 +606,9 @@ export default function AssistantDetailPage() {
             </Button>
           </Link>
           <Link to={`/keeper/logs?assistant=${assistant.slug}`}>
-            <Button variant="outline" className="mt-2 ms-2">Keeper Logs</Button>
+            <Button variant="outline" className="mt-2 ms-2">
+              Keeper Logs
+            </Button>
           </Link>
         </div>
       </div>
@@ -834,6 +841,12 @@ export default function AssistantDetailPage() {
               >
                 🔹 RAG Playback Logs
               </Link>
+              <Link
+                to={`/assistants/${slug}/reflections/groups/`}
+                className="btn btn-sm btn-outline-secondary ms-2"
+              >
+                📑 Reflection Groups
+              </Link>
             </div>
           </div>
 
@@ -1048,7 +1061,9 @@ export default function AssistantDetailPage() {
               <h6>First Question Summary</h6>
               <ul className="mb-1">
                 {firstQuestionSummary.top_questions.map((q, i) => (
-                  <li key={i}>{q.text} ({q.count})</li>
+                  <li key={i}>
+                    {q.text} ({q.count})
+                  </li>
                 ))}
               </ul>
               <div className="small text-muted">

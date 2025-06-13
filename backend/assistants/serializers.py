@@ -51,6 +51,7 @@ from assistants.models.interface import (
 from .models.reflection import (
     AssistantReflectionLog,
     AssistantReflectionInsight,
+    ReflectionGroup,
 )
 from memory.models import ReflectionReplayLog
 from .models.thoughts import (
@@ -584,6 +585,7 @@ class DriftRefinementLogSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = fields
 
+
 class EmotionalResonanceLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmotionalResonanceLog
@@ -1071,8 +1073,6 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
     def get_display_name(self, obj):
         return getattr(obj, "display_name", None) or obj.name
 
-
-
     def get_glossary_health_index(self, obj):
         from django.db.models import Avg, Count
         from memory.models import SymbolicMemoryAnchor
@@ -1221,6 +1221,23 @@ class AssistantReflectionInsightSerializer(serializers.ModelSerializer):
         model = AssistantReflectionInsight
         fields = ["id", "project", "content", "created_at"]
         read_only_fields = ["id", "created_at"]
+
+
+class ReflectionGroupSerializer(serializers.ModelSerializer):
+    reflection_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ReflectionGroup
+        fields = [
+            "slug",
+            "title",
+            "reflection_count",
+            "summary",
+            "summary_updated",
+        ]
+
+    def get_reflection_count(self, obj):
+        return obj.reflections.count()
 
 
 class SignalSourceSerializer(serializers.ModelSerializer):
@@ -1495,6 +1512,7 @@ class AssistantSerializer(serializers.ModelSerializer):
     recent_refinements = serializers.SerializerMethodField()
     drift_fix_count = serializers.SerializerMethodField()
     glossary_terms_fixed = serializers.SerializerMethodField()
+
     class Meta:
         model = Assistant
         fields = [
@@ -1578,7 +1596,7 @@ class AssistantSerializer(serializers.ModelSerializer):
             "nurture_started_at",
             "drift_fix_count",
             "glossary_terms_fixed",
-        "recent_refinements",
+            "recent_refinements",
         ]
 
     def get_display_name(self, obj):
@@ -1705,7 +1723,6 @@ class AssistantSerializer(serializers.ModelSerializer):
             "avatar": obj.avatar_style or getattr(source, "avatar_style", None),
         }
 
-
     def get_mentor_assistant(self, obj):
         mentor = obj.mentor_assistant
         if mentor:
@@ -1740,11 +1757,12 @@ class AssistantSerializer(serializers.ModelSerializer):
         for log in obj.drift_refinement_logs.all():
             terms.update(log.glossary_terms or [])
         return len(terms)
+
+
 class AssistantProjectSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = AssistantProject
         fields = [
-
             "id",
             "title",
             "slug",
@@ -2390,7 +2408,6 @@ class AssistantOverviewSerializer(serializers.ModelSerializer):
     reflections_last_7d = serializers.SerializerMethodField()
     drift_fixes_recent = serializers.SerializerMethodField()
 
-
     class Meta:
         model = Assistant
         fields = [
@@ -2404,13 +2421,11 @@ class AssistantOverviewSerializer(serializers.ModelSerializer):
             "reinforced_anchors",
             "badge_count",
             "first_question_drift_count",
-
             "trust_score",
             "trust_level",
             "earned_badge_count",
             "reflections_last_7d",
             "drift_fixes_recent",
-
         ]
         read_only_fields = fields
 
@@ -2444,7 +2459,6 @@ class AssistantOverviewSerializer(serializers.ModelSerializer):
 
         return ChatIntentDriftLog.objects.filter(assistant=obj).count()
 
-
     def get_trust_score(self, obj):
         return compute_trust_score(obj)["score"]
 
@@ -2461,7 +2475,6 @@ class AssistantOverviewSerializer(serializers.ModelSerializer):
         return compute_trust_score(obj)["components"]["drift_fixes_recent"]
 
 
-
 class DemoHealthSerializer(serializers.Serializer):
     slug = serializers.CharField()
     name = serializers.CharField()
@@ -2472,6 +2485,6 @@ class DemoHealthSerializer(serializers.Serializer):
     starter_chat_count = serializers.IntegerField()
     prompt_preview = serializers.CharField()
 
+
 # Re-export preferences serializer to avoid import path issues
 from .serializers_pass.preferences import AssistantUserPreferencesSerializer
-

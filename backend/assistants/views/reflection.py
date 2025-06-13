@@ -14,6 +14,9 @@ from assistants.utils.assistant_reflection_engine import (
 from assistants.models.assistant import DelegationEvent
 from assistants.models.thoughts import AssistantThoughtLog
 from memory.models import MemoryEntry
+from assistants.models.reflection import ReflectionGroup
+from assistants.utils.reflection_summary import summarize_reflections_for_document
+
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
@@ -40,8 +43,9 @@ def subagent_reflect_view(request, event_id):
         return Response({"error": "Delegation event not found"}, status=404)
 
     thoughts = list(
-        AssistantThoughtLog.objects.filter(assistant=event.child_assistant)
-        .order_by("-created_at")[:5]
+        AssistantThoughtLog.objects.filter(assistant=event.child_assistant).order_by(
+            "-created_at"
+        )[:5]
     )
 
     if not thoughts:
@@ -94,7 +98,9 @@ def reflect_on_self(request, slug):
 
     if MemoryEntry.objects.filter(assistant=assistant, type="delegation").exists():
         if "delegation" not in text.lower():
-            logging.getLogger(__name__).warning("Delegation memories were not summarized")
+            logging.getLogger(__name__).warning(
+                "Delegation memories were not summarized"
+            )
 
     if updates:
         if updates.get("persona_summary"):
@@ -119,10 +125,9 @@ def reflect_on_self(request, slug):
 def recent_reflection_logs(request, slug):
     """Return the 10 most recent reflection logs for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
-    logs = (
-        AssistantReflectionLog.objects.filter(assistant=assistant)
-        .order_by("-created_at")[:10]
-    )
+    logs = AssistantReflectionLog.objects.filter(assistant=assistant).order_by(
+        "-created_at"
+    )[:10]
     data = []
     for r in logs:
         data.append(
@@ -136,3 +141,51 @@ def recent_reflection_logs(request, slug):
             }
         )
     return Response(data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def reflection_group_list(request, slug):
+    assistant = get_object_or_404(Assistant, slug=slug)
+    groups = ReflectionGroup.objects.filter(assistant=assistant)
+    from assistants.serializers import ReflectionGroupSerializer
+
+    data = ReflectionGroupSerializer(groups, many=True).data
+    return Response(data)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def summarize_reflection_group(request):
+    slug = request.data.get("slug")
+    assistant_slug = request.data.get("assistant")
+    if not slug or not assistant_slug:
+        return Response({"error": "slug and assistant required"}, status=400)
+    assistant = get_object_or_404(Assistant, slug=assistant_slug)
+    group = get_object_or_404(ReflectionGroup, assistant=assistant, slug=slug)
+    summarize_reflections_for_document(group_slug=slug, assistant_id=assistant.id)
+    group.refresh_from_db()
+    return Response({"summary": group.summary})
+
+
+@api_view(["PATCH"])
+@permission_classes([AllowAny])
+def assign_reflection_group(request, id):
+    reflection = get_object_or_404(AssistantReflectionLog, id=id)
+    slug = request.data.get("group")
+    if not slug:
+        reflection.group_slug = None
+        reflection.save(update_fields=["group_slug"])
+        return Response({"group": None})
+
+    group = ReflectionGroup.objects.filter(
+        assistant=reflection.assistant, slug=slug
+    ).first()
+    if not group:
+        return Response({"error": "group not found"}, status=404)
+    reflection.group_slug = slug
+    reflection.save(update_fields=["group_slug"])
+    group.reflections.add(reflection)
+    if reflection.document:
+        group.documents.add(reflection.document)
+    return Response({"group": slug})

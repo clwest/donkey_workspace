@@ -1,12 +1,16 @@
 import os
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
 import django
+
 django.setup()
 
 from assistants.tests import BaseAPITestCase
 from assistants.models import Assistant
 from assistants.models.reflection import AssistantReflectionLog
+from assistants.models.reflection import ReflectionGroup
 from intel_core.models import Document
+
 
 class ReflectionGroupingTests(BaseAPITestCase):
     def setUp(self):
@@ -78,3 +82,25 @@ class ReflectionGroupingTests(BaseAPITestCase):
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["summary"], "keep")
 
+    def test_group_assignment_and_summary(self):
+        log = AssistantReflectionLog.objects.create(
+            assistant=self.assistant,
+            document=self.doc,
+            summary="text",
+            title="t",
+        )
+        group = ReflectionGroup.objects.create(
+            assistant=self.assistant, slug="devdocs", title="DevDocs"
+        )
+        url = f"/api/reflection-log/{log.id}/assign-group/"
+        resp = self.client.patch(url, {"group": group.slug}, format="json")
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json()["group"], group.slug)
+
+        summary_url = "/api/assistants/reflections/groups/summarize/"
+        resp = self.client.post(
+            summary_url, {"slug": group.slug, "assistant": self.assistant.slug}
+        )
+        self.assertEqual(resp.status_code, 200)
+        group.refresh_from_db()
+        self.assertIn("1 reflections", group.summary)
