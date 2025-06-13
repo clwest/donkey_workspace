@@ -290,7 +290,9 @@ import PromptDebuggerPage from "./pages/debug/PromptDebuggerPage";
 import RagRecallDebugPage from "./pages/debug/RagRecallDebugPage";
 import RAGDiagnosticsDashboard from "./pages/debug/RAGDiagnosticsDashboard";
 import RagFailureTable from "./pages/debug/RagFailureTable";
-import CLIRunner from "./pages/debug/CLIRunner";
+import CLIRunner from "./pages/dev/CLIRunnerPage";
+import CLILogViewer from "./pages/dev/CLILogViewer";
+import ToolIndexPanel from "./pages/tools/ToolIndexPanel";
 import ChunkStatsDashboard from "./pages/debug/ChunkStatsDashboard";
 import RagTestLogViewer from "./pages/assistants/RagTestLogViewer";
 import SwarmTaskEvolutionPage from "./pages/evolve/SwarmTaskEvolutionPage";
@@ -943,7 +945,8 @@ export default function App() {
           <Route path="/debug/rag-recall" element={<RagRecallDebugPage />} />
           <Route path="/debug/rag-failures" element={<RagFailureTable />} />
           <Route path="/debug/rag" element={<RAGDiagnosticsDashboard />} />
-          <Route path="/debug/cli-runner" element={<CLIRunner />} />
+          <Route path="/dev/cli" element={<CLIRunner />} />
+          <Route path="/cli/logs/:id/" element={<CLILogViewer />} />
           <Route path="/debug/chunk-stats" element={<ChunkStatsDashboard />} />
           <Route path="/planning" element={<PlanningPage />} />
           <Route path="/plan/graph" element={<PlanningGraphPage />} />
@@ -1085,6 +1088,7 @@ export default function App() {
           />
           <Route path="/keeper/logs" element={<KeeperLogViewer />} />
           <Route path="/tools" element={<ToolListPage />} />
+          <Route path="/tools/index" element={<ToolIndexPanel />} />
           <Route path="/tools/:id" element={<ToolDetailPage />} />
           <Route
             path="/assistants/:id/economy"

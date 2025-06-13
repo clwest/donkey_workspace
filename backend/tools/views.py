@@ -103,7 +103,9 @@ def execute_tool_view(request, pk):
         error_message=error,
     )
 
-    return Response({"result": result, "success": success, "error": error}, status=status_code)
+    return Response(
+        {"result": result, "success": success, "error": error}, status=status_code
+    )
 
 
 @api_view(["POST"])
@@ -178,8 +180,11 @@ def tool_reflections(request, pk):
 def reflect_on_tool_now(request, pk):
     tool = get_object_or_404(Tool, pk=pk)
     from assistants.utils.assistant_reflection_engine import reflect_on_tool_usage
+
     assistants = list(
-        ToolExecutionLog.objects.filter(tool=tool).values_list("assistant_id", flat=True).distinct()
+        ToolExecutionLog.objects.filter(tool=tool)
+        .values_list("assistant_id", flat=True)
+        .distinct()
     )
     from assistants.models import Assistant
 
@@ -192,3 +197,58 @@ def reflect_on_tool_now(request, pk):
             logs = reflect_on_tool_usage(assistant)
             total += sum(1 for l in logs if l.tool_id == tool.id)
     return Response({"created": total})
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def tool_index(request):
+    """Return summary details for all tools."""
+    from assistants.models.tooling import AssistantToolAssignment
+    from tools.models import ToolReflectionLog
+
+    qs = Tool.objects.all()
+    assistant = request.GET.get("assistant")
+    tool_type = request.GET.get("type")
+    if assistant:
+        qs = qs.filter(
+            slug__in=AssistantToolAssignment.objects.filter(
+                assistant__slug=assistant
+            ).values_list("tool__slug", flat=True)
+        )
+    if tool_type:
+        qs = qs.filter(tags__contains=[tool_type])
+    results = []
+    for tool in qs:
+        last_exec = (
+            ToolExecutionLog.objects.filter(tool=tool).order_by("-created_at").first()
+        )
+        exec_count = ToolExecutionLog.objects.filter(tool=tool).count()
+        assistants = list(
+            AssistantToolAssignment.objects.filter(tool__slug=tool.slug)
+            .select_related("assistant")
+            .values_list("assistant__slug", flat=True)
+        )
+        reflections = ToolReflectionLog.objects.filter(tool=tool).order_by(
+            "-created_at"
+        )[:5]
+        results.append(
+            {
+                "id": tool.id,
+                "name": tool.name,
+                "slug": tool.slug,
+                "version": tool.version,
+                "is_public": tool.is_public,
+                "last_used_at": last_exec.created_at.isoformat() if last_exec else None,
+                "exec_count": exec_count,
+                "assistants": assistants,
+                "recent_reflections": [
+                    {
+                        "id": r.id,
+                        "assistant": r.assistant.slug,
+                        "created_at": r.created_at.isoformat(),
+                    }
+                    for r in reflections
+                ],
+            }
+        )
+    return Response({"results": results})

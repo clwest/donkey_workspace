@@ -37,6 +37,7 @@ from devtools.views import (
     ignore_context_embeddings,
     embedding_drift_log,
     run_cli_command,
+    cli_command_list,
     command_log_detail,
     command_log_list,
     assistant_rag_tests,
@@ -145,6 +146,7 @@ urlpatterns = [
     ),
     path("api/dev/embedding-drift-log/", embedding_drift_log),
     path("api/dev/cli/run/", run_cli_command),
+    path("api/dev/cli/commands/", cli_command_list),
     path("api/dev/command-logs/<int:log_id>/", command_log_detail),
     path("api/dev/command-logs/", command_log_list),
     path(
