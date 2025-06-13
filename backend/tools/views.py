@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from .models import Tool, ToolUsageLog
+from .models import Tool, ToolUsageLog, ToolExecutionLog
 from tools.utils.tool_registry import execute_tool
 from tools.utils import mutate_prompt_based_on_tool_feedback
 from assistants.models.reflection import AssistantReflectionLog
@@ -24,6 +24,25 @@ def tool_list(request):
         }
         for t in tools
     ]
+    return Response(data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def tool_detail(request, pk):
+    tool = get_object_or_404(Tool, pk=pk)
+    data = {
+        "id": tool.id,
+        "name": tool.name,
+        "slug": tool.slug,
+        "description": tool.description,
+        "version": tool.version,
+        "code_reference": tool.code_reference,
+        "input_schema": tool.input_schema,
+        "output_schema": tool.output_schema,
+        "is_public": tool.is_public,
+        "enabled": tool.enabled,
+    }
     return Response(data)
 
 
@@ -59,6 +78,36 @@ def invoke_tool(request, slug):
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
+def execute_tool_view(request, pk):
+    tool = get_object_or_404(Tool, pk=pk)
+    payload = request.data or {}
+    result = None
+    success = True
+    error = ""
+    status_code = 200
+    try:
+        result = execute_tool(tool, payload)
+    except Exception as e:  # pragma: no cover - simple logging
+        success = False
+        error = str(e)
+        status_code = 500
+
+    ToolExecutionLog.objects.create(
+        tool=tool,
+        assistant_id=payload.get("assistant_id"),
+        agent_id=payload.get("agent_id"),
+        input_data=payload,
+        output_data=result if success else None,
+        success=success,
+        status_code=status_code,
+        error_message=error,
+    )
+
+    return Response({"result": result, "success": success, "error": error}, status=status_code)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
 def submit_tool_feedback(request, id):
     """Record feedback on a tool usage log and trigger prompt mutation."""
     log = get_object_or_404(ToolUsageLog, id=id)
@@ -79,3 +128,25 @@ def submit_tool_feedback(request, id):
             )
 
     return Response({"status": "saved"})
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def tool_logs(request, pk):
+    tool = get_object_or_404(Tool, pk=pk)
+    logs = ToolExecutionLog.objects.filter(tool=tool)[:50]
+    data = [
+        {
+            "id": log.id,
+            "assistant": log.assistant_id,
+            "agent": log.agent_id,
+            "input_data": log.input_data,
+            "output_data": log.output_data,
+            "success": log.success,
+            "status_code": log.status_code,
+            "error_message": log.error_message,
+            "created_at": log.created_at.isoformat(),
+        }
+        for log in logs
+    ]
+    return Response(data)

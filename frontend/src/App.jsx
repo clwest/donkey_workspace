@@ -237,6 +237,8 @@ import RitualRewardsPage from "./pages/ritual/RitualRewardsPage";
 import AssistantEconomyPage from "./pages/assistant/economy/AssistantEconomyPage";
 import AssistantDeployPage from "./pages/assistant/deploy/AssistantDeployPage";
 import AssistantToolsPage from "./pages/assistant/tools/AssistantToolsPage";
+import ToolListPage from "./pages/tools/ToolListPage";
+import ToolDetailPage from "./pages/tools/ToolDetailPage";
 import ReviewIngestPage from "./pages/assistant/review_ingest/ReviewIngestPage";
 import ArenaActivePage from "./pages/arena/ArenaActivePage";
 import GuildFundingPage from "./pages/guilds/GuildFundingPage";
@@ -1077,6 +1079,8 @@ export default function App() {
             element={<SymbolicAnchorDetailPage />}
           />
           <Route path="/keeper/logs" element={<KeeperLogViewer />} />
+          <Route path="/tools" element={<ToolListPage />} />
+          <Route path="/tools/:id" element={<ToolDetailPage />} />
           <Route
             path="/assistants/:id/economy"
             element={<AssistantEconomyPage />}

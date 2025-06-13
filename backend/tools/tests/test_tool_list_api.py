@@ -18,7 +18,7 @@ class ToolListAPITest(APITestCase):
         )
 
     def test_list_only_active(self):
-        resp = self.client.get("/api/v1/tools/")
+        resp = self.client.get("/api/tools/")
         self.assertEqual(resp.status_code, 200)
         slugs = {t["slug"] for t in resp.json()}
         self.assertIn("a", slugs)
