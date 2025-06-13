@@ -3,7 +3,8 @@ from django.core.management.base import BaseCommand, CommandError
 from assistants.models import Assistant
 from assistants.models.thoughts import AssistantThoughtLog
 from assistants.models.reflection import AssistantReflectionLog
-from assistants.models.assistant import ChatSession, AssistantProject
+from assistants.models.assistant import ChatSession
+from assistants.models.project import AssistantProject
 from memory.models import MemoryEntry
 from assistants.utils.assistant_lookup import resolve_assistant
 
