@@ -2,7 +2,7 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import AssistantCard from "./AssistantCard";
 import apiFetch from "@/utils/apiClient";
-import { fetchBootStatus, fetchDiagnosticReport } from "@/api/assistants";
+import { fetchBootStatus, fetchDiagnosticReport, fetchBootProfile } from "@/api/assistants";
 import TrustBadge from "./TrustBadge";
 
 export default function AssistantDashboardCard({ assistant }) {
@@ -10,9 +10,10 @@ export default function AssistantDashboardCard({ assistant }) {
   const [bootStatus, setBootStatus] = useState(null);
   const [diagnostic, setDiagnostic] = useState(null);
   const [docStats, setDocStats] = useState(null);
+  const [bootProfile, setBootProfile] = useState(null);
 
   async function load() {
-    if (profile && bootStatus && diagnostic) return;
+    if (profile && bootStatus && diagnostic && bootProfile && docStats) return;
     try {
       const data = await apiFetch(`/assistants/${assistant.slug}/trust_profile/`);
       setProfile(data);
@@ -22,6 +23,12 @@ export default function AssistantDashboardCard({ assistant }) {
     try {
       const status = await fetchBootStatus(assistant.slug);
       setBootStatus(status);
+    } catch (err) {
+      console.error(err);
+    }
+    try {
+      const prof = await fetchBootProfile(assistant.slug);
+      setBootProfile(prof);
     } catch (err) {
       console.error(err);
     }
@@ -100,6 +107,14 @@ export default function AssistantDashboardCard({ assistant }) {
               >
                 View Diagnostic
               </a>
+            </span>
+          )}
+          {bootStatus && bootProfile && (
+            <span className="ms-2 d-block">
+              Documents Linked: {bootStatus.linked_documents} | Chunks Available: {bootStatus.embedded_chunks}
+              {" "}| Glossary Anchors: {bootProfile.glossary_anchors?.active}
+              {" "}| Status:{" "}
+              {assistant.rag_certified ? "Certified ✅" : "Needs Review ❗"}
             </span>
           )}
         </div>
