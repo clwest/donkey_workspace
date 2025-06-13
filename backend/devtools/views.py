@@ -239,6 +239,8 @@ def embedding_debug(request):
     from memory.models import MemoryEntry
     from intel_core.models import DocumentChunk
     from prompts.models import Prompt
+    from mcp_core.models import DevDoc
+    from assistants.utils.resolve import resolve_assistant
 
     model_counts = list(
         EmbeddingMetadata.objects.values("model_used")
@@ -252,36 +254,73 @@ def embedding_debug(request):
     allowed = {ct_memory.id, ct_chunk.id, ct_prompt.id}
 
     invalid = 0
+    orphaned_embeddings = []
     for emb in Embedding.objects.select_related("content_type"):
         ct = emb.content_type
+        if not ct or ct.id not in allowed:
+            continue
         obj = emb.content_object
-        expected = None
-        if ct and emb.object_id:
-            expected = f"{ct.model}:{emb.object_id}"
-        if not ct or ct.id not in allowed or obj is None or emb.content_id != expected:
+        if obj is None:
             invalid += 1
+            orphaned_embeddings.append(
+                {
+                    "embedding_id": emb.id,
+                    "expected": emb.content_id,
+                    "reason": "missing object",
+                }
+            )
+            continue
+        expected_ct = ContentType.objects.get_for_model(obj.__class__)
+        expected_cid = f"{expected_ct.model}:{obj.id}"
+        expected_oid = str(obj.id)
+        if (
+            emb.content_type_id != expected_ct.id
+            or str(emb.object_id) != expected_oid
+            or emb.content_id != expected_cid
+        ):
+            invalid += 1
+            orphaned_embeddings.append(
+                {
+                    "embedding_id": emb.id,
+                    "expected": expected_cid,
+                    "actual": emb.content_id,
+                    "reason": "mismatched link",
+                }
+            )
 
     # Count embeddings grouped by their related memory entry's assistant and
     # context. GenericForeignKey relations can't be traversed directly in a
     # values() query, so we start from MemoryEntry where the GenericRelation
     # resides. This avoids FieldError when attempting to use
     # ``content_object__...`` lookups on Embedding.
+    assistant_param = request.GET.get("assistant")
+    assistant_obj = resolve_assistant(assistant_param) if assistant_param else None
+
+    entries_qs = MemoryEntry.objects.filter(embeddings__isnull=False)
+    if assistant_obj:
+        entries_qs = entries_qs.filter(assistant=assistant_obj)
     breakdown = list(
-        MemoryEntry.objects.filter(embeddings__isnull=False)
-        .values("assistant__id", "assistant__slug", "context_id")
+        entries_qs.values("assistant__id", "assistant__slug", "context_id")
         .annotate(count=Count("embeddings__id"))
         .order_by("-count")
     )
 
     context_stats = []
     duplicate_slugs = list(
-        Assistant.objects.values("slug").annotate(c=Count("id")).filter(c__gt=1).values_list("slug", flat=True)
+        Assistant.objects.values("slug")
+        .annotate(c=Count("id"))
+        .filter(c__gt=1)
+        .values_list("slug", flat=True)
     )
     assistants_no_docs = []
     retrieval_checks = []
+    repair_qs = MemoryEntry.objects.filter(
+        embeddings__debug_tags__repair_status="pending"
+    )
+    if assistant_obj:
+        repair_qs = repair_qs.filter(assistant=assistant_obj)
     repairable_contexts = list(
-        MemoryEntry.objects.filter(embeddings__debug_tags__repair_status="pending")
-        .annotate(
+        repair_qs.annotate(
             assistant_slug=F("assistant__slug"),
             status=F("embeddings__debug_tags__repair_status"),
         )
@@ -291,9 +330,13 @@ def embedding_debug(request):
     )
     if request.GET.get("include_rag") == "1":
         from assistants.utils.chunk_retriever import get_relevant_chunks
-        from assistants.models import Assistant
 
-        for a in Assistant.objects.all():
+        assistants_qs = (
+            Assistant.objects.filter(id=assistant_obj.id)
+            if assistant_obj
+            else Assistant.objects.all()
+        )
+        for a in assistants_qs:
             count = 0
             if a.memory_context_id:
                 chunks, *_ = get_relevant_chunks(
@@ -302,12 +345,17 @@ def embedding_debug(request):
                     memory_context_id=str(a.memory_context_id),
                 )
                 count = len(chunks)
-            if a.documents.count() == 0:
+            all_docs = (
+                a.documents.count()
+                + a.assigned_documents.count()
+                + DevDoc.objects.filter(linked_assistants=a).count()
+            )
+            if all_docs == 0:
                 assistants_no_docs.append(a.slug)
             retrieval_checks.append(
                 {
                     "assistant": a.slug,
-                    "documents": a.documents.count(),
+                    "documents": all_docs,
                     "retrieved": count,
                 }
             )
@@ -331,6 +379,7 @@ def embedding_debug(request):
             "retrieval_checks": retrieval_checks,
             "repairable_contexts": repairable_contexts,
             "duplicate_slugs": duplicate_slugs,
+            "orphaned_embeddings": orphaned_embeddings,
         }
     )
 
@@ -428,7 +477,10 @@ def embedding_audit_fix(request, tag_id):
     from django.shortcuts import get_object_or_404
     from django.utils import timezone
     from embeddings.models import Embedding, EmbeddingDebugTag
-    from embeddings.utils.link_repair import repair_embedding_link, embedding_link_matches
+    from embeddings.utils.link_repair import (
+        repair_embedding_link,
+        embedding_link_matches,
+    )
 
     action = request.data.get("action", "fix")
     tag = get_object_or_404(EmbeddingDebugTag, id=tag_id)
@@ -445,12 +497,14 @@ def embedding_audit_fix(request, tag_id):
         tag.repaired_at = timezone.now()
     else:
         tag.repair_status = "failed" if changed else "skipped"
-    tag.save(update_fields=[
-        "repair_status",
-        "repair_attempts",
-        "last_attempt_at",
-        "repaired_at",
-    ])
+    tag.save(
+        update_fields=[
+            "repair_status",
+            "repair_attempts",
+            "last_attempt_at",
+            "repaired_at",
+        ]
+    )
     return Response({"status": tag.repair_status})
 
 
@@ -460,7 +514,10 @@ def repair_context_embeddings(request, context_id):
     """Repair all flagged embeddings for a memory context."""
     from django.utils import timezone
     from embeddings.models import EmbeddingDebugTag
-    from embeddings.utils.link_repair import repair_embedding_link, embedding_link_matches
+    from embeddings.utils.link_repair import (
+        repair_embedding_link,
+        embedding_link_matches,
+    )
     from django.db.models import CharField
     from django.db.models.functions import Cast
 
@@ -471,8 +528,7 @@ def repair_context_embeddings(request, context_id):
     embedding_ids = (
         Embedding.objects.filter(content_type_id=mem_ct.id)
         .filter(
-            object_id__in=
-            MemoryEntry.objects.filter(context_id=context_id)
+            object_id__in=MemoryEntry.objects.filter(context_id=context_id)
             .annotate(id_str=Cast("id", output_field=CharField()))
             .values("id_str")
         )
@@ -521,8 +577,7 @@ def ignore_context_embeddings(request, context_id):
     embedding_ids = (
         Embedding.objects.filter(content_type_id=mem_ct.id)
         .filter(
-            object_id__in=
-            MemoryEntry.objects.filter(context_id=context_id)
+            object_id__in=MemoryEntry.objects.filter(context_id=context_id)
             .annotate(id_str=Cast("id", output_field=CharField()))
             .values("id_str")
         )
