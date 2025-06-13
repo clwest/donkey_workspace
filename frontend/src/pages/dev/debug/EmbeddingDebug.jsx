@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
 import useAuditEmbeddingLinks from "../../../hooks/useAuditEmbeddingLinks";
 import ErrorCard from "../../../components/ErrorCard";
@@ -7,7 +8,17 @@ export default function EmbeddingDebug() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [showRag, setShowRag] = useState(false);
-  const { rows: auditRows } = useAuditEmbeddingLinks();
+  const { rows: auditRows, reload } = useAuditEmbeddingLinks();
+
+  const doRepair = async (id) => {
+    await apiFetch(`/dev/embedding-audit/${id}/repair/`, { method: "PATCH" });
+    reload();
+  };
+
+  const doIgnore = async (id) => {
+    await apiFetch(`/dev/embedding-audit/${id}/ignore/`, { method: "PATCH" });
+    reload();
+  };
 
   useEffect(() => {
     async function load() {
@@ -68,14 +79,39 @@ export default function EmbeddingDebug() {
                 <th>Assistant</th>
                 <th>Context ID</th>
                 <th>Count</th>
+                <th>Status</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
               {auditRows.map((row) => (
                 <tr key={row.context_id}>
-                  <td>{row.assistant_name}</td>
+                  <td>
+                    <Link to={`/assistants/${row.assistant}/memory/${row.context_id}/`}>
+                      {row.assistant_name}
+                    </Link>
+                  </td>
                   <td>{row.context_id}</td>
                   <td>{row.count}</td>
+                  <td>
+                    <span
+                      className={`badge ${row.status === 'pending' ? 'bg-warning' : row.status === 'repaired' ? 'bg-success' : 'bg-secondary'}`}
+                    >
+                      {row.status}
+                    </span>
+                  </td>
+                  <td>
+                    {row.status === 'pending' && (
+                      <>
+                        <button className="btn btn-sm btn-primary me-2" onClick={() => doRepair(row.context_id)}>
+                          Fix
+                        </button>
+                        <button className="btn btn-sm btn-outline-secondary" onClick={() => doIgnore(row.context_id)}>
+                          Ignore
+                        </button>
+                      </>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
