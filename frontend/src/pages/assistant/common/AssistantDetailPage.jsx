@@ -516,6 +516,11 @@ export default function AssistantDetailPage() {
             </button>
           </li>
           <li className="nav-item">
+            <Link className="nav-link" to={`/assistants/${slug}/tools`}>
+              Tools
+            </Link>
+          </li>
+          <li className="nav-item">
             <button
               className={`nav-link ${activeTab === "training" ? "active" : ""}`}
               onClick={() => setActiveTab("training")}

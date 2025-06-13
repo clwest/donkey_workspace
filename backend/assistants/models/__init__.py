@@ -24,6 +24,7 @@ from .user_preferences import *
 from .devlog import *
 from .diagnostics import *
 from .command_log import *
+from .tooling import *
 
 
 
