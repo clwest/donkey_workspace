@@ -13,8 +13,20 @@ import json
 from pathlib import Path
 from django.forms.models import model_to_dict
 from assistants.models.command_log import AssistantCommandLog
-from django.core.management import get_commands
+from django.core.management import get_commands, load_command_class
 from assistants.serializers import AssistantCommandLogSerializer
+
+
+TARGET_APPS = {
+    "assistants",
+    "embeddings",
+    "intel_core",
+    "mcp_core",
+    "memory",
+    "project",
+    "prompts",
+    "tools",
+}
 
 
 
@@ -124,12 +136,14 @@ class RouteInspector:
 
 @api_view(["GET"])
 @never_cache
+@permission_classes([IsAuthenticated])
 def full_route_map(request):
     routes = get_full_route_map()
     return Response({"routes": routes})
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def template_health_summary(request):
     result = subprocess.run(
         ["python", "manage.py", "inspect_template_health", "--include-rag"],
@@ -158,6 +172,7 @@ def template_health_summary(request):
 
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
 def reload_templates(request):
     from django.template import engines
 
@@ -167,6 +182,7 @@ def reload_templates(request):
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def template_detail(request, slug):
     path = Path(slug)
     info = {}
@@ -181,6 +197,7 @@ def template_detail(request, slug):
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def template_diff(request, slug):
     path = Path(slug)
     try:
