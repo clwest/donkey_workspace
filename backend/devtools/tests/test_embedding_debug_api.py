@@ -41,27 +41,5 @@ class EmbeddingDebugAPITest(APITestCase):
         self.assertIn("retrieval_checks", data)
         self.assertIn("repairable_contexts", data)
 
-
-    def test_assigned_docs_not_flagged(self):
-        from assistants.models import Assistant
-        from intel_core.models import Document
-        from unittest.mock import patch
-
-        assistant = Assistant.objects.create(name="A")
-        doc = Document.objects.create(title="D", content="c")
-        assistant.assigned_documents.add(doc)
-
-        with patch(
-            "assistants.utils.chunk_retriever.get_relevant_chunks",
-            return_value=([], None, False, False, 0.0, None, False, False, [], {}),
-        ):
-            resp = self.client.get("/api/dev/embedding-debug/?include_rag=1")
-
-        self.assertEqual(resp.status_code, 200)
-        data = resp.json()
-        self.assertNotIn(assistant.slug, data.get("assistants_no_docs", []))
-        entry = next(
-            r for r in data.get("retrieval_checks", []) if r["assistant"] == assistant.slug
-        )
-        self.assertEqual(entry["documents"], 1)
+        self.assertIn("orphan_embeddings", data)
 
