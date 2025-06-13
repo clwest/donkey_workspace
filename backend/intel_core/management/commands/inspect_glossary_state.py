@@ -6,7 +6,7 @@ from intel_core.models import (
     GlossaryFallbackReflectionLog,
 )
 from memory.models import SymbolicMemoryAnchor
-from assistants.models import Assistant
+from assistants.utils.resolve import resolve_assistant
 from utils.inspection_helpers import print_glossary_debug_table
 
 
@@ -30,9 +30,7 @@ class Command(BaseCommand):
         include_incomplete = options.get("include_incomplete", False)
 
         if assistant_slug:
-            try:
-                Assistant.objects.get(slug=assistant_slug)
-            except Assistant.DoesNotExist:
+            if not resolve_assistant(assistant_slug):
                 self.stdout.write(
                     self.style.ERROR(f"Assistant '{assistant_slug}' not found.")
                 )

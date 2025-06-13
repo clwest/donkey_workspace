@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from assistants.models import Assistant
+from assistants.utils.resolve import resolve_assistant
 from intel_core.utils.glossary_tagging import retag_glossary_chunks
 
 
@@ -18,9 +18,8 @@ class Command(BaseCommand):
         dry_run = options.get("dry_run", False)
         reset = options.get("reset", False)
 
-        try:
-            assistant = Assistant.objects.get(slug=assistant_slug)
-        except Assistant.DoesNotExist:
+        assistant = resolve_assistant(assistant_slug)
+        if not assistant:
             self.stderr.write(
                 self.style.ERROR(f"Assistant '{assistant_slug}' not found.")
             )

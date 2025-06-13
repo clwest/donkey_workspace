@@ -2,6 +2,7 @@ import logging
 from django.core.management.base import BaseCommand
 from memory.models import MemoryEntry
 from assistants.utils.delegation_summary_engine import DelegationSummaryEngine
+from assistants.utils.resolve import resolve_assistant
 
 logger = logging.getLogger(__name__)
 
@@ -13,10 +14,14 @@ class Command(BaseCommand):
         parser.add_argument("--assistant", help="Assistant slug", default=None)
 
     def handle(self, *args, **options):
-        slug = options.get("assistant")
+        identifier = options.get("assistant")
         qs = MemoryEntry.objects.filter(type="delegation_summary")
-        if slug:
-            qs = qs.filter(assistant__slug=slug)
+        if identifier:
+            assistant = resolve_assistant(identifier)
+            if not assistant:
+                self.stderr.write(self.style.ERROR(f"Assistant '{identifier}' not found"))
+                return
+            qs = qs.filter(assistant=assistant)
         repaired = 0
         for mem in qs:
             updated_fields = []

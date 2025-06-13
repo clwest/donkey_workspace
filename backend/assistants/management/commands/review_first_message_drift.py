@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.db.models import Count, Avg
 from assistants.models import Assistant
+from assistants.utils.resolve import resolve_assistant
 from assistants.models.assistant import ChatIntentDriftLog
 from assistants.models.glossary import SuggestionLog
 
@@ -13,11 +14,15 @@ class Command(BaseCommand):
         parser.add_argument("--threshold", type=float, default=0.6)
 
     def handle(self, *args, **options):
-        slug = options.get("assistant")
+        identifier = options.get("assistant")
         threshold = options.get("threshold")
         qs = Assistant.objects.all()
-        if slug:
-            qs = qs.filter(slug=slug)
+        if identifier:
+            assistant = resolve_assistant(identifier)
+            if not assistant:
+                self.stderr.write(self.style.ERROR(f"Assistant '{identifier}' not found"))
+                return
+            qs = qs.filter(id=assistant.id)
         for assistant in qs:
             logs = ChatIntentDriftLog.objects.filter(
                 assistant=assistant,

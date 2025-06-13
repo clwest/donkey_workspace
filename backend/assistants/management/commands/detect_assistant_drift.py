@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from assistants.models import Assistant, SpecializationDriftLog
+from assistants.utils.resolve import resolve_assistant
 from assistants.utils.drift_detection import analyze_specialization_drift
 
 
@@ -10,10 +11,14 @@ class Command(BaseCommand):
         parser.add_argument("--assistant", help="Slug of assistant to analyze")
 
     def handle(self, *args, **options):
-        slug = options.get("assistant")
+        identifier = options.get("assistant")
         qs = Assistant.objects.filter(is_active=True)
-        if slug:
-            qs = qs.filter(slug=slug)
+        if identifier:
+            assistant = resolve_assistant(identifier)
+            if not assistant:
+                self.stderr.write(self.style.ERROR(f"Assistant '{identifier}' not found"))
+                return
+            qs = qs.filter(id=assistant.id)
         for assistant in qs:
             result = analyze_specialization_drift(assistant)
             if result.get("flagged"):

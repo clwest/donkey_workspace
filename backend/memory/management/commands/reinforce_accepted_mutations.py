@@ -14,7 +14,12 @@ class Command(BaseCommand):
         slug = options.get("assistant")
         anchors = SymbolicMemoryAnchor.objects.filter(mutation_status="applied")
         if slug:
-            anchors = anchors.filter(assistant__slug=slug)
+            from assistants.utils.resolve import resolve_assistant
+            assistant = resolve_assistant(slug)
+            if not assistant:
+                self.stderr.write(self.style.ERROR(f"Assistant '{slug}' not found"))
+                return
+            anchors = anchors.filter(assistant=assistant)
         count = 0
         for anchor in anchors:
             if not AnchorReinforcementLog.objects.filter(anchor=anchor, reason="mutation_applied").exists():

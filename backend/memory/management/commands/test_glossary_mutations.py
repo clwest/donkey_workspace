@@ -1,13 +1,12 @@
 from django.core.management.base import BaseCommand
-from assistants.models import Assistant
+from assistants.utils.resolve import resolve_assistant
 from assistants.utils.chunk_retriever import get_rag_chunk_debug
 from memory.models import SymbolicMemoryAnchor
 
 
 def run_glossary_mutation_tests(slug, stdout=None):
-    try:
-        assistant = Assistant.objects.get(slug=slug)
-    except Assistant.DoesNotExist:
+    assistant = resolve_assistant(slug)
+    if not assistant:
         if stdout:
             stdout.write(f"Assistant '{slug}' not found")
         return []

@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from assistants.models import Assistant
+from assistants.utils.resolve import resolve_assistant
 from memory.models import MemoryEntry
 from mcp_core.models import MemoryContext
 
@@ -11,8 +11,11 @@ class Command(BaseCommand):
         parser.add_argument("--assistant", type=str)
 
     def handle(self, *args, **options):
-        slug = options["assistant"]
-        assistant = Assistant.objects.get(slug=slug)
+        identifier = options["assistant"]
+        assistant = resolve_assistant(identifier)
+        if not assistant:
+            self.stderr.write(self.style.ERROR(f"Assistant '{identifier}' not found"))
+            return
         context = assistant.memory_context
 
         if not context:

@@ -19,12 +19,17 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         os.makedirs(EXPORT_DIR, exist_ok=True)
         assistant_slug = options.get("assistant")
-
+        
         reflections = AssistantReflectionLog.objects.all()
         replays = ReflectionReplayLog.objects.all()
         if assistant_slug:
-            reflections = reflections.filter(assistant__slug=assistant_slug)
-            replays = replays.filter(assistant__slug=assistant_slug)
+            from assistants.utils.resolve import resolve_assistant
+            assistant = resolve_assistant(assistant_slug)
+            if not assistant:
+                self.stderr.write(self.style.ERROR(f"Assistant '{assistant_slug}' not found"))
+                return
+            reflections = reflections.filter(assistant=assistant)
+            replays = replays.filter(assistant=assistant)
 
         reflection_data = AssistantReflectionLogSerializer(reflections, many=True).data
         replay_data = ReflectionReplayLogSerializer(replays, many=True).data

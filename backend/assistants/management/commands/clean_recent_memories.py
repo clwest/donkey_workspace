@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
-from assistants.models import Assistant
+from assistants.utils.resolve import resolve_assistant
 from memory.models import MemoryEntry
 from prompts.utils.token_helpers import count_tokens
 from django.db.models import Q
@@ -12,8 +12,11 @@ class Command(BaseCommand):
         parser.add_argument("--assistant", required=True)
 
     def handle(self, *args, **options):
-        slug = options["assistant"]
-        assistant = Assistant.objects.get(slug=slug)
+        identifier = options["assistant"]
+        assistant = resolve_assistant(identifier)
+        if not assistant:
+            self.stderr.write(self.style.ERROR(f"Assistant '{identifier}' not found"))
+            return
 
         qs = MemoryEntry.objects.filter(
             assistant=assistant,

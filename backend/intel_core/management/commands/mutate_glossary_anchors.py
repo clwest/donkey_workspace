@@ -5,7 +5,7 @@ from typing import List
 from django.core.management.base import BaseCommand
 from django.utils.text import slugify
 
-from assistants.models import Assistant
+from assistants.utils.resolve import resolve_assistant
 from assistants.utils.chunk_retriever import get_glossary_terms_from_reflections
 from memory.models import SymbolicMemoryAnchor, RAGGroundingLog
 from intel_core.utils.anchor_mutation import suggest_anchor_mutations
@@ -28,9 +28,8 @@ class Command(BaseCommand):
         apply_changes = options.get("apply")
         save_review = options.get("save_to_review")
 
-        try:
-            assistant = Assistant.objects.get(slug=slug)
-        except Assistant.DoesNotExist:
+        assistant = resolve_assistant(slug)
+        if not assistant:
             self.stderr.write(self.style.ERROR(f"Assistant '{slug}' not found"))
             return
 

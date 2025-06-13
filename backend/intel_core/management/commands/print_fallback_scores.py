@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.db.models import Avg, Count
 from memory.models import RAGGroundingLog
-from assistants.models import Assistant
+from assistants.utils.resolve import resolve_assistant
 
 class Command(BaseCommand):
     """Print average adjusted scores for fallback logs grouped by glossary term."""
@@ -13,9 +13,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         slug = options["assistant"]
-        try:
-            assistant = Assistant.objects.get(slug=slug)
-        except Assistant.DoesNotExist:
+        assistant = resolve_assistant(slug)
+        if not assistant:
             self.stderr.write(self.style.ERROR(f"Assistant '{slug}' not found."))
             return
 
