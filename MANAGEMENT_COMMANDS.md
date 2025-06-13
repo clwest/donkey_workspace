@@ -20,18 +20,18 @@ python manage.py audit_embedding_links --diff
 
 # ─── PHASE 2: Context-Level Repair + Drift Snapshots ─────────────
 
-python manage.py repair_context_embeddings --assistant claritybot
+python manage.py repair_context_embeddings --assistant 64e0fa88-702f-4918-85a7-5d5a309722a7 (claritybot)
 python manage.py log_embedding_drift
 
 # ─── PHASE 3: Assistant Reflection + Document Sync ───────────────
 
-python manage.py reflect_on_document --doc <document_id> --assistant claritybot
+python manage.py reflect_on_document --doc a0041480-7dfd-4659-8896-087713429414 --assistant 64e0fa88-702f-4918-85a7-5d5a309722a7 (claritybot)
 python manage.py audit_document_reflections
-python manage.py summarize_reflection_group --group claritybot
+python manage.py summarize_reflection_group --group 64e0fa88-702f-4918-85a7-5d5a309722a7 (claritybot)
 
 # ─── PHASE 4: Glossary Anchor Inference + Mutation Suggestions ───
 
-python manage.py infer_glossary_anchors --assistant claritybot
+python manage.py infer_glossary_anchors --assistant 64e0fa88-702f-4918-85a7-5d5a309722a7 (claritybot)
 python manage.py generate_missing_mutations_for_assistant claritybot
 
 # ─── PHASE 5: Retry Birth Reflections + Audit Status ─────────────
