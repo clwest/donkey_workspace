@@ -2014,6 +2014,51 @@ def rag_drift_report(request, slug):
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
+def rag_diagnostics_summary(request, slug):
+    """Return RAG usage summary metrics for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    from django.db.models import Count
+    from memory.models import RAGGroundingLog
+
+    logs = RAGGroundingLog.objects.filter(assistant=assistant)
+    total = logs.count()
+    fallback_count = logs.filter(fallback_triggered=True).count()
+    fallback_pct = (fallback_count / total * 100) if total else 0.0
+
+    top = (
+        logs.filter(fallback_triggered=True)
+        .exclude(expected_anchor="")
+        .values("expected_anchor")
+        .annotate(fallbacks=Count("id"))
+        .order_by("-fallbacks")[:5]
+    )
+
+    histogram = {
+        "lt_0.2": logs.filter(corrected_score__lt=0.2).count(),
+        "0.2_0.4": logs.filter(
+            corrected_score__gte=0.2, corrected_score__lt=0.4
+        ).count(),
+        "0.4_0.6": logs.filter(
+            corrected_score__gte=0.4, corrected_score__lt=0.6
+        ).count(),
+        "0.6_0.8": logs.filter(
+            corrected_score__gte=0.6, corrected_score__lt=0.8
+        ).count(),
+        "gt_0.8": logs.filter(corrected_score__gte=0.8).count(),
+    }
+
+    return Response(
+        {
+            "total": total,
+            "fallback_pct": round(fallback_pct, 2),
+            "top_failing": list(top),
+            "score_histogram": histogram,
+        }
+    )
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def first_question_stats(request, slug):
     """Return summary stats about first user questions."""
     assistant = get_object_or_404(Assistant, slug=slug)
@@ -2294,7 +2339,10 @@ def retry_birth_reflection(request, slug):
 
     reflect_on_birth(assistant)
     assistant.birth_reflection_retry_count += 1
-    if not assistant.last_reflection_successful and assistant.birth_reflection_retry_count >= 3:
+    if (
+        not assistant.last_reflection_successful
+        and assistant.birth_reflection_retry_count >= 3
+    ):
         assistant.can_retry_birth_reflection = False
     if assistant.last_reflection_successful:
         assistant.can_retry_birth_reflection = False

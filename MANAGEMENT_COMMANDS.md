@@ -66,3 +66,5 @@ generate_missing_mutations_for_assistant Suggest glossary term fixes
 cleanup_orphan_assistants Identify unused or duplicate assistants
 
 repair_context_embeddings Fix memory context-specific links (requires valid assistant)
+
+run_rag_tests Run RAG regression tests defined in rag_tests.json

@@ -376,3 +376,10 @@ Translations live under `frontend/src/locales/` and `backend/locale/`. See [docs
 
 ## Accessibility
 The UI targets WCAG 2.1 AA. Automated checks run with `npm test`. Tips and patterns are in [docs/a11y.md](docs/a11y.md).
+
+### RAG Regression Tests
+Run predefined retrieval tests with:
+
+```bash
+python manage.py run_rag_tests --assistant claritybot
+```
