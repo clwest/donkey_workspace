@@ -16,9 +16,13 @@ class Command(BaseCommand):
         assistant = (
             Assistant.objects.filter(id=identifier).first()
             or Assistant.objects.filter(slug=identifier).first()
+            or Assistant.objects.filter(memory_context_id=identifier).first()
         )
-        if not assistant or not assistant.memory_context_id:
-            self.stderr.write(self.style.ERROR("Assistant or context not found"))
+        if not assistant:
+            self.stderr.write(self.style.ERROR(f"Assistant '{identifier}' not found"))
+            return
+        if not assistant.memory_context_id:
+            self.stderr.write(self.style.ERROR("Assistant has no memory context"))
             return
         result = repair_context_embeddings(assistant.memory_context_id, verbose=True)
         EmbeddingDriftLog.objects.create(

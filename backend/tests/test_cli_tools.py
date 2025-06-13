@@ -15,7 +15,7 @@ from assistants.models.reflection import ReflectionGroup
 from intel_core.models import Document, DocumentChunk, EmbeddingMetadata
 from mcp_core.models import DevDoc
 from memory.models import MemoryEntry
-from embeddings.models import Embedding
+from embeddings.models import Embedding, EmbeddingDebugTag
 
 
 pytest.importorskip("django")
@@ -112,6 +112,50 @@ def test_repair_context_embeddings_cli(mock_repair):
     )
     call_command("repair_context_embeddings", "--assistant", "a")
     mock_repair.assert_called_once_with(assistant.memory_context_id, verbose=True)
+
+
+@pytest.mark.django_db
+@patch("embeddings.management.commands.repair_flagged_embeddings.repair_embedding_link")
+@patch("embeddings.management.commands.repair_flagged_embeddings.embedding_link_matches", return_value=True)
+def test_repair_flagged_embeddings_cli(mock_match, mock_repair):
+    emb = Embedding.objects.create(content_type=None, object_id="x", content_id="x", embedding=[0])
+    EmbeddingDebugTag.objects.create(embedding=emb, reason="bad")
+    call_command("repair_flagged_embeddings")
+    mock_repair.assert_called_once()
+
+
+@pytest.mark.django_db
+@patch("embeddings.management.commands.repair_all_embeddings.FixContext.handle")
+@patch("embeddings.management.commands.repair_all_embeddings.FixFlagged.handle")
+@patch("embeddings.management.commands.repair_all_embeddings.FixLinks.handle")
+@patch("embeddings.management.commands.repair_all_embeddings.FixContent.handle")
+def test_repair_all_embeddings_cli(mock_content, mock_links, mock_flagged, mock_context):
+    call_command("repair_all_embeddings", "--assistant", "slug")
+    mock_content.assert_called_once_with(limit=None)
+    mock_links.assert_called_once_with(limit=None)
+    mock_flagged.assert_called_once_with()
+    mock_context.assert_called_once_with(assistant="slug")
+
+
+@pytest.mark.django_db
+@patch(
+    "assistants.utils.assistant_reflection_engine.AssistantReflectionEngine.reflect_on_document",
+    return_value=("summary", [], None),
+)
+def test_reflect_on_document_with_assistant_id(mock_reflect):
+    doc = Document.objects.create(title="Paper", content="x")
+    assistant = Assistant.objects.create(name="A", slug="a")
+    call_command("reflect_on_document", "--doc", str(doc.id), "--assistant", str(assistant.id))
+    mock_reflect.assert_called_once()
+
+
+@pytest.mark.django_db
+@patch("assistants.utils.reflection_summary.summarize_reflections_for_document")
+def test_summarize_reflection_group_id(mock_sum):
+    assistant = Assistant.objects.create(name="A", slug="a")
+    group = ReflectionGroup.objects.create(assistant=assistant, slug="grp")
+    call_command("summarize_reflection_group", "--group", str(group.id))
+    mock_sum.assert_called_once_with(group_slug=group.slug, assistant_id=group.assistant_id)
 
 
 @pytest.mark.django_db

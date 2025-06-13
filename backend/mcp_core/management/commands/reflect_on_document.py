@@ -47,6 +47,7 @@ class Command(BaseCommand):
             assistant = (
                 Assistant.objects.filter(id=assistant_id).first()
                 or Assistant.objects.filter(slug=assistant_id).first()
+                or Assistant.objects.filter(memory_context_id=assistant_id).first()
             )
             if not assistant:
                 self.stderr.write(
@@ -57,6 +58,8 @@ class Command(BaseCommand):
                 assistant = AssistantReflectionEngine.get_reflection_assistant()
         else:
             assistant = AssistantReflectionEngine.get_reflection_assistant()
+        if not assistant.memory_context_id:
+            self.stderr.write(self.style.WARNING("Assistant has no memory context"))
         engine = AssistantReflectionEngine(assistant)
 
         summary, _insights, _prompt = engine.reflect_on_document(document)

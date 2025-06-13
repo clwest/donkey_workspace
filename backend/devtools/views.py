@@ -275,6 +275,16 @@ def embedding_debug(request):
     context_stats = []
     assistants_no_docs = []
     retrieval_checks = []
+    repairable_contexts = list(
+        MemoryEntry.objects.filter(embeddings__debug_tags__repair_status="pending")
+        .annotate(
+            assistant_slug=F("assistant__slug"),
+            status=F("embeddings__debug_tags__repair_status"),
+        )
+        .values("assistant_slug", "context_id", "status")
+        .annotate(count=Count("embeddings__debug_tags__id"))
+        .order_by("-count")
+    )
     if request.GET.get("include_rag") == "1":
         from assistants.utils.chunk_retriever import get_relevant_chunks
         from assistants.models import Assistant
@@ -315,6 +325,7 @@ def embedding_debug(request):
             "context_stats": context_stats,
             "assistants_no_docs": assistants_no_docs,
             "retrieval_checks": retrieval_checks,
+            "repairable_contexts": repairable_contexts,
         }
     )
 
@@ -445,15 +456,23 @@ def repair_context_embeddings(request, context_id):
     from django.utils import timezone
     from embeddings.models import EmbeddingDebugTag
     from embeddings.utils.link_repair import repair_embedding_link, embedding_link_matches
+    from django.db.models import CharField
+    from django.db.models.functions import Cast
 
     from django.contrib.contenttypes.models import ContentType
     from memory.models import MemoryEntry
 
     mem_ct = ContentType.objects.get_for_model(MemoryEntry)
-    embedding_ids = Embedding.objects.filter(
-        content_type=mem_ct,
-        object_id__in=MemoryEntry.objects.filter(context_id=context_id).values("id"),
-    ).values_list("id", flat=True)
+    embedding_ids = (
+        Embedding.objects.filter(content_type_id=mem_ct.id)
+        .filter(
+            object_id__in=
+            MemoryEntry.objects.filter(context_id=context_id)
+            .annotate(id_str=Cast("id", output_field=CharField()))
+            .values("id_str")
+        )
+        .values_list("id", flat=True)
+    )
     tags = list(
         EmbeddingDebugTag.objects.filter(
             embedding_id__in=embedding_ids, repair_status="pending"
@@ -490,11 +509,20 @@ def ignore_context_embeddings(request, context_id):
     from memory.models import MemoryEntry
     from embeddings.models import Embedding, EmbeddingDebugTag
 
+    from django.db.models import CharField
+    from django.db.models.functions import Cast
+
     mem_ct = ContentType.objects.get_for_model(MemoryEntry)
-    embedding_ids = Embedding.objects.filter(
-        content_type=mem_ct,
-        object_id__in=MemoryEntry.objects.filter(context_id=context_id).values("id"),
-    ).values_list("id", flat=True)
+    embedding_ids = (
+        Embedding.objects.filter(content_type_id=mem_ct.id)
+        .filter(
+            object_id__in=
+            MemoryEntry.objects.filter(context_id=context_id)
+            .annotate(id_str=Cast("id", output_field=CharField()))
+            .values("id_str")
+        )
+        .values_list("id", flat=True)
+    )
     updated = EmbeddingDebugTag.objects.filter(
         embedding_id__in=embedding_ids,
         repair_status="pending",
