@@ -319,10 +319,11 @@ def embedding_debug(request):
 
 
 @api_view(["GET"])
-@permission_classes([AdminOnly])
+@permission_classes([IsAuthenticated])
 def embedding_audit(request):
     """Return counts of embedding mismatches and orphans."""
     from django.contrib.contenttypes.models import ContentType
+    from django.db.models import Count
     from embeddings.models import Embedding, EmbeddingDebugTag
     from memory.models import MemoryEntry
     from intel_core.models import DocumentChunk
@@ -374,11 +375,23 @@ def embedding_audit(request):
         )[:100]
     )
 
+    context_audit = list(
+        MemoryEntry.objects.filter(embeddings__debug_tags__status="pending")
+        .values(
+            "assistant__slug",
+            "assistant__name",
+            "context_id",
+        )
+        .annotate(count=Count("embeddings__debug_tags"))
+        .order_by("-count")
+    )
+
     return Response(
         {
             "results": list(stats.items()),
             "recent_orphans": recent,
             "pending": pending,
+            "context_audit": context_audit,
         }
     )
 

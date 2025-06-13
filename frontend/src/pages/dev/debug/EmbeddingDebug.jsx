@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import apiFetch from "../../../utils/apiClient";
+import useAuditEmbeddingLinks from "../../../hooks/useAuditEmbeddingLinks";
 import ErrorCard from "../../../components/ErrorCard";
 
 export default function EmbeddingDebug() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [showRag, setShowRag] = useState(false);
+  const { rows: auditRows } = useAuditEmbeddingLinks();
 
   useEffect(() => {
     async function load() {
@@ -57,25 +59,29 @@ export default function EmbeddingDebug() {
           Assistants without documents: {data.assistants_no_docs.join(", ")}
         </div>
       )}
-      <h5 className="mt-4">By Assistant &amp; Context</h5>
-      <table className="table table-sm">
-        <thead>
-          <tr>
-            <th>Assistant</th>
-            <th>Context ID</th>
-            <th>Count</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.assistant_breakdown.map((row, idx) => (
-            <tr key={idx}>
-              <td>{row.content_object__assistant__slug || row.content_object__assistant__id}</td>
-              <td>{row.content_object__context_id}</td>
-              <td>{row.count}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {auditRows && (
+        <>
+          <h5 className="mt-4">Mismatched Embeddings</h5>
+          <table className="table table-sm">
+            <thead>
+              <tr>
+                <th>Assistant</th>
+                <th>Context ID</th>
+                <th>Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              {auditRows.map((row) => (
+                <tr key={row.context_id}>
+                  <td>{row.assistant_name}</td>
+                  <td>{row.context_id}</td>
+                  <td>{row.count}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
       <div className="form-check form-switch mt-4">
         <input
           className="form-check-input"

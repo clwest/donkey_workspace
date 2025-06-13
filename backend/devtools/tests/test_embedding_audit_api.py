@@ -10,6 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from rest_framework.test import APITestCase
 
 from memory.models import MemoryEntry
+from assistants.models import Assistant
 from embeddings.models import Embedding, EmbeddingDebugTag
 
 
@@ -18,7 +19,8 @@ class EmbeddingAuditAPITest(APITestCase):
         User = get_user_model()
         self.user = User.objects.create_user(username="audit", password="pw", is_staff=True)
         self.client.force_authenticate(user=self.user)
-        mem = MemoryEntry.objects.create(event="hey")
+        self.assistant = Assistant.objects.create(name="Auditor", specialty="gen")
+        mem = MemoryEntry.objects.create(event="hey", assistant=self.assistant)
         ct = ContentType.objects.get_for_model(MemoryEntry)
         Embedding.objects.create(
             content_type=ct,
@@ -35,5 +37,11 @@ class EmbeddingAuditAPITest(APITestCase):
         data = resp.json()
         self.assertIn("results", data)
         self.assertIn("recent_orphans", data)
+        self.assertIn("context_audit", data)
+        entry = data["context_audit"][0]
+        self.assertEqual(entry["assistant"], self.assistant.slug)
+        self.assertEqual(entry["assistant_name"], self.assistant.name)
+        self.assertEqual(entry["context_id"], str(self.assistant.memory_context_id))
+        self.assertEqual(entry["count"], 1)
 
 
