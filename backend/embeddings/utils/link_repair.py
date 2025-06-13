@@ -16,13 +16,14 @@ def fix_embedding_links(limit=None, *, dry_run: bool = False, include_memory: bo
         "documentchunk": ct_chunk,
         "prompt": ct_prompt,
     }
+    qs = Embedding.objects.select_related("content_type")
     print(f"📦 Fixing embeddings for models: {list(ct_map.keys())}")
     if include_memory:
         ct_memory = ContentType.objects.get_for_model(MemoryEntry)
         ct_map["memoryentry"] = ct_memory   
-        qs = Embedding.objects.select_related("content_type")
-        if limit:
-            qs = qs.order_by("id")[:limit]
+        
+    if limit:
+        qs = qs.order_by("id")[:limit]
 
     scanned = 0
     fixed = 0
