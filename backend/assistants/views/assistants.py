@@ -2279,6 +2279,32 @@ def patch_drifted_reflections(request, slug):
 
 @api_view(["POST"])
 @permission_classes([IsAdminUser])
+def retry_birth_reflection(request, slug):
+    """Retry a failed birth reflection for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+
+    if assistant.last_reflection_successful:
+        return Response({"error": "Reflection already completed"}, status=400)
+    if not assistant.can_retry_birth_reflection:
+        return Response({"error": "Retry disabled"}, status=400)
+
+    reflect_on_birth(assistant)
+    assistant.birth_reflection_retry_count += 1
+    if not assistant.last_reflection_successful and assistant.birth_reflection_retry_count >= 3:
+        assistant.can_retry_birth_reflection = False
+    if assistant.last_reflection_successful:
+        assistant.can_retry_birth_reflection = False
+    assistant.save(
+        update_fields=[
+            "birth_reflection_retry_count",
+            "can_retry_birth_reflection",
+        ]
+    )
+    return Response(AssistantSerializer(assistant).data)
+
+
+@api_view(["POST"])
+@permission_classes([IsAdminUser])
 def seed_chat_memory(request, slug):
     """Reseed starter chat memories for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)

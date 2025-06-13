@@ -926,6 +926,8 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             "last_reflection_attempted_at",
             "last_reflection_successful",
             "reflection_error",
+            "birth_reflection_retry_count",
+            "can_retry_birth_reflection",
         ]
         read_only_fields = ["id", "slug", "created_at"]
 
@@ -1609,6 +1611,8 @@ class AssistantSerializer(serializers.ModelSerializer):
             "last_reflection_attempted_at",
             "last_reflection_successful",
             "reflection_error",
+            "birth_reflection_retry_count",
+            "can_retry_birth_reflection",
         ]
 
     def get_display_name(self, obj):

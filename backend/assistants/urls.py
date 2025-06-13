@@ -1132,6 +1132,11 @@ urlpatterns = [
         name="assistant-patch-reflections",
     ),
     path(
+        "<slug:slug>/reflection/retry/",
+        assistants.retry_birth_reflection,
+        name="assistant-reflection-retry",
+    ),
+    path(
         "<slug:slug>/seed_chat_memory/",
         assistants.seed_chat_memory,
         name="assistant-seed-chat-memory",

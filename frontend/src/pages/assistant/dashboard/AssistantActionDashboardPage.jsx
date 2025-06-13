@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { fetchAssistantDashboard, reflectOnChat } from "../../../api/assistants";
+import {
+  fetchAssistantDashboard,
+  reflectOnChat,
+  retryBirthReflection,
+} from "../../../api/assistants";
 import useTourActivation from "../../../hooks/useTourActivation";
 
 export default function AssistantActionDashboardPage() {
@@ -10,6 +14,7 @@ export default function AssistantActionDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [insight, setInsight] = useState(null);
   const [reflecting, setReflecting] = useState(false);
+  const [retrying, setRetrying] = useState(false);
   const tour = useTourActivation(slug);
 
   useEffect(() => {
@@ -36,6 +41,20 @@ export default function AssistantActionDashboardPage() {
       toast.error("Reflection failed");
     } finally {
       setReflecting(false);
+    }
+  };
+
+  const triggerRetry = async () => {
+    setRetrying(true);
+    try {
+      await retryBirthReflection(slug);
+      toast.success("Reflection retried");
+      const res = await fetchAssistantDashboard(slug);
+      setData(res);
+    } catch (err) {
+      toast.error("Retry failed");
+    } finally {
+      setRetrying(false);
     }
   };
 
@@ -77,6 +96,15 @@ export default function AssistantActionDashboardPage() {
       >
         {reflecting ? "Reflecting..." : "Reflect on recent chats"}
       </button>
+      {assistant.reflection_error && assistant.can_retry_birth_reflection && (
+        <button
+          className="btn btn-sm btn-outline-danger mb-3 ms-2"
+          onClick={triggerRetry}
+          disabled={retrying}
+        >
+          {retrying ? "Retrying..." : "Retry Reflection"}
+        </button>
+      )}
       {insight && (
         <div className="alert alert-info mt-3">{insight.summary}</div>
       )}

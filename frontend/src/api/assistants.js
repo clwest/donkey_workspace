@@ -349,6 +349,10 @@ export async function fetchAssistantDashboard(slug) {
   return res;
 }
 
+export async function retryBirthReflection(slug) {
+  return apiFetch(`/assistants/${slug}/reflection/retry/`, { method: "POST" });
+}
+
 // Guarded creation to prevent unintended spawns. Only execute when
 // `userInitiated` is explicitly true.
 export async function createAssistantFromDocuments(body, opts = {}) {
