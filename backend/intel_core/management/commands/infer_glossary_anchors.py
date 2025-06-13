@@ -50,6 +50,15 @@ class Command(BaseCommand):
                 .order_by("-created_at")[:50]
             )
             texts.extend([r.summary or r.title or "" for r in reflections])
+            doc_mems = (
+                MemoryEntry.objects.filter(assistant=assistant, document__isnull=False)
+                .order_by("-created_at")[:50]
+            )
+            for mem in doc_mems:
+                if mem.summary:
+                    texts.append(mem.summary)
+                if mem.event:
+                    texts.append(mem.event)
         elif source == "thoughts":
             thoughts = (
                 AssistantThoughtLog.objects.filter(assistant=assistant)
@@ -76,11 +85,15 @@ class Command(BaseCommand):
         for txt in texts:
             counter.update(_tokenize(txt))
 
+        seen = set()
+
         created = 0
         for term in sorted(counter.keys()):
             if len(term) < 4:
                 continue
             slug_term = slugify(term)
+            if slug_term in seen:
+                continue
             if SymbolicMemoryAnchor.objects.filter(slug=slug_term).exists():
                 continue
             if SymbolicMemoryAnchor.objects.filter(label__iexact=term, mutation_status="rejected").exists():
@@ -93,9 +106,10 @@ class Command(BaseCommand):
                 assistant=assistant,
                 memory_context=assistant.memory_context,
                 suggested_by="gpt-4o",
-                source="inferred",
+                source="reflection" if source == "reflections" else "inferred",
                 created_from="assistant_memory",
             )
             created += 1
+            seen.add(slug_term)
 
         self.stdout.write(self.style.SUCCESS(f"Saved {created} anchors from {source}"))

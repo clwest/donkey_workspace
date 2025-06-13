@@ -21,6 +21,14 @@ class AssistantReflectionLog(models.Model):
         blank=True,
     )
 
+    document = models.ForeignKey(
+        "intel_core.Document",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="reflections",
+    )
+
     title = models.CharField(max_length=255)
     summary = models.TextField(default="", blank=True, null=False)
     raw_prompt = models.TextField(null=True, blank=True)
