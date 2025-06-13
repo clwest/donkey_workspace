@@ -1,6 +1,12 @@
 from django.contrib import admin
 
-from .models import Tool, ToolUsageLog, ToolDiscoveryLog, ToolExecutionLog
+from .models import (
+    Tool,
+    ToolUsageLog,
+    ToolDiscoveryLog,
+    ToolExecutionLog,
+    ToolReflectionLog,
+)
 
 
 @admin.register(Tool)
@@ -40,6 +46,14 @@ class ToolExecutionLogAdmin(admin.ModelAdmin):
     list_filter = ("success", "status_code")
     search_fields = ("tool__name", "tool__slug")
     autocomplete_fields = ("tool", "assistant", "agent")
+
+
+@admin.register(ToolReflectionLog)
+class ToolReflectionLogAdmin(admin.ModelAdmin):
+    list_display = ("tool", "assistant", "confidence_score", "created_at")
+    search_fields = ("tool__slug", "assistant__slug", "reflection")
+    list_filter = ("created_at",)
+    autocomplete_fields = ("tool", "assistant", "execution_log")
 
 
 # @admin.register(ToolUsageLog)

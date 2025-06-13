@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
-import { fetchToolAssignments, saveToolAssignments } from "../../api/assistants";
+import {
+  fetchToolAssignments,
+  saveToolAssignments,
+  fetchAssistantToolReflections,
+} from "../../api/assistants";
+import ToolScoreTable from "./ToolScoreTable";
 
 export default function AssistantToolChooser({ assistantId }) {
   const [tools, setTools] = useState([]);
   const [assigned, setAssigned] = useState([]);
+  const [scores, setScores] = useState([]);
 
   useEffect(() => {
     if (!assistantId) return;
@@ -16,6 +22,9 @@ export default function AssistantToolChooser({ assistantId }) {
         setTools([]);
         setAssigned([]);
       });
+    fetchAssistantToolReflections(assistantId)
+      .then(setScores)
+      .catch(() => setScores([]));
   }, [assistantId]);
 
   const toggle = (id) => {
@@ -54,6 +63,10 @@ export default function AssistantToolChooser({ assistantId }) {
       <button className="btn btn-primary" onClick={handleSave}>
         Save
       </button>
+      <div className="mt-3">
+        <h6>Usage Scores</h6>
+        <ToolScoreTable scores={scores} />
+      </div>
     </div>
   );
 }

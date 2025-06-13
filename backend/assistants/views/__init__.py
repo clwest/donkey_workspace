@@ -167,6 +167,7 @@ from .conscience import (
     decision_frameworks,
 )
 from .deployment_planner import assistant_deploy, assistant_toolchain, arena_active
+from .tool_reflections import assistant_tool_reflections
 from .sensory import (
     codex_voice_command,
     assistant_sensory_profile,
@@ -363,6 +364,7 @@ __all__ = [
     "get_belief_forks",
     "assistant_deploy",
     "assistant_toolchain",
+    "assistant_tool_reflections",
     "arena_active",
     "onboarding_create_assistant",
     "create_assistant_from_mythpath",

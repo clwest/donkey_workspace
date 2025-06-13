@@ -150,3 +150,45 @@ def tool_logs(request, pk):
         for log in logs
     ]
     return Response(data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def tool_reflections(request, pk):
+    tool = get_object_or_404(Tool, pk=pk)
+    from tools.models import ToolReflectionLog
+
+    logs = ToolReflectionLog.objects.filter(tool=tool).order_by("-created_at")[:50]
+    data = [
+        {
+            "id": r.id,
+            "assistant": r.assistant.slug if r.assistant else None,
+            "reflection": r.reflection,
+            "confidence_score": r.confidence_score,
+            "tags": list(r.insight_tags.values_list("slug", flat=True)),
+            "created_at": r.created_at.isoformat(),
+        }
+        for r in logs
+    ]
+    return Response(data)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def reflect_on_tool_now(request, pk):
+    tool = get_object_or_404(Tool, pk=pk)
+    from assistants.utils.assistant_reflection_engine import reflect_on_tool_usage
+    assistants = list(
+        ToolExecutionLog.objects.filter(tool=tool).values_list("assistant_id", flat=True).distinct()
+    )
+    from assistants.models import Assistant
+
+    total = 0
+    for aid in assistants:
+        if not aid:
+            continue
+        assistant = Assistant.objects.filter(id=aid).first()
+        if assistant:
+            logs = reflect_on_tool_usage(assistant)
+            total += sum(1 for l in logs if l.tool_id == tool.id)
+    return Response({"created": total})
