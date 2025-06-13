@@ -20,7 +20,12 @@ class Tool(models.Model):
     output_schema = models.JSONField(default=dict, blank=True)
     schema = models.JSONField(blank=True, null=True)
 
-    is_enabled = models.BooleanField(default=True)
+    version = models.CharField(max_length=20, blank=True)
+    code_reference = models.CharField(max_length=255, blank=True)
+    is_public = models.BooleanField(default=True)
+    enabled = models.BooleanField(default=True)
+
+    is_enabled = models.BooleanField(default=True)  # deprecated
     agent_only = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     last_verified = models.DateTimeField(null=True, blank=True)
@@ -105,3 +110,27 @@ class ToolDiscoveryLog(models.Model):
 
     def __str__(self):
         return f"{self.tool.slug} discovered" if self.tool else self.path
+
+
+class ToolExecutionLog(models.Model):
+    """Detailed record of each tool execution."""
+
+    tool = models.ForeignKey(Tool, on_delete=models.CASCADE, related_name="executions")
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    agent = models.ForeignKey(
+        "agents.Agent", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    input_data = models.JSONField()
+    output_data = models.JSONField(null=True, blank=True)
+    success = models.BooleanField(default=True)
+    status_code = models.IntegerField(default=200)
+    error_message = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.tool.slug} ({'ok' if self.success else 'fail'})"

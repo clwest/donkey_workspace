@@ -5,6 +5,9 @@ from . import views
 
 urlpatterns = [
     path("", views.tool_list, name="tool-list"),
+    path("<int:pk>/", views.tool_detail, name="tool-detail"),
+    path("<int:pk>/execute/", views.execute_tool_view, name="tool-execute"),
+    path("<int:pk>/logs/", views.tool_logs, name="tool-logs"),
     path("<slug:slug>/invoke/", views.invoke_tool, name="invoke-tool"),
     path("feedback/<int:id>/", views.submit_tool_feedback, name="tool-feedback"),
 ]

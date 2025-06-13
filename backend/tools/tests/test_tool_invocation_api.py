@@ -8,7 +8,7 @@ django.setup()
 from rest_framework.test import APITestCase
 from rest_framework import status
 
-from tools.models import Tool, ToolUsageLog
+from tools.models import Tool, ToolExecutionLog
 
 
 def echo_tool(text):
@@ -25,11 +25,11 @@ class ToolInvocationAPITest(APITestCase):
         )
 
     def test_invoke_tool(self):
-        url = f"/api/v1/tools/{self.tool.slug}/invoke/"
+        url = f"/api/tools/{self.tool.id}/execute/"
         resp = self.client.post(url, {"text": "hi"}, format="json")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(resp.json()["result"], {"echo": "hi"})
-        self.assertEqual(ToolUsageLog.objects.count(), 1)
-        usage = ToolUsageLog.objects.first()
+        self.assertEqual(ToolExecutionLog.objects.count(), 1)
+        usage = ToolExecutionLog.objects.first()
         self.assertTrue(usage.success)
         self.assertEqual(usage.tool, self.tool)
