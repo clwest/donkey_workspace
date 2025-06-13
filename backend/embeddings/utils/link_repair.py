@@ -5,22 +5,24 @@ from memory.models import MemoryEntry
 from prompts.models import Prompt
 
 
-def fix_embedding_links(limit=None, *, dry_run: bool = False):
+def fix_embedding_links(limit=None, *, dry_run: bool = False, include_memory: bool = False):
     """Scan embeddings and repair content links in place.
 
     Returns a dictionary with scanned, fixed and skipped counts.
     """
     ct_chunk = ContentType.objects.get_for_model(DocumentChunk)
-    ct_memory = ContentType.objects.get_for_model(MemoryEntry)
     ct_prompt = ContentType.objects.get_for_model(Prompt)
     ct_map = {
         "documentchunk": ct_chunk,
-        "memoryentry": ct_memory,
         "prompt": ct_prompt,
     }
-    qs = Embedding.objects.select_related("content_type")
-    if limit:
-        qs = qs.order_by("id")[:limit]
+    print(f"📦 Fixing embeddings for models: {list(ct_map.keys())}")
+    if include_memory:
+        ct_memory = ContentType.objects.get_for_model(MemoryEntry)
+        ct_map["memoryentry"] = ct_memory   
+        qs = Embedding.objects.select_related("content_type")
+        if limit:
+            qs = qs.order_by("id")[:limit]
 
     scanned = 0
     fixed = 0

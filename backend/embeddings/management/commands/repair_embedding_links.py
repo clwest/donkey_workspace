@@ -10,10 +10,15 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--limit", type=int, default=None)
         parser.add_argument("--dry-run", action="store_true")
+        parser.add_argument("--include-memory", action="store_true")  # ✅ add this line
 
     def handle(self, *args, **options):
         limit = options.get("limit")
-        result = fix_embedding_links(limit=limit, dry_run=options.get("dry_run"))
-        self.stdout.write(f"Embeddings scanned: {result['scanned']}")
-        self.stdout.write(f"Fixed: {result['fixed']}")
-        self.stdout.write(f"Skipped: {result['skipped']}")
+        dry_run = options.get("dry_run")
+        include_memory = options.get("include_memory")  # ✅ read flag
+
+        result = fix_embedding_links(
+            limit=limit,
+            dry_run=dry_run,
+            include_memory=include_memory  # ✅ pass into helper
+        )
