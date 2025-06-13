@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { Button, Alert } from "react-bootstrap";
+import AutoSuggestButton from "../../components/mutations/AutoSuggestButton";
 import { toast } from "react-toastify";
 import {
   fetchGlossaryMutations,
   rejectGlossaryMutation,
   acceptGlossaryMutation,
-  suggestMissingGlossaryMutations,
   testGlossaryMutations,
 } from "../../api/agents";
 import apiFetch from "../../utils/apiClient";
@@ -83,17 +83,6 @@ export default function GlossaryMutationReviewPanel() {
     setMutations(mutations.map((m) => (m.id === id ? { ...m, suggested_label: val } : m)));
   };
 
-  const runSuggestionJob = async () => {
-    const assistant = searchParams.get("assistant");
-    if (!assistant) return;
-    try {
-      await suggestMissingGlossaryMutations(assistant);
-      toast.info("Suggestion job triggered");
-      reload();
-    } catch (e) {
-      toast.error("Failed to run job");
-    }
-  };
 
   const runTestJob = async () => {
     const assistant = searchParams.get("assistant");
@@ -140,9 +129,11 @@ export default function GlossaryMutationReviewPanel() {
         <Alert variant="warning" className="mb-3">
           No suggestions available. Run <code>generate_missing_mutations</code> or
           click “Auto-Suggest Missing Labels.”
-          <Button className="ms-2" size="sm" onClick={runSuggestionJob}>
-            Auto-Suggest Missing Labels
-          </Button>
+          <AutoSuggestButton
+            className="ms-2"
+            assistant={searchParams.get("assistant")}
+            onComplete={reload}
+          />
         </Alert>
       )}
       <table className="table table-sm">
@@ -214,7 +205,9 @@ export default function GlossaryMutationReviewPanel() {
           {visible.length === 0 && (
             <tr>
               <td colSpan="9" className="text-muted">
-                No mutations found.
+                No viable fallback labels were detected from memory anchors. Try
+                ingesting more documents or reviewing recent assistant
+                reflections.
               </td>
             </tr>
           )}
