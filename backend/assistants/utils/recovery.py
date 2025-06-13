@@ -28,7 +28,7 @@ def create_prompt_revision(assistant: Assistant, mutation_mode: str = "clarify")
 
 
 def generate_recovery_summary(assistant: Assistant) -> str:
-    logs = assistant.drift_logs.order_by("-timestamp")[:3]
+    logs = assistant.specialization_drift_logs.order_by("-timestamp")[:3]
     parts = [f"Drift {l.drift_score:.2f} on {l.timestamp.date()}" for l in logs]
     memory_count = assistant.thoughts.count()
     parts.append(f"Total thoughts: {memory_count}")

@@ -1080,7 +1080,7 @@ class SpecializationDriftLog(models.Model):
     assistant = models.ForeignKey(
         "assistants.Assistant",
         on_delete=models.CASCADE,
-        related_name="drift_logs",
+        related_name="specialization_drift_logs",
     )
     score = models.FloatField(help_text="Drift score 0..1 where 1=high drift")
     timestamp = models.DateTimeField(auto_now_add=True)

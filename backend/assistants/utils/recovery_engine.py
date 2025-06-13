@@ -26,7 +26,7 @@ def regenerate_assistant_plan(
         .values_list("title", flat=True)[:3]
     )
     drift = list(
-        assistant.drift_logs.order_by("-created_at").values_list("summary", flat=True)[
+        assistant.specialization_drift_logs.order_by("-created_at").values_list("summary", flat=True)[
             :2
         ]
     )

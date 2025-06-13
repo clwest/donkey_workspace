@@ -833,7 +833,9 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
     skills = AssistantSkillSerializer(many=True, read_only=True)
     source_document_title = serializers.SerializerMethodField()
     source_document_url = serializers.SerializerMethodField()
-    drift_logs = SpecializationDriftLogSerializer(many=True, read_only=True)
+    drift_logs = SpecializationDriftLogSerializer(
+        many=True, read_only=True, source="specialization_drift_logs"
+    )
     recent_drift = serializers.SerializerMethodField()
     system_prompt_id = serializers.UUIDField(read_only=True)
     health_score = serializers.SerializerMethodField()
@@ -1099,7 +1101,7 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
         from django.utils import timezone
         from datetime import timedelta
 
-        log = obj.drift_logs.order_by("-timestamp").first()
+        log = obj.specialization_drift_logs.order_by("-timestamp").first()
         if log and log.timestamp >= timezone.now() - timedelta(days=1):
             return SpecializationDriftLogSerializer(log).data
         return None
