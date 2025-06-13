@@ -29,6 +29,7 @@ class EmbeddingDebugAPITest(APITestCase):
             embedding=[0.0] * 5,
         )
         EmbeddingMetadata.objects.create(model_used="test", num_tokens=1, vector=[0.0])
+        Embedding.objects.create(content_id="bad", embedding=[0.1] * 5)
 
     def test_debug_endpoint(self):
         resp = self.client.get("/api/dev/embedding-debug/")
@@ -40,17 +41,5 @@ class EmbeddingDebugAPITest(APITestCase):
         self.assertIn("retrieval_checks", data)
         self.assertIn("repairable_contexts", data)
 
-    def test_assistant_filter(self):
-        assistant = Assistant.objects.create(name="A", slug="a")
-        mem = MemoryEntry.objects.create(event="x", assistant=assistant)
-        ct = ContentType.objects.get_for_model(MemoryEntry)
-        Embedding.objects.create(
-            content_type=ct,
-            object_id=str(mem.id),
-            content_id=f"memoryentry:{mem.id}",
-            embedding=[0.1],
-        )
-        resp = self.client.get(f"/api/dev/embedding-debug/?assistant={assistant.slug}")
-        self.assertEqual(resp.status_code, 200)
-        data = resp.json()
-        self.assertTrue(all(d["assistant__slug"] == assistant.slug for d in data["assistant_breakdown"]))
+        self.assertEqual(data["invalid_links"], 1)
+

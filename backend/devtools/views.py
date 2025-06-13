@@ -237,19 +237,12 @@ def embedding_debug(request):
     from assistants.models import Assistant
     from django.contrib.contenttypes.models import ContentType
     from memory.models import MemoryEntry
-    from intel_core.models import DocumentChunk
+    from intel_core.models import DocumentChunk, Document, DevDoc
     from prompts.models import Prompt
-    from django.http import Http404
-    from assistants.utils.resolve import resolve_assistant
 
-    assistant_param = request.GET.get("assistant")
-    assistant_obj = None
-    assistants_qs = Assistant.objects.all()
-    if assistant_param:
-        assistant_obj = resolve_assistant(assistant_param)
-        if not assistant_obj:
-            raise Http404("Assistant not found")
-        assistants_qs = assistants_qs.filter(id=assistant_obj.id)
+    from assistants.models import AssistantReflectionLog, AssistantThoughtLog
+    from embeddings.utils.link_repair import embedding_link_matches
+
 
     model_counts = list(
         EmbeddingMetadata.objects.values("model_used")
@@ -260,19 +253,26 @@ def embedding_debug(request):
     ct_memory = ContentType.objects.get_for_model(MemoryEntry)
     ct_chunk = ContentType.objects.get_for_model(DocumentChunk)
     ct_prompt = ContentType.objects.get_for_model(Prompt)
-    allowed = {ct_memory.id, ct_chunk.id, ct_prompt.id}
+    ct_document = ContentType.objects.get_for_model(Document)
+    ct_reflection = ContentType.objects.get_for_model(AssistantReflectionLog)
+    ct_thought = ContentType.objects.get_for_model(AssistantThoughtLog)
+    ct_devdoc = ContentType.objects.get_for_model(DevDoc)
+
+    allowed = {
+        ct_memory.id,
+        ct_chunk.id,
+        ct_prompt.id,
+        ct_document.id,
+        ct_reflection.id,
+        ct_thought.id,
+        ct_devdoc.id,
+    }
 
     invalid = 0
     for emb in Embedding.objects.select_related("content_type"):
-        ct = emb.content_type
-        obj = emb.content_object
-        expected = None
-        if ct and emb.object_id:
-            expected = f"{ct.model}:{emb.object_id}"
-        if assistant_obj and ct == ct_memory and isinstance(obj, MemoryEntry):
-            if obj.assistant_id != assistant_obj.id:
-                continue
-        if not ct or ct.id not in allowed or obj is None or emb.content_id != expected:
+
+        if not embedding_link_matches(emb) or emb.content_type_id not in allowed:
+
             invalid += 1
 
     # Count embeddings grouped by their related memory entry's assistant and
@@ -289,7 +289,10 @@ def embedding_debug(request):
 
     context_stats = []
     duplicate_slugs = list(
-        Assistant.objects.values("slug").annotate(c=Count("id")).filter(c__gt=1).values_list("slug", flat=True)
+        Assistant.objects.values("slug")
+        .annotate(c=Count("id"))
+        .filter(c__gt=1)
+        .values_list("slug", flat=True)
     )
     assistants_no_docs = []
     retrieval_checks = []
@@ -337,6 +340,7 @@ def embedding_debug(request):
                 }
             )
 
+    assistants_no_docs = sorted(set(assistants_no_docs))
     return Response(
         {
             "model_counts": model_counts,
@@ -444,7 +448,10 @@ def embedding_audit_fix(request, tag_id):
     from django.shortcuts import get_object_or_404
     from django.utils import timezone
     from embeddings.models import Embedding, EmbeddingDebugTag
-    from embeddings.utils.link_repair import repair_embedding_link, embedding_link_matches
+    from embeddings.utils.link_repair import (
+        repair_embedding_link,
+        embedding_link_matches,
+    )
 
     action = request.data.get("action", "fix")
     tag = get_object_or_404(EmbeddingDebugTag, id=tag_id)
@@ -461,12 +468,14 @@ def embedding_audit_fix(request, tag_id):
         tag.repaired_at = timezone.now()
     else:
         tag.repair_status = "failed" if changed else "skipped"
-    tag.save(update_fields=[
-        "repair_status",
-        "repair_attempts",
-        "last_attempt_at",
-        "repaired_at",
-    ])
+    tag.save(
+        update_fields=[
+            "repair_status",
+            "repair_attempts",
+            "last_attempt_at",
+            "repaired_at",
+        ]
+    )
     return Response({"status": tag.repair_status})
 
 
@@ -476,7 +485,10 @@ def repair_context_embeddings(request, context_id):
     """Repair all flagged embeddings for a memory context."""
     from django.utils import timezone
     from embeddings.models import EmbeddingDebugTag
-    from embeddings.utils.link_repair import repair_embedding_link, embedding_link_matches
+    from embeddings.utils.link_repair import (
+        repair_embedding_link,
+        embedding_link_matches,
+    )
     from django.db.models import CharField
     from django.db.models.functions import Cast
 
@@ -487,8 +499,7 @@ def repair_context_embeddings(request, context_id):
     embedding_ids = (
         Embedding.objects.filter(content_type_id=mem_ct.id)
         .filter(
-            object_id__in=
-            MemoryEntry.objects.filter(context_id=context_id)
+            object_id__in=MemoryEntry.objects.filter(context_id=context_id)
             .annotate(id_str=Cast("id", output_field=CharField()))
             .values("id_str")
         )
@@ -537,8 +548,7 @@ def ignore_context_embeddings(request, context_id):
     embedding_ids = (
         Embedding.objects.filter(content_type_id=mem_ct.id)
         .filter(
-            object_id__in=
-            MemoryEntry.objects.filter(context_id=context_id)
+            object_id__in=MemoryEntry.objects.filter(context_id=context_id)
             .annotate(id_str=Cast("id", output_field=CharField()))
             .values("id_str")
         )
