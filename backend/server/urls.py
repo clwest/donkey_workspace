@@ -36,6 +36,10 @@ from devtools.views import (
     repair_context_embeddings,
     ignore_context_embeddings,
     embedding_drift_log,
+    run_cli_command,
+    command_log_detail,
+    command_log_list,
+    assistant_rag_tests,
     reset_onboarding,
 )
 from embeddings.views import debug as debug_views
@@ -140,6 +144,9 @@ urlpatterns = [
         ignore_context_embeddings,
     ),
     path("api/dev/embedding-drift-log/", embedding_drift_log),
+    path("api/dev/cli/run/", run_cli_command),
+    path("api/dev/command-logs/<int:log_id>/", command_log_detail),
+    path("api/dev/command-logs/", command_log_list),
     path(
         "api/embedding/repair/context/<uuid:context_id>/",
         debug_views.repair_context,

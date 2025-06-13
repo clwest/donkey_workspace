@@ -59,6 +59,7 @@ from assistants.views.badges import (
 from assistants.views.preview import assistant_preview
 from assistants.views.badge_stub import badge_list
 from insights.views.plan import InsightPlanView
+from devtools import views as devtools
 
 from scheduler.views import standup
 
@@ -778,6 +779,11 @@ urlpatterns = [
         "<slug:slug>/rag_diagnostics/",
         assistants.rag_diagnostics_summary,
         name="assistant-rag-diagnostics",
+    ),
+    path(
+        "<slug:slug>/rag-tests/",
+        devtools.assistant_rag_tests,
+        name="assistant-rag-tests",
     ),
     path(
         "<slug:slug>/diagnostic_report/",

@@ -12,6 +12,8 @@ import subprocess
 import json
 from pathlib import Path
 from django.forms.models import model_to_dict
+from assistants.models.command_log import AssistantCommandLog
+from assistants.serializers import AssistantCommandLogSerializer
 
 
 def _walk_patterns(patterns, prefix=""):
@@ -177,6 +179,53 @@ def rag_debug_logs(request):
     logs = qs[:100]
     data = RAGDiagnosticLogSerializer(logs, many=True).data
     return Response({"results": data})
+
+
+@api_view(["POST"])
+@permission_classes([AdminOnly])
+def run_cli_command(request):
+    """Execute a management command asynchronously."""
+    command = request.data.get("command")
+    flags = request.data.get("flags", "")
+    assistant = request.data.get("assistant")
+    flag_list = [f for f in flags.split() if f]
+
+    log = AssistantCommandLog.objects.create(command=command)
+    from .tasks import run_cli_command_task
+
+    run_cli_command_task.delay(log.id, command, flag_list, assistant)
+    return Response({"log_id": log.id})
+
+
+@api_view(["GET"])
+@permission_classes([AdminOnly])
+def command_log_detail(request, log_id):
+    log = get_object_or_404(AssistantCommandLog, id=log_id)
+    data = AssistantCommandLogSerializer(log).data
+    return Response(data)
+
+
+@api_view(["GET"])
+@permission_classes([AdminOnly])
+def command_log_list(request):
+    assistant = request.GET.get("assistant")
+    logs = AssistantCommandLog.objects.all()
+    if assistant:
+        logs = logs.filter(assistant__slug=assistant)
+    logs = logs.order_by("-created_at")[:50]
+    data = AssistantCommandLogSerializer(logs, many=True).data
+    return Response({"results": data})
+
+
+@api_view(["GET"])
+@permission_classes([AdminOnly])
+def assistant_rag_tests(request, slug):
+    logs = AssistantCommandLog.objects.filter(
+        assistant__slug=slug, command__startswith="run_rag_tests"
+    ).order_by("-created_at")
+    data = AssistantCommandLogSerializer(logs, many=True).data
+    file_used = "rag_tests.json"
+    return Response({"file": file_used, "logs": data})
 
 
 @api_view(["GET"])
