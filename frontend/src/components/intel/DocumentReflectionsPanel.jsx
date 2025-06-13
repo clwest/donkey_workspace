@@ -5,6 +5,7 @@ export default function DocumentReflectionsPanel({ docId }) {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [grouped, setGrouped] = useState(false);
+  const [groupsByAssistant, setGroupsByAssistant] = useState({});
 
   useEffect(() => {
     async function fetchLogs() {
@@ -14,6 +15,23 @@ export default function DocumentReflectionsPanel({ docId }) {
           : `/intel/documents/${docId}/reflections/`;
         const data = await apiFetch(url);
         setLogs(grouped ? data.groups || [] : data.reflections || []);
+        if (!grouped) {
+          const slugs = Array.from(
+            new Set((data.reflections || []).map((r) => r.assistant_slug)),
+          );
+          slugs.forEach(async (slug) => {
+            if (!groupsByAssistant[slug]) {
+              try {
+                const g = await apiFetch(
+                  `/assistants/${slug}/reflections/groups/`,
+                );
+                setGroupsByAssistant((prev) => ({ ...prev, [slug]: g }));
+              } catch (err) {
+                console.error("Failed to load groups", err);
+              }
+            }
+          });
+        }
       } catch (err) {
         console.error("Failed to load reflections", err);
       } finally {
@@ -31,7 +49,7 @@ export default function DocumentReflectionsPanel({ docId }) {
       const data = await apiFetch(
         grouped
           ? `/intel/documents/${docId}/reflections/?group=true`
-          : `/intel/documents/${docId}/reflections/`
+          : `/intel/documents/${docId}/reflections/`,
       );
       setLogs(grouped ? data.groups || [] : data.reflections || []);
     } catch (err) {
@@ -41,12 +59,30 @@ export default function DocumentReflectionsPanel({ docId }) {
 
   const handleSummary = async () => {
     try {
-      await apiFetch(`/intel/documents/${docId}/reflect-summary/`, { method: "POST" });
-      const data = await apiFetch(`/intel/documents/${docId}/reflections/?group=true`);
+      await apiFetch(`/intel/documents/${docId}/reflect-summary/`, {
+        method: "POST",
+      });
+      const data = await apiFetch(
+        `/intel/documents/${docId}/reflections/?group=true`,
+      );
       setGrouped(true);
       setLogs(data.groups || []);
     } catch (err) {
       console.error("Summary failed", err);
+    }
+  };
+
+  const assignGroup = async (id, groupSlug) => {
+    try {
+      await apiFetch(`/reflection-log/${id}/assign-group/`, {
+        method: "PATCH",
+        body: { group: groupSlug },
+      });
+      setLogs((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, group_slug: groupSlug } : r)),
+      );
+    } catch (err) {
+      console.error("Assign failed", err);
     }
   };
 
@@ -67,7 +103,10 @@ export default function DocumentReflectionsPanel({ docId }) {
         <label className="form-check-label" htmlFor="groupToggle">
           Grouped View
         </label>
-        <button className="btn btn-sm btn-outline-primary ms-2" onClick={handleSummary}>
+        <button
+          className="btn btn-sm btn-outline-primary ms-2"
+          onClick={handleSummary}
+        >
           Reflect Summary
         </button>
       </div>
@@ -76,12 +115,20 @@ export default function DocumentReflectionsPanel({ docId }) {
           ? logs.map((g) => (
               <li key={g.slug} className="list-group-item">
                 <div className="fw-bold">{g.slug}</div>
-                {g.summary && <div className="small text-muted mb-1">{g.summary}</div>}
+                {g.summary && (
+                  <div className="small text-muted mb-1">{g.summary}</div>
+                )}
                 <ul className="list-unstyled ms-3">
                   {g.items.map((r) => (
                     <li key={r.id} className="mb-1">
-                      {r.is_summary && <span className="badge bg-info me-1">summary</span>}
-                      {r.assistant && <span className="badge bg-secondary me-1">{r.assistant}</span>}
+                      {r.is_summary && (
+                        <span className="badge bg-info me-1">summary</span>
+                      )}
+                      {r.assistant && (
+                        <span className="badge bg-secondary me-1">
+                          {r.assistant}
+                        </span>
+                      )}
                       {r.summary}
                     </li>
                   ))}
@@ -89,14 +136,42 @@ export default function DocumentReflectionsPanel({ docId }) {
               </li>
             ))
           : logs.map((r) => (
-              <li key={r.id} className="list-group-item d-flex justify-content-between align-items-start">
+              <li
+                key={r.id}
+                className="list-group-item d-flex justify-content-between align-items-start"
+              >
                 <div>
                   <strong>{r.assistant}</strong>
                   <br />
-                  <small className="text-muted">{new Date(r.created_at).toLocaleString()}</small>
+                  <small className="text-muted">
+                    {new Date(r.created_at).toLocaleString()}
+                  </small>
                   <p className="mb-1">{r.summary.slice(0, 80)}</p>
+                  {r.group_slug ? (
+                    <div className="small text-success">
+                      Part of Group: {r.group_slug}
+                    </div>
+                  ) : groupsByAssistant[r.assistant_slug] ? (
+                    <select
+                      className="form-select form-select-sm"
+                      onChange={(e) => assignGroup(r.id, e.target.value)}
+                      defaultValue=""
+                    >
+                      <option value="" disabled>
+                        Assign to Group
+                      </option>
+                      {groupsByAssistant[r.assistant_slug].map((g) => (
+                        <option key={g.slug} value={g.slug}>
+                          {g.title || g.slug}
+                        </option>
+                      ))}
+                    </select>
+                  ) : null}
                 </div>
-                <button className="btn btn-sm btn-outline-secondary" onClick={() => triggerRefresh(r.assistant_slug)}>
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={() => triggerRefresh(r.assistant_slug)}
+                >
                   Refresh
                 </button>
               </li>

@@ -1,6 +1,7 @@
 import uuid
 from django.db import models
 
+
 class AssistantReflectionLog(models.Model):
     """Summary of a reflection cycle linked to either an assistant or project."""
 
@@ -119,3 +120,31 @@ class AssistantReflectionInsight(models.Model):
 
     def __str__(self):
         return f"Insight on {self.linked_document.title} by {self.assistant.name}"
+
+
+class ReflectionGroup(models.Model):
+    """Group reflections across multiple documents for an assistant."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="reflection_groups",
+    )
+    slug = models.SlugField(unique=True, max_length=120)
+    title = models.CharField(max_length=255, blank=True)
+    documents = models.ManyToManyField(
+        "intel_core.Document", blank=True, related_name="reflection_groups"
+    )
+    reflections = models.ManyToManyField(
+        AssistantReflectionLog, blank=True, related_name="groups"
+    )
+    summary = models.TextField(blank=True, default="")
+    summary_updated = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-summary_updated", "-created_at"]
+
+    def __str__(self) -> str:  # pragma: no cover - display helper
+        return self.title or self.slug

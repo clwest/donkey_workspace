@@ -1,4 +1,10 @@
-import { Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  useParams,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
@@ -166,6 +172,7 @@ import AssistantReflectionLogsPage from "./pages/assistant/reflections/Assistant
 import AssistantReplayLogsPage from "@/pages/assistant/replays/AssistantReplayLogsPage";
 import AssistantReplayDiffPage from "@/pages/assistant/replays/AssistantReplayDiffPage";
 import RAGPlaybackPanel from "./pages/assistants/playback/RAGPlaybackPanel";
+import AssistantReflectionGroupsPage from "./pages/assistants/AssistantReflectionGroupsPage";
 import AssistantInsightsPage from "./pages/assistants/insights/AssistantInsightsPage";
 import FeedbackSummaryPage from "./pages/assistant/feedback/FeedbackSummaryPage";
 import DevDashboard from "./pages/dev/DevDashboard";
@@ -278,7 +285,6 @@ import SwarmTaskEvolutionPage from "./pages/evolve/SwarmTaskEvolutionPage";
 import SkillPlannerPage from "./pages/plan/SkillPlannerPage";
 import PromptFeedbackPage from "./pages/feedback/PromptFeedbackPage";
 
-
 import { ToastContainer } from "react-toastify";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
@@ -321,29 +327,35 @@ export default function App() {
     "/assistants/demo",
   ];
   const allowUnauth = publicPaths.includes(location.pathname);
-  const { user, authChecked, authError } = useAuthGuard({ allowUnauthenticated: allowUnauth });
+  const { user, authChecked, authError } = useAuthGuard({
+    allowUnauthenticated: allowUnauth,
+  });
   const userInfo = useUserInfo();
   const navigate = useNavigate();
-  const [onboardingRedirectHandled, setOnboardingRedirectHandled] = useState(false);
-  const { loading: onboardingLoading, primarySlug, onboardingComplete } =
-    useOnboardingStatus();
+  const [onboardingRedirectHandled, setOnboardingRedirectHandled] =
+    useState(false);
+  const {
+    loading: onboardingLoading,
+    primarySlug,
+    onboardingComplete,
+  } = useOnboardingStatus();
 
   useEffect(() => {
     if (!user || onboardingLoading || onboardingRedirectHandled) return;
     const path = location.pathname;
     if (onboardingComplete) {
-      if (path === '/assistants/create' || path.startsWith('/onboarding')) {
+      if (path === "/assistants/create" || path.startsWith("/onboarding")) {
         navigate(`/assistants/${primarySlug}`, { replace: true });
         setOnboardingRedirectHandled(true);
       }
     } else if (userInfo?.assistant_count === 0) {
-      if (path !== '/assistants/create') {
-        navigate('/assistants/create', { replace: true });
+      if (path !== "/assistants/create") {
+        navigate("/assistants/create", { replace: true });
         setOnboardingRedirectHandled(true);
       }
-    } else if (!path.startsWith('/assistants')) {
+    } else if (!path.startsWith("/assistants")) {
       const slug = userInfo?.primary_assistant_slug || primarySlug;
-      navigate(slug ? `/assistants/${slug}` : '/assistants/create', {
+      navigate(slug ? `/assistants/${slug}` : "/assistants/create", {
         replace: true,
       });
       setOnboardingRedirectHandled(true);
@@ -374,13 +386,13 @@ export default function App() {
   }
 
   return (
-      <div className="d-flex">
-        <Sidebar collapsed={sidebarCollapsed} />
-        <div className="flex-grow-1">
-          <ToastContainer position="bottom-right" autoClose={3000} />
-          <Navbar onToggleSidebar={toggleSidebar} />
+    <div className="d-flex">
+      <Sidebar collapsed={sidebarCollapsed} />
+      <div className="flex-grow-1">
+        <ToastContainer position="bottom-right" autoClose={3000} />
+        <Navbar onToggleSidebar={toggleSidebar} />
 
-          <Routes>
+        <Routes>
           {/* Auth */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -389,20 +401,38 @@ export default function App() {
           <Route path="/onboarding" element={<UserMythpathInitializerPage />} />
           <Route path="/onboarding/world" element={<OnboardingWorldPage />} />
           <Route path="/onboarding/glossary" element={<GlossaryBootPage />} />
-          <Route path="/onboarding/archetype" element={<ArchetypeSelectionChamberPage />} />
-          <Route path="/onboarding/summon" element={<SummoningRitualConsolePage />} />
-          <Route path="/onboarding/personality" element={<PersonalityOnboardingPage />} />
+          <Route
+            path="/onboarding/archetype"
+            element={<ArchetypeSelectionChamberPage />}
+          />
+          <Route
+            path="/onboarding/summon"
+            element={<SummoningRitualConsolePage />}
+          />
+          <Route
+            path="/onboarding/personality"
+            element={<PersonalityOnboardingPage />}
+          />
           <Route path="/onboarding/wizard" element={<OnboardingWizardPage />} />
           <Route path="/onboarding/ritual" element={<RitualOnboardingPage />} />
           <Route path="/codex/briefing" element={<CodexBriefingPage />} />
-          <Route path="/assistant/:id/tutorial" element={<AssistantTutorialPage />} />
+          <Route
+            path="/assistant/:id/tutorial"
+            element={<AssistantTutorialPage />}
+          />
           {/* Prompts */}
           <Route path="/" element={<MythOSLandingPage />} />
           <Route path="/home" element={<WelcomeBackPage />} />
           <Route path="/welcome" element={<WelcomePage />} />
           <Route path="/prompts" element={<PromptsPage />} />
-          <Route path="/prompts/capsules" element={<PromptCapsuleManagerPage />} />
-          <Route path="/feedback/prompts/:id" element={<PromptFeedbackPage />} />
+          <Route
+            path="/prompts/capsules"
+            element={<PromptCapsuleManagerPage />}
+          />
+          <Route
+            path="/feedback/prompts/:id"
+            element={<PromptFeedbackPage />}
+          />
           <Route path="/prompts/:slug/remix" element={<PromptRemixPage />} />
           <Route path="/prompts/:slug/edit" element={<EditPromptPage />} />
           <Route path="/prompts/:slug" element={<PromptDetailView />} />
@@ -414,7 +444,10 @@ export default function App() {
           {/* Memories */}
           <Route path="/memories/new" element={<MemoryEntryCreatePage />} />
           <Route path="/memories" element={<MemoryBrowserPage />} /> {/* ➕ */}
-          <Route path="/memories/bookmarked" element={<BookmarkedMemoriesPage />} />
+          <Route
+            path="/memories/bookmarked"
+            element={<BookmarkedMemoriesPage />}
+          />
           <Route path="/memories/:id" element={<MemoryDetailPage />} />{" "}
           <Route path="/memory/:id/echo" element={<MemoryEchoPage />} />
           {/* 🧠 */}
@@ -433,10 +466,7 @@ export default function App() {
             element={<MemoryChainDetailPage />}
           />{" "}
           {/* 🔗 Chain Viewer */}
-          <Route
-            path="/relay/chains/:id"
-            element={<RelayChainViewerPage />}
-          />
+          <Route path="/relay/chains/:id" element={<RelayChainViewerPage />} />
           {/* Assistant & Projects */}
           <Route path="/assistants" element={<AssistantList />} />
           <Route
@@ -468,7 +498,6 @@ export default function App() {
             path="/assistants/primary/dashboard"
             element={<PrimaryAssistantPage />}
           />
-
           {/* Project and Milestone Routes */}
           <Route
             path="/assistants/projects/create"
@@ -526,7 +555,6 @@ export default function App() {
             path="/assistants/projects/:projectId/milestones/:milestoneId/edit"
             element={<MilestoneEditPage />}
           />
-
           {/* Top-level Assistant Views */}
           <Route
             path="/assistants/projects/:id/thoughts"
@@ -555,26 +583,71 @@ export default function App() {
           />
           <Route path="/assistants/sources" element={<SignalSourcesPage />} />
           <Route path="/assistants/signals" element={<SignalCatchesPage />} />
-          <Route path="/assistants/routing-history" element={<RoutingHistoryPage />} />
-          <Route path="/assistants/council/:id" element={<CouncilDashboardPage />} />
+          <Route
+            path="/assistants/routing-history"
+            element={<RoutingHistoryPage />}
+          />
+          <Route
+            path="/assistants/council/:id"
+            element={<CouncilDashboardPage />}
+          />
           <Route path="/assistants-demos" element={<AssistantDemoPage />} />
-          <Route path="/assistants/demos/compare" element={<DemoComparisonPage />} />
-          <Route path="/assistants/demos/insights" element={<DemoInsightsDashboard />} />
-          <Route path="/assistants/demos/success" element={<DemoSuccessShowcase />} />
-
-          <Route path="/assistants/demos/feedback" element={<DemoFeedbackExplorer />} />
-
-          <Route path="/assistants/launch" element={<AssistantLauncherPage />} />
-          <Route path="/assistants/:slug/intro" element={<AssistantIntroSplash />} />
-          <Route path="/assistants/:slug/trail" element={<AssistantTrailRecap />} />
-          <Route path="/assistants/:slug/demo_recap/:sessionId" element={<DemoRecapPage />} />
-          <Route path="/assistants/:slug/demo_overlay/" element={<DemoOverlayPage />} />
-          <Route path="/assistants/:slug/demo_replay/:sessionId" element={<DemoReplayPage />} />
-          <Route path="/assistants/:slug/trust_profile/" element={<TrustProfilePage />} />
-          <Route path="/assistants/:slug/growth/" element={<GrowthPanelPage />} />
-          <Route path="/assistants/:slug/preferences/" element={<AssistantPreferencesPage />} />
-          <Route path="/assistants/:slug/settings/" element={<AssistantPreferencesPage />} />
-
+          <Route
+            path="/assistants/demos/compare"
+            element={<DemoComparisonPage />}
+          />
+          <Route
+            path="/assistants/demos/insights"
+            element={<DemoInsightsDashboard />}
+          />
+          <Route
+            path="/assistants/demos/success"
+            element={<DemoSuccessShowcase />}
+          />
+          <Route
+            path="/assistants/demos/feedback"
+            element={<DemoFeedbackExplorer />}
+          />
+          <Route
+            path="/assistants/launch"
+            element={<AssistantLauncherPage />}
+          />
+          <Route
+            path="/assistants/:slug/intro"
+            element={<AssistantIntroSplash />}
+          />
+          <Route
+            path="/assistants/:slug/trail"
+            element={<AssistantTrailRecap />}
+          />
+          <Route
+            path="/assistants/:slug/demo_recap/:sessionId"
+            element={<DemoRecapPage />}
+          />
+          <Route
+            path="/assistants/:slug/demo_overlay/"
+            element={<DemoOverlayPage />}
+          />
+          <Route
+            path="/assistants/:slug/demo_replay/:sessionId"
+            element={<DemoReplayPage />}
+          />
+          <Route
+            path="/assistants/:slug/trust_profile/"
+            element={<TrustProfilePage />}
+          />
+          <Route
+            path="/assistants/:slug/growth/"
+            element={<GrowthPanelPage />}
+          />
+          <Route
+            path="/assistants/:slug/preferences/"
+            element={<AssistantPreferencesPage />}
+          />
+          <Route
+            path="/assistants/:slug/settings/"
+            element={<AssistantPreferencesPage />}
+          />
           {/* Assistant Detail Subroutes */}
           <Route
             path="/assistants/:slug/log_thought"
@@ -600,8 +673,14 @@ export default function App() {
             path="/assistants/:slug/belief"
             element={<BeliefEvolutionPage />}
           />
-          <Route path="/assistants/:slug/memory" element={<AssistantMemoryPage />} />
-          <Route path="/assistants/:slug/memories" element={<AssistantMemoriesPage />} />
+          <Route
+            path="/assistants/:slug/memory"
+            element={<AssistantMemoryPage />}
+          />
+          <Route
+            path="/assistants/:slug/memories"
+            element={<AssistantMemoriesPage />}
+          />
           <Route
             path="/assistants/:slug/objectives"
             element={<ObjectivesPage />}
@@ -609,6 +688,10 @@ export default function App() {
           <Route
             path="/assistants/:slug/reflections"
             element={<AssistantReflectionLogsPage />}
+          />
+          <Route
+            path="/assistants/:slug/reflections/groups/"
+            element={<AssistantReflectionGroupsPage />}
           />
           <Route
             path="/assistants/:slug/insights/"
@@ -682,7 +765,7 @@ export default function App() {
             path="/assistants/:slug/badges"
             element={<AssistantBadgesPage />}
           />
-            <Route path="/badges" element={<BadgesPage />} />
+          <Route path="/badges" element={<BadgesPage />} />
           <Route
             path="/assistants/:slug/glossary"
             element={<GlossaryConvergencePage />}
@@ -719,32 +802,44 @@ export default function App() {
             path="/assistants/:slug/chat/knowledge"
             element={<ChatWithKnowledge />}
           />
-          <Route path="/assistants/:id/thoughts" element={<ThoughtLogPanel />} />
-          <Route path="/assistants/:id/deck" element={<PersonalityDeckBuilder />} />
+          <Route
+            path="/assistants/:id/thoughts"
+            element={<ThoughtLogPanel />}
+          />
+          <Route
+            path="/assistants/:id/deck"
+            element={<PersonalityDeckBuilder />}
+          />
           <Route
             path="/assistants/:id/interface"
             element={<AssistantInterfacePage />}
           />
-          <Route
-            path="/assistants/:id/run-task"
-            element={<RunTaskPage />}
-          />
+          <Route path="/assistants/:id/run-task" element={<RunTaskPage />} />
           <Route
             path="/assistants/:id/relay"
             element={<AssistantRelayPage />}
           />
-          <Route
-            path="/assistants/:id/fork"
-            element={<AssistantForkPage />}
-          />
+          <Route path="/assistants/:id/fork" element={<AssistantForkPage />} />
           <Route
             path="/assistants/:id/lineage"
             element={<AssistantLineagePage />}
           />
-          <Route path="/assistants/:id/rebirth" element={<AssistantMythRebirthPage />} />
-          <Route path="/assistants/:id/identity" element={<AssistantIdentityPage />} />
-          <Route path="/assistants/:id/mythpath" element={<AssistantMythpathPage />} />
-          <Route path="/assistants/:slug/edit" element={<EditAssistantPage />} />
+          <Route
+            path="/assistants/:id/rebirth"
+            element={<AssistantMythRebirthPage />}
+          />
+          <Route
+            path="/assistants/:id/identity"
+            element={<AssistantIdentityPage />}
+          />
+          <Route
+            path="/assistants/:id/mythpath"
+            element={<AssistantMythpathPage />}
+          />
+          <Route
+            path="/assistants/:slug/edit"
+            element={<EditAssistantPage />}
+          />
           <Route
             path="/assistants/:slug/capabilities"
             element={<AssistantCapabilityEditor />}
@@ -778,18 +873,29 @@ export default function App() {
           <Route path="/threads/editor" element={<ThreadEditorPage />} />
           <Route path="/threads/:id" element={<ThreadDetailPage />} />
           <Route path="/dev-dashboard" element={<DevDashboard />} />
-
           <Route path="/dev/routes" element={<RouteViewer />} />
           <Route path="/dev/route-health" element={<RouteViewer />} />
           <Route path="/dev/route-explorer" element={<RouteExplorerPage />} />
-          <Route path="/dev/routes/capabilities" element={<CapabilityStatus />} />
+          <Route
+            path="/dev/routes/capabilities"
+            element={<CapabilityStatus />}
+          />
           <Route path="/dev/route-check" element={<RouteCheckPage />} />
           <Route path="/dev/debug/intel" element={<IntelDebugTools />} />
-          <Route path="/devtools/embedding-debug" element={<EmbeddingDebug />} />
-          <Route path="/devtools/embedding-audit" element={<EmbeddingAuditPanel />} />
+          <Route
+            path="/devtools/embedding-debug"
+            element={<EmbeddingDebug />}
+          />
+          <Route
+            path="/devtools/embedding-audit"
+            element={<EmbeddingAuditPanel />}
+          />
           <Route path="/devtools/drift-log" element={<EmbeddingDriftLog />} />
           <Route path="/dev/auth-debug" element={<AuthDebugPage />} />
-          <Route path="/dev/onboarding-debug" element={<OnboardingDebugPage />} />
+          <Route
+            path="/dev/onboarding-debug"
+            element={<OnboardingDebugPage />}
+          />
           <Route path="/dev/demo-checkup" element={<DemoCheckupPage />} />
           <Route path="/dev/feedback-review" element={<FeedbackReviewPage />} />
           <Route path="/debug/prompts" element={<PromptDebuggerPage />} />
@@ -817,48 +923,91 @@ export default function App() {
           <Route path="/swarm/graph" element={<SwarmGraphPage />} />
           <Route path="/swarm/collisions" element={<RoleCollisionPage />} />
           <Route path="/ritual/rewire" element={<RitualRewirePage />} />
-          <Route path="/orchestration/timeline" element={<OrchestrationTimelinePage />} />
+          <Route
+            path="/orchestration/timeline"
+            element={<OrchestrationTimelinePage />}
+          />
           <Route path="/swarm/rewire" element={<SwarmAgentRewirePage />} />
           <Route path="/timeline" element={<WorldTimelinePage />} />
           <Route path="/timeline/memory" element={<MemoryTimelinePage />} />
-          <Route path="/memory/sandbox/:assistantId" element={<MemorySandboxPage />} />
+          <Route
+            path="/memory/sandbox/:assistantId"
+            element={<MemorySandboxPage />}
+          />
           <Route path="/agents/:slug" element={<AgentDetailRoute />} />
           <Route path="/intel/documents" element={<DocumentBrowserPage />} />
-          <Route path="/intel/documents/:id" element={<DocumentDetailRoute />} />
+          <Route
+            path="/intel/documents/:id"
+            element={<DocumentDetailRoute />}
+          />
           <Route path="/images" element={<ImageGalleryPage />} />
           <Route path="/images/new" element={<ImageCreatePage />} />
           <Route path="/characters" element={<CharacterListPage />} />
           <Route path="/stories" element={<StoryListPage />} />
           <Route path="/storyboard" element={<StoryboardEditorPage />} />
-          <Route path="/storyboard/events/:id" element={<NarrativeEventDetailPage />} />
+          <Route
+            path="/storyboard/events/:id"
+            element={<NarrativeEventDetailPage />}
+          />
           <Route path="/dashboard/world" element={<WorldDashboardPage />} />
-          <Route path="/map/assistants" element={<AssistantPresenceMapPage />} />
+          <Route
+            path="/map/assistants"
+            element={<AssistantPresenceMapPage />}
+          />
           <Route path="/heatmap/mythflow" element={<MythflowHeatmapPage />} />
           <Route path="/timeline/explore" element={<MythpathExplorerPage />} />
-          <Route path="/memory/synthesize" element={<SymbolicMemorySynthesizerPage />} />
-          <Route path="/reflection/logs" element={<TemporalReflectionLogsPage />} />
+          <Route
+            path="/memory/synthesize"
+            element={<SymbolicMemorySynthesizerPage />}
+          />
+          <Route
+            path="/reflection/logs"
+            element={<TemporalReflectionLogsPage />}
+          />
           <Route path="/lore" element={<RealityShaperDashboard />} />
-
           {/* MythOS symbolic gateways */}
           <Route path="/codex" element={<MythOSCodexPage />} />
           <Route path="/codex/evolve" element={<PromptMutationExplorer />} />
-          <Route path="/codex/orchestrator/:assistantId" element={<CodexPromptOrchestrator />} />
+          <Route
+            path="/codex/orchestrator/:assistantId"
+            element={<CodexPromptOrchestrator />}
+          />
           <Route path="/codex/converge" element={<CodexConvergePage />} />
           <Route path="/codex/proof" element={<CodexProofPage />} />
-          <Route path="/codex/contracts/:promptId" element={<CodexContractPage />} />
-          <Route path="/codex/mutator/:clauseId" element={<CodexClauseMutatorPage />} />
-          <Route path="/codex/cascade/:clauseId" element={<CascadeGraphPage />} />
-          <Route path="/codex/stabilize" element={<StabilizationCampaignPage />} />
-          <Route path="/codex/stabilize/:campaignId" element={<StabilizationCampaignDetailPage />} />
-          <Route path="/codex/inheritance/:assistantId" element={<CodexInheritancePage />} />
+          <Route
+            path="/codex/contracts/:promptId"
+            element={<CodexContractPage />}
+          />
+          <Route
+            path="/codex/mutator/:clauseId"
+            element={<CodexClauseMutatorPage />}
+          />
+          <Route
+            path="/codex/cascade/:clauseId"
+            element={<CascadeGraphPage />}
+          />
+          <Route
+            path="/codex/stabilize"
+            element={<StabilizationCampaignPage />}
+          />
+          <Route
+            path="/codex/stabilize/:campaignId"
+            element={<StabilizationCampaignDetailPage />}
+          />
+          <Route
+            path="/codex/inheritance/:assistantId"
+            element={<CodexInheritancePage />}
+          />
           <Route path="/dream" element={<DreamframePage />} />
           <Route path="/dream/rebirth" element={<DreamRebirthPage />} />
           <Route path="/ritual" element={<MythOSRitualsPage />} />
           <Route path="/ritual/containers" element={<RitualContainersPage />} />
           <Route path="/ritual/composer" element={<RitualComposerPage />} />
-          <Route path="/ritual/fork/replay" element={<RitualForkReplayPage />} />
+          <Route
+            path="/ritual/fork/replay"
+            element={<RitualForkReplayPage />}
+          />
           <Route path="/reflection" element={<ReflectionPage />} />
-
           <Route path="/prophecy/engine" element={<ProphecyEnginePage />} />
           <Route path="/memory/predict" element={<MemoryPredictionPage />} />
           <Route path="/ritual/forecast" element={<RitualForecastPage />} />
@@ -866,20 +1015,44 @@ export default function App() {
           <Route path="/evolve/swarm" element={<SwarmTaskEvolutionPage />} />
           <Route path="/ritual/rewards" element={<RitualRewardsPage />} />
           <Route path="/replay/engine" element={<ReplayEnginePage />} />
-          <Route path="/simulate/narrative" element={<NarrativeMutationSimulatorPage />} />
+          <Route
+            path="/simulate/narrative"
+            element={<NarrativeMutationSimulatorPage />}
+          />
           <Route path="/mythgraph/:id" element={<MythgraphViewerPage />} />
           <Route path="/fault/injector" element={<FaultInjectorPage />} />
           <Route path="/deploy/standards" element={<DeployStandardsPage />} />
-          <Route path="/project/composer" element={<MythOSProjectComposerPage />} />
+          <Route
+            path="/project/composer"
+            element={<MythOSProjectComposerPage />}
+          />
           <Route path="/summon/federated" element={<FederatedSummonPage />} />
           <Route path="/anchor/continuity" element={<ContinuityAnchorPage />} />
-          <Route path="/anchor/mutations" element={<GlossaryMutationReviewPanel />} />
-          <Route path="/anchor/symbolic" element={<SymbolicAnchorAdminPage />} />
-          <Route path="/anchor/symbolic/:slug" element={<SymbolicAnchorDetailPage />} />
+          <Route
+            path="/anchor/mutations"
+            element={<GlossaryMutationReviewPanel />}
+          />
+          <Route
+            path="/anchor/symbolic"
+            element={<SymbolicAnchorAdminPage />}
+          />
+          <Route
+            path="/anchor/symbolic/:slug"
+            element={<SymbolicAnchorDetailPage />}
+          />
           <Route path="/keeper/logs" element={<KeeperLogViewer />} />
-          <Route path="/assistants/:id/economy" element={<AssistantEconomyPage />} />
-          <Route path="/assistants/:id/deploy" element={<AssistantDeployPage />} />
-          <Route path="/assistants/:id/tools" element={<AssistantToolsPage />} />
+          <Route
+            path="/assistants/:id/economy"
+            element={<AssistantEconomyPage />}
+          />
+          <Route
+            path="/assistants/:id/deploy"
+            element={<AssistantDeployPage />}
+          />
+          <Route
+            path="/assistants/:id/tools"
+            element={<AssistantToolsPage />}
+          />
           <Route
             path="/assistants/:slug/review-ingest/:doc_id"
             element={<ReviewIngestPage />}
@@ -889,24 +1062,34 @@ export default function App() {
           <Route path="/guilds/:id/funding" element={<GuildFundingPage />} />
           <Route path="/guilds/:id/exchange" element={<GuildExchangePage />} />
           <Route path="/treaty/forge" element={<TreatyForgePage />} />
-          <Route path="/federation/codices" element={<FederationCodicesPage />} />
+          <Route
+            path="/federation/codices"
+            element={<FederationCodicesPage />}
+          />
           <Route path="/law/ritual" element={<RitualLawPage />} />
           <Route path="/market/tokens" element={<TokenMarketPage />} />
           <Route path="/market/rituals" element={<RitualMarketPage />} />
           <Route path="/ritual/grants" element={<RitualGrantPage />} />
-          <Route path="/assistants/trend-reactivity" element={<TrendReactivityPage />} />
+          <Route
+            path="/assistants/trend-reactivity"
+            element={<TrendReactivityPage />}
+          />
           <Route path="/system/stability" element={<SystemStabilityPage />} />
-
           <Route path="/ui/motion" element={<MotionTestPage />} />
           <Route path="/assistants/:id/aura" element={<AssistantAuraPage />} />
-
           <Route path="/assistants/sources" element={<SignalSourcesPage />} />
           <Route path="/assistants/signals" element={<SignalCatchesPage />} />
-          <Route path="/assistants/routing-history" element={<RoutingHistoryPage />} />
-          <Route path="/assistants/council/:id" element={<CouncilDashboardPage />} />
+          <Route
+            path="/assistants/routing-history"
+            element={<RoutingHistoryPage />}
+          />
+          <Route
+            path="/assistants/council/:id"
+            element={<CouncilDashboardPage />}
+          />
           <Route path="*" element={<PageNotFound />} />
         </Routes>
-        </div>
       </div>
+    </div>
   );
 }

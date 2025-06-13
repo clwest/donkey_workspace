@@ -620,6 +620,11 @@ urlpatterns = [
         name="assistant-reflection-logs",
     ),
     path(
+        "<slug:slug>/reflections/groups/",
+        reflection.reflection_group_list,
+        name="assistant-reflection-group-list",
+    ),
+    path(
         "<slug:slug>/insights/",
         insights.insight_logs,
         name="assistant-insight-logs",
@@ -663,6 +668,16 @@ urlpatterns = [
         "reflections/<uuid:id>/replay/",
         memory.replay_reflection,
         name="reflection-replay",
+    ),
+    path(
+        "reflections/groups/summarize/",
+        reflection.summarize_reflection_group,
+        name="reflection-group-summarize",
+    ),
+    path(
+        "reflection-log/<uuid:id>/assign-group/",
+        reflection.assign_reflection_group,
+        name="reflection-log-assign-group",
     ),
     path(
         "<slug:slug>/feedback/",
