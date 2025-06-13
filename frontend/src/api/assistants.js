@@ -515,7 +515,14 @@ export async function fetchRagDiagnosticsSummary(slug) {
 }
 
 export async function fetchDiagnosticReport(slug) {
-  return apiFetch(`/assistants/${slug}/diagnostic_report/`);
+  try {
+    return await apiFetch(`/assistants/${slug}/diagnostic_report/`);
+  } catch (err) {
+    if (err.status === 404) {
+      return null;
+    }
+    throw err;
+  }
 }
 
 export async function fetchDriftSuggestions(slug, params) {
