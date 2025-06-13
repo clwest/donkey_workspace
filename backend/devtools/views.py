@@ -324,7 +324,7 @@ def embedding_debug(request):
 def embedding_audit(request):
     """Return counts of embedding mismatches and orphans."""
     from django.contrib.contenttypes.models import ContentType
-    from django.db.models import Count
+    from django.db.models import Count, F
     from embeddings.models import Embedding, EmbeddingDebugTag
     from memory.models import MemoryEntry
     from intel_core.models import DocumentChunk
