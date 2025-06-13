@@ -48,7 +48,14 @@ export default function AssistantActionDashboardPage() {
 
   return (
     <div className="container my-5">
-      <h1 className="mb-2">{assistant.name} Dashboard</h1>
+      <h1 className="mb-2">
+        {assistant.name} Dashboard
+        {assistant.reflection_error && (
+          <span className="badge bg-warning text-dark ms-2" title={assistant.reflection_error}>
+            ⚠️ Reflection skipped — LLM connection failed
+          </span>
+        )}
+      </h1>
       <div className="text-muted mb-3">
         World: {assistant.specialty} | Archetype: {assistant.archetype}
       </div>

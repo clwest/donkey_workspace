@@ -2,6 +2,9 @@ from assistants.models.thoughts import AssistantThoughtLog
 from assistants.models.project import AssistantProject
 from assistants.models.reflection import AssistantReflectionLog
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
+from django.conf import settings
+from django.utils import timezone
+import requests
 from project.models import Project
 from .mood import detect_mood, update_mood_stability
 from memory.models import MemoryEntry
@@ -108,10 +111,50 @@ def reflect_on_birth(assistant):
     )
 
     engine = AssistantReflectionEngine(assistant)
+    assistant.last_reflection_attempted_at = timezone.now()
+
+    if not getattr(settings, "ENABLE_LOCAL_CHAT_REFLECTIONS", True):
+        logging.getLogger(__name__).info("Local chat reflections disabled; skipping")
+        assistant.last_reflection_successful = False
+        assistant.reflection_error = "disabled"
+        assistant.save(
+            update_fields=[
+                "last_reflection_attempted_at",
+                "last_reflection_successful",
+                "reflection_error",
+            ]
+        )
+        return None
+
     try:
         text = engine.generate_reflection(prompt)
+        assistant.last_reflection_successful = True
+        assistant.reflection_error = ""
+    except requests.exceptions.ConnectionError as e:
+        logging.getLogger(__name__).warning(
+            "[WARN] Assistant boot reflection skipped: LLM at localhost:11434 unreachable"
+        )
+        assistant.last_reflection_successful = False
+        assistant.reflection_error = str(e)
+        assistant.save(
+            update_fields=[
+                "last_reflection_attempted_at",
+                "last_reflection_successful",
+                "reflection_error",
+            ]
+        )
+        return None
     except Exception as e:
         logging.getLogger(__name__).error("Failed to generate birth reflection: %s", e)
+        assistant.last_reflection_successful = False
+        assistant.reflection_error = str(e)
+        assistant.save(
+            update_fields=[
+                "last_reflection_attempted_at",
+                "last_reflection_successful",
+                "reflection_error",
+            ]
+        )
         return None
 
     thought = AssistantThoughtLog.objects.create(
@@ -130,5 +173,13 @@ def reflect_on_birth(assistant):
         category="meta",
     )
     log_trail_marker(assistant, "first_reflection", origin)
+
+    assistant.save(
+        update_fields=[
+            "last_reflection_attempted_at",
+            "last_reflection_successful",
+            "reflection_error",
+        ]
+    )
 
     return thought

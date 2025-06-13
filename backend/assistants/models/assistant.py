@@ -265,6 +265,10 @@ class Assistant(TrustProfileMixin, models.Model):
         related_name="growth_summaries",
     )
 
+    last_reflection_attempted_at = models.DateTimeField(null=True, blank=True)
+    last_reflection_successful = models.BooleanField(default=False)
+    reflection_error = models.TextField(null=True, blank=True)
+
     def capabilities_dict(self) -> dict:
         """Return capabilities as a dictionary even if stored as a string."""
         data = self.capabilities
