@@ -203,7 +203,7 @@ import EmbeddingDriftLog from "./pages/dev/debug/EmbeddingDriftLog";
 import UploadQueuePage from "./pages/dev/upload/UploadQueuePage";
 import DocumentBrowserPage from "./pages/intel_core/DocumentBrowserPage";
 import DocumentDetailPage from "./pages/intel_core/DocumentDetailPage";
-import DocumentUploadQueuePage from "./pages/intel_core/DocumentUploadQueuePage";
+import UploadQueuePage from "./pages/intel/UploadQueuePage";
 import ImageGalleryPage from "./pages/media/ImageGalleryPage";
 import ImageCreatePage from "./pages/media/ImageCreatePage";
 import CharacterListPage from "./pages/media/CharacterListPage";
@@ -985,7 +985,7 @@ export default function App() {
           />
           <Route path="/agents/:slug" element={<AgentDetailRoute />} />
           <Route path="/intel/documents" element={<DocumentBrowserPage />} />
-          <Route path="/intel/upload/queue" element={<DocumentUploadQueuePage />} />
+          <Route path="/intel/upload/queue" element={<UploadQueuePage />} />
           <Route
             path="/intel/documents/:id"
             element={<DocumentDetailRoute />}

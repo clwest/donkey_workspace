@@ -16,7 +16,9 @@ export default function DocumentIngestionForm({ onSuccess, onQueued }) {
   const [loading, setLoading] = useState(false);
   const [reflectAfter, setReflectAfter] = useState(false);
   const [pendingDocs, setPendingDocs] = useState([]);
+
   const [uploadStatus, setUploadStatus] = useState({});
+
   const navigate = useNavigate();
   const userInfo = useUserInfo();
 
@@ -169,7 +171,12 @@ export default function DocumentIngestionForm({ onSuccess, onQueued }) {
       setReflectAfter(false);
     } catch (err) {
       console.error("Failed to load documents:", err);
-      toast.error("❌ Failed to load documents");
+      if (err.status === 429) {
+        setRateLimited(true);
+        toast.error("Server busy. Please wait and retry.");
+      } else {
+        toast.error("❌ Failed to load documents");
+      }
     } finally {
       setLoading(false);
     }
@@ -177,6 +184,17 @@ export default function DocumentIngestionForm({ onSuccess, onQueued }) {
 
   return (
     <div>
+      {rateLimited && (
+        <div className="alert alert-warning" role="alert">
+          Too many requests. Please wait a few seconds and try again.
+          <button
+            className="btn btn-sm btn-secondary ms-2"
+            onClick={() => setRateLimited(false)}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
       <form onSubmit={handleSubmit} className="my-4">
         <div className="mb-3">
           <label className="form-label">Title (optional)</label>

@@ -1,4 +1,5 @@
 from rest_framework.decorators import api_view, permission_classes
+from django.core.cache import cache
 from django.contrib.auth import get_user_model
 from rest_framework.response import Response
 from rest_framework import status
@@ -281,6 +282,13 @@ def list_grouped_documents(request):
 @permission_classes([AllowAny])
 def document_progress_view(request, pk):
     """Return chunking progress for a document group."""
+    ident = request.user.id if getattr(request, "user", None) and request.user.is_authenticated else request.META.get("REMOTE_ADDR")
+    cache_key = f"rl:{ident}:doc_progress:{pk}"
+    if cache.get(cache_key):
+        resp = Response({"detail": "rate limit"}, status=429)
+        resp["X-Rate-Limited"] = "true"
+        return resp
+    cache.set(cache_key, 1, timeout=3)
     try:
         progress = DocumentProgress.objects.get(progress_id=pk)
     except DocumentProgress.DoesNotExist:
