@@ -381,12 +381,12 @@ def embedding_audit(request):
     # `MemoryEntry`, which exposes a `GenericRelation` to embeddings.
     context_audit = list(
         MemoryEntry.objects.filter(embeddings__debug_tags__isnull=False)
-        .values(
+        .annotate(
             assistant_slug=F("assistant__slug"),
             assistant_name=F("assistant__name"),
-            context_id=F("context_id"),
             status=F("embeddings__debug_tags__status"),
         )
+        .values("assistant_slug", "assistant_name", "context_id", "status")
         .annotate(count=Count("embeddings__debug_tags__id"))
         .order_by("-count")
     )
