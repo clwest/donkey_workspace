@@ -41,6 +41,7 @@ from assistants.helpers.logging_helper import (
     reflect_on_birth,
     log_trail_marker,
 )
+from devtools.models import DevLog
 from assistants.helpers.demo_utils import (
     generate_assistant_from_demo,
     get_or_create_usage_for_session,
@@ -2281,7 +2282,10 @@ def patch_drifted_reflections(request, slug):
 @permission_classes([IsAdminUser])
 def retry_birth_reflection(request, slug):
     """Retry a failed birth reflection for an assistant."""
-    assistant = get_object_or_404(Assistant, slug=slug)
+    try:
+        assistant = Assistant.objects.get(slug=slug)
+    except Assistant.DoesNotExist:
+        assistant = get_object_or_404(Assistant, id=slug)
 
     if assistant.last_reflection_successful:
         return Response({"error": "Reflection already completed"}, status=400)
@@ -2299,6 +2303,12 @@ def retry_birth_reflection(request, slug):
             "birth_reflection_retry_count",
             "can_retry_birth_reflection",
         ]
+    )
+    DevLog.objects.create(
+        event="birth_reflection_retry",
+        assistant=assistant,
+        success=assistant.last_reflection_successful,
+        details=assistant.reflection_error or "",
     )
     return Response(AssistantSerializer(assistant).data)
 

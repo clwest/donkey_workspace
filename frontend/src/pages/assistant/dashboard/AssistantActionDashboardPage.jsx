@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { OverlayTrigger, Popover } from "react-bootstrap";
 import { toast } from "react-toastify";
 import {
   fetchAssistantDashboard,
@@ -96,14 +97,44 @@ export default function AssistantActionDashboardPage() {
       >
         {reflecting ? "Reflecting..." : "Reflect on recent chats"}
       </button>
-      {assistant.reflection_error && assistant.can_retry_birth_reflection && (
-        <button
-          className="btn btn-sm btn-outline-danger mb-3 ms-2"
-          onClick={triggerRetry}
-          disabled={retrying}
+      {assistant.birth_reflection_retry_count > 0 && (
+        <span
+          className={`badge ms-2 ${assistant.last_reflection_successful ? "bg-success" : "bg-danger"}`}
         >
-          {retrying ? "Retrying..." : "Retry Reflection"}
-        </button>
+          {assistant.birth_reflection_retry_count}
+        </span>
+      )}
+      {assistant.reflection_error && assistant.can_retry_birth_reflection && (
+        <OverlayTrigger
+          trigger="click"
+          placement="bottom"
+          overlay={
+            <Popover>
+              <Popover.Body>
+                <div className="d-grid gap-2">
+                  <Link
+                    to={`/assistants/${slug}/reflections`}
+                    className="btn btn-sm btn-outline-secondary"
+                  >
+                    View Retry Log
+                  </Link>
+                  <button
+                    className="btn btn-sm btn-danger"
+                    onClick={triggerRetry}
+                    disabled={retrying}
+                  >
+                    {retrying ? "Retrying..." : "Trigger Retry"}
+                  </button>
+                </div>
+              </Popover.Body>
+            </Popover>
+          }
+          rootClose
+        >
+          <button className="btn btn-sm btn-outline-danger mb-3 ms-2">
+            Retry Options
+          </button>
+        </OverlayTrigger>
       )}
       {insight && (
         <div className="alert alert-info mt-3">{insight.summary}</div>

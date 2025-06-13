@@ -166,3 +166,19 @@ class ReflectionGroup(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover - display helper
         return self.title or self.slug
+
+
+class BirthReflectionAttempt(models.Model):
+    """Track each retry attempt for an assistant birth reflection."""
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="birth_attempts",
+    )
+    status = models.CharField(max_length=20)
+    error_message = models.TextField(null=True, blank=True)
+    attempted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-attempted_at"]
