@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.db.models import Q
 
-from embeddings.models import Embedding
+from embeddings.models import Embedding, EmbeddingRepairLog
 from embeddings.utils.repair_helpers import infer_embedding_metadata
 
 
@@ -34,6 +34,11 @@ class Command(BaseCommand):
                 setattr(emb, field, value)
             if not dry_run:
                 emb.save(update_fields=list(info.keys()))
+                EmbeddingRepairLog.objects.create(
+                    embedding=emb,
+                    action="metadata_fix",
+                    notes=str(info),
+                )
             repaired += 1
             self.stdout.write(f"Repaired {emb.id} -> {info}")
         self.stdout.write(f"Scanned {scanned} | repaired {repaired}")

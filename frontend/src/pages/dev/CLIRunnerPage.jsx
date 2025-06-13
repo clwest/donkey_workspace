@@ -1,22 +1,41 @@
 import { useEffect, useState } from "react";
 import apiFetch from "../../utils/apiClient";
+import { toast } from "react-toastify";
 
 export default function CLIRunnerPage() {
   const [commands, setCommands] = useState([]);
   const [command, setCommand] = useState("");
   const [flags, setFlags] = useState("");
   const [assistant, setAssistant] = useState("");
+  const [assistants, setAssistants] = useState([]);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [output, setOutput] = useState("");
   const [running, setRunning] = useState(false);
   const [filter, setFilter] = useState("");
 
   useEffect(() => {
-    apiFetch("/dev/cli/commands/")
-      .then((res) => {
-        setCommands(res.results || []);
-        if (res.results?.length) setCommand(res.results[0].name);
-      })
-      .catch(() => setCommands([]));
+    async function loadData() {
+      try {
+        const cmdRes = await apiFetch("/dev/cli/list/");
+        setCommands(cmdRes.results || []);
+        if (cmdRes.results?.length) setCommand(cmdRes.results[0].name);
+      } catch {
+        setCommands([]);
+      }
+      try {
+        const aRes = await apiFetch("/assistants/?limit=100");
+        setAssistants(aRes.results || aRes);
+      } catch {
+        setAssistants([]);
+      }
+      try {
+        const user = await apiFetch("/auth/user/", { allowUnauthenticated: true });
+        setIsAdmin(user.is_staff || user.is_superuser);
+      } catch {
+        setIsAdmin(false);
+      }
+    }
+    loadData();
   }, []);
 
   const run = async () => {
@@ -35,7 +54,10 @@ export default function CLIRunnerPage() {
         done = log.status !== "running";
         if (!done) await new Promise((r) => setTimeout(r, 1000));
       }
-    } catch {
+    } catch (err) {
+      if (err.status === 403) {
+        toast.error("Permission denied");
+      }
       setOutput("Error running command");
     } finally {
       setRunning(false);
@@ -47,6 +69,10 @@ export default function CLIRunnerPage() {
   );
 
   const apps = Array.from(new Set(commands.map((c) => c.app.split(".")[0])));
+
+  if (!isAdmin) {
+    return <div className="container my-4">Admin access required</div>;
+  }
 
   return (
     <div className="container my-4">
@@ -75,13 +101,18 @@ export default function CLIRunnerPage() {
             </option>
           ))}
         </select>
-        <input
-          type="text"
-          className="form-control w-auto"
-          placeholder="Assistant (optional)"
+        <select
+          className="form-select w-auto"
           value={assistant}
           onChange={(e) => setAssistant(e.target.value)}
-        />
+        >
+          <option value="">No Assistant</option>
+          {assistants.map((a) => (
+            <option key={a.slug} value={a.slug}>
+              {a.name}
+            </option>
+          ))}
+        </select>
         <input
           type="text"
           className="form-control w-auto"
