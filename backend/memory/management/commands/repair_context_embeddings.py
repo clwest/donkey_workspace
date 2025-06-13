@@ -9,11 +9,14 @@ class Command(BaseCommand):
     help = "Repair embeddings for an assistant's memory context"
 
     def add_arguments(self, parser):
-        parser.add_argument("--assistant", required=True)
+        parser.add_argument("--assistant", required=True, help="Assistant slug or id")
 
     def handle(self, *args, **options):
-        slug = options["assistant"]
-        assistant = Assistant.objects.filter(slug=slug).first()
+        identifier = options["assistant"]
+        assistant = (
+            Assistant.objects.filter(id=identifier).first()
+            or Assistant.objects.filter(slug=identifier).first()
+        )
         if not assistant or not assistant.memory_context_id:
             self.stderr.write(self.style.ERROR("Assistant or context not found"))
             return
