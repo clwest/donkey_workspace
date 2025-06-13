@@ -325,6 +325,9 @@ export const assignAssistantTools = (slug, body) =>
 export const reflectOnTools = (slug) =>
   apiFetch(`/assistants/${slug}/tools/reflect/`, { method: "POST" });
 
+export const fetchAssistantToolReflections = (slug) =>
+  apiFetch(`/assistants/${slug}/tool_reflections/`);
+
 export async function createPrimaryAssistant() {
   const res = await apiFetch("/assistants/primary/create/", { method: "POST" });
   if (!res || res.error) {

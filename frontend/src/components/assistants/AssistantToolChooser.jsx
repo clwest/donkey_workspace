@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
 import {
+
   fetchAssistantTools,
   assignAssistantTools,
   reflectOnTools,
 } from "../../api/assistants";
 import { fetchTools } from "../../api/tools";
 
+
 export default function AssistantToolChooser({ assistantId }) {
   const [assigned, setAssigned] = useState([]);
+
   const [available, setAvailable] = useState([]);
   const [reflection, setReflection] = useState("");
+
 
   useEffect(() => {
     if (!assistantId) return;
@@ -18,10 +22,12 @@ export default function AssistantToolChooser({ assistantId }) {
         const slugs = (res.tools || []).map((t) => t.slug);
         setAssigned(slugs);
       })
+
       .catch(() => setAssigned([]));
     fetchTools()
       .then((all) => setAvailable(all || []))
       .catch(() => setAvailable([]));
+
   }, [assistantId]);
 
   const toggle = (slug) => {
@@ -69,6 +75,7 @@ export default function AssistantToolChooser({ assistantId }) {
       <button className="btn btn-primary" onClick={handleSave}>
         Save
       </button>
+
       <button className="btn btn-secondary ms-2" onClick={handleReflect}>
         Reflect
       </button>
@@ -77,6 +84,7 @@ export default function AssistantToolChooser({ assistantId }) {
           {reflection}
         </pre>
       )}
+
     </div>
   );
 }
