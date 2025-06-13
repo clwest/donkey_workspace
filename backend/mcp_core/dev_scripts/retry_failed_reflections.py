@@ -11,7 +11,10 @@ django.setup()
 
 from django.db.models import Exists, OuterRef
 from mcp_core.models import DevDoc
+from intel_core.models import Document
 from memory.models import MemoryEntry
+from mcp_core.utils.devdoc_tools import link_document_to_devdoc, create_summary_from_doc
+
 
 def run():
     from mcp_core.utils.devdoc_reflection import reflect_on_devdoc
@@ -20,14 +23,21 @@ def run():
     reflections = MemoryEntry.objects.filter(
         document=OuterRef("linked_document"), type="reflection"
     )
-    failed_docs = DevDoc.objects.filter(linked_document__isnull=False).annotate(
-        has_reflection=Exists(reflections)
-    ).filter(has_reflection=False)
+    failed_docs = (
+        DevDoc.objects.filter(linked_document__isnull=False)
+        .annotate(has_reflection=Exists(reflections))
+        .filter(has_reflection=False)
+    )
 
     print(f"🔁 Retrying {failed_docs.count()} failed reflections...\n")
 
     for doc in failed_docs:
         print(f"🤔 Retrying: {doc.title}")
+        if not doc.linked_document:
+            possible = Document.objects.filter(slug=doc.slug).first()
+            if possible:
+                link_document_to_devdoc(doc, possible)
+                create_summary_from_doc(possible)
         try:
             memory = reflect_on_devdoc(doc)
             if memory:
