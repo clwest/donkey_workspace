@@ -110,7 +110,7 @@ def test_repair_context_embeddings_cli(mock_repair):
     assistant = Assistant.objects.create(
         name="A", slug="a", memory_context_id="11111111-1111-1111-1111-111111111111"
     )
-    call_command("repair_context_embeddings", "--assistant", "a")
+    call_command("repair_context_embeddings", "--assistant", assistant.memory_context_id)
     mock_repair.assert_called_once_with(assistant.memory_context_id, verbose=True)
 
 
@@ -146,6 +146,18 @@ def test_reflect_on_document_with_assistant_id(mock_reflect):
     doc = Document.objects.create(title="Paper", content="x")
     assistant = Assistant.objects.create(name="A", slug="a")
     call_command("reflect_on_document", "--doc", str(doc.id), "--assistant", str(assistant.id))
+    mock_reflect.assert_called_once()
+
+
+@pytest.mark.django_db
+@patch(
+    "assistants.utils.assistant_reflection_engine.AssistantReflectionEngine.reflect_on_document",
+    return_value=("summary", [], None),
+)
+def test_reflect_on_document_with_assistant_slug(mock_reflect):
+    doc = Document.objects.create(title="Paper2", content="x")
+    assistant = Assistant.objects.create(name="A", slug="slug-a")
+    call_command("reflect_on_document", "--doc", str(doc.id), "--assistant", assistant.slug)
     mock_reflect.assert_called_once()
 
 

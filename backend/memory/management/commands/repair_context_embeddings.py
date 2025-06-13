@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from assistants.models import Assistant
+from assistants.utils.assistant_lookup import resolve_assistant
 from embeddings.utils.link_repair import repair_context_embeddings
 from embeddings.models import EmbeddingDriftLog
 from django.utils import timezone
@@ -13,11 +13,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         identifier = options["assistant"]
-        assistant = (
-            Assistant.objects.filter(id=identifier).first()
-            or Assistant.objects.filter(slug=identifier).first()
-            or Assistant.objects.filter(memory_context_id=identifier).first()
-        )
+        assistant = resolve_assistant(identifier)
         if not assistant:
             self.stderr.write(self.style.ERROR(f"Assistant '{identifier}' not found"))
             return

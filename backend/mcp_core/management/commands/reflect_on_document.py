@@ -1,5 +1,6 @@
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
+from assistants.utils.assistant_lookup import resolve_assistant
 from intel_core.models import Document
 from mcp_core.models import DevDoc
 
@@ -42,16 +43,10 @@ class Command(BaseCommand):
 
         assistant_id = options.get("assistant")
         if assistant_id:
-            from assistants.utils.resolve import resolve_assistant
 
             assistant = resolve_assistant(assistant_id)
             if not assistant:
-                self.stderr.write(
-                    self.style.ERROR(
-                        f"Assistant '{assistant_id}' not found, using default"
-                    )
-                )
-                assistant = AssistantReflectionEngine.get_reflection_assistant()
+                raise CommandError(f"Assistant '{assistant_id}' not found")
         else:
             assistant = AssistantReflectionEngine.get_reflection_assistant()
         if not assistant.memory_context_id:

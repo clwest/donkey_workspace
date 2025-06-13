@@ -461,6 +461,9 @@ class AssistantReflectionEngine:
             },
         )
         if created:
+            from assistants.utils.assistant_lookup import log_cli_assistant_event
+
+            log_cli_assistant_event("get_reflection_assistant", assistant, True)
             print(f"✅ Created Assistant: {assistant.name}")
         return assistant
 
