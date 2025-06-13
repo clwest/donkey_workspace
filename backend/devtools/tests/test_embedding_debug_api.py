@@ -38,3 +38,4 @@ class EmbeddingDebugAPITest(APITestCase):
         self.assertIn("assistants_no_docs", data)
         self.assertIn("retrieval_checks", data)
         self.assertIn("repairable_contexts", data)
+        self.assertIn("orphan_embeddings", data)

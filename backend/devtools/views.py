@@ -252,12 +252,21 @@ def embedding_debug(request):
     allowed = {ct_memory.id, ct_chunk.id, ct_prompt.id}
 
     invalid = 0
+    orphans = []
     for emb in Embedding.objects.select_related("content_type"):
         ct = emb.content_type
         obj = emb.content_object
         expected = None
         if ct and emb.object_id:
             expected = f"{ct.model}:{emb.object_id}"
+        if obj is None:
+            orphans.append(
+                {
+                    "id": str(emb.id),
+                    "content_id": emb.content_id,
+                    "content_type": ct.model if ct else None,
+                }
+            )
         if not ct or ct.id not in allowed or obj is None or emb.content_id != expected:
             invalid += 1
 
@@ -331,6 +340,7 @@ def embedding_debug(request):
             "retrieval_checks": retrieval_checks,
             "repairable_contexts": repairable_contexts,
             "duplicate_slugs": duplicate_slugs,
+            "orphan_embeddings": orphans,
         }
     )
 
