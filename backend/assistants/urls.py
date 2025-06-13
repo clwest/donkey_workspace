@@ -815,6 +815,11 @@ urlpatterns = [
         name="assistant-anchor-health",
     ),
     path(
+        "<slug:slug>/anchors/confidence/",
+        assistants.anchor_confidence,
+        name="assistant-anchor-confidence",
+    ),
+    path(
         "<slug:slug>/glossary_stats/",
         assistants.glossary_stats,
         name="assistant-glossary-stats",

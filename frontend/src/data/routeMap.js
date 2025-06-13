@@ -184,6 +184,13 @@ export const routeMap = [
     notes: "Anchor health dashboard",
   },
   {
+    frontend: "/assistants/:slug/anchor-confidence",
+    backend: "/api/assistants/<slug>/anchors/confidence/",
+    view: "AnchorConfidenceDashboard",
+    serializer: "-",
+    notes: "Anchor confidence dashboard",
+  },
+  {
     frontend: "/reflections",
     backend: "/api/mcp/reflections/",
     view: "list_reflections",
