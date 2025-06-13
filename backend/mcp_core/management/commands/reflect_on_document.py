@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
-from assistants.utils.assistant_lookup import resolve_assistant
+from assistants.utils.resolve import resolve_assistant
 from intel_core.models import Document
 from mcp_core.models import DevDoc
 

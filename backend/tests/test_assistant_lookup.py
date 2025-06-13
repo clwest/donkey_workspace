@@ -21,3 +21,9 @@ def test_resolve_assistant_by_id():
 def test_resolve_assistant_by_context():
     a = Assistant.objects.create(name="A", slug="a", memory_context_id="ctx")
     assert resolve_assistant("ctx") == a
+
+
+@pytest.mark.django_db
+def test_resolve_slug_only_assistant():
+    a = Assistant.objects.create(name="Godel", slug="godelbot")
+    assert resolve_assistant("godelbot") == a
