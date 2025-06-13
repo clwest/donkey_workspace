@@ -33,11 +33,12 @@ class Command(BaseCommand):
         slug = options["assistant"]
         source = options["source"]
 
-        try:
-            assistant = Assistant.objects.get(slug=slug)
-        except Assistant.DoesNotExist:
-            self.stderr.write(self.style.ERROR(f"Assistant '{slug}' not found"))
-            return
+        assistant, _created = Assistant.objects.get_or_create(
+            slug=slug,
+            defaults={"name": slug.replace("-", " ").title(), "specialty": "glossary_debug"},
+        )
+        if _created:
+            self.stdout.write(self.style.WARNING(f"Created assistant '{slug}'"))
 
         texts: list[str] = []
         if source == "reflections":
@@ -66,6 +67,10 @@ class Command(BaseCommand):
                 if mem.event:
                     texts.append(mem.event)
                 texts.extend(list(mem.tags.values_list("slug", flat=True)))
+
+        if not texts:
+            self.stdout.write(self.style.WARNING("No text found to analyze."))
+            return
 
         counter: Counter[str] = Counter()
         for txt in texts:
