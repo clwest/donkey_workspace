@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Dict, Any
 
 from embeddings.models import Embedding
+from utils import coerce_uuid
 
 
 def infer_embedding_metadata(embedding: Embedding) -> Dict[str, Any]:
@@ -43,7 +44,9 @@ def infer_embedding_metadata(embedding: Embedding) -> Dict[str, Any]:
 
     result: Dict[str, Any] = {}
     if embedding.session_id is None and session_id:
-        result["session_id"] = session_id
+        parsed = coerce_uuid(session_id, field_name="embedding_session_id")
+        if parsed:
+            result["session_id"] = parsed
     if embedding.source_type is None and source_type:
         result["source_type"] = source_type
     return result
