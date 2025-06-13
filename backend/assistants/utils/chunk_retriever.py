@@ -318,6 +318,7 @@ def get_relevant_chunks(
     anchor_qs = anchor_qs.prefetch_related("tags")
     all_anchors = list(anchor_qs)
     anchor_matches = [a.slug for a in all_anchors if _anchor_in_query(a, query_text)]
+    logger.debug("[Glossary Tracker] query anchors=%s", anchor_matches)
     reflection_terms = set(get_glossary_terms_from_reflections(memory_context_id))
     if not (auto_expand or settings.DEBUG) and focus_qs.exists():
         all_slugs = list(SymbolicMemoryAnchor.objects.values_list("slug", flat=True))
@@ -551,6 +552,8 @@ def get_relevant_chunks(
             match = True
         if match and p[0] >= GLOSSARY_MIN_SCORE_OVERRIDE:
             glossary_anchor_pairs.append(p)
+    glossary_chunk_ids = [str(p[1].id) for p in glossary_anchor_pairs]
+    logger.debug("[Glossary Tracker] glossary_chunk_ids=%s", glossary_chunk_ids)
     if query_terms and anchor_matches and not glossary_anchor_pairs:
         reason = reason or "glossary missing"
     glossary_forced = False
@@ -756,6 +759,7 @@ def get_relevant_chunks(
         ],
         "warnings": warnings,
     }
+    logger.debug("[Glossary Tracker] fallback_scores=%s", fallback_scores)
 
     used_chunk_ids = [str(p[1].id) for p in pairs]
     if memory_context_id and used_chunk_ids:
@@ -819,7 +823,9 @@ def get_relevant_chunks(
                 rag_meta = {
                     "used_chunks": result,
                     "rag_fallback": fallback,
-                    "anchor_hits": [c.get("anchor_slug") for c in result if c.get("anchor_slug")],
+                    "anchor_hits": [
+                        c.get("anchor_slug") for c in result if c.get("anchor_slug")
+                    ],
                     "retrieval_score": top_score,
                     "fallback_reason": reason,
                     **debug_info,

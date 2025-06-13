@@ -49,7 +49,11 @@ export default function RagGroundingInspectorPage() {
           🧪 Review Mutation Suggestions
         </Link>
       </div>
-      <button className="btn btn-outline-primary mb-3" onClick={loadLogs} disabled={loading}>
+      <button
+        className="btn btn-outline-primary mb-3"
+        onClick={loadLogs}
+        disabled={loading}
+      >
         {loading ? "Refreshing..." : "Refresh"}
       </button>
       <table className="table table-sm table-bordered">
@@ -58,19 +62,28 @@ export default function RagGroundingInspectorPage() {
             <th>Query</th>
             <th>Chunks</th>
             <th>Score</th>
+            <th>Glossary Chunks</th>
             <th>Fallback</th>
+            <th>Anchor/Reason</th>
             <th>Glossary Misses</th>
           </tr>
         </thead>
         <tbody>
           {logs.map((log) => (
             <tr key={log.id}>
-              <td className="text-break" style={{ maxWidth: 200 }}>{log.query}</td>
+              <td className="text-break" style={{ maxWidth: 200 }}>
+                {log.query}
+              </td>
               <td className="small text-muted">
                 {(log.used_chunk_ids || []).join(", ") || "—"}
               </td>
               <td>{log.retrieval_score?.toFixed(2)}</td>
+              <td>{log.glossary_chunk_count}</td>
               <td>{log.fallback_triggered ? "⚠️" : ""}</td>
+              <td className="small">
+                {log.expected_anchor || "—"}
+                {log.fallback_reason ? ` (${log.fallback_reason})` : ""}
+              </td>
               <td>
                 {(log.glossary_misses || []).map((m) => (
                   <span key={m} className="me-1">
@@ -91,4 +104,3 @@ export default function RagGroundingInspectorPage() {
     </div>
   );
 }
-
