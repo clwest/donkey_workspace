@@ -1277,6 +1277,16 @@ urlpatterns = [
 
     ),
     path(
+        "<slug:slug>/tools/confidence/",
+        views.tool_confidence,
+        name="assistant-tool-confidence",
+    ),
+    path(
+        "<slug:slug>/tools/recommend/",
+        views.recommend_tool_changes,
+        name="assistant-tool-recommend",
+    ),
+    path(
         "plan/skills/<uuid:assistant_id>/",
         skills.SkillPlanView.as_view(),
         name="assistant-skill-plan",

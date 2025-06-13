@@ -571,6 +571,11 @@ export default function AssistantDetailPage() {
             </Link>
           </li>
           <li className="nav-item">
+            <Link className="nav-link" to={`/assistants/${slug}/tools/confidence`}>
+              Tool Confidence
+            </Link>
+          </li>
+          <li className="nav-item">
             <Link className="nav-link" to={`/assistants/${slug}/settings/`}>
               Settings
             </Link>

@@ -168,7 +168,13 @@ from .conscience import (
 )
 from .deployment_planner import assistant_deploy, assistant_toolchain, arena_active
 
-from .tool_assignments import assistant_tools, assign_tools, reflect_tools
+from .tool_assignments import (
+    assistant_tools,
+    assign_tools,
+    reflect_tools,
+    tool_confidence,
+    recommend_tool_changes,
+)
 
 from .sensory import (
     codex_voice_command,
@@ -370,6 +376,8 @@ __all__ = [
     "assistant_tools",
     "assign_tools",
     "reflect_tools",
+    "tool_confidence",
+    "recommend_tool_changes",
 
     "arena_active",
     "onboarding_create_assistant",

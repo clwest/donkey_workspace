@@ -130,6 +130,7 @@ import GlossaryDriftPage from "./pages/assistants/GlossaryDriftPage";
 import GlossaryConvergencePage from "./pages/assistants/GlossaryConvergencePage";
 import AnchorHealthDashboard from "./pages/assistants/AnchorHealthDashboard";
 import AnchorConfidenceDashboard from "./pages/assistants/AnchorConfidenceDashboard";
+import ToolConfidenceDashboard from "./pages/assistants/ToolConfidenceDashboard";
 import DemoInsightsDashboard from "./pages/assistants/DemoInsightsDashboard";
 import DemoSuccessShowcase from "./pages/assistants/DemoSuccessShowcase";
 import DemoRecapPage from "./pages/assistants/DemoRecapPage";
@@ -784,6 +785,10 @@ export default function App() {
           <Route
             path="/assistants/:slug/anchor-confidence"
             element={<AnchorConfidenceDashboard />}
+          />
+          <Route
+            path="/assistants/:slug/tools/confidence"
+            element={<ToolConfidenceDashboard />}
           />
           <Route
             path="/assistants/:slug/reflections/drift_map"
