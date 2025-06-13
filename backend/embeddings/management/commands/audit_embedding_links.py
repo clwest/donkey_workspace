@@ -124,4 +124,8 @@ class Command(BaseCommand):
                         f"   content_id:      actual={m['actual_cid']}  expected={m['expected_cid']}"
                     )
 
-        return {"matched": matched, "mismatched": mismatched, "orphans": orphans}
+        # Return nothing to avoid BaseCommand trying to write a non-string object
+        # which previously caused an AttributeError when Django attempted to
+        # call `.endswith()` on the returned dict. All relevant information has
+        # already been output via `stdout` above.
+        return
