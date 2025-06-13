@@ -363,16 +363,20 @@ def embedding_audit(request):
     )
 
     pending = list(
-        EmbeddingDebugTag.objects.filter(status="pending")
-        .select_related("embedding")
+        EmbeddingDebugTag.objects.filter(repair_status="pending")
+        .select_related("embedding", "embedding__content_type")
         .values(
             "id",
             "embedding_id",
             "reason",
-            "status",
+            "repair_status",
+            "repair_attempts",
+            "last_attempt_at",
             "repaired_at",
+            "notes",
             "created_at",
             "embedding__content_id",
+            "embedding__content_type__model",
         )[:100]
     )
 
@@ -384,7 +388,7 @@ def embedding_audit(request):
         .annotate(
             assistant_slug=F("assistant__slug"),
             assistant_name=F("assistant__name"),
-            status=F("embeddings__debug_tags__status"),
+            status=F("embeddings__debug_tags__repair_status"),
         )
         .values("assistant_slug", "assistant_name", "context_id", "status")
         .annotate(count=Count("embeddings__debug_tags__id"))
@@ -408,23 +412,30 @@ def embedding_audit_fix(request, tag_id):
     from django.shortcuts import get_object_or_404
     from django.utils import timezone
     from embeddings.models import Embedding, EmbeddingDebugTag
-    from embeddings.utils.link_repair import repair_embedding_link
+    from embeddings.utils.link_repair import repair_embedding_link, embedding_link_matches
 
     action = request.data.get("action", "fix")
     tag = get_object_or_404(EmbeddingDebugTag, id=tag_id)
     if action == "ignore":
-        tag.status = "ignored"
-        tag.save(update_fields=["status"])
+        tag.repair_status = "ignored"
+        tag.save(update_fields=["repair_status"])
         return Response({"status": "ignored"})
 
     changed = repair_embedding_link(tag.embedding)
-    if changed:
-        tag.status = "repaired"
+    tag.repair_attempts += 1
+    tag.last_attempt_at = timezone.now()
+    if embedding_link_matches(tag.embedding):
+        tag.repair_status = "repaired"
         tag.repaired_at = timezone.now()
     else:
-        tag.status = "ignored"
-    tag.save(update_fields=["status", "repaired_at"])
-    return Response({"status": tag.status})
+        tag.repair_status = "failed" if changed else "skipped"
+    tag.save(update_fields=[
+        "repair_status",
+        "repair_attempts",
+        "last_attempt_at",
+        "repaired_at",
+    ])
+    return Response({"status": tag.repair_status})
 
 
 @api_view(["PATCH"])
@@ -433,7 +444,7 @@ def repair_context_embeddings(request, context_id):
     """Repair all flagged embeddings for a memory context."""
     from django.utils import timezone
     from embeddings.models import EmbeddingDebugTag
-    from embeddings.utils.link_repair import repair_embedding_link
+    from embeddings.utils.link_repair import repair_embedding_link, embedding_link_matches
 
     from django.contrib.contenttypes.models import ContentType
     from memory.models import MemoryEntry
@@ -445,15 +456,28 @@ def repair_context_embeddings(request, context_id):
     ).values_list("id", flat=True)
     tags = list(
         EmbeddingDebugTag.objects.filter(
-            embedding_id__in=embedding_ids, status="pending"
+            embedding_id__in=embedding_ids, repair_status="pending"
         ).select_related("embedding")
     )
     for tag in tags:
         repair_embedding_link(tag.embedding)
-        tag.status = "repaired"
-        tag.repaired_at = timezone.now()
+        tag.repair_attempts += 1
+        tag.last_attempt_at = timezone.now()
+        if embedding_link_matches(tag.embedding):
+            tag.repair_status = "repaired"
+            tag.repaired_at = timezone.now()
+        else:
+            tag.repair_status = "failed"
         tag.notes = "Patched via UI repair action"
-        tag.save(update_fields=["status", "repaired_at", "notes"])
+        tag.save(
+            update_fields=[
+                "repair_status",
+                "repair_attempts",
+                "last_attempt_at",
+                "repaired_at",
+                "notes",
+            ]
+        )
 
     return Response({"status": "repaired", "count": len(tags)})
 
@@ -473,6 +497,24 @@ def ignore_context_embeddings(request, context_id):
     ).values_list("id", flat=True)
     updated = EmbeddingDebugTag.objects.filter(
         embedding_id__in=embedding_ids,
-        status="pending",
-    ).update(status="ignored", notes="Manually ignored from UI")
+        repair_status="pending",
+    ).update(repair_status="ignored", notes="Manually ignored from UI")
     return Response({"status": "ignored", "count": updated})
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def embedding_drift_log(request):
+    """Return historical embedding drift logs."""
+    from embeddings.models import EmbeddingDriftLog
+
+    logs = list(
+        EmbeddingDriftLog.objects.order_by("-timestamp")[:100].values(
+            "timestamp",
+            "model_name",
+            "mismatched_count",
+            "orphaned_count",
+            "repaired_count",
+        )
+    )
+    return Response({"logs": logs})

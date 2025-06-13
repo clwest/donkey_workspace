@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from embeddings.models import EmbeddingDebugTag
-from embeddings.utils.link_repair import repair_embedding_link
+from embeddings.utils.link_repair import repair_embedding_link, embedding_link_matches
 
 
 class Command(BaseCommand):
@@ -12,23 +12,30 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         dry_run = options.get("dry_run")
-        pending = EmbeddingDebugTag.objects.filter(status="pending").select_related(
+        pending = EmbeddingDebugTag.objects.filter(repair_status="pending").select_related(
             "embedding"
         )
         fixed = 0
-        skipped = 0
+        failed = 0
         for tag in pending:
             changed = repair_embedding_link(tag.embedding, dry_run=dry_run)
-            if changed:
-                tag.status = "repaired"
+            tag.repair_attempts += 1
+            tag.last_attempt_at = timezone.now()
+            if dry_run:
+                continue
+            if embedding_link_matches(tag.embedding):
+                tag.repair_status = "repaired"
                 tag.repaired_at = timezone.now()
-                tag.save(update_fields=["status", "repaired_at"])
                 fixed += 1
             else:
-                if not dry_run:
-                    tag.status = "ignored"
-                    tag.save(update_fields=["status"])
-                skipped += 1
+                tag.repair_status = "failed" if changed else "skipped"
+                failed += 1
+            tag.save(update_fields=[
+                "repair_status",
+                "repair_attempts",
+                "last_attempt_at",
+                "repaired_at",
+            ])
         self.stdout.write(
-            f"Processed {pending.count()} tags -> fixed {fixed} skipped {skipped}"
+            f"Processed {pending.count()} tags -> repaired {fixed} failed {failed}"
         )

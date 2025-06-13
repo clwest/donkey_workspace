@@ -150,15 +150,19 @@ class EmbeddingDebugTag(models.Model):
         Embedding, on_delete=models.CASCADE, related_name="debug_tags"
     )
     reason = models.TextField()
-    status = models.CharField(
+    repair_status = models.CharField(
         max_length=20,
         choices=[
             ("pending", "pending"),
             ("repaired", "repaired"),
+            ("failed", "failed"),
+            ("skipped", "skipped"),
             ("ignored", "ignored"),
         ],
         default="pending",
     )
+    repair_attempts = models.PositiveIntegerField(default=0)
+    last_attempt_at = models.DateTimeField(null=True, blank=True)
     repaired_at = models.DateTimeField(null=True, blank=True)
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -168,4 +172,22 @@ class EmbeddingDebugTag(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self):  # pragma: no cover - simple helper
-        return f"{self.embedding_id} {self.reason} [{self.status}]"
+        return f"{self.embedding_id} {self.reason} [{self.repair_status}]"
+
+
+class EmbeddingDriftLog(models.Model):
+    """Historical record of embedding drift counts."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    model_name = models.CharField(max_length=100)
+    mismatched_count = models.PositiveIntegerField()
+    orphaned_count = models.PositiveIntegerField()
+    repaired_count = models.PositiveIntegerField()
+
+    class Meta:
+        app_label = "embeddings"
+        ordering = ["-timestamp"]
+
+    def __str__(self):  # pragma: no cover - simple display
+        return f"{self.model_name} {self.mismatched_count}/{self.orphaned_count}"

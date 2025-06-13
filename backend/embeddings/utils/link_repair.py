@@ -107,6 +107,22 @@ def fix_embedding_links(
     return {"scanned": scanned, "fixed": fixed, "skipped": skipped}
 
 
+def embedding_link_matches(emb) -> bool:
+    """Return True if embedding links match its related object."""
+    from django.contrib.contenttypes.models import ContentType
+
+    obj = emb.content_object
+    if not obj:
+        return False
+    expected_ct = ContentType.objects.get_for_model(obj.__class__)
+    expected_cid = f"{expected_ct.model}:{obj.id}"
+    return (
+        emb.content_type_id == expected_ct.id
+        and str(emb.object_id) == str(obj.id)
+        and emb.content_id == expected_cid
+    )
+
+
 def repair_embedding_link(emb, *, dry_run: bool = False) -> bool:
     """Repair content_type, object_id and content_id for a single embedding."""
     from django.contrib.contenttypes.models import ContentType

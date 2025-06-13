@@ -30,7 +30,8 @@ class EmbeddingAuditFixAPITest(APITestCase):
             embedding=[0.0] * 5,
         )
         self.tag = EmbeddingDebugTag.objects.create(
-            embedding=self.emb, reason="wrong FK"
+            embedding=self.emb,
+            reason="wrong FK",
         )
 
     def test_fix_endpoint_repairs_embedding(self):
@@ -39,7 +40,8 @@ class EmbeddingAuditFixAPITest(APITestCase):
         self.assertEqual(resp.status_code, 200)
         self.emb.refresh_from_db()
         self.tag.refresh_from_db()
-        self.assertEqual(self.tag.status, "repaired")
+        self.assertEqual(self.tag.repair_status, "repaired")
+        self.assertEqual(self.tag.repair_attempts, 1)
         self.assertEqual(self.emb.object_id, str(self.emb.content_object.id))
 
     def test_ignore_action(self):
@@ -47,4 +49,4 @@ class EmbeddingAuditFixAPITest(APITestCase):
         resp = self.client.patch(url, {"action": "ignore"}, format="json")
         self.assertEqual(resp.status_code, 200)
         self.tag.refresh_from_db()
-        self.assertEqual(self.tag.status, "ignored")
+        self.assertEqual(self.tag.repair_status, "ignored")

@@ -185,6 +185,7 @@ import IntelDebugTools from "./pages/dev/debug/IntelDebugTools";
 import EmbeddingDebug from "./pages/dev/debug/EmbeddingDebug";
 import EmbeddingAuditPanel from "./pages/dev/debug/EmbeddingAuditPanel";
 import AuthDebugPage from "./pages/dev/AuthDebugPage";
+import EmbeddingDriftLog from "./pages/dev/debug/EmbeddingDriftLog";
 import DocumentBrowserPage from "./pages/intel_core/DocumentBrowserPage";
 import DocumentDetailPage from "./pages/intel_core/DocumentDetailPage";
 import ImageGalleryPage from "./pages/media/ImageGalleryPage";
@@ -786,6 +787,7 @@ export default function App() {
           <Route path="/dev/debug/intel" element={<IntelDebugTools />} />
           <Route path="/devtools/embedding-debug" element={<EmbeddingDebug />} />
           <Route path="/devtools/embedding-audit" element={<EmbeddingAuditPanel />} />
+          <Route path="/devtools/drift-log" element={<EmbeddingDriftLog />} />
           <Route path="/dev/auth-debug" element={<AuthDebugPage />} />
           <Route path="/dev/onboarding-debug" element={<OnboardingDebugPage />} />
           <Route path="/dev/demo-checkup" element={<DemoCheckupPage />} />

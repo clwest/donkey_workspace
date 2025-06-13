@@ -39,7 +39,7 @@ class EmbeddingAuditAPITest(APITestCase):
         self.assertIn("recent_orphans", data)
         self.assertIn("context_audit", data)
         entry = data["context_audit"][0]
-        self.assertEqual(entry["assistant"], self.assistant.slug)
+        self.assertEqual(entry["assistant_slug"], self.assistant.slug)
         self.assertEqual(entry["assistant_name"], self.assistant.name)
         self.assertEqual(entry["context_id"], str(self.assistant.memory_context_id))
         self.assertEqual(entry["count"], 1)

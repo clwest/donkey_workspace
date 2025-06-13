@@ -25,7 +25,9 @@ class ContextEmbeddingRepairAPITest(APITestCase):
             content_id=f"memoryentry:{self.mem.id}",
             embedding=[0.0] * 5,
         )
-        self.tag = EmbeddingDebugTag.objects.create(embedding=self.emb, reason="wrong FK")
+        self.tag = EmbeddingDebugTag.objects.create(
+            embedding=self.emb, reason="wrong FK"
+        )
         self.context_id = self.mem.context_id
 
     def test_repair_context_embeddings(self):
@@ -33,11 +35,11 @@ class ContextEmbeddingRepairAPITest(APITestCase):
         resp = self.client.patch(url, format="json")
         self.assertEqual(resp.status_code, 200)
         self.tag.refresh_from_db()
-        self.assertEqual(self.tag.status, "repaired")
+        self.assertEqual(self.tag.repair_status, "repaired")
 
     def test_ignore_context_embeddings(self):
         url = f"/api/dev/embedding-audit/{self.context_id}/ignore/"
         resp = self.client.patch(url, format="json")
         self.assertEqual(resp.status_code, 200)
         self.tag.refresh_from_db()
-        self.assertEqual(self.tag.status, "ignored")
+        self.assertEqual(self.tag.repair_status, "ignored")

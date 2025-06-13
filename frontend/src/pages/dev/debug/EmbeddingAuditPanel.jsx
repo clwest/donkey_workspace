@@ -5,6 +5,7 @@ export default function EmbeddingAuditPanel() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [pending, setPending] = useState([]);
+  const [filter, setFilter] = useState("all");
 
   useEffect(() => {
     async function load() {
@@ -84,6 +85,14 @@ export default function EmbeddingAuditPanel() {
       {pending.length > 0 && (
         <div className="mt-4">
           <h5>Pending Fixes</h5>
+          <div className="mb-2">
+            <select value={filter} onChange={(e) => setFilter(e.target.value)} className="form-select form-select-sm w-auto d-inline">
+              <option value="all">All</option>
+              <option value="failed">Failed</option>
+              <option value="ignored">Ignored</option>
+              <option value="repaired">Repaired</option>
+            </select>
+          </div>
           <table className="table table-sm">
             <thead>
               <tr>
@@ -91,17 +100,28 @@ export default function EmbeddingAuditPanel() {
                 <th>Content ID</th>
                 <th>Reason</th>
                 <th>Status</th>
+                <th>Attempts</th>
+                <th>Last Attempt</th>
+                <th>Notes</th>
                 <th>Repaired</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
-              {pending.map((row) => (
+              {pending
+                .filter((r) => filter === "all" || r.repair_status === filter)
+                .map((row) => (
                 <tr key={row.id}>
                   <td>{row.id}</td>
                   <td>{row["embedding__content_id"]}</td>
                   <td>{row.reason}</td>
-                  <td>{row.status}</td>
+                  <td>
+                    {row.repair_status}
+                    {row.repair_status === "failed" && <span className="ms-1">⚠️</span>}
+                  </td>
+                  <td>{row.repair_attempts}</td>
+                  <td>{row.last_attempt_at ? row.last_attempt_at.slice(0, 19) : ""}</td>
+                  <td>{row.notes}</td>
                   <td>{row.repaired_at ? row.repaired_at.slice(0, 19) : ""}</td>
                   <td>
                     <button
