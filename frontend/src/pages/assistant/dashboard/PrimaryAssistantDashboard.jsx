@@ -21,6 +21,7 @@ import GlossaryConvergencePanel from "../../../components/assistant/memory/Gloss
 import AssistantDashboardHeader from "./AssistantDashboardHeader";
 import SelfAssessmentModal from "../../../components/assistant/SelfAssessmentModal";
 import SceneMatchesPanel from "../../../components/assistant/SceneMatchesPanel";
+import AssistantReflectionPanel from "../../../components/assistant/AssistantReflectionPanel";
 
 export default function PrimaryAssistantDashboard() {
   const [assistant, setAssistant] = useState(null);
@@ -261,6 +262,7 @@ export default function PrimaryAssistantDashboard() {
               <AssistantMemoryPanel slug={assistant.slug} />
               <PrioritizedMemoryPanel slug={assistant.slug} />
               <MemoryChainSettingsPanel slug={assistant.slug} />
+              <AssistantReflectionPanel slug={assistant.slug} />
               <Link
                 to={`/assistants/${assistant.slug}/memories/`}
                 className="btn btn-sm btn-outline-secondary mt-2"

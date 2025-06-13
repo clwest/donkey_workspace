@@ -139,7 +139,7 @@ from .collaboration import (
     collaboration_logs_for_project,
     collaboration_profile,
 )
-from .reflection import evaluate_continuity, reflect_on_self
+from .reflection import evaluate_continuity, reflect_on_self, recent_reflection_logs
 from .debate import (
     start_debate,
     get_debate,
@@ -232,6 +232,7 @@ __all__ = [
     "update_reflection_feedback",
     "recent_feedback",
     "get_recent_reflections",
+    "recent_reflection_logs",
     "flush_chat_session_to_log",
     "assistant_thought_detail",
     "assistant_thought_map",

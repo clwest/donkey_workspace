@@ -283,4 +283,14 @@ class DocumentReflectionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AssistantReflectionLog
-        fields = ["id", "assistant", "assistant_slug", "created_at", "summary", "tags"]
+        fields = [
+            "id",
+            "assistant",
+            "assistant_slug",
+            "created_at",
+            "summary",
+            "tags",
+            "group_slug",
+            "document_section",
+            "is_summary",
+        ]

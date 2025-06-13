@@ -112,3 +112,27 @@ def reflect_on_self(request, slug):
         assistant.save()
 
     return Response({"summary": text, "updates": updates})
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def recent_reflection_logs(request, slug):
+    """Return the 10 most recent reflection logs for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    logs = (
+        AssistantReflectionLog.objects.filter(assistant=assistant)
+        .order_by("-created_at")[:10]
+    )
+    data = []
+    for r in logs:
+        data.append(
+            {
+                "id": str(r.id),
+                "summary": r.summary,
+                "document_title": r.document.title if r.document else None,
+                "group_slug": r.group_slug,
+                "is_summary": r.is_summary,
+                "created_at": r.created_at.isoformat(),
+            }
+        )
+    return Response(data)

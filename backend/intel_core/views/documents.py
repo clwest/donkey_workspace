@@ -143,12 +143,48 @@ def document_reflections(request, pk):
     except Document.DoesNotExist:
         return Response({"error": "Document not found"}, status=404)
 
-    reflections = (
-        AssistantReflectionLog.objects.filter(document=document)
-        .order_by("-created_at")
+    reflections = AssistantReflectionLog.objects.filter(document=document).order_by(
+        "-created_at"
     )
+
+    if request.query_params.get("group") == "true":
+        groups = {}
+        for r in reflections:
+            slug = r.group_slug or "ungrouped"
+            if slug not in groups:
+                groups[slug] = {"slug": slug, "section": r.document_section, "items": [], "summary": None}
+            item = {
+                "id": str(r.id),
+                "assistant": str(r.assistant) if r.assistant else None,
+                "assistant_slug": r.assistant.slug if r.assistant else None,
+                "created_at": r.created_at,
+                "summary": r.summary,
+                "is_summary": r.is_summary,
+            }
+            if r.is_summary and groups[slug]["summary"] is None:
+                groups[slug]["summary"] = r.summary
+            else:
+                groups[slug]["items"].append(item)
+        return Response({"groups": list(groups.values())})
+
     serializer = DocumentReflectionSerializer(reflections, many=True)
     return Response({"reflections": serializer.data})
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def reflect_summary(request, pk):
+    try:
+        document = Document.objects.get(pk=pk)
+    except Document.DoesNotExist:
+        return Response({"error": "Document not found"}, status=404)
+
+    from assistants.utils.reflection_summary import summarize_reflections_for_document
+
+    log = summarize_reflections_for_document(document_id=str(document.id))
+    if not log:
+        return Response({"error": "No reflections"}, status=400)
+    return Response({"summary": log.summary})
 
 
 @api_view(["POST"])
