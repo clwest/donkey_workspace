@@ -401,3 +401,35 @@ def backfill_document_chunks():
             processed += 1
     logger.info("[Chunk Backfill] processed %d documents", processed)
     return processed
+
+
+@shared_task(name="update_upload_progress")
+def update_upload_progress(document_id):
+    """Store upload progress information in cache for real-time polling."""
+    from django.utils import timezone
+    from django.core.cache import cache
+    try:
+        doc = Document.objects.get(id=document_id)
+    except Document.DoesNotExist:
+        return None
+
+    total = doc.chunks.count()
+    completed = doc.chunks.filter(embedding__isnull=False).count()
+    status = "embedding"
+    if doc.status == "failed":
+        status = "failed"
+    elif total == 0:
+        status = "queued"
+    elif completed >= total:
+        status = "complete"
+
+    progress_pct = int((completed / total) * 100) if total else 0
+    payload = {
+        "document_id": str(doc.id),
+        "progress": progress_pct,
+        "status": status,
+        "start_time": doc.created_at.isoformat(),
+        "last_updated": timezone.now().isoformat(),
+    }
+    cache.set(f"upload-progress:{document_id}", payload, timeout=3600)
+    return payload

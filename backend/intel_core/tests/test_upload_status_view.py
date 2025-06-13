@@ -27,16 +27,10 @@ class UploadStatusViewTest(APITestCase):
         self.doc.metadata = {"progress_id": str(self.progress.progress_id)}
         self.doc.save(update_fields=["metadata"])
 
-    def test_upload_status_by_id(self):
-        url = f"/api/v1/intel/upload/status/?id={self.doc.id}"
+    def test_upload_status(self):
+        url = f"/api/v1/intel/upload/status/{self.doc.id}/"
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
-        self.assertEqual(data["chunk_count"], 4)
-        self.assertIn("percent_complete", data)
-
-    def test_upload_status_by_slug(self):
-        url = f"/api/v1/intel/upload/status/?slug={self.doc.slug}"
-        resp = self.client.get(url)
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.json()["chunk_count"], 4)
+        self.assertEqual(data["total_chunks"], 4)
+        self.assertEqual(data["completed_chunks"], 1)

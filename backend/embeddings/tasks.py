@@ -234,6 +234,12 @@ def embed_and_store(
                 doc.metadata = meta_data
                 doc.updated_at = timezone.now()
                 doc.save(update_fields=["metadata", "token_count_int", "updated_at"])
+                try:
+                    from intel_core.tasks import update_upload_progress
+
+                    update_upload_progress.delay(str(doc.id))
+                except Exception as e:  # pragma: no cover - best effort
+                    logger.warning(f"update_upload_progress failed: {e}")
 
                 progress_id = None
                 if isinstance(doc.metadata, dict):
