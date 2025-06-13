@@ -37,6 +37,7 @@ urlpatterns = [
         documents.document_progress_view,
         name="document_progress",
     ),
+    path("upload/status/", documents.upload_status, name="upload_status"),
     path(
         "documents/<uuid:pk>/reflections/",
         documents.document_reflections,

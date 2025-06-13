@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import DocumentIngestingCard from "../documents/DocumentIngestingCard";
 import useUserInfo from "@/hooks/useUserInfo";
 
-export default function DocumentIngestionForm({ onSuccess }) {
+export default function DocumentIngestionForm({ onSuccess, onQueued }) {
   const [urlInput, setUrlInput] = useState("");
   const [videoInput, setVideoInput] = useState("");
   const [pdfFiles, setPdfFiles] = useState([]);
@@ -103,6 +103,7 @@ export default function DocumentIngestionForm({ onSuccess }) {
           try {
             const full = await apiFetch(`/intel/documents/${docId}/`);
             setPendingDocs((prev) => [...prev, full]);
+            if (onQueued) onQueued(full);
           } catch (err) {
             console.error("Failed to fetch doc", err);
           }
