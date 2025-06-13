@@ -1,12 +1,28 @@
 // frontend/components/Navbar.jsx
 
 import { Link, NavLink } from "react-router-dom";
+import { useEffect, useState } from "react";
 import "./styles/Navbar.css";
 import FeedbackWidget from "./feedback/FeedbackWidget";
 import LanguageSelector from "./LanguageSelector";
 import HighContrastToggle from "./HighContrastToggle";
+import apiFetch from "../utils/apiClient";
 
 export default function Navbar({ onToggleSidebar }) {
+  const [orphanCount, setOrphanCount] = useState(0);
+
+  useEffect(() => {
+    async function fetchAudit() {
+      try {
+        const res = await apiFetch("/dev/embedding-audit/");
+        const count = res.results.reduce((acc, [_, r]) => acc + r.orphans, 0);
+        setOrphanCount(count);
+      } catch (err) {
+        // ignore
+      }
+    }
+    fetchAudit();
+  }, []);
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light mb-4">
       <div className="container-fluid">
@@ -252,6 +268,14 @@ export default function Navbar({ onToggleSidebar }) {
             <li className="nav-item">
               <Link className="nav-link" to="/devtools/embedding-debug">
                 🧩 Embedding Debug
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/devtools/embedding-audit">
+                🩺 Embedding Audit
+                {orphanCount > 0 && (
+                  <span className="badge bg-danger ms-1">{orphanCount}</span>
+                )}
               </Link>
             </li>
             <li className="nav-item">

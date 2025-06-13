@@ -31,6 +31,7 @@ from devtools.views import (
     auth_debug,
     assistant_routing_debug,
     embedding_debug,
+    embedding_audit,
     reset_onboarding,
 )
 from story.views import storyboard_list
@@ -125,6 +126,7 @@ urlpatterns = [
     path("api/devtools/rag_debug/", rag_debug_logs),
     path("api/dev/auth-debug/", auth_debug),
     path("api/dev/embedding-debug/", embedding_debug),
+    path("api/dev/embedding-audit/", embedding_audit),
     path("api/debug/assistant_routing/", assistant_routing_debug),
     path("api/debug/reset_onboarding/", reset_onboarding),
     path("api/capabilities/", include(capability_urls)),

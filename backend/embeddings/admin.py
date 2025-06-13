@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Embedding
+from .models import Embedding, EmbeddingDebugTag
 from intel_core.models import DocumentChunk as Chunk
 
 # Register your models here.
@@ -83,3 +83,9 @@ class ChunkAdmin(admin.ModelAdmin):
         return AssistantThoughtLog.objects.filter(
             fallback_details__chunk_ids__contains=[str(obj.id)]
         ).exists()
+
+
+@admin.register(EmbeddingDebugTag)
+class EmbeddingDebugTagAdmin(admin.ModelAdmin):
+    list_display = ("embedding_id", "reason", "created_at")
+    search_fields = ("embedding_id", "reason")

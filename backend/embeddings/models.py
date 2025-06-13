@@ -141,3 +141,20 @@ class StoryChunkEmbedding(models.Model):
 
     def __str__(self):
         return f"Chunk {self.paragraph_index} of Story {self.story_id}"
+
+
+class EmbeddingDebugTag(models.Model):
+    """Tag embeddings during audits for developer review."""
+
+    embedding = models.ForeignKey(
+        Embedding, on_delete=models.CASCADE, related_name="debug_tags"
+    )
+    reason = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        app_label = "embeddings"
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - simple helper
+        return f"{self.embedding_id} {self.reason}"

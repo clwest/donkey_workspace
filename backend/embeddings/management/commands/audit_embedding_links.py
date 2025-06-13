@@ -2,7 +2,8 @@ from django.core.management.base import BaseCommand
 from django.contrib.contenttypes.models import ContentType
 import json
 
-from embeddings.models import Embedding
+from embeddings.models import Embedding, EmbeddingDebugTag
+from django.utils import timezone
 from memory.models import MemoryEntry
 from intel_core.models import DocumentChunk
 from prompts.models import Prompt
@@ -49,10 +50,16 @@ class Command(BaseCommand):
                     {
                         "id": str(emb.id),
                         "reason": "orphan",
+                        "is_orphan": True,
                         "content_type": ct.model if ct else None,
                         "object_id": emb.object_id,
                         "content_id": emb.content_id,
                     }
+                )
+                EmbeddingDebugTag.objects.create(
+                    embedding=emb,
+                    reason="orphaned-object",
+                    created_at=timezone.now(),
                 )
                 continue
 
@@ -73,6 +80,7 @@ class Command(BaseCommand):
                 mismatches.append(
                     {
                         "id": str(emb.id),
+                        "is_orphan": False,
                         "actual_ct": actual_ct,
                         "expected_ct": expected_ct.id,
                         "actual_oid": actual_oid,
