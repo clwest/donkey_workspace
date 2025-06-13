@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.contrib.contenttypes.models import ContentType
-from intel_core.models import Document, DocumentChunk
+from intel_core.models import Document, DocumentChunk, EmbeddingMetadata
 from memory.models import MemoryEntry
 from embeddings.models import Embedding
 
@@ -21,10 +21,18 @@ class Command(BaseCommand):
         ct_chunk = ContentType.objects.get_for_model(DocumentChunk)
         chunk_fixed = 0
         for chunk in DocumentChunk.objects.select_related("embedding"):
-            emb = chunk.embedding
-            if not emb:
+            meta = chunk.embedding
+            if not meta or not meta.embedding:
                 continue
+            emb = meta.embedding
             changed = False
+            try:
+                if not emb.content_object or emb.object_id != str(chunk.id):
+                    emb.object_id = str(chunk.id)
+                    changed = True
+            except Exception:
+                emb.object_id = str(chunk.id)
+                changed = True
             if emb.content_id != str(chunk.id):
                 emb.content_id = str(chunk.id)
                 changed = True
@@ -35,7 +43,7 @@ class Command(BaseCommand):
                 emb.content = chunk.text
                 changed = True
             if changed:
-                emb.save(update_fields=["content_type", "content_id", "content"])
+                emb.save(update_fields=["content_type", "object_id", "content_id", "content"])
                 chunk_fixed += 1
         self.stdout.write(self.style.SUCCESS(f"Fixed {chunk_fixed} chunk embeddings"))
 
@@ -44,6 +52,13 @@ class Command(BaseCommand):
         for mem in MemoryEntry.objects.filter(embeddings__isnull=False).prefetch_related("embeddings"):
             for emb in mem.embeddings.all():
                 changed = False
+                try:
+                    if not emb.content_object or emb.object_id != str(mem.id):
+                        emb.object_id = str(mem.id)
+                        changed = True
+                except Exception:
+                    emb.object_id = str(mem.id)
+                    changed = True
                 if emb.content_id != str(mem.id):
                     emb.content_id = str(mem.id)
                     changed = True
@@ -51,6 +66,6 @@ class Command(BaseCommand):
                     emb.content_type = ct_mem
                     changed = True
                 if changed:
-                    emb.save(update_fields=["content_type", "content_id"])
+                    emb.save(update_fields=["content_type", "object_id", "content_id"])
                     mem_fixed += 1
         self.stdout.write(self.style.SUCCESS(f"Fixed {mem_fixed} memory embeddings"))
