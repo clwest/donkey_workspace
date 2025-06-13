@@ -21,7 +21,8 @@ def fix_embedding_links(limit=None, *, dry_run: bool = False, include_memory: bo
     if include_memory:
         ct_memory = ContentType.objects.get_for_model(MemoryEntry)
         ct_map["memoryentry"] = ct_memory   
-        
+    
+    qs = qs.filter(content_type__in=ct_map.values())  
     if limit:
         qs = qs.order_by("id")[:limit]
 
