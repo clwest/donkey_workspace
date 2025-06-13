@@ -4,6 +4,7 @@ from assistants.utils.resolve import resolve_assistant
 from assistants.utils.chunk_retriever import get_rag_chunk_debug
 from assistants.models.diagnostics import AssistantDiagnosticReport
 from memory.models import RAGGroundingLog
+from utils.rag_debug import log_rag_debug
 from intel_core.models import DocumentChunk
 from django.utils import timezone
 
@@ -25,11 +26,13 @@ class Command(BaseCommand):
             help="Path to rag_tests.json",
         )
         parser.add_argument("--save", action="store_true")
+        parser.add_argument("--log-scores", action="store_true")
 
     def handle(self, *args, **options):
         slug = options["assistant"]
         file_path = options["file"]
         save_flag = options.get("save")
+        log_scores = options.get("log_scores")
         assistant = resolve_assistant(slug)
         if not assistant:
             msg = self.style.ERROR(f"Assistant '{slug}' not found")
@@ -52,6 +55,7 @@ class Command(BaseCommand):
         else:
             tests = data.get("tests", [])
         passed = 0
+        score_log = []
         for t in tests:
             q = t.get("question")
             expected_id = (
@@ -83,6 +87,43 @@ class Command(BaseCommand):
             self.stdout.write(f"[{status}] {q}")
             if ok:
                 passed += 1
+            else:
+                chunk_ids = [c.get("chunk_id") for c in info.get("matched_chunks", []) + info.get("fallback_chunks", [])]
+                if expected_anchor and expected_anchor not in anchors:
+                    self.stdout.write(
+                        self.style.WARNING(
+                            f"Missed anchor {expected_anchor} score={score:.2f} chunks={', '.join(chunk_ids)}"
+                        )
+                    try:
+                        log_rag_debug(
+                            assistant,
+                            q,
+                            {
+                                "used_chunks": info.get("matched_chunks", []) + info.get("fallback_chunks", []),
+                                "rag_fallback": info.get("fallback_triggered", False),
+                                "fallback_reason": info.get("reason"),
+                                "anchor_hits": anchors,
+                                "anchor_misses": [expected_anchor],
+                                "retrieval_score": score,
+                                "fallback_chunk_scores": [
+                                    info["scores"].get(cid, 0.0) for cid in chunk_ids
+                                ],
+                            },
+                            debug=True,
+                            expected_anchor=expected_anchor,
+                        )
+                    except Exception:
+                        pass
+            score_log.append(
+                {
+                    "question": q,
+                    "expected_anchor": expected_anchor,
+                    "retrieval_score": score,
+                    "chunks": info.get("matched_chunks", []) + info.get("fallback_chunks", []),
+                    "scores": info.get("scores", {}),
+                    "glossary_misses": info.get("glossary_misses", []),
+                }
+            )
         total = len(tests)
         self.stdout.write(self.style.SUCCESS(f"{passed}/{total} tests passed"))
 
@@ -102,3 +143,7 @@ class Command(BaseCommand):
                 rag_logs_count=total_logs,
                 summary_markdown=f"Pass rate: {passed}/{total}",
             )
+
+        if log_scores:
+            out = {"assistant": assistant.slug, "results": score_log}
+            self.stdout.write(json.dumps(out, indent=2))

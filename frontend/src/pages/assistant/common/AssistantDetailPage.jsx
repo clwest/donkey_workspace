@@ -816,6 +816,12 @@ export default function AssistantDetailPage() {
                 ⚖️ RAG Grounding Inspector
               </Link>
               <Link
+                to={`/debug/rag-recall?assistant=${slug}`}
+                className="btn btn-sm btn-outline-primary"
+              >
+                🧰 RAG Recall Inspector
+              </Link>
+              <Link
                 to={`/assistants/${slug}/rag-drift`}
                 className="btn btn-sm btn-outline-secondary"
               >
