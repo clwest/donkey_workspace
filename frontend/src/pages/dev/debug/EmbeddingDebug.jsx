@@ -8,6 +8,7 @@ export default function EmbeddingDebug() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [showRag, setShowRag] = useState(false);
+  const [assistant, setAssistant] = useState("");
   const { rows: auditRows, reload } = useAuditEmbeddingLinks();
 
   const doRepair = async (id) => {
@@ -23,7 +24,11 @@ export default function EmbeddingDebug() {
   useEffect(() => {
     async function load() {
       try {
-        const url = showRag ? "/dev/embedding-debug/?include_rag=1" : "/dev/embedding-debug/";
+        let url = showRag ? "/dev/embedding-debug/?include_rag=1" : "/dev/embedding-debug/";
+        if (assistant) {
+          const prefix = url.includes("?") ? "&" : "?";
+          url += `${prefix}assistant=${assistant}`;
+        }
         const res = await apiFetch(url);
         setData(res);
       } catch (err) {
@@ -32,7 +37,7 @@ export default function EmbeddingDebug() {
       }
     }
     load();
-  }, [showRag]);
+  }, [showRag, assistant]);
 
   if (error?.status === 403) {
     return <ErrorCard message="You don't have permission to view embedding diagnostics." />;
@@ -45,6 +50,15 @@ export default function EmbeddingDebug() {
   return (
     <div className="container py-4">
       <h3>Embedding Debug</h3>
+      <div className="input-group mb-3" style={{ maxWidth: "300px" }}>
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Assistant slug or id"
+          value={assistant}
+          onChange={(e) => setAssistant(e.target.value)}
+        />
+      </div>
       <h5 className="mt-3">Model Counts</h5>
       <table className="table table-sm w-auto">
         <thead>
@@ -176,6 +190,14 @@ export default function EmbeddingDebug() {
               </tbody>
             </table>
           )}
+        </div>
+      )}
+      {data.orphaned_embeddings && data.orphaned_embeddings.length > 0 && (
+        <div className="mt-4">
+          <h5>Orphaned Embeddings</h5>
+          <pre className="bg-light p-2" style={{ maxHeight: "200px", overflowY: "auto" }}>
+            {JSON.stringify(data.orphaned_embeddings, null, 2)}
+          </pre>
         </div>
       )}
     </div>

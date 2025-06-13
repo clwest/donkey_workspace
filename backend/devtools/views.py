@@ -239,6 +239,8 @@ def embedding_debug(request):
     from memory.models import MemoryEntry
     from intel_core.models import DocumentChunk, Document, DevDoc
     from prompts.models import Prompt
+    from mcp_core.models import DevDoc
+    from assistants.utils.resolve import resolve_assistant
 
     from assistants.models import AssistantReflectionLog, AssistantThoughtLog
     from embeddings.utils.link_repair import embedding_link_matches
@@ -269,34 +271,60 @@ def embedding_debug(request):
     }
 
     invalid = 0
-    orphans = []
+
+    orphaned_embeddings = []
+
     for emb in Embedding.objects.select_related("content_type"):
 
         ct = emb.content_type
+        if not ct or ct.id not in allowed:
+            continue
         obj = emb.content_object
-        expected = None
-        if ct and emb.object_id:
-            expected = f"{ct.model}:{emb.object_id}"
+
         if obj is None:
-            orphans.append(
+            invalid += 1
+            orphaned_embeddings.append(
                 {
-                    "id": str(emb.id),
-                    "content_id": emb.content_id,
-                    "content_type": ct.model if ct else None,
+                    "embedding_id": emb.id,
+                    "expected": emb.content_id,
+                    "reason": "missing object",
                 }
             )
-        if not ct or ct.id not in allowed or obj is None or emb.content_id != expected:
+            continue
+        expected_ct = ContentType.objects.get_for_model(obj.__class__)
+        expected_cid = f"{expected_ct.model}:{obj.id}"
+        expected_oid = str(obj.id)
+        if (
+            emb.content_type_id != expected_ct.id
+            or str(emb.object_id) != expected_oid
+            or emb.content_id != expected_cid
+        ):
 
             invalid += 1
+            orphaned_embeddings.append(
+                {
+                    "embedding_id": emb.id,
+                    "expected": expected_cid,
+                    "actual": emb.content_id,
+                    "reason": "mismatched link",
+                }
+            )
 
     # Count embeddings grouped by their related memory entry's assistant and
     # context. GenericForeignKey relations can't be traversed directly in a
     # values() query, so we start from MemoryEntry where the GenericRelation
     # resides. This avoids FieldError when attempting to use
     # ``content_object__...`` lookups on Embedding.
+    assistant_param = request.GET.get("assistant")
+    assistant_obj = resolve_assistant(assistant_param) if assistant_param else None
+
+    entries_qs = MemoryEntry.objects.filter(embeddings__isnull=False)
+    if assistant_obj:
+        entries_qs = entries_qs.filter(assistant=assistant_obj)
     breakdown = list(
-        MemoryEntry.objects.filter(embeddings__isnull=False, assistant__in=assistants_qs)
-        .values("assistant__id", "assistant__slug", "context_id")
+
+        entries_qs.values("assistant__id", "assistant__slug", "context_id")
+
         .annotate(count=Count("embeddings__id"))
         .order_by("-count")
     )
@@ -310,12 +338,15 @@ def embedding_debug(request):
     )
     assistants_no_docs = []
     retrieval_checks = []
+    repair_qs = MemoryEntry.objects.filter(
+        embeddings__debug_tags__repair_status="pending"
+    )
+    if assistant_obj:
+        repair_qs = repair_qs.filter(assistant=assistant_obj)
     repairable_contexts = list(
-        MemoryEntry.objects.filter(
-            embeddings__debug_tags__repair_status="pending",
-            assistant__in=assistants_qs,
-        )
-        .annotate(
+
+        repair_qs.annotate(
+
             assistant_slug=F("assistant__slug"),
             status=F("embeddings__debug_tags__repair_status"),
         )
@@ -325,6 +356,13 @@ def embedding_debug(request):
     )
     if request.GET.get("include_rag") == "1":
         from assistants.utils.chunk_retriever import get_relevant_chunks
+
+
+        assistants_qs = (
+            Assistant.objects.filter(id=assistant_obj.id)
+            if assistant_obj
+            else Assistant.objects.all()
+        )
 
         for a in assistants_qs:
             count = 0
@@ -336,17 +374,21 @@ def embedding_debug(request):
                 )
                 count = len(chunks)
 
-            doc_ids = set(a.documents.values_list("id", flat=True))
-            doc_ids.update(a.assigned_documents.values_list("id", flat=True))
-            doc_count = len(doc_ids) + a.dev_docs.count()
+            all_docs = (
+                a.documents.count()
+                + a.assigned_documents.count()
+                + DevDoc.objects.filter(linked_assistants=a).count()
+            )
+            if all_docs == 0:
 
-            if doc_count == 0:
                 assistants_no_docs.append(a.slug)
 
             retrieval_checks.append(
                 {
                     "assistant": a.slug,
-                    "documents": doc_count,
+
+                    "documents": all_docs,
+
                     "retrieved": count,
                 }
             )
@@ -371,7 +413,9 @@ def embedding_debug(request):
             "retrieval_checks": retrieval_checks,
             "repairable_contexts": repairable_contexts,
             "duplicate_slugs": duplicate_slugs,
-            "orphan_embeddings": orphans,
+
+            "orphaned_embeddings": orphaned_embeddings,
+
         }
     )
 
