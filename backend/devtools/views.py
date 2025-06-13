@@ -237,7 +237,7 @@ def embedding_debug(request):
     from assistants.models import Assistant
     from django.contrib.contenttypes.models import ContentType
     from memory.models import MemoryEntry
-    from intel_core.models import DocumentChunk, Document, DevDoc
+    from intel_core.models import DocumentChunk, Document
     from prompts.models import Prompt
     from mcp_core.models import DevDoc
     from assistants.utils.resolve import resolve_assistant
