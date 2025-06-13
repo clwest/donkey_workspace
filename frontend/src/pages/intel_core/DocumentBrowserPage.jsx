@@ -4,9 +4,10 @@ import DocumentCard from "../../components/intel/DocumentCard";
 import DocumentIngestionForm from "../../components/intel/DocumentIngestionForm";
 import DocumentIngestingCard from "../../components/documents/DocumentIngestingCard";
 import { Badge } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function DocumentBrowserPage() {
+  const navigate = useNavigate();
   const [groupedDocs, setGroupedDocs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [progressMap, setProgressMap] = useState({});
@@ -92,6 +93,14 @@ export default function DocumentBrowserPage() {
   return (
     <div className="container py-4">
       <h2>🧾 Document Browser</h2>
+      <div className="d-flex justify-content-end mb-2">
+        <button
+          className="btn btn-secondary"
+          onClick={() => navigate('/intel/upload/queue')}
+        >
+          📤 Upload Batch
+        </button>
+      </div>
 
       <div className="form-check form-switch mb-3">
         <input

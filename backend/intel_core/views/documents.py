@@ -354,3 +354,60 @@ def document_set_detail(request, pk):
     except DocumentSet.DoesNotExist:
         return Response({"error": "Not found"}, status=404)
     return Response(DocumentSetSerializer(ds).data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def upload_status(request):
+    """Return ingestion status for a document using id or slug."""
+    ident = request.GET.get("id")
+    slug = request.GET.get("slug")
+    doc = None
+    if ident:
+        try:
+            doc = Document.objects.get(pk=ident)
+        except Document.DoesNotExist:
+            return Response({"error": "Document not found"}, status=404)
+    elif slug:
+        try:
+            doc = Document.objects.get(slug=slug)
+        except Document.DoesNotExist:
+            return Response({"error": "Document not found"}, status=404)
+    else:
+        return Response({"error": "id or slug required"}, status=400)
+
+    doc.sync_progress()
+    progress = doc.get_progress()
+    chunk_count = 0
+    embedded = 0
+    percent = 0
+    status = "pending"
+    error_msg = doc.progress_error
+    if progress:
+        chunk_count = progress.total_chunks
+        embedded = progress.embedded_chunks
+        error_msg = error_msg or progress.error_message
+        if progress.processed < progress.total_chunks:
+            status = "chunking"
+        elif progress.embedded_chunks < progress.total_chunks:
+            status = "embedding"
+        else:
+            status = "completed"
+        if progress.status == "failed":
+            status = "errored"
+    if status == "completed" and not doc.last_reflected_at:
+        status = "reflecting"
+    if doc.status == "failed":
+        status = "errored"
+    if chunk_count:
+        percent = int((embedded / chunk_count) * 100)
+
+    data = {
+        "status": status,
+        "percent_complete": percent,
+        "last_updated": doc.updated_at,
+        "chunk_count": chunk_count,
+        "tokens": doc.token_count_int,
+        "errors": error_msg,
+    }
+    return Response(data)
