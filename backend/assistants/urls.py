@@ -1067,6 +1067,11 @@ urlpatterns = [
         name="assistant-summary",
     ),
     path(
+        "<slug:slug>/overview/",
+        assistants.assistant_overview,
+        name="assistant-overview",
+    ),
+    path(
         "<slug:slug>/preview/",
         assistant_preview,
         name="assistant-preview",
