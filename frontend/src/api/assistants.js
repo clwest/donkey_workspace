@@ -325,6 +325,12 @@ export const assignAssistantTools = (slug, body) =>
 export const reflectOnTools = (slug) =>
   apiFetch(`/assistants/${slug}/tools/reflect/`, { method: "POST" });
 
+export const fetchToolConfidence = (slug) =>
+  apiFetch(`/assistants/${slug}/tools/confidence/`);
+
+export const recommendToolChanges = (slug, body = {}) =>
+  apiFetch(`/assistants/${slug}/tools/recommend/`, { method: "POST", body });
+
 export const fetchAssistantToolReflections = (slug) =>
   apiFetch(`/assistants/${slug}/tool_reflections/`);
 

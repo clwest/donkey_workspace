@@ -49,6 +49,8 @@ class AssistantToolAssignment(models.Model):
     )
     reason = models.TextField()
     confidence_score = models.FloatField(default=0.0)
+    last_used_at = models.DateTimeField(null=True, blank=True)
+    favorite = models.BooleanField(default=False)
     reflection_log = models.ForeignKey(
         AssistantReflectionLog,
         null=True,

@@ -161,3 +161,34 @@ class ToolReflectionLog(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return f"{self.tool.slug} reflection by {self.assistant.slug}"
+
+
+class ToolConfidenceSnapshot(models.Model):
+    """Snapshot of aggregated tool confidence data."""
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.CASCADE,
+        related_name="tool_confidence_snaps",
+    )
+    tool = models.ForeignKey(
+        Tool,
+        on_delete=models.CASCADE,
+        related_name="confidence_snaps",
+    )
+    reflection_log = models.ForeignKey(
+        ToolReflectionLog,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="confidence_snaps",
+    )
+    confidence_score = models.FloatField(default=0.0)
+    tags = ArrayField(models.CharField(max_length=50), default=list)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"{self.tool.slug} snapshot {self.confidence_score:.2f}"
