@@ -376,18 +376,18 @@ def embedding_audit(request):
         )[:100]
     )
 
+    # GenericForeignKey relations cannot be traversed in ORM filters reliably
+    # across Django versions. Instead, we aggregate counts starting from
+    # `MemoryEntry`, which exposes a `GenericRelation` to embeddings.
     context_audit = list(
-        EmbeddingDebugTag.objects.select_related(
-            "embedding__content_type"
-        )
-        .filter(embedding__content_object__context_id__isnull=False)
+        MemoryEntry.objects.filter(embeddings__debug_tags__isnull=False)
         .values(
-            assistant=F("embedding__content_object__assistant__slug"),
-            assistant_name=F("embedding__content_object__assistant__name"),
-            context_id=F("embedding__content_object__context_id"),
-            status=F("status"),
+            assistant=F("assistant__slug"),
+            assistant_name=F("assistant__name"),
+            context_id=F("context_id"),
+            status=F("embeddings__debug_tags__status"),
         )
-        .annotate(count=Count("id"))
+        .annotate(count=Count("embeddings__debug_tags__id"))
         .order_by("-count")
     )
 
@@ -407,7 +407,7 @@ def embedding_audit_fix(request, tag_id):
     """Attempt to repair a flagged embedding."""
     from django.shortcuts import get_object_or_404
     from django.utils import timezone
-    from embeddings.models import EmbeddingDebugTag
+    from embeddings.models import Embedding, EmbeddingDebugTag
     from embeddings.utils.link_repair import repair_embedding_link
 
     action = request.data.get("action", "fix")
@@ -435,10 +435,17 @@ def repair_context_embeddings(request, context_id):
     from embeddings.models import EmbeddingDebugTag
     from embeddings.utils.link_repair import repair_embedding_link
 
+    from django.contrib.contenttypes.models import ContentType
+    from memory.models import MemoryEntry
+
+    mem_ct = ContentType.objects.get_for_model(MemoryEntry)
+    embedding_ids = Embedding.objects.filter(
+        content_type=mem_ct,
+        object_id__in=MemoryEntry.objects.filter(context_id=context_id).values("id"),
+    ).values_list("id", flat=True)
     tags = list(
         EmbeddingDebugTag.objects.filter(
-            embedding__content_object__context_id=context_id,
-            status="pending",
+            embedding_id__in=embedding_ids, status="pending"
         ).select_related("embedding")
     )
     for tag in tags:
@@ -455,12 +462,17 @@ def repair_context_embeddings(request, context_id):
 @permission_classes([IsAdminUser])
 def ignore_context_embeddings(request, context_id):
     """Mark all pending mismatches for this context as ignored."""
-    from embeddings.models import EmbeddingDebugTag
+    from django.contrib.contenttypes.models import ContentType
+    from memory.models import MemoryEntry
+    from embeddings.models import Embedding, EmbeddingDebugTag
 
-    updated = (
-        EmbeddingDebugTag.objects.filter(
-            embedding__content_object__context_id=context_id,
-            status="pending",
-        ).update(status="ignored", notes="Manually ignored from UI")
-    )
+    mem_ct = ContentType.objects.get_for_model(MemoryEntry)
+    embedding_ids = Embedding.objects.filter(
+        content_type=mem_ct,
+        object_id__in=MemoryEntry.objects.filter(context_id=context_id).values("id"),
+    ).values_list("id", flat=True)
+    updated = EmbeddingDebugTag.objects.filter(
+        embedding_id__in=embedding_ids,
+        status="pending",
+    ).update(status="ignored", notes="Manually ignored from UI")
     return Response({"status": "ignored", "count": updated})
