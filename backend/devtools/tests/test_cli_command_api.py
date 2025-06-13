@@ -38,7 +38,10 @@ class CLICommandAPITest(APITestCase):
         self.assertEqual(data["status"], "success")
 
     def test_list_cli_commands(self):
-        resp = self.client.get("/api/dev/cli/commands/")
+
+        resp = self.client.get("/api/dev/cli/list/")
         self.assertEqual(resp.status_code, 200)
-        commands = [c["name"] for c in resp.json().get("results", [])]
-        self.assertIn("run_rag_tests", commands)
+        data = resp.json()
+        self.assertIn("results", data)
+        self.assertTrue(any(cmd["name"] == "show_urls" for cmd in data["results"]))
+
