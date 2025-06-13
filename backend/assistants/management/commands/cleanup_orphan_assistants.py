@@ -4,6 +4,7 @@ from assistants.models import Assistant
 from assistants.models.thoughts import AssistantThoughtLog
 from assistants.models.reflection import AssistantReflectionLog
 from assistants.models.assistant import ChatSession
+
 from memory.models import MemoryEntry
 from assistants.utils.assistant_lookup import resolve_assistant
 
