@@ -35,6 +35,7 @@ from .models.assistant import (
 from .models.glossary import SuggestionLog
 from .models.badge import Badge
 from .models.tour import AssistantTourStartLog
+from .models.command_log import AssistantCommandLog
 from .models.project import (
     AssistantProject,
     AssistantObjective,
@@ -2512,6 +2513,22 @@ class DemoHealthSerializer(serializers.Serializer):
     reflection_count = serializers.IntegerField()
     starter_chat_count = serializers.IntegerField()
     prompt_preview = serializers.CharField()
+
+
+class AssistantCommandLogSerializer(serializers.ModelSerializer):
+    assistant_slug = serializers.SlugField(source="assistant.slug", read_only=True)
+
+    class Meta:
+        model = AssistantCommandLog
+        fields = [
+            "id",
+            "assistant_slug",
+            "command",
+            "output",
+            "status",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
 
 
 # Re-export preferences serializer to avoid import path issues

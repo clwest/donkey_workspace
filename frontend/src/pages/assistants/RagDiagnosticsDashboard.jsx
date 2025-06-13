@@ -41,6 +41,11 @@ export default function RagDiagnosticsDashboard() {
           ))}
         </tbody>
       </table>
+      <div className="mt-3">
+        <a className="btn btn-sm btn-outline-secondary" href={`/assistants/${slug}/rag-tests/`}>
+          View Test Logs
+        </a>
+      </div>
     </div>
   );
 }

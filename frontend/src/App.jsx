@@ -287,7 +287,9 @@ import PromptDebuggerPage from "./pages/debug/PromptDebuggerPage";
 import RagRecallDebugPage from "./pages/debug/RagRecallDebugPage";
 import RAGDiagnosticsDashboard from "./pages/debug/RAGDiagnosticsDashboard";
 import RagFailureTable from "./pages/debug/RagFailureTable";
+import CLIRunner from "./pages/debug/CLIRunner";
 import ChunkStatsDashboard from "./pages/debug/ChunkStatsDashboard";
+import RagTestLogViewer from "./pages/assistants/RagTestLogViewer";
 import SwarmTaskEvolutionPage from "./pages/evolve/SwarmTaskEvolutionPage";
 import SkillPlannerPage from "./pages/plan/SkillPlannerPage";
 import PromptFeedbackPage from "./pages/feedback/PromptFeedbackPage";
@@ -770,6 +772,10 @@ export default function App() {
             element={<RagDiagnosticsDashboard />}
           />
           <Route
+            path="/assistants/:slug/rag-tests/"
+            element={<RagTestLogViewer />}
+          />
+          <Route
             path="/assistants/:slug/anchor-health"
             element={<AnchorHealthDashboard />}
           />
@@ -930,6 +936,7 @@ export default function App() {
           <Route path="/debug/rag-recall" element={<RagRecallDebugPage />} />
           <Route path="/debug/rag-failures" element={<RagFailureTable />} />
           <Route path="/debug/rag" element={<RAGDiagnosticsDashboard />} />
+          <Route path="/debug/cli-runner" element={<CLIRunner />} />
           <Route path="/debug/chunk-stats" element={<ChunkStatsDashboard />} />
           <Route path="/planning" element={<PlanningPage />} />
           <Route path="/plan/graph" element={<PlanningGraphPage />} />

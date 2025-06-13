@@ -298,6 +298,11 @@ export default function Navbar({ onToggleSidebar }) {
                 🔍 Prompt Debugger
               </Link>
             </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/debug/cli-runner">
+                🖥 CLI Runner
+              </Link>
+            </li>
             <li className="nav-item dropdown">
               <button
                 className="nav-link dropdown-toggle btn btn-link"
