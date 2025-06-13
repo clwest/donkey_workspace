@@ -469,6 +469,7 @@ class RAGGroundingLogSerializer(serializers.ModelSerializer):
         source="glossary_boost_applied", read_only=True
     )
     matched_chunk_ids = serializers.SerializerMethodField()
+    glossary_chunk_count = serializers.SerializerMethodField()
 
     class Meta:
         model = RAGGroundingLog
@@ -479,6 +480,7 @@ class RAGGroundingLogSerializer(serializers.ModelSerializer):
             "query",
             "used_chunk_ids",
             "matched_chunk_ids",
+            "glossary_chunk_count",
             "fallback_triggered",
             "fallback_reason",
             "expected_anchor",
@@ -499,6 +501,15 @@ class RAGGroundingLogSerializer(serializers.ModelSerializer):
 
     def get_matched_chunk_ids(self, obj):
         return obj.used_chunk_ids or []
+
+    def get_glossary_chunk_count(self, obj):
+        from intel_core.models import DocumentChunk
+
+        if not obj.used_chunk_ids:
+            return 0
+        return DocumentChunk.objects.filter(
+            id__in=obj.used_chunk_ids, is_glossary=True
+        ).count()
 
 
 class RAGPlaybackLogSerializer(serializers.ModelSerializer):
@@ -574,6 +585,7 @@ class GlossaryKeeperLogSerializer(serializers.ModelSerializer):
         drifted = anchor.chunks.filter(is_drifting=True).count()
         return round(drifted / total, 2) if total else 0.0
 
+
 class RAGDiagnosticLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = RAGDiagnosticLog
@@ -592,4 +604,3 @@ class RAGDiagnosticLogSerializer(serializers.ModelSerializer):
             "explanation_text",
         ]
         read_only_fields = ["id", "timestamp"]
-
