@@ -316,11 +316,14 @@ export const fetchDeploymentReadiness = (id) =>
 export const triggerDeployment = (id, body) =>
   apiFetch(`/assistants/${id}/deploy/`, { method: "POST", body });
 
-export const fetchToolAssignments = (id) =>
-  apiFetch(`/assistants/${id}/tools/`);
+export const fetchAssistantTools = (slug) =>
+  apiFetch(`/assistants/${slug}/tools/`);
 
-export const saveToolAssignments = (id, body) =>
-  apiFetch(`/assistants/${id}/tools/`, { method: "POST", body });
+export const assignAssistantTools = (slug, body) =>
+  apiFetch(`/assistants/${slug}/tools/assign/`, { method: "POST", body });
+
+export const reflectOnTools = (slug) =>
+  apiFetch(`/assistants/${slug}/tools/reflect/`, { method: "POST" });
 
 export const fetchAssistantToolReflections = (slug) =>
   apiFetch(`/assistants/${slug}/tool_reflections/`);
@@ -436,7 +439,7 @@ export function initiateDream(id, body) {
 export async function reviewIngestDocument(slug, docId) {
   if (!docId || docId === "undefined") {
     console.warn(
-      `[ReviewIngest] Skipping review — invalid document ID: ${docId}`,
+      `[ReviewIngest] Skipping review - invalid document ID: ${docId}`
     );
     return null;
   }

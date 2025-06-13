@@ -314,6 +314,7 @@ urlpatterns = [
     path("api/deploy/feedback/", agent_views.deployment_feedback),
     path("api/documents/", include("documents.urls")),
     path("api/tools/", include("tools.urls")),
+    path("tools/", include("tools.urls")),
     path("api/workflows/", include("workflows.urls")),
     path("api/execution-logs/", include("workflows.logs_urls")),
     path("api/metrics/", include("metrics.urls")),

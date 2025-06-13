@@ -1113,6 +1113,32 @@ def forecast_future_swarm_needs(assistant: Assistant) -> str:
     return forecast
 
 
+def reflect_on_tools(assistant: Assistant) -> AssistantReflectionLog | None:
+    """Summarize currently assigned tools."""
+    from assistants.models.tooling import AssistantToolAssignment
+
+    assignments = AssistantToolAssignment.objects.filter(assistant=assistant)
+    if not assignments:
+        return None
+
+    lines = []
+    for a in assignments:
+        tag_names = ", ".join(t.name for t in a.tool.tags.all())
+        lines.append(
+            f"- {a.tool.name}: {a.reason or 'n/a'} (score {a.confidence_score:.2f})"
+            + (f" Tags: {tag_names}" if tag_names else "")
+        )
+
+    summary = "\n".join(lines)
+    log = AssistantReflectionLog.objects.create(
+        assistant=assistant,
+        title="Tool Reflection",
+        summary=summary,
+    )
+    assignments.update(reflection_log=log)
+    return log
+
+
 def reflect_on_dissent_signals(assistant: Assistant) -> str:
     """Aggregate dissent logs and propose realignment actions."""
     logs = (

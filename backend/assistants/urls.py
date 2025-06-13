@@ -1260,9 +1260,21 @@ urlpatterns = [
         name="assistant-toolchain",
     ),
     path(
-        "<slug:slug>/tool_reflections/",
-        views.assistant_tool_reflections,
-        name="assistant-tool-reflections",
+
+        "<slug:slug>/tools/",
+        views.assistant_tools,
+        name="assistant-tools",
+    ),
+    path(
+        "<slug:slug>/tools/assign/",
+        views.assign_tools,
+        name="assign-tools",
+    ),
+    path(
+        "<slug:slug>/tools/reflect/",
+        views.reflect_tools,
+        name="reflect-tools",
+
     ),
     path(
         "plan/skills/<uuid:assistant_id>/",
