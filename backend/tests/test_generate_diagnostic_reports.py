@@ -16,7 +16,7 @@ from django.conf import settings
 class GenerateDiagnosticReportsTest:
     def test_cli_creates_report(self, tmp_path, db):
         settings.BASE_DIR = tmp_path
-        assistant = Assistant.objects.create(name="A", slug="a", is_public=True)
+        assistant = Assistant.objects.create(name="A", slug="a", is_demo=True)
         RAGGroundingLog.objects.create(
             assistant=assistant, query="q", fallback_triggered=True
         )
@@ -33,3 +33,15 @@ class GenerateDiagnosticReportsTest:
         assert abs(report.fallback_rate - 1.0) < 0.01
         md_path = tmp_path / "static" / "diagnostics" / "a.md"
         assert md_path.exists()
+    def test_auto_certification(self, tmp_path, db):
+        settings.BASE_DIR = tmp_path
+        assistant = Assistant.objects.create(name="B", slug="b", is_demo=True)
+        RAGGroundingLog.objects.create(assistant=assistant, query="q", fallback_triggered=False, glossary_hits=["t"])
+        with patch(
+            "assistants.management.commands.generate_diagnostic_reports.call_command"
+        ) as mock_call:
+            call_command("generate_diagnostic_reports", "--markdown-only")
+            mock_call.assert_not_called()
+        assistant.refresh_from_db()
+        assert assistant.certified_rag_ready is True
+        assert assistant.rag_certification_date is not None

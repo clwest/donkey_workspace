@@ -84,11 +84,16 @@ export default function AssistantDashboardCard({ assistant }) {
           <span>{profile.trust_score}/100</span>
           <TrustBadge label={badgeLabel} />
           {bootWarning && <span className="ms-2" title="Boot issues">⚠️</span>}
-          {assistant.last_rag_certified_at && (
+          {(assistant.certified_rag_ready || diagnostic?.certified_rag_ready) && (
             <>
-              <span className="ms-2" title="RAG certification date">
-                {assistant.last_rag_certified_at.split("T")[0]}
+              <span className="badge bg-success ms-2" title="RAG Certified">
+                🎖
               </span>
+              {assistant.rag_certification_date && (
+                <span className="ms-1" title="RAG certification date">
+                  {assistant.rag_certification_date.split("T")[0]}
+                </span>
+              )}
               <a
                 href={`/static/certifications/${assistant.slug}_rag_cert.md`}
                 className="ms-1"

@@ -21,7 +21,7 @@ class Command(BaseCommand):
         markdown_only = options.get("markdown_only", False)
         out_dir = Path(settings.BASE_DIR) / "static" / "diagnostics"
         out_dir.mkdir(parents=True, exist_ok=True)
-        for assistant in Assistant.objects.filter(is_public=True):
+        for assistant in Assistant.objects.filter(is_demo=True):
             if not markdown_only:
                 call_command("run_rag_tests", "--assistant", assistant.slug)
             ground = RAGGroundingLog.objects.filter(assistant=assistant)
@@ -51,6 +51,13 @@ class Command(BaseCommand):
                 rag_logs_count=rag_logs_count,
                 summary_markdown=summary,
             )
+            if (
+                fallback_rate < 0.10
+                and glossary_success_rate > 0.30
+            ):
+                assistant.certified_rag_ready = True
+                assistant.rag_certification_date = timezone.now()
+                assistant.save(update_fields=["certified_rag_ready", "rag_certification_date"])
             with open(out_dir / f"{assistant.slug}.md", "w") as f:
                 f.write(summary)
             self.stdout.write(

@@ -311,5 +311,7 @@ def get_assistant_diagnostic_report(request, slug):
             "glossary_success_rate": report.glossary_success_rate,
             "avg_chunk_score": report.avg_chunk_score,
             "rag_logs_count": report.rag_logs_count,
+            "certified_rag_ready": assistant.certified_rag_ready,
+            "rag_certification_date": assistant.rag_certification_date.isoformat() if assistant.rag_certification_date else None,
         }
     )

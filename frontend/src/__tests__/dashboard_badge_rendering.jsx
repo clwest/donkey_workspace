@@ -23,6 +23,7 @@ vi.mock('../api/assistants', () => ({
     glossary_success_rate: 0.8,
     avg_chunk_score: 0.67,
     rag_logs_count: 5,
+    certified_rag_ready: true,
   }))
 }))
 
@@ -32,5 +33,6 @@ describe('dashboard badge', () => {
     await screen.findByText(/90\/100/)
     await screen.findByText(/0.67 avg/)
     expect(screen.getByText(/80% glossary/)).toBeInTheDocument()
+    expect(screen.getByTitle('RAG Certified')).toBeInTheDocument()
   })
 })

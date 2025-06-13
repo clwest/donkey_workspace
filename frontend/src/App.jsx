@@ -83,6 +83,7 @@ import RelayChainViewerPage from "./pages/relay/chains/RelayChainViewerPage";
 }
 import AssistantDashboardPage from "./pages/assistant/common/AssistantDashboardPage";
 import AssistantList from "./pages/assistant/common/AssistantList";
+import CertifiedAssistantsPage from "./pages/assistants/CertifiedAssistantsPage";
 import AssistantDetailPage from "./pages/assistant/common/AssistantDetailPage";
 import AssistantThoughtsPage from "./pages/assistant/common/AssistantThoughtsPage";
 import AssistantThoughtDetailPage from "./pages/assistant/common/AssistantThoughtDetailPage";
@@ -475,6 +476,7 @@ export default function App() {
           <Route path="/relay/chains/:id" element={<RelayChainViewerPage />} />
           {/* Assistant & Projects */}
           <Route path="/assistants" element={<AssistantList />} />
+          <Route path="/certified/assistants" element={<CertifiedAssistantsPage />} />
           <Route
             path="/assistant-dashboard"
             element={<AssistantDashboardPage />}

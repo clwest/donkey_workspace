@@ -264,6 +264,9 @@ class Assistant(TrustProfileMixin, models.Model):
         on_delete=models.SET_NULL,
         related_name="growth_summaries",
     )
+    certified_rag_ready = models.BooleanField(default=False)
+    rag_certification_date = models.DateTimeField(null=True, blank=True)
+    rag_certification_notes = models.TextField(blank=True, null=True)
     last_rag_certified_at = models.DateTimeField(null=True, blank=True)
     rag_certified = models.BooleanField(
         default=False,

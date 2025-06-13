@@ -66,6 +66,12 @@ export default function Sidebar({ collapsed }) {
             </NavLink>
           </li>
           <li>
+            <NavLink to="/certified/assistants" className="d-block">
+              <span role="img" aria-label="Certified">🎖</span>
+              <span className="link-text ms-1">Certified</span>
+            </NavLink>
+          </li>
+          <li>
             <NavLink to="/activity" className="d-block">
               <span role="img" aria-label="Activity">📈</span>
               <span className="link-text ms-1">Activity</span>
