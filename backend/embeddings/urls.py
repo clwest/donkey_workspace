@@ -4,7 +4,7 @@ warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
 # embeddings/urls.py
 
 from django.urls import path
-from . import views as api_views
+from . import api_views
 
 urlpatterns = [
     # === Core Embedding Tools ===
