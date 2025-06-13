@@ -1,3 +1,15 @@
+# Link DevDocs to Documents and ensure summaries + reflections exist
+
+python manage.py repair_devdoc_links
+
+# NEW — Auto-repair any unlinked or missing summaries and reflect
+
+python manage.py relink_devdocs
+
+# Cleanup unused or duplicate assistant slugs
+
+python manage.py cleanup_orphan_assistants
+
 # ─── PHASE 1: Embedding Repair + Sync ────────────────────────────
 
 python manage.py fix_embedding_content
