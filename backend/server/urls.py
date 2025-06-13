@@ -35,6 +35,7 @@ from devtools.views import (
     embedding_audit_fix,
     repair_context_embeddings,
     ignore_context_embeddings,
+    embedding_drift_log,
     reset_onboarding,
 )
 from story.views import storyboard_list
@@ -137,6 +138,7 @@ urlpatterns = [
         "api/dev/embedding-audit/<uuid:context_id>/ignore/",
         ignore_context_embeddings,
     ),
+    path("api/dev/embedding-drift-log/", embedding_drift_log),
     path("api/debug/assistant_routing/", assistant_routing_debug),
     path("api/debug/reset_onboarding/", reset_onboarding),
     path("api/capabilities/", include(capability_urls)),

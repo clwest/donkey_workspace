@@ -279,6 +279,11 @@ export default function Navbar({ onToggleSidebar }) {
               </Link>
             </li>
             <li className="nav-item">
+              <Link className="nav-link" to="/devtools/drift-log">
+                📈 Drift Log
+              </Link>
+            </li>
+            <li className="nav-item">
               <Link className="nav-link" to="/dev/onboarding-debug">
                 🧭 Onboarding Debug
               </Link>
