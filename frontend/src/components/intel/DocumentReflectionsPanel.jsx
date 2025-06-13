@@ -150,7 +150,7 @@ export default function DocumentReflectionsPanel({ docId }) {
                   <div className="small text-muted mb-1">{g.summary}</div>
                 )}
                 <ul className="list-unstyled ms-3">
-                  {g.items.map((r) => (
+                  {(g.items || []).map((r) => (
                     <li key={r.id} className="mb-1">
                       {r.is_summary && (
                         <span className="badge bg-info me-1">summary</span>
