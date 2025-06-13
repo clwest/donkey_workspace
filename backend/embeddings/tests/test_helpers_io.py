@@ -31,9 +31,13 @@ class HelpersIOTest(SimpleTestCase):
         # Mock Embedding.objects.create to verify save logic
         dummy_emb = MagicMock()
         with patch(
+            "embeddings.helpers.helpers_io.ContentType.objects.filter"
+        ) as mock_filter, patch(
             "embeddings.helpers.helpers_io.Embedding.objects.create",
             return_value=dummy_emb,
         ) as mock_create:
+            mock_ct = MagicMock(model="testtype")
+            mock_filter.return_value.first.return_value = mock_ct
             # Create a dummy object with id and content_type
             class DummyObj:
                 pass
@@ -45,10 +49,12 @@ class HelpersIOTest(SimpleTestCase):
             result = save_embedding(obj, vec)
             # Ensure the manager create was called with correct args
             mock_create.assert_called_once_with(
-                content_type="test_type",
-                content_id="42",
+                content_type=mock_ct,
+                object_id="42",
+                content_id="testtype:42",
                 content=ANY,
                 embedding=vec,
+                session_id=None,
             )
             # The function should return the created embedding
             self.assertIs(result, dummy_emb)
