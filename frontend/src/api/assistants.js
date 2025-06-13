@@ -497,6 +497,11 @@ export async function fetchRagDiagnostics(slug) {
   return res;
 }
 
+export async function fetchRagDiagnosticsSummary(slug) {
+  const res = await apiFetch(`/assistants/${slug}/rag_diagnostics/`);
+  return res;
+}
+
 export async function fetchDriftSuggestions(slug, params) {
   const res = await apiFetch(`/assistants/${slug}/drift_suggestions/`, {
     params,

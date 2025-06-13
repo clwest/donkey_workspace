@@ -156,6 +156,13 @@ export const routeMap = [
     notes: "Glossary drift report",
   },
   {
+    frontend: "/assistants/:slug/rag_diagnostics/",
+    backend: "/api/assistants/<slug>/rag_diagnostics/",
+    view: "assistant-rag-diagnostics",
+    serializer: "-",
+    notes: "RAG diagnostics panel",
+  },
+  {
     frontend: "/assistants/:slug/reflections/drift_map",
     backend: "/api/assistants/<slug>/drift_heatmap/",
     view: "reflection-drift-heatmap",
