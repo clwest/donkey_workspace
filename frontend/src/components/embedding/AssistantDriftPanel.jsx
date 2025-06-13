@@ -6,6 +6,7 @@ export default function AssistantDriftPanel({ slug }) {
   const [rows, setRows] = useState(null);
   const [stats, setStats] = useState({ anchor_ratio: 0, fallback_pct: 0 });
   const [loading, setLoading] = useState(true);
+  const [lastLogged, setLastLogged] = useState(null);
 
   const load = async () => {
     setLoading(true);
@@ -16,6 +17,7 @@ export default function AssistantDriftPanel({ slug }) {
         anchor_ratio: res.anchor_ratio || 0,
         fallback_pct: res.fallback_pct || 0,
       });
+      setLastLogged(res.last_logged);
     } catch {
       setRows([]);
     } finally {
@@ -31,11 +33,22 @@ export default function AssistantDriftPanel({ slug }) {
   };
 
   if (loading) return <div>Loading drift data...</div>;
-  if (!rows || rows.length === 0) return <div>No drift detected.</div>;
+  if (!rows || rows.length === 0)
+    return (
+      <div>
+        {lastLogged && (
+          <div className="small text-muted mb-2">Last logged: {new Date(lastLogged).toLocaleString()}</div>
+        )}
+        No mismatches found.
+      </div>
+    );
 
   return (
     <div className="mt-3">
       <h4>Embedding Drift</h4>
+      {lastLogged && (
+        <div className="small text-muted">Last logged: {new Date(lastLogged).toLocaleString()}</div>
+      )}
       <div className="mb-2 small text-muted">
         Anchor Hit Ratio: {stats.anchor_ratio.toFixed(1)}% — Fallback Rate: {stats.fallback_pct.toFixed(1)}%
       </div>
