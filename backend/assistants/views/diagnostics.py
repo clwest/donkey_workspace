@@ -175,26 +175,65 @@ def assistant_drift_summary(request, slug):
     """Return latest embedding drift summary for the assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
     from embeddings.models import EmbeddingDriftLog
+    from memory.models import RAGGroundingLog
+    from django.utils import timezone
+    from datetime import timedelta
 
-    logs = (
-        EmbeddingDriftLog.objects.filter(assistant=assistant)
-        .order_by("context_id", "-timestamp")
-    )
-    summary = {}
-    for log in logs:
+    logs_qs = EmbeddingDriftLog.objects.filter(
+        assistant=assistant,
+        timestamp__gte=timezone.now() - timedelta(days=7),
+    ).order_by("context_id", "-timestamp")
+
+    contexts = {}
+    snapshots = []
+    for log in logs_qs:
         cid = str(log.context_id) if log.context_id else None
-        if cid not in summary:
-            total = log.mismatched_count + log.orphaned_count + log.repaired_count
-            summary[cid] = {
+        snapshots.append(
+            {
+                "timestamp": log.timestamp,
                 "context_id": cid,
-                "total_embeddings": total,
                 "mismatched": log.mismatched_count,
-                "repaired": log.repair_success_count,
-                "failed": log.repair_failure_count,
-                "last_attempt": log.repair_attempted_at,
+                "orphaned": log.orphaned_count,
+                "repaired": log.repaired_count,
             }
+        )
+        ctx = contexts.setdefault(
+            cid,
+            {
+                "context_id": cid,
+                "mismatched": 0,
+                "orphaned": 0,
+                "repaired": 0,
+                "last_attempt": None,
+            },
+        )
+        ctx["mismatched"] += log.mismatched_count
+        ctx["orphaned"] += log.orphaned_count
+        ctx["repaired"] += log.repaired_count
+        if log.repair_attempted_at and (
+            not ctx["last_attempt"] or log.repair_attempted_at > ctx["last_attempt"]
+        ):
+            ctx["last_attempt"] = log.repair_attempted_at
 
-    return Response({"results": list(summary.values())})
+    total_logs = RAGGroundingLog.objects.filter(assistant=assistant).count()
+    hit_count = RAGGroundingLog.objects.filter(
+        assistant=assistant, glossary_hits__len__gt=0
+    ).count()
+    fallback_count = RAGGroundingLog.objects.filter(
+        assistant=assistant, fallback_triggered=True
+    ).count()
+
+    ratio = (hit_count / total_logs * 100) if total_logs else 0
+    fallback_pct = (fallback_count / total_logs * 100) if total_logs else 0
+
+    return Response(
+        {
+            "contexts": list(contexts.values()),
+            "anchor_ratio": ratio,
+            "fallback_pct": fallback_pct,
+            "logs": snapshots,
+        }
+    )
 
 
 @api_view(["POST"])

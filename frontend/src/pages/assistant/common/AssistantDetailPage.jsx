@@ -842,10 +842,16 @@ export default function AssistantDetailPage() {
                 🔹 RAG Playback Logs
               </Link>
               <Link
-                to={`/assistants/${slug}/reflections/groups/`}
+                to={`/assistants/${slug}/reflection-groups/`}
                 className="btn btn-sm btn-outline-secondary ms-2"
               >
                 📑 Reflection Groups
+              </Link>
+              <Link
+                to={`/assistants/${slug}/diagnostics/drift/`}
+                className="btn btn-sm btn-outline-warning ms-2"
+              >
+                🧬 Drift Panel
               </Link>
             </div>
           </div>

@@ -173,6 +173,8 @@ import AssistantReplayLogsPage from "@/pages/assistant/replays/AssistantReplayLo
 import AssistantReplayDiffPage from "@/pages/assistant/replays/AssistantReplayDiffPage";
 import RAGPlaybackPanel from "./pages/assistants/playback/RAGPlaybackPanel";
 import AssistantReflectionGroupsPage from "./pages/assistants/AssistantReflectionGroupsPage";
+import AssistantReflectionGroups from "./pages/assistants/AssistantReflectionGroups";
+import AssistantDriftDiagnosticsPage from "./pages/assistants/AssistantDriftDiagnosticsPage";
 import AssistantInsightsPage from "./pages/assistants/insights/AssistantInsightsPage";
 import FeedbackSummaryPage from "./pages/assistant/feedback/FeedbackSummaryPage";
 import DevDashboard from "./pages/dev/DevDashboard";
@@ -694,6 +696,10 @@ export default function App() {
             element={<AssistantReflectionGroupsPage />}
           />
           <Route
+            path="/assistants/:slug/reflection-groups/"
+            element={<AssistantReflectionGroups />}
+          />
+          <Route
             path="/assistants/:slug/insights/"
             element={<AssistantInsightsPage />}
           />
@@ -777,6 +783,10 @@ export default function App() {
           <Route
             path="/assistants/:slug/diagnostics/console/"
             element={<AssistantDiagnosticsConsolePage />}
+          />
+          <Route
+            path="/assistants/:slug/diagnostics/drift/"
+            element={<AssistantDriftDiagnosticsPage />}
           />
           <Route
             path="/assistants/:slug/subagent_reflect/:event_id/"

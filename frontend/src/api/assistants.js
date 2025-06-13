@@ -513,7 +513,7 @@ export async function fetchDriftFixes(slug, params) {
 }
 
 export async function fetchDriftSummary(slug) {
-  const res = await apiFetch(`/assistants/${slug}/drift-summary/`);
+  const res = await apiFetch(`/assistants/${slug}/drift/summary/`);
   return res.results || res;
 }
 
