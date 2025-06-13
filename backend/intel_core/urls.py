@@ -43,6 +43,11 @@ urlpatterns = [
         name="document_reflections",
     ),
     path(
+        "documents/<uuid:pk>/reflect-summary/",
+        documents.reflect_summary,
+        name="document_reflect_summary",
+    ),
+    path(
         "document-sets/",
         documents.create_document_set,
         name="create_document_set",

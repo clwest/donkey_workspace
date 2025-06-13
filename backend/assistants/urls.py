@@ -600,6 +600,11 @@ urlpatterns = [
     ),
     path("<slug:slug>/reflections/recent/", thoughts.get_recent_reflections),
     path(
+        "<slug:slug>/recent-reflections/",
+        reflection.recent_reflection_logs,
+        name="assistant-recent-reflections",
+    ),
+    path(
         "<slug:slug>/reflection_review_primer/",
         memory.reflection_review_primer,
         name="assistant-reflection-primer",

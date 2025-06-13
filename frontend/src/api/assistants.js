@@ -287,6 +287,14 @@ export async function fetchRecentReflections(slug) {
   return res.json();
 }
 
+export async function fetchGroupedRecentReflections(slug) {
+  const res = await apiFetch(`${ASSISTANTS_API}/${slug}/recent-reflections/`);
+  if (!res.ok) {
+    throw new Error("Failed to load grouped reflections");
+  }
+  return res.json();
+}
+
 export async function fetchReflections(slug) {
   return apiFetch(`/assistants/${slug}/reflections/`);
 }

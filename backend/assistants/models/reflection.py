@@ -36,6 +36,10 @@ class AssistantReflectionLog(models.Model):
     insights = models.TextField(null=True, blank=True)
     mood = models.CharField(max_length=50, null=True, blank=True)
 
+    document_section = models.CharField(max_length=120, null=True, blank=True)
+    group_slug = models.SlugField(max_length=120, null=True, blank=True)
+    is_summary = models.BooleanField(default=False)
+
     tags = models.ManyToManyField("mcp_core.Tag", blank=True)
     related_chunks = models.ManyToManyField(
         "intel_core.DocumentChunk", blank=True, related_name="reflection_logs"
