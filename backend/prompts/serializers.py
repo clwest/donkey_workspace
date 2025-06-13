@@ -1,4 +1,3 @@
-
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 from prompts.models import (
@@ -12,13 +11,13 @@ from assistants.models.assistant import Assistant
 from mcp_core.models import Tag
 from mcp_core.serializers_tags import TagSerializer
 
+
 class PromptSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
 
     class Meta:
         model = Prompt
         fields = "__all__"
-
 
     def create(self, validated_data):
         tag_values = self.initial_data.get("tags", [])
@@ -84,9 +83,12 @@ class PromptAssignAssistantSerializer(serializers.Serializer):
     assistant_id = serializers.UUIDField()
 
     def validate_assistant_id(self, value):
+        from utils.resolvers import resolve_or_error
+        from django.core.exceptions import ObjectDoesNotExist
+
         try:
-            assistant = Assistant.objects.get(id=value)
-        except Assistant.DoesNotExist:
+            assistant = resolve_or_error(str(value), Assistant)
+        except ObjectDoesNotExist:
             raise serializers.ValidationError(_("Assistant not found."))
         return assistant
 
@@ -102,6 +104,7 @@ class PromptMutationRequestSerializer(serializers.Serializer):
     mode = serializers.ChoiceField(
         choices=["clarify", "shorten", "expand", "formal", "casual", "remix"]
     )
+
 
 class PromptUsageTemplateSerializer(serializers.ModelSerializer):
     prompt = PromptSerializer(read_only=True)
@@ -122,6 +125,7 @@ class AssistantMinimalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assistant
         fields = ["id", "name", "slug"]
+
 
 class PromptCapsuleSerializer(serializers.ModelSerializer):
     class Meta:

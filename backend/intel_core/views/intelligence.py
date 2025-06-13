@@ -363,12 +363,13 @@ def rag_check_source(request):
 
     assistant = None
     if assistant_id:
-        if is_valid_uuid(assistant_id):
-            assistant = Assistant.objects.filter(id=assistant_id).first()
-            if not assistant:
-                assistant = Assistant.objects.filter(slug=assistant_id).first()
-        else:
-            assistant = Assistant.objects.filter(slug=assistant_id).first()
+        from utils.resolvers import resolve_or_error
+        from django.core.exceptions import ObjectDoesNotExist
+
+        try:
+            assistant = resolve_or_error(assistant_id, Assistant)
+        except ObjectDoesNotExist:
+            assistant = None
 
     if not content:
         return Response({"error": "content is required"}, status=400)

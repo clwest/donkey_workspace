@@ -54,6 +54,18 @@ def invoke_tool(request, slug):
     result = None
     success = True
     error = ""
+    from utils.resolvers import resolve_or_error
+    from django.core.exceptions import ObjectDoesNotExist
+
+    assistant_ident = payload.get("assistant_id")
+    if assistant_ident:
+        try:
+            payload["assistant_id"] = str(
+                resolve_or_error(assistant_ident, Assistant).id
+            )
+        except ObjectDoesNotExist:
+            payload["assistant_id"] = None
+
     try:
         result = execute_tool(tool, payload)
     except Exception as e:
@@ -85,6 +97,18 @@ def execute_tool_view(request, pk):
     success = True
     error = ""
     status_code = 200
+    from utils.resolvers import resolve_or_error
+    from django.core.exceptions import ObjectDoesNotExist
+
+    assistant_ident = payload.get("assistant_id")
+    if assistant_ident:
+        try:
+            payload["assistant_id"] = str(
+                resolve_or_error(assistant_ident, Assistant).id
+            )
+        except ObjectDoesNotExist:
+            payload["assistant_id"] = None
+
     try:
         result = execute_tool(tool, payload)
     except Exception as e:  # pragma: no cover - simple logging

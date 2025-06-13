@@ -26,12 +26,13 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR("Provide --slug or --id"))
             return
 
+        from utils.resolvers import resolve_or_error
+        from django.core.exceptions import ObjectDoesNotExist
+
+        ident = slug or id_value
         try:
-            if slug:
-                assistant = Assistant.objects.get(slug=slug)
-            else:
-                assistant = Assistant.objects.get(id=id_value)
-        except Assistant.DoesNotExist:
+            assistant = resolve_or_error(ident, Assistant)
+        except ObjectDoesNotExist:
             self.stdout.write(self.style.ERROR("Assistant not found"))
             return
 
@@ -50,9 +51,7 @@ class Command(BaseCommand):
         elif assistant.created_by is None:
             access_msg = self.style.ERROR("❌ Forbidden (no owner set)")
         else:
-            access_msg = (
-                f"❌ Forbidden for others (only {assistant.created_by.username} can access)"
-            )
+            access_msg = f"❌ Forbidden for others (only {assistant.created_by.username} can access)"
 
         self.stdout.write(f"Identity Access: {access_msg}")
 

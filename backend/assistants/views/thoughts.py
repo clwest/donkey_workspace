@@ -475,11 +475,14 @@ def reflect_on_doc(request):
             {"error": "doc_id, assistant_id, and project_id required."}, status=400
         )
 
+    from utils.resolvers import resolve_or_error
+    from django.core.exceptions import ObjectDoesNotExist
+
     try:
         doc = DevDoc.objects.get(id=doc_id)
-        assistant = Assistant.objects.get(id=assistant_id)
+        assistant = resolve_or_error(assistant_id, Assistant)
         project = AssistantService.get_project_or_404(project_id)
-    except (DevDoc.DoesNotExist, Assistant.DoesNotExist, Http404) as e:
+    except (DevDoc.DoesNotExist, ObjectDoesNotExist, Http404) as e:
         return Response({"error": str(e)}, status=404)
 
     # Simulated AI reflection (you can call GPT later)

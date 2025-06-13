@@ -1838,9 +1838,12 @@ def reflect_on_assistant(request):
             {"error": "assistant_id and project_id are required."}, status=400
         )
 
+    from utils.resolvers import resolve_or_error
+    from django.core.exceptions import ObjectDoesNotExist
+
     try:
-        assistant = Assistant.objects.get(id=assistant_id)
-    except Assistant.DoesNotExist:
+        assistant = resolve_or_error(assistant_id, Assistant)
+    except ObjectDoesNotExist:
         return Response({"error": "Assistant not found."}, status=404)
 
     project = AssistantService.get_project(project_id)
@@ -2648,9 +2651,11 @@ def assistant_overview(request, slug):
             "avg_chunk_score": report.avg_chunk_score,
             "rag_logs_count": report.rag_logs_count,
             "certified_rag_ready": assistant.certified_rag_ready,
-            "rag_certification_date": assistant.rag_certification_date.isoformat()
-            if assistant.rag_certification_date
-            else None,
+            "rag_certification_date": (
+                assistant.rag_certification_date.isoformat()
+                if assistant.rag_certification_date
+                else None
+            ),
         }
 
     assignments = AssistantToolAssignment.objects.filter(assistant=assistant)
@@ -2680,10 +2685,9 @@ def assistant_overview(request, slug):
             }
         )
 
-    memories = (
-        MemoryService.filter_entries(assistant=assistant)
-        .order_by("-created_at")[:5]
-    )
+    memories = MemoryService.filter_entries(assistant=assistant).order_by(
+        "-created_at"
+    )[:5]
     memory_data = MemoryEntrySlimSerializer(memories, many=True).data
 
     return Response(

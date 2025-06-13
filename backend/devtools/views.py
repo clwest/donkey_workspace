@@ -284,13 +284,21 @@ def run_cli_command(request):
     assistant = request.data.get("assistant")
     flag_list = [f for f in flags.split() if f]
 
+    from utils.resolvers import resolve_or_error
+    from django.core.exceptions import ObjectDoesNotExist
+
+    log_assistant = None
+    if assistant:
+        try:
+            log_assistant = resolve_or_error(assistant, Assistant)
+        except ObjectDoesNotExist:
+            log_assistant = None
+
     log = AssistantCommandLog.objects.create(
         command=command,
         flags=flags,
         created_by=request.user if request.user.is_authenticated else None,
-        assistant=(
-            Assistant.objects.filter(slug=assistant).first() if assistant else None
-        ),
+        assistant=log_assistant,
     )
     from .tasks import run_cli_command_task
 

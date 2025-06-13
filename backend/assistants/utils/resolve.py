@@ -1,22 +1,10 @@
-from django.db.models import Q
 from assistants.models import Assistant
-from utils import is_valid_uuid
+from utils.resolvers import resolve_or_error
 
 
 def resolve_assistant(value: str):
-    """Return Assistant by UUID or slug, printing warnings if ambiguous."""
-    if not value:
+    """Return ``Assistant`` by UUID or slug, or ``None`` if not found."""
+    try:
+        return resolve_or_error(value, Assistant)
+    except Exception:
         return None
-
-    filters = Q(slug=value)
-    if is_valid_uuid(value):
-        filters |= Q(id=value)
-
-    qs = Assistant.objects.filter(filters)
-    if not qs.exists():
-        return None
-    if qs.count() > 1:
-        print(
-            f"⚠️ Multiple assistants match '{value}'. Using {qs.first().slug} ({qs.first().id})."
-        )
-    return qs.first()
