@@ -29,9 +29,6 @@ TARGET_APPS = {
 }
 
 
-
-
-
 def _get_available_commands():
     cmds = get_commands()
     results = [
@@ -291,9 +288,9 @@ def run_cli_command(request):
         command=command,
         flags=flags,
         created_by=request.user if request.user.is_authenticated else None,
-        assistant=Assistant.objects.filter(slug=assistant).first()
-        if assistant
-        else None,
+        assistant=(
+            Assistant.objects.filter(slug=assistant).first() if assistant else None
+        ),
     )
     from .tasks import run_cli_command_task
 
@@ -393,7 +390,7 @@ def embedding_debug(request):
     """Return summary stats about embeddings."""
     from intel_core.models import EmbeddingMetadata
     from embeddings.models import Embedding
-    from django.db.models import Count, F
+    from django.db.models import Count, F, Q
     from assistants.models import Assistant
     from django.contrib.contenttypes.models import ContentType
     from memory.models import MemoryEntry
@@ -430,6 +427,10 @@ def embedding_debug(request):
     }
 
     invalid = 0
+
+    missing_meta_count = Embedding.objects.filter(
+        Q(session_id__isnull=True) | Q(source_type__isnull=True)
+    ).count()
 
     orphaned_embeddings = []
 
@@ -559,6 +560,7 @@ def embedding_debug(request):
         {
             "model_counts": model_counts,
             "invalid_links": invalid,
+            "missing_metadata_count": missing_meta_count,
             "assistant_breakdown": breakdown,
             "context_stats": context_stats,
             "assistants_no_docs": assistants_no_docs,
@@ -566,6 +568,7 @@ def embedding_debug(request):
             "repairable_contexts": repairable_contexts,
             "duplicate_slugs": duplicate_slugs,
             "orphaned_embeddings": orphaned_embeddings,
+            "orphan_embeddings_count": len(orphaned_embeddings),
         }
     )
 

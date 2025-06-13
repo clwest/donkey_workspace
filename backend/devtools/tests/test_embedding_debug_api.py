@@ -42,4 +42,5 @@ class EmbeddingDebugAPITest(APITestCase):
         self.assertIn("repairable_contexts", data)
 
         self.assertIn("orphan_embeddings", data)
-
+        self.assertIn("missing_metadata_count", data)
+        self.assertIn("orphan_embeddings_count", data)
