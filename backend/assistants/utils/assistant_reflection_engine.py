@@ -498,6 +498,34 @@ class AssistantReflectionEngine:
             f"[ReflectionEngine] Reflecting on document: {target_document.title}"
         )
 
+        # Tag fallback-prone anchors present in the document
+        try:
+            from memory.models import AnchorConfidenceLog, SymbolicMemoryAnchor
+            from intel_core.utils.glossary_tagging import _match_anchor
+
+            bad_logs = AnchorConfidenceLog.objects.filter(
+                assistant=self.assistant, fallback_rate__gte=0.3
+            )
+            suspect = SymbolicMemoryAnchor.objects.filter(
+                id__in=bad_logs.values_list("anchor_id", flat=True)
+            )
+            tagged = []
+            for anc in suspect:
+                found, _ = _match_anchor(anc, target_document.content)
+                if found:
+                    tag, _ = Tag.objects.get_or_create(
+                        slug=anc.slug, defaults={"name": anc.label}
+                    )
+                    if not target_document.tags.filter(id=tag.id).exists():
+                        target_document.tags.add(tag)
+                        tagged.append(anc.slug)
+            if tagged:
+                logger.info(
+                    f"[ReflectionEngine] Auto-tagged fallback anchors: {tagged}"
+                )
+        except Exception:
+            logger.exception("Failed to auto-tag fallback anchors")
+
         # Placeholder reflection logic (replace with your actual logic)
         summary = f"Auto-generated summary for {target_document.title}"
         insights = [
