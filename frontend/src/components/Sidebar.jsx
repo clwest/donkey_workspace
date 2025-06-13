@@ -114,6 +114,12 @@ export default function Sidebar({ collapsed }) {
             </NavLink>
           </li>
           <li>
+            <NavLink to="/dev/upload/queue" className="d-block">
+              <span role="img" aria-label="Uploads">📤</span>
+              <span className="link-text ms-1">Upload Queue</span>
+            </NavLink>
+          </li>
+          <li>
             <NavLink to="/dev/onboarding-debug" className="d-block">
               <span role="img" aria-label="Onboarding">🧭</span>
               <span className="link-text ms-1">Onboarding Debug</span>

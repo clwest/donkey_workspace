@@ -5,6 +5,7 @@ import DocumentIngestionForm from "../../components/intel/DocumentIngestionForm"
 import DocumentIngestingCard from "../../components/documents/DocumentIngestingCard";
 import { Badge } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function DocumentBrowserPage() {
   const navigate = useNavigate();
@@ -14,6 +15,9 @@ export default function DocumentBrowserPage() {
   const [ingestingDocs, setIngestingDocs] = useState([]);
   const prevIngestCount = useRef(0);
   const [highlightConflicts, setHighlightConflicts] = useState(false);
+  const handleQueued = () => {
+    toast.success("✓ Document queued for ingestion");
+  };
 
   const loadDocuments = async () => {
     try {
@@ -93,12 +97,18 @@ export default function DocumentBrowserPage() {
   return (
     <div className="container py-4">
       <h2>🧾 Document Browser</h2>
-      <div className="d-flex justify-content-end mb-2">
+      <div className="d-flex justify-content-end mb-2 gap-2">
         <button
           className="btn btn-secondary"
           onClick={() => navigate('/intel/upload/queue')}
         >
           📤 Upload Batch
+        </button>
+        <button
+          className="btn btn-primary"
+          onClick={() => navigate('/dev/upload/queue')}
+        >
+          View Upload Queue
         </button>
       </div>
 
@@ -115,7 +125,13 @@ export default function DocumentBrowserPage() {
         </label>
       </div>
 
-      <DocumentIngestionForm onSuccess={() => { loadDocuments(); loadIngestingDocs(); }} />
+      <DocumentIngestionForm
+        onSuccess={() => {
+          loadDocuments();
+          loadIngestingDocs();
+        }}
+        onQueued={handleQueued}
+      />
 
       {ingestingDocs.length > 0 && (
         <div className="row mt-4">

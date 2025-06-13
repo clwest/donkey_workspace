@@ -200,6 +200,7 @@ import EmbeddingDebug from "./pages/dev/debug/EmbeddingDebug";
 import EmbeddingAuditPanel from "./pages/dev/debug/EmbeddingAuditPanel";
 import AuthDebugPage from "./pages/dev/AuthDebugPage";
 import EmbeddingDriftLog from "./pages/dev/debug/EmbeddingDriftLog";
+import UploadQueuePage from "./pages/dev/upload/UploadQueuePage";
 import DocumentBrowserPage from "./pages/intel_core/DocumentBrowserPage";
 import DocumentDetailPage from "./pages/intel_core/DocumentDetailPage";
 import UploadQueuePage from "./pages/intel/UploadQueuePage";
@@ -940,6 +941,7 @@ export default function App() {
             path="/dev/onboarding-debug"
             element={<OnboardingDebugPage />}
           />
+          <Route path="/dev/upload/queue" element={<UploadQueuePage />} />
           <Route path="/dev/demo-checkup" element={<DemoCheckupPage />} />
           <Route path="/dev/feedback-review" element={<FeedbackReviewPage />} />
           <Route path="/debug/prompts" element={<PromptDebuggerPage />} />

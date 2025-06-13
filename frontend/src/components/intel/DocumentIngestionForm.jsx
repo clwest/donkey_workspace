@@ -16,9 +16,27 @@ export default function DocumentIngestionForm({ onSuccess, onQueued }) {
   const [loading, setLoading] = useState(false);
   const [reflectAfter, setReflectAfter] = useState(false);
   const [pendingDocs, setPendingDocs] = useState([]);
-  const [rateLimited, setRateLimited] = useState(false);
+
+  const [uploadStatus, setUploadStatus] = useState({});
+
   const navigate = useNavigate();
   const userInfo = useUserInfo();
+
+  const startPolling = (docId) => {
+    const poll = async () => {
+      try {
+        const data = await apiFetch(`/intel/upload/status/${docId}/`);
+        setUploadStatus((prev) => ({ ...prev, [docId]: data }));
+        if (data.status === "complete" || data.status === "failed") {
+          clearInterval(timer);
+        }
+      } catch (err) {
+        console.error("upload status poll failed", err);
+      }
+    };
+    poll();
+    const timer = setInterval(poll, 2000);
+  };
 
   useEffect(() => {
     async function fetchAssistants() {
@@ -105,6 +123,7 @@ export default function DocumentIngestionForm({ onSuccess, onQueued }) {
             const full = await apiFetch(`/intel/documents/${docId}/`);
             setPendingDocs((prev) => [...prev, full]);
             if (onQueued) onQueued(full);
+            startPolling(docId);
           } catch (err) {
             console.error("Failed to fetch doc", err);
           }
@@ -272,6 +291,16 @@ export default function DocumentIngestionForm({ onSuccess, onQueued }) {
           {pendingDocs.map((doc) => (
             <div key={doc.id} className="col-md-6 col-lg-4 mb-4">
               <DocumentIngestingCard doc={doc} />
+            </div>
+          ))}
+        </div>
+      )}
+      {Object.keys(uploadStatus).length > 0 && (
+        <div className="mt-3">
+          {Object.entries(uploadStatus).map(([id, st]) => (
+            <div key={id} className="small text-muted">
+              <span className="spinner-border spinner-border-sm me-2" />
+              Processing {st.completed_chunks}/{st.total_chunks} chunks...
             </div>
           ))}
         </div>

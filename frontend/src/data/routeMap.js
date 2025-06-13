@@ -757,4 +757,11 @@ export const routeMap = [
     serializer: "DocumentReflectionSerializer",
     notes: "List reflections for a document",
   },
+  {
+    frontend: "/dev/upload/queue",
+    backend: "/api/v1/intel/upload/status/<uuid:id>/",
+    view: "UploadQueuePage",
+    serializer: "-",
+    notes: "Active document upload queue",
+  },
 ];

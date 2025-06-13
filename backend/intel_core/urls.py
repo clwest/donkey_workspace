@@ -37,9 +37,13 @@ urlpatterns = [
         documents.document_progress_view,
         name="document_progress",
     ),
-    path("upload/status/", documents.upload_status, name="upload_status"),
-    path("upload/queue/", upload_queue.enqueue_upload, name="enqueue_upload"),
-    path("upload/queue/status/", upload_queue.upload_queue_status, name="upload_queue_status"),
+
+    path(
+        "upload/status/<uuid:pk>/",
+        documents.upload_status,
+        name="upload_status",
+    ),
+
     path(
         "documents/<uuid:pk>/reflections/",
         documents.document_reflections,
