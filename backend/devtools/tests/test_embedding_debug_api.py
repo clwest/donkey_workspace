@@ -12,6 +12,7 @@ from rest_framework.test import APITestCase
 from memory.models import MemoryEntry
 from embeddings.models import Embedding
 from intel_core.models import EmbeddingMetadata
+from assistants.models import Assistant
 
 
 class EmbeddingDebugAPITest(APITestCase):
@@ -39,4 +40,6 @@ class EmbeddingDebugAPITest(APITestCase):
         self.assertIn("assistants_no_docs", data)
         self.assertIn("retrieval_checks", data)
         self.assertIn("repairable_contexts", data)
+
         self.assertEqual(data["invalid_links"], 1)
+

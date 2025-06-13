@@ -239,8 +239,10 @@ def embedding_debug(request):
     from memory.models import MemoryEntry
     from intel_core.models import DocumentChunk, Document, DevDoc
     from prompts.models import Prompt
+
     from assistants.models import AssistantReflectionLog, AssistantThoughtLog
     from embeddings.utils.link_repair import embedding_link_matches
+
 
     model_counts = list(
         EmbeddingMetadata.objects.values("model_used")
@@ -268,7 +270,9 @@ def embedding_debug(request):
 
     invalid = 0
     for emb in Embedding.objects.select_related("content_type"):
+
         if not embedding_link_matches(emb) or emb.content_type_id not in allowed:
+
             invalid += 1
 
     # Count embeddings grouped by their related memory entry's assistant and
@@ -277,7 +281,7 @@ def embedding_debug(request):
     # resides. This avoids FieldError when attempting to use
     # ``content_object__...`` lookups on Embedding.
     breakdown = list(
-        MemoryEntry.objects.filter(embeddings__isnull=False)
+        MemoryEntry.objects.filter(embeddings__isnull=False, assistant__in=assistants_qs)
         .values("assistant__id", "assistant__slug", "context_id")
         .annotate(count=Count("embeddings__id"))
         .order_by("-count")
@@ -293,7 +297,10 @@ def embedding_debug(request):
     assistants_no_docs = []
     retrieval_checks = []
     repairable_contexts = list(
-        MemoryEntry.objects.filter(embeddings__debug_tags__repair_status="pending")
+        MemoryEntry.objects.filter(
+            embeddings__debug_tags__repair_status="pending",
+            assistant__in=assistants_qs,
+        )
         .annotate(
             assistant_slug=F("assistant__slug"),
             status=F("embeddings__debug_tags__repair_status"),
@@ -304,9 +311,8 @@ def embedding_debug(request):
     )
     if request.GET.get("include_rag") == "1":
         from assistants.utils.chunk_retriever import get_relevant_chunks
-        from assistants.models import Assistant
 
-        for a in Assistant.objects.all():
+        for a in assistants_qs:
             count = 0
             if a.memory_context_id:
                 chunks, *_ = get_relevant_chunks(
