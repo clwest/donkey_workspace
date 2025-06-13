@@ -12,6 +12,7 @@ from rest_framework.test import APITestCase
 from memory.models import MemoryEntry
 from embeddings.models import Embedding
 from intel_core.models import EmbeddingMetadata
+from assistants.models import Assistant
 
 
 class EmbeddingDebugAPITest(APITestCase):
@@ -38,3 +39,18 @@ class EmbeddingDebugAPITest(APITestCase):
         self.assertIn("assistants_no_docs", data)
         self.assertIn("retrieval_checks", data)
         self.assertIn("repairable_contexts", data)
+
+    def test_assistant_filter(self):
+        assistant = Assistant.objects.create(name="A", slug="a")
+        mem = MemoryEntry.objects.create(event="x", assistant=assistant)
+        ct = ContentType.objects.get_for_model(MemoryEntry)
+        Embedding.objects.create(
+            content_type=ct,
+            object_id=str(mem.id),
+            content_id=f"memoryentry:{mem.id}",
+            embedding=[0.1],
+        )
+        resp = self.client.get(f"/api/dev/embedding-debug/?assistant={assistant.slug}")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertTrue(all(d["assistant__slug"] == assistant.slug for d in data["assistant_breakdown"]))

@@ -239,6 +239,17 @@ def embedding_debug(request):
     from memory.models import MemoryEntry
     from intel_core.models import DocumentChunk
     from prompts.models import Prompt
+    from django.http import Http404
+    from assistants.utils.resolve import resolve_assistant
+
+    assistant_param = request.GET.get("assistant")
+    assistant_obj = None
+    assistants_qs = Assistant.objects.all()
+    if assistant_param:
+        assistant_obj = resolve_assistant(assistant_param)
+        if not assistant_obj:
+            raise Http404("Assistant not found")
+        assistants_qs = assistants_qs.filter(id=assistant_obj.id)
 
     model_counts = list(
         EmbeddingMetadata.objects.values("model_used")
@@ -258,6 +269,9 @@ def embedding_debug(request):
         expected = None
         if ct and emb.object_id:
             expected = f"{ct.model}:{emb.object_id}"
+        if assistant_obj and ct == ct_memory and isinstance(obj, MemoryEntry):
+            if obj.assistant_id != assistant_obj.id:
+                continue
         if not ct or ct.id not in allowed or obj is None or emb.content_id != expected:
             invalid += 1
 
@@ -267,7 +281,7 @@ def embedding_debug(request):
     # resides. This avoids FieldError when attempting to use
     # ``content_object__...`` lookups on Embedding.
     breakdown = list(
-        MemoryEntry.objects.filter(embeddings__isnull=False)
+        MemoryEntry.objects.filter(embeddings__isnull=False, assistant__in=assistants_qs)
         .values("assistant__id", "assistant__slug", "context_id")
         .annotate(count=Count("embeddings__id"))
         .order_by("-count")
@@ -280,7 +294,10 @@ def embedding_debug(request):
     assistants_no_docs = []
     retrieval_checks = []
     repairable_contexts = list(
-        MemoryEntry.objects.filter(embeddings__debug_tags__repair_status="pending")
+        MemoryEntry.objects.filter(
+            embeddings__debug_tags__repair_status="pending",
+            assistant__in=assistants_qs,
+        )
         .annotate(
             assistant_slug=F("assistant__slug"),
             status=F("embeddings__debug_tags__repair_status"),
@@ -291,9 +308,8 @@ def embedding_debug(request):
     )
     if request.GET.get("include_rag") == "1":
         from assistants.utils.chunk_retriever import get_relevant_chunks
-        from assistants.models import Assistant
 
-        for a in Assistant.objects.all():
+        for a in assistants_qs:
             count = 0
             if a.memory_context_id:
                 chunks, *_ = get_relevant_chunks(
