@@ -316,3 +316,48 @@ def embedding_debug(request):
             "retrieval_checks": retrieval_checks,
         }
     )
+
+
+@api_view(["GET"])
+@permission_classes([AdminOnly])
+def embedding_audit(request):
+    """Return counts of embedding mismatches and orphans."""
+    from django.contrib.contenttypes.models import ContentType
+    from embeddings.models import Embedding, EmbeddingDebugTag
+    from memory.models import MemoryEntry
+    from intel_core.models import DocumentChunk
+    from prompts.models import Prompt
+
+    ct_memory = ContentType.objects.get_for_model(MemoryEntry)
+    ct_chunk = ContentType.objects.get_for_model(DocumentChunk)
+    ct_prompt = ContentType.objects.get_for_model(Prompt)
+    allowed = {ct_memory.id, ct_chunk.id, ct_prompt.id}
+
+    stats = {}
+    for emb in Embedding.objects.select_related("content_type"):
+        ct = emb.content_type
+        obj = emb.content_object
+        if not ct or ct.id not in allowed:
+            continue
+        model = ct.model
+        entry = stats.setdefault(model, {"mismatched": 0, "orphans": 0})
+        if obj is None:
+            entry["orphans"] += 1
+            continue
+        expected_ct = ContentType.objects.get_for_model(obj.__class__)
+        expected_oid = str(obj.id)
+        expected_cid = f"{expected_ct.model}:{obj.id}"
+        if (
+            emb.content_type_id != expected_ct.id
+            or str(emb.object_id) != expected_oid
+            or emb.content_id != expected_cid
+        ):
+            entry["mismatched"] += 1
+
+    recent = list(
+        EmbeddingDebugTag.objects.filter(reason="orphaned-object")
+        .order_by("-created_at")
+        .values("embedding_id", "reason", "created_at")[:20]
+    )
+
+    return Response({"results": list(stats.items()), "recent_orphans": recent})

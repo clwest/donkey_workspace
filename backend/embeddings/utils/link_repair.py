@@ -1,7 +1,13 @@
 
 
 
-def fix_embedding_links(limit=None, *, dry_run: bool = False, include_memory: bool = False):
+def fix_embedding_links(
+    limit=None,
+    *,
+    dry_run: bool = False,
+    include_memory: bool = False,
+    verbose: bool = False,
+):
     from django.contrib.contenttypes.models import ContentType
     from embeddings.models import Embedding
     from intel_core.models import DocumentChunk, Document
@@ -33,7 +39,8 @@ def fix_embedding_links(limit=None, *, dry_run: bool = False, include_memory: bo
         ct_memory = ContentType.objects.get_for_model(MemoryEntry)
         ct_map["memoryentry"] = ct_memory
 
-    print(f"🤓 Fixing embeddings for models: {list(ct_map.keys())}")
+    if verbose:
+        print(f"🤓 Fixing embeddings for models: {list(ct_map.keys())}")
 
     qs = Embedding.objects.select_related("content_type")
     if limit:
@@ -44,6 +51,16 @@ def fix_embedding_links(limit=None, *, dry_run: bool = False, include_memory: bo
     skipped = 0
     for emb in qs:
         scanned += 1
+        if (
+            emb.content_type
+            and emb.object_id
+            and emb.content_id == f"{emb.content_type.model}:{emb.object_id}"
+        ):
+            skipped += 1
+            if verbose:
+                print(f"⏩ {emb.id} already linked")
+            continue
+
         obj = emb.content_object
 
         if obj is None and emb.content_id and ":" in emb.content_id:
@@ -57,7 +74,8 @@ def fix_embedding_links(limit=None, *, dry_run: bool = False, include_memory: bo
 
         if not obj:
             skipped += 1
-            print(f"🪨 Orphan embedding {emb.id} (no object)")
+            if verbose:
+                print(f"🪨 Orphan embedding {emb.id} (no object)")
             continue
 
         expected_ct = ContentType.objects.get_for_model(obj.__class__)
@@ -65,15 +83,18 @@ def fix_embedding_links(limit=None, *, dry_run: bool = False, include_memory: bo
         changed = False
 
         if emb.content_type != expected_ct:
-            print(f"❗ CT mismatch: {emb.content_type} vs {expected_ct}")
+            if verbose:
+                print(f"❗ CT mismatch: {emb.content_type} vs {expected_ct}")
             emb.content_type = expected_ct
             changed = True
         if str(emb.object_id) != str(obj.id):
-            print(f"❗ OID mismatch: {emb.object_id} vs {obj.id}")
+            if verbose:
+                print(f"❗ OID mismatch: {emb.object_id} vs {obj.id}")
             emb.object_id = str(obj.id)
             changed = True
         if emb.content_id != expected_cid:
-            print(f"❗ CID mismatch: {emb.content_id} vs {expected_cid}")
+            if verbose:
+                print(f"❗ CID mismatch: {emb.content_id} vs {expected_cid}")
             emb.content_id = expected_cid
             changed = True
 
@@ -82,6 +103,7 @@ def fix_embedding_links(limit=None, *, dry_run: bool = False, include_memory: bo
                 emb.save(update_fields=["content_type", "object_id", "content_id"])
             fixed += 1
         else:
-            print(f"✅ No change needed for {emb.id} — expected {expected_cid}")
+            if verbose:
+                print(f"✅ No change needed for {emb.id} — expected {expected_cid}")
 
     return {"scanned": scanned, "fixed": fixed, "skipped": skipped}
