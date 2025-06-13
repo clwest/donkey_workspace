@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from agents.models import Agent
+from assistants.utils.resolve import resolve_assistant
 from assistants.models import Assistant
 from intel_core.models import Document, DocumentChunk
 from memory.models import SymbolicMemoryAnchor
@@ -45,11 +46,10 @@ class Command(BaseCommand):
 
         if all_slugs:
             for s in all_slugs:
-                try:
-                    assistants.append(Assistant.objects.get(slug=s))
+                assistant = resolve_assistant(s)
+                if assistant:
+                    assistants.append(assistant)
                     continue
-                except Assistant.DoesNotExist:
-                    pass
                 try:
                     agents.append(Agent.objects.get(slug=s))
                     continue

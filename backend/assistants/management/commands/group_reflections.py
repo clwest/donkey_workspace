@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from assistants.models import Assistant
+from assistants.utils.resolve import resolve_assistant
 from assistants.models.reflection import ReflectionGroup
 from assistants.utils.reflection_summary import summarize_reflections_for_document
 
@@ -12,9 +12,12 @@ class Command(BaseCommand):
         parser.add_argument("--slug", required=True)
 
     def handle(self, *args, **options):
-        assistant_slug = options["assistant"]
+        identifier = options["assistant"]
         slug = options["slug"]
-        assistant = Assistant.objects.get(slug=assistant_slug)
+        assistant = resolve_assistant(identifier)
+        if not assistant:
+            self.stderr.write(self.style.ERROR(f"Assistant '{identifier}' not found"))
+            return
         group, _ = ReflectionGroup.objects.get_or_create(
             assistant=assistant, slug=slug, defaults={"title": slug}
         )

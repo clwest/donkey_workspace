@@ -3,7 +3,7 @@ from collections import Counter
 from django.core.management.base import BaseCommand
 from django.utils.text import slugify
 
-from assistants.models import Assistant
+from assistants.utils.resolve import resolve_assistant
 from assistants.models.reflection import AssistantReflectionLog
 from assistants.models.thoughts import AssistantThoughtLog
 from memory.models import MemoryEntry, SymbolicMemoryAnchor
@@ -33,11 +33,7 @@ class Command(BaseCommand):
         slug = options["assistant"]
         source = options["source"]
 
-        assistant = (
-            Assistant.objects.filter(id=slug).first()
-            or Assistant.objects.filter(slug=slug).first()
-            or Assistant.objects.filter(memory_context_id=slug).first()
-        )
+        assistant = resolve_assistant(slug)
         if not assistant:
             self.stderr.write(self.style.ERROR(f"Assistant '{slug}' not found"))
             return

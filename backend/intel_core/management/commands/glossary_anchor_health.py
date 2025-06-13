@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.db.models import Avg, Count, Q
-from assistants.models import Assistant
+from assistants.utils.resolve import resolve_assistant
 from memory.models import SymbolicMemoryAnchor
 from intel_core.models import DocumentChunk, GlossaryFallbackReflectionLog
 
@@ -14,9 +14,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         slug = options["assistant"]
-        try:
-            assistant = Assistant.objects.get(slug=slug)
-        except Assistant.DoesNotExist:
+        assistant = resolve_assistant(slug)
+        if not assistant:
             self.stdout.write(self.style.ERROR(f"Assistant '{slug}' not found."))
             return
 

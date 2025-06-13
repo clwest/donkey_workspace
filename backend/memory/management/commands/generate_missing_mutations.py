@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from memory.models import SymbolicMemoryAnchor
 from intel_core.models import GlossaryFallbackReflectionLog
 from utils.llm import call_gpt4
+from assistants.utils.resolve import resolve_assistant
 import logging
 
 logger = logging.getLogger(__name__)
@@ -84,4 +85,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         slug = options["assistant"]
-        generate_missing_mutations_for_assistant(slug, stdout=self.stdout)
+        assistant = resolve_assistant(slug)
+        if not assistant:
+            self.stderr.write(self.style.ERROR(f"Assistant '{slug}' not found"))
+            return
+        generate_missing_mutations_for_assistant(assistant.slug, stdout=self.stdout)

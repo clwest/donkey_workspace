@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from assistants.models import Assistant
+from assistants.utils.resolve import resolve_assistant
 import json
 from collections import Counter
 
@@ -13,14 +13,14 @@ class Command(BaseCommand):
         parser.add_argument("--from-json", dest="from_json", help="Path to diagnostics JSON file")
 
     def handle(self, *args, **options):
-        slug = options["assistant"]
+        identifier = options["assistant"]
         json_path = options["from_json"]
 
-        try:
-            assistant = Assistant.objects.get(slug=slug)
-        except Assistant.DoesNotExist:
-            self.stderr.write(self.style.ERROR(f"Assistant '{slug}' not found"))
+        assistant = resolve_assistant(identifier)
+        if not assistant:
+            self.stderr.write(self.style.ERROR(f"Assistant '{identifier}' not found"))
             return
+        slug = assistant.slug
 
         if not json_path:
             self.stderr.write("❌ Must use --from-json to provide diagnostic file.")

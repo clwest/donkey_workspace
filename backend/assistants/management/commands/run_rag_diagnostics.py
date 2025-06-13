@@ -1,6 +1,7 @@
 import json
 from django.core.management.base import BaseCommand
 from assistants.models import Assistant
+from assistants.utils.resolve import resolve_assistant
 from assistants.utils.rag_diagnostics import run_assistant_rag_test
 
 
@@ -40,11 +41,10 @@ class Command(BaseCommand):
         limit = options.get("limit")
 
         if assistant_slug:
-            try:
-                assistant = Assistant.objects.get(slug=assistant_slug)
-            except Assistant.DoesNotExist:
+            assistant = resolve_assistant(assistant_slug)
+            if not assistant:
                 self.stdout.write(
-                    self.style.ERROR(f"No assistant found with slug '{assistant_slug}'")
+                    self.style.ERROR(f"No assistant found with identifier '{assistant_slug}'")
                 )
                 return
 

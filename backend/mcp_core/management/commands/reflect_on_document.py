@@ -42,13 +42,9 @@ class Command(BaseCommand):
 
         assistant_id = options.get("assistant")
         if assistant_id:
-            from assistants.models import Assistant
+            from assistants.utils.resolve import resolve_assistant
 
-            assistant = (
-                Assistant.objects.filter(id=assistant_id).first()
-                or Assistant.objects.filter(slug=assistant_id).first()
-                or Assistant.objects.filter(memory_context_id=assistant_id).first()
-            )
+            assistant = resolve_assistant(assistant_id)
             if not assistant:
                 self.stderr.write(
                     self.style.ERROR(

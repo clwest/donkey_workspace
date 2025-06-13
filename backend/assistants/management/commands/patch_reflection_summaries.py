@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 
 from assistants.models.reflection import AssistantReflectionLog
+from assistants.utils.resolve import resolve_assistant
 from memory.models import ReflectionReplayLog
 
 logger = logging.getLogger(__name__)
@@ -23,11 +24,15 @@ class Command(BaseCommand):
         parser.add_argument("--limit", type=int, default=100)
 
     def handle(self, *args, **options):
-        slug = options.get("assistant")
+        identifier = options.get("assistant")
         limit = options.get("limit")
         qs = AssistantReflectionLog.objects.all().order_by("-created_at")
-        if slug:
-            qs = qs.filter(assistant__slug=slug)
+        if identifier:
+            assistant = resolve_assistant(identifier)
+            if not assistant:
+                self.stderr.write(self.style.ERROR(f"Assistant '{identifier}' not found"))
+                return
+            qs = qs.filter(assistant=assistant)
         if limit:
             qs = qs[:limit]
 

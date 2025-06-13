@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from assistants.models import Assistant, AssistantMemoryChain
+from assistants.utils.resolve import resolve_assistant
 from project.models import Project
 
 
@@ -20,11 +21,11 @@ class Command(BaseCommand):
         )
         slugs = [s for s in options["assistants"].split(",") if s]
         for slug in slugs:
-            try:
-                a = Assistant.objects.get(slug=slug)
+            a = resolve_assistant(slug)
+            if a:
                 chain.team_members.add(a)
                 project.team.add(a)
-            except Assistant.DoesNotExist:
+            else:
                 self.stderr.write(self.style.ERROR(f"Assistant {slug} not found"))
         project.team_chain = chain
         project.save()
