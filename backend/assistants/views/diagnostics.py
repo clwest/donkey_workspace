@@ -184,6 +184,13 @@ def assistant_drift_summary(request, slug):
         timestamp__gte=timezone.now() - timedelta(days=7),
     ).order_by("context_id", "-timestamp")
 
+    last_logged = (
+        EmbeddingDriftLog.objects.filter(assistant=assistant)
+        .order_by("-timestamp")
+        .first()
+    )
+
+
     contexts = {}
     snapshots = []
     for log in logs_qs:
@@ -232,6 +239,7 @@ def assistant_drift_summary(request, slug):
             "anchor_ratio": ratio,
             "fallback_pct": fallback_pct,
             "logs": snapshots,
+            "last_logged": last_logged.timestamp if last_logged else None,
         }
     )
 

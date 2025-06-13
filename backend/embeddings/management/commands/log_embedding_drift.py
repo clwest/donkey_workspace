@@ -60,7 +60,23 @@ class Command(BaseCommand):
 
         repaired_count = EmbeddingDebugTag.objects.filter(repair_status="repaired").count()
         now = timezone.now()
+        changed = 0
         for (assistant_id, context_id), row in stats.items():
+            latest = (
+                EmbeddingDriftLog.objects.filter(
+                    assistant_id=assistant_id,
+                    context_id=context_id,
+                    model_name=row["model"],
+                )
+                .order_by("-timestamp")
+                .first()
+            )
+            if latest and (
+                latest.mismatched_count == row["mismatched"]
+                and latest.orphaned_count == row["orphans"]
+                and latest.repaired_count == repaired_count
+            ):
+                continue
             EmbeddingDriftLog.objects.create(
                 timestamp=now,
                 model_name=row["model"],
@@ -70,4 +86,8 @@ class Command(BaseCommand):
                 orphaned_count=row["orphans"],
                 repaired_count=repaired_count,
             )
-        self.stdout.write(f"Logged drift for {len(stats)} contexts")
+            changed += 1
+        if changed:
+            self.stdout.write(self.style.SUCCESS(f"Drift updated for {changed} contexts"))
+        else:
+            self.stdout.write("No drift detected")

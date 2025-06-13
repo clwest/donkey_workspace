@@ -16,6 +16,7 @@ class Command(BaseCommand):
         parser.add_argument("--delete", action="store_true", help="Delete orphans")
         parser.add_argument("--merge-into", help="Assistant slug/UUID to merge data into")
         parser.add_argument("--dry-run", action="store_true", help="Only list orphans")
+        parser.add_argument("--fix", action="store_true", help="Apply merges or deletions")
 
     def handle(self, *args, **options):
         target = None
@@ -38,9 +39,10 @@ class Command(BaseCommand):
             orphans.append(a)
 
         self.stdout.write(f"Found {len(orphans)} orphan assistants")
+        processed = 0
         for a in orphans:
             self.stdout.write(f"- {a.slug} ({a.id}) created {a.created_at:%Y-%m-%d}")
-            if not options["dry_run"]:
+            if not options["dry_run"] and (options["fix"] or options["delete"]):
                 if target:
                     MemoryEntry.objects.filter(assistant=a).update(assistant=target)
                     AssistantThoughtLog.objects.filter(assistant=a).update(assistant=target)
@@ -52,4 +54,10 @@ class Command(BaseCommand):
                 if options["delete"]:
                     a.delete()
                     self.stdout.write(self.style.SUCCESS(f"Deleted {a.slug}"))
+                processed += 1
+
+        if options["dry_run"]:
+            self.stdout.write(self.style.SUCCESS(f"Dry run complete: {len(orphans)} orphans found"))
+        else:
+            self.stdout.write(self.style.SUCCESS(f"Processed {processed} orphans"))
 
