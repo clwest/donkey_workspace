@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from intel_core.models import Document
+from mcp_core.models import DevDoc
 
 
 class Command(BaseCommand):
@@ -19,37 +20,51 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         identifier = options["doc"]
 
+        document = None
         try:
-            document = Document.objects.get(id=identifier)
-        except Document.DoesNotExist:
-            try:
-                document = Document.objects.get(slug=identifier)
-            except Document.DoesNotExist:
-                self.stderr.write(self.style.ERROR(f"Document '{identifier}' not found"))
-                return
+            document = Document.objects.filter(id=identifier).first()
+        except (ValueError, Exception):
+            document = None
+        if not document:
+            document = Document.objects.filter(slug=identifier).first()
+        if not document:
+            devdoc = (
+                DevDoc.objects.filter(uuid=identifier).first()
+                or DevDoc.objects.filter(slug=identifier).first()
+            )
+            if devdoc and devdoc.linked_document:
+                document = devdoc.linked_document
+        if not document:
+            self.stderr.write(
+                self.style.ERROR(f"Document or DevDoc '{identifier}' not found")
+            )
+            return
 
         assistant_id = options.get("assistant")
         if assistant_id:
-            try:
-                from assistants.models import Assistant
+            from assistants.models import Assistant
 
-                assistant = Assistant.objects.get(id=assistant_id)
-            except Assistant.DoesNotExist:
-                assistant = Assistant.objects.filter(slug=assistant_id).first()
-                if not assistant:
-                    self.stderr.write(
-                        self.style.ERROR(
-                            f"Assistant '{assistant_id}' not found, using default"
-                        )
+            assistant = (
+                Assistant.objects.filter(id=assistant_id).first()
+                or Assistant.objects.filter(slug=assistant_id).first()
+            )
+            if not assistant:
+                self.stderr.write(
+                    self.style.ERROR(
+                        f"Assistant '{assistant_id}' not found, using default"
                     )
-                    assistant = AssistantReflectionEngine.get_reflection_assistant()
+                )
+                assistant = AssistantReflectionEngine.get_reflection_assistant()
         else:
             assistant = AssistantReflectionEngine.get_reflection_assistant()
         engine = AssistantReflectionEngine(assistant)
 
         summary, _insights, _prompt = engine.reflect_on_document(document)
         if summary:
-            self.stdout.write(self.style.SUCCESS(f"Reflected on {document.title}: {summary[:60]}"))
+            self.stdout.write(
+                self.style.SUCCESS(f"Reflected on {document.title}: {summary[:60]}")
+            )
         else:
-            self.stdout.write(self.style.WARNING(f"No summary generated for {document.title}"))
-
+            self.stdout.write(
+                self.style.WARNING(f"No summary generated for {document.title}")
+            )

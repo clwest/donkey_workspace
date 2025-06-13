@@ -11,7 +11,9 @@ from unittest.mock import patch
 import pytest
 
 from assistants.models import Assistant
+from assistants.models.reflection import ReflectionGroup
 from intel_core.models import Document, DocumentChunk, EmbeddingMetadata
+from mcp_core.models import DevDoc
 from memory.models import MemoryEntry
 from embeddings.models import Embedding
 
@@ -75,3 +77,49 @@ def test_reflect_on_document_cli(mock_reflect):
     call_command("reflect_on_document", "--doc", str(doc.id))
     mock_reflect.assert_called_once()
 
+
+@pytest.mark.django_db
+@patch(
+    "assistants.utils.assistant_reflection_engine.AssistantReflectionEngine.reflect_on_document",
+    return_value=("summary", [], None),
+)
+def test_reflect_on_document_slug(mock_reflect):
+    doc = Document.objects.create(title="Paper", slug="paper", content="x")
+    call_command("reflect_on_document", "--doc", "paper")
+    mock_reflect.assert_called_once()
+
+
+@pytest.mark.django_db
+@patch(
+    "assistants.utils.assistant_reflection_engine.AssistantReflectionEngine.reflect_on_document",
+    return_value=("summary", [], None),
+)
+def test_reflect_on_document_devdoc(mock_reflect):
+    doc = Document.objects.create(title="Doc", slug="doc", content="x")
+    devdoc = DevDoc.objects.create(title="Doc", slug="doc", linked_document=doc)
+    call_command("reflect_on_document", "--doc", devdoc.slug)
+    mock_reflect.assert_called_once()
+
+
+@pytest.mark.django_db
+@patch(
+    "embeddings.utils.link_repair.repair_context_embeddings",
+    return_value={"scanned": 1, "fixed": 1, "skipped": 0},
+)
+def test_repair_context_embeddings_cli(mock_repair):
+    assistant = Assistant.objects.create(
+        name="A", slug="a", memory_context_id="11111111-1111-1111-1111-111111111111"
+    )
+    call_command("repair_context_embeddings", "--assistant", "a")
+    mock_repair.assert_called_once_with(assistant.memory_context_id, verbose=True)
+
+
+@pytest.mark.django_db
+@patch("assistants.utils.reflection_summary.summarize_reflections_for_document")
+def test_summarize_reflection_group_cli(mock_sum):
+    assistant = Assistant.objects.create(name="A", slug="a")
+    group = ReflectionGroup.objects.create(assistant=assistant, slug="grp")
+    call_command("summarize_reflection_group", "--group", "grp")
+    mock_sum.assert_called_once_with(
+        group_slug=group.slug, assistant_id=group.assistant_id
+    )
