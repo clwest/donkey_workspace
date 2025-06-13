@@ -923,6 +923,9 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             "source_document_title",
             "source_document_url",
             "created_at",
+            "last_reflection_attempted_at",
+            "last_reflection_successful",
+            "reflection_error",
         ]
         read_only_fields = ["id", "slug", "created_at"]
 
@@ -1603,6 +1606,9 @@ class AssistantSerializer(serializers.ModelSerializer):
             "drift_fix_count",
             "glossary_terms_fixed",
             "recent_refinements",
+            "last_reflection_attempted_at",
+            "last_reflection_successful",
+            "reflection_error",
         ]
 
     def get_display_name(self, obj):

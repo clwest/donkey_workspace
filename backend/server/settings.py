@@ -12,6 +12,7 @@ from sentry_sdk.integrations.django import DjangoIntegration
 load_dotenv()
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
+
 sentry_sdk.init(
     dsn=os.getenv("SENTRY_DSN", ""),
     integrations=[DjangoIntegration()],
@@ -94,7 +95,6 @@ INSTALLED_APPS = [
     "feedback",
     "insights",
     "devtools",
-    
 ]
 
 # === 🧵 Middleware ===
@@ -128,9 +128,9 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
-            'libraries': {
-                'crispy_forms_tags': 'crispy_forms.templatetags.crispy_forms_tags',
-                'humanize': 'django.contrib.humanize.templatetags.humanize',
+            "libraries": {
+                "crispy_forms_tags": "crispy_forms.templatetags.crispy_forms_tags",
+                "humanize": "django.contrib.humanize.templatetags.humanize",
             },
         },
     },
@@ -210,7 +210,11 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
     ],
-    "DEFAULT_THROTTLE_RATES": {"anon": "20/minute", "user": "200/minute", "heavy": "10/minute"},
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "20/minute",
+        "user": "200/minute",
+        "heavy": "10/minute",
+    },
 }
 
 # Optional: Turn off browsable API in production
@@ -231,6 +235,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 X_FRAME_OPTIONS = "DENY"
 
+
 class SecurityHeadersMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -243,10 +248,11 @@ class SecurityHeadersMiddleware:
             "script-src 'self' 'unsafe-eval' https://cdn.jsdelivr.net; "
             "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; "
             "font-src 'self' https://fonts.gstatic.com; "
-            "img-src 'self' data: https:"
+            "img-src 'self' data: https:",
         )
         response.headers.setdefault("X-Content-Type-Options", "nosniff")
         return response
+
 
 # === 🪄 Celery ===
 CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
@@ -435,7 +441,7 @@ LOGGING = {
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "America/Denver"
 USE_I18N = True
-LOCALE_PATHS = [BASE_DIR / 'locale']
+LOCALE_PATHS = [BASE_DIR / "locale"]
 USE_TZ = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -450,15 +456,14 @@ ASSISTANT_DELEGATION_TOKEN_LIMIT = int(
 # Embed chunks synchronously when Celery is unavailable
 FORCE_EMBED_SYNC = os.getenv("FORCE_EMBED_SYNC", "False") == "True"
 # When enabled, bypass all chunk filtering logic for debugging
-DISABLE_CHUNK_SKIP_FILTERS = (
-    os.getenv("DISABLE_CHUNK_SKIP_FILTERS", "False") == "True"
-)
+DISABLE_CHUNK_SKIP_FILTERS = os.getenv("DISABLE_CHUNK_SKIP_FILTERS", "False") == "True"
 # Minimum score for embedding a chunk
-CHUNK_EMBED_SCORE_THRESHOLD = float(
-    os.getenv("CHUNK_EMBED_SCORE_THRESHOLD", "0.3")
-)
+CHUNK_EMBED_SCORE_THRESHOLD = float(os.getenv("CHUNK_EMBED_SCORE_THRESHOLD", "0.3"))
 
 # Score below which glossary anchors are considered weak
-GLOSSARY_WEAK_THRESHOLD = float(
-    os.getenv("GLOSSARY_WEAK_THRESHOLD", "0.2")
+GLOSSARY_WEAK_THRESHOLD = float(os.getenv("GLOSSARY_WEAK_THRESHOLD", "0.2"))
+
+# Toggle local Ollama reflections used during assistant boot
+ENABLE_LOCAL_CHAT_REFLECTIONS = (
+    os.getenv("ENABLE_LOCAL_CHAT_REFLECTIONS", "True") == "True"
 )
