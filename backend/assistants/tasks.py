@@ -469,3 +469,24 @@ def log_demo_reflection_task(assistant_id: str, session_id: str):
     assistant = Assistant.objects.filter(id=assistant_id, is_demo=True).first()
     if assistant:
         log_demo_reflection(assistant, session_id)
+
+
+@shared_task
+def run_rag_ci_checks(slug: str) -> str:
+    """Run RAG validation commands for the given assistant."""
+    from django.core.management import call_command
+    from assistants.models import Assistant, AssistantDevLog
+
+    assistant = Assistant.objects.filter(slug=slug).first()
+    if not assistant:
+        return "missing"
+    try:
+        call_command("repair_all_embeddings")
+        call_command("run_rag_tests", "--assistant", slug)
+        call_command("log_embedding_drift", "--assistant", slug)
+    except Exception as exc:  # pragma: no cover - best effort
+        AssistantDevLog.objects.create(
+            assistant=assistant, issue_type="cert_failure", details=str(exc)
+        )
+        return "error"
+    return "ok"

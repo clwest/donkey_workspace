@@ -920,6 +920,7 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             "growth_stage",
             "growth_points",
             "growth_summary_memory",
+            "last_rag_certified_at",
             "source_document_title",
             "source_document_url",
             "created_at",
@@ -1813,6 +1814,7 @@ class AssistantSetupSummarySerializer(serializers.ModelSerializer):
             "growth_stage",
             "growth_points",
             "growth_summary_memory",
+            "last_rag_certified_at",
             "initial_glossary_anchor",
             "initial_badges",
             "has_reflections_ready",
@@ -1871,6 +1873,7 @@ class AssistantIntroSerializer(serializers.ModelSerializer):
             "growth_stage",
             "growth_points",
             "growth_summary_memory",
+            "last_rag_certified_at",
             "theme_colors",
             "suggest_personalization",
             "personalization_prompt",
@@ -2154,6 +2157,9 @@ class AssistantFromPromptSerializer(serializers.Serializer):
             description=prompt.content[:500].strip(),
             status="active",
         )
+
+        from assistants.tasks import run_rag_ci_checks
+        run_rag_ci_checks.delay(assistant.slug)
 
         request = self.context.get("request")
         if request and getattr(request, "user", None) and request.user.is_authenticated:

@@ -12,6 +12,7 @@ def record_rag_playback(
     query_term: str = "",
     score_cutoff: float | None = None,
     fallback_reason: str | None = None,
+    anchor_missed: str | None = None,
     playback_type: str = RAGPlaybackLog.PlaybackType.MANUAL,
     demo_session_id: str | None = "",
 ) -> RAGPlaybackLog:
@@ -46,6 +47,7 @@ def record_rag_playback(
         memory_context=memory_context,
         chunks=meta,
         demo_session_id=demo_session_id or "",
+        anchor_missed=anchor_missed or "",
     )
 
 

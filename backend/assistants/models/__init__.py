@@ -17,9 +17,11 @@ from .hint import *
 from .tour import *
 from .trail import *
 from .profile import *
+from .timeline import *
 
 from .demo import *
 from .user_preferences import *
+from .devlog import *
 
 
 
