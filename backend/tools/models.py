@@ -134,3 +134,30 @@ class ToolExecutionLog(models.Model):
 
     def __str__(self):
         return f"{self.tool.slug} ({'ok' if self.success else 'fail'})"
+
+
+class ToolReflectionLog(models.Model):
+    """Assistant reflection entry about a specific tool's usage."""
+
+    tool = models.ForeignKey(Tool, on_delete=models.CASCADE, related_name="reflections")
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="tool_reflections"
+    )
+    execution_log = models.ForeignKey(
+        ToolExecutionLog,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reflection_entries",
+    )
+    reflection = models.TextField()
+    insight_tags = models.ManyToManyField("mcp_core.Tag", blank=True)
+    confidence_score = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"{self.tool.slug} reflection by {self.assistant.slug}"

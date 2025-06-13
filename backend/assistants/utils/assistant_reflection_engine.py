@@ -1161,3 +1161,38 @@ def reflect_on_dissent_signals(assistant: Assistant) -> str:
     entry.tags.set(tags)
 
     return summary
+
+
+def reflect_on_tool_usage(assistant: Assistant) -> list["ToolReflectionLog"]:
+    """Generate reflections on tool usage grouped by tool."""
+    from tools.models import ToolExecutionLog, ToolReflectionLog
+    from mcp_core.models import Tag
+    from django.utils.text import slugify
+
+    logs = ToolExecutionLog.objects.filter(assistant=assistant).order_by("-created_at")[:200]
+    grouped: dict[int, list[ToolExecutionLog]] = {}
+    for log in logs:
+        grouped.setdefault(log.tool_id, []).append(log)
+
+    reflections = []
+    for tool_id, items in grouped.items():
+        tool = items[0].tool
+        success_rate = sum(1 for i in items if i.success) / len(items)
+        summary = f"Used {len(items)} times with {success_rate:.0%} success."
+        if success_rate < 0.5:
+            summary += " Needs improvement."
+            tag_name = "misuse"
+        else:
+            tag_name = "efficiency"
+
+        ref = ToolReflectionLog.objects.create(
+            tool=tool,
+            assistant=assistant,
+            execution_log=items[0],
+            reflection=summary,
+            confidence_score=success_rate,
+        )
+        tag, _ = Tag.objects.get_or_create(name=tag_name, defaults={"slug": slugify(tag_name)})
+        ref.insight_tags.add(tag)
+        reflections.append(ref)
+    return reflections
