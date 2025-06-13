@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status, viewsets
 from rest_framework.pagination import PageNumberPagination
+from django.core.cache import cache
 import uuid
 import warnings
 import logging
@@ -73,6 +74,15 @@ load_dotenv()
 
 client = OpenAI()
 logger = logging.getLogger(__name__)
+
+def _rate_limited(request, key: str, window: int = 3) -> bool:
+    """Simple per-user rate limit using the cache."""
+    ident = request.user.id if request.user.is_authenticated else request.META.get("REMOTE_ADDR")
+    cache_key = f"rl:{ident}:{key}"
+    if cache.get(cache_key):
+        return True
+    cache.set(cache_key, 1, timeout=window)
+    return False
 
 
 class MemoryEntryViewSet(viewsets.ModelViewSet):
@@ -474,6 +484,10 @@ def recent_memories(request):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def list_memories(request):
+    if _rate_limited(request, "list_memories"):
+        resp = Response({"detail": "rate limit"}, status=429)
+        resp["X-Rate-Limited"] = "true"
+        return resp
     queryset = MemoryEntry.objects.all().order_by("-created_at")
 
     # Optional filters

@@ -1,6 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAdminUser
+from django.core.cache import cache
 from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
@@ -42,6 +43,15 @@ from assistants.utils.memory_filters import get_filtered_memories
 from assistants.helpers.reflection_helpers import simulate_memory_fork
 from intel_core.models import Document
 from assistants.services import AssistantService
+
+
+def _rate_limited(request, key: str, window: int = 3) -> bool:
+    ident = request.user.id if request.user.is_authenticated else request.META.get("REMOTE_ADDR")
+    cache_key = f"rl:{ident}:{key}"
+    if cache.get(cache_key):
+        return True
+    cache.set(cache_key, 1, timeout=window)
+    return False
 
 
 # Assistant Memory Chains
@@ -110,6 +120,10 @@ def assistant_project_reflections(request, project_id):
 @api_view(["GET"])
 def assistant_memories(request, slug):
     """List memory entries for a specific assistant."""
+    if _rate_limited(request, f"assistant_memories:{slug}"):
+        resp = Response({"detail": "rate limit"}, status=429)
+        resp["X-Rate-Limited"] = "true"
+        return resp
     assistant = get_object_or_404(Assistant, slug=slug)
     entries = MemoryService.filter_entries(assistant=assistant)
     if assistant.current_project_id:
