@@ -157,8 +157,9 @@ export default function DocumentDetailPage() {
       )}
       {doc.chunk_count === 0 && (
         <div className="alert alert-warning">
-          This document has no visible chunks. Try re-ingesting or check the
-          ingestion logs.
+          {doc.token_count > 0
+            ? "⚠️ Document has tokens but no chunks. Recheck documents." 
+            : "This document has no visible chunks. Try re-ingesting or check the ingestion logs."}
         </div>
       )}
       {doc.content && (doc.num_embedded ?? doc.embedded_chunks ?? 0) === 0 && (

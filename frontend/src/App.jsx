@@ -140,6 +140,7 @@ import DemoFeedbackExplorer from "./pages/assistants/DemoFeedbackExplorer";
 import ReflectionDriftHeatmapPage from "./pages/assistant/reflections/ReflectionDriftHeatmapPage";
 import AssistantRagSelfTestPage from "./pages/assistants/AssistantRagSelfTestPage";
 import AssistantDiagnosticsConsolePage from "./pages/assistants/AssistantDiagnosticsConsolePage";
+import AssistantDiagnosticReportPage from "./pages/assistants/AssistantDiagnosticReportPage";
 import SubAgentReflectionPage from "./pages/assistants/SubAgentReflectionPage";
 import SkillGraphPage from "./pages/assistant/skills/SkillGraphPage";
 import AssistantBadgesPage from "./pages/assistant/badges/AssistantBadgesPage";
@@ -794,6 +795,10 @@ export default function App() {
           <Route
             path="/assistants/:slug/diagnostics/console/"
             element={<AssistantDiagnosticsConsolePage />}
+          />
+          <Route
+            path="/assistants/:slug/diagnostic_report/"
+            element={<AssistantDiagnosticReportPage />}
           />
           <Route
             path="/assistants/:slug/diagnostics/drift/"

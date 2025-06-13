@@ -62,12 +62,22 @@ class Command(BaseCommand):
         export_dir.mkdir(parents=True, exist_ok=True)
         json_path = export_dir / f"{assistant.slug}_rag_cert.json"
         md_path = export_dir / f"{assistant.slug}_rag_cert.md"
+        public_dir = Path("static/rag_reports")
+        public_dir.mkdir(parents=True, exist_ok=True)
+        public_md = public_dir / f"{assistant.slug}.md"
         with open(json_path, "w") as f:
             json.dump(data, f, indent=2)
         with open(md_path, "w") as f:
             f.write(f"# RAG Certification for {assistant.name}\n\n")
             for k, v in data.items():
                 f.write(f"- **{k}**: {v}\n")
+        with open(public_md, "w") as f:
+            f.write(f"# RAG Metrics for {assistant.name}\n\n")
+            f.write(f"- Chunk count: {chunks}\n")
+            f.write(f"- Anchors: {anchors}\n")
+            f.write(f"- Test Results: {result_line}\n")
+            for item in fallback_summary:
+                f.write(f"- {item['fallback_reason']}: {item['count']}\n")
 
         assistant.last_rag_certified_at = timezone.now()
         assistant.save(update_fields=["last_rag_certified_at"])
