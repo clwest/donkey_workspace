@@ -39,6 +39,34 @@ class DocumentChunkViewSet(viewsets.ModelViewSet):
     queryset = DocumentChunk.objects.all().order_by("order")
     serializer_class = DocumentChunkFullSerializer
 
+    @action(detail=True)
+    def debug(self, request, pk=None):
+        chunk = self.get_object()
+        from memory.models import RAGGroundingLog, GlossaryChangeEvent
+        final_score = chunk.score + chunk.glossary_boost
+        boosts = list(
+            GlossaryChangeEvent.objects.filter(term__iexact=getattr(chunk.anchor, "label", "")).values_list("boost", flat=True)
+        )
+        logs = (
+            RAGGroundingLog.objects.filter(used_chunk_ids__contains=[str(chunk.id)])
+            .order_by("-created_at")[:5]
+        )
+        fallback_context = [
+            {"query": l.query, "reason": l.fallback_reason, "created_at": l.created_at}
+            for l in logs if l.fallback_triggered
+        ]
+        return Response(
+            {
+                "id": str(chunk.id),
+                "score": chunk.score,
+                "glossary_score": chunk.glossary_score,
+                "glossary_boost": chunk.glossary_boost,
+                "final_score": round(final_score, 4),
+                "anchor_boosts": boosts,
+                "fallback_context": fallback_context,
+            }
+        )
+
     @action(detail=True, methods=["post"])
     def repair(self, request, pk=None):
         chunk = self.get_object()

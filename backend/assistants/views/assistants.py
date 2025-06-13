@@ -2106,6 +2106,26 @@ def anchor_health(request, slug):
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
+def anchor_confidence(request, slug):
+    """Return anchor confidence metrics for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    from memory.services.anchor_confidence import get_anchor_confidence
+
+    metrics = get_anchor_confidence(assistant)
+
+    severity = request.GET.get("severity")
+    miss = request.GET.get("miss") == "true"
+    if severity:
+        level = float({"high": 0.5, "medium": 0.2}.get(severity, 0))
+        metrics = [m for m in metrics if m["fallback_rate"] >= level]
+    if miss:
+        metrics = [m for m in metrics if m["glossary_hit_pct"] < 0.5]
+
+    return Response({"results": metrics})
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def drift_heatmap(request, slug):
     """Return aggregated reflection drift data for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)

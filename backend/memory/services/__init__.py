@@ -5,6 +5,7 @@ from .convergence import (
     calculate_convergence_stats,
     recalculate_anchor_convergence,
 )
+from .anchor_confidence import get_anchor_confidence
 from .feedback_engine import (
     apply_feedback_suggestion,
     extract_anchor_slugs,

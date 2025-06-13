@@ -909,3 +909,37 @@ class RAGDiagnosticLog(models.Model):
     class Meta:
         ordering = ["-timestamp"]
 
+
+class AnchorConfidenceLog(models.Model):
+    """Aggregated confidence metrics for a glossary anchor."""
+
+    anchor = models.ForeignKey(
+        SymbolicMemoryAnchor,
+        on_delete=models.CASCADE,
+        related_name="confidence_logs",
+    )
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    memory_context = models.ForeignKey(
+        "mcp_core.MemoryContext",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    total_logs = models.IntegerField(default=0)
+    fallback_rate = models.FloatField(default=0.0)
+    avg_score = models.FloatField(default=0.0)
+    glossary_hit_pct = models.FloatField(default=0.0)
+    score_delta_avg = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"{self.anchor.slug} confidence"
+
