@@ -237,10 +237,14 @@ def embedding_debug(request):
     from assistants.models import Assistant
     from django.contrib.contenttypes.models import ContentType
     from memory.models import MemoryEntry
-    from intel_core.models import DocumentChunk
+    from intel_core.models import DocumentChunk, Document, DevDoc
     from prompts.models import Prompt
     from mcp_core.models import DevDoc
     from assistants.utils.resolve import resolve_assistant
+
+    from assistants.models import AssistantReflectionLog, AssistantThoughtLog
+    from embeddings.utils.link_repair import embedding_link_matches
+
 
     model_counts = list(
         EmbeddingMetadata.objects.values("model_used")
@@ -251,15 +255,32 @@ def embedding_debug(request):
     ct_memory = ContentType.objects.get_for_model(MemoryEntry)
     ct_chunk = ContentType.objects.get_for_model(DocumentChunk)
     ct_prompt = ContentType.objects.get_for_model(Prompt)
-    allowed = {ct_memory.id, ct_chunk.id, ct_prompt.id}
+    ct_document = ContentType.objects.get_for_model(Document)
+    ct_reflection = ContentType.objects.get_for_model(AssistantReflectionLog)
+    ct_thought = ContentType.objects.get_for_model(AssistantThoughtLog)
+    ct_devdoc = ContentType.objects.get_for_model(DevDoc)
+
+    allowed = {
+        ct_memory.id,
+        ct_chunk.id,
+        ct_prompt.id,
+        ct_document.id,
+        ct_reflection.id,
+        ct_thought.id,
+        ct_devdoc.id,
+    }
 
     invalid = 0
+
     orphaned_embeddings = []
+
     for emb in Embedding.objects.select_related("content_type"):
+
         ct = emb.content_type
         if not ct or ct.id not in allowed:
             continue
         obj = emb.content_object
+
         if obj is None:
             invalid += 1
             orphaned_embeddings.append(
@@ -278,6 +299,7 @@ def embedding_debug(request):
             or str(emb.object_id) != expected_oid
             or emb.content_id != expected_cid
         ):
+
             invalid += 1
             orphaned_embeddings.append(
                 {
@@ -300,7 +322,9 @@ def embedding_debug(request):
     if assistant_obj:
         entries_qs = entries_qs.filter(assistant=assistant_obj)
     breakdown = list(
+
         entries_qs.values("assistant__id", "assistant__slug", "context_id")
+
         .annotate(count=Count("embeddings__id"))
         .order_by("-count")
     )
@@ -320,7 +344,9 @@ def embedding_debug(request):
     if assistant_obj:
         repair_qs = repair_qs.filter(assistant=assistant_obj)
     repairable_contexts = list(
+
         repair_qs.annotate(
+
             assistant_slug=F("assistant__slug"),
             status=F("embeddings__debug_tags__repair_status"),
         )
@@ -331,11 +357,13 @@ def embedding_debug(request):
     if request.GET.get("include_rag") == "1":
         from assistants.utils.chunk_retriever import get_relevant_chunks
 
+
         assistants_qs = (
             Assistant.objects.filter(id=assistant_obj.id)
             if assistant_obj
             else Assistant.objects.all()
         )
+
         for a in assistants_qs:
             count = 0
             if a.memory_context_id:
@@ -345,17 +373,22 @@ def embedding_debug(request):
                     memory_context_id=str(a.memory_context_id),
                 )
                 count = len(chunks)
+
             all_docs = (
                 a.documents.count()
                 + a.assigned_documents.count()
                 + DevDoc.objects.filter(linked_assistants=a).count()
             )
             if all_docs == 0:
+
                 assistants_no_docs.append(a.slug)
+
             retrieval_checks.append(
                 {
                     "assistant": a.slug,
+
                     "documents": all_docs,
+
                     "retrieved": count,
                 }
             )
@@ -369,6 +402,7 @@ def embedding_debug(request):
                 }
             )
 
+    assistants_no_docs = sorted(set(assistants_no_docs))
     return Response(
         {
             "model_counts": model_counts,
@@ -379,7 +413,9 @@ def embedding_debug(request):
             "retrieval_checks": retrieval_checks,
             "repairable_contexts": repairable_contexts,
             "duplicate_slugs": duplicate_slugs,
+
             "orphaned_embeddings": orphaned_embeddings,
+
         }
     )
 

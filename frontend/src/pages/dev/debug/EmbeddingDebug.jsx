@@ -79,6 +79,11 @@ export default function EmbeddingDebug() {
       <div className="mt-4">
         <strong>Embeddings with invalid links: {data.invalid_links}</strong>
       </div>
+      {data.orphan_embeddings && data.orphan_embeddings.length > 0 && (
+        <div className="mt-2 text-warning">
+          Orphan embeddings: {data.orphan_embeddings.length}
+        </div>
+      )}
       {data.assistants_no_docs && data.assistants_no_docs.length > 0 && (
         <div className="mt-2 text-danger">
           Assistants without documents: {data.assistants_no_docs.join(", ")}
@@ -170,7 +175,7 @@ export default function EmbeddingDebug() {
               <thead>
                 <tr>
                   <th>Assistant</th>
-                  <th>Documents</th>
+                  <th>Documents (all)</th>
                   <th>Retrieved</th>
                 </tr>
               </thead>

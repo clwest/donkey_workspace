@@ -12,6 +12,7 @@ from rest_framework.test import APITestCase
 from memory.models import MemoryEntry
 from embeddings.models import Embedding
 from intel_core.models import EmbeddingMetadata
+from assistants.models import Assistant
 
 
 class EmbeddingDebugAPITest(APITestCase):
@@ -28,6 +29,7 @@ class EmbeddingDebugAPITest(APITestCase):
             embedding=[0.0] * 5,
         )
         EmbeddingMetadata.objects.create(model_used="test", num_tokens=1, vector=[0.0])
+        Embedding.objects.create(content_id="bad", embedding=[0.1] * 5)
 
     def test_debug_endpoint(self):
         resp = self.client.get("/api/dev/embedding-debug/")
@@ -38,3 +40,6 @@ class EmbeddingDebugAPITest(APITestCase):
         self.assertIn("assistants_no_docs", data)
         self.assertIn("retrieval_checks", data)
         self.assertIn("repairable_contexts", data)
+
+        self.assertIn("orphan_embeddings", data)
+
