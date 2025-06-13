@@ -132,10 +132,15 @@ def save_embedding(
 
             content = getattr(obj, "content", None) or str(obj)
 
+        cid = (
+            f"{content_type.model}:{object_id}"
+            if content_type and object_id is not None
+            else str(object_id)
+        )
         emb = Embedding.objects.create(
             content_type=content_type,
             object_id=str(object_id) if object_id is not None else None,
-            content_id=str(object_id),
+            content_id=cid,
             content=content,
             embedding=embedding,
             session_id=session_id,
