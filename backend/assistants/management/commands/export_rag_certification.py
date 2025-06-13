@@ -7,7 +7,8 @@ from pathlib import Path
 from django.db import models
 from assistants.utils.resolve import resolve_assistant
 from intel_core.models import Document, DocumentChunk
-from memory.models import SymbolicMemoryAnchor, RAGGroundingLog, EmbeddingDriftLog
+from memory.models import SymbolicMemoryAnchor, RAGGroundingLog
+from embeddings.models import EmbeddingDriftLog
 
 
 class Command(BaseCommand):
