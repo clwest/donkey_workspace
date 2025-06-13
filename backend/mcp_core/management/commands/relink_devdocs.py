@@ -51,6 +51,16 @@ class Command(BaseCommand):
                             f"Title mismatch for {devdoc.slug}: '{devdoc.title}' vs '{document.title}'"
                         )
                     )
+
+            # ensure memory context from first linked assistant
+            if not document.memory_context and devdoc.linked_assistants.exists():
+                a = devdoc.linked_assistants.first()
+                if a and a.memory_context:
+                    document.memory_context = a.memory_context
+                    document.save(update_fields=["memory_context"])
+                    self.stdout.write(
+                        f"🔗 Assigned context {document.memory_context_id} to {document.slug}"
+                    )
             create_summary_from_doc(document)
 
             # ensure document chunks exist and are embedded

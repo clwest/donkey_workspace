@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
 import { toast } from "react-toastify";
+import { downloadFile } from "../../utils/downloadFile";
 import DocumentIntelligencePanel from "../../components/intel/DocumentIntelligencePanel";
 import DocumentAutoBuilder from "../../components/intel/DocumentAutoBuilder";
 import ChunkDebugPanel from "../../components/intel/ChunkDebugPanel";
@@ -203,6 +204,12 @@ export default function DocumentDetailPage() {
         </button>
         <button className="btn btn-outline-danger" onClick={runChunkSync}>
           Sync Chunk Counts
+        </button>
+        <button
+          className="btn btn-outline-primary"
+          onClick={() => downloadFile(doc.content || "", `${doc.slug}.md`, "text/markdown")}
+        >
+          ⬇️ Export Markdown
         </button>
       </div>
       <DocumentAutoBuilder docId={doc.id} />

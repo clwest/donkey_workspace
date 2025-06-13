@@ -179,6 +179,11 @@ export default function DocumentCard({ group, progress, onToggleFavorite, onDele
           >
             {embeddedChunks} / {chunkCount} {inProgress && "(In Progress)"}
           </span>
+          {chunkCount > 0 && (
+            <span className="ms-1">
+              {embeddedChunks === chunkCount ? "✅" : "❗"}
+            </span>
+          )}
           {inProgress && (
             <div className="progress mt-1" style={{ height: "4px" }}>
               <div
