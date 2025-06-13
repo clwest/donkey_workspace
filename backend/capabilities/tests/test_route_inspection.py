@@ -8,6 +8,7 @@ from assistants.tests import BaseAPITestCase
 
 class RouteInspectionTest(BaseAPITestCase):
     def test_full_route_map_metadata(self):
+        self.authenticate()
         resp = self.client.get("/api/dev/routes/fullmap/")
         self.assertEqual(resp.status_code, 200)
         data = resp.json().get("routes", [])
@@ -26,6 +27,7 @@ class RouteInspectionTest(BaseAPITestCase):
             assert p in paths
 
     def test_capability_status_structure(self):
+        self.authenticate()
         resp = self.client.get("/api/capabilities/status/")
         self.assertEqual(resp.status_code, 200)
         caps = resp.json().get("capabilities", [])
