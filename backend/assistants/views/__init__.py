@@ -17,6 +17,7 @@ from .assistants import (
     clarify_prompt,
     failure_log,
     assistant_summary,
+    assistant_overview,
     create_primary_assistant_view,
     start_nurture,
 )
@@ -391,6 +392,7 @@ __all__ = [
     "onboarding_status",
     "onboarding_complete",
     "assistant_summary",
+    "assistant_overview",
     "AssistantTrailRecapView",
     "create_primary_assistant_view",
     "upgrade_growth",

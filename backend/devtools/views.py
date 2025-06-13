@@ -13,9 +13,21 @@ import json
 from pathlib import Path
 from django.forms.models import model_to_dict
 from assistants.models.command_log import AssistantCommandLog
-from assistants.models import Assistant
+from django.core.management import get_commands
 from assistants.serializers import AssistantCommandLogSerializer
-from django.core.management import get_commands, load_command_class
+
+
+
+
+
+def _get_available_commands():
+    cmds = get_commands()
+    results = [
+        {"name": name, "app": app}
+        for name, app in cmds.items()
+        if any(app.startswith(t) for t in TARGET_APPS)
+    ]
+    return sorted(results, key=lambda c: c["name"])
 
 
 def _walk_patterns(patterns, prefix=""):
@@ -294,6 +306,13 @@ def command_log_list(request):
 
 @api_view(["GET"])
 @permission_classes([AdminOnly])
+def cli_command_list(request):
+    """Return available management commands from target apps."""
+    return Response({"results": _get_available_commands()})
+
+
+@api_view(["GET"])
+@permission_classes([AdminOnly])
 def assistant_rag_tests(request, slug):
     logs = AssistantCommandLog.objects.filter(
         assistant__slug=slug, command__startswith="run_rag_tests"
@@ -368,7 +387,6 @@ def embedding_debug(request):
 
     from assistants.models import AssistantReflectionLog, AssistantThoughtLog
     from embeddings.utils.link_repair import embedding_link_matches
-
 
     model_counts = list(
         EmbeddingMetadata.objects.values("model_used")
@@ -446,9 +464,7 @@ def embedding_debug(request):
     if assistant_obj:
         entries_qs = entries_qs.filter(assistant=assistant_obj)
     breakdown = list(
-
         entries_qs.values("assistant__id", "assistant__slug", "context_id")
-
         .annotate(count=Count("embeddings__id"))
         .order_by("-count")
     )
@@ -468,9 +484,7 @@ def embedding_debug(request):
     if assistant_obj:
         repair_qs = repair_qs.filter(assistant=assistant_obj)
     repairable_contexts = list(
-
         repair_qs.annotate(
-
             assistant_slug=F("assistant__slug"),
             status=F("embeddings__debug_tags__repair_status"),
         )
@@ -480,7 +494,6 @@ def embedding_debug(request):
     )
     if request.GET.get("include_rag") == "1":
         from assistants.utils.chunk_retriever import get_relevant_chunks
-
 
         assistants_qs = (
             Assistant.objects.filter(id=assistant_obj.id)
@@ -510,9 +523,7 @@ def embedding_debug(request):
             retrieval_checks.append(
                 {
                     "assistant": a.slug,
-
                     "documents": all_docs,
-
                     "retrieved": count,
                 }
             )
@@ -537,9 +548,7 @@ def embedding_debug(request):
             "retrieval_checks": retrieval_checks,
             "repairable_contexts": repairable_contexts,
             "duplicate_slugs": duplicate_slugs,
-
             "orphaned_embeddings": orphaned_embeddings,
-
         }
     )
 
