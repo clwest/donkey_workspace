@@ -1,7 +1,7 @@
 # mcp_core/management/commands/export_reflections.py
 
 from django.core.management.base import BaseCommand
-from mcp_core.models import ReflectionLog
+from assistants.models.reflection import AssistantReflectionLog
 import os
 import json
 from django.utils.text import slugify
@@ -20,7 +20,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         os.makedirs(EXPORT_DIR, exist_ok=True)
-        reflections = ReflectionLog.objects.all()
+        reflections = AssistantReflectionLog.objects.all()
         exported = 0
         export_json = options["json"] or not options["markdown"]
         export_md = options["markdown"] or not options["json"]
