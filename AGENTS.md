@@ -311,6 +311,7 @@ These agents monitor `SymbolicAgentInsightLog`, track fallback memory triggers, 
 | Zeno       | zeno       | DevOps    | Tooling/MCP          | Bootstraps tasks and agents                  |
 | ClarityBot | claritybot | Inspector | Glossary/Diff        | Tracks RAG, glossary drift, debug insight    |
 | Prompt Pal | prompt-pal | Demo      | Onboarding           | Assists with prompt creation + starter flows |
+| DevOS Architect | devos-architect | Planner | System Architect | Oversees infrastructure & tool alignment |
 
 ## Notes
 
