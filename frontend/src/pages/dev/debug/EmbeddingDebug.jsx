@@ -106,9 +106,7 @@ export default function EmbeddingDebug() {
               {auditRows.map((row) => (
                 <tr key={row.context_id}>
                   <td>
-                    <Link to={`/assistants/${row.assistant}/memory/${row.context_id}/`}>
-                      {row.assistant_name}
-                    </Link>
+                    <Link to={`/memories/${row.context_id}`}>{row.assistant_name}</Link>
                   </td>
                   <td>{row.context_id}</td>
                   <td>{row.count}</td>
