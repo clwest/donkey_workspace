@@ -1,6 +1,3 @@
-
-
-
 def fix_embedding_links(
     limit=None,
     *,
@@ -15,6 +12,7 @@ def fix_embedding_links(
     from prompts.models import Prompt
     from assistants.models import AssistantReflectionLog, AssistantThoughtLog
     from mcp_core.models import DevDoc
+
     """Scan embeddings and repair content links in place.
 
     Returns a dictionary with scanned, fixed and skipped counts.
@@ -107,3 +105,39 @@ def fix_embedding_links(
                 print(f"✅ No change needed for {emb.id} — expected {expected_cid}")
 
     return {"scanned": scanned, "fixed": fixed, "skipped": skipped}
+
+
+def repair_embedding_link(emb, *, dry_run: bool = False) -> bool:
+    """Repair content_type, object_id and content_id for a single embedding."""
+    from django.contrib.contenttypes.models import ContentType
+
+    obj = emb.content_object
+    if obj is None and emb.content_id and ":" in emb.content_id:
+        model, obj_id = emb.content_id.split(":", 1)
+        ct = ContentType.objects.filter(model=model.lower()).first()
+        if ct:
+            obj = ct.model_class().objects.filter(id=obj_id).first()
+            if obj:
+                emb.content_type = ct
+                emb.object_id = str(obj.id)
+
+    if not obj:
+        return False
+
+    expected_ct = ContentType.objects.get_for_model(obj.__class__)
+    expected_cid = f"{expected_ct.model}:{obj.id}"
+
+    changed = False
+    if emb.content_type != expected_ct:
+        emb.content_type = expected_ct
+        changed = True
+    if str(emb.object_id) != str(obj.id):
+        emb.object_id = str(obj.id)
+        changed = True
+    if emb.content_id != expected_cid:
+        emb.content_id = expected_cid
+        changed = True
+
+    if changed and not dry_run:
+        emb.save(update_fields=["content_type", "object_id", "content_id"])
+    return changed

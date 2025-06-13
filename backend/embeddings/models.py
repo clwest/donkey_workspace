@@ -149,7 +149,18 @@ class EmbeddingDebugTag(models.Model):
     embedding = models.ForeignKey(
         Embedding, on_delete=models.CASCADE, related_name="debug_tags"
     )
-    reason = models.CharField(max_length=100)
+    reason = models.TextField()
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ("pending", "pending"),
+            ("repaired", "repaired"),
+            ("ignored", "ignored"),
+        ],
+        default="pending",
+    )
+    repaired_at = models.DateTimeField(null=True, blank=True)
+    notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -157,4 +168,4 @@ class EmbeddingDebugTag(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self):  # pragma: no cover - simple helper
-        return f"{self.embedding_id} {self.reason}"
+        return f"{self.embedding_id} {self.reason} [{self.status}]"

@@ -3,7 +3,6 @@ from django.contrib.contenttypes.models import ContentType
 import json
 
 from embeddings.models import Embedding, EmbeddingDebugTag
-from django.utils import timezone
 from memory.models import MemoryEntry
 from intel_core.models import DocumentChunk
 from prompts.models import Prompt
@@ -58,8 +57,7 @@ class Command(BaseCommand):
                 )
                 EmbeddingDebugTag.objects.create(
                     embedding=emb,
-                    reason="orphaned-object",
-                    created_at=timezone.now(),
+                    reason="missing chunk" if ct == ct_chunk else "orphaned-object",
                 )
                 continue
 
@@ -88,6 +86,13 @@ class Command(BaseCommand):
                         "actual_cid": actual_cid,
                         "expected_cid": expected_cid,
                     }
+                )
+                reason = "wrong FK"
+                if ":" not in actual_cid:
+                    reason = "bad format"
+                EmbeddingDebugTag.objects.create(
+                    embedding=emb,
+                    reason=reason,
                 )
             else:
                 matched += 1

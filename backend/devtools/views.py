@@ -360,4 +360,50 @@ def embedding_audit(request):
         .values("embedding_id", "reason", "created_at")[:20]
     )
 
-    return Response({"results": list(stats.items()), "recent_orphans": recent})
+    pending = list(
+        EmbeddingDebugTag.objects.filter(status="pending")
+        .select_related("embedding")
+        .values(
+            "id",
+            "embedding_id",
+            "reason",
+            "status",
+            "repaired_at",
+            "created_at",
+            "embedding__content_id",
+        )[:100]
+    )
+
+    return Response(
+        {
+            "results": list(stats.items()),
+            "recent_orphans": recent,
+            "pending": pending,
+        }
+    )
+
+
+@api_view(["PATCH"])
+@permission_classes([AdminOnly])
+def embedding_audit_fix(request, tag_id):
+    """Attempt to repair a flagged embedding."""
+    from django.shortcuts import get_object_or_404
+    from django.utils import timezone
+    from embeddings.models import EmbeddingDebugTag
+    from embeddings.utils.link_repair import repair_embedding_link
+
+    action = request.data.get("action", "fix")
+    tag = get_object_or_404(EmbeddingDebugTag, id=tag_id)
+    if action == "ignore":
+        tag.status = "ignored"
+        tag.save(update_fields=["status"])
+        return Response({"status": "ignored"})
+
+    changed = repair_embedding_link(tag.embedding)
+    if changed:
+        tag.status = "repaired"
+        tag.repaired_at = timezone.now()
+    else:
+        tag.status = "ignored"
+    tag.save(update_fields=["status", "repaired_at"])
+    return Response({"status": tag.status})
