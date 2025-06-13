@@ -1225,6 +1225,7 @@ class AssistantReflectionInsightSerializer(serializers.ModelSerializer):
 
 class ReflectionGroupSerializer(serializers.ModelSerializer):
     reflection_count = serializers.SerializerMethodField()
+    tags = TagSerializer(many=True, read_only=True)
 
     class Meta:
         model = ReflectionGroup
@@ -1233,7 +1234,10 @@ class ReflectionGroupSerializer(serializers.ModelSerializer):
             "title",
             "reflection_count",
             "summary",
+            "summary_text",
             "summary_updated",
+            "document_count",
+            "tags",
         ]
 
     def get_reflection_count(self, obj):

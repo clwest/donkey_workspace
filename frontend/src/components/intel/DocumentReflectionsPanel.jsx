@@ -6,6 +6,8 @@ export default function DocumentReflectionsPanel({ docId }) {
   const [loading, setLoading] = useState(true);
   const [grouped, setGrouped] = useState(false);
   const [groupsByAssistant, setGroupsByAssistant] = useState({});
+  const [assignMode, setAssignMode] = useState(false);
+  const [groupFilter, setGroupFilter] = useState("");
 
   useEffect(() => {
     async function fetchLogs() {
@@ -13,7 +15,8 @@ export default function DocumentReflectionsPanel({ docId }) {
         const url = grouped
           ? `/intel/documents/${docId}/reflections/?group=true`
           : `/intel/documents/${docId}/reflections/`;
-        const data = await apiFetch(url);
+        const params = groupFilter ? { group_slug: groupFilter } : undefined;
+        const data = await apiFetch(url, { params });
         setLogs(grouped ? data.groups || [] : data.reflections || []);
         if (!grouped) {
           const slugs = Array.from(
@@ -39,7 +42,7 @@ export default function DocumentReflectionsPanel({ docId }) {
       }
     }
     fetchLogs();
-  }, [docId, grouped]);
+  }, [docId, grouped, groupFilter]);
 
   const triggerRefresh = async (slug) => {
     try {
@@ -109,6 +112,34 @@ export default function DocumentReflectionsPanel({ docId }) {
         >
           Reflect Summary
         </button>
+        {!grouped && (
+          <div className="form-check form-switch ms-3">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id="assignToggle"
+              checked={assignMode}
+              onChange={() => setAssignMode(!assignMode)}
+            />
+            <label className="form-check-label" htmlFor="assignToggle">
+              Add to Reflection Group
+            </label>
+          </div>
+        )}
+        {grouped && (
+          <select
+            className="form-select form-select-sm ms-3"
+            value={groupFilter}
+            onChange={(e) => setGroupFilter(e.target.value)}
+          >
+            <option value="">All Groups</option>
+            {logs.map((g) => (
+              <option key={g.slug} value={g.slug}>
+                {g.slug}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
       <ul className="list-group mb-3">
         {grouped
@@ -151,22 +182,23 @@ export default function DocumentReflectionsPanel({ docId }) {
                     <div className="small text-success">
                       Part of Group: {r.group_slug}
                     </div>
-                  ) : groupsByAssistant[r.assistant_slug] ? (
-                    <select
-                      className="form-select form-select-sm"
-                      onChange={(e) => assignGroup(r.id, e.target.value)}
-                      defaultValue=""
-                    >
-                      <option value="" disabled>
-                        Assign to Group
-                      </option>
-                      {groupsByAssistant[r.assistant_slug].map((g) => (
-                        <option key={g.slug} value={g.slug}>
-                          {g.title || g.slug}
+                  ) :
+                    assignMode && groupsByAssistant[r.assistant_slug] ? (
+                      <select
+                        className="form-select form-select-sm"
+                        onChange={(e) => assignGroup(r.id, e.target.value)}
+                        defaultValue=""
+                      >
+                        <option value="" disabled>
+                          Assign to Group
                         </option>
-                      ))}
-                    </select>
-                  ) : null}
+                        {groupsByAssistant[r.assistant_slug].map((g) => (
+                          <option key={g.slug} value={g.slug}>
+                            {g.title || g.slug}
+                          </option>
+                        ))}
+                      </select>
+                    ) : null}
                 </div>
                 <button
                   className="btn btn-sm btn-outline-secondary"

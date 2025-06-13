@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.conf import settings
 
 
 class AssistantReflectionLog(models.Model):
@@ -131,15 +132,32 @@ class ReflectionGroup(models.Model):
         on_delete=models.CASCADE,
         related_name="reflection_groups",
     )
+    linked_assistant = models.ForeignKey(
+        "assistants.Assistant",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="linked_reflection_groups",
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="created_reflection_groups",
+    )
     slug = models.SlugField(unique=True, max_length=120)
     title = models.CharField(max_length=255, blank=True)
     documents = models.ManyToManyField(
         "intel_core.Document", blank=True, related_name="reflection_groups"
     )
+    document_count = models.PositiveIntegerField(default=0)
     reflections = models.ManyToManyField(
         AssistantReflectionLog, blank=True, related_name="groups"
     )
     summary = models.TextField(blank=True, default="")
+    summary_text = models.TextField(blank=True, default="")
+    tags = models.ManyToManyField("mcp_core.Tag", blank=True)
     summary_updated = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

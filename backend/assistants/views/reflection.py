@@ -143,10 +143,20 @@ def recent_reflection_logs(request, slug):
     return Response(data)
 
 
-@api_view(["GET"])
+@api_view(["GET", "POST"])
 @permission_classes([AllowAny])
 def reflection_group_list(request, slug):
     assistant = get_object_or_404(Assistant, slug=slug)
+    if request.method == "POST":
+        slug_val = request.data.get("slug")
+        title = request.data.get("title", slug_val)
+        if not slug_val:
+            return Response({"error": "slug required"}, status=400)
+        group, _ = ReflectionGroup.objects.get_or_create(
+            assistant=assistant, slug=slug_val, defaults={"title": title}
+        )
+        return Response({"slug": group.slug, "title": group.title})
+
     groups = ReflectionGroup.objects.filter(assistant=assistant)
     from assistants.serializers import ReflectionGroupSerializer
 
@@ -178,14 +188,16 @@ def assign_reflection_group(request, id):
         reflection.save(update_fields=["group_slug"])
         return Response({"group": None})
 
-    group = ReflectionGroup.objects.filter(
-        assistant=reflection.assistant, slug=slug
-    ).first()
-    if not group:
-        return Response({"error": "group not found"}, status=404)
+    group, _ = ReflectionGroup.objects.get_or_create(
+        assistant=reflection.assistant,
+        slug=slug,
+        defaults={"title": slug},
+    )
     reflection.group_slug = slug
     reflection.save(update_fields=["group_slug"])
     group.reflections.add(reflection)
     if reflection.document:
         group.documents.add(reflection.document)
+        group.document_count = group.documents.count()
+    group.save(update_fields=["document_count"])
     return Response({"group": slug})

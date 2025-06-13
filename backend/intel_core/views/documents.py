@@ -146,6 +146,9 @@ def document_reflections(request, pk):
     reflections = AssistantReflectionLog.objects.filter(document=document).order_by(
         "-created_at"
     )
+    group_slug = request.query_params.get("group_slug")
+    if group_slug:
+        reflections = reflections.filter(group_slug=group_slug)
 
     if request.query_params.get("group") == "true":
         groups = {}
