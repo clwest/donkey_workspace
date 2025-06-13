@@ -2,6 +2,10 @@ import json
 from django.core.management.base import BaseCommand
 from assistants.utils.resolve import resolve_assistant
 from assistants.utils.chunk_retriever import get_rag_chunk_debug
+from assistants.models.diagnostics import AssistantDiagnosticReport
+from memory.models import RAGGroundingLog
+from intel_core.models import DocumentChunk
+from django.utils import timezone
 
 
 class Command(BaseCommand):
@@ -20,10 +24,12 @@ class Command(BaseCommand):
             default="rag_tests.json",
             help="Path to rag_tests.json",
         )
+        parser.add_argument("--save", action="store_true")
 
     def handle(self, *args, **options):
         slug = options["assistant"]
         file_path = options["file"]
+        save_flag = options.get("save")
         assistant = resolve_assistant(slug)
         if not assistant:
             msg = self.style.ERROR(f"Assistant '{slug}' not found")
@@ -71,3 +77,20 @@ class Command(BaseCommand):
                 passed += 1
         total = len(tests)
         self.stdout.write(self.style.SUCCESS(f"{passed}/{total} tests passed"))
+
+        logs = RAGGroundingLog.objects.filter(assistant=assistant)
+        total_logs = logs.count() or 1
+        fallback_rate = logs.filter(fallback_triggered=True).count() / total_logs
+        glossary_rate = logs.filter(glossary_hits__len__gt=0).count() / total_logs
+        chunk_total = DocumentChunk.objects.filter(document__memory_context=assistant.memory_context).count()
+
+        if save_flag:
+            AssistantDiagnosticReport.objects.create(
+                assistant=assistant,
+                slug=f"{assistant.slug}-{timezone.now().strftime('%Y%m%d%H%M%S')}",
+                fallback_rate=fallback_rate,
+                glossary_success_rate=glossary_rate,
+                avg_chunk_score=0.0,
+                rag_logs_count=total_logs,
+                summary_markdown=f"Pass rate: {passed}/{total}",
+            )

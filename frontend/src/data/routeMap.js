@@ -590,6 +590,13 @@ export const routeMap = [
     notes: "Assistant RAG diagnostic reports",
   },
   {
+    frontend: "/assistants/<slug>/diagnostic_report/",
+    backend: "/api/assistants/<slug>/diagnostic_report/",
+    view: "AssistantDiagnosticReportPage",
+    serializer: "-",
+    notes: "Single assistant diagnostic detail",
+  },
+  {
     frontend: "/plan/graph",
     backend: "/api/plan/graph/",
     view: "PlanningGraphPage",

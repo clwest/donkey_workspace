@@ -9,6 +9,7 @@ export default function AssistantDashboardCard({ assistant }) {
   const [profile, setProfile] = useState(null);
   const [bootStatus, setBootStatus] = useState(null);
   const [diagnostic, setDiagnostic] = useState(null);
+  const [docStats, setDocStats] = useState(null);
 
   async function load() {
     if (profile && bootStatus && diagnostic) return;
@@ -27,6 +28,18 @@ export default function AssistantDashboardCard({ assistant }) {
     try {
       const diag = await fetchDiagnosticReport(assistant.slug);
       setDiagnostic(diag);
+    } catch (err) {
+      console.error(err);
+    }
+    try {
+      const docs = await apiFetch(`/assistants/${assistant.slug}/memory-documents/`);
+      let total = 0;
+      let embedded = 0;
+      docs.forEach((d) => {
+        total += d.total_chunks;
+        embedded += d.embedded_chunks;
+      });
+      setDocStats({ total, embedded });
     } catch (err) {
       console.error(err);
     }
@@ -54,6 +67,8 @@ export default function AssistantDashboardCard({ assistant }) {
       : profile?.trust_level === "needs_attention"
       ? "border-danger"
       : "border-warning";
+  const ragOk = diagnostic && diagnostic.fallback_rate < 0.2;
+
   return (
     <div onMouseEnter={load} className={`p-1 rounded shadow-sm ${profile ? borderColor : ""}`}>
       <AssistantCard assistant={assistant} to={`/assistants/${assistant.slug}`} />
@@ -78,9 +93,20 @@ export default function AssistantDashboardCard({ assistant }) {
           )}
           {diagnostic && (
             <span className="ms-2">
-              🔍 {Math.round(diagnostic.glossary_success_rate * 100)}% glossary • {diagnostic.avg_chunk_score.toFixed(2)} avg • {Math.round(diagnostic.fallback_rate * 100)}% fallback
+              {ragOk ? "✅" : "⚠️"} {Math.round(diagnostic.glossary_success_rate * 100)}% glossary • {Math.round(diagnostic.fallback_rate * 100)}% fallback
+              <a
+                href={`/assistants/${assistant.slug}/diagnostic_report/`}
+                className="ms-1 text-decoration-underline"
+              >
+                View Diagnostic
+              </a>
             </span>
           )}
+        </div>
+      )}
+      {docStats && docStats.embedded === 0 && (
+        <div className="alert alert-warning mt-2">
+          ⚠️ No embedded chunks. <a href={`/assistants/${assistant.slug}/rag_debug/`}>Recheck Documents</a>
         </div>
       )}
     </div>

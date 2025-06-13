@@ -5,6 +5,8 @@ from assistants.models.reflection import AssistantReflectionLog
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from mcp_core.utils.devdoc_tools import link_document_to_devdoc, create_summary_from_doc
 from devtools.models import DevLog
+from intel_core.utils.processing import _create_document_chunks
+from embeddings.tasks import embed_and_store
 
 
 class Command(BaseCommand):
@@ -50,6 +52,13 @@ class Command(BaseCommand):
                         )
                     )
             create_summary_from_doc(document)
+
+            # ensure document chunks exist and are embedded
+            _create_document_chunks(document)
+            for ch in document.chunks.filter(embedding__isnull=True):
+                ch.embedding_status = "pending"
+                ch.save(update_fields=["embedding_status"])
+                embed_and_store.delay(str(ch.id))
 
             if not AssistantReflectionLog.objects.filter(document=document).exists():
                 if reflect_missing:
