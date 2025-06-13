@@ -186,14 +186,14 @@ class EmbeddingDriftLog(models.Model):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name="drift_logs",
+        related_name="embedding_drift_logs",
     )
     context = models.ForeignKey(
         "mcp_core.MemoryContext",
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name="drift_logs",
+        related_name="embedding_drift_logs",
     )
     mismatched_count = models.PositiveIntegerField()
     orphaned_count = models.PositiveIntegerField()
