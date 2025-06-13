@@ -20,18 +20,19 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         os.makedirs(EXPORT_DIR, exist_ok=True)
-        reflections = AssistantReflectionLog.objects.all()
+        reflections = AssistantReflectionLog.objects.all().prefetch_related("tags")
         exported = 0
         export_json = options["json"] or not options["markdown"]
         export_md = options["markdown"] or not options["json"]
 
         for reflection in reflections:
             filename_slug = slugify(reflection.title or f"reflection-{reflection.id}")
+            tag_slugs = list(reflection.tags.values_list("slug", flat=True))
             export_data = {
-                "id": reflection.id,
+                "id": str(reflection.id),
                 "title": reflection.title,
                 "created_at": reflection.created_at.isoformat(),
-                "tags": reflection.tags,
+                "tags": tag_slugs,
                 "mood": reflection.mood,
                 # `AssistantReflectionLog` stores the raw text in `raw_prompt`.
                 # Older code referenced `raw_summary`, so export both keys for
@@ -53,8 +54,8 @@ class Command(BaseCommand):
                     f.write(
                         f"**Created At:** {reflection.created_at.strftime('%Y-%m-%d %H:%M')}\n\n"
                     )
-                    if reflection.tags:
-                        f.write(f"**Tags:** {', '.join(reflection.tags)}\n\n")
+                    if tag_slugs:
+                        f.write(f"**Tags:** {', '.join(tag_slugs)}\n\n")
                     if reflection.mood:
                         f.write(f"**Mood:** {reflection.mood}\n\n")
                     f.write("## Raw Prompt\n")
