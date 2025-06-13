@@ -780,6 +780,11 @@ urlpatterns = [
         name="assistant-rag-diagnostics",
     ),
     path(
+        "<slug:slug>/diagnostic_report/",
+        diagnostics.get_assistant_diagnostic_report,
+        name="assistant-diagnostic-report",
+    ),
+    path(
         "<slug:slug>/first_question_stats/",
         assistants.first_question_stats,
         name="assistant-first-question-stats",

@@ -2,15 +2,16 @@ import { useState } from "react";
 import PropTypes from "prop-types";
 import AssistantCard from "./AssistantCard";
 import apiFetch from "@/utils/apiClient";
-import { fetchBootStatus } from "@/api/assistants";
+import { fetchBootStatus, fetchDiagnosticReport } from "@/api/assistants";
 import TrustBadge from "./TrustBadge";
 
 export default function AssistantDashboardCard({ assistant }) {
   const [profile, setProfile] = useState(null);
   const [bootStatus, setBootStatus] = useState(null);
+  const [diagnostic, setDiagnostic] = useState(null);
 
   async function load() {
-    if (profile && bootStatus) return;
+    if (profile && bootStatus && diagnostic) return;
     try {
       const data = await apiFetch(`/assistants/${assistant.slug}/trust_profile/`);
       setProfile(data);
@@ -20,6 +21,12 @@ export default function AssistantDashboardCard({ assistant }) {
     try {
       const status = await fetchBootStatus(assistant.slug);
       setBootStatus(status);
+    } catch (err) {
+      console.error(err);
+    }
+    try {
+      const diag = await fetchDiagnosticReport(assistant.slug);
+      setDiagnostic(diag);
     } catch (err) {
       console.error(err);
     }
@@ -68,6 +75,11 @@ export default function AssistantDashboardCard({ assistant }) {
                 📄
               </a>
             </>
+          )}
+          {diagnostic && (
+            <span className="ms-2">
+              🔍 {Math.round(diagnostic.glossary_success_rate * 100)}% glossary • {diagnostic.avg_chunk_score.toFixed(2)} avg • {Math.round(diagnostic.fallback_rate * 100)}% fallback
+            </span>
           )}
         </div>
       )}

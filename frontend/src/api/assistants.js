@@ -502,6 +502,10 @@ export async function fetchRagDiagnosticsSummary(slug) {
   return res;
 }
 
+export async function fetchDiagnosticReport(slug) {
+  return apiFetch(`/assistants/${slug}/diagnostic_report/`);
+}
+
 export async function fetchDriftSuggestions(slug, params) {
   const res = await apiFetch(`/assistants/${slug}/drift_suggestions/`, {
     params,

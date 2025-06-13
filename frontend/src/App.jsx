@@ -283,6 +283,7 @@ import RitualForkReplayPage from "./pages/ritual/RitualForkReplayPage";
 import MythOSProjectComposerPage from "./pages/project/MythOSProjectComposerPage";
 import PromptDebuggerPage from "./pages/debug/PromptDebuggerPage";
 import RagRecallDebugPage from "./pages/debug/RagRecallDebugPage";
+import RAGDiagnosticsDashboard from "./pages/debug/RAGDiagnosticsDashboard";
 import RagFailureTable from "./pages/debug/RagFailureTable";
 import ChunkStatsDashboard from "./pages/debug/ChunkStatsDashboard";
 import SwarmTaskEvolutionPage from "./pages/evolve/SwarmTaskEvolutionPage";
@@ -921,6 +922,7 @@ export default function App() {
           <Route path="/debug/prompts" element={<PromptDebuggerPage />} />
           <Route path="/debug/rag-recall" element={<RagRecallDebugPage />} />
           <Route path="/debug/rag-failures" element={<RagFailureTable />} />
+          <Route path="/debug/rag" element={<RAGDiagnosticsDashboard />} />
           <Route path="/debug/chunk-stats" element={<ChunkStatsDashboard />} />
           <Route path="/planning" element={<PlanningPage />} />
           <Route path="/plan/graph" element={<PlanningGraphPage />} />

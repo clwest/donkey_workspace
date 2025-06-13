@@ -4,6 +4,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from assistants.models import Assistant
+from assistants.models.diagnostics import AssistantDiagnosticReport
 from assistants.models.reflection import AssistantReflectionLog
 from memory.models import SymbolicMemoryAnchor, MemoryEntry
 from mcp_core.models import MemoryContext
@@ -190,7 +191,6 @@ def assistant_drift_summary(request, slug):
         .first()
     )
 
-
     contexts = {}
     snapshots = []
     for log in logs_qs:
@@ -289,3 +289,27 @@ def subagent_reflect(request, slug, event_id):
     from .delegations import subagent_reflect as _reflect
 
     return _reflect(request, slug, event_id)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def get_assistant_diagnostic_report(request, slug):
+    """Return the most recent AssistantDiagnosticReport as JSON."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    report = (
+        AssistantDiagnosticReport.objects.filter(assistant=assistant)
+        .order_by("-generated_at")
+        .first()
+    )
+    if not report:
+        return Response({}, status=404)
+    return Response(
+        {
+            "slug": report.slug,
+            "generated_at": report.generated_at.isoformat(),
+            "fallback_rate": report.fallback_rate,
+            "glossary_success_rate": report.glossary_success_rate,
+            "avg_chunk_score": report.avg_chunk_score,
+            "rag_logs_count": report.rag_logs_count,
+        }
+    )
