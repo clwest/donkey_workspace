@@ -10,6 +10,11 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--doc", required=True, help="Document id or slug")
+        parser.add_argument(
+            "--assistant",
+            required=False,
+            help="Assistant slug or id to scope the reflection",
+        )
 
     def handle(self, *args, **options):
         identifier = options["doc"]
@@ -23,7 +28,23 @@ class Command(BaseCommand):
                 self.stderr.write(self.style.ERROR(f"Document '{identifier}' not found"))
                 return
 
-        assistant = AssistantReflectionEngine.get_reflection_assistant()
+        assistant_id = options.get("assistant")
+        if assistant_id:
+            try:
+                from assistants.models import Assistant
+
+                assistant = Assistant.objects.get(id=assistant_id)
+            except Assistant.DoesNotExist:
+                assistant = Assistant.objects.filter(slug=assistant_id).first()
+                if not assistant:
+                    self.stderr.write(
+                        self.style.ERROR(
+                            f"Assistant '{assistant_id}' not found, using default"
+                        )
+                    )
+                    assistant = AssistantReflectionEngine.get_reflection_assistant()
+        else:
+            assistant = AssistantReflectionEngine.get_reflection_assistant()
         engine = AssistantReflectionEngine(assistant)
 
         summary, _insights, _prompt = engine.reflect_on_document(document)

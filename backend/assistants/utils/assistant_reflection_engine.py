@@ -546,6 +546,28 @@ class AssistantReflectionEngine:
                     self.assistant.system_prompt = prompt_obj
                     self.assistant.save(update_fields=["system_prompt"])
 
+        # Save reflection log and memory entry
+        log = AssistantReflectionLog.objects.create(
+            assistant=self.assistant,
+            project=self.project,
+            document=target_document,
+            title=f"Reflection on {target_document.title}",
+            summary=summary or "",
+            raw_prompt=prompt_text or "",
+        )
+
+        mem = MemoryEntry.objects.create(
+            event=summary or "",
+            assistant=self.assistant,
+            source_role="assistant",
+            is_conversation=False,
+            context=self.assistant.memory_context,
+            document=target_document,
+        )
+
+        log.linked_memory = mem
+        log.save(update_fields=["linked_memory"])
+
         target_document.last_reflected_at = timezone.now()
         target_document.save(update_fields=["last_reflected_at"])
 

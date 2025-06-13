@@ -687,4 +687,11 @@ export const routeMap = [
     serializer: "AssistantReflectionInsightSerializer",
     notes: "Assistant ingest review flow",
   },
+  {
+    frontend: "/intel/documents/:id/reflections",
+    backend: "/api/intel/documents/<uuid:id>/reflections/",
+    view: "document_reflections",
+    serializer: "DocumentReflectionSerializer",
+    notes: "List reflections for a document",
+  },
 ];

@@ -8,6 +8,8 @@ from intel_core.models import (
     DocumentChunk,
     EmbeddingMetadata,
 )
+from assistants.models.reflection import AssistantReflectionLog
+from assistants.serializers import TagSerializer
 from prompts.utils.token_helpers import count_tokens
 
 
@@ -272,3 +274,13 @@ class EmbeddingMetadataSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmbeddingMetadata
         fields = "__all__"
+
+
+class DocumentReflectionSerializer(serializers.ModelSerializer):
+    assistant = serializers.StringRelatedField()
+    assistant_slug = serializers.SlugField(source="assistant.slug", read_only=True)
+    tags = TagSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = AssistantReflectionLog
+        fields = ["id", "assistant", "assistant_slug", "created_at", "summary", "tags"]

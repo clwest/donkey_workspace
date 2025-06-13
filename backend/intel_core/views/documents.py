@@ -16,10 +16,15 @@ from intel_core.models import (
     DocumentSet,
     JobStatus,
 )
-from intel_core.serializers import DocumentSerializer, DocumentSetSerializer
+from intel_core.serializers import (
+    DocumentSerializer,
+    DocumentSetSerializer,
+    DocumentReflectionSerializer,
+)
 from intel_core.tasks import create_document_set_task
 from prompts.utils.token_helpers import count_tokens, smart_chunk_prompt
 from assistants.models.assistant import Assistant
+from assistants.models.reflection import AssistantReflectionLog
 
 
 @api_view(["GET"])
@@ -127,6 +132,23 @@ def document_detail_view(request, pk):
     }
 
     return Response(data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def document_reflections(request, pk):
+    """Return reflections linked to the document."""
+    try:
+        document = Document.objects.get(pk=pk)
+    except Document.DoesNotExist:
+        return Response({"error": "Document not found"}, status=404)
+
+    reflections = (
+        AssistantReflectionLog.objects.filter(document=document)
+        .order_by("-created_at")
+    )
+    serializer = DocumentReflectionSerializer(reflections, many=True)
+    return Response({"reflections": serializer.data})
 
 
 @api_view(["POST"])

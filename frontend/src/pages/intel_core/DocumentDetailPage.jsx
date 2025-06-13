@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import DocumentIntelligencePanel from "../../components/intel/DocumentIntelligencePanel";
 import DocumentAutoBuilder from "../../components/intel/DocumentAutoBuilder";
 import ChunkDebugPanel from "../../components/intel/ChunkDebugPanel";
+import DocumentReflectionsPanel from "../../components/intel/DocumentReflectionsPanel";
 import "./styles/DocumentDetailPage.css";
 
 export default function DocumentDetailPage() {
@@ -205,6 +206,7 @@ export default function DocumentDetailPage() {
       </div>
       <DocumentAutoBuilder docId={doc.id} />
       <ChunkDebugPanel docId={doc.id} key={debugKey} />
+      <DocumentReflectionsPanel docId={doc.id} />
       <div className="my-3 d-flex gap-3">
         <DocumentIntelligencePanel docId={doc.id} />
         {assistants.length > 0 && (

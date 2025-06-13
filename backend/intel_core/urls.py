@@ -38,6 +38,11 @@ urlpatterns = [
         name="document_progress",
     ),
     path(
+        "documents/<uuid:pk>/reflections/",
+        documents.document_reflections,
+        name="document_reflections",
+    ),
+    path(
         "document-sets/",
         documents.create_document_set,
         name="create_document_set",
