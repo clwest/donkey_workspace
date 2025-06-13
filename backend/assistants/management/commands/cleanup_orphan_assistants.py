@@ -4,7 +4,7 @@ from assistants.models import Assistant
 from assistants.models.thoughts import AssistantThoughtLog
 from assistants.models.reflection import AssistantReflectionLog
 from assistants.models.assistant import ChatSession
-from assistants.models.project import AssistantProject
+
 from memory.models import MemoryEntry
 from assistants.utils.assistant_lookup import resolve_assistant
 
@@ -28,7 +28,7 @@ class Command(BaseCommand):
         for a in Assistant.objects.all():
             if (
                 a.documents.exists()
-                or a.assistantproject_set.exists()
+                or a.projects.exists()
                 or MemoryEntry.objects.filter(assistant=a).exists()
                 or ChatSession.objects.filter(assistant=a).exists()
                 or AssistantThoughtLog.objects.filter(assistant=a).exists()
@@ -48,7 +48,7 @@ class Command(BaseCommand):
                     ChatSession.objects.filter(assistant=a).update(assistant=target)
                     a.documents.clear()
                     a.assigned_documents.clear()
-                    a.assistantproject_set.update(assistant=target)
+                    a.projects.update(assistant=target)
                 if options["delete"]:
                     a.delete()
                     self.stdout.write(self.style.SUCCESS(f"Deleted {a.slug}"))
