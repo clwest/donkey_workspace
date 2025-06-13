@@ -256,6 +256,11 @@ export default function Navbar({ onToggleSidebar }) {
               </Link>
             </li>
             <li className="nav-item">
+              <Link className="nav-link" to="/tools/index">
+                🗂 Tool Index
+              </Link>
+            </li>
+            <li className="nav-item">
               <Link className="nav-link" to="/dev/route-health">
                 🛣 Route Health
               </Link>
@@ -304,7 +309,7 @@ export default function Navbar({ onToggleSidebar }) {
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/debug/cli-runner">
+              <Link className="nav-link" to="/dev/cli">
                 🖥 CLI Runner
               </Link>
             </li>

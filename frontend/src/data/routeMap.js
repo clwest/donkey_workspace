@@ -597,11 +597,25 @@ export const routeMap = [
     notes: "Assistant RAG diagnostic reports",
   },
   {
-    frontend: "/debug/cli-runner",
+    frontend: "/dev/cli",
     backend: "/api/dev/cli/run/",
-    view: "CLIRunner",
+    view: "CLIRunnerPage",
     serializer: "-",
     notes: "Run management commands",
+  },
+  {
+    frontend: "/cli/logs/:id/",
+    backend: "/api/dev/command-logs/<id>/",
+    view: "CLILogViewer",
+    serializer: "-",
+    notes: "View CLI command log",
+  },
+  {
+    frontend: "/tools/index",
+    backend: "/api/tools/index/",
+    view: "ToolIndexPanel",
+    serializer: "-",
+    notes: "Toolchain overview",
   },
   {
     frontend: "/assistants/<slug>/diagnostic_report/",

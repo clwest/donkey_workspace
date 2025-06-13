@@ -1,9 +1,11 @@
 import warnings
+
 warnings.warn("Deprecated; use /api/v1/... endpoints", DeprecationWarning)
 from django.urls import path
 from . import views
 
 urlpatterns = [
+    path("index/", views.tool_index, name="tool-index"),
     path("", views.tool_list, name="tool-list"),
     path("<int:pk>/", views.tool_detail, name="tool-detail"),
     path("<int:pk>/execute/", views.execute_tool_view, name="tool-execute"),
