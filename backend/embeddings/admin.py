@@ -87,5 +87,11 @@ class ChunkAdmin(admin.ModelAdmin):
 
 @admin.register(EmbeddingDebugTag)
 class EmbeddingDebugTagAdmin(admin.ModelAdmin):
-    list_display = ("embedding_id", "reason", "status", "repaired_at", "created_at")
+    list_display = (
+        "embedding_id",
+        "reason",
+        "repair_status",
+        "repaired_at",
+        "created_at",
+    )
     search_fields = ("embedding_id", "reason", "notes")
