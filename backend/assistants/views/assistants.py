@@ -30,6 +30,7 @@ from django.core.management import call_command
 from pathlib import Path
 from assistants.services import AssistantService
 from memory.services import MemoryService
+from memory.serializers import MemoryEntrySlimSerializer
 from django.db.models import F
 from memory.models import MemoryEntry, RAGGroundingLog
 from insights.models import AssistantInsightLog
@@ -2616,6 +2617,84 @@ def assistant_trust_profile(request, slug):
         "badge_labels": assistant.skill_badges or [],
     }
     return Response(data)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def assistant_overview(request, slug):
+    """Batch overview data for the assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+
+    from assistants.serializers import AssistantOverviewSerializer
+    from assistants.models.diagnostics import AssistantDiagnosticReport
+    from assistants.models.tooling import AssistantToolAssignment
+    from assistants.models import AssistantHintState
+    from assistants.hint_config import HINTS
+
+    summary = AssistantOverviewSerializer(assistant).data
+
+    report = (
+        AssistantDiagnosticReport.objects.filter(assistant=assistant)
+        .order_by("-generated_at")
+        .first()
+    )
+    diagnostics = None
+    if report:
+        diagnostics = {
+            "slug": report.slug,
+            "generated_at": report.generated_at.isoformat(),
+            "fallback_rate": report.fallback_rate,
+            "glossary_success_rate": report.glossary_success_rate,
+            "avg_chunk_score": report.avg_chunk_score,
+            "rag_logs_count": report.rag_logs_count,
+            "certified_rag_ready": assistant.certified_rag_ready,
+            "rag_certification_date": assistant.rag_certification_date.isoformat()
+            if assistant.rag_certification_date
+            else None,
+        }
+
+    assignments = AssistantToolAssignment.objects.filter(assistant=assistant)
+    tools = [
+        {
+            "tool": a.tool.name,
+            "slug": a.tool.slug,
+            "reason": a.reason,
+            "score": a.confidence_score,
+            "reflection": a.reflection_log.summary if a.reflection_log else None,
+        }
+        for a in assignments
+    ]
+
+    states = AssistantHintState.objects.filter(user=request.user, assistant=assistant)
+    state_map = {s.hint_id: s for s in states}
+    hints = []
+    for h in HINTS:
+        s = state_map.get(h["id"])
+        hints.append(
+            {
+                "id": h["id"],
+                "label": h.get("label", ""),
+                "content": h.get("content", ""),
+                "dismissed": getattr(s, "dismissed", False),
+                "seen_at": s.seen_at.isoformat() if s else None,
+            }
+        )
+
+    memories = (
+        MemoryService.filter_entries(assistant=assistant)
+        .order_by("-created_at")[:5]
+    )
+    memory_data = MemoryEntrySlimSerializer(memories, many=True).data
+
+    return Response(
+        {
+            "summary": summary,
+            "diagnostics": diagnostics,
+            "tools": tools,
+            "hints": hints,
+            "memories": memory_data,
+        }
+    )
 
 
 @api_view(["POST"])

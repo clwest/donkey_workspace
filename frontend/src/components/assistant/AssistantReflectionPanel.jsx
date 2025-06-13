@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import PropTypes from "prop-types";
 import apiFetch from "../../utils/apiClient";
 
@@ -6,10 +6,14 @@ export default function AssistantReflectionPanel({ slug }) {
   const [groups, setGroups] = useState([]);
   const [expanded, setExpanded] = useState({});
   const [loading, setLoading] = useState(true);
+  const [paused, setPaused] = useState(false);
+  const lastRef = useRef(0);
 
   useEffect(() => {
     if (!slug) return;
     async function load() {
+      if (Date.now() - lastRef.current < 1000) return;
+      lastRef.current = Date.now();
       setLoading(true);
       try {
         const data = await apiFetch(`/assistants/${slug}/recent-reflections/`);
@@ -21,6 +25,9 @@ export default function AssistantReflectionPanel({ slug }) {
         });
         setGroups(Object.entries(grouped).map(([k, items]) => ({ slug: k, items })));
       } catch (err) {
+        if (err.status === 429) {
+          setPaused(true);
+        }
         console.error("Failed to load reflections", err);
       } finally {
         setLoading(false);
@@ -35,6 +42,9 @@ export default function AssistantReflectionPanel({ slug }) {
   return (
     <div className="mt-3">
       <h5 className="mb-2">Recent Reflections</h5>
+      {paused && (
+        <div className="alert alert-warning">Paused due to rate limit</div>
+      )}
       <ul className="list-group">
         {groups.slice(0, 5).map((g) => (
           <li key={g.slug} className="list-group-item">

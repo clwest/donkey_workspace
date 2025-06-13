@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { fetchToolConfidence, recommendToolChanges } from "../../api/assistants";
 import apiFetch from "../../utils/apiClient";
@@ -8,13 +8,20 @@ export default function ToolConfidenceDashboard() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [recommend, setRecommend] = useState(null);
+  const [paused, setPaused] = useState(false);
+  const lastRef = useRef(0);
 
   const load = async () => {
+    if (Date.now() - lastRef.current < 1000) return;
+    lastRef.current = Date.now();
     setLoading(true);
     try {
       const data = await fetchToolConfidence(slug);
       setRows(data.results || []);
     } catch (err) {
+      if (err.status === 429) {
+        setPaused(true);
+      }
       console.error("Failed to load", err);
       setRows([]);
     } finally {
@@ -38,6 +45,9 @@ export default function ToolConfidenceDashboard() {
   return (
     <div className="container my-5">
       <h2 className="mb-3">Tool Confidence Dashboard</h2>
+      {paused && (
+        <div className="alert alert-warning">Paused due to rate limit</div>
+      )}
       <button className="btn btn-outline-secondary mb-2" onClick={load} disabled={loading}>
         {loading ? "Refreshing..." : "Refresh"}
       </button>

@@ -490,3 +490,24 @@ def run_rag_ci_checks(slug: str) -> str:
         )
         return "error"
     return "ok"
+
+@shared_task(rate_limit="4/m")
+def reflect_on_document_task(doc_id, assistant_slug=None):
+    from django.core.management import call_command
+    args = ["--doc", str(doc_id)]
+    if assistant_slug:
+        args += ["--assistant", assistant_slug]
+    call_command("reflect_on_document", *args)
+
+@shared_task(rate_limit="2/m")
+def generate_diagnostic_report_task(markdown_only=False):
+    from django.core.management import call_command
+    if markdown_only:
+        call_command("generate_diagnostic_reports", "--markdown-only")
+    else:
+        call_command("generate_diagnostic_reports")
+
+@shared_task(rate_limit="1/h")
+def bootstrap_evo_assistants_task():
+    from django.core.management import call_command
+    call_command("bootstrap_evo_assistants")

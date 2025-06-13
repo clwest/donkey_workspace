@@ -361,6 +361,9 @@ export async function fetchAssistantDashboard(slug) {
   return res;
 }
 
+export const fetchAssistantOverview = (slug) =>
+  apiFetch(`/assistants/${slug}/overview/`);
+
 export async function retryBirthReflection(slug) {
   return apiFetch(`/assistants/${slug}/reflection/retry/`, { method: "POST" });
 }

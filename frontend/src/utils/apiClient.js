@@ -170,6 +170,13 @@ export default async function apiFetch(url, options = {}) {
     throw err;
   }
 
+  if (res.status === 429) {
+    toast.warn("Paused due to rate limit");
+    const err = new Error("Rate limited");
+    err.status = 429;
+    throw err;
+  }
+
   if (!res.ok) {
     let errorMsg = `API Error ${res.status}`;
     try {
