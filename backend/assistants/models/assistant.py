@@ -265,6 +265,10 @@ class Assistant(TrustProfileMixin, models.Model):
         related_name="growth_summaries",
     )
     last_rag_certified_at = models.DateTimeField(null=True, blank=True)
+    rag_certified = models.BooleanField(
+        default=False,
+        help_text="True when the assistant has passed RAG recall certification",
+    )
 
     last_reflection_attempted_at = models.DateTimeField(null=True, blank=True)
     last_reflection_successful = models.BooleanField(default=False)

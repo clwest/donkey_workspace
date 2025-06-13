@@ -386,3 +386,18 @@ def async_repair_progress(document_id):
     from intel_core.utils.document_progress import repair_progress
 
     repair_progress(document_id=document_id)
+
+
+@shared_task(name="backfill_document_chunks")
+def backfill_document_chunks():
+    """Ensure all documents have chunk records and embeddings."""
+    from intel_core.utils.processing import _create_document_chunks
+
+    processed = 0
+    for doc in Document.objects.all():
+        if not doc.chunks.exists() and doc.summary:
+            _create_document_chunks(doc)
+            doc.sync_progress()
+            processed += 1
+    logger.info("[Chunk Backfill] processed %d documents", processed)
+    return processed
