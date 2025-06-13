@@ -780,6 +780,11 @@ urlpatterns = [
         name="assistant-drift-fixes",
     ),
     path(
+        "<slug:slug>/drift-summary/",
+        diagnostics.assistant_drift_summary,
+        name="assistant-drift-summary",
+    ),
+    path(
         "<slug:slug>/anchor_health/",
         assistants.anchor_health,
         name="assistant-anchor-health",

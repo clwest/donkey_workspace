@@ -36,7 +36,15 @@ class Command(BaseCommand):
             if not ct or ct.id not in allowed:
                 continue
             model = ct.model
-            entry = stats.setdefault(model, {"mismatched": 0, "orphans": 0})
+            if ct == ct_memory:
+                mem = MemoryEntry.objects.filter(id=emb.object_id).first()
+                if not mem:
+                    continue
+                key = (mem.assistant_id, mem.context_id)
+            else:
+                key = (None, None)
+
+            entry = stats.setdefault(key, {"model": model, "mismatched": 0, "orphans": 0})
             if obj is None:
                 entry["orphans"] += 1
                 continue
@@ -52,12 +60,14 @@ class Command(BaseCommand):
 
         repaired_count = EmbeddingDebugTag.objects.filter(repair_status="repaired").count()
         now = timezone.now()
-        for model_name, row in stats.items():
+        for (assistant_id, context_id), row in stats.items():
             EmbeddingDriftLog.objects.create(
                 timestamp=now,
-                model_name=model_name,
+                model_name=row["model"],
+                assistant_id=assistant_id,
+                context_id=context_id,
                 mismatched_count=row["mismatched"],
                 orphaned_count=row["orphans"],
                 repaired_count=repaired_count,
             )
-        self.stdout.write(f"Logged drift for {len(stats)} models")
+        self.stdout.write(f"Logged drift for {len(stats)} contexts")

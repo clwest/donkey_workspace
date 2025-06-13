@@ -181,9 +181,26 @@ class EmbeddingDriftLog(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     timestamp = models.DateTimeField(auto_now_add=True)
     model_name = models.CharField(max_length=100)
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="drift_logs",
+    )
+    context = models.ForeignKey(
+        "mcp_core.MemoryContext",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="drift_logs",
+    )
     mismatched_count = models.PositiveIntegerField()
     orphaned_count = models.PositiveIntegerField()
     repaired_count = models.PositiveIntegerField()
+    repair_attempted_at = models.DateTimeField(null=True, blank=True)
+    repair_success_count = models.PositiveIntegerField(default=0)
+    repair_failure_count = models.PositiveIntegerField(default=0)
 
     class Meta:
         app_label = "embeddings"

@@ -157,3 +157,29 @@ def repair_embedding_link(emb, *, dry_run: bool = False) -> bool:
     if changed and not dry_run:
         emb.save(update_fields=["content_type", "object_id", "content_id"])
     return changed
+
+
+def repair_context_embeddings(context_id, *, dry_run: bool = False, verbose: bool = False):
+    """Repair embeddings linked to a specific MemoryContext."""
+    from django.contrib.contenttypes.models import ContentType
+    from embeddings.models import Embedding
+    from memory.models import MemoryEntry
+
+    mem_ct = ContentType.objects.get_for_model(MemoryEntry)
+    emb_ids = Embedding.objects.filter(
+        content_type=mem_ct,
+        object_id__in=MemoryEntry.objects.filter(context_id=context_id).values("id"),
+    ).values_list("id", flat=True)
+
+    result = {"scanned": 0, "fixed": 0, "skipped": 0}
+    for emb in Embedding.objects.filter(id__in=emb_ids).select_related("content_type"):
+        result["scanned"] += 1
+        changed = repair_embedding_link(emb, dry_run=dry_run)
+        if changed:
+            result["fixed"] += 1
+        else:
+            result["skipped"] += 1
+        if verbose:
+            print(f"Checked {emb.id}: {'fixed' if changed else 'unchanged'}")
+
+    return result
