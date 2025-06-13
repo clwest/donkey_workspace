@@ -232,7 +232,7 @@ def embedding_debug(request):
     """Return summary stats about embeddings."""
     from intel_core.models import EmbeddingMetadata
     from embeddings.models import Embedding
-    from django.db.models import Count
+    from django.db.models import Count, F
     from django.contrib.contenttypes.models import ContentType
     from memory.models import MemoryEntry
     from intel_core.models import DocumentChunk
@@ -376,13 +376,17 @@ def embedding_audit(request):
     )
 
     context_audit = list(
-        MemoryEntry.objects.filter(embeddings__debug_tags__status="pending")
-        .values(
-            "assistant__slug",
-            "assistant__name",
-            "context_id",
+        EmbeddingDebugTag.objects.select_related(
+            "embedding__content_type"
         )
-        .annotate(count=Count("embeddings__debug_tags"))
+        .filter(embedding__content_object__context_id__isnull=False)
+        .values(
+            assistant=F("embedding__content_object__assistant__slug"),
+            assistant_name=F("embedding__content_object__assistant__name"),
+            context_id=F("embedding__content_object__context_id"),
+            status=F("status"),
+        )
+        .annotate(count=Count("id"))
         .order_by("-count")
     )
 
@@ -420,3 +424,42 @@ def embedding_audit_fix(request, tag_id):
         tag.status = "ignored"
     tag.save(update_fields=["status", "repaired_at"])
     return Response({"status": tag.status})
+
+
+@api_view(["PATCH"])
+@permission_classes([IsAdminUser])
+def repair_context_embeddings(request, context_id):
+    """Repair all flagged embeddings for a memory context."""
+    from django.utils import timezone
+    from embeddings.models import EmbeddingDebugTag
+    from embeddings.utils.link_repair import repair_embedding_link
+
+    tags = list(
+        EmbeddingDebugTag.objects.filter(
+            embedding__content_object__context_id=context_id,
+            status="pending",
+        ).select_related("embedding")
+    )
+    for tag in tags:
+        repair_embedding_link(tag.embedding)
+        tag.status = "repaired"
+        tag.repaired_at = timezone.now()
+        tag.notes = "Patched via UI repair action"
+        tag.save(update_fields=["status", "repaired_at", "notes"])
+
+    return Response({"status": "repaired", "count": len(tags)})
+
+
+@api_view(["PATCH"])
+@permission_classes([IsAdminUser])
+def ignore_context_embeddings(request, context_id):
+    """Mark all pending mismatches for this context as ignored."""
+    from embeddings.models import EmbeddingDebugTag
+
+    updated = (
+        EmbeddingDebugTag.objects.filter(
+            embedding__content_object__context_id=context_id,
+            status="pending",
+        ).update(status="ignored", notes="Manually ignored from UI")
+    )
+    return Response({"status": "ignored", "count": updated})

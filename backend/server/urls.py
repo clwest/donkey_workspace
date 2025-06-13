@@ -33,6 +33,8 @@ from devtools.views import (
     embedding_debug,
     embedding_audit,
     embedding_audit_fix,
+    repair_context_embeddings,
+    ignore_context_embeddings,
     reset_onboarding,
 )
 from story.views import storyboard_list
@@ -127,6 +129,14 @@ urlpatterns = [
     path("api/dev/embedding-debug/", embedding_debug),
     path("api/dev/embedding-audit/", embedding_audit),
     path("api/dev/embedding-audit/<uuid:tag_id>/fix/", embedding_audit_fix),
+    path(
+        "api/dev/embedding-audit/<uuid:context_id>/repair/",
+        repair_context_embeddings,
+    ),
+    path(
+        "api/dev/embedding-audit/<uuid:context_id>/ignore/",
+        ignore_context_embeddings,
+    ),
     path("api/debug/assistant_routing/", assistant_routing_debug),
     path("api/debug/reset_onboarding/", reset_onboarding),
     path("api/capabilities/", include(capability_urls)),
