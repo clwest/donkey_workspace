@@ -169,6 +169,34 @@ def rag_self_test(request, slug):
     return Response(result)
 
 
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def assistant_drift_summary(request, slug):
+    """Return latest embedding drift summary for the assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    from embeddings.models import EmbeddingDriftLog
+
+    logs = (
+        EmbeddingDriftLog.objects.filter(assistant=assistant)
+        .order_by("context_id", "-timestamp")
+    )
+    summary = {}
+    for log in logs:
+        cid = str(log.context_id) if log.context_id else None
+        if cid not in summary:
+            total = log.mismatched_count + log.orphaned_count + log.repaired_count
+            summary[cid] = {
+                "context_id": cid,
+                "total_embeddings": total,
+                "mismatched": log.mismatched_count,
+                "repaired": log.repair_success_count,
+                "failed": log.repair_failure_count,
+                "last_attempt": log.repair_attempted_at,
+            }
+
+    return Response({"results": list(summary.values())})
+
+
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def run_all_self_tests(request):

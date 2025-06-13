@@ -512,6 +512,15 @@ export async function fetchDriftFixes(slug, params) {
   return res.results || res;
 }
 
+export async function fetchDriftSummary(slug) {
+  const res = await apiFetch(`/assistants/${slug}/drift-summary/`);
+  return res.results || res;
+}
+
+export async function retryContextRepair(contextId) {
+  return apiFetch(`/embedding/repair/context/${contextId}/`, { method: "POST" });
+}
+
 export async function resetDemoAssistant(slug) {
   return apiFetch(`/assistants/${slug}/reset_demo/`, {
     method: "POST",
