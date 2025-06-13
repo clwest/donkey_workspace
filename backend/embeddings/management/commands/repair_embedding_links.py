@@ -11,7 +11,7 @@ class Command(BaseCommand):
         parser.add_argument("--limit", type=int, default=None)
         parser.add_argument("--dry-run", action="store_true")
         parser.add_argument("--include-memory", action="store_true")
-        parser.add_argument("-v", "--verbose", action="store_true")
+        parser.add_argument("--verbose", action="store_true")
 
     def handle(self, *args, **options):
         limit = options.get("limit")
