@@ -52,17 +52,16 @@ python manage.py repair_all_embeddings
 
 # --- Recently Added ----
 
-backend/assistants/management/commands/generate_diagnostic_reports.py | 17 +++++++-----
-backend/assistants/management/commands/run_rag_tests.py | 65 +++++++++++++++++++++++++++++++++++++++----
-backend/assistants/management/commands/sync_missing_diagnostics.py | 36 ++++++++++++++++++++++++
-backend/memory/management/commands/track_anchor_drift.py | 82 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
-backend/memory/management/commands/validate_anchors.py | 67 +++++++++++++++++++++++++++++++++++++++++++++
-backend/memory/models.py
+generate_diagnostic_reports.py
+run_rag_tests.py
+sync_missing_diagnostics.py
+track_anchor_drift.py
+validate_anchors.py
 
-backend/assistants/management/commands/sync_missing_diagnostics.py
-backend/memory/management/commands/track_anchor_drift.py
-backend/memory/management/commands/validate_anchors.py
-backend/intel_core/management/commands/group_documents_by_topic.py
+sync_missing_diagnostics.py
+track_anchor_drift.py
+validate_anchors.py
+group_documents_by_topic.py
 
 💡 Helpful Commands You Can Run Anytime
 
