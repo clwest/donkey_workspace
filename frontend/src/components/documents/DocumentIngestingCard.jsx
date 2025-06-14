@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import DocumentStatusCard from "./DocumentStatusCard";
+import UploadErrorToast from "./UploadErrorToast";
 import apiFetch from "../../utils/apiClient";
 import { Modal, Button, Spinner, Tooltip, OverlayTrigger, Badge } from "react-bootstrap";
 import { Line } from "react-chartjs-2";
@@ -210,6 +211,7 @@ export default function DocumentIngestingCard({ doc, highlightConflicts }) {
 
   return (
     <>
+      <UploadErrorToast status={localDoc} />
       <div
         className={`card mb-3 shadow-sm p-3 ${
           highlightConflicts && failedCount > 0 ? "border-danger" : ""

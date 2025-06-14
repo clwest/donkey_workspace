@@ -43,6 +43,16 @@ urlpatterns = [
         documents.upload_status,
         name="upload_status",
     ),
+    path(
+        "documents/<uuid:pk>/retry/",
+        documents.retry_document_upload,
+        name="retry_document_upload",
+    ),
+    path(
+        "documents/<uuid:pk>/force-embed/",
+        documents.force_embed_document,
+        name="force_embed_document",
+    ),
 
     path(
         "documents/<uuid:pk>/reflections/",

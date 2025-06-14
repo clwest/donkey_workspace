@@ -5,6 +5,7 @@ import { Badge } from "react-bootstrap";
 import DocumentStatusCard from "../documents/DocumentStatusCard";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import apiFetch from "../../utils/apiFetch";
 import { Star, StarFill } from "react-bootstrap-icons";
 
 dayjs.extend(relativeTime);
@@ -79,6 +80,17 @@ export default function DocumentCard({ group, progress, onToggleFavorite, onDele
     chunkCount > 0 &&
     mergedDoc.progress_status &&
     mergedDoc.progress_status !== "completed";
+
+  const handleRetry = async (e) => {
+    e.preventDefault();
+    if (!window.confirm("Retry upload?")) return;
+    await apiFetch(`/intel/documents/${id}/retry/`, { method: "POST" });
+  };
+
+  const handleForceEmbed = async (e) => {
+    e.preventDefault();
+    await apiFetch(`/intel/documents/${id}/force-embed/`, { method: "POST" });
+  };
 
   const updatedAt = mergedDoc.updated_at ?? group.updated_at ?? created_at;
 
@@ -205,6 +217,16 @@ export default function DocumentCard({ group, progress, onToggleFavorite, onDele
         <span className="me-2">
           <DocumentStatusCard doc={mergedDoc} />
         </span>
+        {mergedDoc.status === "failed" && (
+          <button className="btn btn-sm btn-outline-danger ms-1" onClick={handleRetry}>
+            Retry
+          </button>
+        )}
+        {chunkCount > 0 && embeddedChunks === 0 && (
+          <button className="btn btn-sm btn-outline-warning ms-1" onClick={handleForceEmbed}>
+            Force Embed
+          </button>
+        )}
         {tokenCount > 0 && embeddedChunks === 0 && (
           <div className="text-warning">
             ⚠️ Document has content but no embedded memory. Retry embedding?

@@ -5,11 +5,12 @@ export default function DocumentStatusCard({ doc }) {
 
   const chunkCount = doc.chunk_count ?? doc.num_chunks ?? 0;
   const embedded = doc.num_embedded ?? doc.embedded_chunks ?? 0;
-  const progressStatus = doc.progress_status || doc.embedding_status?.status;
+  const progressStatus = doc.status || doc.progress_status || doc.embedding_status?.status;
 
   const failed = progressStatus === "failed" || progressStatus === "error";
+  const partial = progressStatus === "partial";
   const completed = progressStatus === "completed";
-  const inProgress = !completed && !failed;
+  const inProgress = !completed && !failed && !partial;
 
   let color = "secondary";
   let label = "";
@@ -18,8 +19,8 @@ export default function DocumentStatusCard({ doc }) {
 
   if (failed) {
     color = "danger";
-    icon = "⚠️";
-    label = progressStatus === "error" ? "Error" : "Failed";
+    icon = "❌";
+    label = "Failed";
     const reasons = [];
     if (doc.progress_error) reasons.push(doc.progress_error);
     if (Array.isArray(doc.failed_chunks) && doc.failed_chunks.length > 0) {
@@ -28,6 +29,11 @@ export default function DocumentStatusCard({ doc }) {
       reasons.push("No failed chunks");
     }
     tip = reasons.join("; ") || "Upload failed";
+  } else if (partial) {
+    color = "warning";
+    icon = "⚠️";
+    label = "Partial";
+    tip = doc.progress_error || "Partial embedding";
   } else if (completed) {
     color = "success";
     icon = "✅";

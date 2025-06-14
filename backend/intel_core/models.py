@@ -71,11 +71,14 @@ class Document(models.Model):
 
     status = models.CharField(
         max_length=20,
-        default="pending",
+        default="queued",
         choices=[
-            ("pending", "Pending"),
+            ("queued", "Queued"),
+            ("processing", "Processing"),
             ("completed", "Completed"),
             ("failed", "Failed"),
+            ("partial", "Partial"),
+            ("stale", "Stale"),
         ],
     )
     created_at = models.DateTimeField(auto_now_add=True)
@@ -131,6 +134,8 @@ class Document(models.Model):
         self.metadata = meta
         self.progress_error = None
         self.save(update_fields=["metadata", "progress_error"])
+        from intel_core.utils import update_document_status
+        update_document_status(self)
         return progress
 
 
