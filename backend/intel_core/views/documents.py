@@ -1,6 +1,7 @@
 from rest_framework.decorators import api_view, permission_classes
 from django.core.cache import cache
 from django.contrib.auth import get_user_model
+from django.db import connection
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import AllowAny
@@ -426,7 +427,7 @@ def retry_document_upload(request, pk):
     _create_document_chunks(doc)
     doc.status = "processing"
     doc.save(update_fields=["status"])
-    if request.user.is_authenticated:
+    if request.user.is_authenticated and DocumentUploadLog._meta.db_table in connection.introspection.table_names():
         DocumentUploadLog.objects.create(
             document=doc, user=request.user, action="retry"
         )
@@ -457,7 +458,7 @@ def force_embed_document(request, pk):
 
     doc.status = "processing"
     doc.save(update_fields=["status"])
-    if request.user.is_authenticated:
+    if request.user.is_authenticated and DocumentUploadLog._meta.db_table in connection.introspection.table_names():
         DocumentUploadLog.objects.create(
             document=doc, user=request.user, action="force_embed"
         )

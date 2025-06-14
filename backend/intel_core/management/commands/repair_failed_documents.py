@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+from django.db import connection
 from intel_core.models import Document, DocumentChunk, DocumentUploadLog
 from intel_core.utils import delete_failed_chunks
 from intel_core.utils.processing import _create_document_chunks
@@ -38,6 +39,7 @@ class Command(BaseCommand):
                     embed_and_store.delay(str(chunk.id))
             doc.status = "processing"
             doc.save(update_fields=["status"])
-            DocumentUploadLog.objects.create(document=doc, action="retry")
+            if DocumentUploadLog._meta.db_table in connection.introspection.table_names():
+                DocumentUploadLog.objects.create(document=doc, action="retry")
         self.stdout.write(self.style.SUCCESS("Repair complete"))
 
