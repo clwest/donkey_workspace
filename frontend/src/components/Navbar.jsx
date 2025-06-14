@@ -209,6 +209,11 @@ export default function Navbar({ onToggleSidebar }) {
                   </Link>
                 </li>
                 <li>
+                  <Link className="dropdown-item" to="/anchor/diagnostics">
+                    🧩 Anchor Diagnostics
+                  </Link>
+                </li>
+                <li>
                   <Link className="dropdown-item" to="/keeper/logs">
                     📜 Keeper Logs
                   </Link>

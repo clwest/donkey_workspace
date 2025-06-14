@@ -10,13 +10,16 @@ export default function AnchorHealthDashboard() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState("all");
+  const [orphans, setOrphans] = useState(0);
 
   const load = async () => {
     setLoading(true);
     try {
       const query = filter === "all" ? "" : `?status=${filter}`;
       const data = await apiFetch(`/assistants/${slug}/anchor_health/${query}`);
-      setRows(data.results || []);
+      const list = data.results || [];
+      setRows(list);
+      setOrphans(list.filter((r) => r.chunk_count === 0).length);
     } catch (err) {
       console.error("Failed to load anchor health", err);
       setRows([]);
@@ -37,7 +40,10 @@ export default function AnchorHealthDashboard() {
 
   return (
     <div className="container my-5">
-      <h2 className="mb-3">Anchor Health Dashboard</h2>
+      <h2 className="mb-3">
+        Anchor Health Dashboard{' '}
+        <span className="badge bg-danger">{orphans} Orphaned</span>
+      </h2>
       <div className="d-flex gap-2 mb-2">
         <button
           className={`btn btn-sm ${filter === "all" ? "btn-primary" : "btn-outline-primary"}`}

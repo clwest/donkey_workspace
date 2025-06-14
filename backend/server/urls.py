@@ -309,6 +309,11 @@ urlpatterns = [
         name="anchor-training",
     ),
     path(
+        "api/anchor/diagnostics/",
+        memory_views.anchor_diagnostics,
+        name="anchor-diagnostics",
+    ),
+    path(
         "api/terms/glossary_overlay/",
         memory_views.glossary_overlay,
         name="glossary-overlay",
