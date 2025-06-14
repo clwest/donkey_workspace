@@ -16,7 +16,7 @@ export default function DocumentIngestionForm({ onSuccess, onQueued }) {
   const [loading, setLoading] = useState(false);
   const [reflectAfter, setReflectAfter] = useState(false);
   const [pendingDocs, setPendingDocs] = useState([]);
-
+  const [rateLimited, setRateLimited] = useState(false);
   const [uploadStatus, setUploadStatus] = useState({});
 
   const navigate = useNavigate();
@@ -55,6 +55,13 @@ export default function DocumentIngestionForm({ onSuccess, onQueued }) {
       setSelectedSlug(userInfo.primary_assistant_slug);
     }
   }, [userInfo]);
+
+  useEffect(() => {
+  if (rateLimited) {
+    const timeout = setTimeout(() => setRateLimited(false), 5000);
+      return () => clearTimeout(timeout);
+    }
+  }, [rateLimited]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
