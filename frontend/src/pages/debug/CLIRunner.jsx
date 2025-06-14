@@ -10,8 +10,13 @@ export default function CLIRunner() {
 
   useEffect(() => {
     apiFetch("/dev/cli/list/").then((res) => {
-      setCommands(res.results || []);
-      if (res.results?.length) setCommand(res.results[0].name);
+      const groups = res.results || {};
+      const flat = [];
+      Object.entries(groups).forEach(([app, cmds]) => {
+        cmds.forEach((c) => flat.push({ ...c, app }));
+      });
+      setCommands(flat);
+      if (flat.length) setCommand(flat[0].name);
     });
   }, []);
 

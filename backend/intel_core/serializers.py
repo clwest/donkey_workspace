@@ -29,6 +29,8 @@ class DocumentSerializer(serializers.ModelSerializer):
     system_prompt_id = serializers.SerializerMethodField()
     reflection_prompt_id = serializers.SerializerMethodField()
     reflection_prompt_title = serializers.SerializerMethodField()
+    upload_status = serializers.CharField(read_only=True)
+    upload_error = serializers.CharField(read_only=True)
     user = serializers.StringRelatedField(read_only=True)
     memory_context = serializers.UUIDField(source="memory_context_id", read_only=True)
 
@@ -56,6 +58,8 @@ class DocumentSerializer(serializers.ModelSerializer):
             "glossary_ids",
             "progress_status",
             "progress_error",
+            "upload_status",
+            "upload_error",
             "failed_chunks",
             "chunk_index",
             "system_prompt_id",

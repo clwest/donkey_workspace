@@ -12,7 +12,7 @@ from .models import (
 
 @admin.register(Document)
 class DocumentAdmin(admin.ModelAdmin):
-    list_display = ("title", "source", "created_at")
+    list_display = ("title", "source", "upload_status", "created_at")
     search_fields = ("title", "content", "source_url")
     list_filter = ("source", "created_at")
 
