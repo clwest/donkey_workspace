@@ -939,7 +939,12 @@ def update_symbolic_anchor(request, pk):
     anchor = get_object_or_404(SymbolicMemoryAnchor, id=pk)
     serializer = SymbolicMemoryAnchorSerializer(anchor, data=request.data, partial=True)
     if serializer.is_valid():
+        orig_label = anchor.label
         anchor = serializer.save()
+        if 'label' in serializer.validated_data and serializer.validated_data['label'] != orig_label:
+            anchor.mutated_from = orig_label
+            anchor.mutated_reason = 'manual_edit'
+            anchor.save(update_fields=['mutated_from', 'mutated_reason'])
         return Response(SymbolicMemoryAnchorSerializer(anchor).data)
     return Response(serializer.errors, status=400)
 
@@ -957,7 +962,15 @@ def glossary_anchor_detail(request, slug):
     serializer = SymbolicMemoryAnchorSerializer(anchor, data=request.data, partial=True)
     if serializer.is_valid():
         old_slug = anchor.slug
+        orig_label = anchor.label
         anchor = serializer.save()
+        if (
+            'label' in serializer.validated_data
+            and serializer.validated_data['label'] != orig_label
+        ):
+            anchor.mutated_from = orig_label
+            anchor.mutated_reason = 'manual_edit'
+            anchor.save(update_fields=['mutated_from', 'mutated_reason'])
         if old_slug != anchor.slug and request.GET.get("auto_retag") == "true":
             from intel_core.models import DocumentChunk
 
@@ -1230,7 +1243,17 @@ def accept_glossary_mutation(request, id):
     anchor.label = anchor.suggested_label
     anchor.suggested_label = None
     anchor.mutation_status = "applied"
-    anchor.save(update_fields=["label", "suggested_label", "mutation_status"])
+    anchor.mutated_from = old_label
+    anchor.mutated_reason = "auto_generated"
+    anchor.save(
+        update_fields=[
+            "label",
+            "suggested_label",
+            "mutation_status",
+            "mutated_from",
+            "mutated_reason",
+        ]
+    )
     if anchor.assistant_id:
         from memory.services.mutation_memory import generate_mutation_memory_entry
 
@@ -1262,7 +1285,8 @@ def reject_glossary_mutation(request, id):
     """Mark a glossary mutation as rejected."""
     anchor = get_object_or_404(SymbolicMemoryAnchor, id=id)
     anchor.mutation_status = "rejected"
-    anchor.save(update_fields=["mutation_status"])
+    anchor.mutated_reason = "rejected"
+    anchor.save(update_fields=["mutation_status", "mutated_reason"])
     try:
         from memory.services.convergence import recalculate_anchor_convergence
 

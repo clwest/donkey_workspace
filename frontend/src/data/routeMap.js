@@ -508,9 +508,9 @@ export const routeMap = [
   {
     frontend: "/anchor/symbolic",
     backend: "/api/memory/symbolic-anchors/",
-    view: "SymbolicAnchorAdminPage",
+    view: "SymbolicAnchorReviewPage",
     serializer: "SymbolicMemoryAnchorSerializer",
-    notes: "Symbolic anchor admin",
+    notes: "Symbolic anchor review",
   },
   {
     frontend: "/anchor/symbolic/:slug",

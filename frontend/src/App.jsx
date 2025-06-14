@@ -273,6 +273,7 @@ import FaultInjectorPage from "./pages/fault/FaultInjectorPage";
 import DreamRebirthPage from "./pages/agents/DreamRebirthPage";
 import ContinuityAnchorPage from "./pages/anchor/ContinuityAnchorPage";
 import SymbolicAnchorAdminPage from "./pages/anchor/SymbolicAnchorAdminPage";
+import SymbolicAnchorReviewPage from "./pages/anchor/SymbolicAnchorReviewPage";
 import SymbolicAnchorDetailPage from "./pages/anchor/SymbolicAnchorDetailPage";
 import GlossaryMutationReviewPanel from "./pages/anchor/GlossaryMutationReviewPanel";
 import AnchorDiagnosticsPage from "./pages/anchor/AnchorDiagnosticsPage";
@@ -1088,7 +1089,7 @@ export default function App() {
           />
           <Route
             path="/anchor/symbolic"
-            element={<SymbolicAnchorAdminPage />}
+            element={<SymbolicAnchorReviewPage />}
           />
           <Route
             path="/anchor/symbolic/:slug"

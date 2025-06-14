@@ -126,6 +126,9 @@ export const renameGlossaryAnchor = (slug, name, autoRetag = true) =>
 export const deleteGlossaryAnchor = (slug) =>
   apiFetch(`/glossary/anchor/${slug}/`, { method: "DELETE" });
 
+export const updateSymbolicAnchor = (id, body) =>
+  apiFetch(`/memory/symbolic-anchors/${id}/`, { method: "PATCH", body });
+
 export const boostGlossaryAnchor = (slug, boost) =>
   apiFetch(`/glossary/boost_anchor/`, {
     method: "POST",
