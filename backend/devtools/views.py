@@ -215,11 +215,11 @@ def template_diff(request, slug):
     return Response({"path": str(path), "diff": diff_text, "tracked": tracked})
 
 
-from api.permissions import AdminOnly
+from api.permissions import IsAuthenticated
 
 
 @api_view(["GET"])
-@permission_classes([AdminOnly])
+@permission_classes([IsAuthenticated])
 def export_assistants(request):
     """Return a JSON dump of all assistants."""
     from assistants.models.assistant import Assistant
@@ -229,7 +229,7 @@ def export_assistants(request):
 
 
 @api_view(["GET"])
-@permission_classes([AdminOnly])
+@permission_classes([IsAuthenticated])
 def export_routes(request):
     """Return a JSON dump of all URL routes with view info."""
     routes = get_full_route_map()
@@ -237,7 +237,7 @@ def export_routes(request):
 
 
 @api_view(["GET"])
-@permission_classes([AdminOnly])
+@permission_classes([IsAuthenticated])
 def export_templates(request):
     """Return template health info as raw JSON."""
     result = subprocess.run(
@@ -253,7 +253,7 @@ def export_templates(request):
 
 
 @api_view(["GET"])
-@permission_classes([AdminOnly])
+@permission_classes([IsAuthenticated])
 def rag_debug_logs(request):
     """Return recent RAG diagnostic logs."""
     from memory.models import RAGDiagnosticLog
@@ -269,7 +269,7 @@ def rag_debug_logs(request):
 
 
 @api_view(["GET"])
-@permission_classes([AdminOnly])
+@permission_classes([IsAuthenticated])
 def cli_command_list(request):
     """Return available management commands"""
     commands = list_cli_commands()
@@ -277,7 +277,7 @@ def cli_command_list(request):
 
 
 @api_view(["POST"])
-@permission_classes([AdminOnly])
+@permission_classes([IsAuthenticated])
 def run_cli_command(request):
     """Execute a management command asynchronously."""
     command = request.data.get("command")
@@ -308,7 +308,7 @@ def run_cli_command(request):
 
 
 @api_view(["GET"])
-@permission_classes([AdminOnly])
+@permission_classes([IsAuthenticated])
 def command_log_detail(request, log_id):
     log = get_object_or_404(AssistantCommandLog, id=log_id)
     data = AssistantCommandLogSerializer(log).data
@@ -316,7 +316,7 @@ def command_log_detail(request, log_id):
 
 
 @api_view(["GET"])
-@permission_classes([AdminOnly])
+@permission_classes([IsAuthenticated])
 def command_log_list(request):
     assistant = request.GET.get("assistant")
     logs = AssistantCommandLog.objects.all()
@@ -328,14 +328,14 @@ def command_log_list(request):
 
 
 @api_view(["GET"])
-@permission_classes([AdminOnly])
+@permission_classes([IsAuthenticated])
 def cli_command_summary(request):
     """Return basic list of commands grouped by app."""
     return Response({"results": _get_available_commands()})
 
 
 @api_view(["GET"])
-@permission_classes([AdminOnly])
+@permission_classes([IsAuthenticated])
 def assistant_rag_tests(request, slug):
     logs = AssistantCommandLog.objects.filter(
         assistant__slug=slug, command__startswith="run_rag_tests"
@@ -381,7 +381,7 @@ def assistant_routing_debug(request):
 
 
 @api_view(["POST"])
-@permission_classes([AdminOnly])
+@permission_classes([IsAuthenticated])
 def reset_onboarding(request):
     """Reset onboarding flags for the given user or current user."""
     user_id = request.data.get("user_id") or request.user.id
@@ -672,7 +672,7 @@ def embedding_audit(request):
 
 
 @api_view(["PATCH"])
-@permission_classes([AdminOnly])
+@permission_classes([IsAuthenticated])
 def embedding_audit_fix(request, tag_id):
     """Attempt to repair a flagged embedding."""
     from django.shortcuts import get_object_or_404
@@ -792,7 +792,7 @@ def ignore_context_embeddings(request, context_id):
 
 
 @api_view(["POST"])
-@permission_classes([AdminOnly])
+@permission_classes([IsAuthenticated])
 def repair_low_score_embeddings(request):
     """Reembed chunks with very low quality scores."""
     from intel_core.models import DocumentChunk
