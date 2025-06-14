@@ -1,10 +1,12 @@
 from django.core.management.base import BaseCommand
 from django.db.models import Avg, Count
 from assistants.models import Assistant
-from intel_core.models import DocumentChunk, GlossaryFallbackReflectionLog
+from django.utils.text import slugify
+from intel_core.models import DocumentChunk
 from memory.models import SymbolicMemoryAnchor, RAGGroundingLog
 from mcp_core.models import Tag
 from embeddings.helpers.helper_tagging import generate_tags_for_memory
+
 
 class Command(BaseCommand):
     """Validate glossary anchors and report potential issues."""
@@ -38,12 +40,14 @@ class Command(BaseCommand):
                 self.stdout.write(f"⚠️ {a.slug} never matched in queries")
             avg_score = logs.aggregate(avg=Avg("adjusted_score"))["avg"] or 0.0
             if avg_score < score_th:
-                self.stdout.write(
-                    f"❗ {a.slug} low avg score {avg_score:.2f}"
-                )
+                self.stdout.write(f"❗ {a.slug} low avg score {avg_score:.2f}")
                 tags = generate_tags_for_memory(a.label)
                 for t in tags:
-                    tag, _ = Tag.objects.get_or_create(slug=t, defaults={"name": t})
+                    slug = slugify(t)
+                    tag, _ = Tag.objects.get_or_create(
+                        slug=slug,
+                        defaults={"name": t},
+                    )
                     a.tags.add(tag)
         dups = (
             SymbolicMemoryAnchor.objects.values("slug")
@@ -51,9 +55,8 @@ class Command(BaseCommand):
             .filter(c__gt=1)
         )
         for d in dups:
-            self.stdout.write(
-                f"⚠️ Overlap: anchor '{d['slug']}' appears {d['c']} times"
-            )
+            msg = f"⚠️ Overlap: anchor '{d['slug']}' appears {d['c']} times"
+            self.stdout.write(msg)
         for assistant in Assistant.objects.all():
             logs = RAGGroundingLog.objects.filter(assistant=assistant)
             if not logs.exists():
