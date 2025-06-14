@@ -34,11 +34,15 @@ class Command(BaseCommand):
             avg_chunk_score = (
                 diag.aggregate(avg=Avg("confidence_score_avg"))["avg"] or 0.0
             )
+            if not diag.exists():
+                avg_chunk_score = (
+                    ground.aggregate(avg=Avg("corrected_score"))["avg"] or 0.0
+                )
             rag_logs_count = total
             summary = (
                 f"# Diagnostic Report for {assistant.name}\n\n"
-                f"- Fallback rate: {fallback_rate*100:.1f}%\n"
-                f"- Glossary success rate: {glossary_success_rate*100:.1f}%\n"
+                f"- Fallback rate: {fallback_rate * 100:.1f}%\n"
+                f"- Glossary success rate: {glossary_success_rate * 100:.1f}%\n"
                 f"- Average chunk score: {avg_chunk_score:.2f}\n"
                 f"- Total logs: {rag_logs_count}\n"
             )
@@ -51,13 +55,12 @@ class Command(BaseCommand):
                 rag_logs_count=rag_logs_count,
                 summary_markdown=summary,
             )
-            if (
-                fallback_rate < 0.10
-                and glossary_success_rate > 0.30
-            ):
+            if fallback_rate < 0.10 and glossary_success_rate > 0.30:
                 assistant.certified_rag_ready = True
                 assistant.rag_certification_date = timezone.now()
-                assistant.save(update_fields=["certified_rag_ready", "rag_certification_date"])
+                assistant.save(
+                    update_fields=["certified_rag_ready", "rag_certification_date"]
+                )
             with open(out_dir / f"{assistant.slug}.md", "w") as f:
                 f.write(summary)
             self.stdout.write(
