@@ -44,10 +44,12 @@ class Command(BaseCommand):
                 tags = generate_tags_for_memory(a.label)
                 for t in tags:
                     slug = slugify(t)
-                    tag, _ = Tag.objects.get_or_create(
-                        slug=slug,
-                        defaults={"name": t},
+                    tag = (
+                        Tag.objects.filter(slug=slug).first()
+                        or Tag.objects.filter(name__iexact=t).first()
                     )
+                    if not tag:
+                        tag = Tag.objects.create(slug=slug, name=t)
                     a.tags.add(tag)
         dups = (
             SymbolicMemoryAnchor.objects.values("slug")
