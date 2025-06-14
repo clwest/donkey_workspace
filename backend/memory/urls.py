@@ -171,5 +171,25 @@ urlpatterns = (
             views.reject_replay,
             name="replay-reject",
         ),
+        path(
+            "anchor/suggestions/",
+            views.anchor_suggestions,
+            name="anchor-suggestions",
+        ),
+        path(
+            "anchor/suggestions/<uuid:id>/accept/",
+            views.accept_anchor_suggestion,
+            name="anchor-suggestion-accept",
+        ),
+        path(
+            "anchor/suggestions/<uuid:id>/reject/",
+            views.reject_anchor_suggestion,
+            name="anchor-suggestion-reject",
+        ),
+        path(
+            "anchor/suggestions/<uuid:id>/edit/",
+            views.edit_anchor_suggestion,
+            name="anchor-suggestion-edit",
+        ),
     ]
 )

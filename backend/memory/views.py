@@ -34,6 +34,7 @@ from .models import (
     GlossaryKeeperLog,
     AnchorConvergenceLog,
     AnchorReinforcementLog,
+    AnchorSuggestion,
     ReflectionFlag,
 )
 from .serializers import (
@@ -51,6 +52,7 @@ from .serializers import (
     GlossaryKeeperLogSerializer,
     AnchorConvergenceLogSerializer,
     AnchorReinforcementLogSerializer,
+    AnchorSuggestionSerializer,
 )
 from prompts.serializers import PromptSerializer
 from prompts.models import Prompt
@@ -1375,3 +1377,72 @@ def anchor_diagnostics(request):
         .filter(count__gt=1)
     )
     return Response({"results": data, "duplicates": list(duplicates)})
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def anchor_suggestions(request):
+    """List AnchorSuggestion objects with optional filters."""
+    qs = AnchorSuggestion.objects.all()
+    assistant = request.GET.get("assistant")
+    status = request.GET.get("status")
+    term = request.GET.get("term")
+    if assistant:
+        qs = qs.filter(assistant__slug=assistant)
+    if status:
+        qs = qs.filter(status=status)
+    if term:
+        qs = qs.filter(term__icontains=term)
+    qs = qs.order_by("-created_at")
+    serializer = AnchorSuggestionSerializer(qs, many=True)
+    return Response({"results": serializer.data})
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def accept_anchor_suggestion(request, id):
+    """Accept an anchor suggestion and create the anchor if needed."""
+    suggestion = get_object_or_404(AnchorSuggestion, id=id)
+    if suggestion.status != "accepted":
+        anchor = suggestion.original_anchor
+        if not anchor:
+            anchor, _ = SymbolicMemoryAnchor.objects.get_or_create(
+                slug=suggestion.slug,
+                defaults={
+                    "label": suggestion.term.title(),
+                    "source": "rag_suggest",
+                    "created_from": "rag_suggest",
+                    "assistant": suggestion.assistant,
+                },
+            )
+            suggestion.original_anchor = anchor
+        suggestion.status = "accepted"
+        suggestion.save(update_fields=["status", "original_anchor"])
+    return Response(AnchorSuggestionSerializer(suggestion).data)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def reject_anchor_suggestion(request, id):
+    suggestion = get_object_or_404(AnchorSuggestion, id=id)
+    suggestion.status = "rejected"
+    suggestion.save(update_fields=["status"])
+    return Response({"status": "rejected"})
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def edit_anchor_suggestion(request, id):
+    suggestion = get_object_or_404(AnchorSuggestion, id=id)
+    slug = request.data.get("slug")
+    term = request.data.get("term")
+    changed = False
+    if slug:
+        suggestion.slug = slug
+        changed = True
+    if term:
+        suggestion.term = term
+        changed = True
+    if changed:
+        suggestion.save(update_fields=["slug", "term"])
+    return Response(AnchorSuggestionSerializer(suggestion).data)

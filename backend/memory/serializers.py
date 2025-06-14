@@ -15,6 +15,7 @@ from .models import (
     GlossaryRetryLog,
     AnchorConvergenceLog,
     AnchorReinforcementLog,
+    AnchorSuggestion,
     RAGGroundingLog,
     RAGPlaybackLog,
     RAGDiagnosticLog,
@@ -414,6 +415,29 @@ class GlossaryRetryLogSerializer(serializers.ModelSerializer):
             "score_diff",
             "created_at",
             "anchor_label",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
+class AnchorSuggestionSerializer(serializers.ModelSerializer):
+    assistant_slug = serializers.CharField(source="assistant.slug", read_only=True)
+    anchor_label = serializers.CharField(source="original_anchor.label", read_only=True)
+
+    class Meta:
+        model = AnchorSuggestion
+        fields = [
+            "id",
+            "assistant",
+            "assistant_slug",
+            "term",
+            "slug",
+            "context",
+            "fallback_score",
+            "match_strength",
+            "original_anchor",
+            "anchor_label",
+            "status",
+            "created_at",
         ]
         read_only_fields = ["id", "created_at"]
 

@@ -506,6 +506,13 @@ export const routeMap = [
     notes: "Glossary keeper logs",
   },
   {
+    frontend: "/anchor/suggestions",
+    backend: "/api/anchor/suggestions/",
+    view: "AnchorSuggestionPage",
+    serializer: "AnchorSuggestionSerializer",
+    notes: "Review anchor suggestions",
+  },
+  {
     frontend: "/anchor/symbolic",
     backend: "/api/memory/symbolic-anchors/",
     view: "SymbolicAnchorReviewPage",
