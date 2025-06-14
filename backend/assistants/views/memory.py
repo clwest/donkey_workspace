@@ -26,7 +26,7 @@ from capabilities.utils import log_capability_usage
 from project.serializers import ProjectMemoryLinkSerializer
 
 from memory.services import MemoryService
-from memory.models import ReflectionReplayLog
+from memory.models import ReflectionReplayLog, MemoryEntry
 from memory.serializers import (
     MemoryEntrySerializer,
     MemoryEntrySlimSerializer,
@@ -43,6 +43,7 @@ from assistants.utils.memory_filters import get_filtered_memories
 from assistants.helpers.reflection_helpers import simulate_memory_fork
 from intel_core.models import Document
 from assistants.services import AssistantService
+from mcp_core.models import NarrativeThread
 
 
 def _rate_limited(request, key: str, window: int = 3) -> bool:
