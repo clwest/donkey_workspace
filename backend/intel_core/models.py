@@ -379,6 +379,34 @@ class DocumentSet(models.Model):
         return self.title
 
 
+class DocumentTopicSet(models.Model):
+    """Collection of related chunks grouped by embedding similarity."""
+
+    id = models.BigAutoField(primary_key=True)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    related_chunks = models.ManyToManyField(
+        DocumentChunk, related_name="topic_sets", blank=True
+    )
+    auto_suggested_anchor = models.ForeignKey(
+        "memory.SymbolicMemoryAnchor",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="topic_sets",
+    )
+    assistants = models.ManyToManyField(
+        "assistants.Assistant", related_name="topic_sets", blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return self.title
+
+
 class GlossaryUsageLog(models.Model):
     """Record glossary detection events during RAG retrieval."""
 

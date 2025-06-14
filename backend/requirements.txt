@@ -120,3 +120,4 @@ django-template-check>=0.4.0
 sentry-sdk==2.2.1
 prometheus-client==0.20.0
 
+scikit-learn==1.4.2

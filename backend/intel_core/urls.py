@@ -74,6 +74,17 @@ urlpatterns = [
         documents.document_set_detail,
         name="document_set_detail",
     ),
+    path("topic-sets/", documents.topic_set_list, name="topic_set_list"),
+    path(
+        "topic-sets/<int:pk>/",
+        documents.topic_set_detail,
+        name="topic_set_detail",
+    ),
+    path(
+        "topic-sets/<int:pk>/assign/",
+        documents.assign_topic_set,
+        name="assign_topic_set",
+    ),
     path(
         "experiments/bootstrap-assistant/<uuid:pk>/",
         intelligence.create_assistant_from_document_set,

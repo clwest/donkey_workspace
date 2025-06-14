@@ -16,12 +16,14 @@ from intel_core.models import (
     DocumentFavorite,
     DocumentProgress,
     DocumentSet,
+    DocumentTopicSet,
     JobStatus,
     DocumentUploadLog,
 )
 from intel_core.serializers import (
     DocumentSerializer,
     DocumentSetSerializer,
+    DocumentTopicSetSerializer,
     DocumentReflectionSerializer,
 )
 from intel_core.tasks import create_document_set_task
@@ -364,6 +366,37 @@ def document_set_detail(request, pk):
     except DocumentSet.DoesNotExist:
         return Response({"error": "Not found"}, status=404)
     return Response(DocumentSetSerializer(ds).data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def topic_set_list(request):
+    sets = DocumentTopicSet.objects.all().order_by("-created_at")
+    serializer = DocumentTopicSetSerializer(sets, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def topic_set_detail(request, pk):
+    try:
+        ts = DocumentTopicSet.objects.get(pk=pk)
+    except DocumentTopicSet.DoesNotExist:
+        return Response({"error": "Not found"}, status=404)
+    return Response(DocumentTopicSetSerializer(ts).data)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def assign_topic_set(request, pk):
+    assistant_id = request.data.get("assistant_id")
+    try:
+        ts = DocumentTopicSet.objects.get(pk=pk)
+        assistant = Assistant.objects.get(id=assistant_id)
+    except (DocumentTopicSet.DoesNotExist, Assistant.DoesNotExist):
+        return Response({"error": "Not found"}, status=404)
+    ts.assistants.add(assistant)
+    return Response({"assigned": True})
 
 
 @api_view(["GET"])
