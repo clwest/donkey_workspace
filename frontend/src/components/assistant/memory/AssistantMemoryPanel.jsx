@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
 import apiFetch from "../../../utils/apiClient";
-import useAssistantMemories from "../../../hooks/useAssistantMemories";
+import useAssistantDetails from "../../../hooks/useAssistantDetails";
 import ReflectNowButton from "../ReflectNowButton";
 import MemoryCard from "../../mcp_core/MemoryCard";
 
-export default function AssistantMemoryPanel({ slug, refreshKey = 0 }) {
-  const { memories, loading, refresh } = useAssistantMemories(slug, { limit: 100 });
+export default function AssistantMemoryPanel({ slug }) {
+  const { memories, loading, paused, refreshAll } = useAssistantDetails(slug, {
+    limit: 100,
+    pauseOnError: true,
+  });
   const [project, setProject] = useState(null);
   const [visible, setVisible] = useState(10);
   const [showAll, setShowAll] = useState(false);
   const [tagFilter, setTagFilter] = useState("");
   const [meaningfulOnly, setMeaningfulOnly] = useState(true);
+  const [autoRetry, setAutoRetry] = useState(false);
 
   const isWeak = (m) => (m.token_count || 0) < 5 && (m.importance || 0) <= 2;
 
@@ -31,8 +35,11 @@ export default function AssistantMemoryPanel({ slug, refreshKey = 0 }) {
   }, [slug]);
 
   useEffect(() => {
-    refresh();
-  }, [refreshKey]);
+    if (autoRetry && paused) {
+      const id = setTimeout(() => refreshAll(), 10000);
+      return () => clearTimeout(id);
+    }
+  }, [autoRetry, paused, refreshAll]);
 
   if (loading)
     return (
@@ -45,6 +52,23 @@ export default function AssistantMemoryPanel({ slug, refreshKey = 0 }) {
   return (
     <div className="p-2 border rounded">
       <h5 className="mb-3">🧠 Recent Memories</h5>
+      {paused && (
+        <div className="alert alert-warning d-flex align-items-center">
+          Memory loading paused due to rate limit
+          <div className="form-check form-switch ms-2">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id="autoRetry"
+              checked={autoRetry}
+              onChange={(e) => setAutoRetry(e.target.checked)}
+            />
+            <label className="form-check-label" htmlFor="autoRetry">
+              Auto Retry
+            </label>
+          </div>
+        </div>
+      )}
       {project && (
         <div className="alert alert-secondary py-1 small">Project: {project.title}</div>
       )}
