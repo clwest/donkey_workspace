@@ -45,6 +45,7 @@ from devtools.views import (
     assistant_rag_tests,
     reset_onboarding,
 )
+from api.views import rate_limit_inspector
 from embeddings.views import debug as debug_views
 from story.views import storyboard_list
 import accounts.views as accounts
@@ -159,6 +160,7 @@ urlpatterns = [
     ),
     path("api/debug/assistant_routing/", assistant_routing_debug),
     path("api/debug/reset_onboarding/", reset_onboarding),
+    path("api/debug/ratelimits/", rate_limit_inspector),
     path("api/capabilities/", include(capability_urls)),
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),

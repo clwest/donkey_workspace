@@ -217,6 +217,11 @@ export default function DocumentCard({ group, progress, onToggleFavorite, onDele
         <span className="me-2">
           <DocumentStatusCard doc={mergedDoc} />
         </span>
+        {['queued', 'processing'].includes(mergedDoc.status) && (
+          <Link to="/dev/upload" className="ms-1">
+            View Queue
+          </Link>
+        )}
         {mergedDoc.status === "failed" && (
           <button className="btn btn-sm btn-outline-danger ms-1" onClick={handleRetry}>
             Retry

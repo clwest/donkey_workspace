@@ -4,6 +4,7 @@ from .models import (
     DocumentInteraction,
     JobStatus,
     DocumentProgress,
+    DocumentUploadLog,
     GlossaryMissReflectionLog,
     GlossaryFallbackReflectionLog,
 )
@@ -94,3 +95,9 @@ class GlossaryMissReflectionLogAdmin(admin.ModelAdmin):
 class GlossaryFallbackReflectionLogAdmin(admin.ModelAdmin):
     list_display = ("anchor_slug", "chunk_id", "created_at")
     search_fields = ("assistant_response",)
+
+
+@admin.register(DocumentUploadLog)
+class DocumentUploadLogAdmin(admin.ModelAdmin):
+    list_display = ("document", "action", "user", "created_at")
+    list_filter = ("action", "created_at")

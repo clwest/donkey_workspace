@@ -16,6 +16,7 @@ from intel_core.models import (
     DocumentProgress,
     DocumentSet,
     JobStatus,
+    DocumentUploadLog,
 )
 from intel_core.serializers import (
     DocumentSerializer,
@@ -425,6 +426,10 @@ def retry_document_upload(request, pk):
     _create_document_chunks(doc)
     doc.status = "processing"
     doc.save(update_fields=["status"])
+    if request.user.is_authenticated:
+        DocumentUploadLog.objects.create(
+            document=doc, user=request.user, action="retry"
+        )
 
     return Response({"status": "queued"}, status=202)
 
@@ -452,5 +457,9 @@ def force_embed_document(request, pk):
 
     doc.status = "processing"
     doc.save(update_fields=["status"])
+    if request.user.is_authenticated:
+        DocumentUploadLog.objects.create(
+            document=doc, user=request.user, action="force_embed"
+        )
 
     return Response({"queued": count})

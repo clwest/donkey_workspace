@@ -941,6 +941,7 @@ export default function App() {
             path="/dev/onboarding-debug"
             element={<OnboardingDebugPage />}
           />
+          <Route path="/dev/upload" element={<UploadQueuePage />} />
           <Route path="/dev/upload/queue" element={<UploadQueuePage />} />
           <Route path="/dev/demo-checkup" element={<DemoCheckupPage />} />
           <Route path="/dev/feedback-review" element={<FeedbackReviewPage />} />

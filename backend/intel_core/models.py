@@ -429,3 +429,30 @@ class GlossaryFallbackReflectionLog(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return f"Fallback {self.anchor_slug} ({self.chunk_id})"
+
+
+class DocumentUploadLog(models.Model):
+    """Record upload repair actions for a document."""
+
+    ACTION_CHOICES = [
+        ("retry", "Retry"),
+        ("force_embed", "Force Embed"),
+    ]
+
+    document = models.ForeignKey(
+        Document, on_delete=models.CASCADE, related_name="upload_logs"
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    action = models.CharField(max_length=32, choices=ACTION_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"{self.document.title} -> {self.action}"

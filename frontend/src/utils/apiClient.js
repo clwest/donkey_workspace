@@ -174,6 +174,8 @@ export default async function apiFetch(url, options = {}) {
     toast.warn("Paused due to rate limit");
     const err = new Error("Rate limited");
     err.status = 429;
+    const ra = parseInt(res.headers.get("Retry-After") || "0", 10);
+    if (ra) err.retryAfter = ra;
     throw err;
   }
 

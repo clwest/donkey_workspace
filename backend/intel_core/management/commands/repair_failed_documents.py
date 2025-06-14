@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from intel_core.models import Document, DocumentChunk
+from intel_core.models import Document, DocumentChunk, DocumentUploadLog
 from intel_core.utils import delete_failed_chunks
 from intel_core.utils.processing import _create_document_chunks
 from embeddings.tasks import embed_and_store
@@ -15,7 +15,7 @@ class Command(BaseCommand):
         parser.add_argument("--full-reset", action="store_true")
 
     def handle(self, *args, **options):
-        qs = Document.objects.filter(status__in=["failed", "partial"])
+        qs = Document.objects.exclude(status="completed")
         if options.get("assistant"):
             slug = options["assistant"]
             assistant = Assistant.objects.filter(slug=slug).first() or Assistant.objects.filter(id=slug).first()
@@ -38,5 +38,6 @@ class Command(BaseCommand):
                     embed_and_store.delay(str(chunk.id))
             doc.status = "processing"
             doc.save(update_fields=["status"])
+            DocumentUploadLog.objects.create(document=doc, action="retry")
         self.stdout.write(self.style.SUCCESS("Repair complete"))
 

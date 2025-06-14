@@ -48,42 +48,53 @@ export default function UploadQueuePage() {
       {uploads.length === 0 ? (
         <p className="text-muted">No active uploads.</p>
       ) : (
-        <div className="row">
-          {uploads.map((doc) => {
-            const total = doc.chunk_count || doc.num_chunks || 0;
-            const embedded = doc.embedded_chunks || doc.num_embedded || 0;
-            const pct = total ? Math.round((embedded / total) * 100) : 0;
-            return (
-              <div key={doc.id} className="col-md-6 col-lg-4 mb-3">
-                <div className="card p-3 shadow-sm">
-                  <h5 className="mb-1">{doc.title || "Untitled"}</h5>
-                  <div className="mb-2 small text-muted">{doc.source_type}</div>
-                  <div className="progress mb-2" style={{ height: "6px" }}>
-                    <div
-                      className={`progress-bar bg-${statusColor(doc.progress_status)}`}
-                      role="progressbar"
-                      style={{ width: `${pct}%` }}
-                      aria-valuenow={pct}
-                      aria-valuemin="0"
-                      aria-valuemax="100"
-                    />
-                  </div>
-                  <div className="d-flex justify-content-between align-items-center">
-                    <span className="small">
-                      {embedded}/{total} chunks
-                    </span>
-                    <Link
-                      to={`/intel/documents/${doc.id}`}
-                      className="btn btn-sm btn-outline-secondary"
+        <table className="table table-sm">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Assistant</th>
+              <th>Tokens</th>
+              <th>Chunks</th>
+              <th>Status</th>
+              <th>Updated</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {uploads.map((doc) => {
+              const total = doc.chunk_count || doc.num_chunks || 0;
+              const embedded = doc.embedded_chunks || doc.num_embedded || 0;
+              return (
+                <tr key={doc.id}>
+                  <td>{doc.title || "Untitled"}</td>
+                  <td>{doc.assistants?.[0]?.name || "-"}</td>
+                  <td>{doc.token_count}</td>
+                  <td>
+                    {embedded}/{total}
+                  </td>
+                  <td>
+                    <DocumentStatusCard doc={doc} />
+                  </td>
+                  <td>{doc.updated_at ? new Date(doc.updated_at).toLocaleString() : ""}</td>
+                  <td>
+                    <button
+                      className="btn btn-sm btn-outline-danger me-1"
+                      onClick={() => apiFetch(`/intel/documents/${doc.id}/retry/`, { method: "POST" }).then(load)}
                     >
-                      View Details
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                      🔁 Retry
+                    </button>
+                    <button
+                      className="btn btn-sm btn-outline-info"
+                      onClick={() => apiFetch(`/intel/documents/${doc.id}/force-embed/`, { method: "POST" }).then(load)}
+                    >
+                      🧠 Force Embed
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       )}
     </div>
   );
