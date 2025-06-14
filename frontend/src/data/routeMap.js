@@ -401,6 +401,13 @@ export const routeMap = [
     notes: "Assistant memory dashboard",
   },
   {
+    frontend: null,
+    backend: "/api/assistants/<slug>/memories/full/",
+    view: null,
+    serializer: "MemoryEntrySerializer",
+    notes: "Full assistant memory list",
+  },
+  {
     frontend: "/memories/new",
     backend: "/api/memory/save/",
     view: "MemoryEntryCreatePage",
