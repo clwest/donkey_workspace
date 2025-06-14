@@ -274,6 +274,7 @@ import ContinuityAnchorPage from "./pages/anchor/ContinuityAnchorPage";
 import SymbolicAnchorAdminPage from "./pages/anchor/SymbolicAnchorAdminPage";
 import SymbolicAnchorDetailPage from "./pages/anchor/SymbolicAnchorDetailPage";
 import GlossaryMutationReviewPanel from "./pages/anchor/GlossaryMutationReviewPanel";
+import AnchorDiagnosticsPage from "./pages/anchor/AnchorDiagnosticsPage";
 import ArbitrationCouncilPage from "./pages/guilds/ArbitrationCouncilPage";
 import TreatyForgePage from "./pages/treaty/TreatyForgePage";
 import FederationCodicesPage from "./pages/federation/FederationCodicesPage";
@@ -1091,6 +1092,7 @@ export default function App() {
             path="/anchor/symbolic/:slug"
             element={<SymbolicAnchorDetailPage />}
           />
+          <Route path="/anchor/diagnostics" element={<AnchorDiagnosticsPage />} />
           <Route path="/keeper/logs" element={<KeeperLogViewer />} />
           <Route path="/tools" element={<ToolListPage />} />
           <Route path="/tools/index" element={<ToolIndexPanel />} />

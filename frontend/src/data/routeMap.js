@@ -520,6 +520,13 @@ export const routeMap = [
     notes: "Anchor detail",
   },
   {
+    frontend: "/anchor/diagnostics",
+    backend: "/api/anchor/diagnostics/",
+    view: "AnchorDiagnosticsPage",
+    serializer: "-",
+    notes: "Anchor diagnostics",
+  },
+  {
     frontend: "/guilds/council",
     backend: "/api/guilds/council/",
     view: "GuildArbitrationCouncilPage",

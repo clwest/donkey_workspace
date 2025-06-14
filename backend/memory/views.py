@@ -1302,3 +1302,37 @@ def reject_replay(request, id):
     replay.status = ReflectionReplayLog.ReplayStatus.SKIPPED
     replay.save(update_fields=["status"])
     return Response({"status": "skipped"})
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def anchor_diagnostics(request):
+    """Return basic diagnostics for all anchors."""
+    from django.db.models import Avg, Count
+    anchors = SymbolicMemoryAnchor.objects.all()
+    data = []
+    for a in anchors:
+        chunk_count = a.chunks.count()
+        fallback_count = GlossaryFallbackReflectionLog.objects.filter(anchor_slug=a.slug).count()
+        avg_score = (
+            RAGGroundingLog.objects.filter(expected_anchor=a.slug)
+            .aggregate(avg=Avg("adjusted_score"))
+            .get("avg")
+            or 0.0
+        )
+        data.append(
+            {
+                "slug": a.slug,
+                "label": a.label,
+                "chunk_count": chunk_count,
+                "fallback_count": fallback_count,
+                "avg_score": round(avg_score, 2),
+                "assistant": a.assistant.slug if a.assistant else None,
+            }
+        )
+    duplicates = (
+        SymbolicMemoryAnchor.objects.values("slug")
+        .annotate(count=Count("id"))
+        .filter(count__gt=1)
+    )
+    return Response({"results": data, "duplicates": list(duplicates)})
+

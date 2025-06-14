@@ -30,6 +30,7 @@ def get_anchor_health_metrics(assistant: Assistant) -> List[Dict[str, object]]:
                 "fallback_count": fallback_count,
                 "mutation_status": a.mutation_status,
                 "reinforcement_count": reinforcement_count,
+                "chunk_count": total_chunks,
                 "drift_score": round(drift_score, 2),
             }
         )
