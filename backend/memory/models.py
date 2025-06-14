@@ -499,6 +499,17 @@ class SymbolicMemoryAnchor(models.Model):
         default="pending",
     )
     mutation_source = models.CharField(max_length=64, blank=True, null=True)
+    mutated_from = models.CharField(max_length=100, blank=True, null=True)
+    mutated_reason = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        choices=[
+            ("manual_edit", "manual_edit"),
+            ("rejected", "rejected"),
+            ("auto_generated", "auto_generated"),
+        ],
+    )
     related_anchor = models.ForeignKey(
         "self",
         on_delete=models.SET_NULL,
