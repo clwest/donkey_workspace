@@ -316,7 +316,10 @@ class SymbolicMemoryAnchorSerializer(serializers.ModelSerializer):
     retagged_count = serializers.SerializerMethodField()
     first_used_at = serializers.SerializerMethodField()
     total_matches = serializers.SerializerMethodField()
-    mutation_score = serializers.SerializerMethodField()
+    mutation_score_metric = serializers.SerializerMethodField()
+    mutation_score_value = serializers.FloatField(
+        source="mutation_score", read_only=True
+    )
     fallback_count = serializers.SerializerMethodField()
     glossary_boost = serializers.SerializerMethodField()
     last_updated = serializers.SerializerMethodField()
@@ -365,7 +368,7 @@ class SymbolicMemoryAnchorSerializer(serializers.ModelSerializer):
             obj._conv_cache = calculate_convergence_stats(obj)
         return obj._conv_cache
 
-    def get_mutation_score(self, obj):
+    def get_mutation_score_metric(self, obj):
         return self._conv_stats(obj).get("mutation_score")
 
     def get_fallback_count(self, obj):
@@ -479,7 +482,10 @@ class AnchorReinforcementLogSerializer(serializers.ModelSerializer):
             "assistant",
             "memory",
             "reason",
+            "trigger_source",
+            "outcome",
             "score",
+            "score_delta",
             "created_at",
             "assistant_name",
             "anchor_label",
