@@ -892,16 +892,26 @@ class GlossaryKeeperLog(models.Model):
     def __str__(self):  # pragma: no cover - display helper
         return f"{self.anchor.slug} | {self.action_taken}"
 
+
 class RAGDiagnosticLog(models.Model):
     """Full diagnostic record for RAG retrieval."""
-    assistant = models.ForeignKey("assistants.Assistant", on_delete=models.CASCADE, related_name="rag_diagnostics")
+
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="rag_diagnostics"
+    )
     query_text = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     retrieved_chunks = models.JSONField(default=list)
     fallback_triggered = models.BooleanField(default=False)
-    glossary_matches = ArrayField(models.CharField(max_length=100), default=list, blank=True)
-    used_memory_context = models.ForeignKey("mcp_core.MemoryContext", null=True, blank=True, on_delete=models.SET_NULL)
-    reflection_boosts_applied = ArrayField(models.CharField(max_length=100), default=list, blank=True)
+    glossary_matches = ArrayField(
+        models.CharField(max_length=100), default=list, blank=True
+    )
+    used_memory_context = models.ForeignKey(
+        "mcp_core.MemoryContext", null=True, blank=True, on_delete=models.SET_NULL
+    )
+    reflection_boosts_applied = ArrayField(
+        models.CharField(max_length=100), default=list, blank=True
+    )
     confidence_score_avg = models.FloatField(default=0.0)
     token_usage = models.JSONField(null=True, blank=True)
     explanation_text = models.TextField(blank=True, default="")
@@ -943,3 +953,29 @@ class AnchorConfidenceLog(models.Model):
     def __str__(self):  # pragma: no cover - display helper
         return f"{self.anchor.slug} confidence"
 
+
+class AnchorDriftLog(models.Model):
+    """Snapshot of anchor match quality over time."""
+
+    anchor = models.ForeignKey(
+        SymbolicMemoryAnchor,
+        on_delete=models.CASCADE,
+        related_name="drift_logs",
+    )
+    assistant = models.ForeignKey(
+        "assistants.Assistant",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    observation_date = models.DateField()
+    avg_score = models.FloatField(default=0.0)
+    fallback_rate = models.FloatField(default=0.0)
+    sample_size = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ["-observation_date"]
+        unique_together = ("anchor", "observation_date")
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"{self.anchor.slug} {self.observation_date}"

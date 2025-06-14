@@ -1,4 +1,5 @@
 import os
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.test_settings")
 import django
 
@@ -9,6 +10,7 @@ from rest_framework.test import APIClient
 from assistants.models import Assistant
 from memory.models import SymbolicMemoryAnchor, RAGGroundingLog, AnchorReinforcementLog
 from intel_core.models import Document, DocumentChunk
+
 
 class AnchorHealthEndpointTests(TestCase):
     def setUp(self):
@@ -54,9 +56,7 @@ class AnchorHealthEndpointTests(TestCase):
         )
 
     def test_anchor_health_endpoint(self):
-        resp = self.client.get(
-            f"/api/assistants/{self.assistant.slug}/anchor_health/"
-        )
+        resp = self.client.get(f"/api/assistants/{self.assistant.slug}/anchor_health/")
         self.assertEqual(resp.status_code, 200)
         data = resp.json()["results"]
         self.assertEqual(len(data), 2)
@@ -64,6 +64,7 @@ class AnchorHealthEndpointTests(TestCase):
         self.assertEqual(item["fallback_count"], 1)
         self.assertEqual(item["reinforcement_count"], 1)
         self.assertEqual(item["mutation_status"], "pending")
+        self.assertIn("trend", item)
 
     def test_status_filters(self):
         resp = self.client.get(

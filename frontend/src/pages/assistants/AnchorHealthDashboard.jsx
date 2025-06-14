@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import apiFetch from "../../utils/apiClient";
 import useAuthGuard from "../../hooks/useAuthGuard";
+import SimpleSparkline from "../../components/assistant/SimpleSparkline";
 
 export default function AnchorHealthDashboard() {
   useAuthGuard();
@@ -62,7 +63,11 @@ export default function AnchorHealthDashboard() {
         >
           Low Match
         </button>
-        <button className="btn btn-outline-secondary ms-auto" onClick={load} disabled={loading}>
+        <button
+          className="btn btn-outline-secondary ms-auto"
+          onClick={load}
+          disabled={loading}
+        >
           {loading ? "Refreshing..." : "Refresh"}
         </button>
       </div>
@@ -75,6 +80,7 @@ export default function AnchorHealthDashboard() {
             <th>Mutation</th>
             <th>Reinforced</th>
             <th>Drift</th>
+            <th>Trend</th>
           </tr>
         </thead>
         <tbody>
@@ -86,13 +92,18 @@ export default function AnchorHealthDashboard() {
               <td>{r.mutation_status}</td>
               <td>{r.reinforcement_count}</td>
               <td>
-                <span className={`badge ${badgeClass(r.drift_score)}`}>{r.drift_score.toFixed(2)}</span>
+                <span className={`badge ${badgeClass(r.drift_score)}`}>
+                  {r.drift_score.toFixed(2)}
+                </span>
+              </td>
+              <td>
+                <SimpleSparkline data={r.trend || []} />
               </td>
             </tr>
           ))}
           {rows.length === 0 && !loading && (
             <tr>
-              <td colSpan="6" className="text-muted">
+              <td colSpan="7" className="text-muted">
                 No anchors found.
               </td>
             </tr>
