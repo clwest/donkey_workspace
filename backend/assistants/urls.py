@@ -267,6 +267,11 @@ urlpatterns = [
         name="assistant-memories",
     ),
     path(
+        "<slug:slug>/memories/full/",
+        memory.assistant_memories_full,
+        name="assistant-memories-full",
+    ),
+    path(
         "<slug:slug>/memories/prioritized/",
         memory.prioritized_memories,
         name="assistant-prioritized-memories",

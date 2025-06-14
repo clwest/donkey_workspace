@@ -251,6 +251,14 @@ class MemoryEntrySlimSerializer(serializers.ModelSerializer):
         return obj.feedback.filter(rating="negative").count()
 
 
+class MemoryEntryMetadataSerializer(serializers.ModelSerializer):
+    """Very lightweight serializer for dashboard previews."""
+
+    class Meta:
+        model = MemoryEntry
+        fields = ["id", "summary", "created_at", "importance", "type"]
+
+
 class PrioritizedMemorySerializer(MemoryEntrySlimSerializer):
     """Serializer with extra fields for prioritized listing."""
 

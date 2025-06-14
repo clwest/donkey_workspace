@@ -30,6 +30,7 @@ from memory.models import ReflectionReplayLog, MemoryEntry
 from memory.serializers import (
     MemoryEntrySerializer,
     MemoryEntrySlimSerializer,
+    MemoryEntryMetadataSerializer,
     PrioritizedMemorySerializer,
     SimulatedMemoryForkSerializer,
 )
@@ -141,8 +142,21 @@ def assistant_memories(request, slug):
     limit = int(request.GET.get("limit", 100))
     offset = int(request.GET.get("offset", 0))
     entries = entries.order_by("-created_at")[offset : offset + limit]
-    serializer = MemoryEntrySlimSerializer(entries, many=True)
+
+    full = request.GET.get("full") in ["1", "true", "yes"]
+    serializer_cls = MemoryEntrySerializer if full else MemoryEntryMetadataSerializer
+    serializer = serializer_cls(entries, many=True)
     return Response({"results": serializer.data, "total_count": total_count})
+
+
+@api_view(["GET"])
+def assistant_memories_full(request, slug):
+    """Return full memory entries for a specific assistant."""
+    request.GET._mutable = True
+    q = request.GET.copy()
+    q["full"] = "true"
+    request.GET = q
+    return assistant_memories(request, slug)
 
 
 @api_view(["GET"])

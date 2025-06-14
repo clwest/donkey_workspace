@@ -1,25 +1,22 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import PropTypes from "prop-types";
 import AssistantCard from "./AssistantCard";
 import apiFetch from "@/utils/apiClient";
-import { fetchBootStatus, fetchDiagnosticReport, fetchBootProfile } from "@/api/assistants";
+import { fetchBootStatus, fetchBootProfile } from "@/api/assistants";
 import TrustBadge from "./TrustBadge";
+import useAssistantCardData from "../../hooks/useAssistantCardData";
 
 export default function AssistantDashboardCard({ assistant }) {
-  const [profile, setProfile] = useState(null);
   const [bootStatus, setBootStatus] = useState(null);
-  const [diagnostic, setDiagnostic] = useState(null);
   const [docStats, setDocStats] = useState(null);
   const [bootProfile, setBootProfile] = useState(null);
+  const [loadDeep, setLoadDeep] = useState(false);
+  const hoverRef = useRef(null);
 
-  async function load() {
-    if (profile && bootStatus && diagnostic && bootProfile && docStats) return;
-    try {
-      const data = await apiFetch(`/assistants/${assistant.slug}/trust_profile/`);
-      setProfile(data);
-    } catch (err) {
-      console.error(err);
-    }
+  const { profile, diagnostic } = useAssistantCardData(assistant.slug, { enabled: loadDeep });
+
+  async function loadExtra() {
+    if (bootStatus && bootProfile && docStats) return;
     try {
       const status = await fetchBootStatus(assistant.slug);
       setBootStatus(status);
@@ -29,12 +26,6 @@ export default function AssistantDashboardCard({ assistant }) {
     try {
       const prof = await fetchBootProfile(assistant.slug);
       setBootProfile(prof);
-    } catch (err) {
-      console.error(err);
-    }
-    try {
-      const diag = await fetchDiagnosticReport(assistant.slug);
-      setDiagnostic(diag);
     } catch (err) {
       console.error(err);
     }
@@ -76,8 +67,23 @@ export default function AssistantDashboardCard({ assistant }) {
       : "border-warning";
   const ragOk = diagnostic && diagnostic.fallback_rate < 0.2;
 
+  const handleEnter = () => {
+    if (hoverRef.current) return;
+    hoverRef.current = setTimeout(() => {
+      setLoadDeep(true);
+      loadExtra();
+    }, 300);
+  };
+
+  const handleLeave = () => {
+    if (hoverRef.current) {
+      clearTimeout(hoverRef.current);
+      hoverRef.current = null;
+    }
+  };
+
   return (
-    <div onMouseEnter={load} className={`p-1 rounded shadow-sm ${profile ? borderColor : ""}`}>
+    <div onMouseEnter={handleEnter} onMouseLeave={handleLeave} className={`p-1 rounded shadow-sm ${profile ? borderColor : ""}`}>
       <AssistantCard assistant={assistant} to={`/assistants/${assistant.slug}`} />
       {profile && (
         <div className="mt-1 small text-muted">
