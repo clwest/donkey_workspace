@@ -68,3 +68,6 @@ cleanup_orphan_assistants Identify unused or duplicate assistants
 repair_context_embeddings Fix memory context-specific links (requires valid assistant)
 
 run_rag_tests Run RAG regression tests defined in rag_tests.json
+repair_low_score_embeddings --threshold 0.2 Re-embed or delete low-score embeddings
+repair_embedding_metadata --summary Fix session_id and source_type
+inspect_rag_failure --doc <id> Analyze anchor misses and suggest fallback terms
