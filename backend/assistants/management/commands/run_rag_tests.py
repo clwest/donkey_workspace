@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 from assistants.utils.resolve import resolve_assistant
 from assistants.utils.chunk_retriever import get_rag_chunk_debug
 from assistants.models.diagnostics import AssistantDiagnosticReport
-from memory.models import RAGGroundingLog
+from memory.models import RAGGroundingLog, SymbolicMemoryAnchor
 from utils.rag_debug import log_rag_debug
 from intel_core.models import DocumentChunk
 from django.utils import timezone
@@ -27,12 +27,18 @@ class Command(BaseCommand):
         )
         parser.add_argument("--save", action="store_true")
         parser.add_argument("--log-scores", action="store_true")
+        parser.add_argument(
+            "--explain-failures",
+            action="store_true",
+            help="Output chunk IDs and anchors for failed tests",
+        )
 
     def handle(self, *args, **options):
         slug = options["assistant"]
         file_path = options["file"]
         save_flag = options.get("save")
         log_scores = options.get("log_scores")
+        explain = options.get("explain_failures", False)
         assistant = resolve_assistant(slug)
         if not assistant:
             msg = self.style.ERROR(f"Assistant '{slug}' not found")
@@ -50,14 +56,34 @@ class Command(BaseCommand):
             self.stdout.write(msg)
             return
 
+        if (
+            isinstance(data, dict)
+            and data.get("assistant")
+            and data["assistant"] != assistant.slug
+        ):
+            msg = self.style.ERROR(
+                f"rag_tests.json is for assistant '{data['assistant']}', not '{assistant.slug}'"
+            )
+            self.stdout.write(msg)
+            return
+
         if isinstance(data, list):
             tests = data
         else:
             tests = data.get("tests", [])
         passed = 0
+        skipped = 0
         score_log = []
         for t in tests:
+            if not t:
+                self.stdout.write("[SKIP] empty test entry")
+                skipped += 1
+                continue
             q = t.get("question")
+            if not q:
+                self.stdout.write("[SKIP] missing question")
+                skipped += 1
+                continue
             expected_id = (
                 str(t.get("expected_chunk_id"))
                 if t.get("expected_chunk_id") is not None
@@ -65,6 +91,18 @@ class Command(BaseCommand):
             )
             min_score = t.get("min_score", 0.0)
             expected_anchor = t.get("expected_anchor")
+
+            if (
+                expected_anchor
+                and not SymbolicMemoryAnchor.objects.filter(
+                    slug=expected_anchor
+                ).exists()
+            ):
+                msg = self.style.ERROR(
+                    f"Unknown anchor '{expected_anchor}' in rag_tests.json"
+                )
+                self.stdout.write(msg)
+                return
 
             info = get_rag_chunk_debug(str(assistant.id), q)
             score = info.get("retrieval_score") or 0.0
@@ -88,7 +126,11 @@ class Command(BaseCommand):
             if ok:
                 passed += 1
             else:
-                chunk_ids = [c.get("chunk_id") for c in info.get("matched_chunks", []) + info.get("fallback_chunks", [])]
+                chunk_ids = [
+                    c.get("chunk_id")
+                    for c in info.get("matched_chunks", [])
+                    + info.get("fallback_chunks", [])
+                ]
                 if expected_anchor and expected_anchor not in anchors:
                     self.stdout.write(
                         self.style.WARNING(
@@ -100,7 +142,8 @@ class Command(BaseCommand):
                             assistant,
                             q,
                             {
-                                "used_chunks": info.get("matched_chunks", []) + info.get("fallback_chunks", []),
+                                "used_chunks": info.get("matched_chunks", [])
+                                + info.get("fallback_chunks", []),
                                 "rag_fallback": info.get("fallback_triggered", False),
                                 "fallback_reason": info.get("reason"),
                                 "anchor_hits": anchors,
@@ -115,24 +158,34 @@ class Command(BaseCommand):
                         )
                     except Exception:
                         pass
+                if explain:
+                    self.stdout.write(
+                        f"Expected {expected_anchor or expected_id} got chunks={', '.join(chunk_ids)} score={score:.2f}"
+                    )
             score_log.append(
                 {
                     "question": q,
                     "expected_anchor": expected_anchor,
                     "retrieval_score": score,
-                    "chunks": info.get("matched_chunks", []) + info.get("fallback_chunks", []),
+                    "chunks": info.get("matched_chunks", [])
+                    + info.get("fallback_chunks", []),
                     "scores": info.get("scores", {}),
                     "glossary_misses": info.get("glossary_misses", []),
                 }
             )
         total = len(tests)
-        self.stdout.write(self.style.SUCCESS(f"{passed}/{total} tests passed"))
+        msg = f"{passed}/{total} tests passed"
+        if skipped:
+            msg += f" ({skipped} skipped)"
+        self.stdout.write(self.style.SUCCESS(msg))
 
         logs = RAGGroundingLog.objects.filter(assistant=assistant)
         total_logs = logs.count() or 1
         fallback_rate = logs.filter(fallback_triggered=True).count() / total_logs
         glossary_rate = logs.filter(glossary_hits__len__gt=0).count() / total_logs
-        chunk_total = DocumentChunk.objects.filter(document__memory_context=assistant.memory_context).count()
+        chunk_total = DocumentChunk.objects.filter(
+            document__memory_context=assistant.memory_context
+        ).count()
 
         if save_flag:
             AssistantDiagnosticReport.objects.create(
