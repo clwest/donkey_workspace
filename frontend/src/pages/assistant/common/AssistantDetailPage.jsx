@@ -48,6 +48,7 @@ import useGlossaryOverlay from "../../../hooks/glossary";
 import GlossaryOverlayTooltip from "../../../components/GlossaryOverlayTooltip";
 import AssistantSummaryCards from "../../../components/assistant/AssistantSummaryCards";
 import DemoTipsSidebar from "../../../components/demo/DemoTipsSidebar";
+import useAssistantMemories from "../../../hooks/useAssistantMemories";
 
 export default function AssistantDetailPage() {
   useAuthGuard();
@@ -88,6 +89,7 @@ export default function AssistantDetailPage() {
   const projectId = query.get("project");
   const memoryId = query.get("memory");
   const objectiveId = query.get("objective");
+  const { memories, totalCount } = useAssistantMemories(slug, { limit: 100 });
   const handleDiagnosticsRefresh = () => {
     setRefreshKey((k) => k + 1);
     reloadAssistant();
@@ -158,19 +160,15 @@ export default function AssistantDetailPage() {
   useEffect(() => {
     async function loadMemoryStats() {
       try {
-        const [memRes, reflRes] = await Promise.all([
-          apiFetch(`/assistants/${slug}/memories/`),
-          apiFetch(`/assistants/${slug}/reflections/`),
-        ]);
-        const memList = memRes.results || memRes;
+        const reflRes = await apiFetch(`/assistants/${slug}/reflections/`);
         const reflList = reflRes.results || reflRes;
         setMemoryStats({
-          memories: memList.length,
+          memories: totalCount ?? memories.length,
           reflections: reflList.length,
         });
         const primer = reflList.find((r) => r.is_primer);
         setPrimerReflection(primer || null);
-        setLatestMemoryId(memList[0]?.id || null);
+        setLatestMemoryId(memories[0]?.id || null);
         if (
           reflList.length > 0 &&
           userInfo?.onboarding_complete &&
@@ -182,23 +180,20 @@ export default function AssistantDetailPage() {
         console.error("Failed to load memory stats", err);
       }
     }
-    if (slug) {
+    if (slug && totalCount != null) {
       loadMemoryStats();
     }
-  }, [slug, refreshKey]);
+  }, [slug, refreshKey, totalCount, memories]);
 
   useEffect(() => {
     if (!assistant) return;
     if (localStorage.getItem(`shown_intro_memory_${slug}`)) return;
-    apiFetch(`/assistants/${slug}/memories/`).then((res) => {
-      const items = res.results || res;
-      const intro = items.find((m) => m.type === "assistant_intro");
-      if (intro) {
-        toast.info(intro.event || intro.summary);
-        localStorage.setItem(`shown_intro_memory_${slug}`, "1");
-      }
-    });
-  }, [assistant, slug]);
+    const intro = memories.find((m) => m.type === "assistant_intro");
+    if (intro) {
+      toast.info(intro.event || intro.summary);
+      localStorage.setItem(`shown_intro_memory_${slug}`, "1");
+    }
+  }, [assistant, slug, memories]);
 
   useEffect(() => {
     async function loadFirstQuestions() {

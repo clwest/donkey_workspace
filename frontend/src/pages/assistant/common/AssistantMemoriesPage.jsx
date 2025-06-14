@@ -1,29 +1,20 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
+import useAssistantMemories from "../../../hooks/useAssistantMemories";
 import PlanProjectFromMemoryModal from "../../../components/assistant/PlanProjectFromMemoryModal";
 
 
 export default function AssistantMemoriesPage() {
   const { slug } = useParams();
-  const [memories, setMemories] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [offset, setOffset] = useState(0);
+  const { memories, loading, totalCount, nextPage, prevPage, hasMore } =
+    useAssistantMemories(slug, { limit: 20, offset });
   const [selected, setSelected] = useState([]);
   const [showPlan, setShowPlan] = useState(false);
 
   useEffect(() => {
-    async function fetchMemories() {
-      try {
-        const data = await apiFetch(`/assistants/${slug}/memories/`);
-        setMemories(data);
-      } catch (err) {
-        console.error("Error fetching assistant memories:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchMemories();
+    setOffset(0);
   }, [slug]);
 
   if (loading) return <div className="container my-5">Loading assistant memories...</div>;
@@ -61,6 +52,17 @@ export default function AssistantMemoriesPage() {
           ))}
         </div>
       )}
+      <div className="my-3 d-flex justify-content-between">
+        <button className="btn btn-sm btn-outline-secondary" onClick={prevPage} disabled={offset === 0}>
+          ◀ Previous
+        </button>
+        <div>
+          {offset + memories.length} / {totalCount}
+        </div>
+        <button className="btn btn-sm btn-outline-secondary" onClick={nextPage} disabled={!hasMore}>
+          Next ▶
+        </button>
+      </div>
 
       <div className="mt-4 d-flex gap-2">
         <button

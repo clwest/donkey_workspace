@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import apiFetch from "../../../utils/apiClient";
+import useAssistantMemories from "../../../hooks/useAssistantMemories";
 import ReflectNowButton from "../ReflectNowButton";
 import MemoryCard from "../../mcp_core/MemoryCard";
 
 export default function AssistantMemoryPanel({ slug, refreshKey = 0 }) {
-  const [memories, setMemories] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { memories, loading, refresh } = useAssistantMemories(slug, { limit: 100 });
   const [project, setProject] = useState(null);
   const [visible, setVisible] = useState(10);
   const [showAll, setShowAll] = useState(false);
@@ -18,23 +18,21 @@ export default function AssistantMemoryPanel({ slug, refreshKey = 0 }) {
     if (!slug) return;
     async function load() {
       try {
-        const [memRes, asst] = await Promise.all([
-          apiFetch(`/assistants/${slug}/memories/`),
-          apiFetch(`/assistants/${slug}/`),
-        ]);
-        setMemories(memRes || []);
+        const asst = await apiFetch(`/assistants/${slug}/`);
+        setProject(asst.current_project || null);
         setVisible(10);
         setShowAll(false);
         setTagFilter("");
-        setProject(asst.current_project || null);
       } catch (err) {
-        console.error("Failed to fetch memories", err);
-      } finally {
-        setLoading(false);
+        console.error("Failed to fetch assistant", err);
       }
     }
     load();
-  }, [slug, refreshKey]);
+  }, [slug]);
+
+  useEffect(() => {
+    refresh();
+  }, [refreshKey]);
 
   if (loading)
     return (

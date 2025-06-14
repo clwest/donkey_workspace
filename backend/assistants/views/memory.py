@@ -136,9 +136,12 @@ def assistant_memories(request, slug):
         entries = entries.filter(symbolic_change=True)
     if campaign_id:
         entries = entries.filter(related_campaign_id=campaign_id)
-    entries = entries.order_by("-created_at")
+    total_count = entries.count()
+    limit = int(request.GET.get("limit", 100))
+    offset = int(request.GET.get("offset", 0))
+    entries = entries.order_by("-created_at")[offset : offset + limit]
     serializer = MemoryEntrySlimSerializer(entries, many=True)
-    return Response(serializer.data)
+    return Response({"results": serializer.data, "total_count": total_count})
 
 
 @api_view(["GET"])
