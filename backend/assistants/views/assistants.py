@@ -1786,6 +1786,7 @@ def recover_assistant_view(request, slug):
                             if assistant.memory_context_id
                             else None
                         ),
+                        only_trusted=assistant.require_trusted_anchors,
                         debug=True,
                     )
                     used = [c.get("chunk_id") for c in chunks]

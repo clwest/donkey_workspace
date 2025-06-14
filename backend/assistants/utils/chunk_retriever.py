@@ -123,6 +123,7 @@ def get_relevant_chunks(
     fallback_min: float = 0.5,
     fallback_limit: int = 2,
     auto_expand: bool = False,
+    only_trusted: bool = False,
     force_chunks: bool = False,
     force_fallback: bool = False,
     min_rag_score: float = 0.3,
@@ -160,7 +161,8 @@ def get_relevant_chunks(
     allows zero-score or weak chunks to be returned when no valid options remain.
     ``min_rag_score`` triggers summary-level fallback when the best score is
     below the threshold. ``min_score`` controls the minimum score allowed when
-    glossary boosting is applied.
+    glossary boosting is applied. ``only_trusted`` restricts glossary anchors
+    to those marked as trusted.
     """
     if not query_text:
         return (
@@ -306,13 +308,19 @@ def get_relevant_chunks(
     query_terms = AcronymGlossaryService.extract(query_text)
 
     focus_qs = SymbolicMemoryAnchor.objects.filter(is_focus_term=True)
+    if only_trusted or (assistant and getattr(assistant, "require_trusted_anchors", False)):
+        focus_qs = focus_qs.filter(is_trusted=True)
     focus_fallback = False
     if auto_expand or settings.DEBUG:
         anchor_qs = SymbolicMemoryAnchor.objects.all()
+        if only_trusted or (assistant and getattr(assistant, "require_trusted_anchors", False)):
+            anchor_qs = anchor_qs.filter(is_trusted=True)
     elif focus_qs.exists():
         anchor_qs = focus_qs
     else:
         anchor_qs = SymbolicMemoryAnchor.objects.all()
+        if only_trusted or (assistant and getattr(assistant, "require_trusted_anchors", False)):
+            anchor_qs = anchor_qs.filter(is_trusted=True)
         focus_fallback = True
 
     anchor_qs = anchor_qs.prefetch_related("tags")
@@ -899,6 +907,7 @@ def get_rag_chunk_debug(
         assistant_id,
         query_text,
         memory_context_id=memory_context,
+        only_trusted=assistant.require_trusted_anchors if assistant else False,
         debug=True,
     )
 

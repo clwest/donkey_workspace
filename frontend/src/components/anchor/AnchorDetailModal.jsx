@@ -5,6 +5,12 @@ import apiFetch from "../../utils/apiClient";
 export default function AnchorDetailModal({ show, onClose, anchor }) {
   const [logs, setLogs] = useState([]);
 
+  const handleTrust = async () => {
+    if (!anchor) return;
+    await apiFetch(`/glossary/anchor/${anchor.slug}/trust/`, { method: "POST" });
+    onClose();
+  };
+
   useEffect(() => {
     if (!show || !anchor) return;
     apiFetch(`/anchor/${anchor.slug}/training/`)
@@ -14,6 +20,33 @@ export default function AnchorDetailModal({ show, onClose, anchor }) {
 
   return (
     <CommonModal show={show} onClose={onClose} title="Reinforcement History">
+      {anchor && (
+        <div className="mb-2">
+          Forecast Success:{" "}
+          <span
+            className={
+              anchor.mutation_forecast_score > 0
+                ? "text-success"
+                : anchor.mutation_forecast_score < 0
+                  ? "text-danger"
+                  : "text-muted"
+            }
+          >
+            {anchor.mutation_forecast_score?.toFixed(2)}
+          </span>
+          {anchor.is_trusted && (
+            <span className="badge bg-success ms-2">Trusted</span>
+          )}
+          {!anchor.is_trusted && (
+            <button
+              className="btn btn-sm btn-primary ms-2"
+              onClick={handleTrust}
+            >
+              Mark Trusted
+            </button>
+          )}
+        </div>
+      )}
       <ul className="list-group">
         {logs.map((l) => (
           <li key={l.id} className="list-group-item">

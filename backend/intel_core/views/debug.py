@@ -50,6 +50,7 @@ def rag_recall(request):
         assistant,
         query,
         memory_context_id=str(assistant.memory_context_id) if assistant else None,
+        only_trusted=assistant.require_trusted_anchors if assistant else False,
     )
     forced_chunks = [c["chunk_id"] for c in chunks if c.get("forced_included")]
     debug = {

@@ -389,6 +389,7 @@ def rag_check_source(request):
         assistant_id if assistant else None,
         content,
         memory_context_id=str(assistant.memory_context_id) if assistant else None,
+        only_trusted=assistant.require_trusted_anchors if assistant else False,
     )
     debug = {
         "fallback": fallback,

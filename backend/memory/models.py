@@ -541,6 +541,9 @@ class SymbolicMemoryAnchor(models.Model):
     reinforcement_log = models.ManyToManyField(
         "AnchorReinforcementLog", blank=True, related_name="anchors"
     )
+    is_trusted = models.BooleanField(default=False)
+    last_verified_at = models.DateTimeField(null=True, blank=True)
+    mutation_forecast_score = models.FloatField(default=0.0)
     explanation = models.TextField(null=True, blank=True)
     protected = models.BooleanField(default=False)
     display_tooltip = models.BooleanField(default=False)

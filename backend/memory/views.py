@@ -902,6 +902,7 @@ def symbolic_anchors(request):
     query = request.GET.get("q")
     order_by = request.GET.get("order_by")
     mutation_status = request.GET.get("mutation_status")
+    only_trusted = request.GET.get("only_trusted") == "true"
 
     if assistant:
         try:
@@ -915,6 +916,8 @@ def symbolic_anchors(request):
 
     if mutation_status:
         anchors = anchors.filter(mutation_status=mutation_status)
+    if only_trusted:
+        anchors = anchors.filter(is_trusted=True)
 
     anchors = anchors.order_by(order_by or "slug")
     serializer = SymbolicMemoryAnchorSerializer(anchors, many=True)
@@ -1459,3 +1462,14 @@ def edit_anchor_suggestion(request, id):
     if changed:
         suggestion.save(update_fields=["slug", "term"])
     return Response(AnchorSuggestionSerializer(suggestion).data)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def mark_anchor_trusted(request, slug):
+    """Manually mark an anchor as trusted."""
+    anchor = get_object_or_404(SymbolicMemoryAnchor, slug=slug)
+    anchor.is_trusted = True
+    anchor.last_verified_at = timezone.now()
+    anchor.save(update_fields=["is_trusted", "last_verified_at"])
+    return Response({"status": "trusted", "slug": anchor.slug})
