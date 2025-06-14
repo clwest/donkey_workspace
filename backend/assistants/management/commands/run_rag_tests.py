@@ -94,6 +94,7 @@ class Command(BaseCommand):
                         self.style.WARNING(
                             f"Missed anchor {expected_anchor} score={score:.2f} chunks={', '.join(chunk_ids)}"
                         )
+                    )
                     try:
                         log_rag_debug(
                             assistant,
