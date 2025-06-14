@@ -24,6 +24,9 @@ def get_anchor_health_metrics(assistant: Assistant) -> List[Dict[str, object]]:
         fallback_count = logs.filter(fallback_triggered=True).count()
         total_uses = a.total_uses
         fallback_rate = a.fallback_rate
+        match_rate = 0.0
+        if logs.exists():
+            match_rate = logs.filter(fallback_triggered=False).count() / logs.count()
         reinforcement_count = a.reinforcement_logs.filter(assistant=assistant).count()
         total_chunks = a.chunks.count()
         drifted = a.chunks.filter(is_drifting=True).count()
@@ -41,8 +44,10 @@ def get_anchor_health_metrics(assistant: Assistant) -> List[Dict[str, object]]:
                 "fallback_count": fallback_count,
                 "uses": total_uses,
                 "fallback_rate": round(fallback_rate, 2),
+                "match_rate": round(match_rate, 2),
                 "mutation_status": a.mutation_status,
                 "is_unstable": a.is_unstable,
+                "auto_suppressed": a.auto_suppressed,
                 "reinforcement_count": reinforcement_count,
                 "chunk_count": total_chunks,
                 "drift_score": round(drift_score, 2),

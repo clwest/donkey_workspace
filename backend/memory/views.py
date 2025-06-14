@@ -1337,12 +1337,11 @@ def anchor_diagnostics(request):
     for a in anchors:
         chunk_count = a.chunks.count()
         fallback_count = GlossaryFallbackReflectionLog.objects.filter(anchor_slug=a.slug).count()
-        avg_score = (
-            RAGGroundingLog.objects.filter(expected_anchor=a.slug)
-            .aggregate(avg=Avg("adjusted_score"))
-            .get("avg")
-            or 0.0
-        )
+        qs = RAGGroundingLog.objects.filter(expected_anchor=a.slug)
+        avg_score = qs.aggregate(avg=Avg("adjusted_score")).get("avg") or 0.0
+        match_rate = 0.0
+        if qs.exists():
+            match_rate = qs.filter(fallback_triggered=False).count() / qs.count()
         data.append(
             {
                 "slug": a.slug,
@@ -1350,6 +1349,8 @@ def anchor_diagnostics(request):
                 "chunk_count": chunk_count,
                 "fallback_count": fallback_count,
                 "avg_score": round(avg_score, 2),
+                "match_rate": round(match_rate, 2),
+                "auto_suppressed": a.auto_suppressed,
                 "assistant": a.assistant.slug if a.assistant else None,
             }
         )

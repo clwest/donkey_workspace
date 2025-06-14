@@ -35,6 +35,8 @@ export default function AnchorDiagnosticsPage() {
             <th>Chunks</th>
             <th>Fallbacks</th>
             <th>Avg Score</th>
+            <th>Match Rate</th>
+            <th>Suppressed</th>
             <th>Assistant</th>
           </tr>
         </thead>
@@ -45,12 +47,14 @@ export default function AnchorDiagnosticsPage() {
               <td>{r.chunk_count}</td>
               <td>{r.fallback_count}</td>
               <td>{r.avg_score}</td>
+              <td>{r.match_rate}</td>
+              <td>{r.auto_suppressed ? "yes" : "no"}</td>
               <td>{r.assistant || "-"}</td>
             </tr>
           ))}
           {rows.length === 0 && (
             <tr>
-              <td colSpan="5" className="text-muted">
+              <td colSpan="7" className="text-muted">
                 No data
               </td>
             </tr>

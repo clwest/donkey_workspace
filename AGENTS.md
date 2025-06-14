@@ -51,6 +51,7 @@ rules:
 • Ω.9.104 — Prompt Boosting & Demo Metadata: demo sessions inject boosted prompts; overlay & recap panels show injected traits fileciteturn1file5
 • Ω.9.125 — Context Reset & Fresh Chat Session Notes Overview: resets system context after deep dev on Demo Assistants, Glossary Diagnostics, and Assistant Trust Profiles fileciteturn1file5
 • Ω.9.126 — Feedback Collection in-app widget and API
+• Ω.10.r — RAG Recall Correction + Memory Expansion
 
 ⸻
 

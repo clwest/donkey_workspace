@@ -573,6 +573,17 @@ class SymbolicMemoryAnchor(models.Model):
     def __str__(self):
         return self.label
 
+    @property
+    def auto_suppressed(self) -> bool:
+        """Determine if anchor should be auto-suppressed."""
+        if self.avg_score < 0.05:
+            return True
+        if self.chunks.count() == 0:
+            return True
+        from django.apps import apps
+        Log = apps.get_model("memory", "RAGGroundingLog")
+        return not Log.objects.filter(expected_anchor=self.slug).exists()
+
     def save(self, *args, **kwargs):
         if (
             self.mutation_score_before is not None
