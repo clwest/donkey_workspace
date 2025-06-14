@@ -105,6 +105,7 @@ from .memory import (
     reflect_first_use,
     rag_playback_detail,
     assistant_memory_documents,
+    link_diagnostics,
     # memory_to_project,
 )
 from .playback import rag_playback_compare
@@ -270,6 +271,7 @@ __all__ = [
     "rag_playback_detail",
     "rag_playback_compare",
     "assistant_memory_documents",
+    "link_diagnostics",
     # "memory_to_project",
     "linked_prompts",
     "link_prompt_to_project",

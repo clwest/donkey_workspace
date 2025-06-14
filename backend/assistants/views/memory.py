@@ -495,3 +495,19 @@ def reflection_review_primer(request, slug):
             "full_view": f"/assistants/{assistant.slug}/reflections/",
         }
     )
+
+@api_view(["GET"])
+def link_diagnostics(request, slug):
+    """Return memory link diagnostics for an assistant."""
+    assistant = get_object_or_404(Assistant, slug=slug)
+    orphaned = MemoryEntry.objects.filter(assistant=assistant, context__isnull=True).count()
+    conflicts = MemoryEntry.objects.filter(assistant=assistant, context__isnull=False).exclude(context_id=assistant.memory_context_id).count()
+    from memory.models import MemoryChain
+    chainless = MemoryChain.objects.filter(memories__assistant=assistant, thread__isnull=True).distinct().count()
+    unlinked_threads = NarrativeThread.objects.filter(related_memories__assistant=assistant, origin_memory__isnull=True).distinct().count()
+    return Response({
+        "orphaned": orphaned,
+        "conflicting": conflicts,
+        "unlinked_chains": chainless,
+        "unlinked_threads": unlinked_threads,
+    })

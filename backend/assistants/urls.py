@@ -282,6 +282,11 @@ urlpatterns = [
         name="assistant-memory-documents",
     ),
     path(
+        "<slug:slug>/link_diagnostics/",
+        memory.link_diagnostics,
+        name="assistant-link-diagnostics",
+    ),
+    path(
         "<slug:slug>/memory-to-project/",
         projects.memory_to_project,
         name="memory-to-project",
