@@ -558,6 +558,8 @@ def save_document_to_db(content, metadata, session_id=None):
         from embeddings.tasks import embed_and_store
 
         _create_document_chunks(document)
+        document.status = "processing"
+        document.save(update_fields=["status"])
         chunks = list(DocumentChunk.objects.filter(document=document))
         chunk_count = len(chunks)
         logger.info("[Chunking] Generated %d chunks", chunk_count)

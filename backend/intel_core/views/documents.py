@@ -375,45 +375,82 @@ def upload_status(request, pk):
 
     doc.sync_progress()
     progress = doc.get_progress()
-    chunk_count = 0
-    embedded = 0
-    status = "queued"
-    warnings = []
 
-    if progress:
-        chunk_count = progress.total_chunks
-        embedded = progress.embedded_chunks
-        if progress.status == "failed" or doc.status == "failed":
-            status = "failed"
-        elif progress.processed < progress.total_chunks:
-            status = "queued"
-        elif embedded < chunk_count:
-            status = "embedding"
-        else:
-            status = "complete"
-    else:
-        chunk_count = doc.chunks.count()
-        embedded = doc.chunks.filter(embedding__isnull=False).count()
-        if doc.status == "failed":
-            status = "failed"
-        elif chunk_count == 0:
-            status = "queued"
-        elif embedded < chunk_count:
-            status = "embedding"
-        else:
-            status = "complete"
+    chunk_count = progress.total_chunks if progress else doc.chunks.count()
+    embedded = progress.embedded_chunks if progress else doc.chunks.filter(
+        embedding__isnull=False
+    ).count()
 
-    if chunk_count == 0 and status == "complete":
-        warnings.append("No chunks found for completed upload")
+    reason = doc.progress_error or getattr(progress, "error_message", None)
+    if chunk_count == 0 and doc.status != "completed":
+        reason = reason or "no_chunks"
 
     data = {
         "document_id": str(doc.id),
-        "total_chunks": chunk_count,
-        "completed_chunks": embedded,
-        "tokens": doc.token_count_int,
-        "status": status,
+        "chunk_count": chunk_count,
+        "embedded_count": embedded,
+        "token_count": doc.token_count_int,
+        "status": doc.status,
+        "is_failed": doc.status == "failed",
+        "reason": reason,
         "last_updated": doc.updated_at,
     }
-    if warnings:
-        data["warnings"] = warnings
+
     return Response(data)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def retry_document_upload(request, pk):
+    """Reset a failed document and requeue it for ingestion."""
+    try:
+        doc = Document.objects.get(pk=pk)
+    except Document.DoesNotExist:
+        return Response({"error": "Document not found"}, status=404)
+
+    from intel_core.utils.processing import _create_document_chunks
+    from intel_core.models import DocumentChunk, EmbeddingMetadata
+
+    EmbeddingMetadata.objects.filter(chunk__document=doc).delete()
+    DocumentChunk.objects.filter(document=doc).delete()
+    progress = doc.get_progress()
+    if progress:
+        progress.delete()
+
+    doc.status = "queued"
+    doc.progress_error = None
+    doc.metadata = {}
+    doc.save(update_fields=["status", "progress_error", "metadata"])
+
+    _create_document_chunks(doc)
+    doc.status = "processing"
+    doc.save(update_fields=["status"])
+
+    return Response({"status": "queued"}, status=202)
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def force_embed_document(request, pk):
+    """Force re-embed skipped or missing chunks."""
+    try:
+        doc = Document.objects.get(pk=pk)
+    except Document.DoesNotExist:
+        return Response({"error": "Document not found"}, status=404)
+
+    from embeddings.tasks import embed_and_store
+
+    count = 0
+    for chunk in doc.chunks.all():
+        if not chunk.embedding or chunk.embedding_status != "embedded":
+            chunk.embedding = None
+            chunk.embedding_status = "pending"
+            chunk.force_embed = True
+            chunk.save(update_fields=["embedding", "embedding_status", "force_embed"])
+            embed_and_store.delay(str(chunk.id))
+            count += 1
+
+    doc.status = "processing"
+    doc.save(update_fields=["status"])
+
+    return Response({"queued": count})

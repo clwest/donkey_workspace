@@ -32,5 +32,6 @@ class UploadStatusViewTest(APITestCase):
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
-        self.assertEqual(data["total_chunks"], 4)
-        self.assertEqual(data["completed_chunks"], 1)
+        self.assertEqual(data["chunk_count"], 4)
+        self.assertEqual(data["embedded_count"], 1)
+        self.assertEqual(data["status"], "queued")
