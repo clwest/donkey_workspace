@@ -342,6 +342,7 @@ class AssistantReflectionEngine:
             memory_context_id=str(self.assistant.memory_context_id)
             if self.assistant.memory_context_id
             else None,
+            only_trusted=self.assistant.require_trusted_anchors,
         )
         rag_chunks = [c["text"] for c in chunk_info]
         if scene or location_context:

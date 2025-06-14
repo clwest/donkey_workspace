@@ -103,6 +103,11 @@ urlpatterns = (
             name="glossary-anchor-detail",
         ),
         path(
+            "glossary/anchor/<slug:slug>/trust/",
+            views.mark_anchor_trusted,
+            name="anchor-mark-trusted",
+        ),
+        path(
             "glossary/boost_anchor/",
             views.boost_anchor,
             name="glossary-boost-anchor",

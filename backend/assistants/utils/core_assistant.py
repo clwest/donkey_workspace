@@ -164,5 +164,6 @@ class CoreAssistant:
                 if self.assistant.memory_context_id
                 else None
             ),
+            only_trusted=self.assistant.require_trusted_anchors,
         )
         return [c.get("text", "") for c in chunks[:limit]]

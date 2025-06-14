@@ -13,6 +13,7 @@ export default function AnchorSuggestionPage() {
   const [status, setStatus] = useState("pending");
   const [tab, setTab] = useState("suggestions");
   const [detail, setDetail] = useState(null);
+  const [sort, setSort] = useState("score");
 
   const load = async () => {
     const params = new URLSearchParams();
@@ -26,7 +27,10 @@ export default function AnchorSuggestionPage() {
     const params = new URLSearchParams();
     if (assistant) params.set("assistant", assistant);
     params.set("mutation_status", "applied");
-    params.set("order_by", "-mutation_score");
+    if (sort === "trusted") params.set("order_by", "-is_trusted");
+    else if (sort === "volatile") params.set("order_by", "-mutation_score_delta");
+    else if (sort === "verified") params.set("order_by", "-last_verified_at");
+    else params.set("order_by", "-mutation_score");
     const res = await apiFetch(
       `/memory/symbolic-anchors/?${params.toString()}`,
     );
@@ -43,7 +47,7 @@ export default function AnchorSuggestionPage() {
     } else {
       loadScorecard();
     }
-  }, [assistant, status, tab]);
+  }, [assistant, status, tab, sort]);
 
   const handleAccept = async (id) => {
     await apiFetch(`/anchor/suggestions/${id}/accept/`, { method: "POST" });
@@ -86,6 +90,19 @@ export default function AnchorSuggestionPage() {
           <option value="accepted">accepted</option>
           <option value="rejected">rejected</option>
         </select>
+        {tab === "scorecard" && (
+          <select
+            className="form-select form-select-sm"
+            style={{ maxWidth: "160px" }}
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+          >
+            <option value="score">Top Score</option>
+            <option value="trusted">Most Trusted</option>
+            <option value="volatile">Most Volatile</option>
+            <option value="verified">Recently Verified</option>
+          </select>
+        )}
       </div>
       {tab === "suggestions" && (
         <table className="table table-sm">
@@ -154,7 +171,12 @@ export default function AnchorSuggestionPage() {
           <tbody>
             {scoreRows.map((a) => (
               <tr key={a.id}>
-                <td>{a.label}</td>
+                <td>
+                  {a.label}
+                  {a.is_trusted && (
+                    <span className="badge bg-success ms-1">✓</span>
+                  )}
+                </td>
                 <td>
                   <span
                     className={
@@ -167,6 +189,9 @@ export default function AnchorSuggestionPage() {
                   >
                     {a.mutation_score.toFixed(2)}
                   </span>
+                  <small className="ms-2 text-muted">
+                    {a.mutation_forecast_score?.toFixed(2)}
+                  </small>
                 </td>
                 <td>
                   <Button size="sm" onClick={() => setDetail(a)}>
