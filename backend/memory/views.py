@@ -75,9 +75,14 @@ load_dotenv()
 client = OpenAI()
 logger = logging.getLogger(__name__)
 
+
 def _rate_limited(request, key: str, window: int = 3) -> bool:
     """Simple per-user rate limit using the cache."""
-    ident = request.user.id if request.user.is_authenticated else request.META.get("REMOTE_ADDR")
+    ident = (
+        request.user.id
+        if request.user.is_authenticated
+        else request.META.get("REMOTE_ADDR")
+    )
     cache_key = f"rl:{ident}:{key}"
     if cache.get(cache_key):
         return True
@@ -941,10 +946,13 @@ def update_symbolic_anchor(request, pk):
     if serializer.is_valid():
         orig_label = anchor.label
         anchor = serializer.save()
-        if 'label' in serializer.validated_data and serializer.validated_data['label'] != orig_label:
+        if (
+            "label" in serializer.validated_data
+            and serializer.validated_data["label"] != orig_label
+        ):
             anchor.mutated_from = orig_label
-            anchor.mutated_reason = 'manual_edit'
-            anchor.save(update_fields=['mutated_from', 'mutated_reason'])
+            anchor.mutated_reason = "manual_edit"
+            anchor.save(update_fields=["mutated_from", "mutated_reason"])
         return Response(SymbolicMemoryAnchorSerializer(anchor).data)
     return Response(serializer.errors, status=400)
 
@@ -965,12 +973,12 @@ def glossary_anchor_detail(request, slug):
         orig_label = anchor.label
         anchor = serializer.save()
         if (
-            'label' in serializer.validated_data
-            and serializer.validated_data['label'] != orig_label
+            "label" in serializer.validated_data
+            and serializer.validated_data["label"] != orig_label
         ):
             anchor.mutated_from = orig_label
-            anchor.mutated_reason = 'manual_edit'
-            anchor.save(update_fields=['mutated_from', 'mutated_reason'])
+            anchor.mutated_reason = "manual_edit"
+            anchor.save(update_fields=["mutated_from", "mutated_reason"])
         if old_slug != anchor.slug and request.GET.get("auto_retag") == "true":
             from intel_core.models import DocumentChunk
 
@@ -1327,16 +1335,22 @@ def reject_replay(request, id):
     replay.save(update_fields=["status"])
     return Response({"status": "skipped"})
 
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def anchor_diagnostics(request):
     """Return basic diagnostics for all anchors."""
     from django.db.models import Avg, Count
+    from intel_core.models import ChunkTag
+
     anchors = SymbolicMemoryAnchor.objects.all()
     data = []
     for a in anchors:
         chunk_count = a.chunks.count()
-        fallback_count = GlossaryFallbackReflectionLog.objects.filter(anchor_slug=a.slug).count()
+        linked_count = ChunkTag.objects.filter(name=a.slug).count()
+        fallback_count = GlossaryFallbackReflectionLog.objects.filter(
+            anchor_slug=a.slug
+        ).count()
         qs = RAGGroundingLog.objects.filter(expected_anchor=a.slug)
         avg_score = qs.aggregate(avg=Avg("adjusted_score")).get("avg") or 0.0
         match_rate = 0.0
@@ -1348,6 +1362,7 @@ def anchor_diagnostics(request):
                 "label": a.label,
                 "chunk_count": chunk_count,
                 "fallback_count": fallback_count,
+                "linked_chunks_count": linked_count,
                 "avg_score": round(avg_score, 2),
                 "match_rate": round(match_rate, 2),
                 "auto_suppressed": a.auto_suppressed,
@@ -1360,4 +1375,3 @@ def anchor_diagnostics(request):
         .filter(count__gt=1)
     )
     return Response({"results": data, "duplicates": list(duplicates)})
-

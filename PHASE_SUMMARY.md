@@ -48,6 +48,7 @@ A living document tracking all MythOS assistant phases. Each phase has a name, s
 | Ω.10.p     | Anchor Rebuild from RAG-Scored Chunks       | ✅ Done | 2025-06-15 | New CLI command + utility to extract glossary terms from chunk logs |
 | Ω.10.q     | Symbolic Anchor Mutation Review UI          | ✅ Done | 2025-06-15 | SymbolicAnchorReviewPage, mutation logging, review interface        |
 | Ω.10.r     | Assistant Memory Repair and Thread Linking  | ✅ Done | 2025-06-15 | repair_assistant_memory_links, /link_diagnostics/ API + UI updates  |
+| Ω.10.s     | Reconnect Symbolic Anchors to Matching Chunks | ✅ Done | 2025-06-16 | relink_anchor_chunks CLI, tag diagnostics |
 
 ---
 
