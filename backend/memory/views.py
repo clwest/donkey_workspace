@@ -1418,6 +1418,19 @@ def accept_anchor_suggestion(request, id):
             suggestion.original_anchor = anchor
         suggestion.status = "accepted"
         suggestion.save(update_fields=["status", "original_anchor"])
+        try:
+            from memory.services.reinforcement import reinforce_glossary_anchor
+
+            reinforce_glossary_anchor(
+                anchor,
+                assistant=suggestion.assistant,
+                source="suggestion_accept",
+                outcome="boosted",
+                score=1.0,
+                score_delta=1.0,
+            )
+        except Exception:
+            pass
     return Response(AnchorSuggestionSerializer(suggestion).data)
 
 

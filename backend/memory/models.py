@@ -538,6 +538,9 @@ class SymbolicMemoryAnchor(models.Model):
     reinforced_by = models.ManyToManyField(
         "assistants.Assistant", blank=True, related_name="reinforced_anchors"
     )
+    reinforcement_log = models.ManyToManyField(
+        "AnchorReinforcementLog", blank=True, related_name="anchors"
+    )
     explanation = models.TextField(null=True, blank=True)
     protected = models.BooleanField(default=False)
     display_tooltip = models.BooleanField(default=False)
@@ -559,6 +562,7 @@ class SymbolicMemoryAnchor(models.Model):
     fallback_rate = models.FloatField(default=0.0)
     score_snapshot = models.JSONField(default=dict, blank=True)
     is_unstable = models.BooleanField(default=False)
+    mutation_score = models.FloatField(default=0.0)
     mutation_score_before = models.FloatField(null=True, blank=True)
     mutation_score_after = models.FloatField(null=True, blank=True)
     mutation_score_delta = models.FloatField(null=True, blank=True)
@@ -581,6 +585,7 @@ class SymbolicMemoryAnchor(models.Model):
         if self.chunks.count() == 0:
             return True
         from django.apps import apps
+
         Log = apps.get_model("memory", "RAGGroundingLog")
         return not Log.objects.filter(expected_anchor=self.slug).exists()
 
@@ -721,6 +726,19 @@ class AnchorConvergenceLog(models.Model):
 class AnchorReinforcementLog(models.Model):
     """Record when an anchor is reinforced in memory."""
 
+    TRIGGER_CHOICES = [
+        ("suggestion", "suggestion"),
+        ("fallback", "fallback"),
+        ("manual", "manual"),
+    ]
+
+    OUTCOME_CHOICES = [
+        ("match", "match"),
+        ("miss", "miss"),
+        ("fallback", "fallback"),
+        ("boosted", "boosted"),
+    ]
+
     anchor = models.ForeignKey(
         SymbolicMemoryAnchor,
         on_delete=models.CASCADE,
@@ -739,7 +757,18 @@ class AnchorReinforcementLog(models.Model):
         on_delete=models.SET_NULL,
     )
     reason = models.CharField(max_length=64)
+    trigger_source = models.CharField(
+        max_length=20,
+        choices=TRIGGER_CHOICES,
+        default="manual",
+    )
+    outcome = models.CharField(
+        max_length=20,
+        choices=OUTCOME_CHOICES,
+        default="match",
+    )
     score = models.FloatField(default=0.0)
+    score_delta = models.FloatField(default=0.0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
