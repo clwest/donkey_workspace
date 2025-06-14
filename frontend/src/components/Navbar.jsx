@@ -189,6 +189,11 @@ export default function Navbar({ onToggleSidebar }) {
                   </Link>
                 </li>
                 <li>
+                  <Link className="dropdown-item" to="/topic_sets">
+                    📑 Topic Sets
+                  </Link>
+                </li>
+                <li>
                   <Link className="dropdown-item" to="/intel/load-url">
                     🌐 Load URL
                   </Link>

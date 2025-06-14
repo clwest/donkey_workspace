@@ -778,4 +778,11 @@ export const routeMap = [
     serializer: "-",
     notes: "Active document upload queue",
   },
+  {
+    frontend: "/topic_sets",
+    backend: "/api/intel/topic-sets/",
+    view: "TopicSetListPage",
+    serializer: "DocumentTopicSetSerializer",
+    notes: "Auto-clustered topic sets",
+  },
 ];

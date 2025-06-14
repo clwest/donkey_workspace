@@ -202,6 +202,7 @@ import AuthDebugPage from "./pages/dev/AuthDebugPage";
 import EmbeddingDriftLog from "./pages/dev/debug/EmbeddingDriftLog";
 import UploadQueuePage from "./pages/dev/upload/UploadQueuePage";
 import DocumentBrowserPage from "./pages/intel_core/DocumentBrowserPage";
+import TopicSetListPage from "./pages/intel_core/TopicSetListPage";
 import DocumentDetailPage from "./pages/intel_core/DocumentDetailPage";
 
 import ImageGalleryPage from "./pages/media/ImageGalleryPage";
@@ -987,6 +988,7 @@ export default function App() {
           />
           <Route path="/agents/:slug" element={<AgentDetailRoute />} />
           <Route path="/intel/documents" element={<DocumentBrowserPage />} />
+          <Route path="/topic_sets" element={<TopicSetListPage />} />
           
           <Route
             path="/intel/documents/:id"

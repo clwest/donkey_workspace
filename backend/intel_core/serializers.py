@@ -7,6 +7,7 @@ from intel_core.models import (
     DocumentSet,
     DocumentChunk,
     EmbeddingMetadata,
+    DocumentTopicSet,
 )
 from assistants.models.reflection import AssistantReflectionLog
 from assistants.serializers import TagSerializer
@@ -175,6 +176,25 @@ class DocumentSetSerializer(serializers.ModelSerializer):
             "created_at",
             "embedding_index",
         ]
+
+
+class DocumentTopicSetSerializer(serializers.ModelSerializer):
+    related_chunks = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    auto_suggested_anchor = serializers.SerializerMethodField()
+
+    class Meta:
+        model = DocumentTopicSet
+        fields = [
+            "id",
+            "title",
+            "description",
+            "related_chunks",
+            "auto_suggested_anchor",
+            "created_at",
+        ]
+
+    def get_auto_suggested_anchor(self, obj):
+        return getattr(obj.auto_suggested_anchor, "label", None)
 
 
 class DocumentChunkFullSerializer(serializers.ModelSerializer):
