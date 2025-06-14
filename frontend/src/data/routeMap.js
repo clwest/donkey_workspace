@@ -758,6 +758,13 @@ export const routeMap = [
     notes: "List reflections for a document",
   },
   {
+    frontend: "/dev/upload",
+    backend: "/api/v1/intel/upload/status/<uuid:id>/",
+    view: "UploadQueuePage",
+    serializer: "-",
+    notes: "Active document upload queue",
+  },
+  {
     frontend: "/dev/upload/queue",
     backend: "/api/v1/intel/upload/status/<uuid:id>/",
     view: "UploadQueuePage",
