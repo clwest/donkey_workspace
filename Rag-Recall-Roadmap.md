@@ -22,7 +22,7 @@ This document outlines the next logical stages of RAG (Retrieval-Augmented Gener
 Goal: Suggest or mutate anchors with weak matches by analyzing nearby high-scoring chunks
 
 Tasks:
-• CLI: suggest_better_anchors
+• ✅ CLI: suggest_better_anchors
 • Scan RAGGroundingLog for weak matches
 • Identify high-score chunks within token radius
 • Extract candidate tokens from chunk
