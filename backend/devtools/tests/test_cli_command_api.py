@@ -43,5 +43,9 @@ class CLICommandAPITest(APITestCase):
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
         self.assertIn("results", data)
-        self.assertTrue(any(cmd["name"] == "show_urls" for cmd in data["results"]))
+        self.assertIsInstance(data["results"], dict)
+        flattened = []
+        for cmds in data["results"].values():
+            flattened.extend(cmds)
+        self.assertTrue(any(cmd["name"] == "show_urls" for cmd in flattened))
 

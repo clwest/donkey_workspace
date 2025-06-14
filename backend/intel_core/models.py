@@ -81,6 +81,17 @@ class Document(models.Model):
             ("stale", "Stale"),
         ],
     )
+    upload_status = models.CharField(
+        max_length=20,
+        default="pending",
+        choices=[
+            ("pending", "Pending"),
+            ("uploading", "Uploading"),
+            ("uploaded", "Uploaded"),
+            ("error", "Error"),
+        ],
+    )
+    upload_error = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_deleted = models.BooleanField(default=False)

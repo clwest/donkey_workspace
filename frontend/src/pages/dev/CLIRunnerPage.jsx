@@ -17,8 +17,13 @@ export default function CLIRunnerPage() {
     async function loadData() {
       try {
         const cmdRes = await apiFetch("/dev/cli/list/");
-        setCommands(cmdRes.results || []);
-        if (cmdRes.results?.length) setCommand(cmdRes.results[0].name);
+        const groups = cmdRes.results || {};
+        const flat = [];
+        Object.entries(groups).forEach(([app, cmds]) => {
+          cmds.forEach((c) => flat.push({ ...c, app }));
+        });
+        setCommands(flat);
+        if (flat.length) setCommand(flat[0].name);
       } catch {
         setCommands([]);
       }
@@ -68,7 +73,7 @@ export default function CLIRunnerPage() {
     filter ? c.app.startsWith(filter) : true
   );
 
-  const apps = Array.from(new Set(commands.map((c) => c.app.split(".")[0])));
+  const apps = Array.from(new Set(commands.map((c) => c.app)));
 
   // if (!isAdmin) {
   //   return <div className="container my-4">Admin access required</div>;

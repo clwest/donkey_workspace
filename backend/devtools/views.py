@@ -36,7 +36,13 @@ def _get_available_commands():
         for name, app in cmds.items()
         if any(app.startswith(t) for t in TARGET_APPS)
     ]
-    return sorted(results, key=lambda c: c["name"])
+    grouped = {}
+    for item in results:
+        base = item["app"].split(".")[0]
+        grouped.setdefault(base, []).append(item)
+    for cmd_list in grouped.values():
+        cmd_list.sort(key=lambda c: c["name"])
+    return grouped
 
 
 def _walk_patterns(patterns, prefix=""):
@@ -273,7 +279,12 @@ def rag_debug_logs(request):
 def cli_command_list(request):
     """Return available management commands"""
     commands = list_cli_commands()
-    return Response({"results": commands})
+    grouped = {}
+    for cmd in commands:
+        grouped.setdefault(cmd["app"], []).append(cmd)
+    for lst in grouped.values():
+        lst.sort(key=lambda c: c["name"])
+    return Response({"results": grouped})
 
 
 @api_view(["POST"])
