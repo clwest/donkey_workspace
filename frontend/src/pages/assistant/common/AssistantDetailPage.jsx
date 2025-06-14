@@ -48,7 +48,7 @@ import useGlossaryOverlay from "../../../hooks/glossary";
 import GlossaryOverlayTooltip from "../../../components/GlossaryOverlayTooltip";
 import AssistantSummaryCards from "../../../components/assistant/AssistantSummaryCards";
 import DemoTipsSidebar from "../../../components/demo/DemoTipsSidebar";
-import useAssistantMemories from "../../../hooks/useAssistantMemories";
+import useAssistantDetails from "../../../hooks/useAssistantDetails";
 
 export default function AssistantDetailPage() {
   useAuthGuard();
@@ -74,7 +74,6 @@ export default function AssistantDetailPage() {
   const [assessing, setAssessing] = useState(false);
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState("");
-  const [refreshKey, setRefreshKey] = useState(0);
   const [showBoot, setShowBoot] = useState(false);
   const [lastSelfTest, setLastSelfTest] = useState(null);
   const [mutationCount, setMutationCount] = useState(0);
@@ -89,9 +88,14 @@ export default function AssistantDetailPage() {
   const projectId = query.get("project");
   const memoryId = query.get("memory");
   const objectiveId = query.get("objective");
-  const { memories, totalCount } = useAssistantMemories(slug, { limit: 100 });
+  const {
+    memories,
+    totalCount,
+    reflections,
+    refreshAll,
+  } = useAssistantDetails(slug, { limit: 100, pauseOnError: true });
   const handleDiagnosticsRefresh = () => {
-    setRefreshKey((k) => k + 1);
+    refreshAll();
     reloadAssistant();
   };
 
@@ -158,32 +162,23 @@ export default function AssistantDetailPage() {
   }, [slug]);
 
   useEffect(() => {
-    async function loadMemoryStats() {
-      try {
-        const reflRes = await apiFetch(`/assistants/${slug}/reflections/`);
-        const reflList = reflRes.results || reflRes;
-        setMemoryStats({
-          memories: totalCount ?? memories.length,
-          reflections: reflList.length,
-        });
-        const primer = reflList.find((r) => r.is_primer);
-        setPrimerReflection(primer || null);
-        setLatestMemoryId(memories[0]?.id || null);
-        if (
-          reflList.length > 0 &&
-          userInfo?.onboarding_complete &&
-          !localStorage.getItem(`seen_reflection_primer_${slug}`)
-        ) {
-          setShowPrimer(true);
-        }
-      } catch (err) {
-        console.error("Failed to load memory stats", err);
-      }
+    if (!slug || totalCount == null) return;
+    const reflList = reflections || [];
+    setMemoryStats({
+      memories: totalCount ?? memories.length,
+      reflections: reflList.length,
+    });
+    const primer = reflList.find((r) => r.is_primer);
+    setPrimerReflection(primer || null);
+    setLatestMemoryId(memories[0]?.id || null);
+    if (
+      reflList.length > 0 &&
+      userInfo?.onboarding_complete &&
+      !localStorage.getItem(`seen_reflection_primer_${slug}`)
+    ) {
+      setShowPrimer(true);
     }
-    if (slug && totalCount != null) {
-      loadMemoryStats();
-    }
-  }, [slug, refreshKey, totalCount, memories]);
+  }, [slug, totalCount, memories, reflections, userInfo]);
 
   useEffect(() => {
     if (!assistant) return;
@@ -1058,7 +1053,7 @@ export default function AssistantDetailPage() {
             </div>
           )}
 
-          <AssistantMemoryPanel slug={slug} refreshKey={refreshKey} />
+          <AssistantMemoryPanel slug={slug} />
           {memoryStats && (
             <div className="alert alert-info mt-2">
               <strong>Memory Entries:</strong> {memoryStats.memories} |{" "}

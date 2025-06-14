@@ -1,40 +1,35 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import apiFetch from "../../utils/apiClient";
+import useAssistantDetails from "../../hooks/useAssistantDetails";
 
 export default function AssistantReflectionPanel({ slug }) {
   const [groups, setGroups] = useState([]);
   const [expanded, setExpanded] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [paused, setPaused] = useState(false);
-  const lastRef = useRef(0);
+  const [autoRetry, setAutoRetry] = useState(false);
+  const { reflections, paused, refreshAll } = useAssistantDetails(slug, {
+    pauseOnError: true,
+  });
+  const loading = !reflections;
 
   useEffect(() => {
-    if (!slug) return;
-    async function load() {
-      if (Date.now() - lastRef.current < 1000) return;
-      lastRef.current = Date.now();
-      setLoading(true);
-      try {
-        const data = await apiFetch(`/assistants/${slug}/recent-reflections/`);
-        const grouped = {};
-        data.forEach((item) => {
-          const key = item.group_slug || "default";
-          if (!grouped[key]) grouped[key] = [];
-          grouped[key].push(item);
-        });
-        setGroups(Object.entries(grouped).map(([k, items]) => ({ slug: k, items })));
-      } catch (err) {
-        if (err.status === 429) {
-          setPaused(true);
-        }
-        console.error("Failed to load reflections", err);
-      } finally {
-        setLoading(false);
-      }
+    if (!reflections) return;
+    const grouped = {};
+    reflections.forEach((item) => {
+      const key = item.group_slug || "default";
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(item);
+    });
+    setGroups(
+      Object.entries(grouped).map(([k, items]) => ({ slug: k, items })),
+    );
+  }, [reflections]);
+
+  useEffect(() => {
+    if (autoRetry && paused) {
+      const id = setTimeout(() => refreshAll(), 10000);
+      return () => clearTimeout(id);
     }
-    load();
-  }, [slug]);
+  }, [autoRetry, paused, refreshAll]);
 
   if (loading) return <div>Loading reflections...</div>;
   if (groups.length === 0) return <div>No reflections.</div>;
@@ -43,7 +38,21 @@ export default function AssistantReflectionPanel({ slug }) {
     <div className="mt-3">
       <h5 className="mb-2">Recent Reflections</h5>
       {paused && (
-        <div className="alert alert-warning">Paused due to rate limit</div>
+        <div className="alert alert-warning d-flex align-items-center">
+          Paused due to rate limit
+          <div className="form-check form-switch ms-2">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              id="reflAuto"
+              checked={autoRetry}
+              onChange={(e) => setAutoRetry(e.target.checked)}
+            />
+            <label className="form-check-label" htmlFor="reflAuto">
+              Auto Retry
+            </label>
+          </div>
+        </div>
       )}
       <ul className="list-group">
         {groups.slice(0, 5).map((g) => (
