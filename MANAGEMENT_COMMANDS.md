@@ -1,86 +1,116 @@
-# Link DevDocs to Documents and ensure summaries + reflections exist
+# 🧠 MANAGEMENT_COMMANDS.md
 
+_A curated reference for running assistant system maintenance, diagnostics, and repair tasks._
+
+---
+
+## 🔄 PHASE 0: DevDoc Linking + Seeding
+
+```bash
 python manage.py repair_devdoc_links
-
-# NEW — Auto-repair any unlinked or missing summaries and reflect
-
 python manage.py relink_devdocs
-
-# Cleanup unused or duplicate assistant slugs
-
 python manage.py cleanup_orphan_assistants
+```
 
-# ─── PHASE 1: Embedding Repair + Sync ────────────────────────────
+---
 
+## 🔧 PHASE 1: Embedding Repair + Sync
+
+```bash
 python manage.py fix_embedding_content
 python manage.py repair_embedding_links
 python manage.py repair_flagged_embeddings
 python manage.py repair_all_embeddings
 python manage.py audit_embedding_links --diff
+python manage.py repair_low_score_embeddings --threshold 0.2
+python manage.py repair_embedding_metadata --summary
+```
 
-# ─── PHASE 2: Context-Level Repair + Drift Snapshots ─────────────
+---
 
-python manage.py repair_context_embeddings --assistant 64e0fa88-702f-4918-85a7-5d5a309722a7 (claritybot)
+## 🧬 PHASE 2: Context Repair + Drift Tracking
+
+```bash
+python manage.py repair_context_embeddings --assistant <slug|uuid>
 python manage.py log_embedding_drift
+```
 
-# ─── PHASE 3: Assistant Reflection + Document Sync ───────────────
+---
 
-python manage.py reflect_on_document --doc a0041480-7dfd-4659-8896-087713429414 --assistant 64e0fa88-702f-4918-85a7-5d5a309722a7 (claritybot)
+## 🪞 PHASE 3: Assistant Reflection + Document Sync
+
+```bash
+python manage.py reflect_on_document --doc <uuid> --assistant <slug|uuid>
 python manage.py audit_document_reflections
-python manage.py summarize_reflection_group --group 64e0fa88-702f-4918-85a7-5d5a309722a7 (claritybot)
+python manage.py summarize_reflection_group --group <uuid>
+python manage.py retry_doc_reflections
+```
 
-# ─── PHASE 4: Glossary Anchor Inference + Mutation Suggestions ───
+---
 
-python manage.py infer_glossary_anchors --assistant 64e0fa88-702f-4918-85a7-5d5a309722a7 (claritybot)
-python manage.py generate_missing_mutations_for_assistant claritybot
+## 🧠 PHASE 4: Glossary Anchor Inference + Mutation
 
-# ─── PHASE 5: Retry Birth Reflections + Audit Status ─────────────
+```bash
+python manage.py infer_glossary_anchors --assistant <slug|uuid>
+python manage.py generate_missing_mutations_for_assistant <slug>
+python manage.py validate_anchors
+python manage.py score_symbolic_anchors
+```
 
+---
+
+## 🎯 PHASE 5: Birth Reflection Recovery
+
+```bash
 python manage.py retry_birth_reflection --all
 python manage.py audit_birth_reflections --failed-only --json
+```
 
-# ─── PHASE 6: DevDoc Repair + Assistant Cleanup ──────────────────
+---
 
-python manage.py repair_devdoc_links
-python manage.py cleanup_orphan_assistants
-python manage.py relink_devdocs
+## 🧰 PHASE 6: RAG Diagnostics + Anchor Drift
 
-# ─── PHASE 7: Full Sweep & Validation (Optional) ─────────────────
+```bash
+python manage.py run_rag_tests --assistant <slug|uuid>
+python manage.py sync_missing_diagnostics
+python manage.py inspect_rag_failure --doc <uuid>
+python manage.py generate_diagnostic_reports
+python manage.py export_embedding_audit_report
+python manage.py track_anchor_drift
+```
 
+---
+
+## 📊 PHASE 7: Growth + Trust Signals
+
+```bash
+python manage.py refresh_trust_profile
+python manage.py patch_growth_state
+python manage.py sync_missing_links
+```
+
+---
+
+## 🧩 PHASE 8: Topic Grouping + Anchor Tagging
+
+```bash
+python manage.py group_documents_by_topic
+```
+
+---
+
+## ✅ PHASE 9: Assistant Boot + Final Sweep
+
+```bash
 python manage.py repair_assistants_boot
 python manage.py repair_all_embeddings
+```
 
-# --- Recently Added ----
+---
 
-generate_diagnostic_reports.py
-run_rag_tests.py
-sync_missing_diagnostics.py
-track_anchor_drift.py
-validate_anchors.py
+## 🔁 Phase X: Upload Recovery & Chunk Recheck
 
-sync_missing_diagnostics.py
-track_anchor_drift.py
-validate_anchors.py
-group_documents_by_topic.py
-
-💡 Helpful Commands You Can Run Anytime
-
-Command Purpose
-audit_embedding_links --diff See per-record mismatches and orphaned embeddings
-
-reflect_on_document Trigger assistant document reflection
-
-log_embedding_drift Snapshot embedding mismatch drift across contexts
-
-retry_birth_reflection Re-run assistant intro reflection if failed
-
-generate_missing_mutations_for_assistant Suggest glossary term fixes
-
-cleanup_orphan_assistants Identify unused or duplicate assistants
-
-repair_context_embeddings Fix memory context-specific links (requires valid assistant)
-
-run_rag_tests Run RAG regression tests defined in rag_tests.json
-repair_low_score_embeddings --threshold 0.2 Re-embed or delete low-score embeddings
-repair_embedding_metadata --summary Fix session_id and source_type
-inspect_rag_failure --doc <id> Analyze anchor misses and suggest fallback terms
+```bash
+python manage.py repair_failed_documents
+python manage.py repair_document_chunk_flags
+```
