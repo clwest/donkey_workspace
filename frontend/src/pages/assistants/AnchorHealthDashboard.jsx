@@ -10,12 +10,16 @@ export default function AnchorHealthDashboard() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState("all");
+  const [sort, setSort] = useState("score");
   const [orphans, setOrphans] = useState(0);
 
   const load = async () => {
     setLoading(true);
     try {
-      const query = filter === "all" ? "" : `?status=${filter}`;
+      const params = [];
+      if (filter !== "all") params.push(`status=${filter}`);
+      if (sort) params.push(`sort=${sort}`);
+      const query = params.length ? `?${params.join("&")}` : "";
       const data = await apiFetch(`/assistants/${slug}/anchor_health/${query}`);
       const list = data.results || [];
       setRows(list);
@@ -76,13 +80,23 @@ export default function AnchorHealthDashboard() {
         >
           {loading ? "Refreshing..." : "Refresh"}
         </button>
+        <select
+          className="form-select form-select-sm w-auto"
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+        >
+          <option value="score">Score</option>
+          <option value="uses">Uses</option>
+          <option value="fallback_rate">Fallback Rate</option>
+        </select>
       </div>
       <table className="table table-sm table-bordered">
         <thead className="table-light">
           <tr>
             <th>Anchor Term</th>
             <th>Avg Score</th>
-            <th>Fallback Count</th>
+            <th>Uses</th>
+            <th>Fallback %</th>
             <th>Mutation</th>
             <th>Reinforced</th>
             <th>Drift</th>
@@ -91,10 +105,11 @@ export default function AnchorHealthDashboard() {
         </thead>
         <tbody>
           {rows.map((r) => (
-            <tr key={r.slug}>
+            <tr key={r.slug} className={r.is_unstable ? "table-warning" : ""}>
               <td>{r.label}</td>
               <td>{r.avg_score?.toFixed(2)}</td>
-              <td>{r.fallback_count}</td>
+              <td>{r.uses}</td>
+              <td>{(r.fallback_rate * 100).toFixed(0)}%</td>
               <td>{r.mutation_status}</td>
               <td>{r.reinforcement_count}</td>
               <td>

@@ -11,6 +11,11 @@ class Command(BaseCommand):
         parser.add_argument(
             "--file", default="rag_tests.json", help="Path to rag_tests.json"
         )
+        parser.add_argument(
+            "--show-anchor-stats",
+            action="store_true",
+            help="Display anchor reliability metrics",
+        )
 
     def handle(self, *args, **options):
         slug = options["assistant"]
@@ -28,6 +33,7 @@ class Command(BaseCommand):
         tests = data if isinstance(data, list) else data.get("tests", [])
         missed = []
         suggestions = []
+        show_stats = options.get("show_anchor_stats")
         for t in tests:
             q = t.get("question")
             expected = t.get("expected_anchor")
@@ -50,6 +56,14 @@ class Command(BaseCommand):
                 )
             else:
                 self.stdout.write(self.style.SUCCESS(f"[OK] {q}"))
+            if show_stats and expected:
+                from memory.models import SymbolicMemoryAnchor
+
+                a = SymbolicMemoryAnchor.objects.filter(slug=expected).first()
+                if a:
+                    self.stdout.write(
+                        f"  Anchor {a.slug} avg={a.avg_score:.2f} uses={a.total_uses} fallback={a.fallback_rate:.2f}"
+                    )
             suggestions.extend(info.get("glossary_misses", []))
         if missed:
             self.stdout.write("\nMissed anchors: " + ", ".join(sorted(set(missed))))

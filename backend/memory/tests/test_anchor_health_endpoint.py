@@ -64,6 +64,8 @@ class AnchorHealthEndpointTests(TestCase):
         self.assertEqual(item["fallback_count"], 1)
         self.assertEqual(item["reinforcement_count"], 1)
         self.assertEqual(item["mutation_status"], "pending")
+        self.assertIn("uses", item)
+        self.assertIn("fallback_rate", item)
         self.assertIn("trend", item)
 
     def test_status_filters(self):
