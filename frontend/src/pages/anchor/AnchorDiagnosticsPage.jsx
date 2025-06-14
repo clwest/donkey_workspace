@@ -13,7 +13,7 @@ export default function AnchorDiagnosticsPage() {
       .then((d) => {
         const data = d.results || [];
         setRows(data);
-        setOrphans(data.filter((r) => r.chunk_count === 0).length);
+        setOrphans(data.filter((r) => r.linked_chunks_count === 0).length);
       })
       .catch(() => setRows([]))
       .finally(() => setLoading(false));
@@ -33,6 +33,7 @@ export default function AnchorDiagnosticsPage() {
           <tr>
             <th>Anchor</th>
             <th>Chunks</th>
+            <th>Linked</th>
             <th>Fallbacks</th>
             <th>Avg Score</th>
             <th>Match Rate</th>
@@ -45,6 +46,7 @@ export default function AnchorDiagnosticsPage() {
             <tr key={r.slug}>
               <td>{r.label}</td>
               <td>{r.chunk_count}</td>
+              <td>{r.linked_chunks_count}</td>
               <td>{r.fallback_count}</td>
               <td>{r.avg_score}</td>
               <td>{r.match_rate}</td>
@@ -54,7 +56,7 @@ export default function AnchorDiagnosticsPage() {
           ))}
           {rows.length === 0 && (
             <tr>
-              <td colSpan="7" className="text-muted">
+              <td colSpan="8" className="text-muted">
                 No data
               </td>
             </tr>

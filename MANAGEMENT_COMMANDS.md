@@ -87,6 +87,7 @@ python manage.py track_anchor_drift
 python manage.py refresh_trust_profile
 python manage.py patch_growth_state
 python manage.py sync_missing_links
+python manage.py relink_anchor_chunks --assistant=<slug>
 ```
 
 ---
