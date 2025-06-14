@@ -277,6 +277,7 @@ import SymbolicAnchorReviewPage from "./pages/anchor/SymbolicAnchorReviewPage";
 import SymbolicAnchorDetailPage from "./pages/anchor/SymbolicAnchorDetailPage";
 import GlossaryMutationReviewPanel from "./pages/anchor/GlossaryMutationReviewPanel";
 import AnchorDiagnosticsPage from "./pages/anchor/AnchorDiagnosticsPage";
+import AnchorSuggestionPage from "./pages/anchor/AnchorSuggestionPage";
 import ArbitrationCouncilPage from "./pages/guilds/ArbitrationCouncilPage";
 import TreatyForgePage from "./pages/treaty/TreatyForgePage";
 import FederationCodicesPage from "./pages/federation/FederationCodicesPage";
@@ -1087,6 +1088,7 @@ export default function App() {
             path="/anchor/mutations"
             element={<GlossaryMutationReviewPanel />}
           />
+          <Route path="/anchor/suggestions" element={<AnchorSuggestionPage />} />
           <Route
             path="/anchor/symbolic"
             element={<SymbolicAnchorReviewPage />}

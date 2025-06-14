@@ -1004,3 +1004,34 @@ class AnchorDriftLog(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return f"{self.anchor.slug} {self.observation_date}"
+
+
+class AnchorSuggestion(models.Model):
+    """Proposed glossary anchor generated from RAG fallback analysis."""
+
+    STATUS_CHOICES = [
+        ("pending", "pending"),
+        ("accepted", "accepted"),
+        ("rejected", "rejected"),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    term = models.CharField(max_length=100)
+    slug = models.SlugField()
+    context = models.TextField(blank=True)
+    fallback_score = models.FloatField(null=True, blank=True)
+    match_strength = models.FloatField(null=True, blank=True)
+    original_anchor = models.ForeignKey(
+        SymbolicMemoryAnchor, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"{self.term} ({self.status})"
