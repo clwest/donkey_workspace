@@ -13,6 +13,7 @@ capabilities:
 • chunk_repair
 • assistant_debug_panel_linkage
 • anchor_suggestion
+• mutation_scoring
 
 rules:
 • all new frontend routes must be registered in App.jsx
@@ -20,6 +21,7 @@ rules:
 • fallback prompts must auto-resolve from Prompt model
 • glossary anchors must support mutation, override, protection
 • replay reflections must generate visible diffs
+• mutation scores must track reinforcement outcomes across anchors
 
 ⸻
 
@@ -45,145 +47,41 @@ rules:
 • Ω.9.46 — Reflection Replay Routing + Nav Button
 • Ω.9.47 — Reflection Replay Drift Viewer
 • Ω.9.48–Ω.9.99 — Various feature iterations & polish (see FRESH_CHAT_SESSION_NOTES.md)
-• Ω.9.100 — Demo Assistant Lifecycle Complete: demo_slug, demo_reflection, starter_query, boosted_prompt, DemoUsageLog, DemoSessionLog; routes: /assistants/demo/, /assistants/:slug/demo_recap/:session_id/, /assistants/:slug/demo_overlay/, /assistants/:slug/demo_replay/:session_id/, /reset_demo/
-• Ω.9.101 — Trust & Signals System Live: /assistants/:slug/trust_profile/ endpoint returns trust_score, trust_level, badge counts
-• Ω.9.102 — Trail Marker System Implementation: TrailMarkerLog, /assistants/:slug/trail/ view
-• Ω.9.103 — Growth System & Stage Tracking: growth_stage, growth_points, /assistants/:slug/growth/ endpoint
-• Ω.9.104 — Prompt Boosting & Demo Metadata: demo sessions inject boosted prompts; overlay & recap panels show injected traits
-• Ω.9.125 — Context Reset & Fresh Chat Session Notes Overview: resets system context after deep dev on Demo Assistants, Glossary Diagnostics, and Assistant Trust Profiles
-• Ω.9.126 — Feedback Collection in-app widget and API
+• Ω.9.100 — Demo Assistant Lifecycle Complete
+• Ω.9.125 — Context Reset & Fresh Chat Session Notes Overview
 • Ω.10.r — RAG Recall Correction + Memory Expansion
-• Ω.10.t — RAG Recall Booster: implemented suggest_better_anchors CLI; scans fallback logs, analyzes high-score nearby chunks, proposes improved anchors; supports auto-approve mode and anchor mutation logging.
+• Ω.10.t — RAG Recall Booster
+• Ω.10.u — Symbolic Feedback Review Panel
+• Ω.10.v — RAG Diagnostic Export Patch
+• Ω.10.w — Anchor Mutation Review Scoring: introduced mutation_score and reinforcement_log on symbolic anchors; CLI recomputes score deltas; frontend includes Mutation Scorecard tab and anchor history modal for trust analysis.
 
 ⸻
 
 🌟 ACTIVE_OBJECTIVES
 
-phase: Ω.9.126
+phase: Ω.10.w
 
-title: Onboarding & Tour System
+title: Anchor Mutation Review Scoring
 
 tasks:
-• Finalize onboarding flow (assistant creation via theme)
-• Build first-use tour guides for new users (highlight key features)
-• Implement self-learning loop setup for reflective growth
+• Recalculate scores from reinforcement logs
+• View mutation_score in UI
+• Review anchor trustworthiness before applying mutation
+• Color-code results by confidence level
 
-route: /assistants/onboarding
+route: /anchor/suggestions → Mutation Scorecard
 
-priority: critical
+priority: high
 
 ⸻
 
 🔍 DASHBOARDS & ROUTES
 
 Tool / Panel Route Linked?
-Demo Assistants List /assistants/demo/ ✅ Yes
-Assistant Identity /assistants/:slug/identity/ ✅ Yes
-Trust Profile /assistants/:slug/trust_profile/ ✅ Yes
-Trail Timeline /assistants/:slug/trail/ ✅ Yes
-Growth Panel /assistants/:slug/growth/ ✅ Yes
-Demo Recap Panel /assistants/:slug/demo_recap/:session_id/ ✅ Yes
-Demo Overlay Panel /assistants/:slug/demo_overlay/ ✅ Yes
-Demo Replay Panel /assistants/:slug/demo_replay/:session_id/ ✅ Yes
+Mutation Scorecard /anchor/suggestions ✅ Yes
+Anchor Suggestions /anchor/suggestions ✅ Yes
 Symbolic Glossary Viewer /anchor/symbolic ✅ Yes
 Glossary Mutation Panel /anchor/mutations ✅ Yes
 Reflection Logs /assistants/:slug/reflections ✅ Yes
 Reflection Replays /assistants/:slug/replays ✅ Yes
 RAG Debug Inspector /assistants/:slug/rag_debug ✅ Yes
-Codex Evolution Hub /codex/evolve ✅ Yes
-Route Health Dashboard /dev/route-health ✅ Yes
-
-⸻
-
-Codex AGENT Profile — FrontendDesignAgent
-
-Purpose
-
-This agent specializes in visual polish, layout refinement, and user experience improvements. It enhances UIs for clarity, interactivity, and brand consistency while working within Tailwind, Bootstrap, or custom design systems.
-
-Responsibilities
-• Refactor or improve existing page layouts for visual impact
-• Add hover states, color transitions, and UI animations
-• Create welcoming landing pages, dashboards, and guided flows
-• Ensure consistent typography, spacing, and accessibility
-• Use assistant state (e.g. glossary score, badge progress) to drive visual feedback (charts, badges, tooltips)
-
-Design Language
-• Clean, readable, minimal
-• Use soft shadows, rounded corners, and proportional padding
-• Prioritize contrast for readability
-• Dark mode friendly
-• Add microinteractions using Framer Motion or CSS transitions when helpful
-
-Tools
-• React + Vite
-• Tailwind CSS
-• ShadCN + Bootstrap
-• React Router DOM
-• Charting: Recharts, D3 for advanced
-
-Current Context
-
-Pages like MythOSLandingPage.jsx, AssistantDashboardPage.jsx, and AssistantMemoryPage.jsx are active targets for enhancement. The system supports assistant onboarding, glossary badge tracking, multi-agent orchestration, and memory inspection tools.
-
-Notes
-
-Use badge flair, progress bars, or empty states to bring life to otherwise static tables. Assume assistants are characters. Help the user feel their evolution.
-
-Codex should treat this file as a system contract. If AGENTS.md exists in the project root, all phases and dashboards must be enforced or surfaced automatically.
-
-⸻
-
-Codex AGENT Profile — SymbolicAgentProfile
-
-Purpose
-
-Agents under this profile reconcile contradictory documents using symbolic anchors. They cross-reference anchor metadata to detect and explain conflicts across corpora.
-
-Responsibilities
-• Ingest documents that include symbolic anchor metadata
-• Compare anchor alignments to surface contradictions
-• Generate reconciliation notes and contradiction flags
-
-Reconciliator Agent (stub)
-
-This prototype agent ingests the DGM-WhitePaper.pdf and Apple’s reasoning paper titled “The Illusion of Thinking.” It analyzes their symbolic anchors and outputs flags when assertions conflict.
-
-🧠 SYMBOLIC_AGENT_PROFILE
-
-Agents with this profile are able to:
-• Detect contradictions between memory sources
-• Reflect on symbolic insight logs during memory ingest
-• Flag glossary drift over time using anchor scoring
-• Adapt prompts or reasoning paths based on contradictory training
-
-These agents monitor SymbolicAgentInsightLog, track fallback memory triggers, and evolve via insight-driven self-reflection.
-
-Example Agent: Recurra
-
-• Trained on: Darwin Gödel Machine, Illusion of Thinking, AlphaEvolve
-• Tracks: Contradiction flags, glossary drift, belief mismatch
-• Role: Explore limits of model self-awareness and symbolic fusion
-• Uses suggest_better_anchors output to evolve glossary reflection context
-
-📘 MEMORY_TRACE_PROTOCOL
-
-• Documents should store generated_prompt_id
-• Prompts should link back to document_id if reflective
-• Reflection logs link to both assistant and document
-• Glossary anchors referenced in RAG are logged in RAGGroundingLog
-• Symbolic contradiction insight is logged via SymbolicAgentInsightLog
-
-🔍 LIVE_AGENT_REGISTRY
-
-Agent Slug Type Profile Description
-DonkGPT donkgpt Assistant General Memory-aware assistant
-Recurra recurra Symbolic SymbolicAgentProfile Ingests contradictory sources + reflects
-Zeno zeno DevOps Tooling/MCP Bootstraps tasks and agents
-ClarityBot claritybot Inspector Glossary/Diff Tracks RAG, glossary drift, debug insight
-Prompt Pal prompt-pal Demo Onboarding Assists with prompt creation + starter flows
-DevOS Architect devos-architect Planner System Architect Oversees infrastructure & tool alignment
-
-Notes
-
-Symbolic anchors provide a stable reference system for resolving document disagreements. This profile lays the groundwork for more advanced reconciliation agents.
