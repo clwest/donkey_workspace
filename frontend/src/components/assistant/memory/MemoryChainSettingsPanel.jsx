@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import apiFetch from "../../../utils/apiClient";
 import ReflectNowButton from "../ReflectNowButton";
+import useAssistantMemories from "../../../hooks/useAssistantMemories";
 
 export default function MemoryChainSettingsPanel({ slug }) {
   const [chain, setChain] = useState(null);
-  const [memories, setMemories] = useState([]);
+  const { memories } = useAssistantMemories(slug, { limit: 100 });
 
   useEffect(() => {
     async function load() {
@@ -14,8 +15,6 @@ export default function MemoryChainSettingsPanel({ slug }) {
         `/assistants/projects/${asst.current_project.id}/memory-chains/`
       );
       if (chains.length > 0) setChain(chains[0]);
-      const mems = await apiFetch(`/assistants/${slug}/memories/`);
-      setMemories(mems);
     }
     load();
   }, [slug]);
