@@ -12,6 +12,7 @@ A living document tracking all MythOS assistant phases. Each phase has a name, s
 | Ω.9.90     | Codex Route Intelligence Lock-In       | ⏳ Planned    | —          | Maps all Codex routes, docs, and dashboards    |
 | Ω.10.i     | CLI Runner Sync + RAG Recovery Toolkit | ✅ Done       | 2025-06-13 | CLI grouping, repair commands                  |
 | Ω.10.i.b   | Upload Rate Limits + Retry Logging     | ✅ Done       | 2025-06-13 | Upload queue, rate limit inspector             |
+| Ω.10.r     | RAG Recall Correction + Memory Expansion | ✅ Done       | 2025-06-14 | Anchor repair, memory token sweep             |
 
 ---
 
