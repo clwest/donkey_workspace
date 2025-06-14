@@ -5,7 +5,7 @@ import { Badge } from "react-bootstrap";
 import DocumentStatusCard from "../documents/DocumentStatusCard";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import apiFetch from "../../utils/apiFetch";
+import apiFetch from "../../utils/apiClient";
 import { Star, StarFill } from "react-bootstrap-icons";
 
 dayjs.extend(relativeTime);
