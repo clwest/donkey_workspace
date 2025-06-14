@@ -79,6 +79,12 @@ def compute_trust_score(assistant: "Assistant") -> dict:
 def update_assistant_trust_cache(assistant: "Assistant") -> dict:
     data = compute_trust_score(assistant)
     set_cached_trust(assistant.slug, data)
+    try:
+        assistant.last_trust_score = data["score"]
+        assistant.last_trust_components = data.get("components", {})
+        assistant.save(update_fields=["last_trust_score", "last_trust_components"])
+    except Exception:
+        logger.warning("failed to store trust score", extra={"slug": assistant.slug})
     return data
 
 
