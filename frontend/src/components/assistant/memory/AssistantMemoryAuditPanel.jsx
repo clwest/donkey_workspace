@@ -5,6 +5,8 @@ import apiFetch from "../../../utils/apiClient";
 
 export default function AssistantMemoryAuditPanel({ assistant }) {
   const [docs, setDocs] = useState(null);
+  const [diag, setDiag] = useState(null);
+  const [running, setRunning] = useState(false);
 
   useEffect(() => {
     if (!assistant) return;
@@ -15,6 +17,12 @@ export default function AssistantMemoryAuditPanel({ assistant }) {
       } catch (err) {
         console.error("Failed to load memory docs", err);
       }
+      try {
+        const d = await apiFetch(`/assistants/${assistant.slug}/link_diagnostics/`);
+        setDiag(d);
+      } catch {
+        setDiag(null);
+      }
     }
     load();
   }, [assistant]);
@@ -22,8 +30,37 @@ export default function AssistantMemoryAuditPanel({ assistant }) {
   if (!docs) return <div>Loading...</div>;
   if (docs.length === 0) return <div>No linked documents.</div>;
 
+  const runRepair = async () => {
+    if (!assistant) return;
+    setRunning(true);
+    try {
+      await apiFetch("/dev/cli/run/", {
+        method: "POST",
+        body: { command: "repair_assistant_memory_links", assistant: assistant.slug },
+      });
+      const d = await apiFetch(`/assistants/${assistant.slug}/link_diagnostics/`);
+      setDiag(d);
+    } catch {
+      /* ignore */
+    } finally {
+      setRunning(false);
+    }
+  };
+
   return (
-    <table className="table table-sm">
+    <div>
+      {diag && (
+        <div className="mb-3">
+          <span className="me-3">Orphaned: {diag.orphaned}</span>
+          <span className="me-3">Conflicting: {diag.conflicting}</span>
+          <span className="me-3">Unlinked Chains: {diag.unlinked_chains}</span>
+          <span className="me-3">Unlinked Threads: {diag.unlinked_threads}</span>
+          <button className="btn btn-sm btn-primary ms-2" onClick={runRepair} disabled={running}>
+            {running ? "Repairing..." : "Run Link Repair"}
+          </button>
+        </div>
+      )}
+      <table className="table table-sm">
       <thead>
         <tr>
           <th>Document Title</th>
@@ -77,6 +114,7 @@ export default function AssistantMemoryAuditPanel({ assistant }) {
           </tr>
         ))}
       </tbody>
-    </table>
+      </table>
+    </div>
   );
 }
