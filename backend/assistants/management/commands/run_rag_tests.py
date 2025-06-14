@@ -201,3 +201,10 @@ class Command(BaseCommand):
         if log_scores:
             out = {"assistant": assistant.slug, "results": score_log}
             self.stdout.write(json.dumps(out, indent=2))
+        
+        # Optional file output
+        output_path = options.get("output")
+        if output_path:
+            with open(output_path, "w") as f:
+                json.dump(out, f, indent=2)
+            self.stdout.write(self.style.SUCCESS(f"🔍 Diagnostic output written to {output_path}"))
