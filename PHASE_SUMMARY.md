@@ -10,6 +10,8 @@ A living document tracking all MythOS assistant phases. Each phase has a name, s
 | Ω.9.87     | Symbolic Glossary Reboost             | ⏳ Planned    | —          | Adds anchor retention score + drift tracking   |
 | Ω.9.88     | Drift-Aware Reembedding               | ⏳ Planned    | —          | Triggers re-embedding if glossary match decays |
 | Ω.9.90     | Codex Route Intelligence Lock-In      | ⏳ Planned    | —          | Maps all Codex routes, docs, and dashboards    |
+| Ω.10.i     | CLI Runner Sync + RAG Recovery Toolkit | ✅ Done       | 2025-06-13 | CLI grouping, repair commands |
+| Ω.10.i.b   | Upload Rate Limits + Retry Logging     | ✅ Done       | 2025-06-13 | Upload queue, rate limit inspector |
 
 ---
 
