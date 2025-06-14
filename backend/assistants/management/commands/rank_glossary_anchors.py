@@ -2,6 +2,9 @@ from django.core.management.base import BaseCommand
 from assistants.utils.resolve import resolve_assistant
 import json
 from collections import Counter
+from assistants.models import Assistant
+import unicodedata
+
 
 class Command(BaseCommand):
     """Rank glossary anchors from RAG diagnostics JSON file or database."""
@@ -16,10 +19,21 @@ class Command(BaseCommand):
         identifier = options["assistant"]
         json_path = options["from_json"]
 
-        assistant = resolve_assistant(identifier)
+        def normalize_slug(text):
+            return unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode().lower()
+
+        normalized_id = normalize_slug(identifier)
+
+        assistant = (
+            Assistant.objects.filter(slug=identifier).first() or
+            Assistant.objects.filter(slug=normalized_id).first() or
+            Assistant.objects.filter(name__icontains=identifier).first()
+        )
+
         if not assistant:
-            self.stderr.write(self.style.ERROR(f"Assistant '{identifier}' not found"))
+            self.stderr.write(self.style.ERROR(f"Assistant '{identifier}' not found — tried slug, normalized slug, and fallback name match"))
             return
+
         slug = assistant.slug
 
         if not json_path:
