@@ -215,7 +215,7 @@ def template_diff(request, slug):
     return Response({"path": str(path), "diff": diff_text, "tracked": tracked})
 
 
-from api.permissions import IsAuthenticated
+
 
 
 @api_view(["GET"])
