@@ -236,6 +236,10 @@ class Assistant(TrustProfileMixin, models.Model):
     anchor_weight_profile = models.JSONField(default=dict, blank=True)
     # Minimum relevance score for document chunks to be considered during RAG
     min_score_threshold = models.FloatField(default=0.0)
+    suppress_unstable_anchors = models.BooleanField(
+        default=False,
+        help_text="Hide anchors with poor reliability scores during retrieval",
+    )
 
     ideology = models.JSONField(default=dict, blank=True)
     is_alignment_flexible = models.BooleanField(default=True)

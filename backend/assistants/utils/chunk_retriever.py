@@ -461,11 +461,18 @@ def get_relevant_chunks(
             continue
         anchor_confidence = 0.0
         if chunk.anchor:
+            if assistant and assistant.suppress_unstable_anchors and chunk.anchor.is_unstable:
+                logger.debug("Skipping unstable anchor %s", chunk.anchor.slug)
+                continue
             if chunk.anchor.slug in anchor_matches:
                 score += ANCHOR_BOOST
                 anchor_confidence = 1.0
             else:
                 anchor_confidence = 0.5
+            quality = chunk.anchor.avg_score * (1 - chunk.anchor.fallback_rate)
+            if chunk.anchor.total_uses > 20:
+                quality *= 1.1
+            score *= 1 + quality * 0.1
         logger.info(
             "[RAG] Chunk %s | Raw Score: %.4f | Glossary Boost: %.4f | Final Score: %.4f",
             chunk.id,

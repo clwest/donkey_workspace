@@ -22,6 +22,8 @@ def get_anchor_health_metrics(assistant: Assistant) -> List[Dict[str, object]]:
         )
         avg_score = logs.aggregate(avg=Avg("adjusted_score")).get("avg") or 0.0
         fallback_count = logs.filter(fallback_triggered=True).count()
+        total_uses = a.total_uses
+        fallback_rate = a.fallback_rate
         reinforcement_count = a.reinforcement_logs.filter(assistant=assistant).count()
         total_chunks = a.chunks.count()
         drifted = a.chunks.filter(is_drifting=True).count()
@@ -37,7 +39,10 @@ def get_anchor_health_metrics(assistant: Assistant) -> List[Dict[str, object]]:
                 "slug": a.slug,
                 "avg_score": round(avg_score, 2),
                 "fallback_count": fallback_count,
+                "uses": total_uses,
+                "fallback_rate": round(fallback_rate, 2),
                 "mutation_status": a.mutation_status,
+                "is_unstable": a.is_unstable,
                 "reinforcement_count": reinforcement_count,
                 "chunk_count": total_chunks,
                 "drift_score": round(drift_score, 2),

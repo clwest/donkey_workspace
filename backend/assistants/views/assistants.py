@@ -2096,6 +2096,7 @@ def anchor_health(request, slug):
     from memory.services.anchor_health import get_anchor_health_metrics
 
     status = request.GET.get("status")
+    sort = request.GET.get("sort")
     metrics = get_anchor_health_metrics(assistant)
 
     if status == "high_drift":
@@ -2106,6 +2107,13 @@ def anchor_health(request, slug):
         ]
     elif status == "pending_mutation":
         metrics = [m for m in metrics if m["mutation_status"] == "pending"]
+
+    if sort == "score":
+        metrics.sort(key=lambda m: m.get("avg_score", 0.0), reverse=True)
+    elif sort == "fallback_rate":
+        metrics.sort(key=lambda m: m.get("fallback_rate", 0.0), reverse=True)
+    elif sort == "uses":
+        metrics.sort(key=lambda m: m.get("uses", 0), reverse=True)
 
     return Response({"results": metrics})
 
