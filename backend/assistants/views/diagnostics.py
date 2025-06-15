@@ -265,7 +265,7 @@ def repair_assistant_slug(request, slug):
 @permission_classes([AllowAny])
 def summarize_delegations(request, slug):
     """Generate a summary of delegation memories for the assistant."""
-    from .utils.delegation_summary_engine import DelegationSummaryEngine
+    from assistants.utils.delegation_summary_engine import DelegationSummaryEngine
 
     assistant = get_object_or_404(Assistant, slug=slug)
     engine = DelegationSummaryEngine(assistant)
@@ -302,7 +302,17 @@ def get_assistant_diagnostic_report(request, slug):
         .first()
     )
     if not report:
-        return Response({}, status=404)
+        
+        return Response({
+            "slug": assistant.slug,
+            "fallback_rate": None,
+            "glossary_success_rate": None,
+            "avg_chunk_score": None,
+            "rag_logs_count": 0,
+            "certified_rag_ready": False,
+            "rag_certification_date": None,
+            "generated_at": None,
+        })
     return Response(
         {
             "slug": report.slug,

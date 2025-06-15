@@ -6,7 +6,7 @@ import logging
 import json
 
 from assistants.models.assistant import Assistant
-from assistants.models.project import AssistantProject
+from assistants.models.project import AssistantProject, AssistantReflectionLog
 from assistants.utils.assistant_reflection_engine import (
     AssistantReflectionEngine,
     evaluate_thought_continuity,
