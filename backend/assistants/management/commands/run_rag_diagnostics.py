@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand
 from assistants.models import Assistant
 from assistants.utils.resolve import resolve_assistant
 from assistants.utils.rag_diagnostics import run_assistant_rag_test
+from assistants.utils.thought_logger import log_symbolic_thought
 
 
 class Command(BaseCommand):
@@ -73,3 +74,14 @@ class Command(BaseCommand):
             self.stdout.write(
                 f"{r['assistant']}: {r['issues_found']} issues across {r['tested']} anchors ({rate})"
             )
+            assistant = Assistant.objects.filter(slug=r["assistant"]).first()
+            if assistant:
+                log_symbolic_thought(
+                    assistant,
+                    category="rag",
+                    thought=f"RAG diagnostics run on {r['tested']} anchors",
+                    thought_type="diagnostic",
+                    tool_name="rag_diagnostics",
+                    tool_result_summary=f"pass_rate {r['pass_rate']:.2f}",
+                    origin="diagnostic-loop",
+                )

@@ -3,6 +3,7 @@ from assistants.models import AssistantReflectionLog
 from assistants.utils.resolve import resolve_assistant
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from memory.models import MemoryEntry
+from assistants.utils.thought_logger import log_symbolic_thought
 import logging
 import json
 
@@ -47,6 +48,16 @@ class Command(BaseCommand):
             title="Self Reflection",
             category="self_reflection",
             raw_prompt=prompt,
+        )
+
+        log_symbolic_thought(
+            assistant,
+            category="reflection",
+            thought=text,
+            thought_type="reflection",
+            tool_name="reflection_engine",
+            tool_result_summary="self_reflection",
+            origin="auto-reflect",
         )
 
         # warn if delegation memories exist but were not covered
