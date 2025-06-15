@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from uuid import uuid4
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -167,7 +168,8 @@ def rag_self_test(request, slug):
     except Exception as e:  # pragma: no cover - defensive
         return Response({"error": str(e)}, status=400)
 
-    return Response(result)
+    task_id = str(uuid4())
+    return Response({**result, "status": "complete", "task_id": task_id})
 
 
 @api_view(["GET"])
