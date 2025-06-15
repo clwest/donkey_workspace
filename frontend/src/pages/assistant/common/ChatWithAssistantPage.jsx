@@ -119,7 +119,7 @@ export default function ChatWithAssistantPage() {
   const { hints, dismissHint } = useAssistantHints(slug);
   const chatHint = hints.find((h) => h.id === "chat_welcome");
   const showChatWelcome = chatHint && !chatHint.dismissed;
-  const glossaryOverlays = useGlossaryOverlay("chat");
+  const { overlays: glossaryOverlays } = useGlossaryOverlay("chat");
 
   useEffect(() => {
     if (assistantInfo?.is_demo) {

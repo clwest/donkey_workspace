@@ -22,6 +22,7 @@ import AssistantDashboardHeader from "./AssistantDashboardHeader";
 import SelfAssessmentModal from "../../../components/assistant/SelfAssessmentModal";
 import SceneMatchesPanel from "../../../components/assistant/SceneMatchesPanel";
 import AssistantReflectionPanel from "../../../components/assistant/AssistantReflectionPanel";
+import useAssistantDetails from "../../../hooks/useAssistantDetails";
 
 export default function PrimaryAssistantDashboard() {
   const [assistant, setAssistant] = useState(null);
@@ -41,6 +42,13 @@ export default function PrimaryAssistantDashboard() {
   const [showAssess, setShowAssess] = useState(false);
   const [reflectionComplete, setReflectionComplete] = useState(false);
   const [toastStatus, setToastStatus] = useState(null);
+
+  const {
+    memories,
+    loading: memLoading,
+    paused: memPaused,
+    refreshAll: refreshDetails,
+  } = useAssistantDetails(assistant?.slug, { limit: 100, pauseOnError: true });
 
   useEffect(() => {
     async function load() {
@@ -259,7 +267,13 @@ export default function PrimaryAssistantDashboard() {
             </div>
             <div className="col-md-6">
               <h5 className="mb-3">Memory</h5>
-              <AssistantMemoryPanel slug={assistant.slug} />
+              <AssistantMemoryPanel
+                slug={assistant.slug}
+                memories={memories}
+                loading={memLoading}
+                paused={memPaused}
+                refreshAll={refreshDetails}
+              />
               <PrioritizedMemoryPanel slug={assistant.slug} />
               <MemoryChainSettingsPanel slug={assistant.slug} />
               <AssistantReflectionPanel slug={assistant.slug} />

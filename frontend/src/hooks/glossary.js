@@ -12,13 +12,23 @@ export async function fetchGlossaryOverlay(location) {
 
 export default function useGlossaryOverlay(location) {
   const [overlays, setOverlays] = useState([]);
+  const [paused, setPaused] = useState(false);
+
+  const load = async () => {
+    if (!location) return;
+    try {
+      const data = await fetchGlossaryOverlay(location);
+      setOverlays(data);
+      setPaused(false);
+    } catch (err) {
+      console.error('overlay fetch', err);
+      if (err.status === 429) setPaused(true);
+    }
+  };
 
   useEffect(() => {
-    if (!location) return;
-    fetchGlossaryOverlay(location)
-      .then(setOverlays)
-      .catch((err) => console.error('overlay fetch', err));
+    load();
   }, [location]);
 
-  return overlays;
+  return { overlays, paused, refresh: load };
 }

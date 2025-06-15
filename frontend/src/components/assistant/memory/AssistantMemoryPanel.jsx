@@ -1,14 +1,9 @@
 import { useEffect, useState } from "react";
 import apiFetch from "../../../utils/apiClient";
-import useAssistantDetails from "../../../hooks/useAssistantDetails";
 import ReflectNowButton from "../ReflectNowButton";
 import MemoryCard from "../../mcp_core/MemoryCard";
 
-export default function AssistantMemoryPanel({ slug }) {
-  const { memories, loading, paused, refreshAll } = useAssistantDetails(slug, {
-    limit: 100,
-    pauseOnError: true,
-  });
+export default function AssistantMemoryPanel({ slug, memories = [], loading = false, paused = false, refreshAll = () => {} }) {
   const [project, setProject] = useState(null);
   const [visible, setVisible] = useState(10);
   const [showAll, setShowAll] = useState(false);
