@@ -905,6 +905,7 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
             "glossary_health_index",
             "reflections_last_7d",
             "drift_fixes_recent",
+            "trusted_anchor_pct",
             "initial_glossary_anchor",
             "initial_badges",
             "child_assistants",
@@ -2440,6 +2441,7 @@ class AssistantOverviewSerializer(serializers.ModelSerializer):
     earned_badge_count = serializers.SerializerMethodField()
     reflections_last_7d = serializers.SerializerMethodField()
     drift_fixes_recent = serializers.SerializerMethodField()
+    trusted_anchor_pct = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
