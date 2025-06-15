@@ -6,6 +6,7 @@ from rest_framework.response import Response
 
 from assistants.models.assistant import Assistant
 from assistants.helpers.logging_helper import log_assistant_thought
+from assistants.utils.thought_logger import log_symbolic_thought
 from assistants.utils.assistant_reflection_engine import AssistantReflectionEngine
 from intel_core.models import DocumentChunk, DocumentProgress
 from intel_core.utils.document_progress import repair_progress
@@ -31,6 +32,15 @@ def repair_documents(request, slug):
             "status": status,
         })
     log_assistant_thought(assistant, f"Document repair run on {len(results)} docs", thought_type="reflection")
+    log_symbolic_thought(
+        assistant,
+        category="repair",
+        thought=f"Repaired {len(results)} documents",
+        thought_type="repair",
+        tool_name="repair_tool",
+        tool_result_summary=f"{len(results)} docs",
+        origin="auto-reflect",
+    )
     return Response({"documents": results})
 
 

@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from assistants.utils.resolve import resolve_assistant
 from memory.models import SymbolicMemoryAnchor
+from assistants.utils.thought_logger import log_symbolic_thought
 
 
 class Command(BaseCommand):
@@ -25,4 +26,14 @@ class Command(BaseCommand):
         )
         self.stdout.write(
             self.style.SUCCESS(f"Marked {updated} anchors as trusted")
+        )
+
+        log_symbolic_thought(
+            assistant,
+            category="trust",
+            thought=f"Trusted {updated} anchors",
+            thought_type="update",
+            tool_name="trust_calc",
+            tool_result_summary=f"{updated} anchors",
+            origin="trust_calc",
         )

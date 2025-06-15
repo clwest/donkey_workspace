@@ -6,6 +6,7 @@ from django.core.management.base import BaseCommand
 from memory.models import SymbolicMemoryAnchor, AnchorReinforcementLog
 from assistants.models import Assistant
 from django.db.models import Sum
+from assistants.utils.thought_logger import log_symbolic_thought
 
 class Command(BaseCommand):
     help = "Recalculate mutation_score for all symbolic anchors based on reinforcement logs"
@@ -44,3 +45,13 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(
             f"✅ Recalculated mutation_score for {updated} anchors under '{slug}'"
         ))
+
+        log_symbolic_thought(
+            assistant,
+            category="repair",
+            thought=f"Recalculated mutation_score for {updated} anchors",
+            thought_type="update",
+            tool_name="mutation_score_recalc",
+            tool_result_summary=f"{updated} anchors",
+            origin="diagnostic-loop",
+        )
