@@ -995,6 +995,26 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
     def get_drift_fixes_recent(self, obj):
         return compute_trust_score(obj)["components"]["drift_fixes_recent"]
 
+    def get_trusted_anchor_pct(self, obj):
+        """Percentage of anchors in this assistant's context marked trusted."""
+        from memory.models import SymbolicMemoryAnchor
+
+        total = (
+            SymbolicMemoryAnchor.objects.filter(memory_context=obj.memory_context)
+            .only("id")
+            .count()
+        )
+        if not total:
+            return 0.0
+        trusted = (
+            SymbolicMemoryAnchor.objects.filter(
+                memory_context=obj.memory_context, is_trusted=True
+            )
+            .only("id")
+            .count()
+        )
+        return round(trusted / total * 100, 1)
+
     def get_flair(self, obj):
         if obj.primary_badge:
             badge = Badge.objects.filter(slug=obj.primary_badge).first()
