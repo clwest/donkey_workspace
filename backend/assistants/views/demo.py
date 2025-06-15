@@ -281,7 +281,11 @@ def demo_success_view(request):
                 "name": a.name,
                 "demo_slug": a.spawned_by.demo_slug if a.spawned_by else None,
                 "created_at": a.created_at.isoformat(),
-                "memory_count": MemoryEntry.objects.filter(assistant=a).count(),
+                "memory_count": (
+                    MemoryEntry.objects.filter(assistant=a)
+                    .only("id", "created_at")
+                    .count()
+                ),
                 "first_message_excerpt": first_msg.content[:100] if first_msg else "",
             }
         )
@@ -338,10 +342,9 @@ def demo_reflection_overlay(request, slug):
         for a in anchors.select_related("anchor")
     ]
 
-    mems = (
-        MemoryEntry.objects.filter(assistant=assistant, session_id=session_uuid)
-        .prefetch_related("tags")
-    )
+    mems = MemoryEntry.objects.filter(
+        assistant=assistant, session_id=session_uuid
+    ).prefetch_related("tags")
     tag_slugs = {t.slug for m in mems for t in m.tags.all()}
     tags = [{"slug": s} for s in sorted(tag_slugs)]
 
@@ -350,9 +353,7 @@ def demo_reflection_overlay(request, slug):
         created_at__gte=start if start else None,
         created_at__lte=end,
     )
-    drift_logs = [
-        {"id": str(d.id), "reason": d.drift_reason or ""} for d in drifts
-    ]
+    drift_logs = [{"id": str(d.id), "reason": d.drift_reason or ""} for d in drifts]
 
     snippet = reflection.summary[:200] if reflection else ""
 
@@ -458,7 +459,9 @@ def demo_replay_debug(request, slug, session_id):
     frames = []
     for text in user_msgs:
         info = get_rag_chunk_debug(str(assistant.id), text)
-        hits = [c.get("anchor_slug") for c in info["matched_chunks"] if c.get("anchor_slug")]
+        hits = [
+            c.get("anchor_slug") for c in info["matched_chunks"] if c.get("anchor_slug")
+        ]
         frames.append(
             {
                 "query": text,
@@ -479,7 +482,13 @@ def demo_replay_debug(request, slug, session_id):
     )
     reflection_summary = reflection.summary if reflection else ""
 
-    return Response({"session_id": session_uuid, "frames": frames, "reflection_summary": reflection_summary})
+    return Response(
+        {
+            "session_id": session_uuid,
+            "frames": frames,
+            "reflection_summary": reflection_summary,
+        }
+    )
 
 
 @api_view(["GET"])
@@ -527,4 +536,3 @@ def demo_drift_diagnosis(request, slug, session_id):
 
     data = analyze_drift_symptoms(session_uuid)
     return Response(data)
-

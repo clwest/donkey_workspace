@@ -83,6 +83,20 @@ export default function GlossaryConvergencePage() {
         >
           🧪 Review Mutation Suggestions
         </Link>
+        <button
+          className="btn btn-sm btn-outline-primary"
+          onClick={() =>
+            apiFetch("/dev/cli/run/", {
+              method: "POST",
+              body: {
+                command: "export_assistant_trust_index",
+                flags: `--assistant ${slug}`,
+              },
+            })
+          }
+        >
+          📤 Export Anchor Forecasts
+        </button>
       </div>
       <button
         className="btn btn-outline-primary mb-3"

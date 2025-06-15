@@ -7,3 +7,10 @@ export function runCliCommand(body) {
 export function fetchCommandLog(id) {
   return apiFetch(`/dev/command-logs/${id}/`);
 }
+
+export function exportAssistantTrustIndex(slug) {
+  return runCliCommand({
+    command: "export_assistant_trust_index",
+    flags: `--assistant ${slug}`,
+  });
+}

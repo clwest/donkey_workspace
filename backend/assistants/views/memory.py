@@ -48,7 +48,11 @@ from mcp_core.models import NarrativeThread
 
 
 def _rate_limited(request, key: str, window: int = 3) -> bool:
-    ident = request.user.id if request.user.is_authenticated else request.META.get("REMOTE_ADDR")
+    ident = (
+        request.user.id
+        if request.user.is_authenticated
+        else request.META.get("REMOTE_ADDR")
+    )
     cache_key = f"rl:{ident}:{key}"
     if cache.get(cache_key):
         return True
@@ -345,9 +349,8 @@ def rag_playback_detail(request, slug, id):
     from memory.models import RAGPlaybackLog
 
     from uuid import UUID
-    playback = get_object_or_404(
-        RAGPlaybackLog, id=UUID(str(id)), assistant=assistant
-    )
+
+    playback = get_object_or_404(RAGPlaybackLog, id=UUID(str(id)), assistant=assistant)
     from memory.serializers import RAGPlaybackLogSerializer
 
     data = RAGPlaybackLogSerializer(playback).data
@@ -514,18 +517,41 @@ def reflection_review_primer(request, slug):
         }
     )
 
+
 @api_view(["GET"])
 def link_diagnostics(request, slug):
     """Return memory link diagnostics for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
-    orphaned = MemoryEntry.objects.filter(assistant=assistant, context__isnull=True).count()
-    conflicts = MemoryEntry.objects.filter(assistant=assistant, context__isnull=False).exclude(context_id=assistant.memory_context_id).count()
+    orphaned = (
+        MemoryEntry.objects.filter(assistant=assistant, context__isnull=True)
+        .only("id", "created_at")
+        .count()
+    )
+    conflicts = (
+        MemoryEntry.objects.filter(assistant=assistant, context__isnull=False)
+        .exclude(context_id=assistant.memory_context_id)
+        .only("id", "created_at")
+        .count()
+    )
     from memory.models import MemoryChain
-    chainless = MemoryChain.objects.filter(memories__assistant=assistant, thread__isnull=True).distinct().count()
-    unlinked_threads = NarrativeThread.objects.filter(related_memories__assistant=assistant, origin_memory__isnull=True).distinct().count()
-    return Response({
-        "orphaned": orphaned,
-        "conflicting": conflicts,
-        "unlinked_chains": chainless,
-        "unlinked_threads": unlinked_threads,
-    })
+
+    chainless = (
+        MemoryChain.objects.filter(memories__assistant=assistant, thread__isnull=True)
+        .distinct()
+        .count()
+    )
+    unlinked_threads = (
+        NarrativeThread.objects.filter(
+            related_memories__assistant=assistant, origin_memory__isnull=True
+        )
+        .distinct()
+        .count()
+    )
+    return Response(
+        {
+            "orphaned": orphaned,
+            "conflicting": conflicts,
+            "unlinked_chains": chainless,
+            "unlinked_threads": unlinked_threads,
+        }
+    )

@@ -853,6 +853,7 @@ class AssistantDetailSerializer(serializers.ModelSerializer):
     badge_count = serializers.SerializerMethodField()
     reflections_last_7d = serializers.SerializerMethodField()
     drift_fixes_recent = serializers.SerializerMethodField()
+    trusted_anchor_pct = serializers.SerializerMethodField()
 
     class Meta:
         model = Assistant
@@ -2021,7 +2022,9 @@ class AssistantPreviewSerializer(serializers.ModelSerializer):
     def get_memory_count(self, obj):
         from memory.models import MemoryEntry
 
-        return MemoryEntry.objects.filter(assistant=obj).count()
+        return (
+            MemoryEntry.objects.filter(assistant=obj).only("id", "created_at").count()
+        )
 
     def get_starter_memory_excerpt(self, obj):
         from memory.models import MemoryEntry
@@ -2166,6 +2169,7 @@ class AssistantFromPromptSerializer(serializers.Serializer):
         )
 
         from assistants.tasks import run_rag_ci_checks
+
         run_rag_ci_checks.delay(assistant.slug)
 
         request = self.context.get("request")
@@ -2455,13 +2459,16 @@ class AssistantOverviewSerializer(serializers.ModelSerializer):
             "earned_badge_count",
             "reflections_last_7d",
             "drift_fixes_recent",
+            "trusted_anchor_pct",
         ]
         read_only_fields = fields
 
     def get_memory_count(self, obj):
         from memory.models import MemoryEntry
 
-        return MemoryEntry.objects.filter(assistant=obj).count()
+        return (
+            MemoryEntry.objects.filter(assistant=obj).only("id", "created_at").count()
+        )
 
     def get_reflection_count(self, obj):
         return obj.assistant_reflections.count()
@@ -2502,6 +2509,25 @@ class AssistantOverviewSerializer(serializers.ModelSerializer):
 
     def get_drift_fixes_recent(self, obj):
         return compute_trust_score(obj)["components"]["drift_fixes_recent"]
+
+    def get_trusted_anchor_pct(self, obj):
+        from memory.models import SymbolicMemoryAnchor
+
+        total = (
+            SymbolicMemoryAnchor.objects.filter(memory_context=obj.memory_context)
+            .only("id")
+            .count()
+        )
+        if not total:
+            return 0.0
+        trusted = (
+            SymbolicMemoryAnchor.objects.filter(
+                memory_context=obj.memory_context, is_trusted=True
+            )
+            .only("id")
+            .count()
+        )
+        return round(trusted / total * 100, 1)
 
 
 class DemoHealthSerializer(serializers.Serializer):

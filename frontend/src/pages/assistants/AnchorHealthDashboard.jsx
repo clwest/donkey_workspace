@@ -45,7 +45,7 @@ export default function AnchorHealthDashboard() {
   return (
     <div className="container my-5">
       <h2 className="mb-3">
-        Anchor Health Dashboard{' '}
+        Anchor Health Dashboard{" "}
         <span className="badge bg-danger">{orphans} Orphaned</span>
       </h2>
       <div className="d-flex gap-2 mb-2">
@@ -79,6 +79,20 @@ export default function AnchorHealthDashboard() {
           disabled={loading}
         >
           {loading ? "Refreshing..." : "Refresh"}
+        </button>
+        <button
+          className="btn btn-outline-primary"
+          onClick={() =>
+            apiFetch("/dev/cli/run/", {
+              method: "POST",
+              body: {
+                command: "export_assistant_trust_index",
+                flags: `--assistant ${slug}`,
+              },
+            })
+          }
+        >
+          📤 Export Drift Status
         </button>
         <select
           className="form-select form-select-sm w-auto"

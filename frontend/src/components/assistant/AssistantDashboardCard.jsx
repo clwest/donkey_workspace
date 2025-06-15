@@ -13,7 +13,10 @@ export default function AssistantDashboardCard({ assistant }) {
   const [loadDeep, setLoadDeep] = useState(false);
   const hoverRef = useRef(null);
 
-  const { profile, diagnostic } = useAssistantCardData(assistant.slug, { enabled: loadDeep });
+  const { profile, diagnostic, memoryStatus } = useAssistantCardData(
+    assistant.slug,
+    { enabled: loadDeep },
+  );
 
   async function loadExtra() {
     if (bootStatus && bootProfile && docStats) return;
@@ -30,7 +33,9 @@ export default function AssistantDashboardCard({ assistant }) {
       console.error(err);
     }
     try {
-      const docs = await apiFetch(`/assistants/${assistant.slug}/memory-documents/`);
+      const docs = await apiFetch(
+        `/assistants/${assistant.slug}/memory-documents/`,
+      );
       let total = 0;
       let embedded = 0;
       docs.forEach((d) => {
@@ -47,8 +52,8 @@ export default function AssistantDashboardCard({ assistant }) {
     ? profile.trust_level === "ready"
       ? "trusted"
       : profile.trust_level === "needs_attention"
-      ? "unreliable"
-      : "neutral"
+        ? "unreliable"
+        : "neutral"
     : null;
   const bootWarning = bootStatus
     ? [
@@ -63,9 +68,12 @@ export default function AssistantDashboardCard({ assistant }) {
     profile?.trust_level === "ready"
       ? "border-success"
       : profile?.trust_level === "needs_attention"
-      ? "border-danger"
-      : "border-warning";
+        ? "border-danger"
+        : "border-warning";
   const ragOk = diagnostic && diagnostic.fallback_rate < 0.2;
+  const ragBadge = diagnostic
+    ? `\uD83E\uDDE0 RAG Health: Fallback ${(diagnostic.fallback_rate * 100).toFixed(1)}%, Drift ${profile?.score_components?.drift_fixes_recent ?? 0}`
+    : null;
 
   const handleEnter = () => {
     if (hoverRef.current) return;
@@ -83,14 +91,26 @@ export default function AssistantDashboardCard({ assistant }) {
   };
 
   return (
-    <div onMouseEnter={handleEnter} onMouseLeave={handleLeave} className={`p-1 rounded shadow-sm ${profile ? borderColor : ""}`}>
-      <AssistantCard assistant={assistant} to={`/assistants/${assistant.slug}`} />
+    <div
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+      className={`p-1 rounded shadow-sm ${profile ? borderColor : ""}`}
+    >
+      <AssistantCard
+        assistant={assistant}
+        to={`/assistants/${assistant.slug}`}
+      />
       {profile && (
         <div className="mt-1 small text-muted">
           <span>{profile.trust_score}/100</span>
           <TrustBadge label={badgeLabel} />
-          {bootWarning && <span className="ms-2" title="Boot issues">⚠️</span>}
-          {(assistant.certified_rag_ready || diagnostic?.certified_rag_ready) && (
+          {bootWarning && (
+            <span className="ms-2" title="Boot issues">
+              ⚠️
+            </span>
+          )}
+          {(assistant.certified_rag_ready ||
+            diagnostic?.certified_rag_ready) && (
             <>
               <span className="badge bg-success ms-2" title="RAG Certified">
                 🎖
@@ -111,7 +131,9 @@ export default function AssistantDashboardCard({ assistant }) {
           )}
           {diagnostic && (
             <span className="ms-2">
-              {ragOk ? "✅" : "⚠️"} {Math.round(diagnostic.glossary_success_rate * 100)}% glossary • {Math.round(diagnostic.fallback_rate * 100)}% fallback
+              {ragOk ? "✅" : "⚠️"}{" "}
+              {Math.round(diagnostic.glossary_success_rate * 100)}% glossary •{" "}
+              {Math.round(diagnostic.fallback_rate * 100)}% fallback
               <a
                 href={`/assistants/${assistant.slug}/diagnostic_report/`}
                 className="ms-1 text-decoration-underline"
@@ -120,11 +142,32 @@ export default function AssistantDashboardCard({ assistant }) {
               </a>
             </span>
           )}
+          {ragBadge && <span className="ms-2">{ragBadge}</span>}
+          {profile.trusted_anchor_pct != null && (
+            <span className="ms-2">
+              🛡️ Trusted Anchors: {profile.trusted_anchor_pct}%
+            </span>
+          )}
+          {memoryStatus && (
+            <span className="ms-2">
+              {memoryStatus === "hydrated" && (
+                <span className="badge bg-success">Memory OK</span>
+              )}
+              {memoryStatus === "paused" && (
+                <span className="badge bg-warning text-dark">
+                  Memory Paused
+                </span>
+              )}
+              {memoryStatus === "error" && (
+                <span className="badge bg-danger">Memory Error</span>
+              )}
+            </span>
+          )}
           {bootStatus && bootProfile && (
             <span className="ms-2 d-block">
-              Documents Linked: {bootStatus.linked_documents} | Chunks Available: {bootStatus.embedded_chunks}
-              {" "}| Glossary Anchors: {bootProfile.glossary_anchors?.active}
-              {" "}| Status:{" "}
+              Documents Linked: {bootStatus.linked_documents} | Chunks
+              Available: {bootStatus.embedded_chunks} | Glossary Anchors:{" "}
+              {bootProfile.glossary_anchors?.active} | Status:{" "}
               {assistant.rag_certified ? "Certified ✅" : "Needs Review ❗"}
             </span>
           )}
@@ -132,7 +175,10 @@ export default function AssistantDashboardCard({ assistant }) {
       )}
       {docStats && docStats.embedded === 0 && (
         <div className="alert alert-warning mt-2">
-          ⚠️ No embedded chunks. <a href={`/assistants/${assistant.slug}/rag_debug/`}>Recheck Documents</a>
+          ⚠️ No embedded chunks.{" "}
+          <a href={`/assistants/${assistant.slug}/rag_debug/`}>
+            Recheck Documents
+          </a>
         </div>
       )}
     </div>
