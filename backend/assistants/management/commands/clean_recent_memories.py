@@ -3,7 +3,7 @@ from django.core.management import call_command
 from assistants.utils.resolve import resolve_assistant
 from memory.models import MemoryEntry
 from prompts.utils.token_helpers import count_tokens
-from django.db.models import Q
+
 
 class Command(BaseCommand):
     help = "Delete meaningless recent memories for an assistant"
@@ -15,7 +15,10 @@ class Command(BaseCommand):
         identifier = options["assistant"]
         assistant = resolve_assistant(identifier)
         if not assistant:
-            self.stderr.write(self.style.ERROR(f"Assistant '{identifier}' not found"))
+            message = self.style.ERROR(
+                f"Assistant '{identifier}' not found"
+            )
+            self.stderr.write(message)
             return
 
         qs = MemoryEntry.objects.filter(
@@ -26,7 +29,9 @@ class Command(BaseCommand):
         )
 
         meaningless_ids = list(
-            qs.filter(event__icontains="couldn’t find that information").values_list("id", flat=True)
+            qs.filter(
+                event__icontains="couldn’t find that information"
+            ).values_list("id", flat=True)
         )
 
         for mem in qs.exclude(id__in=meaningless_ids):
@@ -38,5 +43,8 @@ class Command(BaseCommand):
         if count:
             MemoryEntry.objects.filter(id__in=meaningless_ids).delete()
 
-        self.stdout.write(f"Removed {count} weak memories for {assistant.slug}")
-        call_command("repair_context_mismatches", assistant=slug)
+        self.stdout.write(
+            f"Removed {count} weak memories for {assistant.slug}"
+        )
+        # After pruning memory entries, ensure they link to the correct context
+        call_command("repair_context_mismatches", assistant=assistant.slug)

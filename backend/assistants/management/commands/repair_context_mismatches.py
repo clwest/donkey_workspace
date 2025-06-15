@@ -14,7 +14,10 @@ class Command(BaseCommand):
         identifier = options["assistant"]
         assistant = resolve_assistant(identifier)
         if not assistant:
-            self.stderr.write(self.style.ERROR(f"Assistant '{identifier}' not found"))
+            message = self.style.ERROR(
+                f"Assistant '{identifier}' not found"
+            )
+            self.stderr.write(message)
             return
         context = assistant.memory_context
 
@@ -29,5 +32,8 @@ class Command(BaseCommand):
             assistant=assistant, context__isnull=True
         ).update(context=context)
         self.stdout.write(
-            f"\U0001f527 Linked {count} memory entries to context {context.id} ({assistant.slug})"
+            (
+                f"\U0001f527 Linked {count} memory entries "
+                f"to context {context.id} ({assistant.slug})"
+            )
         )
