@@ -5,6 +5,8 @@ import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import apiFetch from "@/utils/apiClient";
 import ChunkDriftPanel from "../intel/ChunkDriftPanel";
+import useTaskStatus from "../../hooks/useTaskStatus";
+import TaskStatusBadge from "../TaskStatusBadge";
 
 import {
   cleanRecentMemories,
@@ -19,6 +21,7 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [action, setAction] = useState(null);
+  const ragTask = useTaskStatus(`/assistants/${slug}/rag_self_test/`);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -64,7 +67,6 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
     healthLabel = "Strong Match";
     badgeClass = "bg-success";
   }
-
 
   const cooldown = () =>
     setTimeout(() => {
@@ -114,7 +116,6 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
       toast.error("Failed to sync glossary anchors");
     } finally {
       cooldown();
-
     }
   };
 
@@ -167,7 +168,7 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
     if (action) return;
     setAction("rag");
     try {
-      await runRagSelfTest(slug);
+      await ragTask.trigger();
       toast.success("RAG diagnostic started");
       setRefreshKey((k) => k + 1);
       onRefresh && onRefresh();
@@ -186,10 +187,12 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
         <li>🧠 Reflection logs: {data.reflections_total} reflections</li>
         <li>🔗 Orphaned memories: {data.orphaned_memory_count}</li>
         <li>
-          📚 Glossary anchors: {data.anchors_total} total / {" "}
+          📚 Glossary anchors: {data.anchors_total} total /{" "}
           {data.anchors_with_matches} matched
         </li>
-        <li>Hits: {data.glossary_hit_count} | Fallbacks: {data.fallback_count}</li>
+        <li>
+          Hits: {data.glossary_hit_count} | Fallbacks: {data.fallback_count}
+        </li>
         {data.total_queries_tested && (
           <li>Total queries tested: {data.total_queries_tested}</li>
         )}
@@ -204,10 +207,12 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
         </li>
       </ul>
       <div style={{ width: "250px", height: "250px" }}>
-        <Pie data={chartData} options={{ plugins: { legend: { position: "bottom" } } }} />
+        <Pie
+          data={chartData}
+          options={{ plugins: { legend: { position: "bottom" } } }}
+        />
       </div>
       <div className="mt-2">
-
         <button
           className="btn btn-sm btn-outline-primary me-1"
           onClick={handleReflect}
@@ -215,7 +220,10 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
         >
           {action === "reflect" ? (
             <>
-              <span className="spinner-border spinner-border-sm me-1" role="status" />
+              <span
+                className="spinner-border spinner-border-sm me-1"
+                role="status"
+              />
               Running...
             </>
           ) : (
@@ -229,7 +237,10 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
         >
           {action === "context" ? (
             <>
-              <span className="spinner-border spinner-border-sm me-1" role="status" />
+              <span
+                className="spinner-border spinner-border-sm me-1"
+                role="status"
+              />
               Repairing...
             </>
           ) : (
@@ -243,13 +254,15 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
         >
           {action === "anchors" ? (
             <>
-              <span className="spinner-border spinner-border-sm me-1" role="status" />
+              <span
+                className="spinner-border spinner-border-sm me-1"
+                role="status"
+              />
               Syncing...
             </>
           ) : (
             "📚 Sync Glossary Anchors"
           )}
-
         </button>
         <button
           className="btn btn-sm btn-outline-danger ms-1"
@@ -258,7 +271,10 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
         >
           {action === "memories" ? (
             <>
-              <span className="spinner-border spinner-border-sm me-1" role="status" />
+              <span
+                className="spinner-border spinner-border-sm me-1"
+                role="status"
+              />
               Cleaning...
             </>
           ) : (
@@ -272,7 +288,10 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
         >
           {action === "projects" ? (
             <>
-              <span className="spinner-border spinner-border-sm me-1" role="status" />
+              <span
+                className="spinner-border spinner-border-sm me-1"
+                role="status"
+              />
               Removing...
             </>
           ) : (
@@ -282,17 +301,32 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
         <button
           className="btn btn-sm btn-outline-info ms-1"
           onClick={handleRunRag}
-          disabled={!!action}
+          disabled={!!action || ragTask.isRunning}
         >
-          {action === "rag" ? (
+          {ragTask.isRunning ? (
             <>
-              <span className="spinner-border spinner-border-sm me-1" role="status" />
+              <span
+                className="spinner-border spinner-border-sm me-1"
+                role="status"
+              />
               Running...
             </>
           ) : (
             "⚡ Run RAG Diagnostic"
           )}
         </button>
+        <TaskStatusBadge
+          status={
+            ragTask.isRunning
+              ? "running"
+              : ragTask.isError
+                ? "error"
+                : ragTask.hasRun
+                  ? "complete"
+                  : null
+          }
+          label="RAG"
+        />
         <Link
           to={`/assistants/${slug}/rag-inspector`}
           className="btn btn-sm btn-outline-primary ms-1"
@@ -305,14 +339,17 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
         >
           📄 Latest Report
         </a>
-      <button
-        className="btn btn-sm btn-outline-primary ms-1"
-        onClick={handleGlobalBoot}
-        disabled={!!action}
-      >
+        <button
+          className="btn btn-sm btn-outline-primary ms-1"
+          onClick={handleGlobalBoot}
+          disabled={!!action}
+        >
           {action === "global" ? (
             <>
-              <span className="spinner-border spinner-border-sm me-1" role="status" />
+              <span
+                className="spinner-border spinner-border-sm me-1"
+                role="status"
+              />
               Running...
             </>
           ) : (

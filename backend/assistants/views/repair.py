@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from uuid import uuid4
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -49,5 +50,10 @@ def reflect_again(request, slug):
     for doc in docs:
         summary, _, _ = engine.reflect_on_document(doc)
         results.append({"document_id": str(doc.id), "summary": summary})
-    log_assistant_thought(assistant, f"Reflect again on {len(results)} docs", thought_type="reflection")
-    return Response({"results": results})
+    log_assistant_thought(
+        assistant,
+        f"Reflect again on {len(results)} docs",
+        thought_type="reflection",
+    )
+    task_id = str(uuid4())
+    return Response({"results": results, "status": "complete", "task_id": task_id})

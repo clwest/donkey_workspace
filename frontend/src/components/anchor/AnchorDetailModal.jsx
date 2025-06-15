@@ -1,14 +1,24 @@
 import { useEffect, useState } from "react";
 import CommonModal from "../CommonModal";
 import apiFetch from "../../utils/apiClient";
+import useTaskStatus from "../../hooks/useTaskStatus";
+import TaskStatusBadge from "../TaskStatusBadge";
 
 export default function AnchorDetailModal({ show, onClose, anchor }) {
   const [logs, setLogs] = useState([]);
 
+  const trustTask = useTaskStatus(
+    anchor ? `/glossary/anchor/${anchor.slug}/trust/` : null,
+  );
+
   const handleTrust = async () => {
     if (!anchor) return;
-    await apiFetch(`/glossary/anchor/${anchor.slug}/trust/`, { method: "POST" });
-    onClose();
+    try {
+      await trustTask.trigger();
+      onClose();
+    } catch {
+      // ignore
+    }
   };
 
   useEffect(() => {
@@ -38,12 +48,27 @@ export default function AnchorDetailModal({ show, onClose, anchor }) {
             <span className="badge bg-success ms-2">Trusted</span>
           )}
           {!anchor.is_trusted && (
-            <button
-              className="btn btn-sm btn-primary ms-2"
-              onClick={handleTrust}
-            >
-              Mark Trusted
-            </button>
+            <>
+              <button
+                className="btn btn-sm btn-primary ms-2"
+                onClick={handleTrust}
+                disabled={trustTask.isRunning}
+              >
+                {trustTask.isRunning ? "Marking..." : "Mark Trusted"}
+              </button>
+              <TaskStatusBadge
+                status={
+                  trustTask.isRunning
+                    ? "running"
+                    : trustTask.isError
+                      ? "error"
+                      : trustTask.hasRun
+                        ? "complete"
+                        : null
+                }
+                label="Trusted"
+              />
+            </>
           )}
         </div>
       )}

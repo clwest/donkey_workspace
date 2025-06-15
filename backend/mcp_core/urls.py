@@ -144,6 +144,6 @@ urlpatterns = router.urls + [
         name="summarize-narrative-event",
     ),
 
-    # path("tasks/<task_id>/status/", task_status.TaskStatusView.as_view()),
+    path("tasks/<task_id>/status/", task_status.TaskStatusView.as_view(), name="task-status"),
 
 ]

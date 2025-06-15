@@ -1,14 +1,20 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import apiFetch from "../../utils/apiClient";
+import useTaskStatus from "../../hooks/useTaskStatus";
+import TaskStatusBadge from "../TaskStatusBadge";
 
 export default function RecoveryPanel({ assistantSlug }) {
   const [assistant, setAssistant] = useState(null);
   const [thoughts, setThoughts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [recovering, setRecovering] = useState(false);
-  const [reflecting, setReflecting] = useState(false);
-  const [repairing, setRepairing] = useState(false);
+  const recoverTask = useTaskStatus(`/assistants/${assistantSlug}/recover/`);
+  const reflectTask = useTaskStatus(
+    `/assistants/${assistantSlug}/reflect_again/`,
+  );
+  const repairTask = useTaskStatus(
+    `/assistants/${assistantSlug}/repair_documents/`,
+  );
   const [summary, setSummary] = useState("");
   const [promptTip, setPromptTip] = useState("");
   const loadAssistant = async () => {
@@ -17,7 +23,9 @@ export default function RecoveryPanel({ assistantSlug }) {
       const data = await apiFetch(`/assistants/${assistantSlug}/`);
       setAssistant(data);
       if (data.recent_drift) {
-        const t = await apiFetch(`/assistants/${assistantSlug}/thoughts/?before=${data.recent_drift.timestamp}`);
+        const t = await apiFetch(
+          `/assistants/${assistantSlug}/thoughts/?before=${data.recent_drift.timestamp}`,
+        );
         setThoughts(t.results || t);
       }
     } catch (err) {
@@ -31,52 +39,36 @@ export default function RecoveryPanel({ assistantSlug }) {
     loadAssistant();
   }, [assistantSlug]);
 
-
   const handleRecover = async () => {
-    setRecovering(true);
     try {
-      const res = await apiFetch(`/assistants/${assistantSlug}/recover/`, {
-        method: "POST",
-      });
+      const res = await recoverTask.trigger();
       setSummary(res.summary);
       setPromptTip(res.prompt_suggestion);
     } catch (err) {
       console.error("Recovery failed", err);
       setSummary("Recovery failed");
-    } finally {
-      setRecovering(false);
     }
   };
 
   const handleReflect = async () => {
-    setReflecting(true);
     try {
-      await apiFetch(`/assistants/${assistantSlug}/reflect_again/`, {
-        method: "POST",
-      });
+      await reflectTask.trigger();
       toast.success("Reflection triggered");
       await loadAssistant();
     } catch (err) {
       console.error("Reflection failed", err);
       toast.error("Reflection failed");
-    } finally {
-      setReflecting(false);
     }
   };
 
   const handleRepairDocs = async () => {
-    setRepairing(true);
     try {
-      await apiFetch(`/assistants/${assistantSlug}/repair_documents/`, {
-        method: "POST",
-      });
+      await repairTask.trigger();
       toast.info("Repair triggered");
       await loadAssistant();
     } catch (err) {
       console.error("Repair failed", err);
       toast.error("Repair failed");
-    } finally {
-      setRepairing(false);
     }
   };
 
@@ -90,7 +82,8 @@ export default function RecoveryPanel({ assistantSlug }) {
           <ul className="mb-3">
             {assistant.documents.map((d) => (
               <li key={d.id}>
-                {d.title} — {(d.embedded_chunks ?? d.num_embedded)}/{d.chunk_count}
+                {d.title} — {d.embedded_chunks ?? d.num_embedded}/
+                {d.chunk_count}
               </li>
             ))}
           </ul>
@@ -101,24 +94,60 @@ export default function RecoveryPanel({ assistantSlug }) {
           <button
             className="btn btn-warning"
             onClick={handleRecover}
-            disabled={recovering}
+            disabled={recoverTask.isRunning}
           >
-            {recovering ? "Recovering..." : "Run Recovery"}
+            {recoverTask.isRunning ? "Recovering..." : "Run Recovery"}
           </button>
+          <TaskStatusBadge
+            status={
+              recoverTask.isRunning
+                ? "running"
+                : recoverTask.isError
+                  ? "error"
+                  : recoverTask.hasRun
+                    ? "complete"
+                    : null
+            }
+            label="Recovery"
+          />
           <button
             className="btn btn-outline-secondary"
             onClick={handleReflect}
-            disabled={reflecting}
+            disabled={reflectTask.isRunning}
           >
-            {reflecting ? "Reflecting..." : "Reflect Again"}
+            {reflectTask.isRunning ? "Reflecting..." : "Reflect Again"}
           </button>
+          <TaskStatusBadge
+            status={
+              reflectTask.isRunning
+                ? "running"
+                : reflectTask.isError
+                  ? "error"
+                  : reflectTask.hasRun
+                    ? "complete"
+                    : null
+            }
+            label="Reflection"
+          />
           <button
             className="btn btn-outline-secondary"
             onClick={handleRepairDocs}
-            disabled={repairing}
+            disabled={repairTask.isRunning}
           >
-            {repairing ? "Repairing..." : "Repair Documents"}
+            {repairTask.isRunning ? "Repairing..." : "Repair Documents"}
           </button>
+          <TaskStatusBadge
+            status={
+              repairTask.isRunning
+                ? "running"
+                : repairTask.isError
+                  ? "error"
+                  : repairTask.hasRun
+                    ? "complete"
+                    : null
+            }
+            label="Repair"
+          />
         </div>
         {thoughts.length > 0 && (
           <ul className="mt-3">
