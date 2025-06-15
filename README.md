@@ -317,6 +317,21 @@ Additional planning and deep-dive instructions live in `backend/AGENTS.md` and `
 
 ---
 
+## Merge Markdown Docs
+
+Use this command to consolidate all `*.md` files for assistant training:
+
+```bash
+python manage.py collect_markdown_docs
+```
+
+Options:
+- `--dry-run` – Show what would be copied
+- `--include-dotfiles` – Include hidden markdown files
+- `--overwrite` – Replace existing files in the destination
+
+---
+
 ## Phase Ω.5.8 Highlights
 
 Phase Ω.5.8 expands the codex with modular tools:
