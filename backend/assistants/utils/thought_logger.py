@@ -2,8 +2,10 @@ import logging
 from typing import List, Optional
 from django.utils.text import slugify
 from assistants.models.thoughts import AssistantThoughtLog
+from assistants.models.project import AssistantProject
 from tools.models import Tool
 from mcp_core.models import NarrativeThread, Tag
+from project.models import Project
 
 logger = logging.getLogger(__name__)
 
@@ -51,9 +53,16 @@ def log_symbolic_thought(
 
     tool = get_or_create_tool(tool_name) if tool_name else None
 
+    core_project = project
+    if isinstance(project, AssistantProject):
+        core_project = (
+            project.linked_projects.first()
+            or Project.objects.filter(assistant_project=project).first()
+        )
+
     log = AssistantThoughtLog.objects.create(
         assistant=assistant,
-        project=project,
+        project=core_project,
         narrative_thread=narrative_thread,
         category=category,
         thought=thought,
