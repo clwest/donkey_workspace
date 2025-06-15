@@ -1,14 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import PropTypes from "prop-types";
 import apiFetch from "@/utils/apiClient";
 import TrustBadge from "./TrustBadge";
 
 export default function AssistantTrustPanel({ slug }) {
   const [data, setData] = useState(null);
+  const loadedRef = useRef({});
   useEffect(() => {
-    if (!slug) return;
+    if (!slug || loadedRef.current[slug]) return;
     apiFetch(`/assistants/${slug}/trust_profile/`)
-      .then(setData)
+      .then((res) => {
+        loadedRef.current[slug] = true;
+        setData(res);
+      })
       .catch(() => {});
   }, [slug]);
 
