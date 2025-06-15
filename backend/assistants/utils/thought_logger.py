@@ -50,6 +50,7 @@ def log_symbolic_thought(
         narrative_thread = get_or_create_symbolic_thread(assistant, category)
 
     tool = get_or_create_tool(tool_name) if tool_name else None
+    
 
     log = AssistantThoughtLog.objects.create(
         assistant=assistant,
