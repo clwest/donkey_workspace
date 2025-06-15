@@ -146,12 +146,14 @@ export default function AssistantDetailPage() {
   };
 
   const loadedRef = useRef({});
+  const [alreadyFetched, setAlreadyFetched] = useState({});
 
   useEffect(() => {
-    if (!slug || loadedRef.current[slug]) return;
+    if (!slug || alreadyFetched[slug]) return;
     reloadAssistant();
     loadedRef.current[slug] = true;
-  }, [slug]);
+    setAlreadyFetched((p) => ({ ...p, [slug]: true }));
+  }, [slug, alreadyFetched]);
 
   useEffect(() => {
     async function loadSummary() {

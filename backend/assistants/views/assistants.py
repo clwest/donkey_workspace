@@ -2569,6 +2569,14 @@ def drift_suggestions(request, slug):
 def assistant_summary(request, slug):
     """Return high-level metrics for an assistant."""
     assistant = get_object_or_404(Assistant, slug=slug)
+    from memory.models import SymbolicMemoryAnchor
+
+    anchor_queryset = SymbolicMemoryAnchor.objects.filter(
+        memory_context=assistant.memory_context
+    )
+    if not anchor_queryset.exists():
+        # No glossary anchors yet, return 204 so frontend can skip
+        return Response({}, status=204)
     from assistants.serializers import AssistantOverviewSerializer
 
     serializer = AssistantOverviewSerializer(assistant)
@@ -2583,8 +2591,14 @@ def assistant_trust_profile(request, slug):
     from assistants.serializers import AssistantOverviewSerializer
     from assistants.models.assistant import AssistantDriftRefinementLog
     from assistants.models.reflection import AssistantReflectionLog
-    from memory.models import RAGGroundingLog
+    from memory.models import SymbolicMemoryAnchor, RAGGroundingLog
     from assistants.utils.trust_profile import update_assistant_trust_cache
+
+    anchor_queryset = SymbolicMemoryAnchor.objects.filter(
+        memory_context=assistant.memory_context
+    )
+    if not anchor_queryset.exists():
+        return Response({}, status=204)
 
     overview = AssistantOverviewSerializer(assistant).data
     trust = update_assistant_trust_cache(assistant)

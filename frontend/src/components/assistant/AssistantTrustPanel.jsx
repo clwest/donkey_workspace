@@ -6,18 +6,36 @@ import TrustBadge from "./TrustBadge";
 
 export default function AssistantTrustPanel({ slug }) {
   const [data, setData] = useState(null);
+  const [paused, setPaused] = useState(false);
   const loadedRef = useRef({});
   useEffect(() => {
     if (!slug || loadedRef.current[slug]) return;
     apiFetch(`/assistants/${slug}/trust_profile/`)
       .then((res) => {
         loadedRef.current[slug] = true;
+        setPaused(false);
         setData(res);
       })
-      .catch(() => {});
+      .catch((err) => {
+        setData(null);
+        if (err.status === 429 || err.status >= 500) {
+          setPaused(true);
+        }
+      });
   }, [slug]);
 
-  if (!data) return null;
+  if (!data) {
+    return (
+      <div className="card my-3">
+        <div className="card-header">Trust &amp; Signals</div>
+        <div className="card-body text-center">
+          <div className="text-muted">
+            {paused ? "Trust profile unavailable" : "No trust data yet."}
+          </div>
+        </div>
+      </div>
+    );
+  }
   const levelMap = {
     ready: { icon: "🟢", label: "Ready" },
     training: { icon: "🟡", label: "Training" },
