@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import PropTypes from "prop-types";
 import apiFetch from "@/utils/apiClient";
+import { exportAssistantTrustIndex } from "@/api/devtools";
 import TrustBadge from "./TrustBadge";
 
 export default function AssistantTrustPanel({ slug }) {
@@ -32,8 +33,18 @@ export default function AssistantTrustPanel({ slug }) {
           <span className="fs-6 ms-1">/100</span>
         </div>
         <div className="mb-2">
-          <TrustBadge label={data.trust_level === "ready" ? "trusted" : data.trust_level === "needs_attention" ? "unreliable" : "neutral"} />
-          <span className="ms-2">{lvl.icon} {lvl.label}</span>
+          <TrustBadge
+            label={
+              data.trust_level === "ready"
+                ? "trusted"
+                : data.trust_level === "needs_attention"
+                  ? "unreliable"
+                  : "neutral"
+            }
+          />
+          <span className="ms-2">
+            {lvl.icon} {lvl.label}
+          </span>
         </div>
         <div className="d-flex flex-wrap gap-3 justify-content-center small">
           <div>🏅 Badges: {data.earned_badge_count}</div>
@@ -41,6 +52,12 @@ export default function AssistantTrustPanel({ slug }) {
           <div>🛠️ Stability: {data.drift_fix_count}</div>
           <div>🧠 Insight Rate: {data.reflections_last_7d}</div>
         </div>
+        <button
+          className="btn btn-sm btn-outline-primary mt-3"
+          onClick={() => exportAssistantTrustIndex(slug)}
+        >
+          📤 Export Trust Index
+        </button>
       </div>
     </div>
   );

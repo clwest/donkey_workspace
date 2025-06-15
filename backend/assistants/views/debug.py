@@ -17,20 +17,25 @@ def demo_checkup(request):
     """Return health overview for all demo assistants."""
     fix = str(request.query_params.get("fix", "")).lower() == "true"
 
-    demos = (
-        Assistant.objects.filter(is_demo=True)
-        .annotate(memory_count=Count("memories"))
+    demos = Assistant.objects.filter(is_demo=True).annotate(
+        memory_count=Count("memories")
     )
 
     results = []
     for a in demos:
         reflection_count = AssistantReflectionLog.objects.filter(assistant=a).count()
-        starter_chat_count = MemoryEntry.objects.filter(assistant=a, is_demo=True).count()
+        starter_chat_count = (
+            MemoryEntry.objects.filter(assistant=a, is_demo=True)
+            .only("id", "created_at")
+            .count()
+        )
         has_prompt = bool(a.system_prompt)
         preview = a.system_prompt.content[:150] if a.system_prompt else ""
         if fix and not has_prompt:
             preview = generate_demo_prompt_preview(a)
-            logger.info("[demo_checkup] would generate prompt for %s: %s", a.slug, preview)
+            logger.info(
+                "[demo_checkup] would generate prompt for %s: %s", a.slug, preview
+            )
         results.append(
             {
                 "slug": a.demo_slug or a.slug,
