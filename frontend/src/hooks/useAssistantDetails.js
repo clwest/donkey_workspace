@@ -22,6 +22,7 @@ export default function useAssistantDetails(slug, opts = {}) {
       revalidateOnFocus: false,
       shouldRetryOnError: (err) => {
         if (err?.status === 429) return !pauseOnError;
+        if (err?.status >= 500) return false;
         return true;
       },
     }),
@@ -38,11 +39,11 @@ export default function useAssistantDetails(slug, opts = {}) {
     swrConfig,
   );
 
-  const { data: trustProfile, mutate: refreshProfile } = useSWR(
-    slug ? `/assistants/${slug}/trust_profile/` : null,
-    fetcher,
-    swrConfig,
-  );
+  const {
+    data: trustProfile,
+    error: profileError,
+    mutate: refreshProfile,
+  } = useSWR(slug ? `/assistants/${slug}/trust_profile/` : null, fetcher, swrConfig);
 
   const { data: diagnostics, mutate: refreshDiagnostics } = useSWR(
     slug ? `/assistants/${slug}/diagnostic_report/` : null,
@@ -51,7 +52,9 @@ export default function useAssistantDetails(slug, opts = {}) {
   );
 
   const paused =
-    memoriesError?.status === 429 || reflectionsError?.status === 429;
+    memoriesError?.status === 429 ||
+    reflectionsError?.status === 429 ||
+    profileError?.status >= 500;
 
   const refreshAll = () => {
     refreshMemories();
