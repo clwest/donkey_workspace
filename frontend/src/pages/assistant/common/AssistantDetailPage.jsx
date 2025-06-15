@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, Link, useLocation, useNavigate } from "react-router-dom";
 import apiFetch from "../../../utils/apiClient";
 import PrimaryStar from "../../../components/assistant/PrimaryStar";
@@ -143,8 +143,12 @@ export default function AssistantDetailPage() {
     }
   };
 
+  const loadedRef = useRef({});
+
   useEffect(() => {
+    if (!slug || loadedRef.current[slug]) return;
     reloadAssistant();
+    loadedRef.current[slug] = true;
   }, [slug]);
 
   useEffect(() => {

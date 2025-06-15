@@ -1,7 +1,15 @@
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import apiFetch from '@/utils/apiClient';
 
 export default function GlossaryOverlayTooltip({ label, tooltip, slug }) {
+  const fetchedRef = useRef({});
+  useEffect(() => {
+    if (!slug || fetchedRef.current[slug]) return;
+    fetchedRef.current[slug] = true;
+    apiFetch(`/glossary/${slug}/overlay/`).catch(() => {});
+  }, [slug]);
   if (!tooltip) return <>{label}</>;
   const overlay = (
     <Tooltip>
