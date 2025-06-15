@@ -5,13 +5,23 @@ import { fetchDriftFixes } from "../../api/assistants";
 export default function DriftFixLogPanel({ slug }) {
   const [logs, setLogs] = useState([]);
   const [open, setOpen] = useState(false);
+  const [paused, setPaused] = useState(false);
+
+  const load = async () => {
+    if (!slug || !open) return;
+    try {
+      const data = await fetchDriftFixes(slug);
+      setLogs(data);
+      setPaused(false);
+    } catch (err) {
+      setLogs([]);
+      if (err.status === 429) setPaused(true);
+    }
+  };
 
   useEffect(() => {
-    if (!slug) return;
-    fetchDriftFixes(slug)
-      .then(setLogs)
-      .catch(() => setLogs([]));
-  }, [slug]);
+    load();
+  }, [slug, open]);
 
   const grouped = { glossary: [], prompt: [], tone: [] };
   logs.forEach((l) => {
@@ -33,6 +43,9 @@ export default function DriftFixLogPanel({ slug }) {
       </div>
       {open && (
         <div className="card-body">
+          {paused && (
+            <div className="text-warning mb-2">Paused due to rate limit</div>
+          )}
           {logs.length === 0 && (
             <div className="text-muted">No fixes recorded.</div>
           )}

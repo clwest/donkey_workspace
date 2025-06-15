@@ -83,7 +83,7 @@ export default function AssistantDetailPage() {
   const [showPrimer, setShowPrimer] = useState(false);
   const { hints, dismissHint } = useAssistantHints(slug);
   const userInfo = useUserInfo();
-  const glossaryOverlays = useGlossaryOverlay("assistant_detail");
+  const { overlays: glossaryOverlays } = useGlossaryOverlay("assistant_detail");
   const threadId = query.get("thread");
   const projectId = query.get("project");
   const memoryId = query.get("memory");
@@ -93,6 +93,8 @@ export default function AssistantDetailPage() {
     totalCount,
     reflections,
     refreshAll,
+    loading: detailsLoading,
+    paused: detailsPaused,
   } = useAssistantDetails(slug, { limit: 100, pauseOnError: true });
   const handleDiagnosticsRefresh = () => {
     refreshAll();
@@ -1057,7 +1059,13 @@ export default function AssistantDetailPage() {
             </div>
           )}
 
-          <AssistantMemoryPanel slug={slug} />
+          <AssistantMemoryPanel
+            slug={slug}
+            memories={memories}
+            loading={detailsLoading}
+            paused={detailsPaused}
+            refreshAll={refreshAll}
+          />
           {memoryStats && (
             <div className="alert alert-info mt-2">
               <strong>Memory Entries:</strong> {memoryStats.memories} |{" "}
