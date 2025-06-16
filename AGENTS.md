@@ -1,87 +1,120 @@
-🧠 AGENTS.md — Codex Protocol Manifest (2025-06-14)
+# 🤖 AGENTS.md — MythOS & Donkey Workspace
 
-⸻
+This file guides Codex (and other AI agents) to understand our project's architecture, conventions, and evolving capabilities.
 
-🔧 AGENT_PROTOCOL
+---
 
-codename: codex
+## 🏗️ Project Overview
 
-capabilities:
-• route_registration
-• glossary_mutation
-• reflection_replay
-• chunk_repair
-• assistant_debug_panel_linkage
-• anchor_suggestion
-• mutation_scoring
+- **Project Name:** MythOS (aka Donkey Workspace)
+- **Purpose:** A recursive symbolic AI system that ingests data, reflects, evolves, and self-documents across multi-agent structures — culminating in a central `/clarity` health dashboard.
 
-rules:
-• all new frontend routes must be registered in App.jsx
-• assistant pages must be reachable via buttons, tabs, or nav
-• fallback prompts must auto-resolve from Prompt model
-• glossary anchors must support mutation, override, protection
-• replay reflections must generate visible diffs
-• mutation scores must track reinforcement outcomes across anchors
+---
 
-⸻
+## 🗂️ Project Structure
 
-📜 PHASE_HISTORY
-• Ω.9.28 — RAG Debug Inspector
-• Ω.9.29 — Glossary Drift Repair Sweep
-• Ω.9.30 — Symbolic Anchor Viewer
-• Ω.9.31 — Mutation Review Panel
-• Ω.9.32 — Reflection Replay CLI
-• Ω.9.33 — Glossary Miss Self-Test
-• Ω.9.34 — Scoped RAG Retrieval
-• Ω.9.35 — Anchor Suggestion Logger
-• Ω.9.36 — Glossary Score Inspector
-• Ω.9.37 — Boost Score Diagnostics
-• Ω.9.38 — Mutation Generator with GPT
-• Ω.9.39 — Mutation Review UI
-• Ω.9.40 — Symbolic Anchor Metadata
-• Ω.9.41 — Glossary Panel on Assistant View
-• Ω.9.42 — Protect Flag, Explanations, Toggle UI
-• Ω.9.43 — Reflection Prompt Fallback Catcher
-• Ω.9.44 — Reflection Replay Logging + CLI
-• Ω.9.45 — Anchor Reinforcement Log + Score Impact
-• Ω.9.46 — Reflection Replay Routing + Nav Button
-• Ω.9.47 — Reflection Replay Drift Viewer
-• Ω.9.48–Ω.9.99 — Various feature iterations & polish (see FRESH_CHAT_SESSION_NOTES.md)
-• Ω.9.100 — Demo Assistant Lifecycle Complete
-• Ω.9.125 — Context Reset & Fresh Chat Session Notes Overview
-• Ω.10.r — RAG Recall Correction + Memory Expansion
-• Ω.10.t — RAG Recall Booster
-• Ω.10.u — Symbolic Feedback Review Panel
-• Ω.10.v — RAG Diagnostic Export Patch
-• Ω.10.w — Anchor Mutation Review Scoring: introduced mutation_score and reinforcement_log on symbolic anchors; CLI recomputes score deltas; frontend includes Mutation Scorecard tab and anchor history modal for trust analysis.
+/agents.md ← This file
+/README.md ← Main architecture & phase overview
+/AGENTS.md ← (you are here)
+/PHASE\_…md ← Phase plans (Ω.10, Ω.11, etc.)
+/MYTHOS_YEAR_ONE_REVIEW.md ← Year‑One narrative & metrics
+/PHASE_SUMMARY.md ← Master phase list
+/docs/
+/docs/core/ ← Active core docs
+/docs/archive/ ← Archived/deprecated docs
+/frontend/ ← UI/React components (e.g. ClarityPanel.jsx)
+/backend/ ← API endpoints (e.g. clarity, diagnostics)
 
-⸻
+---
 
-🌟 ACTIVE_OBJECTIVES
+## 📘 Key Documentation Files
 
-phase: Ω.10.w
+### Core Docs
 
-title: Anchor Mutation Review Scoring
+- `README.md` — High-level architecture and roadmap
+- `PHASE_...` — Phase-by-phase planning (latest: Ω.11.0 “Clarity Lock‑In”)
+- `MYTHOS_YEAR_ONE_REVIEW.md` — Year‑One timeline and key milestones
+- `Clarity_Panel_Spec.md` — UI/UX spec for `/clarity`
 
-tasks:
-• Recalculate scores from reinforcement logs
-• View mutation_score in UI
-• Review anchor trustworthiness before applying mutation
-• Color-code results by confidence level
+### Archives
 
-route: /anchor/suggestions → Mutation Scorecard
+- Old or exploratory `.md` files moved to `/docs/archive/` (for historical engineering embeds)
 
-priority: high
+---
 
-⸻
+## 🛠️ Coding Conventions
 
-🔍 DASHBOARDS & ROUTES
+- **Language/Stack:** Python (backend), Next.js & Tailwind CSS (frontend), PostgreSQL (PGVector)
+- **Utilities Naming:** `run_xyz_diagnostics`, `validate_anchors`, `mutate_glossary_anchors`, etc.
+- **Prompt & Mutation Logs:** Use `PromptMutationLog`, `TrustScore`, and `SymbolicAnchorReviewPage`
 
-Tool / Panel Route Linked?
-Mutation Scorecard /anchor/suggestions ✅ Yes
-Anchor Suggestions /anchor/suggestions ✅ Yes
-Symbolic Glossary Viewer /anchor/symbolic ✅ Yes
-Glossary Mutation Panel /anchor/mutations ✅ Yes
-Reflection Logs /assistants/:slug/reflections ✅ Yes
-Reflection Replays /assistants/:slug/replays ✅ Yes
-RAG Debug Inspector /assistants/:slug/rag_debug ✅ Yes
+---
+
+## ⚙️ Core Workflows (Agents)
+
+1. **Document Ingestion → RAG → Glossary Recall**  
+   Use `run_rag_diagnostics` to verify chunk retrieval, anchor hits, fallback rates.
+
+2. **Memory → Reflection → Prompt Mutation**  
+   On reflection: log prompt diff, trigger mutation chain, update symbolic anchors.
+
+3. **Chat → Feedback → Anchor Mutation**  
+   Chat UI supports thumbs up/down and tags—feedback is linked to anchor scoring and dynamic glossary updates.
+
+4. **Clarity Health Panel**  
+   `/clarity` route shows assistant snapshots, including memory/reflection counts, trust, drift, fallback rates, prompt lineage, and diagnostic controls.
+
+---
+
+## 📐 Design & Testing Guidelines
+
+- Use Tailwind for UI styling—ensure ClarityPanel follows existing dashboard patterns
+- Prompt diffs should render Git-style changes
+- API endpoints:
+  - `GET /api/assistants/clarity/` — list all assistant states
+  - `GET /api/assistants/{slug}/clarity/` — single assistant detail
+  - `POST /api/assistants/{slug}/refresh_clarity/` — trigger diagnostics refresh
+- Write backend tests around new models (TrustScore, AnchorStats)
+- Use Codex to generate MD and PDF output via export routes
+
+---
+
+## 📚 Documentation for AI Agents
+
+Codex should ingest the following `.md` files to guide generation:
+
+- `README.md`
+- `PHASE_...` plans (especially Ω.11.0)
+- `MYTHOS_YEAR_ONE_REVIEW.md`
+- `Clarity_Panel_Spec.md`
+
+Archived files are excluded to reduce noise.  
+If new `.md` files are added under `/docs/core/`, update this AGENTS.md accordingly.
+
+---
+
+## 🧭 Codex Behavior Expectations
+
+- Follow naming conventions and file structure
+- Only modify code in relevant folders; never touch archived `.md`s
+- Use diagnostic endpoints and health panel schema for UI logic
+- Generate changes in small, reviewable PRs linked to phase goals
+- Style frontend code with Tailwind and functional React components
+
+---
+
+## 🧪 Testing & CI Workflow
+
+- Run `pytest` for backend and integrate anchor/diagnostic coverage
+- Use `jest` or similar for frontend ClarityPanel tests
+- Ensure code quality: linters, type checks, commit standards
+
+---
+
+## 📈 Why This Matters
+
+A well-structured `AGENTS.md` boosts Codex productivity by **75% accuracy** and cuts review time dramatically—ideally aligning code outputs with project architecture and style guidelines 🔁 [oai_citation:0‡vibecoding.com](https://www.vibecoding.com/2025/06/05/how-to-configure-agents-md-files-to-supercharge-your-codex-ai-agent-performance/?utm_source=chatgpt.com) [oai_citation:1‡productcompass.pm](https://www.productcompass.pm/p/ai-agent-architectures?utm_source=chatgpt.com) [oai_citation:2‡agentsmd.net](https://agentsmd.net/?utm_source=chatgpt.com).
+
+---
+
+> Codex: **Use this as your map.** It’s your guide to what we’ve built, where we’re heading, and how to operate within MythOS.
