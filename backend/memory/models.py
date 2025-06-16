@@ -1067,3 +1067,45 @@ class AnchorSuggestion(models.Model):
 
     def __str__(self):  # pragma: no cover - display helper
         return f"{self.term} ({self.status})"
+
+
+class ReplayThreadLog(models.Model):
+    """Record symbolic replay runs for an assistant."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    assistant = models.ForeignKey(
+        "assistants.Assistant", on_delete=models.CASCADE, related_name="replay_logs"
+    )
+    drift_score = models.FloatField(default=0.0)
+    summary_count = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Replay {self.assistant.slug} {self.created_at.strftime('%Y-%m-%d')}"
+
+
+class DriftAnalysisSnapshot(models.Model):
+    """Snapshot of drift analysis for a single thought."""
+
+    replay_log = models.ForeignKey(
+        ReplayThreadLog, on_delete=models.CASCADE, related_name="snapshots"
+    )
+    thought_log = models.ForeignKey(
+        "assistants.AssistantThoughtLog",
+        on_delete=models.CASCADE,
+        related_name="drift_snapshots",
+    )
+    original_text = models.TextField()
+    replayed_text = models.TextField()
+    diff_text = models.TextField(blank=True)
+    drift_score = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):  # pragma: no cover - display helper
+        return f"Snapshot {self.thought_log_id}"

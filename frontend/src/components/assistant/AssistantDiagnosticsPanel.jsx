@@ -179,6 +179,19 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
     }
   };
 
+  const handleRunReplay = async () => {
+    if (action) return;
+    setAction("replay");
+    try {
+      await apiFetch(`/assistants/${slug}/replay/run/`, { method: "POST" });
+      toast.success("Replay started");
+    } catch {
+      toast.error("Replay failed");
+    } finally {
+      cooldown();
+    }
+  };
+
   return (
     <div className="p-2 border rounded mb-3">
       <h5 className="mb-3">Assistant Diagnostics</h5>
@@ -315,6 +328,20 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
             "⚡ Run RAG Diagnostic"
           )}
         </button>
+        <button
+          className="btn btn-sm btn-outline-info ms-1"
+          onClick={handleRunReplay}
+          disabled={!!action}
+        >
+          {action === "replay" ? (
+            <>
+              <span className="spinner-border spinner-border-sm me-1" role="status" />
+              Running...
+            </>
+          ) : (
+            "🔁 Run Replay"
+          )}
+        </button>
         <TaskStatusBadge
           status={
             ragTask.isRunning
@@ -332,6 +359,12 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
           className="btn btn-sm btn-outline-primary ms-1"
         >
           Grounding Inspector
+        </Link>
+        <Link
+          to={`/assistants/${slug}/replay`}
+          className="btn btn-sm btn-outline-secondary ms-1"
+        >
+          Replay Logs
         </Link>
         <a
           href={`/static/diagnostics/${slug}.md`}

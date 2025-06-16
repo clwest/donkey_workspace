@@ -113,6 +113,12 @@ from .prompts import (
     linked_prompts,
     link_prompt_to_project,
 )
+from .replay import (
+    assistant_replay_logs,
+    run_symbolic_replay_view,
+    list_all_replay_logs,
+    drift_audit_detail,
+)
 from .sessions import (
     list_chat_sessions,
     chat_session_detail,
@@ -407,5 +413,9 @@ __all__ = [
     "accept_insight",
     "reject_insight",
     "assistant_preferences",
+    "assistant_replay_logs",
+    "run_symbolic_replay_view",
+    "list_all_replay_logs",
+    "drift_audit_detail",
 ]
 from .skills import SkillPlanView
