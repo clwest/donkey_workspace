@@ -16,7 +16,7 @@
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
     "@popperjs/core": "^2.11.8",
-    "@sentry/react": "^7.120.3",
+    "@sentry/react": "^9.29.0",
     "@sentry/tracing": "^7.92.0",
     "axios": "^1.9.0",
     "bootstrap": "^5.3.6",
