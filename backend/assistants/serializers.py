@@ -54,7 +54,11 @@ from .models.reflection import (
     AssistantReflectionInsight,
     ReflectionGroup,
 )
-from memory.models import ReflectionReplayLog
+from memory.models import (
+    ReflectionReplayLog,
+    ReplayThreadLog,
+    DriftAnalysisSnapshot,
+)
 from .models.thoughts import (
     AssistantThoughtLog,
     EmotionalResonanceLog,
@@ -2423,6 +2427,35 @@ class ReflectionReplayLogSerializer(serializers.ModelSerializer):
             "drift_reason",
             "rag_playback",
             "status",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
+class ReplayThreadLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReplayThreadLog
+        fields = [
+            "id",
+            "assistant",
+            "drift_score",
+            "summary_count",
+            "created_at",
+        ]
+        read_only_fields = ["id", "created_at"]
+
+
+class DriftAnalysisSnapshotSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DriftAnalysisSnapshot
+        fields = [
+            "id",
+            "replay_log",
+            "thought_log",
+            "original_text",
+            "replayed_text",
+            "diff_text",
+            "drift_score",
             "created_at",
         ]
         read_only_fields = ["id", "created_at"]

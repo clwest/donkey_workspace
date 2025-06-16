@@ -176,6 +176,7 @@ import UserReflectPage from "./pages/assistant/UserReflectPage";
 import AssistantReflectionLogsPage from "./pages/assistant/reflections/AssistantReflectionLogsPage";
 import AssistantReplayLogsPage from "@/pages/assistant/replays/AssistantReplayLogsPage";
 import AssistantReplayDiffPage from "@/pages/assistant/replays/AssistantReplayDiffPage";
+import AssistantReplayAuditPage from "./pages/assistants/AssistantReplayAuditPage";
 import RAGPlaybackPanel from "./pages/assistants/playback/RAGPlaybackPanel";
 import AssistantReflectionGroupsPage from "./pages/assistants/AssistantReflectionGroupsPage";
 import AssistantReflectionGroups from "./pages/assistants/AssistantReflectionGroups";
@@ -729,6 +730,10 @@ export default function App() {
           <Route
             path="/assistants/:slug/replays/:uuid"
             element={<AssistantReplayDiffPage />}
+          />
+          <Route
+            path="/assistants/:slug/replay"
+            element={<AssistantReplayAuditPage />}
           />
           <Route
             path="/assistants/:slug/rag_playback/:uuid"

@@ -599,3 +599,15 @@ export async function rejectInsight(slug, id) {
 export async function fetchRagDiagnosticLogs(params) {
   return apiFetch(`/devtools/rag_debug/`, { params });
 }
+
+export async function fetchReplayLogs(slug) {
+  return apiFetch(`/assistants/${slug}/replay/`);
+}
+
+export async function runSymbolicReplay(slug) {
+  return apiFetch(`/assistants/${slug}/replay/run/`, { method: "POST" });
+}
+
+export async function fetchDriftAudit(id) {
+  return apiFetch(`/api/drift_audit/${id}/`);
+}

@@ -10,6 +10,7 @@ from .views import (
     projects,
     memory,
     playback,
+    replay,
     prompts,
     sessions,
     delegations,
@@ -664,6 +665,26 @@ urlpatterns = [
         "<slug:slug>/replay_drifted/",
         memory.replay_drifted_reflections,
         name="assistant-replay-drifted",
+    ),
+    path(
+        "<slug:slug>/replay/",
+        replay.assistant_replay_logs,
+        name="assistant-replay-logs",
+    ),
+    path(
+        "<slug:slug>/replay/run/",
+        replay.run_symbolic_replay_view,
+        name="assistant-run-replay",
+    ),
+    path(
+        "replay/logs/",
+        replay.list_all_replay_logs,
+        name="replay-log-list",
+    ),
+    path(
+        "drift_audit/<uuid:id>/",
+        replay.drift_audit_detail,
+        name="drift-audit-detail",
     ),
     path(
         "reflections/<uuid:id>/",
