@@ -312,7 +312,7 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
           )}
         </button>
         <button
-          className="btn btn-sm btn-outline-info ms-1"
+          className="btn btn-sm btn-info ms-1"
           onClick={handleRunRag}
           disabled={!!action || ragTask.isRunning}
         >
@@ -329,7 +329,7 @@ export default function AssistantDiagnosticsPanel({ slug, onRefresh }) {
           )}
         </button>
         <button
-          className="btn btn-sm btn-outline-info ms-1"
+          className="btn btn-sm btn-info ms-1"
           onClick={handleRunReplay}
           disabled={!!action}
         >
